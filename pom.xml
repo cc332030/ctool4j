@@ -20,6 +20,7 @@
         <module>ctool-core</module>
         <module>ctool-spring</module>
         <module>ctool-spring-cloud</module>
+        <module>ctool-nacos</module>
     </modules>
 
     <dependencies>
@@ -29,6 +30,13 @@
             <artifactId>lombok</artifactId>
             <version>1.18.38</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.13.4</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
