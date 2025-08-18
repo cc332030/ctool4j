@@ -10,14 +10,13 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool-spring</artifactId>
+    <artifactId>ctool-log</artifactId>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <scope>provided</scope>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool-core</artifactId>
         </dependency>
 
     </dependencies>
