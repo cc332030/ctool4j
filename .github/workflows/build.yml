@@ -13,4 +13,4 @@ on:
 
 jobs:
   deploy:
-    uses: cc332030/maven/.github/workflows/buildle.yml@master
+    uses: cc332030/maven/.github/workflows/build.yml@master
