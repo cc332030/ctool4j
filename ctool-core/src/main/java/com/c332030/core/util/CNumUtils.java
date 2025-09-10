@@ -18,15 +18,15 @@ import java.math.BigDecimal;
 @UtilityClass
 public class CNumUtils {
 
-    public static Integer defaultZero(Integer value) {
+    public Integer defaultZero(Integer value) {
         return ObjUtil.defaultIfNull(value, 0);
     }
 
-    public static Long defaultZero(Long value) {
+    public Long defaultZero(Long value) {
         return ObjUtil.defaultIfNull(value, 0L);
     }
 
-    public static BigDecimal defaultZero(BigDecimal value) {
+    public BigDecimal defaultZero(BigDecimal value) {
         return ObjUtil.defaultIfNull(value, BigDecimal.ZERO);
     }
 
@@ -38,7 +38,7 @@ public class CNumUtils {
         return null != value && value < 0;
     }
 
-    public static Integer sum(Integer... values) {
+    public Integer sum(Integer... values) {
 
         Integer result = null;
         for (Integer value : values) {
@@ -50,7 +50,7 @@ public class CNumUtils {
         return result;
     }
 
-    public static Long sum(Long... values) {
+    public Long sum(Long... values) {
 
         Long result = null;
         for (Long value : values) {
@@ -62,7 +62,7 @@ public class CNumUtils {
         return result;
     }
 
-    public static BigDecimal sum(BigDecimal... values) {
+    public BigDecimal sum(BigDecimal... values) {
 
         BigDecimal result = null;
         for (BigDecimal value : values) {
@@ -74,7 +74,7 @@ public class CNumUtils {
         return result;
     }
 
-    public static int compare(Integer v1, Integer v2) {
+    public int compare(Integer v1, Integer v2) {
         if(null == v2) {
             return -1;
         }
@@ -84,7 +84,7 @@ public class CNumUtils {
         return Integer.compare(v1, v2);
     }
 
-    public static int compare(Long v1, Long v2) {
+    public int compare(Long v1, Long v2) {
         if(null == v2) {
             return -1;
         }
@@ -94,7 +94,7 @@ public class CNumUtils {
         return Long.compare(v1, v2);
     }
 
-    public static int compare(BigDecimal v1, BigDecimal v2) {
+    public int compare(BigDecimal v1, BigDecimal v2) {
         if(null == v2) {
             return -1;
         }
@@ -104,31 +104,31 @@ public class CNumUtils {
         return v1.compareTo(v2);
     }
 
-    public static Integer toStringThenParseInt(Object object) {
+    public Integer toStringThenParseInt(Object object) {
         return parseInt(StrUtil.toStringOrNull(object));
     }
 
-    public static <T> Integer toStringThenParseInt(T t, ToStringFunction<T> function) {
+    public <T> Integer toStringThenParseInt(T t, ToStringFunction<T> function) {
         return parseInt(CStrUtils.toString(t, function));
     }
 
-    public static Integer parseInt(String value) {
+    public Integer parseInt(String value) {
         return parse(value, Integer::parseInt);
     }
 
-    public static Long toStringThenParseLong(Object object) {
+    public Long toStringThenParseLong(Object object) {
         return parseLong(CStrUtils.toString(object));
     }
 
-    public static <T> Long toStringThenParseLong(T t, ToStringFunction<T> function) {
+    public <T> Long toStringThenParseLong(T t, ToStringFunction<T> function) {
         return parseLong(CStrUtils.toString(t, function));
     }
 
-    public static Long parseLong(String value) {
+    public Long parseLong(String value) {
         return parse(value, Long::parseLong);
     }
 
-    public static <T> T parse(String value, StringFunction<T> function) {
+    public <T> T parse(String value, StringFunction<T> function) {
         return CStrUtils.convertAvailable(value, function);
     }
 

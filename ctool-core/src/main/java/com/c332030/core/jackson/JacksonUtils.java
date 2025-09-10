@@ -33,7 +33,7 @@ public class JacksonUtils {
 
     public static final ObjectMapper OBJECT_MAPPER;
 
-    public final static ObjectMapper OBJECT_MAPPER_NON_NULL;
+    public static final ObjectMapper OBJECT_MAPPER_NON_NULL;
 
     /**
      * 驼峰会转成下划线
@@ -69,7 +69,7 @@ public class JacksonUtils {
 
     }
 
-    public static <T extends ObjectMapper> T configure(T objectMapper) {
+    public <T extends ObjectMapper> T configure(T objectMapper) {
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

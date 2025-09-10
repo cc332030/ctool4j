@@ -31,48 +31,48 @@ public class CJsonUtils {
     );
 
     @SneakyThrows
-    public static String toJson(Object object, ObjectMapper objectMapper){
+    public String toJson(Object object, ObjectMapper objectMapper){
         if(null == object) {
             return null;
         }
         return objectMapper.writeValueAsString(object);
     }
 
-    public static String toJson(Object object){
+    public String toJson(Object object){
         return toJson(object, JacksonUtils.OBJECT_MAPPER);
     }
 
     /**
      * 驼峰会转成下划线
      */
-    public static String toJsonSnakeCase(Object object){
+    public String toJsonSnakeCase(Object object){
         return toJson(object, JacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
     }
 
-    public static String toJsonNonNull(Object object) {
+    public String toJsonNonNull(Object object) {
         return toJson(object, JacksonUtils.OBJECT_MAPPER_NON_NULL);
     }
 
     @SneakyThrows
-    public static <T> T fromJson(String json, Class<T> tClass, ObjectMapper objectMapper) {
+    public <T> T fromJson(String json, Class<T> tClass, ObjectMapper objectMapper) {
         return objectMapper.readValue(json, tClass);
     }
     @SneakyThrows
-    public static <T> T fromJson(String json, TypeReference<T> typeReference, ObjectMapper objectMapper) {
+    public <T> T fromJson(String json, TypeReference<T> typeReference, ObjectMapper objectMapper) {
         return objectMapper.readValue(json, typeReference);
     }
 
-    public static <T> T fromJson(String json, Class<T> tClass) {
+    public <T> T fromJson(String json, Class<T> tClass) {
         return fromJson(json, tClass, JacksonUtils.OBJECT_MAPPER);
     }
-    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+    public <T> T fromJson(String json, TypeReference<T> typeReference) {
         return fromJson(json, typeReference, JacksonUtils.OBJECT_MAPPER);
     }
 
-    public static <T> T fromJsonSnakeCase(String json, Class<T> tClass){
+    public <T> T fromJsonSnakeCase(String json, Class<T> tClass){
         return fromJson(json, tClass, JacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
     }
-    public static <T> T fromJsonSnakeCase(String json, TypeReference<T> typeReference){
+    public <T> T fromJsonSnakeCase(String json, TypeReference<T> typeReference){
         return fromJson(json, typeReference, JacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
     }
 
@@ -80,44 +80,44 @@ public class CJsonUtils {
     /**
      * 转换，如 bean to map，map to bean
      */
-    public static <T> T convert(Object object, TypeReference<T> typeReference) {
+    public <T> T convert(Object object, TypeReference<T> typeReference) {
         return fromJson(toJson(object), typeReference);
     }
-    public static <T> T convertSnakeCase(Object object, TypeReference<T> typeReference) {
+    public <T> T convertSnakeCase(Object object, TypeReference<T> typeReference) {
         return fromJsonSnakeCase(toJsonSnakeCase(object), typeReference);
     }
 
-    public static <T> T convert(Object object, Class<T> tClass) {
+    public <T> T convert(Object object, Class<T> tClass) {
         return fromJson(toJson(object), tClass);
     }
-    public static <T> T convertSnakeCase(Object object, Class<T> tClass) {
+    public <T> T convertSnakeCase(Object object, Class<T> tClass) {
         return fromJsonSnakeCase(toJsonSnakeCase(object), tClass);
     }
 
-    public static Map<String, Object> toMap(Object object) {
+    public Map<String, Object> toMap(Object object) {
         return fromJson(toJson(object));
     }
-    public static Map<String, Object> toMapSnakeCase(Object object) {
+    public Map<String, Object> toMapSnakeCase(Object object) {
         return fromJson(toJsonSnakeCase(object));
     }
-    public static Map<String, Object> fromJson(String json) {
+    public Map<String, Object> fromJson(String json) {
         return fromJson(json, CMapUtils.MAP_STRING_OBJECT_TYPE_REFERENCE);
     }
-    public static List<Map<String, Object>> fromJsonList(String json) {
+    public List<Map<String, Object>> fromJsonList(String json) {
         return fromJson(json, CMapUtils.LIST_MAP_STRING_OBJECT_TYPE_REFERENCE);
     }
 
-    public static Map<String, String> toMapStringValue(Object object) {
+    public Map<String, String> toMapStringValue(Object object) {
         return fromJsonStringValue(toJson(object));
     }
-    public static Map<String, String> toMapStringValueSnakeCase(Object object) {
+    public Map<String, String> toMapStringValueSnakeCase(Object object) {
         return fromJsonStringValue(toJsonSnakeCase(object));
     }
-    public static Map<String, String> fromJsonStringValue(String json) {
+    public Map<String, String> fromJsonStringValue(String json) {
         return fromJson(json, CMapUtils.MAP_STRING_STRING_TYPE_REFERENCE);
     }
 
-    public static void configureMessageConverters(Collection<HttpMessageConverter<?>> messageConverters, ObjectMapper objectMapper) {
+    public void configureMessageConverters(Collection<HttpMessageConverter<?>> messageConverters, ObjectMapper objectMapper) {
         messageConverters.stream()
                 .filter(e -> e instanceof MappingJackson2HttpMessageConverter)
                 .forEach(e -> {

@@ -18,19 +18,19 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CCollectors {
 
-    public static <T, K> Collector<T, ?, Map<K, T>> toUnmodifiableLinkedMap(
+    public <T, K> Collector<T, ?, Map<K, T>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper
     ) {
         return toUnmodifiableLinkedMap(keyMapper, Function.identity());
     }
 
-    public static <T, K> Collector<T, ?, Map<K, T>> toUnmodifiableLinkedMap(
+    public <T, K> Collector<T, ?, Map<K, T>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper, BinaryOperator<T> mergeFunction
     ) {
         return toUnmodifiableLinkedMap(keyMapper, Function.identity(), mergeFunction);
     }
 
-    public static <T, K, U> Collector<T, ?, Map<K,U>> toUnmodifiableLinkedMap(
+    public <T, K, U> Collector<T, ?, Map<K,U>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper,
             Function<? super T, ? extends U> valueMapper
     ) {
@@ -39,7 +39,7 @@ public class CCollectors {
         );
     }
 
-    public static <T, K, U> Collector<T, ?, Map<K,U>> toUnmodifiableLinkedMap(
+    public <T, K, U> Collector<T, ?, Map<K,U>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper,
             Function<? super T, ? extends U> valueMapper,
             BinaryOperator<U> mergeFunction
@@ -55,7 +55,7 @@ public class CCollectors {
         );
     }
 
-    public static <T> Collector<T, ?, Set<T>> toLinkedSet() {
+    public <T> Collector<T, ?, Set<T>> toLinkedSet() {
         return Collectors.toCollection(LinkedHashSet::new);
     }
 

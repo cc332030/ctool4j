@@ -17,7 +17,7 @@ import java.util.*;
 @UtilityClass
 public class CMapUtils {
 
-    public static <K, V> V put(Map<K, V> map, K k, V v) {
+    public <K, V> V put(Map<K, V> map, K k, V v) {
         if(Objects.isNull(map) || Objects.isNull(k) || Objects.isNull(v)) {
             return null;
         }
@@ -25,7 +25,7 @@ public class CMapUtils {
         return map.put(k, v);
     }
 
-    public static <K, V> Map<K, V> defaultEmpty(Map<K, V> map) {
+    public <K, V> Map<K, V> defaultEmpty(Map<K, V> map) {
         return MapUtil.isEmpty(map) ? Collections.emptyMap() : map;
     }
 

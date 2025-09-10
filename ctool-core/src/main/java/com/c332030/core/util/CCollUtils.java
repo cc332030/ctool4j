@@ -23,23 +23,23 @@ import java.util.stream.Stream;
 @UtilityClass
 public class CCollUtils {
 
-    public static <T> Collection<T> defaultEmpty(Collection<T> collection) {
+    public <T> Collection<T> defaultEmpty(Collection<T> collection) {
         return CollUtil.isEmpty(collection) ? CList.of() : collection;
     }
 
-    public static <T> List<T> defaultEmpty(List<T> list) {
+    public <T> List<T> defaultEmpty(List<T> list) {
         return CollUtil.isEmpty(list) ? CList.of() : list;
     }
 
-    public static <T> Set<T> defaultEmpty(Set<T> list) {
+    public <T> Set<T> defaultEmpty(Set<T> list) {
         return CollUtil.isEmpty(list) ? CSet.of() : list;
     }
 
-    public static <K, V> Map<K, List<V>> groupingBy(Collection<V> collection, Function<V, K> function) {
+    public <K, V> Map<K, List<V>> groupingBy(Collection<V> collection, Function<V, K> function) {
         return groupingBy(collection, function, Objects::nonNull);
     }
 
-    public static <K, V> Map<K, List<V>> groupingBy(Collection<V> collection, Function<V, K> function, Predicate<K> predicate) {
+    public <K, V> Map<K, List<V>> groupingBy(Collection<V> collection, Function<V, K> function, Predicate<K> predicate) {
 
         val map = new LinkedHashMap<K, List<V>>();
 
@@ -55,14 +55,14 @@ public class CCollUtils {
         return Collections.unmodifiableMap(map);
     }
 
-    public static <P, C extends P> void addAllIgnoreNull(Collection<P> collection1, Collection<C> collection2) {
+    public <P, C extends P> void addAllIgnoreNull(Collection<P> collection1, Collection<C> collection2) {
         if(null != collection2) {
             collection1.addAll(collection2);
         }
     }
 
     @SafeVarargs
-    public static <P> List<P> concat(Collection<? extends P>... collections) {
+    public <P> List<P> concat(Collection<? extends P>... collections) {
 
         val collectionsNew = Arrays.stream(collections)
                 .filter(Objects::nonNull)
@@ -77,7 +77,7 @@ public class CCollUtils {
         return list;
     }
 
-    public static <O, R> Collection<O> filter(Collection<O> collection, Function<O, R> convert, Predicate<R> predicate) {
+    public <O, R> Collection<O> filter(Collection<O> collection, Function<O, R> convert, Predicate<R> predicate) {
         if(CollUtil.isEmpty(collection)) {
             return CList.of();
         }
@@ -85,23 +85,23 @@ public class CCollUtils {
                 .filter(e -> predicate.test(CObjUtils.convert(e, convert)))
                 .collect(Collectors.toList());
     }
-    public static <T> Collection<T> filter(Collection<T> collection, Predicate<T> predicate) {
+    public <T> Collection<T> filter(Collection<T> collection, Predicate<T> predicate) {
         return filter(collection, Function.identity(), predicate);
     }
-    public static <T> Collection<T> filterNull(Collection<T> collection) {
+    public <T> Collection<T> filterNull(Collection<T> collection) {
         return filter(collection, Objects::nonNull);
     }
-    public static Collection<String> filterString(Collection<String> collection) {
+    public Collection<String> filterString(Collection<String> collection) {
         return filter(collection, StringUtils::isNotBlank);
     }
-    public static <T, K> Collection<T> filterKey(Collection<T> collection, Function<T, K> convert) {
+    public <T, K> Collection<T> filterKey(Collection<T> collection, Function<T, K> convert) {
         return filter(collection, convert, Objects::nonNull);
     }
-    public static <T> Collection<T> filterStringKey(Collection<T> collection, Function<T, String> convert) {
+    public <T> Collection<T> filterStringKey(Collection<T> collection, Function<T, String> convert) {
         return filter(collection, convert, StringUtils::isNotBlank);
     }
 
-    public static <O, R> List<O> filter(List<O> collection, Function<O, R> convert, Predicate<R> predicate) {
+    public <O, R> List<O> filter(List<O> collection, Function<O, R> convert, Predicate<R> predicate) {
         if(CollUtil.isEmpty(collection)) {
             return CList.of();
         }
@@ -109,23 +109,23 @@ public class CCollUtils {
                 .filter(e -> predicate.test(CObjUtils.convert(e, convert)))
                 .collect(Collectors.toList());
     }
-    public static <T> List<T> filter(List<T> collection, Predicate<T> predicate) {
+    public <T> List<T> filter(List<T> collection, Predicate<T> predicate) {
         return filter(collection, Function.identity(), predicate);
     }
-    public static <T> List<T> filterNull(List<T> collection) {
+    public <T> List<T> filterNull(List<T> collection) {
         return filter(collection, Objects::nonNull);
     }
-    public static List<String> filterString(List<String> collection) {
+    public List<String> filterString(List<String> collection) {
         return filter(collection, StringUtils::isNotBlank);
     }
-    public static <T, K> List<T> filterKey(List<T> collection, Function<T, K> convert) {
+    public <T, K> List<T> filterKey(List<T> collection, Function<T, K> convert) {
         return filter(collection, convert, Objects::nonNull);
     }
-    public static <T> List<T> filterStringKey(List<T> collection, Function<T, String> convert) {
+    public <T> List<T> filterStringKey(List<T> collection, Function<T, String> convert) {
         return filter(collection, convert, StringUtils::isNotBlank);
     }
 
-    public static <O, R> Set<O> filter(Set<O> collection, Function<O, R> convert, Predicate<R> predicate) {
+    public <O, R> Set<O> filter(Set<O> collection, Function<O, R> convert, Predicate<R> predicate) {
         if(CollUtil.isEmpty(collection)) {
             return CSet.of();
         }
@@ -134,23 +134,23 @@ public class CCollUtils {
                 .filter(e -> predicate.test(CObjUtils.convert(e, convert)))
                 .collect(CCollectors.toLinkedSet());
     }
-    public static <T> Set<T> filter(Set<T> collection, Predicate<T> predicate) {
+    public <T> Set<T> filter(Set<T> collection, Predicate<T> predicate) {
         return filter(collection, Function.identity(), predicate);
     }
-    public static <T> Set<T> filterNull(Set<T> collection) {
+    public <T> Set<T> filterNull(Set<T> collection) {
         return filter(collection, Objects::nonNull);
     }
-    public static Set<String> filterString(Set<String> collection) {
+    public Set<String> filterString(Set<String> collection) {
         return filter(collection, StringUtils::isNotBlank);
     }
-    public static <T, K> Set<T> filterKey(Set<T> collection, Function<T, K> convert) {
+    public <T, K> Set<T> filterKey(Set<T> collection, Function<T, K> convert) {
         return filter(collection, convert, Objects::nonNull);
     }
-    public static <T> Set<T> filterStringKey(Set<T> collection, Function<T, String> convert) {
+    public <T> Set<T> filterStringKey(Set<T> collection, Function<T, String> convert) {
         return filter(collection, convert, StringUtils::isNotBlank);
     }
 
-    public static <T, K, C extends Collection<K>> C convert(
+    public <T, K, C extends Collection<K>> C convert(
             Collection<T> collection,
             Function<T, K> convert,
             Predicate<K> predicate,
@@ -170,7 +170,7 @@ public class CCollUtils {
 
 
 
-    public static <T, K> List<K> convert(
+    public <T, K> List<K> convert(
             Collection<T> collection,
             Function<T, K> convert,
             Predicate<K> predicate
@@ -178,19 +178,19 @@ public class CCollUtils {
         return convert(collection, convert, predicate, ArrayList::new);
     }
 
-    public static <T, K> List<K> convert(Collection<T> collection, Function<T, K> convert) {
+    public <T, K> List<K> convert(Collection<T> collection, Function<T, K> convert) {
         return convert(collection, convert, Objects::nonNull);
     }
 
-    public static <T, K> Set<K> convertSet(Collection<T> collection, Function<T, K> convert, Predicate<K> predicate) {
+    public <T, K> Set<K> convertSet(Collection<T> collection, Function<T, K> convert, Predicate<K> predicate) {
         return convert(collection, convert, predicate, LinkedHashSet::new);
     }
 
-    public static <T, K> Set<K> convertSet(Collection<T> collection, Function<T, K> convert) {
+    public <T, K> Set<K> convertSet(Collection<T> collection, Function<T, K> convert) {
         return convertSet(collection, convert, Objects::nonNull);
     }
 
-    public static <O, R> List<R> convertToList(O o, Function<O, List<R>> function) {
+    public <O, R> List<R> convertToList(O o, Function<O, List<R>> function) {
         return Objects.nonNull(o) ? function.apply(o) : CList.of();
     }
 

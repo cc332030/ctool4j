@@ -22,11 +22,11 @@ public class CObjUtils {
     public static final Object OBJECT = new Object();
 
     @SuppressWarnings("unchecked")
-    public static <T> T emptyObject() {
+    public <T> T emptyObject() {
         return (T) OBJECT;
     }
 
-    public static <T> Supplier<T> toSupplier(Runnable runnable) {
+    public <T> Supplier<T> toSupplier(Runnable runnable) {
         return () -> {
             runnable.run();
             return emptyObject();
@@ -37,29 +37,29 @@ public class CObjUtils {
         return object != null ? object : defaultValueSupplier.get();
     }
 
-    public static <T> T ifThenGet(boolean bool, Supplier<T> supplier) {
+    public <T> T ifThenGet(boolean bool, Supplier<T> supplier) {
         if(bool) {
             return supplier.get();
         }
         return null;
     }
 
-    public static <T> T equalsThenGet(Object v1, Object v2, Supplier<T> supplier) {
+    public <T> T equalsThenGet(Object v1, Object v2, Supplier<T> supplier) {
         return ifThenGet(Objects.equals(v1, v2), supplier);
     }
 
-    public static <T> T notNullThenGet(Object value, Supplier<T> supplier) {
+    public <T> T notNullThenGet(Object value, Supplier<T> supplier) {
         return ifThenGet(Objects.nonNull(value), supplier);
     }
-    public static <K, T> T notNullThenGet(K value, Function<K, T> function) {
+    public <K, T> T notNullThenGet(K value, Function<K, T> function) {
         return ifThenGet(Objects.nonNull(value), () -> function.apply(value));
     }
 
-    public static <O, R> R convert(O o, Function<O, R> function) {
+    public <O, R> R convert(O o, Function<O, R> function) {
         return convert(o, function, null);
     }
 
-    public static <O, R> R convert(O o, Function<O, R> function, R defaultValue) {
+    public <O, R> R convert(O o, Function<O, R> function, R defaultValue) {
 
         if(Objects.isNull(o)) {
             return defaultValue;
@@ -73,7 +73,7 @@ public class CObjUtils {
         return defaultValue;
     }
 
-    public static <O1, O2, R> R convert(O1 o1, Function<O1, R> function1, O2 o2, Function<O2, R> function2) {
+    public <O1, O2, R> R convert(O1 o1, Function<O1, R> function1, O2 o2, Function<O2, R> function2) {
 
         if(Objects.nonNull(o1)) {
 
@@ -94,15 +94,15 @@ public class CObjUtils {
         return null;
     }
 
-    public static <O1, O2> boolean equals(O1 o1, O2 o2, Function<O2, O1> function) {
+    public <O1, O2> boolean equals(O1 o1, O2 o2, Function<O2, O1> function) {
         return Objects.equals(o1, convert(o2, function));
     }
 
-    public static <T> T merge(T v1, T v2, BiFunction<T, T, T> merge) {
+    public <T> T merge(T v1, T v2, BiFunction<T, T, T> merge) {
         return merge(v1, v2, Objects::nonNull, merge);
     }
 
-    public static <T> T merge(T v1, T v2, Predicate<T> availablePredicate, BiFunction<T, T, T> merge) {
+    public <T> T merge(T v1, T v2, Predicate<T> availablePredicate, BiFunction<T, T, T> merge) {
 
         if(!availablePredicate.test(v1)) {
             return v2;

@@ -52,14 +52,14 @@ public class CStrUtils {
      * @param object 参数
      * @return formatted string
      */
-    public static String formatByObject(String template, Object object) {
+    public String formatByObject(String template, Object object) {
         return StrUtil.format(template, CBeanUtils.toMap(object));
     }
 
     /**
      * 大写下划线 转 报文头：TRACE_ID -> Trace-Id
      */
-    public static String upperUnderscoreToHeaderName(String value) {
+    public String upperUnderscoreToHeaderName(String value) {
         val splits = value.split("_");
         return Arrays.stream(splits)
                 .map(CStrUtils::upperUnderscoreToUpperCamel)
@@ -70,7 +70,7 @@ public class CStrUtils {
      * 大写下划线 转 驼峰-首字母大写
      * Upper underscore to lower camel
      */
-    public static String upperUnderscoreToLowerCamel(String value)  {
+    public String upperUnderscoreToLowerCamel(String value)  {
 
         val result = CaseFormat.UPPER_UNDERSCORE
                 .converterTo(CaseFormat.LOWER_CAMEL)
@@ -83,7 +83,7 @@ public class CStrUtils {
      * 大写下划线 转 驼峰-首字母大写
      * Upper underscore to upper camel
      */
-    public static String upperUnderscoreToUpperCamel(String value)  {
+    public String upperUnderscoreToUpperCamel(String value)  {
 
         val result = CaseFormat.UPPER_UNDERSCORE
                 .converterTo(CaseFormat.UPPER_CAMEL)
@@ -96,7 +96,7 @@ public class CStrUtils {
      * 驼峰-首字符大写 转 大写下划线
      * Upper underscore to lower camel
      */
-    public static String upperCamelToUpperUnderscore(String value)  {
+    public String upperCamelToUpperUnderscore(String value)  {
 
         val result = CaseFormat.UPPER_CAMEL
                 .converterTo(CaseFormat.UPPER_UNDERSCORE)
@@ -108,27 +108,27 @@ public class CStrUtils {
     /**
      * 获取字符串里面所有大写字母
      */
-    public static String getAllUpperChar(String value) {
+    public String getAllUpperChar(String value) {
         return value.replaceAll("[^A-Z]", "");
     }
 
-    public static String trim(String string) {
+    public String trim(String string) {
         return string == null ? null : string.trim();
     }
 
-    public static String toString(Object obj) {
+    public String toString(Object obj) {
         return obj == null ? null : obj.toString();
     }
 
-    public static <T> T toStringThenConvert(Object obj, StringFunction<T> function) {
+    public <T> T toStringThenConvert(Object obj, StringFunction<T> function) {
         return function.apply(toString(obj));
     }
 
-    public static <T> String toString(T t, ToStringFunction<T> function) {
+    public <T> String toString(T t, ToStringFunction<T> function) {
         return toString(function.apply(t));
     }
 
-    public static <T, C extends Collection<T>> C split(
+    public <T, C extends Collection<T>> C split(
             String value,
             String separator,
             Function<String, T> convert,
@@ -154,32 +154,32 @@ public class CStrUtils {
         return collection;
     }
 
-    public static List<String> splitToList(String value, String separator) {
+    public List<String> splitToList(String value, String separator) {
         return split(value, separator, Function.identity(), CCollUtils::newList);
     }
-    public static <T> List<T> splitToList(String value, Function<String, T> convert) {
+    public <T> List<T> splitToList(String value, Function<String, T> convert) {
         return split(value, null, convert, CCollUtils::newList);
     }
-    public static List<String> splitToList(String value) {
+    public List<String> splitToList(String value) {
         return splitToList(value, Function.identity());
     }
-    public static List<Integer> splitToIntegerList(String value) {
+    public List<Integer> splitToIntegerList(String value) {
         return splitToList(value, Integer::parseInt);
     }
-    public static List<Long> splitToLongList(String value) {
+    public List<Long> splitToLongList(String value) {
         return splitToList(value, Long::parseLong);
     }
 
-    public static Set<String> splitToSet(String value, String separator) {
+    public Set<String> splitToSet(String value, String separator) {
         return split(value, separator, Function.identity(), CCollUtils::newLinkedSet);
     }
-    public static <T> Set<T> splitToSet(String value, Function<String, T> convert) {
+    public <T> Set<T> splitToSet(String value, Function<String, T> convert) {
         return split(value, null, convert, CCollUtils::newLinkedSet);
     }
-    public static Set<String> splitToSet(String value) {
+    public Set<String> splitToSet(String value) {
         return splitToSet(value, Function.identity());
     }
-    public static Set<Integer> splitToIntegerSet(String value) {
+    public Set<Integer> splitToIntegerSet(String value) {
         return splitToSet(value, Integer::parseInt);
     }
     public static Set<Long> splitToLongSet(String value) {

@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 
 /**
@@ -40,7 +41,7 @@ public class LogUtils {
         return LOGS.get(clazz);
     }
 
-    public final Map<String, Boolean> JSON_LOG_CLASS_NAMES = new ConcurrentHashMap<>();
+    public static final Map<String, Boolean> JSON_LOG_CLASS_NAMES = new ConcurrentHashMap<>();
 
     public void setJsonLog(String className, boolean value) {
         JSON_LOG_CLASS_NAMES.put(className, value);
@@ -58,7 +59,7 @@ public class LogUtils {
         return type.getName();
     }
 
-    private static final Set<String> JSON_LOG_DOMAIN_PACKAGE = CSet.of(
+    private static final Set<String> JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
             ".config.",
             ".entity.",
             ".model.",
@@ -69,24 +70,40 @@ public class LogUtils {
             ".request.",
             ".response.",
             ".domain."
-    );
+    ));
 
-    private static final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = CSet.of(
+    public void addJsonLogDomainPackage(String domainPackage) {
+        JSON_LOG_DOMAIN_PACKAGE.add(domainPackage);
+    }
+
+    private static final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = new CopyOnWriteArraySet<>(CSet.of(
             TableName.class,
             ConfigurationProperties.class
-    );
+    ));
 
-    private static final Set<Class<?>> NOT_JSON_LOG_SUPERCLASSES = CSet.of(
+    public void addJsonLogAnnotations(Class<? extends Annotation> tClass) {
+        JSON_LOG_ANNOTATIONS.add(tClass);
+    }
+
+    private static final Set<Class<?>> NOT_JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
             DataSource.class,
             InputStream.class,
             OutputStream.class,
             InputStreamSource.class
-    );
+    ));
 
-    private static final Set<Class<?>> JSON_LOG_SUPERCLASSES = CSet.of(
+    public void addNotJsonLogSuperclasses(Class<?> tClass) {
+        NOT_JSON_LOG_SUPERCLASSES.add(tClass);
+    }
+
+    private static final Set<Class<?>> JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
             Collection.class,
             Map.class
-    );
+    ));
+
+    public void addJsonLogSuperclasses(Class<?> tClass) {
+        JSON_LOG_SUPERCLASSES.add(tClass);
+    }
 
     public boolean isJsonLog(Class<?> type) {
 

@@ -101,11 +101,11 @@ public class CClassUtils {
         }
     };
 
-    public static Map<String, Field> getFields(Class<?> type) {
+    public Map<String, Field> getFields(Class<?> type) {
         return FIELD_MAP_CLASS_VALUE.get(type);
     }
 
-    public static Field getField(Class<?> type, String fieldName) {
+    public Field getField(Class<?> type, String fieldName) {
         return Optional.ofNullable(getFields(type).get(fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(type + " no field with name: " + fieldName));
     }
@@ -126,11 +126,11 @@ public class CClassUtils {
         return Modifier.isFinal(field.getModifiers());
     }
 
-    public static Map<String, Method> getMethods(Class<?> type) {
+    public Map<String, Method> getMethods(Class<?> type) {
         return METHOD_MAP_CLASS_VALUE.get(type);
     }
 
-    public static <T, V> Map<String, V> get(
+    public <T, V> Map<String, V> get(
             Class<?> type,
             Function<Class<?>, T[]> getTArr,
             Function<T, String> getName,
@@ -139,7 +139,7 @@ public class CClassUtils {
         return get(type, getTArr, Objects::nonNull, getName, convert);
     }
 
-    public static <T, V> Map<String, V> get(
+    public <T, V> Map<String, V> get(
             Class<?> type,
             Function<Class<?>, T[]> getTArr,
             Predicate<T> predicate,
@@ -164,41 +164,41 @@ public class CClassUtils {
                 ), Collections::unmodifiableMap));
     }
 
-    public static <T> T getValue(Object object, String fieldName) {
+    public <T> T getValue(Object object, String fieldName) {
         return getValue(object, getFields(object.getClass()).get(fieldName));
     }
 
-    public static <T> T getValue(Object object, Field field) {
+    public <T> T getValue(Object object, Field field) {
         return getValue(object, field, false);
     }
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T> T getValue(Object object, Field field, boolean accessible) {
+    public <T> T getValue(Object object, Field field, boolean accessible) {
         if (!accessible) {
             field.setAccessible(true);
         }
         return (T) field.get(object);
     }
 
-    public static void setValue(Object object, String fieldName, Object value) {
+    public void setValue(Object object, String fieldName, Object value) {
         setValue(object, getFields(object.getClass()).get(fieldName), value, true);
     }
 
     @SneakyThrows
-    public static void setValue(Object object, Field field, Object value) {
+    public void setValue(Object object, Field field, Object value) {
         setValue(object, field, value, false);
     }
 
     @SneakyThrows
-    public static void setValue(Object object, Field field, Object value, boolean accessible) {
+    public void setValue(Object object, Field field, Object value, boolean accessible) {
         if (!accessible) {
             field.setAccessible(true);
         }
         field.set(object, value);
     }
 
-    public static <T> T fillValues(Class<T> clazz, Map<String, Object> fields) {
+    public <T> T fillValues(Class<T> clazz, Map<String, Object> fields) {
 
         if(MapUtil.isEmpty(fields)) {
             return null;
@@ -210,7 +210,7 @@ public class CClassUtils {
     }
 
     @SneakyThrows
-    public static void fillValues(Object object, Map<String, Object> fieldValueMap) {
+    public void fillValues(Object object, Map<String, Object> fieldValueMap) {
 
         if(MapUtil.isEmpty(fieldValueMap)) {
             return;
@@ -232,25 +232,25 @@ public class CClassUtils {
 
     }
 
-    public static String toSetMethodName(String getMethodName) {
+    public String toSetMethodName(String getMethodName) {
         return "s" + getMethodName.substring(1);
     }
 
-    public static String toGetMethodName(String setMethodName) {
+    public String toGetMethodName(String setMethodName) {
         return "g" + setMethodName.substring(1);
     }
 
-    public static <T> T invokeIgnoreNoMethod(Object value, String methodName, Object... args) {
+    public <T> T invokeIgnoreNoMethod(Object value, String methodName, Object... args) {
         return invoke(value, methodName, true, args);
     }
 
-    public static <T> T invokeMustHaveMethod(Object value, String methodName, Object... args) {
+    public <T> T invokeMustHaveMethod(Object value, String methodName, Object... args) {
         return invoke(value, methodName, false, args);
     }
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T> T invoke(Object value, String methodName, boolean ignoreNoMethod, Object... args) {
+    public <T> T invoke(Object value, String methodName, boolean ignoreNoMethod, Object... args) {
 
         Class<?> clazz = value.getClass();
         Method method = METHOD_MAP_CLASS_VALUE.get(clazz).get(methodName);
@@ -266,7 +266,7 @@ public class CClassUtils {
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
+    public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
 
         val provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AssignableTypeFilter(superClass));
@@ -286,16 +286,16 @@ public class CClassUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Constructor<T> getConstructor(Class<T> tClass) {
+    public <T> Constructor<T> getConstructor(Class<T> tClass) {
         return (Constructor<T>)NO_ARGS_CONSTRUCTOR_MAP_CLASS_VALUE.get(tClass);
     }
 
     @SneakyThrows
-    public static <T> T newInstance(Class<T> tClass) {
+    public <T> T newInstance(Class<T> tClass) {
         return getConstructor(tClass).newInstance();
     }
 
-    public static void compareField(Class<?> class1, Class<?> class2) {
+    public void compareField(Class<?> class1, Class<?> class2) {
 
         log.info("class1: {}", class1);
         log.info("class2: {}", class2);

@@ -37,7 +37,7 @@ public class CBeanUtils {
     private static final Map<Class<?>, Map<Class<?>, CBiConsumer<?, ?>>> BEAN_COPY_CONSUMER_MAP = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static <From, To> CBiConsumer<From, To> getCopyConsumer(Class<From> fromClass, Class<To> toClass) {
+    public <From, To> CBiConsumer<From, To> getCopyConsumer(Class<From> fromClass, Class<To> toClass) {
 
         var convertMap = BEAN_COPY_CONSUMER_MAP.get(fromClass);
         CBiConsumer<From, To> copyConsumer;
@@ -60,7 +60,7 @@ public class CBeanUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <From, To> CBiConsumer<From, To> createCopyConsumer(Class<From> fromClass, Class<To> toClass) {
+    public <From, To> CBiConsumer<From, To> createCopyConsumer(Class<From> fromClass, Class<To> toClass) {
 
         if(CClassUtils.isBasicClass(fromClass) || CClassUtils.isBasicClass(toClass)) {
             log.warn("Unsupported create copy consumer from {} to {}", fromClass, toClass);
@@ -151,7 +151,7 @@ public class CBeanUtils {
 
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <From, To> To copy(From from, To to) {
+    public <From, To> To copy(From from, To to) {
 
         if(null == from || null == to) {
             return to;
@@ -162,15 +162,15 @@ public class CBeanUtils {
         return to;
     }
 
-    public static <From, To> To copy(From from, Class<To> toClass) {
+    public <From, To> To copy(From from, Class<To> toClass) {
         return copy(from, CClassUtils.newInstance(toClass));
     }
 
-    public static <From, To> To copy(From from, Supplier<To> toSupplier) {
+    public <From, To> To copy(From from, Supplier<To> toSupplier) {
         return copy(from, toSupplier.get());
     }
 
-    public static <From, To> List<To> copy(Collection<From> fromCollection, Supplier<To> toSupplier) {
+    public <From, To> List<To> copy(Collection<From> fromCollection, Supplier<To> toSupplier) {
         if(CollUtil.isEmpty(fromCollection)) {
             return CList.of();
         }
@@ -180,11 +180,11 @@ public class CBeanUtils {
                 .collect(Collectors.toList());
     }
 
-    public static Map<String, Object> toMap(Object object) {
+    public Map<String, Object> toMap(Object object) {
         return toMap(object, false);
     }
 
-    public static Map<String, Object> toMap(Object object, boolean useJsonName) {
+    public Map<String, Object> toMap(Object object, boolean useJsonName) {
 
         val fieldMap = CClassUtils.getFields(object.getClass());
         return CCollUtils.toMap(
