@@ -14,6 +14,11 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool-log</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
