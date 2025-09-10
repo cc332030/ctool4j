@@ -12,5 +12,5 @@ on:
       - "*"
 
 jobs:
-  deploy:
+  build:
     uses: cc332030/maven/.github/workflows/build.yml@master
