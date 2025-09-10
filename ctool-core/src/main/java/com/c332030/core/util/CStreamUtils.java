@@ -3,7 +3,6 @@ package com.c332030.core.util;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -18,7 +17,7 @@ import java.util.function.Predicate;
 @UtilityClass
 public class CStreamUtils {
 
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    public <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 
         val seen = new ConcurrentHashMap<Object, Boolean>();
         return t -> {

@@ -4,23 +4,62 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * <p>
  * Description: CObjUtils
  * </p>
  *
- * @since 2025/9/10
+ * @since 2024/3/19
  */
 @UtilityClass
 public class CObjUtils {
 
-    public <O, T> T convert(O o, Function<O, T> function) {
+    public static final Object OBJECT = new Object();
+
+    @SuppressWarnings("unchecked")
+    public static <T> T emptyObject() {
+        return (T) OBJECT;
+    }
+
+    public static <T> Supplier<T> toSupplier(Runnable runnable) {
+        return () -> {
+            runnable.run();
+            return emptyObject();
+        };
+    }
+
+    public <T> T defaultIfNull(final T object, Supplier<T> defaultValueSupplier) {
+        return object != null ? object : defaultValueSupplier.get();
+    }
+
+    public static <T> T ifThenGet(boolean bool, Supplier<T> supplier) {
+        if(bool) {
+            return supplier.get();
+        }
+        return null;
+    }
+
+    public static <T> T equalsThenGet(Object v1, Object v2, Supplier<T> supplier) {
+        return ifThenGet(Objects.equals(v1, v2), supplier);
+    }
+
+    public static <T> T notNullThenGet(Object value, Supplier<T> supplier) {
+        return ifThenGet(Objects.nonNull(value), supplier);
+    }
+    public static <K, T> T notNullThenGet(K value, Function<K, T> function) {
+        return ifThenGet(Objects.nonNull(value), () -> function.apply(value));
+    }
+
+    public static <O, R> R convert(O o, Function<O, R> function) {
         return convert(o, function, null);
     }
 
-    public <O, T> T convert(O o, Function<O, T> function, T defaultValue) {
+    public static <O, R> R convert(O o, Function<O, R> function, R defaultValue) {
 
         if(Objects.isNull(o)) {
             return defaultValue;
@@ -32,6 +71,52 @@ public class CObjUtils {
         }
 
         return defaultValue;
+    }
+
+    public static <O1, O2, R> R convert(O1 o1, Function<O1, R> function1, O2 o2, Function<O2, R> function2) {
+
+        if(Objects.nonNull(o1)) {
+
+            val value = function1.apply(o1);
+            if(Objects.nonNull(value)) {
+                return value;
+            }
+        }
+
+        if(Objects.nonNull(o2)) {
+
+            val value = function2.apply(o2);
+            if(Objects.nonNull(value)) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    public static <O1, O2> boolean equals(O1 o1, O2 o2, Function<O2, O1> function) {
+        return Objects.equals(o1, convert(o2, function));
+    }
+
+    public static <T> T merge(T v1, T v2, BiFunction<T, T, T> merge) {
+        return merge(v1, v2, Objects::nonNull, merge);
+    }
+
+    public static <T> T merge(T v1, T v2, Predicate<T> availablePredicate, BiFunction<T, T, T> merge) {
+
+        if(!availablePredicate.test(v1)) {
+            return v2;
+        }
+
+        if(!availablePredicate.test(v2)) {
+            return v1;
+        }
+
+        if(null == merge) {
+            throw new IllegalStateException("Conflict key, v1: " + v1 + ", v2: " + v2);
+        }
+
+        return merge.apply(v1, v2);
     }
 
 }
