@@ -2,7 +2,7 @@ package com.c332030.core.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import cn.hutool.core.util.StrUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -48,7 +48,7 @@ public class CUrlUtils {
         paramNames.forEach(paramName -> {
 
             val value = paramMap.get(paramName);
-            if(StringUtils.isNotEmpty(value)) {
+            if(StrUtil.isNotEmpty(value)) {
                 newMap.put(paramName, value);
             }
         });
@@ -59,7 +59,7 @@ public class CUrlUtils {
     @SneakyThrows
     public static Map<String, String> getParamMap(String url) {
 
-        if(StringUtils.isEmpty(url)) {
+        if(StrUtil.isEmpty(url)) {
             return Collections.emptyMap();
         }
 
@@ -84,7 +84,7 @@ public class CUrlUtils {
 
     @SneakyThrows
     public static String decode(String value) {
-        if(StringUtils.isEmpty(value)) {
+        if(StrUtil.isEmpty(value)) {
             return null;
         }
         return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
@@ -92,7 +92,7 @@ public class CUrlUtils {
 
     @SneakyThrows
     public static String getUrl(String url) {
-        if(StringUtils.isEmpty(url)) {
+        if(StrUtil.isEmpty(url)) {
             return null;
         }
         return url.substring(url.indexOf("http"));
@@ -101,7 +101,7 @@ public class CUrlUtils {
     @SneakyThrows
     public static String getPath(String url) {
         url = getUrl(url);
-        if(StringUtils.isEmpty(url)) {
+        if(StrUtil.isEmpty(url)) {
             return null;
         }
         return new URL(url).getPath();
@@ -110,7 +110,7 @@ public class CUrlUtils {
     public static List<String> splitToPath(String urlStr) {
 
         val path = getPath(urlStr);
-        if(StringUtils.isEmpty(path)) {
+        if(StrUtil.isEmpty(path)) {
             return CList.of();
         }
 
@@ -119,7 +119,7 @@ public class CUrlUtils {
 
         return Arrays.stream(paths)
                 .map(CStrUtils::toAvailable)
-                .filter(StringUtils::isNotEmpty)
+                .filter(StrUtil::isNotEmpty)
                 .collect(Collectors.toList());
     }
 

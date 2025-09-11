@@ -1,7 +1,7 @@
 package com.c332030.core.log;
 
+import ch.qos.logback.classic.db.names.TableName;
 import cn.hutool.core.util.ArrayUtil;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.c332030.core.util.CArrUtils;
 import com.c332030.core.util.CClassUtils;
 import com.c332030.core.util.CJsonUtils;
@@ -77,7 +77,7 @@ public class LogUtils {
     }
 
     private static final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = new CopyOnWriteArraySet<>(CSet.of(
-            TableName.class,
+//            TableName.class,
             ConfigurationProperties.class
     ));
 

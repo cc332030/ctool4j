@@ -2,7 +2,6 @@ package com.c332030.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.c332030.core.function.StringFunction;
 import com.c332030.core.function.ToStringFunction;
 import com.google.common.base.CaseFormat;
@@ -135,7 +134,7 @@ public class CStrUtils {
             Function<Integer, C> collectionFunction
     ) {
 
-        if(StringUtils.isBlank(value)) {
+        if(StrUtil.isBlank(value)) {
             return collectionFunction.apply(0);
         }
 
@@ -146,7 +145,7 @@ public class CStrUtils {
 
         for (var str : arr) {
             str = toAvailable(str);
-            if(StringUtils.isNotEmpty(str)) {
+            if(StrUtil.isNotEmpty(str)) {
                 collection.add(convert.apply(str));
             }
         }
@@ -193,7 +192,7 @@ public class CStrUtils {
             Function<Integer, Map<K, V>> mapFunction
     ) {
 
-        if(StringUtils.isBlank(string)) {
+        if(StrUtil.isBlank(string)) {
             return mapFunction.apply(0);
         }
 
@@ -240,18 +239,18 @@ public class CStrUtils {
     }
 
     public static <T> T notEmptyThenGet(String value, Supplier<T> supplier) {
-        return CObjUtils.ifThenGet(StringUtils.isNotEmpty(value), supplier);
+        return CObjUtils.ifThenGet(StrUtil.isNotEmpty(value), supplier);
     }
 
     public static <T> T notBlackThenGet(String value, Supplier<T> supplier) {
-        return CObjUtils.ifThenGet(StringUtils.isNotBlank(value), supplier);
+        return CObjUtils.ifThenGet(StrUtil.isNotBlank(value), supplier);
     }
     public static <R> R convertNotEmpty(String o, Function<String, R> function) {
-        return StringUtils.isNotEmpty(o) ? function.apply(o) : null;
+        return StrUtil.isNotEmpty(o) ? function.apply(o) : null;
     }
 
     public static <R> R convertNotBlank(String o, Function<String, R> function) {
-        return StringUtils.isNotBlank(o) ? function.apply(o) : null;
+        return StrUtil.isNotBlank(o) ? function.apply(o) : null;
     }
 
     public static Character charAt(String string, int index) {
@@ -263,13 +262,13 @@ public class CStrUtils {
     }
 
     public static boolean isAvailable(String string) {
-        return StringUtils.isNotEmpty(toAvailable(string));
+        return StrUtil.isNotEmpty(toAvailable(string));
     }
 
     public static String toAvailable(String string) {
 
         string = CStrUtils.trim(string);
-        if(StringUtils.isEmpty(string)) {
+        if(StrUtil.isEmpty(string)) {
             return null;
         }
 
@@ -345,7 +344,7 @@ public class CStrUtils {
         }
 
         for(val string : strings) {
-            if(StringUtils.isNotEmpty(string)) {
+            if(StrUtil.isNotEmpty(string)) {
                 return string;
             }
         }

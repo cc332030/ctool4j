@@ -1,7 +1,7 @@
 package com.c332030.core.util;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
+import cn.hutool.core.util.ArrayUtil;
 import com.c332030.core.function.CBiConsumer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.CustomLog;
@@ -192,7 +192,7 @@ public class CBeanUtils {
                 field -> {
                     if(useJsonName) {
                         val jsonProperties = field.getAnnotationsByType(JsonProperty.class);
-                        if(ArrayUtils.isNotEmpty(jsonProperties)) {
+                        if(ArrayUtil.isNotEmpty(jsonProperties)) {
                             return jsonProperties[0].value();
                         }
                     }

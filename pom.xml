@@ -46,11 +46,11 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.5.14</version>
-            </dependency>
+            <!--<dependency>-->
+            <!--    <groupId>com.baomidou</groupId>-->
+            <!--    <artifactId>mybatis-plus-boot-starter</artifactId>-->
+            <!--    <version>3.5.14</version>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>cn.hutool</groupId>
@@ -140,11 +140,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+        <!--    <groupId>com.baomidou</groupId>-->
+        <!--    <artifactId>mybatis-plus-boot-starter</artifactId>-->
+        <!--    <scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>com.google.guava</groupId>

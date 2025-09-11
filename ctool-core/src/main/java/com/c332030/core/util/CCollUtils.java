@@ -1,7 +1,7 @@
 package com.c332030.core.util;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import cn.hutool.core.util.StrUtil;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -92,13 +92,13 @@ public class CCollUtils {
         return filter(collection, Objects::nonNull);
     }
     public Collection<String> filterString(Collection<String> collection) {
-        return filter(collection, StringUtils::isNotBlank);
+        return filter(collection, StrUtil::isNotBlank);
     }
     public <T, K> Collection<T> filterKey(Collection<T> collection, Function<T, K> convert) {
         return filter(collection, convert, Objects::nonNull);
     }
     public <T> Collection<T> filterStringKey(Collection<T> collection, Function<T, String> convert) {
-        return filter(collection, convert, StringUtils::isNotBlank);
+        return filter(collection, convert, StrUtil::isNotBlank);
     }
 
     public <O, R> List<O> filter(List<O> collection, Function<O, R> convert, Predicate<R> predicate) {
@@ -116,13 +116,13 @@ public class CCollUtils {
         return filter(collection, Objects::nonNull);
     }
     public List<String> filterString(List<String> collection) {
-        return filter(collection, StringUtils::isNotBlank);
+        return filter(collection, StrUtil::isNotBlank);
     }
     public <T, K> List<T> filterKey(List<T> collection, Function<T, K> convert) {
         return filter(collection, convert, Objects::nonNull);
     }
     public <T> List<T> filterStringKey(List<T> collection, Function<T, String> convert) {
-        return filter(collection, convert, StringUtils::isNotBlank);
+        return filter(collection, convert, StrUtil::isNotBlank);
     }
 
     public <O, R> Set<O> filter(Set<O> collection, Function<O, R> convert, Predicate<R> predicate) {
@@ -141,13 +141,13 @@ public class CCollUtils {
         return filter(collection, Objects::nonNull);
     }
     public Set<String> filterString(Set<String> collection) {
-        return filter(collection, StringUtils::isNotBlank);
+        return filter(collection, StrUtil::isNotBlank);
     }
     public <T, K> Set<T> filterKey(Set<T> collection, Function<T, K> convert) {
         return filter(collection, convert, Objects::nonNull);
     }
     public <T> Set<T> filterStringKey(Set<T> collection, Function<T, String> convert) {
-        return filter(collection, convert, StringUtils::isNotBlank);
+        return filter(collection, convert, StrUtil::isNotBlank);
     }
 
     public <T, K, C extends Collection<K>> C convert(
@@ -203,7 +203,7 @@ public class CCollUtils {
     }
 
     public static <T> Collection<String> convertString(Collection<T> collection, Function<T, String> convert) {
-        return convert(collection, convert, StringUtils::isNotBlank);
+        return convert(collection, convert, StrUtil::isNotBlank);
     }
 
     public static <T, K> Collection<K> convertCollection(Collection<T> collection, Function<Collection<T>, Collection<K>> convert) {
