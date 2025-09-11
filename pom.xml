@@ -16,6 +16,11 @@
 
     </properties>
 
+    <scm>
+        <url>https://github.com/c332030/ctool4j</url>
+        <connection>scm:git@github.com:c332030/ctool4j.git</connection>
+    </scm>
+
     <modules>
         <module>ctool-core</module>
         <module>ctool-log</module>
