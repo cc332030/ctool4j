@@ -21,6 +21,8 @@
         <module>ctool-log</module>
         <module>ctool-spring</module>
         <module>ctool-spring-cloud</module>
+        <module>ctool-redis</module>
+        <module>ctool-cache</module>
         <module>ctool-nacos</module>
     </modules>
 
@@ -92,6 +94,18 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool-spring-cloud</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool-redis</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool-cache</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
