@@ -24,6 +24,7 @@
         <module>ctool-redis</module>
         <module>ctool-cache</module>
         <module>ctool-nacos</module>
+        <module>ctool-mybatis</module>
     </modules>
 
     <dependencyManagement>
@@ -51,6 +52,12 @@
             <!--    <artifactId>mybatis-plus-boot-starter</artifactId>-->
             <!--    <version>3.5.14</version>-->
             <!--</dependency>-->
+
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>3.18.0</version>
+            </dependency>
 
             <dependency>
                 <groupId>cn.hutool</groupId>
@@ -112,6 +119,12 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool-nacos</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool-mybatis</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
