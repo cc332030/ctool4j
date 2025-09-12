@@ -1,6 +1,5 @@
 package com.c332030.core.log;
 
-import ch.qos.logback.classic.db.names.TableName;
 import cn.hutool.core.util.ArrayUtil;
 import com.c332030.core.util.CArrUtils;
 import com.c332030.core.util.CClassUtils;
@@ -89,7 +88,8 @@ public class LogUtils {
             DataSource.class,
             InputStream.class,
             OutputStream.class,
-            InputStreamSource.class
+            InputStreamSource.class,
+            Throwable.class
     ));
 
     public void addNotJsonLogSuperclasses(Class<?> tClass) {
