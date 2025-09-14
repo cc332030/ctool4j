@@ -7,6 +7,7 @@ import com.c332030.core.model.ICResult;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -39,13 +40,13 @@ public class CResultUtils {
         return !isSuccess(result);
     }
 
+    private static final String EXCEPTION_MESSAGE_TEMPLATE = "错误码：{}，错误信息：{}";
+
     @SneakyThrows
     private static void throwException(ICResult<?, ?> result) {
-        throw CExceptionUtils.newBusinessException(
-                result.getCode()
-                + "："
-                + result.getMessage()
-        );
+
+        val message = StrUtil.format(EXCEPTION_MESSAGE_TEMPLATE, result.getCode(), result.getMessage());
+        throw CExceptionUtils.newBusinessException(message);
     }
 
     @SneakyThrows
