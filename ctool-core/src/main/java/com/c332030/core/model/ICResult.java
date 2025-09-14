@@ -1,6 +1,6 @@
 package com.c332030.core.model;
 
-import com.c332030.core.log.JsonLog;
+import com.c332030.core.log.CJsonLog;
 
 /**
  * <p>
@@ -9,7 +9,7 @@ import com.c332030.core.log.JsonLog;
  *
  * @since 2025/2/24
  */
-@JsonLog
+@CJsonLog
 public interface ICResult<C, T> {
 
     C getCode();

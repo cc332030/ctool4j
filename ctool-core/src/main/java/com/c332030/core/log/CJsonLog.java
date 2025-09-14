@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: JsonLog
+ * Description: CJsonLog
  * </p>
  *
  * @since 2025/9/14
@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface JsonLog {
+public @interface CJsonLog {
 
 }
