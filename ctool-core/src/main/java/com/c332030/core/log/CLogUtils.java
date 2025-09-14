@@ -5,8 +5,8 @@ import com.c332030.core.util.CArrUtils;
 import com.c332030.core.util.CClassUtils;
 import com.c332030.core.util.CJsonUtils;
 import com.c332030.core.util.CSet;
-import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 /**
  * 处理并记录日志文件
  */
-@CustomLog
+@Slf4j
 @UtilityClass
 public class CLogUtils {
 
