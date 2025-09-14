@@ -10,13 +10,19 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool-spring-cloud</artifactId>
+    <artifactId>ctool-feign</artifactId>
 
     <dependencies>
 
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool-spring</artifactId>
+            <artifactId>ctool-spring-cloud</artifactId>
         </dependency>
 
     </dependencies>

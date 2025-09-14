@@ -26,6 +26,7 @@
         <module>ctool-log</module>
         <module>ctool-spring</module>
         <module>ctool-spring-cloud</module>
+        <module>ctool-feign</module>
         <module>ctool-redis</module>
         <module>ctool-cache</module>
         <module>ctool-nacos</module>
@@ -130,6 +131,12 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool-mybatis</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool-feign</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
