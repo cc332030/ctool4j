@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
 public class CExceptionUtils {
 
     public static final IBusinessExceptionProvider<?> BUSINESS_EXCEPTION_PROVIDER =
-            CSpiUtils.getFirstImpl(IBusinessExceptionProvider.class);
+            CSpiUtils.getFirstCustomImplOrDefault(IBusinessExceptionProvider.class, CBusinessExceptionProvider.class);
 
     @SuppressWarnings("unchecked")
     public <T extends Throwable> BiFunction<String, Throwable, T> getBusinessExceptionFunction() {
