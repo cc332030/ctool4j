@@ -5,16 +5,16 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
  * <p>
- * Description: MapStructConfig
+ * Description: CMapStructConfig
  * </p>
  *
  * @since 2025/4/18
  */
 @MapperConfig(
         componentModel = "spring",
-        uses = {MapStructConvert.class},
+        uses = {CMapStructConvert.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
-public interface MapStructConfig {
+public interface CMapStructConfig {
 
 }

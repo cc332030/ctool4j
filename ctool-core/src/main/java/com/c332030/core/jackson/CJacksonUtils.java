@@ -19,14 +19,14 @@ import java.util.Date;
 
 /**
  * <p>
- * Description: JacksonUtils
+ * Description: CJacksonUtils
  * </p>
  *
  * @author c332030
  * @since 2024/3/5
  */
 @UtilityClass
-public class JacksonUtils {
+public class CJacksonUtils {
 
     public static final ObjectMapper OBJECT_MAPPER;
 

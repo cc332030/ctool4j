@@ -13,13 +13,13 @@ import java.util.Date;
 
 /**
  * <p>
- * Description: MapStructConvert
+ * Description: CMapStructConvert
  * </p>
  *
  * @since 2025/4/17
  */
 @UtilityClass
-public class MapStructConvert {
+public class CMapStructConvert {
 
     public Date parseDateTime(String date) {
         return DateUtil.parse(date);

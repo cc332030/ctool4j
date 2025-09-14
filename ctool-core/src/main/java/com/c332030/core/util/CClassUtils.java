@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import com.c332030.core.function.CFunction;
 import com.c332030.core.function.CSupplier;
-import com.c332030.core.mapstruct.MapStructConvert;
+import com.c332030.core.mapstruct.CMapStructConvert;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -436,7 +436,7 @@ public class CClassUtils {
 
     static {
         log.info("初始化 mapstruct 默认类型转换");
-        val methods = getMethods(MapStructConvert.class);
+        val methods = getMethods(CMapStructConvert.class);
         methods.values()
                 .stream()
                 .filter(CClassUtils::isStatic)

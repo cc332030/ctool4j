@@ -1,7 +1,7 @@
 package com.c332030.core.util;
 
 import com.c332030.core.constant.CMediaType;
-import com.c332030.core.jackson.JacksonUtils;
+import com.c332030.core.jackson.CJacksonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -39,18 +39,18 @@ public class CJsonUtils {
     }
 
     public String toJson(Object object){
-        return toJson(object, JacksonUtils.OBJECT_MAPPER);
+        return toJson(object, CJacksonUtils.OBJECT_MAPPER);
     }
 
     /**
      * 驼峰会转成下划线
      */
     public String toJsonSnakeCase(Object object){
-        return toJson(object, JacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
+        return toJson(object, CJacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
     }
 
     public String toJsonNonNull(Object object) {
-        return toJson(object, JacksonUtils.OBJECT_MAPPER_NON_NULL);
+        return toJson(object, CJacksonUtils.OBJECT_MAPPER_NON_NULL);
     }
 
     @SneakyThrows
@@ -63,17 +63,17 @@ public class CJsonUtils {
     }
 
     public <T> T fromJson(String json, Class<T> tClass) {
-        return fromJson(json, tClass, JacksonUtils.OBJECT_MAPPER);
+        return fromJson(json, tClass, CJacksonUtils.OBJECT_MAPPER);
     }
     public <T> T fromJson(String json, TypeReference<T> typeReference) {
-        return fromJson(json, typeReference, JacksonUtils.OBJECT_MAPPER);
+        return fromJson(json, typeReference, CJacksonUtils.OBJECT_MAPPER);
     }
 
     public <T> T fromJsonSnakeCase(String json, Class<T> tClass){
-        return fromJson(json, tClass, JacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
+        return fromJson(json, tClass, CJacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
     }
     public <T> T fromJsonSnakeCase(String json, TypeReference<T> typeReference){
-        return fromJson(json, typeReference, JacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
+        return fromJson(json, typeReference, CJacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
     }
 
 
