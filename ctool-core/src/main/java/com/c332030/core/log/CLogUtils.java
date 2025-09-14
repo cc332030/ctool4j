@@ -76,7 +76,6 @@ public class CLogUtils {
     }
 
     private static final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = new CopyOnWriteArraySet<>(CSet.of(
-//            TableName.class,
             ConfigurationProperties.class
     ));
 
