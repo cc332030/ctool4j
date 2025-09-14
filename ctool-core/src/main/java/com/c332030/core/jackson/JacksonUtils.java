@@ -90,8 +90,8 @@ public class JacksonUtils {
         objectMapper.configure(JsonReadFeature.ALLOW_JAVA_COMMENTS.mappedFeature(), true);
         // yaml 注释
         objectMapper.configure(JsonReadFeature.ALLOW_YAML_COMMENTS.mappedFeature(), true);
-        // 点开头的小数
-        objectMapper.configure(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature(), true);
+        // TODO 点开头的小数，低版本不支持
+//        objectMapper.configure(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature(), true);
 
         // 避免 LocalDateTime、LocalDate、LocalTime 反序列化失败
         objectMapper.findAndRegisterModules();
