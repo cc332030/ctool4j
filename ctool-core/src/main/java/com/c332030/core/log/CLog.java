@@ -34,7 +34,7 @@ public class CLog {
 
     public void trace(String msg, Object... args) {
         if(isTraceEnabled()) {
-            LogUtils.dealArgs(args);
+            CLogUtils.dealArgs(args);
             log.trace(msg, args);
         }
     }
@@ -42,7 +42,7 @@ public class CLog {
     @SafeVarargs
     public final void trace(String msg, Supplier<Object>... args) {
         if(isTraceEnabled()) {
-            trace(msg, LogUtils.getSupplierArgs(args));
+            trace(msg, CLogUtils.getSupplierArgs(args));
         }
     }
 
@@ -60,7 +60,7 @@ public class CLog {
 
     public void debug(String msg, Object... args) {
         if(isDebugEnabled()) {
-            LogUtils.dealArgs(args);
+            CLogUtils.dealArgs(args);
             log.debug(msg, args);
         }
     }
@@ -68,7 +68,7 @@ public class CLog {
     @SafeVarargs
     public final void debug(String msg, Supplier<Object> ... args) {
         if(isDebugEnabled()) {
-            debug(msg, LogUtils.getSupplierArgs(args));
+            debug(msg, CLogUtils.getSupplierArgs(args));
         }
     }
 
@@ -87,20 +87,20 @@ public class CLog {
     @SafeVarargs
     public final void info(String msg, Supplier<Object> ... args) {
         if(isInfoEnabled()) {
-            info(msg, LogUtils.getSupplierArgs(args));
+            info(msg, CLogUtils.getSupplierArgs(args));
         }
     }
 
     public void info(String msg, Object... args) {
         if(isInfoEnabled()) {
-            LogUtils.dealArgs(args);
+            CLogUtils.dealArgs(args);
             log.info(msg, args);
         }
     }
 
     public void infoNonNull(String msg, Object... args) {
         if(isInfoEnabled()) {
-            LogUtils.dealArgs(args, true);
+            CLogUtils.dealArgs(args, true);
             log.info(msg, args);
         }
     }
@@ -120,13 +120,13 @@ public class CLog {
     @SafeVarargs
     public final void warn(String msg, Supplier<Object> ... args) {
         if(isWarnEnabled()) {
-            warn(msg, LogUtils.getSupplierArgs(args));
+            warn(msg, CLogUtils.getSupplierArgs(args));
         }
     }
 
     public void warn(String msg, Object... args) {
         if(isWarnEnabled()) {
-            LogUtils.dealArgs(args);
+            CLogUtils.dealArgs(args);
             log.warn(msg, args);
         }
     }
@@ -145,7 +145,7 @@ public class CLog {
 
     public void error(String msg, Object... args) {
         if(isErrorEnabled()) {
-            LogUtils.dealArgs(args);
+            CLogUtils.dealArgs(args);
             log.error(msg, args);
         }
     }
@@ -153,7 +153,7 @@ public class CLog {
     @SafeVarargs
     public final void error(String msg, Supplier<Object> ... args) {
         if(isErrorEnabled()) {
-            error(msg, LogUtils.getSupplierArgs(args));
+            error(msg, CLogUtils.getSupplierArgs(args));
         }
     }
 

@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  */
 @CustomLog
 @UtilityClass
-public class LogUtils {
+public class CLogUtils {
 
     private static final ClassValue<CLog> LOGS = new ClassValue<CLog>() {
         @Override
