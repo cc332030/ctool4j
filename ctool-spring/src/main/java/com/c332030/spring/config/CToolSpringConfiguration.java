@@ -1,5 +1,6 @@
 package com.c332030.spring.config;
 
+import com.c332030.core.constant.CToolConstants;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2025/9/11
  */
 @Configuration
-@ComponentScan(basePackages = "com.c332030")
+@ComponentScan(basePackages = CToolConstants.BASE_PACKAGE)
 public class CToolSpringConfiguration {
 
 }

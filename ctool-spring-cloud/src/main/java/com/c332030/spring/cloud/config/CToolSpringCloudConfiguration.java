@@ -1,6 +1,5 @@
 package com.c332030.spring.cloud.config;
 
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
  * @since 2025/9/11
  */
 @Configuration
-@ComponentScan(basePackages = "com.c332030")
 public class CToolSpringCloudConfiguration {
 
 }
