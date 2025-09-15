@@ -65,6 +65,13 @@ public class CLog {
         }
     }
 
+    public void debugNonNull(String msg, Object... args) {
+        if(isDebugEnabled()) {
+            CLogUtils.dealArgs(args, true);
+            log.debug(msg, args);
+        }
+    }
+
     @SafeVarargs
     public final void debug(String msg, Supplier<Object> ... args) {
         if(isDebugEnabled()) {
@@ -131,6 +138,13 @@ public class CLog {
         }
     }
 
+    public void warnNonNull(String msg, Object... args) {
+        if(isWarnEnabled()) {
+            CLogUtils.dealArgs(args, true);
+            log.warn(msg, args);
+        }
+    }
+
     public boolean isErrorEnabled() {
         return log.isErrorEnabled();
     }
@@ -146,6 +160,13 @@ public class CLog {
     public void error(String msg, Object... args) {
         if(isErrorEnabled()) {
             CLogUtils.dealArgs(args);
+            log.error(msg, args);
+        }
+    }
+
+    public void errorNonNull(String msg, Object... args) {
+        if(isErrorEnabled()) {
+            CLogUtils.dealArgs(args, true);
             log.error(msg, args);
         }
     }
