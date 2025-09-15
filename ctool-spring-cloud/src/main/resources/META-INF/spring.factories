@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.c332030.spring.cloud.config.CToolSpringCloudConfiguration
+  com.c332030.ctool.spring.cloud.config.CToolSpringCloudConfiguration
