@@ -2,7 +2,7 @@ package com.c332030.core.mapstruct;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.c332030.core.annotation.ICEnum;
+import com.c332030.core.interfaces.IValue;
 import com.c332030.core.util.CNumUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -204,7 +204,7 @@ public class CMapStructConvert {
     }
 
     @Named("toEnumIntegerValue")
-    public Integer toEnumIntegerValue(ICEnum<Integer> value) {
+    public Integer toEnumIntegerValue(IValue<Integer> value) {
         if(null == value) {
             return null;
         }
@@ -212,7 +212,7 @@ public class CMapStructConvert {
     }
 
     @Named("toEnumStringValue")
-    public String toEnumStringValue(ICEnum<String> value) {
+    public String toEnumStringValue(IValue<String> value) {
         if(null == value) {
             return null;
         }

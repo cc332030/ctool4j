@@ -2,7 +2,7 @@ package com.c332030.core.util;
 
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
-import com.c332030.core.annotation.ICEnum;
+import com.c332030.core.interfaces.IValue;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -40,7 +40,7 @@ public class CEnumUtils {
         }
     };
 
-    public static <T extends Serializable, E extends ICEnum<T>> Map<T, E> getMap(Class<E> enumClass) {
+    public static <T extends Serializable, E extends IValue<T>> Map<T, E> getMap(Class<E> enumClass) {
         return getMap(enumClass, VALUE);
     }
 
@@ -89,7 +89,7 @@ public class CEnumUtils {
                 .orElseThrow(() -> new IllegalArgumentException("no enum with value: " + value));
     }
 
-    public static <T extends Serializable, C extends ICEnum<T>> C valueOf(Class<C> cClass, T value) {
+    public static <T extends Serializable, C extends IValue<T>> C valueOf(Class<C> cClass, T value) {
         return valueOf(getMap(cClass), value);
     }
 
