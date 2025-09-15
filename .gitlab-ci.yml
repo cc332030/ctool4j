@@ -11,7 +11,7 @@ maven-build:
 
   # 触发条件：master分支推送或任何合并请求
   only:
-    - master
+    - main
     - merge_requests
 
   # 缓存Maven依赖以加快构建速度
