@@ -24,7 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @UtilityClass
 public class CEnumUtils {
 
-    private static final String VALUE = "value";
+    public static final String VALUE = "value";
+
+    public static final String NAME = "name";
 
     private static final ClassValue<List<?>> ENUM_VALUES = new ClassValue<List<?>>() {
         @Override
@@ -39,6 +41,10 @@ public class CEnumUtils {
             return new ConcurrentHashMap<>();
         }
     };
+
+    public static <E> Map<String, E> getNameMap(Class<E> enumClass) {
+        return getMap(enumClass, NAME);
+    }
 
     public static <T extends Serializable, E extends IValue<T>> Map<T, E> getMap(Class<E> enumClass) {
         return getMap(enumClass, VALUE);
@@ -56,32 +62,35 @@ public class CEnumUtils {
 
         val fieldValueMap = VALUE_ENUM_MAP_CLASS_MAP.get(enumClass);
         var valueMap = fieldValueMap.get(fieldName);
-        if(valueMap == null) {
+        if (valueMap == null) {
             synchronized (enumClass) {
 
                 valueMap = fieldValueMap.get(fieldName);
-                if(valueMap == null) {
+                if (valueMap == null) {
 
-                    val values = (List<E>)ENUM_VALUES.get(enumClass);
+                    val values = (List<E>) ENUM_VALUES.get(enumClass);
 
                     val map = new LinkedHashMap<>(values.size());
+                    if (NAME.equals(fieldName)) {
+                        values.forEach(value -> map.put(((Enum<?>) value).name(), value));
+                    } else {
 
-                    val field = enumClass.getDeclaredField(fieldName);
-                    field.setAccessible(true);
-                    for(val val : values) {
-                        val fieldValue = field.get(val);
-                        if(fieldValue != null) {
-                            map.put(fieldValue, val);
+                        val field = enumClass.getDeclaredField(fieldName);
+                        field.setAccessible(true);
+                        for (val val : values) {
+                            val fieldValue = field.get(val);
+                            if (fieldValue != null) {
+                                map.put(fieldValue, val);
+                            }
                         }
                     }
-
                     valueMap = Collections.unmodifiableMap(map);
                     fieldValueMap.put(fieldName, valueMap);
                 }
             }
         }
 
-        return (Map<T, E>)valueMap;
+        return (Map<T, E>) valueMap;
     }
 
     public static <T extends Serializable, E> E valueOf(Map<T, E> map, T value) {
@@ -89,8 +98,12 @@ public class CEnumUtils {
                 .orElseThrow(() -> new IllegalArgumentException("no enum with value: " + value));
     }
 
+    public static <E> E nameOf(Class<E> cClass, String value) {
+        return valueOf(getNameMap(cClass), value);
+    }
+
     public static <T extends Serializable, C extends IValue<T>> C valueOf(Class<C> cClass, T value) {
-        return valueOf(getMap(cClass), value);
+        return valueOf(getMap(cClass, VALUE), value);
     }
 
     public static <T extends Serializable, C extends Enum<C>> C valueOf(Class<C> cClass, Func1<C, T> func, T value) {
