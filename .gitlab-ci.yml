@@ -5,7 +5,7 @@ stages:
 # 配置Maven构建作业
 maven-build:
   # 使用最新的Java 8 Maven镜像
-  image: maven:3.9.6-openjdk-8
+  image: maven:3-eclipse-temurin-8
 
   stage: build
 
