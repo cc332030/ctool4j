@@ -30,4 +30,4 @@ maven-build:
 
     # 执行Maven构建和部署
     - echo "Running mvn clean deploy"
-    - mvn clean deploy -Dmaven.test.skip=true
+    - mvn clean deploy -U
