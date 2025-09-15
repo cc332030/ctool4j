@@ -1,0 +1,33 @@
+# 定义CI/CD运行的阶段
+stages:
+  - build
+
+# 配置Maven构建作业
+maven-build:
+  # 使用最新的Java 8 Maven镜像
+  image: maven:3.9.6-openjdk-8
+
+  stage: build
+
+  # 触发条件：master分支推送或任何合并请求
+  only:
+    - master
+    - merge_requests
+
+  # 缓存Maven依赖以加快构建速度
+  cache:
+    paths:
+      - .m2/repository/
+#      - target/
+
+  # 执行构建和部署的脚本
+  script:
+    # 复制项目中的settings.xml到Maven配置目录
+    - echo "Using project's settings.xml for Maven configuration"
+    - mkdir -p ~/.m2
+    # 假设你的settings.xml在项目根目录，若路径不同请修改此处
+    - cp ./.m2/settings.xml ~/.m2/settings.xml
+
+    # 执行Maven构建和部署
+    - echo "Running mvn clean deploy"
+    - mvn clean deploy -Dmaven.test.skip=true
