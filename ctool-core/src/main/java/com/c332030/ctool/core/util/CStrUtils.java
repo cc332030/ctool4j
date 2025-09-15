@@ -8,6 +8,8 @@ import com.google.common.base.CaseFormat;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
+import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.util.*;
 import java.util.function.Function;
@@ -47,12 +49,42 @@ public class CStrUtils {
 
     /**
      * 字符串格式化
+     * @param template 模板 "My name is {}, I come from {}"
+     * @param params 参数
+     * @return formatted string
+     */
+    public String format(String template, Object... params) {
+
+        if(StrUtil.isBlank(template)) {
+            return template;
+        }
+
+        return MessageFormatter.arrayFormat(template, params).getMessage();
+    }
+
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param params 参数
+     * @return formatted string
+     */
+    public String format(String template, Map<String, ?> params) {
+
+        if(StrUtil.isBlank(template)) {
+            return template;
+        }
+
+        return StringSubstitutor.replace(template, params);
+    }
+
+    /**
+     * 字符串格式化
      * @param template 模板 "My name is ${name}, I come from ${country}"
      * @param object 参数
      * @return formatted string
      */
     public String formatByObject(String template, Object object) {
-        return StrUtil.format(template, CBeanUtils.toMap(object));
+        return format(template, CBeanUtils.toMap(object));
     }
 
     /**
