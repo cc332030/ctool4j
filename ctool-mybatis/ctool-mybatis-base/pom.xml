@@ -10,13 +10,21 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool-mybatis</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>ctool-mybatis-base</artifactId>
 
-    <modules>
-        <module>ctool-mybatis-base</module>
-        <module>ctool-mybatis-33</module>
-        <module>ctool-mybatis-34</module>
-    </modules>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool-spring</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

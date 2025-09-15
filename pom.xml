@@ -130,7 +130,19 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool-mybatis</artifactId>
+                <artifactId>ctool-mybatis-base</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool-mybatis-33</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool-mybatis-34</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
