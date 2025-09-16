@@ -1,6 +1,7 @@
 package com.c332030.ctool.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool.core.function.StringFunction;
 import com.c332030.ctool.core.function.ToStringFunction;
@@ -9,7 +10,6 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.text.StringSubstitutor;
-import org.apache.commons.text.lookup.StringLookup;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.*;
@@ -63,19 +63,49 @@ public class CStrUtils {
         return MessageFormatter.arrayFormat(template, params).getMessage();
     }
 
+    public String formatLookup(String key, StringFunction<?> stringLookup) {
+        return formatLookup(key, stringLookup, null);
+    }
+
+    public String formatLookup(String key, StringFunction<?> stringLookup, String defaultValue) {
+
+        if(StrUtil.isEmpty(key)) {
+            return defaultValue;
+        }
+
+        val value = stringLookup.apply(key);
+        if(value == null) {
+            return defaultValue;
+        }
+
+        val strValue = StrUtil.toStringOrNull(value);
+        return ObjUtil.defaultIfNull(strValue, defaultValue);
+    }
+
     /**
      * 字符串格式化
      * @param template 模板 "My name is ${name}, I come from ${country}"
      * @param stringLookup 字符串查找
      * @return formatted string
      */
-    public String format(String template, StringLookup stringLookup) {
+    public String format(String template, StringFunction<?> stringLookup) {
+        return format(template, stringLookup, null);
+    }
+
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param stringLookup 字符串查找
+     * @return formatted string
+     */
+    public String format(String template, StringFunction<?> stringLookup, String defaultValue) {
 
         if(StrUtil.isBlank(template)) {
             return template;
         }
 
-        return new StringSubstitutor(stringLookup).replace(template);
+        return new StringSubstitutor(key -> formatLookup(key, stringLookup, defaultValue))
+                .replace(template);
     }
 
     /**
