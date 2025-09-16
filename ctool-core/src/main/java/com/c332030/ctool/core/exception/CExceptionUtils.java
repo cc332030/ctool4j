@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -43,8 +44,16 @@ public class CExceptionUtils {
     }
 
     @SneakyThrows
-    public <T extends Throwable> T throwBusinessException(String message, Throwable cause) {
+    public void throwBusinessException(String message, Throwable cause) {
         throw newBusinessException(message, cause);
+    }
+
+    public void throwBusinessException(Supplier<String> messageSupplier) {
+        throwBusinessException(messageSupplier.get());
+    }
+
+    public void throwBusinessException(Supplier<String> messageSupplier, Throwable cause) {
+        throwBusinessException(messageSupplier.get(), cause);
     }
 
     public void ignore(CRunnable runnable) {

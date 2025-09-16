@@ -18,7 +18,7 @@ public class CAssert {
 
     public void notEmpty(String value, Supplier<String> messageSupplier) {
         if(StrUtil.isEmpty(value)) {
-            CExceptionUtils.throwBusinessException(messageSupplier.get());
+            CExceptionUtils.throwBusinessException(messageSupplier);
         }
     }
 
@@ -30,7 +30,7 @@ public class CAssert {
 
     public void notBlank(String value, Supplier<String> messageSupplier) {
         if(StrUtil.isBlank(value)) {
-            CExceptionUtils.throwBusinessException(messageSupplier.get());
+            CExceptionUtils.throwBusinessException(messageSupplier);
         }
     }
 
