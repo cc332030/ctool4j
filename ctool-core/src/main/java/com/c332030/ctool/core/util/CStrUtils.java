@@ -9,6 +9,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
 import org.apache.commons.text.StringSubstitutor;
+import org.apache.commons.text.lookup.StringLookup;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.*;
@@ -60,6 +61,21 @@ public class CStrUtils {
         }
 
         return MessageFormatter.arrayFormat(template, params).getMessage();
+    }
+
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param stringLookup 字符串查找
+     * @return formatted string
+     */
+    public String format(String template, StringLookup stringLookup) {
+
+        if(StrUtil.isBlank(template)) {
+            return template;
+        }
+
+        return new StringSubstitutor(stringLookup).replace(template);
     }
 
     /**
