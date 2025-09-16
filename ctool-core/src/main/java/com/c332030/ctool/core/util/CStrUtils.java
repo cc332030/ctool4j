@@ -96,6 +96,7 @@ public class CStrUtils {
      * 字符串格式化
      * @param template 模板 "My name is ${name}, I come from ${country}"
      * @param stringLookup 字符串查找
+     * @param defaultValue 默认值
      * @return formatted string
      */
     public String format(String template, StringFunction<?> stringLookup, String defaultValue) {
@@ -112,15 +113,33 @@ public class CStrUtils {
      * 字符串格式化
      * @param template 模板 "My name is ${name}, I come from ${country}"
      * @param params 参数
+     * @param defaultValue 默认值
      * @return formatted string
      */
-    public String format(String template, Map<String, ?> params) {
+    public String format(String template, Map<String, ?> params, String defaultValue) {
+        return format(template, params::get, defaultValue);
+    }
 
-        if(StrUtil.isBlank(template)) {
-            return template;
-        }
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param params 参数
+     * @return formatted string
+     */
+    public String formatNullToEmpty(String template, Map<String, ?> params) {
+        return format(template, params, StrUtil.EMPTY);
+    }
 
-        return StringSubstitutor.replace(template, params);
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param object 参数
+     * @param defaultValue 默认值
+     * @return formatted string
+     */
+    public String formatByObject(String template, Object object, String defaultValue) {
+        val beanMap = CBeanUtils.toMap(object);
+        return format(template, beanMap, defaultValue);
     }
 
     /**
@@ -129,8 +148,8 @@ public class CStrUtils {
      * @param object 参数
      * @return formatted string
      */
-    public String formatByObject(String template, Object object) {
-        return format(template, CBeanUtils.toMap(object));
+    public String formatByObjectNullToEmpty(String template, Object object) {
+        return formatByObject(template, object, StrUtil.EMPTY);
     }
 
     /**
