@@ -117,6 +117,12 @@ public class CStrUtils {
      * @return formatted string
      */
     public String format(String template, Map<String, ?> params, String defaultValue) {
+
+        if(StrUtil.isBlank(template)) {
+            return template;
+        }
+
+        params = CMapUtils.defaultEmpty(params);
         return format(template, params::get, defaultValue);
     }
 
@@ -138,6 +144,11 @@ public class CStrUtils {
      * @return formatted string
      */
     public String formatByObject(String template, Object object, String defaultValue) {
+
+        if(StrUtil.isBlank(template)) {
+            return template;
+        }
+
         val beanMap = CBeanUtils.toMap(object);
         return format(template, beanMap, defaultValue);
     }
