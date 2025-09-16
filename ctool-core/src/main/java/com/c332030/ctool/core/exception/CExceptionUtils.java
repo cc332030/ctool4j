@@ -4,6 +4,7 @@ import com.c332030.ctool.core.function.CRunnable;
 import com.c332030.ctool.core.function.CSupplier;
 import com.c332030.ctool.core.util.CSpiUtils;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.util.function.BiFunction;
@@ -34,6 +35,16 @@ public class CExceptionUtils {
     @SuppressWarnings("unchecked")
     public <T extends Throwable> T newBusinessException(String message, Throwable cause) {
         return (T) getBusinessExceptionFunction().apply(message, cause);
+    }
+
+    @SneakyThrows
+    public void throwBusinessException(String message) {
+        throw newBusinessException(message);
+    }
+
+    @SneakyThrows
+    public <T extends Throwable> T throwBusinessException(String message, Throwable cause) {
+        throw newBusinessException(message, cause);
     }
 
     public void ignore(CRunnable runnable) {
