@@ -2,6 +2,7 @@ package com.c332030.ctool.core.lang;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool.core.exception.CExceptionUtils;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.util.function.Supplier;
@@ -16,27 +17,31 @@ import java.util.function.Supplier;
 @UtilityClass
 public class CAssert {
 
+    @SneakyThrows
     public void notEmpty(String value, Supplier<String> messageSupplier) {
         if(StrUtil.isEmpty(value)) {
-            CExceptionUtils.newBusinessException(messageSupplier.get());
+            throw CExceptionUtils.newBusinessException(messageSupplier.get());
         }
     }
 
+    @SneakyThrows
     public void notEmpty(String value, String message) {
         if(StrUtil.isEmpty(value)) {
-            CExceptionUtils.newBusinessException(message);
+            throw CExceptionUtils.newBusinessException(message);
         }
     }
 
+    @SneakyThrows
     public void notBlank(String value, Supplier<String> messageSupplier) {
         if(StrUtil.isBlank(value)) {
-            CExceptionUtils.newBusinessException(messageSupplier.get());
+            throw CExceptionUtils.newBusinessException(messageSupplier.get());
         }
     }
 
+    @SneakyThrows
     public void notBlank(String value, String message) {
         if(StrUtil.isBlank(value)) {
-            CExceptionUtils.newBusinessException(message);
+            throw CExceptionUtils.newBusinessException(message);
         }
     }
 
