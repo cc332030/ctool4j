@@ -1,8 +1,9 @@
 package com.c332030.ctool.core.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,12 +22,22 @@ public class CList {
     }
 
     public <T> List<T> of(T t) {
+
+        if (t == null) {
+            return of();
+        }
         return Collections.singletonList(t);
     }
 
     @SafeVarargs
     public <T> List<T> of(T... ts) {
-        return Collections.unmodifiableList(Arrays.asList(ts));
+
+        val tsNew = CArrUtils.filterNull(ts);
+        if (ArrayUtil.isEmpty(tsNew)) {
+            return of();
+        }
+
+        return Collections.unmodifiableList(tsNew);
     }
 
 }

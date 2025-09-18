@@ -1,8 +1,6 @@
 package com.c332030.ctool.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -25,15 +23,25 @@ public class CSet {
     @SafeVarargs
     public <T> Set<T> of(T... ts) {
 
-        val set = new HashSet<T>(ts.length);
-        Collections.addAll(set, ts);
+        val tsNew = CArrUtils.filterNull(ts);
+        if(ArrayUtil.isEmpty(tsNew)) {
+            return of();
+        }
+
+        val set = new HashSet<T>(tsNew.size());
+        set.addAll(tsNew);
         return Collections.unmodifiableSet(set);
     }
 
     @SafeVarargs
     public <T extends Enum<T>> Set<T> of(T... ts) {
 
-        val set = EnumSet.copyOf(Arrays.asList(ts));
+        val tsNew = CArrUtils.filterNull(ts);
+        if(ArrayUtil.isEmpty(tsNew)) {
+            return of();
+        }
+
+        val set = EnumSet.copyOf(tsNew);
         return Collections.unmodifiableSet(set);
     }
 
