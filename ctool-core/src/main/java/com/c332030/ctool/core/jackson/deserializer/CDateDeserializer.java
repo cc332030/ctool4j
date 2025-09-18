@@ -1,6 +1,8 @@
 package com.c332030.ctool.core.jackson.deserializer;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -25,12 +27,29 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
 
         switch (p.currentTokenId()) {
             case JsonTokenId.ID_STRING:
-                return DateUtil.parse(p.getText());
+                return strToDate(p.getText());
             case JsonTokenId.ID_NUMBER_INT:
-                return new Date(p.getLongValue());
+                return longToDate(p.getLongValue());
         }
 
         return null;
+    }
+
+    private static Date longToDate(long time) {
+        return new Date(time);
+    }
+
+    private static Date strToDate(String text) {
+
+        if(StrUtil.isEmpty(text)) {
+            return null;
+        }
+
+        if(NumberUtil.isNumber(text)) {
+            return longToDate(Long.parseLong(text));
+        }
+
+        return DateUtil.parse(text);
     }
 
 }
