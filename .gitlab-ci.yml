@@ -1,3 +1,4 @@
+
 # 定义CI/CD运行的阶段
 stages:
   - build
@@ -8,6 +9,14 @@ maven-build:
   image: maven:3-eclipse-temurin-8
 
   stage: build
+
+  # 触发条件：指定GitLab实例 + master分支推送或任何合并请求
+  rules:
+    # 仅当GitLab URL匹配且满足分支条件时才运行
+    - if: '$CI_SERVER_URL != "https://gitlab.com"'
+      when: always
+    # 其他情况不运行
+    - when: never
 
   # 触发条件：master分支推送或任何合并请求
   only:
