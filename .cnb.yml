@@ -1,0 +1,32 @@
+main:
+  push:
+    - docker:
+        image: ibm-semeru-runtimes:open-8-jdk
+        volumes:
+          - /root/.m2/repository:copy-on-write
+          - /root/.m2/wrapper:copy-on-write
+      services:
+        - docker
+      stages:
+        - name: test
+          script: |
+            echo "CNB_REPO_SLUG: ${CNB_REPO_SLUG}"
+            echo "CNB_GROUP_SLUG: ${CNB_GROUP_SLUG}"
+        - name: init-maven
+          script: |
+            curl -sL https://github.com/cc332030/maven/raw/master/script/linux/init-maven.sh | sh
+          env:
+            NEXUS_ID: ${CNB_GROUP_SLUG}
+            NEXUS_CENTRAL: https://mirrors.cloud.tencent.com/nexus/repository/maven-public/
+            NEXUS_USERNAME: ${CNB_TOKEN_USER_NAME}
+            NEXUS_PASSWORD: ${CNB_TOKEN}
+            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${USERNAME}/maven-snapshot/-/packages/
+            NEXUS_RELEASE_URL: https://maven.cnb.cool/${USERNAME}/maven-release/-/packages/
+
+        - name: deploy
+          script: |
+
+            CORE_NUM=$(grep -c ^processor /proc/cpuinfo)
+            echo "CORE_NUM=${CORE_NUM}"
+
+            sh mvnw -T ${CORE_NUM}C clean deploy -U
