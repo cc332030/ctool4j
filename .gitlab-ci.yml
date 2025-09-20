@@ -19,7 +19,6 @@ maven-build:
     # 其他所有情况不运行
     - when: never
 
-  # 缓存Maven依赖以加快构建速度
   cache:
     paths:
       - .m2/repository/
