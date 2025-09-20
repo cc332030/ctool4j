@@ -125,6 +125,12 @@
                 <artifactId>maven-release-plugin</artifactId>
             </plugin>
 
+
+            <plugin>
+                <groupId>com.ly.smart-doc</groupId>
+                <artifactId>smart-doc-maven-plugin</artifactId>
+            </plugin>
+
         </plugins>
 
     </build>
