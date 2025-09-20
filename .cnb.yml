@@ -9,19 +9,16 @@ main:
         - docker
       stages:
         - name: init-maven
+          imports: https://cnb.cool/secrets/-/blob/main/secrets.yml
           script: |
             curl -sL https://github.com/cc332030/maven/raw/master/script/linux/init-maven.sh | sh
           env:
             NEXUS_ID: ${CNB_GROUP_SLUG}
             NEXUS_CENTRAL: https://mirrors.cloud.tencent.com/nexus/repository/maven-public/
             NEXUS_USERNAME: ${CNB_TOKEN_USER_NAME}
-            NEXUS_PASSWORD: ${CNB_TOKEN}
+            NEXUS_PASSWORD: ${CNB_TOKEN_ARTIFACTORY}
             NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-snapshot/-/packages/
             NEXUS_RELEASE_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-release/-/packages/
-
-        - name: verify
-          script: |
-            sh mvnw help:effective-settings
 
         - name: deploy
           script: |
