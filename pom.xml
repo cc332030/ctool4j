@@ -17,8 +17,8 @@
     </properties>
 
     <scm>
-        <url>https://github.com/c332030/ctool4j</url>
-        <connection>scm:git@github.com:c332030/ctool4j.git</connection>
+        <url>https://github.com/cc332030/ctool4j</url>
+        <connection>scm:git@github.com:cc332030/ctool4j.git</connection>
     </scm>
 
     <modules>
