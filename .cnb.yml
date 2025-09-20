@@ -2,5 +2,5 @@
 jdk-version: 8
 
 include:
-  - https://cnb.cool/cc332030/git/-/blob/master/cnb/mirror.yml
+#  - https://cnb.cool/cc332030/git/-/blob/master/cnb/mirror.yml
   - https://cnb.cool/cc332030/maven/-/blob/master/cnb/deploy.yml
