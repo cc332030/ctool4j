@@ -1,38 +1,9 @@
+
+include:
+  - https://cnb.cool/cc332030/maven/-/blob/main/cnb/deploy.yml
+
 main:
+  pull_request:
+    - <<: *deploy
   push:
-    - docker:
-        image: ibm-semeru-runtimes:open-8-jdk
-        volumes:
-          - /root/.m2/repository:copy-on-write
-          - /root/.m2/wrapper:copy-on-write
-      services:
-        - docker
-      stages:
-        - name: init-maven
-          imports: https://cnb.cool/${CNB_GROUP_SLUG}/secrets/-/blob/main/secrets.yml
-          script: |
-            curl -sL https://github.com/cc332030/maven/raw/master/script/linux/init-maven.sh | sh
-          env:
-            NEXUS_ID: ${CNB_GROUP_SLUG}
-            NEXUS_CENTRAL: https://mirrors.cloud.tencent.com/nexus/repository/maven-public/
-            NEXUS_USERNAME: ${CNB_TOKEN_USER_NAME}
-            NEXUS_PASSWORD: ${CNB_TOKEN_ARTIFACTORY}
-            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-snapshot/-/packages/
-            NEXUS_RELEASE_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-release/-/packages/
-
-        - name: deploy
-          script: |
-            CORE_NUM=$(grep -c ^processor /proc/cpuinfo)
-            echo "CORE_NUM=${CORE_NUM}"
-
-            sh mvnw -T ${CORE_NUM}C clean deploy -U
-
-          env:
-            NEXUS_ID: ${CNB_GROUP_SLUG}
-            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-snapshot/-/packages/
-            NEXUS_RELEASE_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-release/-/packages/
-
-      endStages:
-        - name: init-maven-clean
-          script: |
-            curl -sL https://github.com/cc332030/maven/raw/master/script/linux/init-maven-clean.sh | sh
+    - <<: *deploy
