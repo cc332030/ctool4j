@@ -19,7 +19,6 @@ maven-build:
     paths:
       - .m2/repository/
       - .m2/wrapper/
-#      - target/
 
   # 执行构建和部署的脚本
   script:
