@@ -10,18 +10,14 @@ maven-build:
 
   stage: build
 
-  # 触发条件：指定GitLab实例 + master分支推送或任何合并请求
+  # 仅使用rules配置所有触发条件
   rules:
-    # 仅当GitLab URL匹配且满足分支条件时才运行
-    - if: '$CI_SERVER_URL != "https://gitlab.com"'
+    # 同时满足：目标GitLab实例 + (main分支推送 或 合并请求)
+    - if: >
+        $CI_SERVER_URL != "https://gitlab.com" && $CI_COMMIT_BRANCH == "main"
       when: always
-    # 其他情况不运行
+    # 其他所有情况不运行
     - when: never
-
-  # 触发条件：master分支推送或任何合并请求
-  only:
-    - main
-    - merge_requests
 
   # 缓存Maven依赖以加快构建速度
   cache:
