@@ -24,15 +24,7 @@
     <modules>
         <module>ctool-parents</module>
         <module>ctool-dependencies</module>
-        <module>ctool-core</module>
-        <module>ctool-log</module>
-        <module>ctool-spring</module>
-        <module>ctool-spring-cloud</module>
-        <module>ctool-feign</module>
-        <module>ctool-redis</module>
-        <module>ctool-cache</module>
-        <module>ctool-nacos</module>
-        <module>ctool-mybatis</module>
+        <module>ctool-component</module>
     </modules>
 
     <dependencyManagement>

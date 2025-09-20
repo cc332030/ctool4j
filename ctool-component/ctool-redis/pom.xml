@@ -6,17 +6,29 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j</artifactId>
+        <artifactId>ctool4j-component</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool-log</artifactId>
+    <artifactId>ctool-redis</artifactId>
 
     <dependencies>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool-core</artifactId>
+            <artifactId>ctool-spring</artifactId>
         </dependency>
 
     </dependencies>

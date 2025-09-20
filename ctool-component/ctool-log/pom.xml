@@ -6,17 +6,19 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j</artifactId>
+        <artifactId>ctool4j-component</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool-mybatis</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>ctool-log</artifactId>
 
-    <modules>
-        <module>ctool-mybatis-base</module>
-        <module>ctool-mybatis-33</module>
-        <module>ctool-mybatis-34</module>
-    </modules>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool-core</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

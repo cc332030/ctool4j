@@ -10,21 +10,19 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool-core</artifactId>
+    <artifactId>ctool4j-component</artifactId>
+    <packaging>pom</packaging>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.13.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-    </dependencies>
+    <modules>
+        <module>ctool-core</module>
+        <module>ctool-log</module>
+        <module>ctool-spring</module>
+        <module>ctool-spring-cloud</module>
+        <module>ctool-feign</module>
+        <module>ctool-redis</module>
+        <module>ctool-cache</module>
+        <module>ctool-nacos</module>
+        <module>ctool-mybatis</module>
+    </modules>
 
 </project>
