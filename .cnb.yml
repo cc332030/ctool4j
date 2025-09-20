@@ -9,7 +9,7 @@ main:
         - docker
       stages:
         - name: init-maven
-          imports: https://cnb.cool/secrets/-/blob/main/secrets.yml
+          imports: https://cnb.cool/${CNB_GROUP_SLUG}/secrets/-/blob/main/secrets.yml
           script: |
             curl -sL https://github.com/cc332030/maven/raw/master/script/linux/init-maven.sh | sh
           env:
