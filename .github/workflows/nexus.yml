@@ -1,5 +1,5 @@
 
-name: build
+name: nexus
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
       - "*"
 
 jobs:
-  build:
+  nexus:
     uses: cc332030/maven/.github/workflows/nexus.yml@master
     with:
       java-version: 8
