@@ -20,8 +20,8 @@ main:
             NEXUS_CENTRAL: https://mirrors.cloud.tencent.com/nexus/repository/maven-public/
             NEXUS_USERNAME: ${CNB_TOKEN_USER_NAME}
             NEXUS_PASSWORD: ${CNB_TOKEN}
-            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${USERNAME}/maven-snapshot/-/packages/
-            NEXUS_RELEASE_URL: https://maven.cnb.cool/${USERNAME}/maven-release/-/packages/
+            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-snapshot/-/packages/
+            NEXUS_RELEASE_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-release/-/packages/
 
         - name: deploy
           script: |
@@ -32,8 +32,8 @@ main:
 
           env:
             NEXUS_ID: ${CNB_GROUP_SLUG}
-            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${USERNAME}/maven-snapshot/-/packages/
-            NEXUS_RELEASE_URL: https://maven.cnb.cool/${USERNAME}/maven-release/-/packages/
+            NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-snapshot/-/packages/
+            NEXUS_RELEASE_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-release/-/packages/
 
       endStages:
         - name: init-maven-clean
