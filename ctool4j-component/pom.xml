@@ -25,4 +25,20 @@
         <module>ctool4j-mybatis</module>
     </modules>
 
+    <dependencyManagement>
+
+        <dependencies>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-dependencies</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
 </project>
