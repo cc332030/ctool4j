@@ -8,10 +8,6 @@ main:
       services:
         - docker
       stages:
-        - name: test
-          script: |
-            echo "CNB_REPO_SLUG: ${CNB_REPO_SLUG}"
-            echo "CNB_GROUP_SLUG: ${CNB_GROUP_SLUG}"
         - name: init-maven
           script: |
             curl -sL https://github.com/cc332030/maven/raw/master/script/linux/init-maven.sh | sh
@@ -22,6 +18,10 @@ main:
             NEXUS_PASSWORD: ${CNB_TOKEN}
             NEXUS_SNAPSHOT_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-snapshot/-/packages/
             NEXUS_RELEASE_URL: https://maven.cnb.cool/${CNB_GROUP_SLUG}/maven-release/-/packages/
+
+        - name: verify
+          script: |
+            sh mvnw help:effective-settings
 
         - name: deploy
           script: |
