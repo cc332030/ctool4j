@@ -255,11 +255,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>${env.NEXUS_ID}</id>
-            <url>${env.NEXUS_URL}/repository/maven-snapshots/</url>
+            <url>${env.NEXUS_SNAPSHOT_URL}</url>
         </snapshotRepository>
         <repository>
             <id>${env.NEXUS_ID}</id>
-            <url>${env.NEXUS_URL}/repository/maven-releases/</url>
+            <url>${env.NEXUS_RELEASE_URL}</url>
         </repository>
     </distributionManagement>
 
