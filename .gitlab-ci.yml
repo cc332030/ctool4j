@@ -25,7 +25,6 @@ maven-build:
     # 复制项目中的settings.xml到Maven配置目录
     - echo "Using project's settings.xml for Maven configuration"
     - mkdir -p ~/.m2
-    # 假设你的settings.xml在项目根目录，若路径不同请修改此处
     - cp ./.m2/settings.xml ~/.m2/settings.xml
 
     # 执行Maven构建和部署
