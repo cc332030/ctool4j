@@ -14,9 +14,6 @@ on:
 jobs:
   nexus:
     uses: cc332030/maven/.github/workflows/nexus.yml@master
-    with:
-      java-version: 8
-      nexus-id: cc332030
     secrets:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
