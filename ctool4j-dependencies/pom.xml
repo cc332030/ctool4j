@@ -60,6 +60,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-transaction</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mybatis-base</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
