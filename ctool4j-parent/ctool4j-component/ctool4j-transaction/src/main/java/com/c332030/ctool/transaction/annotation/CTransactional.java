@@ -1,4 +1,4 @@
-package com.c332030.ctool.mybatis.annotation;
+package com.c332030.ctool.transaction.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.transaction.annotation.Isolation;
