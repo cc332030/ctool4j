@@ -50,7 +50,7 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
         try {
             return DateUtil.parse(text);
         } catch (Exception ex) {
-            log.error("strToDate parse text error", ex);
+            log.debug("strToDate parse text error", ex);
         }
 
         try {
@@ -58,7 +58,7 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
                 return longToDate(Long.parseLong(text));
             }
         } catch (Exception ex) {
-            log.error("strToDate parse long error", ex);
+            log.debug("strToDate parse long error", ex);
         }
 
         return null;
