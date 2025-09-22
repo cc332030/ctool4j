@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.util.Date;
@@ -18,6 +19,7 @@ import java.util.Date;
  *
  * @since 2025/4/14
  */
+@CustomLog
 public class CDateDeserializer extends JsonDeserializer<Date> {
 
     public static final CDateDeserializer INSTANCE = new CDateDeserializer();
@@ -45,11 +47,21 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
             return null;
         }
 
-        if(NumberUtil.isNumber(text)) {
-            return longToDate(Long.parseLong(text));
+        try {
+            return DateUtil.parse(text);
+        } catch (Exception ex) {
+            log.error("strToDate parse text error", ex);
         }
 
-        return DateUtil.parse(text);
+        try {
+            if(NumberUtil.isNumber(text)) {
+                return longToDate(Long.parseLong(text));
+            }
+        } catch (Exception ex) {
+            log.error("strToDate parse long error", ex);
+        }
+
+        return null;
     }
 
 }
