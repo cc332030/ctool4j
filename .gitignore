@@ -4,3 +4,6 @@
 .gradle
 
 target
+
+release.properties
+*.releaseBackup
