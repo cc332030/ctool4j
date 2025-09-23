@@ -8,18 +8,35 @@
     <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>8</java.version>
-
-    </properties>
+    <developers>
+        <developer>
+            <id>c332030</id>
+            <name>c332030</name>
+            <email>c332030@c332030.com</email>
+            <url>https://c332030.com</url>
+        </developer>
+    </developers>
 
     <scm>
         <url>https://github.com/cc332030/ctool4j</url>
         <connection>scm:git:git@github.com:cc332030/ctool4j.git</connection>
         <tag>HEAD</tag>
     </scm>
+
+    <properties>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>8</java.version>
+
+    </properties>
 
     <modules>
         <module>ctool4j-parent</module>
@@ -71,6 +88,34 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.12.0</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.2.8</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                 </plugin>
 
@@ -89,6 +134,17 @@
                     <version>2.19.1</version>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.8.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>${env.NEXUS_ID}</publishingServerId>
+                        <autoPublish>true</autoPublish>
+                    </configuration>
+                </plugin>
+
             </plugins>
 
         </pluginManagement>
@@ -98,6 +154,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
 
             <plugin>
