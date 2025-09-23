@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-parent</artifactId>
@@ -76,7 +76,7 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-dependencies</artifactId>
-                <version>0.0.1</version>
+                <version>0.0.2-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
