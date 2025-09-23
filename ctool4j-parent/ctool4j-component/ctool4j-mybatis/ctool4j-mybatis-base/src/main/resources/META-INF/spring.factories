@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.c332030.ctool.mybatis.config.CToolMybatisConfiguration
+  com.c332030.ctool4j.mybatis.config.CToolMybatisConfiguration
