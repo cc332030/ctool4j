@@ -6,7 +6,6 @@
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-component</artifactId>
         <version>0.0.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>ctool4j-cache</artifactId>
