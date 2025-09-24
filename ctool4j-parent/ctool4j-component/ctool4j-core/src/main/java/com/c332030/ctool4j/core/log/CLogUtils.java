@@ -64,6 +64,7 @@ public class CLogUtils {
             ".model.",
             ".pojo.",
             ".dto.",
+            ".param.",
             ".req.",
             ".rsp.",
             ".request.",
