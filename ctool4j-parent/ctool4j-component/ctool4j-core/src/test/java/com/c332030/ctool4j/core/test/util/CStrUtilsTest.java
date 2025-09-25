@@ -5,6 +5,7 @@ import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import lombok.CustomLog;
 import lombok.val;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,7 +26,8 @@ public class CStrUtilsTest {
         val paramMap = CMap.of("name2", "c332030");
 
         val result = CStrUtils.format(template, paramMap::get, StrUtil.EMPTY);
-        log.info("result: {}", result);
+
+        Assertions.assertEquals("My name is ", result);
 
     }
 
