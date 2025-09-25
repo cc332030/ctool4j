@@ -55,6 +55,20 @@ public class CObjUtils {
         return ifThenGet(Objects.nonNull(value), () -> function.apply(value));
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T convert(Object o, Class<T> tClass) {
+
+        if(null == o) {
+            return null;
+        }
+
+        if(tClass.isInstance(o)) {
+            return (T) o;
+        }
+
+        throw new IllegalStateException("Convert failed, value: " + o + ", targetClass: " + tClass);
+    }
+
     public <O, R> R convert(O o, Function<O, R> function) {
         return convert(o, function, null);
     }
