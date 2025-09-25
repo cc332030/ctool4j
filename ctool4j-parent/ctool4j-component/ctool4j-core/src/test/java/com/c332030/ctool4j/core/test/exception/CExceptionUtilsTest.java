@@ -1,8 +1,10 @@
 package com.c332030.ctool4j.core.test.exception;
 
+import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.core.exception.CExceptionUtils;
 import lombok.CustomLog;
 import lombok.val;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,7 +21,7 @@ public class CExceptionUtilsTest {
     public void newBusinessException() {
 
         val ex = CExceptionUtils.newBusinessException("test");
-        log.info("business exception", ex);
+        Assertions.assertEquals(CBusinessException.class, ex.getClass());
 
     }
 
