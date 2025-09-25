@@ -56,7 +56,7 @@ public class CObjUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T convert(Object o, Class<T> tClass) {
+    public <T> T to(Object o, Class<T> tClass) {
 
         if(null == o) {
             return null;
