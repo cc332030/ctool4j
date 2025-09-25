@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
+import com.c332030.ctool4j.core.function.CFunction;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -67,6 +69,25 @@ public class CObjUtils {
         }
 
         throw new IllegalStateException("Convert failed, value: " + o + ", targetClass: " + tClass);
+    }
+
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    public <From, To> To convert(From from, Class<To> toClass) {
+
+        if(null == from) {
+            return null;
+        }
+
+        if(toClass.isInstance(from)) {
+            return (To) from;
+        }
+
+        val converter = (CFunction<From, To>) CClassUtils.getConverter(from.getClass(), toClass);
+        if (null == converter) {
+            return null;
+        }
+        return converter.apply(from);
     }
 
     public <O, R> R convert(O o, Function<O, R> function) {

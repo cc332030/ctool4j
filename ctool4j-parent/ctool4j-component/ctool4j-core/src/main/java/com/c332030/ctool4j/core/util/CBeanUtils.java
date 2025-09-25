@@ -118,7 +118,7 @@ public class CBeanUtils {
 
                         return (CBiConsumer<From, To>) (from, to) -> {
                             val fromFieldValue = fromField.get(from);
-                            val toFieldValue = CClassUtils.convert(fromFieldValue, toFieldType);
+                            val toFieldValue = CObjUtils.convert(fromFieldValue, toFieldType);
                             toField.set(to, toFieldValue);
                         };
                     }

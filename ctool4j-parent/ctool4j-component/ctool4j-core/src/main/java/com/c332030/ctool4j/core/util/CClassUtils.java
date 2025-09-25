@@ -402,21 +402,6 @@ public class CClassUtils {
         return null != getConverter(fromClass, toClass);
     }
 
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    public <From, To> To convert(From from, Class<To> toClass) {
-
-        if(null == from) {
-            return null;
-        }
-
-        val converter = (CFunction<From, To>) getConverter(from.getClass(), toClass);
-        if (null == converter) {
-            return null;
-        }
-        return converter.apply(from);
-    }
-
     public static <From, To> void addConverter(
             Class<From> fromClass,
             Class<To> toClass,
