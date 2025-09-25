@@ -14,6 +14,7 @@
     <modules>
         <module>ctool4j-core</module>
         <module>ctool4j-log</module>
+        <module>ctool4j-web</module>
         <module>ctool4j-spring</module>
         <module>ctool4j-spring-cloud</module>
         <module>ctool4j-feign</module>

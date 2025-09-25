@@ -34,6 +34,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-web</artifactId>
+                <version>0.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-spring-cloud</artifactId>
                 <version>0.0.2-SNAPSHOT</version>
             </dependency>
