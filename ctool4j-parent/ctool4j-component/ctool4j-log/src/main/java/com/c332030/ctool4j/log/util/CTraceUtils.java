@@ -1,11 +1,16 @@
 package com.c332030.ctool4j.log.util;
 
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.c332030.ctool4j.core.util.CSpiUtils;
+import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.log.model.ITraceInfo;
 import com.c332030.ctool4j.log.spi.CTraceInfoProvider;
 import com.c332030.ctool4j.log.spi.ITraceInfoProvider;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.slf4j.MDC;
 
 /**
@@ -18,7 +23,7 @@ import org.slf4j.MDC;
 @UtilityClass
 public class CTraceUtils {
 
-    public static final String TRACE_ID = "traceId";
+    public static final String TRACE_ID = "trace_id";
 
     @SuppressWarnings("unchecked")
     public static final ITraceInfoProvider<ITraceInfo> BUSINESS_EXCEPTION_PROVIDER =
@@ -34,6 +39,21 @@ public class CTraceUtils {
 
     public void removeTraceInfo() {
         TRACE_INFO_THREAD_LOCAL.remove();
+    }
+
+    public String generateTraceId() {
+        return IdUtil.objectId() + "-1";
+    }
+
+    public void initTrace() {
+
+        val traceId = Opt.ofNullable(CRequestUtils.getRequestDefaultNull())
+                .map(request -> request.getHeader(TRACE_ID))
+                .map(CStrUtils::incrLastNum)
+                .orElseGet(CTraceUtils::generateTraceId);
+
+        setTraceId(traceId);
+
     }
 
     public String getTraceId() {

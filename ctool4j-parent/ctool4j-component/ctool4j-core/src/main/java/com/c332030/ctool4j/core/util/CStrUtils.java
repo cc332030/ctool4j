@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.function.StringFunction;
 import com.c332030.ctool4j.core.function.ToStringFunction;
 import com.google.common.base.CaseFormat;
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  *
  * @since 2024/3/15
  */
+@CustomLog
 @UtilityClass
 public class CStrUtils {
 
@@ -458,6 +460,32 @@ public class CStrUtils {
         }
 
         return null;
+    }
+
+    public String incrLastNum(String str) {
+
+        if(StrUtil.isEmpty(str)) {
+            return str;
+        }
+
+        val lastIndex = str.lastIndexOf("-");
+        if(lastIndex < 0) {
+            return str;
+        }
+
+        val numStr = StrUtil.subSuf(str, lastIndex + 1);
+        if(StrUtil.isEmpty(numStr)) {
+            return str;
+        }
+
+        try {
+            val numInt = Integer.parseInt(numStr);
+            return StrUtil.subPre(str, lastIndex) + "-" + (numInt + 1);
+        } catch (Exception e) {
+            log.error("字符串自增失败，str: {}", str, e);
+        }
+
+        return str;
     }
 
 }
