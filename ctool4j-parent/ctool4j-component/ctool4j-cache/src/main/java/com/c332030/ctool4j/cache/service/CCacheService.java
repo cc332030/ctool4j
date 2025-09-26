@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- * Description: CacheService
+ * Description: CCacheService
  * </p>
  *
  * @since 2025/9/26
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @CustomLog
 @Service
 @AllArgsConstructor
-public class CacheService {
+public class CCacheService {
 
     CRedisService redisService;
 
