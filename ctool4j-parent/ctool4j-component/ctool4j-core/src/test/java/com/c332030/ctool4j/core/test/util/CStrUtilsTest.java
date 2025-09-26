@@ -31,4 +31,14 @@ public class CStrUtilsTest {
 
     }
 
+    @Test
+    public void incrLastNum() {
+
+        val string = "c332030-1";
+        val result = CStrUtils.incrLastNum(string);
+
+        Assertions.assertEquals("c332030-2", result);
+
+    }
+
 }
