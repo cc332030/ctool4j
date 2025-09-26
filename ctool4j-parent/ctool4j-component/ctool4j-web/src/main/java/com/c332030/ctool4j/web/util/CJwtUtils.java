@@ -3,6 +3,7 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -32,7 +33,7 @@ public class CJwtUtils {
             return null;
         }
 
-        String str = ArrayUtil.get(arr, index);
+        val str = CArrUtils.get(arr, index);
         if(StrUtil.isEmpty(str)) {
             return null;
         }
