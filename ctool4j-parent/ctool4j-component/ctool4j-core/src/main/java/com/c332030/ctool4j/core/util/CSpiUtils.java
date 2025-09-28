@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -21,6 +22,9 @@ public class CSpiUtils {
 
     /**
      * 获取第一个实现
+     * @param clazz spi 基类
+     * @return 默认实现
+     * @param <T> 泛型
      */
     public <T> T getFirstImpl(Class<T> clazz) {
 
@@ -34,6 +38,10 @@ public class CSpiUtils {
 
     /**
      * 获取第一个自定义实现，如果没有则返回默认实现
+     * @param clazz spi 基类
+     * @param defaultImpl 默认实现
+     * @return 默认实现或者自定义实现
+     * @param <T> 泛型
      */
     public <T> T getFirstCustomImplOrDefault(Class<T> clazz, Class<? extends T> defaultImpl) {
 
@@ -56,6 +64,9 @@ public class CSpiUtils {
 
     /**
      * 获取所有实现
+     * @param clazz spi 基类
+     * @return 默认顺序的值
+     * @param <T> 泛型
      */
     public <T> List<T> getImpls(Class<T> clazz) {
 
@@ -67,6 +78,29 @@ public class CSpiUtils {
         }
 
         return list;
+    }
+
+    /**
+     * 获取所有实现-自定义排序
+     * @param clazz spi 基类
+     * @return 排序后的值
+     * @param <T> 泛型
+     */
+    public <T> List<T> getImplsSorted(Class<T> clazz, Comparator<T> comparator) {
+
+        val impls = getImpls(clazz);
+        impls.sort(comparator);
+        return impls;
+    }
+
+    /**
+     * 获取所有实现-类定义的排序
+     * @param clazz spi 基类
+     * @return 排序后的值
+     * @param <T> 泛型
+     */
+    public <T extends Comparable<T>> List<T> getImplsSorted(Class<T> clazz) {
+        return getImplsSorted(clazz, Comparable::compareTo);
     }
 
 }
