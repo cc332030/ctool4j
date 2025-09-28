@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+  Description: logback-spring.xml
+  User: c332030
+  Version 1.0
+-->
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+
+    <contextName>${spring.application.name}-logback</contextName>
+
+    <springProperty scope="context" name="spring.application.name" source="spring.application.name" defaultValue="app"/>
+    <springProperty scope="context" name="logging.level.root" source="logging.level.root" defaultValue="info"/>
+    <springProperty scope="context" name="logging.file.path" source="logging.file.path" defaultValue="logs"/>
+
+    <springProperty scope="context" name="logging.console.enable" source="logging.console.enable"/>
+    <springProperty scope="context" name="logging.file.enable" source="logging.file.enable" defaultValue="true"/>
+
+    <springProperty scope="context" name="logging.file.max-size" source="logging.logback.rollingpolicy.max-file-size"
+                    defaultValue="1gb"/>
+    <springProperty scope="context" name="logging.file.max-history" source="logging.logback.rollingpolicy.max-history"
+                    defaultValue="32"/>
+
+    <property name="logging.pattern" value="%d{HH:mm:ss.SSS} [%thread] [%X{trace-id}] %-5level %logger{64} - %msg%n"/>
+    <property name="logging.charset" value="utf-8"/>
+
+    <if condition='isDefined("logging.console.enable")'>
+        <then>
+            <if condition='property("logging.console.enable").contains("true")'>
+                <then>
+                    <include resource="logback/logback-console.xml"/>
+                </then>
+            </if>
+        </then>
+        <else>
+            <if condition='property("os.name").startsWith("Windows")'>
+                <then>
+                    <include resource="logback/logback-console.xml"/>
+                </then>
+            </if>
+        </else>
+    </if>
+
+    <if condition='property("logging.file.enable").contains("true")'>
+        <then>
+            <include resource="logback/logback-file.xml"/>
+            <include resource="logback/logback-file-error.xml"/>
+        </then>
+    </if>
+
+    <!-- httpclient headers -->
+    <!--<logger name="org.apache.http.headers" level="debug"/>-->
+    <!-- httpclient body -->
+    <logger name="org.apache.http.wire" level="debug"/>
+    <logger name="org.eclipse" level="info"/>
+
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error"/>
+
+    <!-- 忽略-文档接口路径冲突（无影响） -->
+    <logger name="springfox.documentation.spring.web.readers.operation.CachingOperationNameGenerator" level="warn"/>
+
+</configuration>

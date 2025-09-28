@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Description: logback-console.xml
+  User: c332030
+  Version 1.0
+-->
+<included>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${logging.pattern}</pattern>
+      <charset>${logging.charset}</charset>
+    </encoder>
+  </appender>
+
+  <root level="${logging.level.root}">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</included>
