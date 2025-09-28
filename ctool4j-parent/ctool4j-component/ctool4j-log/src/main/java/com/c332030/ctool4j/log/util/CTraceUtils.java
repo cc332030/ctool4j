@@ -23,7 +23,7 @@ import org.slf4j.MDC;
 @UtilityClass
 public class CTraceUtils {
 
-    public static final String TRACE_ID = "trace-id";
+    public static final String TRACE_ID = "c-trace-id";
 
     @SuppressWarnings("unchecked")
     public static final ITraceInfoProvider<ITraceInfo> BUSINESS_EXCEPTION_PROVIDER =
