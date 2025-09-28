@@ -19,6 +19,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.yulichang</groupId>
+            <artifactId>mybatis-plus-join-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-mybatis-base</artifactId>
         </dependency>
