@@ -200,11 +200,11 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>${env.NEXUS_ID}</id>
+            <id>${env.NEXUS_SNAPSHOT_ID}</id>
             <url>${env.NEXUS_SNAPSHOT_URL}</url>
         </snapshotRepository>
         <repository>
-            <id>${env.NEXUS_ID}</id>
+            <id>${env.NEXUS_RELEASE_ID}</id>
             <url>${env.NEXUS_RELEASE_URL}</url>
         </repository>
     </distributionManagement>
