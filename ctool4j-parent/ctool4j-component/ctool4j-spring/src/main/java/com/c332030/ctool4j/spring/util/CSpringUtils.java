@@ -28,7 +28,7 @@ public class CSpringUtils {
     @SafeVarargs
     public static <T> void wireBean(Class<T> tClass, Consumer<T>... consumers) {
         val bean = getBean(tClass);
-        for (Consumer<T> consumer : consumers) {
+        for (val consumer : consumers) {
             consumer.accept(bean);
         }
     }
