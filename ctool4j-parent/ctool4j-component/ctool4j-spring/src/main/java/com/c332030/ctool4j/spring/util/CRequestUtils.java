@@ -5,10 +5,11 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.function.StringFunction;
 import com.c332030.ctool4j.core.util.CObjUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
+import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.springframework.http.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -186,6 +187,21 @@ public class CRequestUtils {
             log.debug("转换 Referer 失败", e);
             return null;
         }
+    }
+
+    public String getIp() {
+        return getIp(getRequest());
+    }
+
+    public String getIp(HttpServletRequest request) {
+
+        String forwardIpBundle = getHeader(request, HttpHeaders.X_FORWARDED_FOR);
+        if (StringUtils.isNotEmpty(forwardIpBundle)) {
+            String[] forwardIpParts = forwardIpBundle.split(",");
+            return forwardIpParts[0];
+        }
+
+        return request.getRemoteAddr();
     }
 
 }

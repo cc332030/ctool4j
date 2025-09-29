@@ -12,7 +12,7 @@ import com.c332030.ctool4j.web.advice.handler.ICResponseBeforeBodyWriteHandler;
 public class RequestLogResponseHandler implements ICResponseBeforeBodyWriteHandler {
 
     @Override
-    public Object apply(Object o) {
+    public Object apply(Object o) throws Throwable {
         return o;
     }
 
