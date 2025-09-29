@@ -43,7 +43,7 @@ public class CResponseBodyAdvice extends CBaseResponseBodyAdvice<Object> {
             try {
                 newBody = handler.apply(newBody);
             } catch (Throwable e) {
-                log.error("deal response body error", e);
+                log.error("deal response body error with handler: {}", handler, e);
             }
         }
 

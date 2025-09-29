@@ -43,7 +43,7 @@ public class CRequestBodyAdvice extends CBaseRequestBodyAdvice {
             try {
                 newBody = handler.apply(newBody);
             } catch (Throwable e) {
-                log.error("deal request body error", e);
+                log.error("deal request body error with handler: {}", handler, e);
             }
         }
 
