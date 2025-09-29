@@ -85,6 +85,11 @@ public class CRequestLogUtils {
     public static void write(Object rsp, Throwable throwable) {
 
         val requestLog = getRequestLog();
+        if(null == requestLog) {
+            log.warn("write failure because requestLog is null");
+            return;
+        }
+
         val endTimeMillis = System.currentTimeMillis();
 
         requestLog.setEndTimeMillis(endTimeMillis);

@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.log.aspect;
 
-import com.c332030.ctool4j.log.util.RequestLogUtils;
+import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import lombok.CustomLog;
 import lombok.Lombok;
@@ -41,9 +41,9 @@ public class CRequestLogAspect {
 
         Object result = null;
         Throwable throwable = null;
-        try {
+        val args = joinPoint.getArgs();
 
-            val args = joinPoint.getArgs();
+        try {
 
             val method = CAspectUtils.getMethod(joinPoint);
             val parameters = method.getParameters();
@@ -54,7 +54,12 @@ public class CRequestLogAspect {
                 argMap.put(parameter.getName(), args[i]);
             }
 
-            RequestLogUtils.init(argMap);
+            CRequestLogUtils.init(argMap);
+        } catch (Exception e) {
+            log.error("init request log failure", e);
+        }
+
+        try {
 
             result = joinPoint.proceed(args);
             return result;
@@ -62,8 +67,13 @@ public class CRequestLogAspect {
             throwable = e;
             throw Lombok.sneakyThrow(e);
         } finally {
-            RequestLogUtils.write(result, throwable);
+            try {
+                CRequestLogUtils.write(result, throwable);
+            } catch (Throwable e) {
+                log.error("write request log failure", e);
+            }
         }
+
     }
 
 }
