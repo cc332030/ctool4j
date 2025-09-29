@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @UtilityClass
 public class CRequestLogUtils {
 
-    private static final CLog REQUEST_LOGGER = CLogUtils.getLog("request-logger");
+    private static final CLog REQUEST_LOGGER = CLogUtils.getLog("request-log");
 
     private static final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
