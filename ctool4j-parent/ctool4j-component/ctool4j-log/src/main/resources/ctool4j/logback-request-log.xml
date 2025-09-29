@@ -55,7 +55,7 @@
         <appender-ref ref="REQUEST_LOG_FILE"/>
     </appender>
 
-    <logger name="request-logger" level="${logging.level.root}" additivity="false">
+    <logger name="request-log" level="${logging.level.root}" additivity="false">
         <appender-ref ref="REQUEST_LOG_FILE_ASYNC"/>
     </logger>
 
