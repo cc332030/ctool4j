@@ -59,12 +59,12 @@
     <!-- httpclient headers -->
     <!--<logger name="org.apache.http.headers" level="debug"/>-->
     <!-- httpclient body -->
-    <logger name="org.apache.http.wire" level="debug"/>
-    <logger name="org.eclipse" level="info"/>
+    <!--<logger name="org.apache.http.wire" level="debug"/>-->
+    <!--<logger name="org.eclipse" level="info"/>-->
 
-    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error"/>
+    <!--<logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error"/>-->
 
     <!-- 忽略-文档接口路径冲突（无影响） -->
-    <logger name="springfox.documentation.spring.web.readers.operation.CachingOperationNameGenerator" level="warn"/>
+    <!--<logger name="springfox.documentation.spring.web.readers.operation.CachingOperationNameGenerator" level="warn"/>-->
 
 </configuration>
