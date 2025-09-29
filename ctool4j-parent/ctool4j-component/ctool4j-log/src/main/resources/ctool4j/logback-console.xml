@@ -7,15 +7,15 @@
 -->
 <included>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${logging.pattern}</pattern>
             <charset>${logging.charset}</charset>
         </encoder>
     </appender>
 
-    <root level="${logging.level.root}">
-        <appender-ref ref="STDOUT"/>
-    </root>
+    <logger name="console">
+        <appender-ref ref="stdout"/>
+    </logger>
 
 </included>

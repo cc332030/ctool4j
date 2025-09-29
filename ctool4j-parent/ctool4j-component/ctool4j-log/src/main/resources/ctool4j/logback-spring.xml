@@ -54,6 +54,8 @@
         </then>
     </if>
 
+    <root level="${logging.level.root}" />
+
     <!-- httpclient headers -->
     <!--<logger name="org.apache.http.headers" level="debug"/>-->
     <!-- httpclient body -->
