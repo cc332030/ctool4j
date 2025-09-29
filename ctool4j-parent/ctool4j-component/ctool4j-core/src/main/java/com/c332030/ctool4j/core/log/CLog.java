@@ -16,6 +16,10 @@ public class CLog {
 
     private final Logger log;
 
+    public CLog(String name) {
+        log = LoggerFactory.getLogger(name);
+    }
+
     public CLog(Class<?> clazz) {
         log = LoggerFactory.getLogger(clazz);
     }

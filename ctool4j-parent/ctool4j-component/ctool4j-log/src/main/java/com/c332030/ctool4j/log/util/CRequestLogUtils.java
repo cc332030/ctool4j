@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.log.util;
 
+import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CObjUtils;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
@@ -9,8 +9,6 @@ import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @UtilityClass
 public class CRequestLogUtils {
 
-    private static final Logger REQUEST_LOGGER = LoggerFactory.getLogger("request-logger");
+    private static final CLog REQUEST_LOGGER = CLogUtils.getLog("request-logger");
 
     private static final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
@@ -115,8 +113,9 @@ public class CRequestLogUtils {
 
         while (true) {
             try {
+
                 val requestLog = REQUEST_LOG_QUEUE.take();
-                REQUEST_LOGGER.info("{}", CJsonUtils.toJson(requestLog));
+                REQUEST_LOGGER.info("{}", requestLog);
             } catch (Throwable e) {
                 log.error("RequestLogUtils asyncWrite error", e);
             }

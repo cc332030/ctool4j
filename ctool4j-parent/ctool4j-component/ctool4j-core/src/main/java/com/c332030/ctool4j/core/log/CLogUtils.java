@@ -36,6 +36,10 @@ public class CLogUtils {
         }
     };
 
+    public CLog getLog(String name) {
+        return new CLog(name);
+    }
+
     public CLog getLog(Class<?> clazz) {
         return LOGS.get(clazz);
     }
