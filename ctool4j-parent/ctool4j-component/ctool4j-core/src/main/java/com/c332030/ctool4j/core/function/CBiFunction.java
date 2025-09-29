@@ -14,12 +14,12 @@ import java.util.function.BiFunction;
 @FunctionalInterface
 public interface CBiFunction<O1, O2, R> {
 
-    R apply(O1 o1, O2 o2) throws Exception;
+    R apply(O1 o1, O2 o2) throws Throwable;
 
     static <O1, O2, R> R apply(CBiFunction<O1, O2, R> function, O1 o1, O2 o2) {
         try {
             return function.apply(o1, o2);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw Lombok.sneakyThrow(e);
         }
     }

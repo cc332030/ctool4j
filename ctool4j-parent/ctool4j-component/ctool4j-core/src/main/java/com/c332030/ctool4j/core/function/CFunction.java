@@ -14,7 +14,7 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface CFunction<O, R> {
 
-    R apply(O o) throws Exception;
+    R apply(O o) throws Throwable;
 
     static <O, R> R apply(CFunction<O, R> function, O o) {
         try {

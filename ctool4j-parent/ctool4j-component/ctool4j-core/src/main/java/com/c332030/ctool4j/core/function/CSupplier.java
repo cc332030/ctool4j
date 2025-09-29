@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface CSupplier<T> {
 
-    T get() throws Exception;
+    T get() throws Throwable;
 
     static <T> T get(CSupplier<T> supplier) {
         try {

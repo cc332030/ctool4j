@@ -12,7 +12,7 @@ import lombok.Lombok;
 @FunctionalInterface
 public interface CRunnable {
 
-    void run() throws Exception;
+    void run() throws Throwable;
 
     static void run(CRunnable runnable) {
         try {

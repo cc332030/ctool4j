@@ -63,7 +63,7 @@ public class CExceptionUtils {
     public void ignore(CRunnable runnable, String message) {
         try {
             runnable.run();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error(message, e);
         }
     }

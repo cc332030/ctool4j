@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 @FunctionalInterface
 public interface CPredicate<T> {
 
-    boolean test(T t) throws Exception;
+    boolean test(T t) throws Throwable;
 
     static <T> boolean test(CPredicate<T> predicate, T t) {
         try {
