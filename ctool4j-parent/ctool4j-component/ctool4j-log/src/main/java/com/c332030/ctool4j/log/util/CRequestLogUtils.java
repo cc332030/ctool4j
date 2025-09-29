@@ -41,11 +41,11 @@ public class CRequestLogUtils {
         REQUEST_LOG_THREAD.start();
     }
 
-    public static CRequestLog getRequestLog() {
+    public CRequestLog getRequestLog() {
         return REQUEST_LOG_THREAD_LOCAL.get();
     }
 
-    public static void init(Map<String, Object> reqs) {
+    public void init(Map<String, Object> reqs) {
 
         reqs.entrySet().forEach(entry -> {
 
@@ -82,7 +82,7 @@ public class CRequestLogUtils {
 
     }
 
-    public static void write(Object rsp, Throwable throwable) {
+    public void write(Object rsp, Throwable throwable) {
 
         try {
 
@@ -111,7 +111,7 @@ public class CRequestLogUtils {
 
     }
 
-    public static void asyncWrite() {
+    public void asyncWrite() {
 
         while (true) {
             try {
