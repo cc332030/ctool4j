@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 2025/9/21
  */
 @Data
-@ConfigurationProperties("ctool4j.feign.log")
+@ConfigurationProperties("feign.log")
 public class CFeignLogConfig {
 
     /**
