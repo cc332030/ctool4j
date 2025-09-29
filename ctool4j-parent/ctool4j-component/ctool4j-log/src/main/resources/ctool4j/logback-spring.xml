@@ -28,14 +28,14 @@
         <then>
             <if condition='property("logging.console.enable").contains("true")'>
                 <then>
-                    <include resource="logback/logback-console.xml"/>
+                    <include resource="ctool4j/logback-console.xml"/>
                 </then>
             </if>
         </then>
         <else>
             <if condition='property("os.name").startsWith("Windows")'>
                 <then>
-                    <include resource="logback/logback-console.xml"/>
+                    <include resource="ctool4j/logback-console.xml"/>
                 </then>
             </if>
         </else>
@@ -43,8 +43,14 @@
 
     <if condition='property("logging.file.enable").contains("true")'>
         <then>
-            <include resource="logback/logback-file.xml"/>
-            <include resource="logback/logback-file-error.xml"/>
+            <include resource="ctool4j/logback-file.xml"/>
+            <include resource="ctool4j/logback-file-error.xml"/>
+        </then>
+    </if>
+
+    <if condition='property("logging.request-log.enable").contains("true")'>
+        <then>
+            <include resource="ctool4j/logback-request-log.xml"/>
         </then>
     </if>
 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Description: logback-file.xml
+  User: c332030
+  Version 1.0
+-->
+
+<included>
+
+    <property name="request-log.file-name" value="request"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <if condition='property("os.name").startsWith("Windows")'>
+            <then>
+                <file>${logging.file.path}/${spring.application.name}/${request-log.file-name}.log</file>
+            </then>
+            <else>
+                <file>${logging.file.path}/${request-log.file-name}.log</file>
+            </else>
+        </if>
+
+        <encoder>
+            <pattern>${logging.pattern}</pattern>
+            <charset>${logging.charset}</charset>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <if condition='property("os.name").startsWith("Windows")'>
+                <then>
+                    <fileNamePattern>
+                        ${logging.file.path}/${spring.application.name}/${request-log.file-name}.log-%d{yyyy-MM-dd}.%i.gz
+                    </fileNamePattern>
+                </then>
+                <else>
+                    <fileNamePattern>${logging.file.path}/${request-log.file-name}.log-%d{yyyy-MM-dd}.%i.gz
+                    </fileNamePattern>
+                </else>
+            </if>
+
+            <maxHistory>${logging.file.max-history}</maxHistory>
+            <maxFileSize>${logging.file.max-size}</maxFileSize>
+
+        </rollingPolicy>
+
+    </appender>
+
+    <!-- 异步日志 -->
+    <appender name="FILE_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 设置为不丢失日志,默认如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,默认值为256 -->
+        <queueSize>1000</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <root level="${logging.level.root}">
+        <appender-ref ref="FILE_ASYNC"/>
+    </root>
+
+</included>
