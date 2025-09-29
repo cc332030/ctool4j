@@ -84,27 +84,30 @@ public class CRequestLogUtils {
 
     public static void write(Object rsp, Throwable throwable) {
 
-        val requestLog = getRequestLog();
-        if(null == requestLog) {
-            log.warn("write failure because requestLog is null");
-            return;
+        try {
+
+            val requestLog = getRequestLog();
+            if(null == requestLog) {
+                log.warn("write failure because requestLog is null");
+                return;
+            }
+
+            val endTimeMillis = System.currentTimeMillis();
+
+            requestLog.setEndTimeMillis(endTimeMillis);
+            requestLog.setRt(endTimeMillis - requestLog.getBeginTimeMillis());
+            requestLog.setRsp(rsp);
+            if(null != throwable) {
+                requestLog.setThrowableMessage(throwable.getMessage());
+            }
+
+            val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
+            if(!offerResult) {
+                log.error("REQUEST_LOG_THREAD offer error, requestLog: {}", requestLog);
+            }
+        } finally {
+            REQUEST_LOG_THREAD_LOCAL.remove();
         }
-
-        val endTimeMillis = System.currentTimeMillis();
-
-        requestLog.setEndTimeMillis(endTimeMillis);
-        requestLog.setRt(endTimeMillis - requestLog.getBeginTimeMillis());
-        requestLog.setRsp(rsp);
-        if(null != throwable) {
-            requestLog.setThrowableMessage(throwable.getMessage());
-        }
-
-        val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
-        if(!offerResult) {
-            log.error("REQUEST_LOG_THREAD offer error, requestLog: {}", requestLog);
-        }
-
-        REQUEST_LOG_THREAD_LOCAL.remove();
 
     }
 
