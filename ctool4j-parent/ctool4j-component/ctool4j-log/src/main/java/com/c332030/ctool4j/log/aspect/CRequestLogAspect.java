@@ -45,16 +45,20 @@ public class CRequestLogAspect {
 
         try {
 
-            val method = CAspectUtils.getMethod(joinPoint);
-            val parameters = method.getParameters();
+            if(CRequestLogUtils.isEnable()) {
 
-            val argMap = new LinkedHashMap<String, Object>(parameters.length);
-            for (int i = 0; i < parameters.length; i++) {
-                val parameter = parameters[i];
-                argMap.put(parameter.getName(), args[i]);
+                val method = CAspectUtils.getMethod(joinPoint);
+                val parameters = method.getParameters();
+
+                val argMap = new LinkedHashMap<String, Object>(parameters.length);
+                for (int i = 0; i < parameters.length; i++) {
+                    val parameter = parameters[i];
+                    argMap.put(parameter.getName(), args[i]);
+                }
+
+                CRequestLogUtils.init(argMap);
+
             }
-
-            CRequestLogUtils.init(argMap);
         } catch (Exception e) {
             log.error("init request log failure", e);
         }
@@ -68,7 +72,9 @@ public class CRequestLogAspect {
             throw Lombok.sneakyThrow(e);
         } finally {
             try {
-                CRequestLogUtils.write(result, throwable);
+                if(CRequestLogUtils.isEnable()) {
+                    CRequestLogUtils.write(result, throwable);
+                }
             } catch (Throwable e) {
                 log.error("write request log failure", e);
             }

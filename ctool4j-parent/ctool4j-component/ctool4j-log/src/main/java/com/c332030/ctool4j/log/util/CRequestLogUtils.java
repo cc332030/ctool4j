@@ -1,11 +1,14 @@
 package com.c332030.ctool4j.log.util;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CObjUtils;
+import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
@@ -37,6 +40,13 @@ public class CRequestLogUtils {
     private final static Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite);
     static {
         REQUEST_LOG_THREAD.start();
+    }
+
+    @Setter
+    private static CRequestLogConfig requestLogConfig;
+
+    public boolean isEnable() {
+        return BooleanUtil.isTrue(requestLogConfig.getEnable());
     }
 
     public CRequestLog getRequestLog() {
