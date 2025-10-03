@@ -67,7 +67,7 @@ public class CRequestLogAspect {
                 CRequestLogUtils.init(argMap);
 
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("init request log failure", e);
         } finally {
 
