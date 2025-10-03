@@ -20,7 +20,12 @@ public class CRequestLogConfig {
     Boolean enable = false;
 
     /**
-     * 慢请求毫秒数-打印出来
+     * 慢请求日志-开关
+     */
+    Boolean slowEnable = true;
+
+    /**
+     * 慢请求日志-毫秒数
      */
     Integer slowMillis = 10000;
 

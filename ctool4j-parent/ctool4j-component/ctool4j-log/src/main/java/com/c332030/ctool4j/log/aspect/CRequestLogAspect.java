@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.log.aspect;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
@@ -70,7 +71,8 @@ public class CRequestLogAspect {
         } finally {
 
             costMills = System.currentTimeMillis() - startMills;
-            if(costMills > requestLogConfig.getSlowMillis()) {
+            if(BooleanUtil.isTrue(requestLogConfig.getSlowEnable())
+                    && costMills > requestLogConfig.getSlowMillis()) {
                 log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
             }
         }
