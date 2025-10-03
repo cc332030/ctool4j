@@ -14,6 +14,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("logging.request-log")
 public class CRequestLogConfig {
 
+    /**
+     * 请求日志开关
+     */
     Boolean enable = false;
+
+    /**
+     * 慢请求毫秒数-打印出来
+     */
+    Integer slowMillis = 10000;
 
 }

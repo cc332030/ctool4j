@@ -38,11 +38,11 @@ public class CRequestUtils {
      */
     private static final Set<BiConsumer<HttpServletRequest, HttpServletResponse>> PREPARE_CONSUMERS = new CopyOnWriteArraySet<>();
 
-    public static void addPrepare(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
+    public void addPrepare(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
         PREPARE_CONSUMERS.add(Objects.requireNonNull(consumer));
     }
 
-    public static void prepare(HttpServletRequest request, HttpServletResponse response) {
+    public void prepare(HttpServletRequest request, HttpServletResponse response) {
         PREPARE_CONSUMERS.forEach(consumer -> {
             try {
                 consumer.accept(request, response);
@@ -58,11 +58,11 @@ public class CRequestUtils {
     private static final Set<BiConsumer<HttpServletRequest, HttpServletResponse>> CLEAR_CONSUMERS =
             new CopyOnWriteArraySet<>();
 
-    public static void addClear(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
+    public void addClear(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
         CLEAR_CONSUMERS.add(Objects.requireNonNull(consumer));
     }
 
-    public static void clear(HttpServletRequest request, HttpServletResponse response) {
+    public void clear(HttpServletRequest request, HttpServletResponse response) {
         CLEAR_CONSUMERS.forEach(consumer -> {
             try {
                 consumer.accept(request, response);
@@ -79,18 +79,18 @@ public class CRequestUtils {
     /**
      * 是否是接口请求
      */
-    public static boolean hasRequest() {
+    public boolean hasRequest() {
         return null != getServletRequestAttributes();
     }
 
     /**
      * @see CRequestUtils#hasRequest()
      */
-    public static boolean noRequest() {
+    public boolean noRequest() {
         return !hasRequest();
     }
 
-    public static HttpServletRequest getRequestDefaultNull() {
+    public HttpServletRequest getRequestDefaultNull() {
         val springServletRequestAttributes = getServletRequestAttributes();
         if(null == springServletRequestAttributes) {
             return null;
@@ -98,12 +98,12 @@ public class CRequestUtils {
         return springServletRequestAttributes.getRequest();
     }
 
-    public static HttpServletRequest getRequest() {
+    public HttpServletRequest getRequest() {
         return Optional.ofNullable(getRequestDefaultNull())
                 .orElseThrow(() -> new IllegalArgumentException("request 不能为空"));
     }
 
-    public static HttpServletResponse getResponseDefaultNull() {
+    public HttpServletResponse getResponseDefaultNull() {
         val springServletRequestAttributes = getServletRequestAttributes();
         if(null == springServletRequestAttributes) {
             return null;
@@ -111,38 +111,38 @@ public class CRequestUtils {
         return springServletRequestAttributes.getResponse();
     }
 
-    public static HttpServletResponse getResponse() {
+    public HttpServletResponse getResponse() {
         return Optional.ofNullable(getResponseDefaultNull())
                 .orElseThrow(() -> new IllegalArgumentException("response 不能为空"));
     }
 
-    public static String getContextPathDefaultNull() {
+    public String getContextPathDefaultNull() {
         return CObjUtils.convert(getRequestDefaultNull(), HttpServletRequest::getContextPath);
     }
 
-    public static String getContextPath() {
+    public String getContextPath() {
         return Optional.ofNullable(getContextPathDefaultNull())
                 .orElseThrow(() -> new IllegalArgumentException("contextPath 不能为空"));
     }
 
-    public static String getRequestURIDefaultNull() {
+    public String getRequestURIDefaultNull() {
         return CObjUtils.convert(getRequestDefaultNull(), HttpServletRequest::getRequestURI);
     }
 
-    public static String getRequestURI() {
+    public String getRequestURI() {
         return Optional.ofNullable(getRequestURIDefaultNull())
                 .orElseThrow(() -> new IllegalArgumentException("requestURI 不能为空"));
     }
 
-    public static String getHeader(String header) {
+    public String getHeader(String header) {
         return getHeader(getRequest(), header);
     }
 
-    public static String getHeader(HttpServletRequest request, String header) {
+    public String getHeader(HttpServletRequest request, String header) {
         return request.getHeader(header);
     }
 
-    public static void getHeaderThenDo(Collection<String> headerNames, BiConsumer<String, String> biConsumer) {
+    public void getHeaderThenDo(Collection<String> headerNames, BiConsumer<String, String> biConsumer) {
 
         if(CollUtil.isEmpty(headerNames)){
             return;

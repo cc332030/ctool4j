@@ -1,10 +1,10 @@
 package com.c332030.ctool4j.log.aspect;
 
+import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
-import lombok.CustomLog;
-import lombok.Lombok;
-import lombok.val;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
+import lombok.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,7 +24,10 @@ import java.util.LinkedHashMap;
 @CustomLog
 @Aspect
 @Component
+@AllArgsConstructor
 public class CRequestLogAspect {
+
+    CRequestLogConfig requestLogConfig;
 
     @Pointcut(
             "@annotation(org.springframework.web.bind.annotation.RequestMapping)"
@@ -42,6 +45,9 @@ public class CRequestLogAspect {
         Object result = null;
         Throwable throwable = null;
         val args = joinPoint.getArgs();
+
+        val startMills = System.currentTimeMillis();
+        var costMills = startMills;
 
         try {
 
@@ -61,6 +67,12 @@ public class CRequestLogAspect {
             }
         } catch (Exception e) {
             log.error("init request log failure", e);
+        } finally {
+
+            costMills = System.currentTimeMillis() - startMills;
+            if(costMills > requestLogConfig.getSlowMillis()) {
+                log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
+            }
         }
 
         try {
