@@ -67,7 +67,7 @@ public class CRequestLogAspect {
                 CRequestLogUtils.init(argMap);
 
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("init request log failure", e);
         } finally {
 
@@ -82,6 +82,9 @@ public class CRequestLogAspect {
 
             result = joinPoint.proceed(args);
             return result;
+        } catch (Throwable e) {
+            throwable = e;
+            throw e;
         } finally {
             try {
                 if(CRequestLogUtils.isEnable()) {
