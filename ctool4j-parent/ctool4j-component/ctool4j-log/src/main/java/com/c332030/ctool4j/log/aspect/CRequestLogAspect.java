@@ -40,6 +40,7 @@ public class CRequestLogAspect {
     )
     public void annotationPointcut(){}
 
+    @SneakyThrows
     @Around("annotationPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) {
 
@@ -66,7 +67,7 @@ public class CRequestLogAspect {
                 CRequestLogUtils.init(argMap);
 
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("init request log failure", e);
         } finally {
 
@@ -81,9 +82,6 @@ public class CRequestLogAspect {
 
             result = joinPoint.proceed(args);
             return result;
-        } catch (Throwable e) {
-            throwable = e;
-            throw Lombok.sneakyThrow(e);
         } finally {
             try {
                 if(CRequestLogUtils.isEnable()) {
