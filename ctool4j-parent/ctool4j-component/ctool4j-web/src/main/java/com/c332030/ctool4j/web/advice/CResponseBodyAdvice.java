@@ -1,10 +1,11 @@
 package com.c332030.ctool4j.web.advice;
 
-import com.c332030.ctool4j.core.util.CSpiUtils;
 import com.c332030.ctool4j.web.advice.handler.ICResponseBeforeBodyWriteHandler;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
 import lombok.var;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -23,10 +24,10 @@ import java.util.List;
  */
 @CustomLog
 @ControllerAdvice
+@AllArgsConstructor(onConstructor_ = @Autowired(required = false))
 public class CResponseBodyAdvice extends CBaseResponseBodyAdvice<Object> {
 
-    final List<ICResponseBeforeBodyWriteHandler> handlers =
-            CSpiUtils.getImplsSorted(ICResponseBeforeBodyWriteHandler.class);
+    List<ICResponseBeforeBodyWriteHandler> handlers;
 
     @Override
     Object beforeBodyWrite(
