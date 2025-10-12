@@ -25,7 +25,7 @@ import java.util.List;
 @CustomLog
 @ControllerAdvice
 @AllArgsConstructor(onConstructor_ = @Autowired(required = false))
-public class CRequestBodyAdvice extends CBaseRequestBodyAdvice {
+public class CRequestBodyAdvice implements ICRequestBodyAdvice {
 
     List<ICRequestAfterBodyReadHandler> handlers;
 

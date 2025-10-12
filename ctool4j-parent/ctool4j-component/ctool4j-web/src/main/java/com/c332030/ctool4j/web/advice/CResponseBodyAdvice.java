@@ -25,12 +25,12 @@ import java.util.List;
 @CustomLog
 @ControllerAdvice
 @AllArgsConstructor(onConstructor_ = @Autowired(required = false))
-public class CResponseBodyAdvice extends CBaseResponseBodyAdvice<Object> {
+public class CResponseBodyAdvice implements ICResponseBodyAdvice<Object> {
 
     List<ICResponseBeforeBodyWriteHandler> handlers;
 
     @Override
-    Object beforeBodyWrite(
+    public Object beforeBodyWrite(
             Object body,
             MethodParameter returnType,
             MediaType selectedContentType,
