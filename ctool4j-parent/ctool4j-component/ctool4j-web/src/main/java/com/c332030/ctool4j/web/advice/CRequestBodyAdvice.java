@@ -9,7 +9,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
  * @since 2025/9/28
  */
 @CustomLog
-@ControllerAdvice
+//@ControllerAdvice
 public class CRequestBodyAdvice extends CBaseRequestBodyAdvice {
 
     final List<ICRequestAfterBodyReadHandler> handlers =

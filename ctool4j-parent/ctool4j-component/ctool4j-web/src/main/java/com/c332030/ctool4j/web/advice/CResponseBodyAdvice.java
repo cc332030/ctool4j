@@ -8,7 +8,6 @@ import lombok.var;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ import java.util.List;
  * @since 2025/9/28
  */
 @CustomLog
-@ControllerAdvice
+//@ControllerAdvice
 public class CResponseBodyAdvice extends CBaseResponseBodyAdvice<Object> {
 
     final List<ICResponseBeforeBodyWriteHandler> handlers =
