@@ -26,6 +26,7 @@ public interface ICRequestBodyAdvice extends RequestBodyAdvice {
     ) {
         return true;
     }
+
     @NonNull
     @Override
     default HttpInputMessage beforeBodyRead(
@@ -36,6 +37,7 @@ public interface ICRequestBodyAdvice extends RequestBodyAdvice {
     ) throws IOException {
         return inputMessage;
     }
+
     @NonNull
     @Override
     default Object afterBodyRead(
@@ -47,6 +49,7 @@ public interface ICRequestBodyAdvice extends RequestBodyAdvice {
     ) {
         return body;
     }
+
     @NonNull
     @Override
     default Object handleEmptyBody(
