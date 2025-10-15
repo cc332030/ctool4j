@@ -49,7 +49,7 @@ public class CRequestLogAspect {
         val args = joinPoint.getArgs();
 
         val startMills = System.currentTimeMillis();
-        var costMills = startMills;
+        var costMills = 0L;
 
         try {
 
