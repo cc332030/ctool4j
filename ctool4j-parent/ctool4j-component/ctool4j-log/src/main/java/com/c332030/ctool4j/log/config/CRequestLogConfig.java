@@ -22,11 +22,11 @@ public class CRequestLogConfig {
     /**
      * 慢请求日志-开关
      */
-    Boolean slowEnable = true;
+    Boolean slowLogEnable = false;
 
     /**
      * 慢请求日志-毫秒数
      */
-    Integer slowMillis = 10000;
+    Integer slowLogMillis = 10000;
 
 }

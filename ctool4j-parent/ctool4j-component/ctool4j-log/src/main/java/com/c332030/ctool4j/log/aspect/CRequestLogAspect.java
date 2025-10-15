@@ -72,8 +72,8 @@ public class CRequestLogAspect {
         } finally {
 
             costMills = System.currentTimeMillis() - startMills;
-            if(BooleanUtil.isTrue(requestLogConfig.getSlowEnable())
-                    && costMills > requestLogConfig.getSlowMillis()) {
+            if(BooleanUtil.isTrue(requestLogConfig.getSlowLogEnable())
+                    && costMills > requestLogConfig.getSlowLogMillis()) {
                 log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
             }
         }
