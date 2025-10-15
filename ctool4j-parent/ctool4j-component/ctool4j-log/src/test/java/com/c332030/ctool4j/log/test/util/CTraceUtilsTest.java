@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class CTraceUtilsTest {
 
     @Test
-    public void newBusinessException() {
+    public void getTraceInfo() {
 
         val traceInfo = CTraceUtils.getTraceInfo();
         Assertions.assertEquals(CTraceInfo.class, traceInfo.getClass());
