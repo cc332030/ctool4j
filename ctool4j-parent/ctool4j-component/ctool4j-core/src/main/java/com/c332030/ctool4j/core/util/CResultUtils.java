@@ -46,14 +46,14 @@ public class CResultUtils {
     private static void throwException(ICResult<?, ?> result) {
 
         val message = StrUtil.format(EXCEPTION_MESSAGE_TEMPLATE, result.getCode(), result.getMessage());
-        throw CExceptionUtils.newBusinessException(message);
+        throw CExceptionUtils.newBusinessException(null, message);
     }
 
     @SneakyThrows
     public static void assertSuccess(ICResult<?, ?> result) {
 
         if(null == result) {
-            throw CExceptionUtils.newBusinessException("未返回数据");
+            throw CExceptionUtils.newBusinessException(null, "未返回数据");
         }
 
         if (isNotSuccess(result)) {

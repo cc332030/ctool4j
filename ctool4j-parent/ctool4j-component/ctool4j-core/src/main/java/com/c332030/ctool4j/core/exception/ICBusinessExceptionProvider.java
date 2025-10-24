@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.exception;
 
-import java.util.function.BiFunction;
+import com.c332030.ctool4j.core.function.CTriFunction;
+import com.c332030.ctool4j.core.interfaces.ICError;
 
 /**
  * <p>
@@ -11,6 +12,6 @@ import java.util.function.BiFunction;
  */
 public interface ICBusinessExceptionProvider<T extends Throwable> {
 
-    BiFunction<String, Throwable, T> getExceptionFunction();
+    CTriFunction<ICError<?>, String, Throwable, T> getExceptionFunction();
 
 }
