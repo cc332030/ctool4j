@@ -12,6 +12,6 @@ import lombok.experimental.StandardException;
 @StandardException
 public class CBusinessException extends RuntimeException{
 
-    private static final long serialVersionUID = -5255487580485371527L;
+    private static final long serialVersionUID = 1L;
 
 }
