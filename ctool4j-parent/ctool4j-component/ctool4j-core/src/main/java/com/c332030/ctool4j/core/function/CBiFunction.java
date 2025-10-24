@@ -31,7 +31,6 @@ public interface CBiFunction<O1, O2, R> {
     static <O1, O2> O1 first(O1 o1, O2 o2) {
         return o1;
     }
-
     static <O1, O2> BiFunction<O1, O2, O1> first() {
         return CBiFunction::first;
     }
@@ -39,7 +38,6 @@ public interface CBiFunction<O1, O2, R> {
     static <O1, O2> O2 second(O1 o1, O2 o2) {
         return o2;
     }
-
     static <O1, O2> BiFunction<O1, O2, O2> second() {
         return CBiFunction::second;
     }
