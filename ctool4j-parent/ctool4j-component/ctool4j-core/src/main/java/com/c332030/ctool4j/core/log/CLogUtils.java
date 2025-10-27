@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.log;
 
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.model.ICResult;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CClassUtils;
 import com.c332030.ctool4j.core.util.CJsonUtils;
@@ -103,6 +104,7 @@ public class CLogUtils {
     }
 
     private static final Set<Class<?>> JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
+            ICResult.class,
             Collection.class,
             Map.class
     ));
