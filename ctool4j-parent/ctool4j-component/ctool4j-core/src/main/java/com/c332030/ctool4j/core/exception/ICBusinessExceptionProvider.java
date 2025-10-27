@@ -1,7 +1,10 @@
 package com.c332030.ctool4j.core.exception;
 
+import com.c332030.ctool4j.core.function.CBiFunction;
 import com.c332030.ctool4j.core.function.CTriFunction;
 import com.c332030.ctool4j.core.interfaces.ICError;
+import com.c332030.ctool4j.core.util.CErrorUtils;
+import lombok.val;
 
 /**
  * <p>
@@ -12,6 +15,18 @@ import com.c332030.ctool4j.core.interfaces.ICError;
  */
 public interface ICBusinessExceptionProvider<T extends Throwable> {
 
-    CTriFunction<ICError<?>, String, Throwable, T> getExceptionFunction();
+    default CTriFunction<ICError<?>, String, Throwable, T> getExceptionFunction() {
+        return (error, errorExtend, cause) -> {
+
+            val message = CErrorUtils.formatMessage(error, errorExtend);
+            return getMessageExceptionFunction().apply(message, cause);
+        };
+    }
+
+    default CBiFunction<String, Throwable, T> getMessageExceptionFunction() {
+        return (message, cause) -> {
+            throw new UnsupportedOperationException("No impl");
+        };
+    }
 
 }

@@ -12,7 +12,7 @@ import lombok.Getter;
  * @since 2025/9/14
  */
 @Getter
-public class CBusinessException extends RuntimeException{
+public class CBusinessException extends CException {
 
     private static final long serialVersionUID = 1L;
 
