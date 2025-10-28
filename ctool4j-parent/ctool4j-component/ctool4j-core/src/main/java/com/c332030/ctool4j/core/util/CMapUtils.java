@@ -104,7 +104,7 @@ public class CMapUtils {
             return Collections.emptyMap();
         }
 
-        val map2 = new LinkedHashMap<K2, V2>();
+        val map2 = new LinkedHashMap<K2, V2>(map.size());
         map.forEach((k1, v1) -> {
 
             val k2 = CObjUtils.convert(k1, keyMapper);
