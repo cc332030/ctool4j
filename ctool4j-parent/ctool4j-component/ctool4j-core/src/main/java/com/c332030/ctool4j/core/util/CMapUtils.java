@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -77,6 +78,48 @@ public class CMapUtils {
         }
 
         return new EnumMap(type);
+    }
+
+    public <K1, K2, V> Map<K2, V> mapKey(
+            Map<K1, V> map,
+            Function<K1, K2> keyMapper
+    ) {
+        return map(map, keyMapper, Function.identity());
+    }
+
+    public <K, V1, V2> Map<K, V2> mapValue(
+            Map<K, V1> map,
+            Function<V1, V2> valueMapper
+    ) {
+        return map(map, Function.identity(), valueMapper);
+    }
+
+    public <K1, V1, K2, V2> Map<K2, V2> map(
+            Map<K1, V1> map,
+            Function<K1, K2> keyMapper,
+            Function<V1, V2> valueMapper
+    ) {
+
+        if(MapUtil.isEmpty(map)) {
+            return Collections.emptyMap();
+        }
+
+        val map2 = new LinkedHashMap<K2, V2>();
+        map.forEach((k1, v1) -> {
+
+            val k2 = CObjUtils.convert(k1, keyMapper);
+            val v2 = CObjUtils.convert(v1, valueMapper);
+            if(Objects.isNull(k2)
+                    || Objects.isNull(v2)
+            ) {
+                return;
+            }
+
+            map2.put(k2, v2);
+
+        });
+
+        return map2;
     }
 
 }
