@@ -21,10 +21,21 @@ import java.time.temporal.ChronoUnit;
 @UtilityClass
 public class CJobUtils {
 
+    /**
+     * 每日运行任务时间计算处理，一天
+     * @param param 定时任务参数
+     * @param consumer 开始、结束时间消费器
+     */
     public void dayJobTime(String param, StartEndTimeConsumer consumer) {
         dayJobTime(param, 1, consumer);
     }
 
+    /**
+     * 每日运行任务时间计算处理
+     * @param param 定时任务参数
+     * @param days 天数
+     * @param consumer 开始、结束时间消费器
+     */
     @SneakyThrows
     public void dayJobTime(String param, int days, StartEndTimeConsumer consumer) {
 
