@@ -21,8 +21,12 @@ import java.time.temporal.ChronoUnit;
 @UtilityClass
 public class CJobUtils {
 
-    @SneakyThrows
     public void dayJobTime(String param, StartEndTimeConsumer consumer) {
+        dayJobTime(param, 1, consumer);
+    }
+
+    @SneakyThrows
+    public void dayJobTime(String param, int days, StartEndTimeConsumer consumer) {
 
         Instant instant = null;
         if(StringUtils.isNotBlank(param)){
@@ -33,18 +37,18 @@ public class CJobUtils {
             instant =  Instant.now();
         }
 
-        val startDate = instant
+        val endTime = instant
                 .atZone(ZoneId.systemDefault())
                 .truncatedTo(ChronoUnit.DAYS)
-                .minusHours(1)
+                .plusDays(1)
                 .toInstant()
                 ;
 
-        val endDate = startDate
-                .plus(1, ChronoUnit.HOURS)
-                .plus(1, ChronoUnit.DAYS);
+        val startTime = endTime
+                .minus(1, ChronoUnit.HOURS)
+                .minus(days, ChronoUnit.DAYS);
 
-        consumer.accept(startDate, endDate);
+        consumer.accept(startTime, endTime);
 
     }
 
