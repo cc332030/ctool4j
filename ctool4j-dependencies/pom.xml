@@ -92,6 +92,12 @@
                 <version>0.0.3-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-job</artifactId>
+                <version>0.0.3-SNAPSHOT</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
