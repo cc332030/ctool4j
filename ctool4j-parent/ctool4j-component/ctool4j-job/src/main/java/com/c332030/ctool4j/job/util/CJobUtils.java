@@ -13,13 +13,13 @@ import java.time.temporal.ChronoUnit;
 
 /**
  * <p>
- * Description: JobUtils
+ * Description: CJobUtils
  * </p>
  *
  * @since 2025/10/31
  */
 @UtilityClass
-public class JobUtils {
+public class CJobUtils {
 
     @SneakyThrows
     public void dayJobTime(String param, StartEndTimeConsumer consumer) {
