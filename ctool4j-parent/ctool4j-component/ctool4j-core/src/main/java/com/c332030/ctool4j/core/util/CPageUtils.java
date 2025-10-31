@@ -24,6 +24,12 @@ public class CPageUtils {
 
     public static final Integer DEFAULT_JOB_PAGE_SIZE = 1000;
 
+    /**
+     * 分页查询并执行逻辑
+     * @param queryFunction 分页查询
+     * @param doSth 执行逻辑
+     * @param <T> 数据类型
+     */
     @SneakyThrows
     public <T> void queryThenDo(
             CFunction<Integer, List<T>> queryFunction,
