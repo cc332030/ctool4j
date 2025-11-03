@@ -8,6 +8,7 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.TimeoutUtils;
@@ -31,7 +32,7 @@ import java.util.function.Supplier;
  */
 @CustomLog
 @Service
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor_ = @Autowired(required = false))
 public class CRedisService {
 
     RedissonClient redissonClient;
