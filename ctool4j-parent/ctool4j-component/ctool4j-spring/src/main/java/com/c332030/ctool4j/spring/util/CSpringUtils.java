@@ -3,6 +3,7 @@ package com.c332030.ctool4j.spring.util;
 import com.c332030.ctool4j.spring.bean.CSpringBeans;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import org.springframework.core.ResolvableType;
 
 import java.util.function.Consumer;
 
@@ -23,6 +24,17 @@ public class CSpringUtils {
 
     public <T> T getBean(Class<T> tClass) {
         return CSpringBeans.getApplicationContext().getBean(tClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getBeanByResolvableType(Class<?> tClass, Class<?>... classes) {
+
+        val resolvableType = ResolvableType.forClassWithGenerics(
+                tClass, classes
+        );
+
+        return (T)CSpringBeans.getApplicationContext().getBeanProvider(resolvableType)
+                .getIfAvailable();
     }
 
     @SafeVarargs
