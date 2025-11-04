@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.cache.service;
 
-import com.c332030.ctool4j.redis.service.CAbstractObjectValueRedisService;
+import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.util.CLockUtils;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class CCacheService {
 
     CLockService lockService;
 
-    CAbstractObjectValueRedisService<? super String> redisService;
+    CObjectValueRedisService redisService;
 
     @SuppressWarnings("unchecked")
     private <T> T getValue(String key) {
