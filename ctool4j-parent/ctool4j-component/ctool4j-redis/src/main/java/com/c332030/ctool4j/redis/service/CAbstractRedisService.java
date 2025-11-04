@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- * Description: CRedisService
+ * Description: CAbstractRedisService
  * </p>
  *
  * @since 2024/3/8
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @CustomLog
 @Service
 @AllArgsConstructor
-public abstract class CRedisService<K, V> {
+public abstract class CAbstractRedisService<K, V> {
 
     RedisTemplate<K, V> redisTemplate;
 
