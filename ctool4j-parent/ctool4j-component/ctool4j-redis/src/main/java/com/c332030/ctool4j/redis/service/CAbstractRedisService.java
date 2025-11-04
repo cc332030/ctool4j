@@ -1,10 +1,9 @@
 package com.c332030.ctool4j.redis.service;
 
-import lombok.AllArgsConstructor;
-import lombok.CustomLog;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -16,11 +15,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2024/3/8
  */
-@CustomLog
-@Service
-@AllArgsConstructor
 public abstract class CAbstractRedisService<K, V> {
 
+    @Setter(onMethod = @__({@Autowired}))
     RedisTemplate<K, V> redisTemplate;
 
     public ValueOperations<K, V> opsForValue() {
