@@ -1,11 +1,12 @@
 package com.c332030.ctool4j.spring.condition;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.spring.annotation.ConditionalOnGenericBean;
 import lombok.CustomLog;
 import lombok.val;
+import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.ConfigurationCondition;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.lang.NonNull;
@@ -21,13 +22,7 @@ import java.util.Arrays;
  * @since 2025/11/4
  */
 @CustomLog
-public class OnGenericBeanCondition implements ConfigurationCondition {
-
-    @NonNull
-    @Override
-    public ConfigurationPhase getConfigurationPhase() {
-        return ConfigurationPhase.REGISTER_BEAN;
-    }
+public class OnGenericBeanCondition implements Condition {
 
     @Override
     public boolean matches(@NonNull ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -54,8 +49,8 @@ public class OnGenericBeanCondition implements ConfigurationCondition {
             return false;
         }
 
-        String[] beanNames = beanFactory.getBeanNamesForType(targetType);
-        return beanNames.length > 0;
+        val beanNames = beanFactory.getBeanNamesForType(targetType);
+        return ArrayUtil.isNotEmpty(beanNames);
     }
 
 }
