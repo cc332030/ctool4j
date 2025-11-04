@@ -41,7 +41,7 @@ public class CRedisConfiguration {
             return new CStringObjectRedisService();
         }
 
-        throw new RuntimeException("RedisTemplate is null");
+        throw new RuntimeException("no bean name redisTemplate");
 
     }
 
