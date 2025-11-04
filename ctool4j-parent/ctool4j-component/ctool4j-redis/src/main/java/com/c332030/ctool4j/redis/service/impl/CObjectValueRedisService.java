@@ -32,4 +32,9 @@ public class CObjectValueRedisService implements ICRedisService<Object, Object> 
         return (RedisTemplate<Object, Object>)redisTemplate;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getValueForGenericType(Object key) {
+        return (T)getValue(key);
+    }
+
 }

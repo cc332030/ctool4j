@@ -1,9 +1,13 @@
 package com.c332030.ctool4j.redis.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.redis.service.CAbstractRedisService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * <p>
@@ -34,6 +38,29 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
     @Override
     public boolean isInvalidValue(String value) {
         return StrUtil.isBlank(value);
+    }
+
+    public void setValue(String key, Object value) {
+        if(isInvalidKey(key)
+            || Objects.isNull(value)
+        ) {
+            return;
+        }
+        setValue(key, CJsonUtils.toJson(value));
+    }
+
+    public <T> T getValue(String key, Class<T> valueClass) {
+        if(isInvalidKey(key)) {
+            return null;
+        }
+        return getValue(key, value -> CJsonUtils.fromJson(value, valueClass));
+    }
+
+    public <T> T getValue(String key, TypeReference<T> typeReference) {
+        if(isInvalidKey(key)) {
+            return null;
+        }
+        return getValue(key, value -> CJsonUtils.fromJson(value, typeReference));
     }
 
 }
