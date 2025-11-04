@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.redis.service.impl;
 
 import com.c332030.ctool4j.redis.service.CAbstractRedisService;
-import com.c332030.ctool4j.spring.annotation.ConditionalOnGenericBean;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,13 +13,7 @@ import org.springframework.stereotype.Service;
  * @since 2025/11/4
  */
 @Service
-@ConditionalOnGenericBean(
-        type = RedisTemplate.class,
-        genericTypes = {
-                String.class,
-                String.class,
-        }
-)
+@ConditionalOnBean(StringRedisTemplate.class)
 public class CStringStringRedisService extends CAbstractRedisService<String, String> {
 
 }
