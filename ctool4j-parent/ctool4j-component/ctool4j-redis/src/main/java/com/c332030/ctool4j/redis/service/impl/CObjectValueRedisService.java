@@ -16,8 +16,16 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CObjectValueRedisService implements ICRedisService<Object, Object> {
 
+    /**
+     * RedisTemplate ，兼容 String 和 Object 类型的 key
+     * key 基本上全是 String，暂不考虑 key 不是 String 的情况
+     */
     RedisTemplate<? super String, Object> redisTemplate;
 
+    /**
+     * 获取 RedisTemplate
+     * @return RedisTemplate 通用
+     */
     @Override
     @SuppressWarnings("unchecked")
     public RedisTemplate<Object, Object> getRedisTemplate() {

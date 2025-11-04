@@ -14,6 +14,9 @@ import org.springframework.data.redis.core.RedisTemplate;
  */
 public abstract class CAbstractRedisService<K, V> implements ICRedisService<K, V> {
 
+    /**
+     * RedisTemplate
+     */
     @Getter
     @Setter(onMethod = @__({@Autowired}))
     RedisTemplate<K, V> redisTemplate;
