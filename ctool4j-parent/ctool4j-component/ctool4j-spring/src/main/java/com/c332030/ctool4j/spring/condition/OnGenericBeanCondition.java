@@ -7,7 +7,9 @@ import lombok.CustomLog;
 import lombok.val;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
@@ -22,6 +24,7 @@ import java.util.Arrays;
  * @since 2025/11/4
  */
 @CustomLog
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class OnGenericBeanCondition implements Condition {
 
     @Override
