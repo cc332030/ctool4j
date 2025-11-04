@@ -118,6 +118,7 @@ public interface ICRedisService<K, V> {
      * @param key key
      * @param convert 转换函数
      * @return 值
+     * @param <T> 转换类型
      */
     @SneakyThrows
     default <T> T getValue(K key, CFunction<V, T> convert) {
