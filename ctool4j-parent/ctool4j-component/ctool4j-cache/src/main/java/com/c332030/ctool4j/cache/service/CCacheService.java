@@ -28,25 +28,20 @@ public class CCacheService {
 
     CObjectValueRedisService redisService;
 
-    @SuppressWarnings("unchecked")
-    private <T> T getValue(String key) {
-        return (T) redisService.getValue(key);
-    }
-
     /**
      * 同步获取值
      */
     public <T> T computeIfAbsent(String key, Duration waitDuration,
                                  Function<T, Duration> expireDurationFunction, Supplier<T> valueSupplier) {
 
-        T t = getValue(key);
+        T t = redisService.getValueForGenericType(key);
         if(null != t) {
             return t;
         }
 
         return lockService.tryLockThenRun(CLockUtils.getLockKey(key), waitDuration, () -> {
 
-            T tNew = getValue(key);
+            T tNew = redisService.getValueForGenericType(key);
             if(null != tNew) {
                 log.info("computeIfAbsent skip because exists value of key: {}", key);
                 return tNew;
