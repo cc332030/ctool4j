@@ -18,7 +18,7 @@ public class CObjectValueRedisService implements ICRedisService<Object, Object> 
 
     /**
      * RedisTemplate ，兼容 String 和 Object 类型的 key
-     * key 基本上全是 String，暂不考虑 key 不是 String 的情况
+     * 有的项目 key 基本上全是 String，兼容 String 类型的 key
      */
     RedisTemplate<? super String, Object> redisTemplate;
 
