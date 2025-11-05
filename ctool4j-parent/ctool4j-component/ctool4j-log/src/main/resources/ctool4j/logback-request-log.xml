@@ -34,8 +34,7 @@
                     </fileNamePattern>
                 </then>
                 <else>
-                    <fileNamePattern>${logging.file.path}/${request-log.file-name}.log-%d{yyyy-MM-dd}.%i.gz
-                    </fileNamePattern>
+                    <fileNamePattern>${logging.file.path}/${request-log.file-name}.log-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
                 </else>
             </if>
 

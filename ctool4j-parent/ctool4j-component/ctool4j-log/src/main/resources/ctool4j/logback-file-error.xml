@@ -32,8 +32,7 @@
 
             <if condition='property("os.name").startsWith("Windows")'>
                 <then>
-                    <fileNamePattern>${logging.file.path}/${spring.application.name}/error.log-%d{yyyy-MM-dd}.%i.gz
-                    </fileNamePattern>
+                    <fileNamePattern>${logging.file.path}/${spring.application.name}/error.log-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
                 </then>
                 <else>
                     <fileNamePattern>${logging.file.path}/error.log-%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
