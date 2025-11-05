@@ -21,7 +21,7 @@ public class CSqlUtils {
      * @param func 属性 lambda
      * @return 数据库字段名
      */
-    public String toColumnName(Func1<?, ?> func) {
+    public <T> String toColumnName(Func1<T, ?> func) {
         return toColumnName(LambdaUtil.getFieldName(func));
     }
 
@@ -40,7 +40,7 @@ public class CSqlUtils {
      * @param number 数值
      * @return sql
      */
-    public String getGreaterSql(Func1<?, ?> func, Number number) {
+    public <T> String getGreaterSql(Func1<T, ?> func, Number number) {
         return CStrUtils.format(
                 "{} > {}",
                 toColumnName(func),
