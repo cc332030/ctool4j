@@ -8,24 +8,13 @@
         <version>0.0.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-mybatis-base</artifactId>
+    <artifactId>ctool4j-db</artifactId>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-db</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-transaction</artifactId>
+            <artifactId>ctool4j-core</artifactId>
         </dependency>
 
     </dependencies>

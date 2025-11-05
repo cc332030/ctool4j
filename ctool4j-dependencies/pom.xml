@@ -70,6 +70,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-db</artifactId>
+                <version>0.0.4-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mybatis-base</artifactId>
                 <version>0.0.4-SNAPSHOT</version>
             </dependency>
