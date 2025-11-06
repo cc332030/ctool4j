@@ -17,7 +17,7 @@ public interface ICopy {
      * @return 目标对象
      * @param <T> 目标对象类型
      */
-    default <T> T copy(T t) {
+    default <T> T copyTo(T t) {
         return CBeanUtils.copy(this, t);
     }
 
@@ -27,7 +27,7 @@ public interface ICopy {
      * @return 目标对象
      * @param <T> 目标对象类型
      */
-    default <T> T copy(Class<T> tClass) {
+    default <T> T copyTo(Class<T> tClass) {
         return CBeanUtils.copy(this, tClass);
     }
 
