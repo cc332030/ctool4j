@@ -26,25 +26,25 @@ public interface CTriFunction<O1, O2, O3, R> {
         return (o1, o2, o3) -> apply(function, o1, o2, o3);
     }
 
-    static <O1, O2, O3> O1 first(O1 o1, O2 o2, O3 o3) {
-        return o1;
-    }
+    CTriFunction<Object, Object, Object, Object> FIRST = (o1, o2, o3) -> o1;
+
+    @SuppressWarnings("unchecked")
     static <O1, O2, O3> CTriFunction<O1, O2, O3, O1> first() {
-        return CTriFunction::first;
+        return (CTriFunction<O1, O2, O3, O1>)FIRST;
     }
 
-    static <O1, O2, O3> O2 second(O1 o1, O2 o2, O3 o3) {
-        return o2;
-    }
+    CTriFunction<Object, Object, Object, Object> SECOND = (o1, o2, o3) -> o2;
+
+    @SuppressWarnings("unchecked")
     static <O1, O2, O3> CTriFunction<O1, O2, O3, O2> second() {
-        return CTriFunction::second;
+        return (CTriFunction<O1, O2, O3, O2>)SECOND;
     }
 
-    static <O1, O2, O3> O3 third(O1 o1, O2 o2, O3 o3) {
-        return o3;
-    }
+    CTriFunction<Object, Object, Object, Object> THIRD = (o1, o2, o3) -> o3;
+
+    @SuppressWarnings("unchecked")
     static <O1, O2, O3> CTriFunction<O1, O2, O3, O3> third() {
-        return CTriFunction::third;
+        return (CTriFunction<O1, O2, O3, O3>)THIRD;
     }
 
 }
