@@ -2,8 +2,11 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.function.CBiConsumer;
 import com.c332030.ctool4j.core.function.StringFunction;
 import com.c332030.ctool4j.core.function.ToStringFunction;
+import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
@@ -15,6 +18,7 @@ import java.math.BigDecimal;
  *
  * @since 2024/12/2
  */
+@CustomLog
 @UtilityClass
 public class CNumUtils {
 
@@ -113,7 +117,15 @@ public class CNumUtils {
     }
 
     public Integer parseInt(String value) {
-        return parse(value, Integer::parseInt);
+        return parse(value, Integer::parseInt, null);
+    }
+
+    public Integer parseIntDefaultNull(String value) {
+        return parse(value, Integer::parseInt, CBiConsumer.empty());
+    }
+
+    public Integer parseInt(String value, CBiConsumer<String, Throwable> fallback) {
+        return parse(value, Integer::parseInt, fallback);
     }
 
     public Long toStringThenParseLong(Object object) {
@@ -125,11 +137,38 @@ public class CNumUtils {
     }
 
     public Long parseLong(String value) {
-        return parse(value, Long::parseLong);
+        return parseLong(value, null);
     }
 
+    public Long parseLongDefaultNull(String value) {
+        return parseLong(value, CBiConsumer.empty());
+    }
+
+    public Long parseLong(String value, CBiConsumer<String, Throwable> fallback) {
+        return parse(value, Long::parseLong, fallback);
+    }
+
+    @SneakyThrows
     public <T> T parse(String value, StringFunction<T> function) {
-        return CStrUtils.convertAvailable(value, function);
+        return parse(value, function, null);
+    }
+
+    @SneakyThrows
+    public <T> T parse(String value, StringFunction<T> function, CBiConsumer<String, Throwable> fallback) {
+
+        try {
+            return CStrUtils.convertAvailable(value, function);
+        } catch (Throwable e) {
+
+            log.debug("parse error: {}", value, e);
+            if(null != fallback) {
+                fallback.accept(value, e);
+            } else {
+                throw e;
+            }
+        }
+
+        return null;
     }
 
     public boolean checkOverflow(long value) {

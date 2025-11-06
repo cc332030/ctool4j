@@ -16,6 +16,13 @@ public interface CBiConsumer<T, U> {
 
     void accept(T t, U u) throws Throwable;
 
+    CBiConsumer<?, ?> EMPTY = (t, u) -> {};
+
+    @SuppressWarnings("unchecked")
+    static <T, U> CBiConsumer<T, U> empty() {
+        return (CBiConsumer<T, U>)EMPTY;
+    }
+
     static <T, U> void accept(CBiConsumer<T, U> consumer, T t, U u) {
         try {
             consumer.accept(t, u);
