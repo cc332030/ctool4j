@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 public class CBiFunctionTest {
 
     @Test
-    @SneakyThrows
     public void first() {
 
         Assertions.assertEquals(1, CBiFunction.FIRST.apply(1, 2));
@@ -24,7 +23,6 @@ public class CBiFunctionTest {
     }
 
     @Test
-    @SneakyThrows
     public void second() {
 
         Assertions.assertEquals(2, CBiFunction.SECOND.apply(1, 2));

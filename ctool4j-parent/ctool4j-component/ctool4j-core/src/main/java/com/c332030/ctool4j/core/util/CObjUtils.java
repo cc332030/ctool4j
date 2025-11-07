@@ -71,7 +71,6 @@ public class CObjUtils {
         throw new IllegalStateException("Convert failed, value: " + o + ", targetClass: " + tClass);
     }
 
-    @SneakyThrows
     @SuppressWarnings("unchecked")
     public <From, To> To convert(From from, Class<To> toClass) {
 

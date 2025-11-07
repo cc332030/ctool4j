@@ -149,7 +149,6 @@ public class CBeanUtils {
         };
     }
 
-    @SneakyThrows
     @SuppressWarnings("unchecked")
     public <From, To> To copy(From from, To to) {
 

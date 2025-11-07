@@ -30,7 +30,6 @@ public class CPageUtils {
      * @param doSth 执行逻辑
      * @param <T> 数据类型
      */
-    @SneakyThrows
     public <T> void queryThenDo(
             CFunction<Integer, List<T>> queryFunction,
             CConsumer<T> doSth

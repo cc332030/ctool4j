@@ -56,7 +56,6 @@ public class CUrlUtils {
         return newMap;
     }
 
-    @SneakyThrows
     public static Map<String, String> getParamMap(String url) {
 
         if(StrUtil.isEmpty(url)) {
@@ -90,7 +89,6 @@ public class CUrlUtils {
         return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
     }
 
-    @SneakyThrows
     public static String getUrl(String url) {
         if(StrUtil.isEmpty(url)) {
             return null;

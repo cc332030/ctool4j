@@ -42,7 +42,6 @@ public class CExceptionUtils {
         return newBusinessException(error, message, null);
     }
 
-    @SneakyThrows
     @SuppressWarnings("unchecked")
     public <T extends Throwable> T newBusinessException(ICError<?> error, String message, Throwable cause) {
         return (T) getBusinessExceptionFunction().apply(error, message, cause);

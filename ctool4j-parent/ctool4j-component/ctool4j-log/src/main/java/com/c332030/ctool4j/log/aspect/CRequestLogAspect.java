@@ -40,7 +40,6 @@ public class CRequestLogAspect {
     )
     public void annotationPointcut(){}
 
-    @SneakyThrows
     @Around("annotationPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) {
 

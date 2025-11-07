@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 public class CTriFunctionTest {
 
     @Test
-    @SneakyThrows
     public void first() {
 
         Assertions.assertEquals(1, CTriFunction.FIRST.apply(1, 2, 3));
@@ -24,7 +23,6 @@ public class CTriFunctionTest {
     }
 
     @Test
-    @SneakyThrows
     public void second() {
 
         Assertions.assertEquals(2, CTriFunction.SECOND.apply(1, 2, 3));
@@ -33,7 +31,6 @@ public class CTriFunctionTest {
     }
 
     @Test
-    @SneakyThrows
     public void third() {
 
         Assertions.assertEquals(3, CTriFunction.THIRD.apply(1, 2, 3));

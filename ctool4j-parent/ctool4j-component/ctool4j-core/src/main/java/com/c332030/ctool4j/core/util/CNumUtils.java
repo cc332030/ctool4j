@@ -148,12 +148,10 @@ public class CNumUtils {
         return parse(value, Long::parseLong, fallback);
     }
 
-    @SneakyThrows
     public <T> T parse(String value, StringFunction<T> function) {
         return parse(value, function, null);
     }
 
-    @SneakyThrows
     public <T> T parse(String value, StringFunction<T> function, CBiConsumer<String, Throwable> fallback) {
 
         try {

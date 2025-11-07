@@ -36,7 +36,6 @@ public class CJobUtils {
      * @param days 天数
      * @param consumer 开始、结束时间消费器
      */
-    @SneakyThrows
     public void dayJobTime(String param, int days, StartEndTimeConsumer consumer) {
 
         Instant instant = null;
