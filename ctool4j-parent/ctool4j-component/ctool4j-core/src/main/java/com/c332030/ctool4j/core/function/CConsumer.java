@@ -23,6 +23,13 @@ public interface CConsumer<T> extends Consumer<T> {
 
     void acceptThrowable(T t) throws Throwable;
 
+    CConsumer<Object> EMPTY = (t) -> {};
+
+    @SuppressWarnings("unchecked")
+    static <T> CConsumer<T> empty() {
+        return (CConsumer<T>)EMPTY;
+    }
+
     static <T> void accept(CConsumer<T> consumer, T t) {
         try {
             consumer.accept(t);

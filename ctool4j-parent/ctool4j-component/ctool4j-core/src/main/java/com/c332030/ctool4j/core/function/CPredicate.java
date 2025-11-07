@@ -23,6 +23,20 @@ public interface CPredicate<T> extends Predicate<T> {
 
     boolean testThrowable(T t) throws Throwable;
 
+    CPredicate<Object> TRUE = t -> true;
+
+    @SuppressWarnings("unchecked")
+    static <T> CPredicate<T> alwaysTrue() {
+        return (CPredicate<T>)TRUE;
+    }
+
+    CPredicate<Object> FALSE = t -> false;
+
+    @SuppressWarnings("unchecked")
+    static <T> CPredicate<T> alwaysFalse() {
+        return (CPredicate<T>)FALSE;
+    }
+
     static <T> boolean test(CPredicate<T> predicate, T t) {
         try {
             return predicate.test(t);
@@ -34,5 +48,6 @@ public interface CPredicate<T> extends Predicate<T> {
     static <T> Predicate<T> convert(CPredicate<T> predicate) {
         return t -> test(predicate, t);
     }
+
 
 }

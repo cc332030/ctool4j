@@ -21,6 +21,8 @@ public interface CRunnable extends Runnable {
 
     void runThrowable() throws Throwable;
 
+    CRunnable EMPTY = () -> {};
+
     static void run(CRunnable runnable) {
         try {
             runnable.run();

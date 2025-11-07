@@ -23,6 +23,13 @@ public interface CSupplier<T> extends Supplier<T> {
 
     T getThrowable() throws Throwable;
 
+    CSupplier<Object> NULL = () -> null;
+
+    @SuppressWarnings("unchecked")
+    static <T> CSupplier<T> alwaysNull() {
+        return (CSupplier<T>)NULL;
+    }
+
     static <T> T get(CSupplier<T> supplier) {
         try {
             return supplier.get();

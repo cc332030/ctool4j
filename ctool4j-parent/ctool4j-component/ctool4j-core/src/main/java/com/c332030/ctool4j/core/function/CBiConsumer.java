@@ -23,7 +23,7 @@ public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
 
     void acceptThrowable(T t, U u) throws Throwable;
 
-    CBiConsumer<?, ?> EMPTY = (t, u) -> {};
+    CBiConsumer<Object, Object> EMPTY = (t, u) -> {};
 
     @SuppressWarnings("unchecked")
     static <T, U> CBiConsumer<T, U> empty() {
