@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 /**
@@ -21,11 +20,7 @@ public interface CTriFunction<O1, O2, O3, R> {
     R applyThrowable(O1 o1, O2 o2, O3 o3) throws Throwable;
 
     static <O1, O2, O3, R> R apply(CTriFunction<O1, O2, O3, R> function, O1 o1, O2 o2, O3 o3) {
-        try {
-            return function.apply(o1, o2, o3);
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        return function.apply(o1, o2, o3);
     }
 
     static <O1, O2, O3, R> CTriFunction<O1, O2, O3, R> convert(CTriFunction<O1, O2, O3, R> function) {

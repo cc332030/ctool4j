@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 import java.util.function.Function;
@@ -31,11 +30,7 @@ public interface CFunction<O, R> extends Function<O, R> {
     }
 
     static <O, R> R apply(CFunction<O, R> function, O o) {
-        try {
-            return function.apply(o);
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        return function.apply(o);
     }
 
     static <T, U> Function<T, U> convert(CFunction<T, U> function) {

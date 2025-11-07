@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 import java.util.function.Predicate;
@@ -38,11 +37,7 @@ public interface CPredicate<T> extends Predicate<T> {
     }
 
     static <T> boolean test(CPredicate<T> predicate, T t) {
-        try {
-            return predicate.test(t);
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        return predicate.test(t);
     }
 
     static <T> Predicate<T> convert(CPredicate<T> predicate) {

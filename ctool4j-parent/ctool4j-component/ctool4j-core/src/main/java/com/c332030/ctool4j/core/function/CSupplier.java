@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 import java.util.function.Supplier;
@@ -31,11 +30,7 @@ public interface CSupplier<T> extends Supplier<T> {
     }
 
     static <T> T get(CSupplier<T> supplier) {
-        try {
-            return supplier.get();
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        return supplier.get();
     }
 
     static <T> Supplier<T> convert(CSupplier<T> supplier) {

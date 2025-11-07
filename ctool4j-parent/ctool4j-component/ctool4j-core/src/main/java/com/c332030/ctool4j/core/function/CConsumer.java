@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 import java.util.function.Consumer;
@@ -31,11 +30,7 @@ public interface CConsumer<T> extends Consumer<T> {
     }
 
     static <T> void accept(CConsumer<T> consumer, T t) {
-        try {
-            consumer.accept(t);
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        consumer.accept(t);
     }
 
     static <T> Consumer<T> convert(CConsumer<T> consumer) {

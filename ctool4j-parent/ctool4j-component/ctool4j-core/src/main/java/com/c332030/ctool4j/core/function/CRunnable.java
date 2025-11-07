@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 /**
@@ -24,11 +23,7 @@ public interface CRunnable extends Runnable {
     CRunnable EMPTY = () -> {};
 
     static void run(CRunnable runnable) {
-        try {
-            runnable.run();
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        runnable.run();
     }
 
     static Runnable convert(CRunnable runnable) {

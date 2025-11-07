@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
 import lombok.SneakyThrows;
 
 import java.util.function.BiConsumer;
@@ -31,11 +30,7 @@ public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
     }
 
     static <T, U> void accept(CBiConsumer<T, U> consumer, T t, U u) {
-        try {
-            consumer.accept(t, u);
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+        consumer.accept(t, u);
     }
 
     static <T, U> BiConsumer<T, U> convert(CBiConsumer<T, U> consumer) {
