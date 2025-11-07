@@ -12,7 +12,7 @@ import com.c332030.ctool4j.web.advice.handler.ICRequestAfterBodyReadHandler;
 public class RequestLogRequestHandler implements ICRequestAfterBodyReadHandler {
 
     @Override
-    public Object apply(Object o) throws Throwable {
+    public Object applyThrowable(Object o) {
         return o;
     }
 

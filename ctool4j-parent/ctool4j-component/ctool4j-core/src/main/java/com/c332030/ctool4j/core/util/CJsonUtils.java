@@ -57,6 +57,7 @@ public class CJsonUtils {
     public <T> T fromJson(String json, Class<T> tClass, ObjectMapper objectMapper) {
         return objectMapper.readValue(json, tClass);
     }
+
     @SneakyThrows
     public <T> T fromJson(String json, TypeReference<T> typeReference, ObjectMapper objectMapper) {
         return objectMapper.readValue(json, typeReference);

@@ -185,7 +185,7 @@ public class CClassUtils {
         setValue(object, getFields(object.getClass()).get(fieldName), value, true);
     }
 
-    @SneakyThrows
+
     public void setValue(Object object, Field field, Object value) {
         setValue(object, field, value, false);
     }
@@ -264,7 +264,7 @@ public class CClassUtils {
         return (T) method.invoke(value, args);
     }
 
-    @SneakyThrows
+
     @SuppressWarnings("unchecked")
     public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
 
@@ -385,17 +385,17 @@ public class CClassUtils {
     }
 
 
-    public static final Map<Class<?>, Map<Class<?>, CFunction<?, ?>>> BEAN_CONVERTER_MAP = new ConcurrentHashMap<>();
+    public static final Map<Class<?>, Map<Class<?>, Function<?, ?>>> BEAN_CONVERTER_MAP = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static <From, To> CFunction<From, To> getConverter(Class<From> fromClass, Class<To> toClass) {
+    public static <From, To> Function<From, To> getConverter(Class<From> fromClass, Class<To> toClass) {
 
         val converterMap = BEAN_CONVERTER_MAP.get(fromClass);
         if(null == converterMap) {
             return null;
         }
 
-        return (CFunction<From, To>) converterMap.get(toClass);
+        return (Function<From, To>) converterMap.get(toClass);
     }
 
     public <From, To> boolean hasConverter(Class<From> fromClass, Class<To> toClass) {

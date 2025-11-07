@@ -12,7 +12,7 @@ import cn.hutool.core.util.StrUtil;
 public class CDefaultCacheIdConvert implements ICCacheIdConvert<Object>{
 
     @Override
-    public String apply(Object o) {
+    public String applyThrowable(Object o) {
         return StrUtil.toStringOrNull(o);
     }
 

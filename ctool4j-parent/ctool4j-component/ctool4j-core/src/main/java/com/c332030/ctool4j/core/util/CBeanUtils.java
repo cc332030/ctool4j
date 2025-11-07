@@ -5,7 +5,6 @@ import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.function.CBiConsumer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -32,15 +32,13 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CBeanUtils {
 
-    public static final CBiConsumer<?, ?> EMPTY_COPY_CONSUMER= (o, t) -> {};
-
-    private static final Map<Class<?>, Map<Class<?>, CBiConsumer<?, ?>>> BEAN_COPY_CONSUMER_MAP = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Map<Class<?>, BiConsumer<?, ?>>> BEAN_COPY_CONSUMER_MAP = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
-    public <From, To> CBiConsumer<From, To> getCopyConsumer(Class<From> fromClass, Class<To> toClass) {
+    public <From, To> BiConsumer<From, To> getCopyConsumer(Class<From> fromClass, Class<To> toClass) {
 
         var convertMap = BEAN_COPY_CONSUMER_MAP.get(fromClass);
-        CBiConsumer<From, To> copyConsumer;
+        BiConsumer<From, To> copyConsumer;
         if(null == convertMap) {
             synchronized (BEAN_COPY_CONSUMER_MAP) {
                 convertMap = BEAN_COPY_CONSUMER_MAP.computeIfAbsent(fromClass,
@@ -48,10 +46,10 @@ public class CBeanUtils {
             }
         }
 
-        copyConsumer = (CBiConsumer<From, To>)convertMap.get(toClass);
+        copyConsumer = (BiConsumer<From, To>)convertMap.get(toClass);
         if(null == copyConsumer) {
             synchronized (convertMap) {
-                copyConsumer = (CBiConsumer<From, To>)convertMap.computeIfAbsent(toClass,
+                copyConsumer = (BiConsumer<From, To>)convertMap.computeIfAbsent(toClass,
                         k -> createCopyConsumer(fromClass, toClass));
             }
         }
@@ -59,12 +57,11 @@ public class CBeanUtils {
         return copyConsumer;
     }
 
-    @SuppressWarnings("unchecked")
-    public <From, To> CBiConsumer<From, To> createCopyConsumer(Class<From> fromClass, Class<To> toClass) {
+    public <From, To> BiConsumer<From, To> createCopyConsumer(Class<From> fromClass, Class<To> toClass) {
 
         if(CClassUtils.isBasicClass(fromClass) || CClassUtils.isBasicClass(toClass)) {
             log.warn("Unsupported create copy consumer from {} to {}", fromClass, toClass);
-            return (CBiConsumer<From, To>)EMPTY_COPY_CONSUMER;
+            return CBiConsumer.empty();
         }
 
         log.debug("Create copy consumer from {} to {}", fromClass, toClass);
@@ -156,7 +153,7 @@ public class CBeanUtils {
             return to;
         }
 
-        val consumer = (CBiConsumer<From, To>)getCopyConsumer(from.getClass(), to.getClass());
+        val consumer = (BiConsumer<From, To>)getCopyConsumer(from.getClass(), to.getClass());
         consumer.accept(from, to);
         return to;
     }
