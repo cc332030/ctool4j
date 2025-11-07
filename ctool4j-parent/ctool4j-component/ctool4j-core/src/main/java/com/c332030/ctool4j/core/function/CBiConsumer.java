@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.function;
 
 import lombok.Lombok;
+import lombok.SneakyThrows;
 
 import java.util.function.BiConsumer;
 
@@ -12,9 +13,15 @@ import java.util.function.BiConsumer;
  * @since 2025/2/21
  */
 @FunctionalInterface
-public interface CBiConsumer<T, U> {
+public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
 
-    void accept(T t, U u) throws Throwable;
+    @Override
+    @SneakyThrows
+    default void accept(T t, U u) {
+        acceptThrowable(t, u);
+    }
+
+    void acceptThrowable(T t, U u) throws Throwable;
 
     CBiConsumer<?, ?> EMPTY = (t, u) -> {};
 

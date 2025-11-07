@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.function;
 
 import lombok.Lombok;
+import lombok.SneakyThrows;
 
 /**
  * <p>
@@ -10,9 +11,15 @@ import lombok.Lombok;
  * @since 2025/1/15
  */
 @FunctionalInterface
-public interface CRunnable {
+public interface CRunnable extends Runnable {
 
-    void run() throws Throwable;
+    @Override
+    @SneakyThrows
+    default void run() {
+        runThrowable();
+    }
+
+    void runThrowable() throws Throwable;
 
     static void run(CRunnable runnable) {
         try {

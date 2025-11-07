@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.function;
 
 import lombok.Lombok;
+import lombok.SneakyThrows;
 
 import java.util.function.Predicate;
 
@@ -12,9 +13,15 @@ import java.util.function.Predicate;
  * @since 2025/1/15
  */
 @FunctionalInterface
-public interface CPredicate<T> {
+public interface CPredicate<T> extends Predicate<T> {
 
-    boolean test(T t) throws Throwable;
+    @Override
+    @SneakyThrows
+    default boolean test(T t) {
+        return testThrowable(t);
+    }
+
+    boolean testThrowable(T t) throws Throwable;
 
     static <T> boolean test(CPredicate<T> predicate, T t) {
         try {

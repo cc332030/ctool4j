@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.function;
 
 import lombok.Lombok;
+import lombok.SneakyThrows;
 
 import java.util.function.Consumer;
 
@@ -12,9 +13,15 @@ import java.util.function.Consumer;
  * @since 2025/9/28
  */
 @FunctionalInterface
-public interface CConsumer<T> {
+public interface CConsumer<T> extends Consumer<T> {
 
-    void accept(T t) throws Throwable;
+    @Override
+    @SneakyThrows
+    default void accept(T t) {
+        acceptThrowable(t);
+    }
+
+    void acceptThrowable(T t) throws Throwable;
 
     static <T> void accept(CConsumer<T> consumer, T t) {
         try {

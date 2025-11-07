@@ -13,6 +13,6 @@ import java.time.Instant;
 public interface StartEndTimeConsumer extends CBiConsumer<Instant, Instant> {
 
     @Override
-    void accept(Instant startTime, Instant endTime) throws Throwable;
+    void acceptThrowable(Instant startTime, Instant endTime) throws Throwable;
 
 }

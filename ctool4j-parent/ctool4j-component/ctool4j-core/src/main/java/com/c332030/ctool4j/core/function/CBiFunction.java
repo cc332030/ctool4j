@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.function;
 
-import lombok.Lombok;
+import lombok.SneakyThrows;
 
 import java.util.function.BiFunction;
 
@@ -12,21 +12,15 @@ import java.util.function.BiFunction;
  * @since 2025/5/12
  */
 @FunctionalInterface
-public interface CBiFunction<O1, O2, R> {
+public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {
 
-    R apply(O1 o1, O2 o2) throws Throwable;
-
-    static <O1, O2, R> R apply(CBiFunction<O1, O2, R> function, O1 o1, O2 o2) {
-        try {
-            return function.apply(o1, o2);
-        } catch (Throwable e) {
-            throw Lombok.sneakyThrow(e);
-        }
+    @Override
+    @SneakyThrows
+    default R apply(O1 o1, O2 o2) {
+        return applyThrowable(o1, o2);
     }
 
-    static <O1, O2, R> BiFunction<O1, O2, R> convert(CBiFunction<O1, O2, R> function) {
-        return (o1, o2) -> apply(function, o1, o2);
-    }
+    R applyThrowable(O1 o1, O2 o2) throws Throwable;
 
     CBiFunction<Object, Object, Object> FIRST = (o1, o2) -> o1;
 

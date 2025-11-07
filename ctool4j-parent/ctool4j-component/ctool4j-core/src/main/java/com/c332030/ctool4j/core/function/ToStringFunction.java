@@ -1,7 +1,5 @@
 package com.c332030.ctool4j.core.function;
 
-import java.util.function.Function;
-
 /**
  * <p>
  * Description: ToStringFunction
@@ -10,6 +8,6 @@ import java.util.function.Function;
  * @since 2024/12/2
  */
 @FunctionalInterface
-public interface ToStringFunction<T> extends Function<T, String> {
+public interface ToStringFunction<T> extends CFunction<T, String> {
 
 }

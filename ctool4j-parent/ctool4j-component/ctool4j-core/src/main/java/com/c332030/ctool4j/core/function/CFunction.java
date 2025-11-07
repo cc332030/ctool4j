@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.function;
 
 import lombok.Lombok;
+import lombok.SneakyThrows;
 
 import java.util.function.Function;
 
@@ -12,9 +13,15 @@ import java.util.function.Function;
  * @since 2025/1/15
  */
 @FunctionalInterface
-public interface CFunction<O, R> {
+public interface CFunction<O, R> extends Function<O, R> {
 
-    R apply(O o) throws Throwable;
+    @Override
+    @SneakyThrows
+    default R apply(O o) {
+        return applyThrowable(o);
+    }
+
+    R applyThrowable(O o) throws Throwable;
 
     static <O, R> R apply(CFunction<O, R> function, O o) {
         try {
