@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.jackson;
 
 import com.c332030.ctool4j.core.jackson.deserializer.CDateDeserializer;
+import com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer;
 import com.c332030.ctool4j.core.jackson.deserializer.CInstantDeserializer;
 import com.c332030.ctool4j.core.jackson.serializer.CDateSerializer;
 import com.c332030.ctool4j.core.jackson.serializer.CInstantSerializer;
@@ -8,7 +9,10 @@ import com.c332030.ctool4j.core.jackson.serializer.CLongArraySerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.experimental.UtilityClass;
@@ -52,6 +56,8 @@ public class CJacksonUtils {
 
         module.addSerializer(Instant.class, CInstantSerializer.INSTANCE);
         module.addDeserializer(Instant.class, CInstantDeserializer.INSTANCE);
+
+        module.addDeserializer(Enum.class, CEnumDeserializer.EMPTY_INSTANCE);
 
         OBJECT_MAPPER.registerModule(module);
 
