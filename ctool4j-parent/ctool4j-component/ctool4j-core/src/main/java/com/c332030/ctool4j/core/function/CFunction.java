@@ -33,9 +33,8 @@ public interface CFunction<O, R> extends Function<O, R> {
         return function.apply(o);
     }
 
-    static <T, U> Function<T, U> convert(CFunction<T, U> function) {
+    static <O, R> Function<O, R> convert(CFunction<O, R> function) {
         return t -> apply(function, t);
     }
-
 
 }
