@@ -14,8 +14,12 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CLockUtils {
 
+    public static final String LOCK_STR = "lock";
+
     public static String getLockKey(String key) {
-        return key + "-lock";
+        return key
+                + CRedisUtils.KEY_SEPARATOR
+                +  LOCK_STR;
     }
 
     public static String getLockKey(Class<?> clazz, IOperate iOperate, Object key) {

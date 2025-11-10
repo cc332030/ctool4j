@@ -14,13 +14,15 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CRedisUtils {
 
+    public static final String KEY_SEPARATOR = ":";
+
     public static String getKey(Class<?> clazz, IOperate iOperate, Object key) {
         return CSpringUtils.getApplicationName()
-                + "_"
+                + KEY_SEPARATOR
                 + clazz.getSimpleName()
-                + "_"
+                + KEY_SEPARATOR
                 + iOperate.getName()
-                + "_"
+                + KEY_SEPARATOR
                 + key
                 ;
     }
