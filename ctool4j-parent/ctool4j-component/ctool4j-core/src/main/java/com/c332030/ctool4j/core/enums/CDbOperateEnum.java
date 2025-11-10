@@ -6,14 +6,14 @@ import lombok.Getter;
 
 /**
  * <p>
- * Description: DbOperateEnum
+ * Description: CDbOperateEnum
  * </p>
  *
  * @since 2025/11/10
  */
 @Getter
 @AllArgsConstructor
-public enum DbOperateEnum implements IOperate {
+public enum CDbOperateEnum implements IOperate {
 
     INSERT("插入"),
 
