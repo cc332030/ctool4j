@@ -14,7 +14,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CRedisUtils {
 
-    public static String getKey(Class<?> clazz, IOperate iOperate, String key) {
+    public static String getKey(Class<?> clazz, IOperate iOperate, Object key) {
         return CSpringUtils.getApplicationName()
                 + "_"
                 + clazz.getSimpleName()

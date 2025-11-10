@@ -18,7 +18,7 @@ public class CLockUtils {
         return key + "-lock";
     }
 
-    public static String getLockKey(Class<?> clazz, IOperate iOperate, String key) {
+    public static String getLockKey(Class<?> clazz, IOperate iOperate, Object key) {
         return getLockKey(CRedisUtils.getKey(clazz, iOperate, key));
     }
 
