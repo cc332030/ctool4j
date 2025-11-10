@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.spring.cloud.config;
+package com.c332030.ctool4j.spring.cloud.configuration;
 
 import org.springframework.context.annotation.Configuration;
 

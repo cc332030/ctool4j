@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.spring.config;
+package com.c332030.ctool4j.spring.configuration;
 
 import com.c332030.ctool4j.core.constant.CToolConstants;
 import org.springframework.context.annotation.ComponentScan;

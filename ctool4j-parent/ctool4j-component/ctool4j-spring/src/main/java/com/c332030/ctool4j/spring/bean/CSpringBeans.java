@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.bean;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
  * @since 2025/9/10
  */
 @Component
+@AllArgsConstructor
 public class CSpringBeans implements ApplicationContextAware {
 
     @Getter

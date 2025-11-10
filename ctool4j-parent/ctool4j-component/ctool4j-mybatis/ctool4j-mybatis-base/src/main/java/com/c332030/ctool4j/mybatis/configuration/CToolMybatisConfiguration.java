@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.mybatis.config;
+package com.c332030.ctool4j.mybatis.configuration;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.c332030.ctool4j.core.log.CLogUtils;

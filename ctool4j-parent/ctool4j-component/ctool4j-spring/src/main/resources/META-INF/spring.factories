@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.c332030.ctool4j.spring.config.CToolSpringConfiguration
+  com.c332030.ctool4j.spring.configuration.CToolSpringConfiguration
