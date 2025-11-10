@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.spring.util;
 
 import com.c332030.ctool4j.spring.bean.CSpringBeans;
+import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.core.ResolvableType;
@@ -16,6 +17,10 @@ import java.util.function.Consumer;
  */
 @UtilityClass
 public class CSpringUtils {
+
+    public String getApplicationName() {
+        return CSpringConfigBeans.getSpringApplicationConfig().getName();
+    }
 
     @SuppressWarnings("unchecked")
     public <T> T getBean(String name) {

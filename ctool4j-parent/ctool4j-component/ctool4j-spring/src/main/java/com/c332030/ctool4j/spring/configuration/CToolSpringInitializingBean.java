@@ -1,5 +1,8 @@
 package com.c332030.ctool4j.spring.configuration;
 
+import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
+import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
+import com.c332030.ctool4j.spring.util.CSpringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +17,9 @@ import org.springframework.stereotype.Component;
 public class CToolSpringInitializingBean implements InitializingBean {
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
+
+        CSpringUtils.wireBean(CSpringApplicationConfig.class, CSpringConfigBeans::setSpringApplicationConfig);
 
     }
 

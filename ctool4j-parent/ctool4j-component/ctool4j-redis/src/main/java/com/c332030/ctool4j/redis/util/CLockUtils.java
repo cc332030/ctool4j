@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.util;
 
+import com.c332030.ctool4j.core.interfaces.IOperate;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -17,8 +18,8 @@ public class CLockUtils {
         return key + "-lock";
     }
 
-    public static String getLockKey(Class<?> clazz, String operate, String key) {
-        return key + "-lock";
+    public static String getLockKey(Class<?> clazz, IOperate iOperate, String key) {
+        return getLockKey(CRedisUtils.getKey(clazz, iOperate, key));
     }
 
 }
