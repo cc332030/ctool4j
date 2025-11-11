@@ -16,6 +16,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CSqlUtils {
 
+    public String getTableAliasSql(String alias) {
+        return CStrUtils.convertNotBlank(alias, e -> e + ".", StrUtil.EMPTY);
+    }
+
     /**
      * 获取数据库字段名，驼峰转下划线
      * @param func 属性 lambda
@@ -43,8 +47,21 @@ public class CSqlUtils {
      * @param <T> 泛型
      */
     public <T> String getGreaterSql(Func1<T, ?> func, Number number) {
+        return getGreaterSql(func, number, null);
+    }
+
+    /**
+     * 大于 sql
+     * @param func 属性 lambda
+     * @param number 数值
+     * @param alias 别名
+     * @return sql
+     * @param <T> 泛型
+     */
+    public <T> String getGreaterSql(Func1<T, ?> func, Number number, String alias) {
         return CStrUtils.format(
-                "{} > {}",
+                "{}{} > {}",
+                getTableAliasSql(alias),
                 toColumnName(func),
                 number
         );

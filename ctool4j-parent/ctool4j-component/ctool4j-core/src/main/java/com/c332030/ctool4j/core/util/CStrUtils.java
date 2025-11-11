@@ -356,11 +356,62 @@ public class CStrUtils {
         return CObjUtils.ifThenGet(StrUtil.isNotBlank(value), supplier);
     }
     public static <R> R convertNotEmpty(String o, Function<String, R> function) {
-        return StrUtil.isNotEmpty(o) ? function.apply(o) : null;
+        return convertNotEmpty(o, function, null);
     }
 
+    /**
+     * 转换字符串，如果为空则返回默认值
+     * @param o 源字符串
+     * @param function 转换函数
+     * @param defaultValue 默认值
+     * @return 转换后的字符串
+     * @param <R> R
+     */
+    public static <R> R convertNotEmpty(String o, Function<String, R> function, R defaultValue) {
+
+        if(StrUtil.isBlank(o)) {
+            return defaultValue;
+        }
+
+        val value = function.apply(o);
+        if(Objects.isNull(value)) {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    /**
+     * 转换字符串，如果为空则返回默认值
+     * @param o 源字符串
+     * @param function 转换函数
+     * @return 转换后的字符串
+     * @param <R> R
+     */
     public static <R> R convertNotBlank(String o, Function<String, R> function) {
-        return StrUtil.isNotBlank(o) ? function.apply(o) : null;
+        return convertNotBlank(o, function, null);
+    }
+
+    /**
+     * 转换字符串，如果为空则返回默认值
+     * @param o 源字符串
+     * @param function 转换函数
+     * @param defaultValue 默认值
+     * @return 转换后的字符串
+     * @param <R> R
+     */
+    public static <R> R convertNotBlank(String o, Function<String, R> function, R defaultValue) {
+
+        if(StrUtil.isBlank(o)) {
+            return defaultValue;
+        }
+
+        val value = function.apply(o);
+        if(Objects.isNull(value)) {
+            return defaultValue;
+        }
+
+        return value;
     }
 
     public static Character charAt(String string, int index) {
