@@ -36,11 +36,12 @@ public enum CSqlSeparatorEnum {
     final String text;
 
     /**
-     * 获取 Joining Collector
-     * @return Joining Collector
+     * Joining Collector
      */
-    public Collector<CharSequence, ?, String> getJoiningCollector() {
-        return Collectors.joining(" " + separator + " ");
+    final Collector<CharSequence, ?, String> joiningCollector;
+
+    CSqlSeparatorEnum(String separator, String text) {
+        this(separator, text, Collectors.joining(" " + separator + " "));
     }
 
 }
