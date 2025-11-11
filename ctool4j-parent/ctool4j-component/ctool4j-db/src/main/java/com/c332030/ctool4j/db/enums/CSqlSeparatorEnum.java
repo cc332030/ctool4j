@@ -40,7 +40,7 @@ public enum CSqlSeparatorEnum {
      * @return Joining Collector
      */
     public Collector<CharSequence, ?, String> getJoiningCollector() {
-        return Collectors.joining(separator, " ", " ");
+        return Collectors.joining(" " + separator + " ");
     }
 
 }
