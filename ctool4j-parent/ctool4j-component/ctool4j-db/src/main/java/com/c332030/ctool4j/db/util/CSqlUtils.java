@@ -1,10 +1,12 @@
 package com.c332030.ctool4j.db.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CStrUtils;
+import com.c332030.ctool4j.db.enums.CSqlSeparatorEnum;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +45,14 @@ public class CSqlUtils {
      */
     public String toColumnName(String fieldName) {
         return StrUtil.toUnderlineCase(fieldName);
+    }
+
+    private <T> String getColumnAliasName(Func1<T, ?> func, String alias) {
+        return getColumnAliasName(toColumnName(func), alias);
+    }
+
+    private String getColumnAliasName(String fieldName, String alias) {
+        return getAliasName(toColumnName(fieldName), alias);
     }
 
     private String getAliasName(String column, String alias) {
@@ -98,11 +108,61 @@ public class CSqlUtils {
      */
     public <T> String getGreaterSql(Func1<T, ?> func, Number number, String alias) {
         return CStrUtils.format(
-                "{}{} > {}",
-                getTableAliasSql(alias),
-                toColumnName(func),
+                "{} > {}",
+                getColumnAliasName(func, alias),
                 number
         );
+    }
+
+    public <T1, T2> String getEqualsSql(Func1<T1, ?> leftFunc, Func1<T2, ?> rightFunc) {
+        return getEqualsSql(leftFunc, null, rightFunc, null);
+    }
+
+    public <T1, T2> String getEqualsSql(
+            Func1<T1, ?> leftFunc, String leftAlias,
+            Func1<T2, ?> rightFunc, String rightAlias
+    ) {
+        return CStrUtils.format(
+                "{} = {}",
+                getColumnAliasName(leftFunc, leftAlias),
+                getColumnAliasName(rightFunc, rightAlias)
+        );
+    }
+
+
+    /**
+     * 获取等于 sql
+     * @param pairs 属性 lambda 列表
+     * @param separatorEnum 分隔符枚举
+     * @return sql
+     * @param <T1> 左 泛型
+     * @param <T2> 右 泛型
+     */
+    public <T1, T2> String getEqualsSql(
+            Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
+            CSqlSeparatorEnum separatorEnum
+    ) {
+        return getEqualsSql(pairs, null, null, separatorEnum);
+    }
+
+    /**
+     * 获取等于 sql
+     * @param pairs 属性 lambda 列表
+     * @param leftAlias 左 别名
+     * @param rightAlias 右 别名
+     * @param separatorEnum 分隔符枚举
+     * @return sql
+     * @param <T1> 左 泛型
+     * @param <T2> 右 泛型
+     */
+    public <T1, T2> String getEqualsSql(
+            Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
+            String leftAlias, String rightAlias,
+            CSqlSeparatorEnum separatorEnum
+    ) {
+        return pairs.stream()
+                .map(pair -> getEqualsSql(pair.getKey(), leftAlias, pair.getValue(), rightAlias))
+                .collect(separatorEnum.getJoiningCollector());
     }
 
 }
