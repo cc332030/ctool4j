@@ -24,6 +24,12 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CSqlUtils {
 
+    public static final String TABLE_ALIAS_T = "t";
+
+    public static final String TABLE_ALIAS_T1 = "t1";
+
+    public static final String TABLE_ALIAS_T2 = "t2";
+
     public String getTableAliasSql(String alias) {
         return CStrUtils.convertNotBlank(alias, e -> e + ".", StrUtil.EMPTY);
     }
