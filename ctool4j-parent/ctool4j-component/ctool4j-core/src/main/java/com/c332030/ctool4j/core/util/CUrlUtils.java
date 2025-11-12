@@ -3,11 +3,11 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -21,8 +21,44 @@ import java.util.stream.Collectors;
  *
  * @since 2024/12/2
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class CUrlUtils {
+
+    @SneakyThrows
+    public URI getURI(String uri) {
+        return new URI(uri);
+    }
+
+    public String getScheme(String uri) {
+        return getScheme(getURI(uri));
+    }
+    public String getScheme(URI uri) {
+        return uri.getScheme();
+    }
+
+    public String getHost(String uri) {
+        return getHost(getURI(uri));
+    }
+    public String getHost(URI uri) {
+        return uri.getHost();
+    }
+
+    public Integer getPort(String uri) {
+        return getPort(getURI(uri));
+    }
+    public Integer getPort(URI uri) {
+        val port = uri.getPort();
+        return port == -1 ? null : port;
+    }
+
+    public String getHostWithPort(String uriStr) {
+
+        val uri = getURI(uriStr);
+
+        val host = getHost(uri);
+        val port = getPort(uri);
+        return port == null ? host : host + ":" + port;
+    }
 
     public static String getParam(String url, String paramName) {
         return getParam(getParamMap(url), paramName);

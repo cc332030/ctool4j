@@ -42,7 +42,7 @@ public class CResponseBodyAdvice implements ICResponseBodyAdvice<Object> {
         var newBody = body;
         for (val handler : handlers) {
             try {
-                newBody = handler.apply(newBody);
+                newBody = handler.apply(request, response, newBody);
             } catch (Throwable e) {
                 log.error("deal response body error with handler: {}", handler, e);
             }

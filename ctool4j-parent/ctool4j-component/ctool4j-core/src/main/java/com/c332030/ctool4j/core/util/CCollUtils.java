@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -400,6 +401,16 @@ public class CCollUtils {
                     (k, v) -> CObjUtils.merge(v, value, mergeFunction));
         });
         return Collections.unmodifiableMap(map);
+    }
+
+    @SafeVarargs
+    public <T> boolean containsAny(Collection<T> collection, T... elements) {
+
+        if(ArrayUtil.isEmpty(elements)) {
+            return false;
+        }
+
+        return CollUtil.containsAny(collection, Arrays.asList(elements));
     }
 
 }

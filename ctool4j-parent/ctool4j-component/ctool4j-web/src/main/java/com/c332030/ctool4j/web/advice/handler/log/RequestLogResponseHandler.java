@@ -12,8 +12,8 @@ import com.c332030.ctool4j.web.advice.handler.ICResponseBeforeBodyWriteHandler;
 public class RequestLogResponseHandler implements ICResponseBeforeBodyWriteHandler {
 
     @Override
-    public Object applyThrowable(Object o) {
-        return o;
+    public Object applyThrowable(Object o) throws Throwable {
+        return ICResponseBeforeBodyWriteHandler.super.applyThrowable(o);
     }
 
 }
