@@ -17,7 +17,7 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-definition</artifactId>
-                <version>0.0.4-SNAPSHOT</version>
+                <version>0.0.5-SNAPSHOT</version>
             </dependency>
 
             <dependency>
