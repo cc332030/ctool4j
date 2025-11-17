@@ -16,6 +16,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-model</artifactId>
+                <version>0.0.4-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-core</artifactId>
                 <version>0.0.4-SNAPSHOT</version>
             </dependency>
