@@ -2,10 +2,9 @@ package com.c332030.ctool4j.spring.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.lang.NonNull;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,14 +16,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @AllArgsConstructor
-public class CSpringBeans implements ApplicationContextAware {
+public class CSpringBeans {
 
     @Getter
     private static ApplicationContext applicationContext;
 
-    @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
-        CSpringBeans.applicationContext = applicationContext;
+    @EventListener(ContextRefreshedEvent.class)
+    public void init(ContextRefreshedEvent event) {
+        applicationContext = event.getApplicationContext();
     }
 
 }
