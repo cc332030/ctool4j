@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
-import com.c332030.ctool4j.definition.constant.CMediaType;
+import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -27,7 +27,7 @@ public class CJsonUtils {
             MediaType.TEXT_HTML,
             MediaType.TEXT_PLAIN,
             MediaType.APPLICATION_JSON,
-            CMediaType.APPLICATION_JSON5
+            CMimeTypeEnum.JSON5.getMimeType()
     );
 
     @SneakyThrows
