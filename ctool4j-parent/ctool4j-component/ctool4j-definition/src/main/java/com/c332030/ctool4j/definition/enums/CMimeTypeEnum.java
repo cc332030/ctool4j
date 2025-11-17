@@ -18,7 +18,9 @@ public enum CMimeTypeEnum implements IText {
 
     JSON5("application/json5", "json5"),
 
-    XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Excel"),
+    XLS("application/vnd.ms-excel", "Excel xls"),
+
+    XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Excel xlsx"),
 
     ;
 
