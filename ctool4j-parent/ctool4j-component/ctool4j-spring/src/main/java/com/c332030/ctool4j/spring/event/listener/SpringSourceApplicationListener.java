@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.spring.event.listener;
 
-import com.c332030.ctool4j.spring.bean.CSpringBeans;
+import com.c332030.ctool4j.spring.util.CSpringUtils;
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -15,7 +15,7 @@ public interface SpringSourceApplicationListener<T extends ApplicationEvent> ext
 
     @Override
     default boolean supports(T event) {
-        return CSpringBeans.getApplicationContext() == event.getSource();
+        return CSpringUtils.isCurrentContextEvent(event);
     }
 
 }

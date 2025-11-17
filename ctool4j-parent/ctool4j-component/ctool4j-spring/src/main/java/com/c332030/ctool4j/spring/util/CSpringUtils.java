@@ -4,6 +4,8 @@ import com.c332030.ctool4j.spring.bean.CSpringBeans;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 
 import java.util.function.Consumer;
@@ -20,6 +22,14 @@ public class CSpringUtils {
 
     public String getApplicationName() {
         return CSpringConfigBeans.getSpringApplicationConfig().getName();
+    }
+
+    public boolean isCurrentContextEvent(ApplicationEvent event) {
+        return isCurrentContext((ApplicationContext)event.getSource());
+    }
+
+    public boolean isCurrentContext(ApplicationContext applicationContext) {
+        return CSpringBeans.getApplicationContext() == applicationContext;
     }
 
     @SuppressWarnings("unchecked")
