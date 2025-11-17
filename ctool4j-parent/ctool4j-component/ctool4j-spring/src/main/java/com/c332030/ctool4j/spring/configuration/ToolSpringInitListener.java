@@ -2,25 +2,24 @@ package com.c332030.ctool4j.spring.configuration;
 
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
+import com.c332030.ctool4j.spring.event.listener.CurrentContextRefreshedListener;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 /**
  * <p>
- * Description: CToolSpringInitializingBean
+ * Description: ToolSpringInitListener
  * </p>
  *
  * @since 2025/11/10
  */
 @Component
-public class CToolSpringInitializingBean implements InitializingBean {
+public class ToolSpringInitListener implements CurrentContextRefreshedListener {
 
     @Override
-    public void afterPropertiesSet() {
-
+    public void onEvent(ContextRefreshedEvent event) {
         CSpringUtils.wireBean(CSpringApplicationConfig.class, CSpringConfigBeans::setSpringApplicationConfig);
-
     }
 
 }
