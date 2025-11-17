@@ -22,6 +22,11 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-definition</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.exception;
 
 import com.c332030.ctool4j.core.function.CTriFunction;
-import com.c332030.ctool4j.core.interfaces.ICError;
+import com.c332030.ctool4j.definition.interfaces.ICError;
 
 /**
  * <p>

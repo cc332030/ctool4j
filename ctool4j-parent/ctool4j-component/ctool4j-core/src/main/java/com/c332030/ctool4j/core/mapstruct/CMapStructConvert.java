@@ -2,8 +2,8 @@ package com.c332030.ctool4j.core.mapstruct;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.interfaces.IValue;
 import com.c332030.ctool4j.core.util.CNumUtils;
+import com.c332030.ctool4j.definition.interfaces.IValue;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.mapstruct.Named;

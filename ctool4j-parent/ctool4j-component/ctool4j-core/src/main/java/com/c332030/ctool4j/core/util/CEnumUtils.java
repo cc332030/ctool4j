@@ -2,7 +2,7 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
-import com.c332030.ctool4j.core.interfaces.IValue;
+import com.c332030.ctool4j.definition.interfaces.IValue;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;

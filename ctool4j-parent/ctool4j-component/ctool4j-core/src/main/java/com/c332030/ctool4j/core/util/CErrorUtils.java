@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.interfaces.ICError;
+import com.c332030.ctool4j.definition.interfaces.ICError;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 

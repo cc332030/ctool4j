@@ -1,6 +1,6 @@
-package com.c332030.ctool4j.core.enums;
+package com.c332030.ctool4j.definition.enums;
 
-import com.c332030.ctool4j.core.interfaces.IOperate;
+import com.c332030.ctool4j.definition.interfaces.IOperate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

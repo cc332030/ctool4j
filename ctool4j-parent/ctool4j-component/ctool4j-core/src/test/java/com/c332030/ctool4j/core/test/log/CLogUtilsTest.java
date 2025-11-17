@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.test.log;
 
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.model.CResult;
+import com.c332030.ctool4j.definition.model.CResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

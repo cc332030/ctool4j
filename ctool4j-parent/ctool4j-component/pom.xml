@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>ctool4j-model</module>
+        <module>ctool4j-definition</module>
         <module>ctool4j-core</module>
         <module>ctool4j-log</module>
         <module>ctool4j-web</module>

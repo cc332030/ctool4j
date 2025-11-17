@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.constant;
+package com.c332030.ctool4j.definition.constant;
 
 import lombok.experimental.UtilityClass;
 

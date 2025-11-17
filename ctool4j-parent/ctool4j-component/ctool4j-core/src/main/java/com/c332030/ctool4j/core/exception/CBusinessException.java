@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.exception;
 
-import com.c332030.ctool4j.core.interfaces.ICError;
 import com.c332030.ctool4j.core.util.CErrorUtils;
+import com.c332030.ctool4j.definition.interfaces.ICError;
 import lombok.Getter;
 
 /**

@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.log;
+package com.c332030.ctool4j.definition.annotation;
 
 import java.lang.annotation.*;
 

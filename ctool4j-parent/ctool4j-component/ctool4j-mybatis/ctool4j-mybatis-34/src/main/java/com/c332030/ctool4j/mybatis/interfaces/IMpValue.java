@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.mybatis.interfaces;
 
 import com.baomidou.mybatisplus.annotation.IEnum;
-import com.c332030.ctool4j.core.interfaces.IValue;
+import com.c332030.ctool4j.definition.interfaces.IValue;
 
 import java.io.Serializable;
 

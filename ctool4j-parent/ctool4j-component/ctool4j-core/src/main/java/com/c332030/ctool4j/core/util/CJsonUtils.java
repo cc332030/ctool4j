@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
-import com.c332030.ctool4j.core.constant.CMediaType;
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
+import com.c332030.ctool4j.definition.constant.CMediaType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;

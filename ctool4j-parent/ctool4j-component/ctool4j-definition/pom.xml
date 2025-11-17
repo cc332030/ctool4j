@@ -8,7 +8,7 @@
         <version>0.0.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-model</artifactId>
+    <artifactId>ctool4j-definition</artifactId>
 
     <dependencies>
 

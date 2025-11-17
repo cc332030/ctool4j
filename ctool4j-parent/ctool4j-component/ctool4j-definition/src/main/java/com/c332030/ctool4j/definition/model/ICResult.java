@@ -1,6 +1,6 @@
-package com.c332030.ctool4j.core.model;
+package com.c332030.ctool4j.definition.model;
 
-import com.c332030.ctool4j.core.log.CJsonLog;
+import com.c332030.ctool4j.definition.annotation.CJsonLog;
 
 /**
  * <p>

@@ -1,7 +1,5 @@
-package com.c332030.ctool4j.core.constant;
+package com.c332030.ctool4j.definition.constant;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.MediaType;
 

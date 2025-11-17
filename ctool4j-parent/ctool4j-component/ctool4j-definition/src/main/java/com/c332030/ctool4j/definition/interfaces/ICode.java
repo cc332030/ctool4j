@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.interfaces;
+package com.c332030.ctool4j.definition.interfaces;
 
 /**
  * <p>

@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.model;
+package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;

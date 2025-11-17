@@ -3,7 +3,7 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.exception.CExceptionUtils;
-import com.c332030.ctool4j.core.model.ICResult;
+import com.c332030.ctool4j.definition.model.ICResult;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;

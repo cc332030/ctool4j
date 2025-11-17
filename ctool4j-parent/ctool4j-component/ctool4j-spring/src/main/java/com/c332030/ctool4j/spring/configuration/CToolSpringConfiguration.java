@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.spring.configuration;
 
-import com.c332030.ctool4j.core.constant.CToolConstants;
+import com.c332030.ctool4j.definition.constant.CToolConstants;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
