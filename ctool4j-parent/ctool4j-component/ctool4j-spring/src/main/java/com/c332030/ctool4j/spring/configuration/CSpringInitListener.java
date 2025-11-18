@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
- * Description: ToolSpringInitListener
+ * Description: CSpringInitListener
  * </p>
  *
  * @since 2025/11/10
  */
 @Component
-public class ToolSpringInitListener implements CurrentContextRefreshedListener {
+public class CSpringInitListener implements CurrentContextRefreshedListener {
 
     @Override
     public void onEvent(ContextRefreshedEvent event) {

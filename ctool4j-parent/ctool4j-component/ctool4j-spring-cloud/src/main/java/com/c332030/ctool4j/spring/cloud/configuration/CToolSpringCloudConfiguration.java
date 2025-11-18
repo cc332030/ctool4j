@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>
- * Description: CToolSpringConfiguration
+ * Description: CSpringConfiguration
  * </p>
  *
  * @since 2025/9/11
