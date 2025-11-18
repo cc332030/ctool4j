@@ -3,6 +3,7 @@ package com.c332030.ctool4j.log.aspect;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
+import com.c332030.ctool4j.log.util.CTraceUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.*;
@@ -55,6 +56,8 @@ public class CRequestLogAspect {
 
             if(CRequestLogUtils.isEnable()) {
 
+                CTraceUtils.initTrace();
+
                 val method = CAspectUtils.getMethod(joinPoint);
                 val parameters = method.getParameters();
 
@@ -89,6 +92,7 @@ public class CRequestLogAspect {
             try {
                 if(CRequestLogUtils.isEnable()) {
                     CRequestLogUtils.write(result, throwable);
+                    CTraceUtils.removeTraceInfo();
                 }
             } catch (Throwable e) {
                 log.error("write request log failure", e);
