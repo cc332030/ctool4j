@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.lang.CAssert;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -295,6 +296,18 @@ public class CCollUtils {
         return collection.stream()
                 .reduce((first,  second) -> second)
                 .orElse(null);
+    }
+
+    public <T> T onlyOne(Collection<T> collection) {
+
+        if(CollUtil.isEmpty(collection)) {
+            return null;
+        }
+
+        val size = collection.size();
+        CAssert.isTrue(size == 1, () -> "collection more then one value, size: " + size);
+
+        return first(collection);
     }
 
     public static <T, U extends Comparable<? super U>> T min(Collection<T> collection, Function<? super T, ? extends U> convert) {

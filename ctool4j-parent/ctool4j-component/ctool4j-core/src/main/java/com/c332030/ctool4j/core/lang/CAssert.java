@@ -16,24 +16,66 @@ import java.util.function.Supplier;
 @UtilityClass
 public class CAssert {
 
+    /**
+     * 断言
+     * @param value 断言条件
+     * @param messageSupplier 错误信息提供者
+     */
+    public void isTrue(boolean value, Supplier<String> messageSupplier) {
+        if(value) {
+            CExceptionUtils.throwBusinessException(messageSupplier);
+        }
+    }
+
+    /**
+     * 断言
+     * @param value 断言条件
+     * @param message 错误信息
+     */
+    public void isTrue(boolean value, String message) {
+        if(value) {
+            CExceptionUtils.throwBusinessException(message);
+        }
+    }
+
+    /**
+     * 不为空断言
+     * @param value 断言条件
+     * @param messageSupplier 错误信息提供者
+     */
     public void notEmpty(String value, Supplier<String> messageSupplier) {
         if(StrUtil.isEmpty(value)) {
             CExceptionUtils.throwBusinessException(messageSupplier);
         }
     }
 
+    /**
+     * 不为空断言
+     * @param value 断言条件
+     * @param message 错误信息
+     */
     public void notEmpty(String value, String message) {
         if(StrUtil.isEmpty(value)) {
             CExceptionUtils.throwBusinessException(message);
         }
     }
 
+    /**
+     * 不为空且不为空白断言
+     * @param value 断言条件
+     * @param messageSupplier 错误信息提供者
+     */
     public void notBlank(String value, Supplier<String> messageSupplier) {
         if(StrUtil.isBlank(value)) {
             CExceptionUtils.throwBusinessException(messageSupplier);
         }
     }
 
+    /**
+     * 不为空且不为空白断言
+     * @param value 断言条件
+     * @param message 错误信息
+     */
     public void notBlank(String value, String message) {
         if(StrUtil.isBlank(value)) {
             CExceptionUtils.throwBusinessException(message);
