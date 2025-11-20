@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.mapstruct;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CNumUtils;
+import com.c332030.ctool4j.core.util.CObjUtils;
 import com.c332030.ctool4j.definition.interfaces.IValue;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -64,6 +65,18 @@ public class CMapStructConvert {
         return (int)value;
     }
 
+    public Integer toInt(Long value) {
+        if(null == value) {
+            return null;
+        }
+        CNumUtils.assertOverflow(value);
+        return value.intValue();
+    }
+
+    public String intStr(Integer value) {
+        return objectStr(value);
+    }
+
     public int intValue(Long value) {
 
         if(null == value) {
@@ -82,6 +95,10 @@ public class CMapStructConvert {
         return (long) value;
     }
 
+    public Long toLong(Integer value) {
+        return CObjUtils.convert(value, Integer::longValue);
+    }
+
     public Long toLong(long value) {
         return value;
     }
@@ -92,6 +109,10 @@ public class CMapStructConvert {
             return 0;
         }
         return value.longValue();
+    }
+
+    public String longStr(Long value) {
+        return objectStr(value);
     }
 
     public Float toFloat(String value) {
@@ -124,6 +145,10 @@ public class CMapStructConvert {
         return value.floatValue();
     }
 
+    public String floatStr(Float value) {
+        return objectStr(value);
+    }
+
     public Double toDouble(String value) {
         if(null == value) {
             return null;
@@ -150,6 +175,10 @@ public class CMapStructConvert {
             return 0;
         }
         return value.doubleValue();
+    }
+
+    public String doubleStr(Double value) {
+        return objectStr(value);
     }
 
     public BigDecimal toBigDecimal(int value) {
@@ -203,6 +232,10 @@ public class CMapStructConvert {
         return new BigDecimal(value);
     }
 
+    public String bigDecimalStr(BigDecimal value) {
+        return objectStr(value);
+    }
+
     @Named("toEnumIntegerValue")
     public Integer toEnumIntegerValue(IValue<Integer> value) {
         if(null == value) {
@@ -230,5 +263,9 @@ public class CMapStructConvert {
 //    public BigDecimal toYuan(Long value) {
 //        return null;
 //    }
+
+    public String objectStr(Object value) {
+        return StrUtil.toStringOrNull(value);
+    }
 
 }

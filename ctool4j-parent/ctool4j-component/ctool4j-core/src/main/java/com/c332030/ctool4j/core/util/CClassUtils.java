@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import com.c332030.ctool4j.core.function.CFunction;
 import com.c332030.ctool4j.core.mapstruct.CMapStructConvert;
+import com.c332030.ctool4j.core.model.ClassConverter;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -19,7 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -411,8 +412,7 @@ public class CClassUtils {
         return false;
     }
 
-    public static final Map<Class<?>, Map<Class<?>, CFunction<?, ?>>> CLASS_CONVERTER_MAP = new ConcurrentHashMap<>();
-
+    private static final List<ClassConverter<?, ?>> CLASS_CONVERTERS = new CopyOnWriteArrayList<>();
     public static final CBiClassValue<CFunction<Object, ?>> VALUE_SET_CLASS_VALUE =
             CBiClassValue.of((fromClass, toClass) -> {
 
@@ -427,21 +427,21 @@ public class CClassUtils {
                     return CFunction.SELF;
                 }
 
+                for (val classConverter : CLASS_CONVERTERS) {
+                    if(classConverter.getFromClass().isAssignableFrom(fromClass)
+                            && classConverter.getToClass().isAssignableFrom(toClass)) {
+
+                        @SuppressWarnings("unchecked")
+                        val converter = (CFunction<Object, ?>)classConverter.getConverter();
+                        return converter;
+                    }
+                }
+
                 return null;
             });
 
     @SuppressWarnings("unchecked")
     public static <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
-
-        val converterMap = CLASS_CONVERTER_MAP.get(fromClass);
-        if (null != converterMap) {
-
-            val converter = converterMap.get(toClass);
-            if(null != converter) {
-                return (CFunction<Object, To>) converter;
-            }
-        }
-
         return (CFunction<Object, To>)VALUE_SET_CLASS_VALUE.get(fromClass, toClass);
     }
 
@@ -465,9 +465,15 @@ public class CClassUtils {
             Class<From> fromClass,
             Class<To> toClass,
             CFunction<From, To> converter) {
-        log.info("添加映射，fromClass: {}, toClass: {}, converter: {}", fromClass, toClass, converter);
-        CLASS_CONVERTER_MAP.computeIfAbsent(fromClass, k -> new ConcurrentHashMap<>())
-                .put(toClass, converter);
+
+        log.debug("添加映射，fromClass: {}, toClass: {}, converter: {}", fromClass, toClass, converter);
+
+        val classConverter = ClassConverter.<From, To>builder()
+                .fromClass(fromClass)
+                .toClass(toClass)
+                .converter(converter)
+                .build();
+        CLASS_CONVERTERS.add(classConverter);
     }
 
     @SuppressWarnings("unchecked")
@@ -479,6 +485,7 @@ public class CClassUtils {
     }
 
     static {
+
         log.info("初始化 mapstruct 默认类型转换");
         val methods = getMethods(CMapStructConvert.class);
         methods.stream()

@@ -92,12 +92,21 @@ public class CBeanUtilsTest {
     @Test
     public void copyTypeUnmatched() {
 
-        val user = User.builder()
+        val intValue = 1;
+        val bigDecimalValue = BigDecimal.valueOf(intValue);
+
+        val user1 = User.builder()
                 .amount(1)
                 .build();
 
-        val userRsp = CBeanUtils.copy(user, UserRsp.class);
-        Assertions.assertNull(userRsp.getAmount());
+        val userRsp1 = CBeanUtils.copy(user1, UserRsp.class);
+        Assertions.assertEquals(bigDecimalValue, userRsp1.getAmount());
+
+        val userRsp2 = UserRsp.builder()
+                .amount(bigDecimalValue)
+                .build();
+        val user2 = CBeanUtils.copy(userRsp2, User.class);
+        Assertions.assertNull(user2.getAmount());
 
     }
 
