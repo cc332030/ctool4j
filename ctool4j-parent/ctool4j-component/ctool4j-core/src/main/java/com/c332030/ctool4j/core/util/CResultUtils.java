@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.exception.CExceptionUtils;
@@ -33,7 +34,16 @@ public class CResultUtils {
     ).map(String::valueOf).collect(Collectors.toSet());
 
     public static boolean isSuccess(ICResult<?, ?> result) {
-        return SUCCESS_CODES.contains(StrUtil.toStringOrNull(result.getCode()));
+
+        val code = Opt.ofNullable(result)
+                .map(ICResult::getCode)
+                .map(StrUtil::toStringOrNull)
+                .orElse(null);
+        if (null == code) {
+            return false;
+        }
+
+        return SUCCESS_CODES.contains(code);
     }
 
     public static boolean isNotSuccess(ICResult<?, ?> result) {
