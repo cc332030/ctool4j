@@ -48,8 +48,8 @@ public class CMapStructConvert {
         return Boolean.parseBoolean(str);
     }
 
-    public String fromBoolean(Boolean value) {
-        return StrUtil.toStringOrNull(value);
+    public String booleanStr(Boolean value) {
+        return objectStr(value);
     }
 
     public Integer toInt(String str) {
