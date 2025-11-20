@@ -169,8 +169,6 @@ public class CCollUtils {
                 ;
     }
 
-
-
     public <T, K> List<K> convert(
             Collection<T> collection,
             Function<T, K> convert,
