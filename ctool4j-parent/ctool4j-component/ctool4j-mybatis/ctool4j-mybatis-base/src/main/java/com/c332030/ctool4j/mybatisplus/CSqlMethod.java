@@ -15,7 +15,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CSqlMethod implements ISqlMethodEnum {
 
-    INSERT_IGNORE("insertIgnore", "插入一条数据（如果存在则忽略）", "<script>\nINSERT IGNORE INTO %s %s VALUES %s\n</script>"),
+    INSERT_IGNORE(
+            "insertIgnore",
+            "插入一条数据（如果存在则忽略）",
+            "<script>\nINSERT IGNORE INTO %s %s VALUES %s\n</script>"
+    ),
 
     ;
 

@@ -1,0 +1,24 @@
+package com.c332030.ctool4j.mybatisplus;
+
+import com.baomidou.mybatisplus.core.injector.AbstractMethod;
+
+/**
+ * <p>
+ * Description: CAbstractMethod
+ * </p>
+ *
+ * @author c332030
+ * @since 2024/5/7
+ */
+public abstract class CAbstractMethod extends AbstractMethod {
+
+    protected final ISqlMethodEnum sqlMethod;
+
+    protected final String methodName;
+
+    protected CAbstractMethod(ISqlMethodEnum sqlMethodEnum) {
+        sqlMethod = sqlMethodEnum;
+        methodName = sqlMethod.getMethod();
+    }
+
+}
