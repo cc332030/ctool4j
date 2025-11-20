@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class CResultUtils {
             "000000"
     ).map(String::valueOf).collect(Collectors.toSet());
 
-    public static boolean isSuccess(ICResult<?, ?> result) {
+    public static boolean isSuccess(@Nullable ICResult<?, ?> result) {
 
         val code = Opt.ofNullable(result)
                 .map(ICResult::getCode)
@@ -46,7 +47,7 @@ public class CResultUtils {
         return SUCCESS_CODES.contains(code);
     }
 
-    public static boolean isNotSuccess(ICResult<?, ?> result) {
+    public static boolean isNotSuccess(@Nullable ICResult<?, ?> result) {
         return !isSuccess(result);
     }
 
@@ -60,7 +61,7 @@ public class CResultUtils {
     }
 
     @SneakyThrows
-    public static void assertSuccess(ICResult<?, ?> result) {
+    public static void assertSuccess(@Nullable ICResult<?, ?> result) {
 
         if(null == result) {
             throw CExceptionUtils.newBusinessException(null, "未返回数据");
@@ -71,15 +72,15 @@ public class CResultUtils {
         }
     }
 
-    public static <T> T getData(ICResult<?, T> result) {
+    public static <T> T getData(@Nullable ICResult<?, T> result) {
         return getData(result, null);
     }
 
-    public static <T> List<T> getDataDefaultEmptyList(ICResult<?, List<T>> result) {
+    public static <T> List<T> getDataDefaultEmptyList(@Nullable ICResult<?, List<T>> result) {
         return getData(result, CList.of());
     }
 
-    public static <T> T getData(ICResult<?, T> result, T defaultValue) {
+    public static <T> T getData(@Nullable ICResult<?, T> result, T defaultValue) {
 
         assertSuccess(result);
         return ObjUtil.defaultIfNull(result.getData(), defaultValue);
