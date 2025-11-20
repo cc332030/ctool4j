@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
@@ -55,6 +56,22 @@ public class CArrUtils {
         }
 
         return arr[newIndex];
+    }
+
+    public <O, R> R[] convert(O[] oArr, CFunction<O, R> converter) {
+
+        if(ArrayUtil.isEmpty(oArr)) {
+            return null;
+        }
+
+        val length = oArr.length;
+
+        val rArr = new Object[length];
+        for (int i = 0; i < length; i++) {
+            rArr[i] = converter.apply(oArr[i]);
+        }
+
+        return CClassUtils.genericCompatibility(rArr);
     }
 
 }

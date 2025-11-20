@@ -3,7 +3,9 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.function.CFunction;
+import com.c332030.ctool4j.core.lang.CAssert;
 import com.c332030.ctool4j.core.mapstruct.CMapStructConvert;
 import com.c332030.ctool4j.core.model.ClassConverter;
 import lombok.CustomLog;
@@ -67,6 +69,11 @@ public class CClassUtils {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T genericCompatibility(Object object) {
+        return (T) object;
+    }
+
     public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.get(
                     type,
@@ -79,12 +86,73 @@ public class CClassUtils {
                     }
             ));
 
-    public static final CClassValue<Constructor<?>> NO_ARGS_CONSTRUCTOR_MAP_CLASS_VALUE =
+    private static final CClassValue<Map<Integer, List<Constructor<?>>>> CONSTRUCTOR_MAP_CLASS_VALUE =
             CClassValue.of(type -> {
-                val constructor = type.getConstructor();
-                constructor.setAccessible(true);
-                return constructor;
+
+                val constructors = type.getConstructors();
+                for (val constructor : constructors) {
+                    constructor.setAccessible(true);
+                }
+                return Arrays.stream(constructors)
+                        .collect(Collectors.groupingBy(Constructor::getParameterCount));
             });
+
+    public List<Constructor<?>> getConstructors(Class<?> tClass, Object... args) {
+
+        val argTypes = CArrUtils.convert(args, Object::getClass);
+        return getConstructors(tClass, argTypes);
+    }
+
+    public List<Constructor<?>> getConstructors(Class<?> tClass, Class<?>... argTypes) {
+
+        val argsLength = ArrayUtil.length(argTypes);
+
+        val constructorMap = CONSTRUCTOR_MAP_CLASS_VALUE.get(tClass);
+        val constructors = constructorMap.get(argsLength);
+        if(argsLength == 0) {
+            return constructors;
+        }
+
+        val matchConstructors = new ArrayList<Constructor<?>>();
+        for (val constructor : constructors) {
+
+            var match = true;
+            val parameterTypes = constructor.getParameterTypes();
+            for (int i = 0; i < parameterTypes.length; i++) {
+
+                val argType = argTypes[i];
+                val parameterType = parameterTypes[i];
+
+                if(null != argType
+                        && !parameterType.isAssignableFrom(argType)
+                ) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if(match) {
+                matchConstructors.add(constructor);
+            }
+        }
+
+        return matchConstructors;
+    }
+
+    public Constructor<?> getNoArgConstructor(Class<?> tClass) {
+
+        val constructors = getConstructors(tClass);
+        return CCollUtils.first(constructors);
+    }
+
+    @SneakyThrows
+    public <T> T newInstance(Class<T> tClass) {
+
+        val noArgConstructor = getNoArgConstructor(tClass);
+        CAssert.notNull(noArgConstructor, () -> " can't find no arg constructor, class: " + tClass);
+
+        return genericCompatibility(noArgConstructor.newInstance());
+    }
 
     public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(
             type -> CClassUtils.get(type, Class::getDeclaredMethods));
@@ -199,12 +267,11 @@ public class CClassUtils {
     }
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     public <T> T getValue(Object object, Field field, boolean accessible) {
         if (!accessible) {
             field.setAccessible(true);
         }
-        return (T) field.get(object);
+        return genericCompatibility(field.get(object));
     }
 
     public void setValue(Object object, String fieldName, Object value) {
@@ -275,7 +342,6 @@ public class CClassUtils {
     }
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     public <T> T invoke(Object value, String methodName, boolean ignoreNoMethod, Object... args) {
 
         Class<?> clazz = value.getClass();
@@ -289,9 +355,8 @@ public class CClassUtils {
             throw new IllegalStateException("can't find method: " + methodName + " in class: " + clazz);
         }
 
-        return (T) method.invoke(value, args);
+        return genericCompatibility(method.invoke(value, args));
     }
-
 
     @SuppressWarnings("unchecked")
     public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
@@ -311,16 +376,6 @@ public class CClassUtils {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> Constructor<T> getConstructor(Class<T> tClass) {
-        return (Constructor<T>) NO_ARGS_CONSTRUCTOR_MAP_CLASS_VALUE.get(tClass);
-    }
-
-    @SneakyThrows
-    public <T> T newInstance(Class<T> tClass) {
-        return getConstructor(tClass).newInstance();
     }
 
     public void compareField(Class<?> class1, Class<?> class2) {
@@ -430,19 +485,15 @@ public class CClassUtils {
                 for (val classConverter : CLASS_CONVERTERS) {
                     if(classConverter.getFromClass().isAssignableFrom(fromClass)
                             && classConverter.getToClass().isAssignableFrom(toClass)) {
-
-                        @SuppressWarnings("unchecked")
-                        val converter = (CFunction<Object, ?>)classConverter.getConverter();
-                        return converter;
+                        return genericCompatibility(classConverter.getConverter());
                     }
                 }
 
                 return null;
             });
 
-    @SuppressWarnings("unchecked")
     public static <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
-        return (CFunction<Object, To>)VALUE_SET_CLASS_VALUE.get(fromClass, toClass);
+        return genericCompatibility(VALUE_SET_CLASS_VALUE.get(fromClass, toClass));
     }
 
     public <To> To convert(Object from, Class<To> toClass) {
@@ -476,10 +527,11 @@ public class CClassUtils {
         CLASS_CONVERTERS.add(classConverter);
     }
 
-    @SuppressWarnings("unchecked")
     public static void addConverter(Method method) {
 
+        @SuppressWarnings("unchecked")
         val fromClass = (Class<Object>) method.getParameterTypes()[0];
+        @SuppressWarnings("unchecked")
         val toClass = (Class<Object>) method.getReturnType();
         addConverter(fromClass, toClass, o -> method.invoke(null, o));
     }
