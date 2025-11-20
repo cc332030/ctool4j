@@ -39,7 +39,7 @@ public class CResultUtils {
                 .map(ICResult::getCode)
                 .map(StrUtil::toStringOrNull)
                 .orElse(null);
-        if (null == code) {
+        if (StrUtil.isBlank(code)) {
             return false;
         }
 
