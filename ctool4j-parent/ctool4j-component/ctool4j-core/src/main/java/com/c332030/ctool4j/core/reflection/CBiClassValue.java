@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.util.reflection;
+package com.c332030.ctool4j.core.reflection;
 
 import com.c332030.ctool4j.definition.function.CBiFunction;
 
