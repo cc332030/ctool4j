@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.definition.function.CFunction;
+import lombok.NonNull;
 
 /**
  * <p>
@@ -14,7 +15,12 @@ public class CClassValue<T> {
     private final ClassValue<T> classValue;
 
     protected CClassValue(CFunction<Class<?>, T> function) {
-        classValue = CClassUtils.getClassValue(function);
+        classValue = new ClassValue<T>() {
+            @Override
+            protected T computeValue(@NonNull Class<?> type) {
+                return function.apply(type);
+            }
+        };
     }
 
     /**
