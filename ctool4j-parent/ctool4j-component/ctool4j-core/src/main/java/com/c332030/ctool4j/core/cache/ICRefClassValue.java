@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.reflection;
+package com.c332030.ctool4j.core.cache;
 
 /**
  * <p>
@@ -7,7 +7,7 @@ package com.c332030.ctool4j.core.reflection;
  *
  * @since 2025/11/21
  */
-public interface ICRefClassValue<T> extends ICClassValue<T>{
+public interface ICRefClassValue<T> extends ICClassValue<T> {
 
     /**
      * 设置值

@@ -1,5 +1,6 @@
-package com.c332030.ctool4j.core.reflection;
+package com.c332030.ctool4j.core.cache.impl;
 
+import com.c332030.ctool4j.core.cache.ICBiClassValue;
 import com.c332030.ctool4j.definition.function.CBiFunction;
 
 /**

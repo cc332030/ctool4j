@@ -1,5 +1,6 @@
-package com.c332030.ctool4j.core.reflection;
+package com.c332030.ctool4j.core.cache.impl;
 
+import com.c332030.ctool4j.core.cache.ICRefClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 
 import java.util.concurrent.atomic.AtomicReference;
