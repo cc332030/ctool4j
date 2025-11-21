@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
-import com.c332030.ctool4j.core.function.CBiFunction;
+import com.c332030.ctool4j.definition.function.CBiFunction;
 import org.springframework.lang.NonNull;
 
 /**

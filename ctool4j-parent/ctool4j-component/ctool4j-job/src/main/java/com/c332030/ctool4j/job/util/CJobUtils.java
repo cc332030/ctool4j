@@ -1,8 +1,7 @@
 package com.c332030.ctool4j.job.util;
 
 import cn.hutool.core.date.DateUtil;
-import com.c332030.ctool4j.core.function.StartEndTimeConsumer;
-import lombok.SneakyThrows;
+import com.c332030.ctool4j.definition.function.StartEndTimeConsumer;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;

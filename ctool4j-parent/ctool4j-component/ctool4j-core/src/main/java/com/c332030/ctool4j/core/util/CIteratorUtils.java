@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
-import com.c332030.ctool4j.core.function.CConsumer;
+import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;

@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.cache.aop;
 
-import com.c332030.ctool4j.core.function.ToStringFunction;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 
 /**
  * <p>

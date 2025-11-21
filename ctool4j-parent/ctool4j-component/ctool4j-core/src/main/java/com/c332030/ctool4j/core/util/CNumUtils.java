@@ -2,11 +2,10 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.function.CBiConsumer;
-import com.c332030.ctool4j.core.function.StringFunction;
-import com.c332030.ctool4j.core.function.ToStringFunction;
+import com.c332030.ctool4j.definition.function.CBiConsumer;
+import com.c332030.ctool4j.definition.function.StringFunction;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;

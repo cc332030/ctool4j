@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.model;
 
-import com.c332030.ctool4j.core.function.CFunction;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

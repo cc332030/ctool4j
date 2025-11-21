@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.redis.service;
 
-import com.c332030.ctool4j.core.function.CFunction;
-import lombok.SneakyThrows;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.val;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

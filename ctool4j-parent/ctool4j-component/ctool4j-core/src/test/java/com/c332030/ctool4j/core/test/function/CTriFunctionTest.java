@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.test.function;
 
-import com.c332030.ctool4j.core.function.CTriFunction;
-import lombok.SneakyThrows;
+import com.c332030.ctool4j.definition.function.CTriFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.function;
+package com.c332030.ctool4j.definition.function;
 
 import java.time.Instant;
 

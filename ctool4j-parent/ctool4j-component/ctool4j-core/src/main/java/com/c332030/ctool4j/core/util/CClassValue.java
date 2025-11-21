@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
-import com.c332030.ctool4j.core.function.CFunction;
+import com.c332030.ctool4j.definition.function.CFunction;
 import org.springframework.lang.NonNull;
 
 /**

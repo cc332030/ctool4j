@@ -2,10 +2,10 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
-import com.c332030.ctool4j.core.function.CBiConsumer;
-import com.c332030.ctool4j.core.function.CConsumer;
-import com.c332030.ctool4j.core.function.CFunction;
-import com.c332030.ctool4j.core.function.ToStringFunction;
+import com.c332030.ctool4j.definition.function.CBiConsumer;
+import com.c332030.ctool4j.definition.function.CConsumer;
+import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;

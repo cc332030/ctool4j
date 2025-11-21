@@ -1,9 +1,8 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
-import com.c332030.ctool4j.core.function.CConsumer;
-import com.c332030.ctool4j.core.function.CFunction;
-import lombok.SneakyThrows;
+import com.c332030.ctool4j.definition.function.CConsumer;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;

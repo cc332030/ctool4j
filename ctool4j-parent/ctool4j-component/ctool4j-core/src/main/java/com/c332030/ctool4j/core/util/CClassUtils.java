@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
-import com.c332030.ctool4j.core.function.CFunction;
+import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.core.lang.CAssert;
 import com.c332030.ctool4j.core.mapstruct.CMapStructConvert;
 import com.c332030.ctool4j.core.model.ClassConverter;
@@ -66,6 +66,22 @@ public class CClassUtils {
             }
         }
 
+        return false;
+    }
+
+    /**
+     * 判断类是否存在
+     * @param className 类名
+     * @return 结果
+     */
+    public boolean isExistClass(String className) {
+        try {
+
+            Class.forName(className);
+            return true;
+        } catch (Throwable e) {
+            log.debug("check class exception", e);
+        }
         return false;
     }
 

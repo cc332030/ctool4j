@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.core.exception;
 
-import com.c332030.ctool4j.core.function.CRunnable;
-import com.c332030.ctool4j.core.function.CSupplier;
-import com.c332030.ctool4j.core.function.CTriFunction;
+import com.c332030.ctool4j.definition.function.CRunnable;
+import com.c332030.ctool4j.definition.function.CSupplier;
+import com.c332030.ctool4j.definition.function.CTriFunction;
 import com.c332030.ctool4j.core.util.CSpiUtils;
 import com.c332030.ctool4j.definition.interfaces.ICError;
 import lombok.CustomLog;
