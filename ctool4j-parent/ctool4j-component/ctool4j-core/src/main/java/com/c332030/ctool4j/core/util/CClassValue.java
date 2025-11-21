@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.definition.function.CFunction;
-import org.springframework.lang.NonNull;
 
 /**
  * <p>
@@ -10,17 +9,21 @@ import org.springframework.lang.NonNull;
  *
  * @since 2025/11/20
  */
-public class CClassValue<T> extends ClassValue<T> {
+public class CClassValue<T> {
 
-    private final CFunction<Class<?>, T> function;
+    private final ClassValue<T> classValue;
 
     protected CClassValue(CFunction<Class<?>, T> function) {
-        this.function = function;
+        classValue = CClassUtils.getClassValue(function);
     }
 
-    @Override
-    protected T computeValue(@NonNull Class<?> type) {
-        return function.apply(type);
+    /**
+     * 获取值
+     * @param clazz 类
+     * @return 值
+     */
+    public T get(Class<?> clazz) {
+        return classValue.get(clazz);
     }
 
     /**

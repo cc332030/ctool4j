@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.definition.function.CBiFunction;
-import org.springframework.lang.NonNull;
 
 /**
  * <p>
@@ -10,21 +9,18 @@ import org.springframework.lang.NonNull;
  *
  * @since 2025/11/20
  */
-public class CBiClassValue<T> extends ClassValue<CClassValue<T>>{
+public class CBiClassValue<T> {
 
-    private final CBiFunction<Class<?>, Class<?>, T> function;
+    private final CClassValue<CClassValue<T>> classValue;
 
     protected CBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
-        this.function = function;
-    }
-
-    @Override
-    protected CClassValue<T> computeValue(@NonNull Class<?> type1) {
-        return CClassValue.of(type2 -> function.apply(type1, type2));
+        classValue = CClassValue.of(type1 ->
+                CClassValue.of(type2 ->
+                        function.apply(type1, type2)));
     }
 
     public T get(Class<?> type1, Class<?> type2) {
-        return get(type1).get(type2);
+        return classValue.get(type1).get(type2);
     }
 
     /**

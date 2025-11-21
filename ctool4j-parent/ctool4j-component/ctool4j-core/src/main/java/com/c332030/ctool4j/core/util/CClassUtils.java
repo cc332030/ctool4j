@@ -8,11 +8,8 @@ import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.core.lang.CAssert;
 import com.c332030.ctool4j.core.mapstruct.CMapStructConvert;
 import com.c332030.ctool4j.core.model.ClassConverter;
-import lombok.CustomLog;
-import lombok.SneakyThrows;
+import lombok.*;
 import lombok.experimental.UtilityClass;
-import lombok.val;
-import lombok.var;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
@@ -568,6 +565,15 @@ public class CClassUtils {
         methods.stream()
                 .filter(CClassUtils::isStatic)
                 .forEach(CClassUtils::addConverter);
+    }
+
+    public <T> ClassValue<T> getClassValue(CFunction<Class<?>, T> function) {
+        return new ClassValue<T>() {
+            @Override
+            protected T computeValue(@NonNull Class<?> type) {
+                return function.apply(type);
+            }
+        };
     }
 
 }
