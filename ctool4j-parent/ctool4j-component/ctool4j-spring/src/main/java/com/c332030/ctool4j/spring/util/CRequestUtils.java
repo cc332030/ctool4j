@@ -3,7 +3,7 @@ package com.c332030.ctool4j.spring.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.function.StringFunction;
-import com.c332030.ctool4j.core.util.CObjUtils;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;

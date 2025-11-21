@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.model;
+package com.c332030.ctool4j.core.classes;
 
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.test.util;
 
-import com.c332030.ctool4j.core.util.CObjUtils;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;

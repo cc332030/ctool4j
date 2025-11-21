@@ -1,6 +1,5 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.core.classes;
 
-import com.c332030.ctool4j.core.reflection.CReflectionUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -87,7 +86,7 @@ public class CObjUtils {
             return (To) from;
         }
 
-        val converter = (CFunction<From, To>) CReflectionUtils.getConverter(from.getClass(), toClass);
+        val converter = (CFunction<From, To>) CClassUtils.getConverter(from.getClass(), toClass);
         if (null == converter) {
             return null;
         }

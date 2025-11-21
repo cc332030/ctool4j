@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.reflection;
+package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
@@ -42,18 +42,18 @@ public class CBeanUtils {
             return to;
         }
 
-        val toFieldMap = CReflectionUtils.getFields(to.getClass());
+        val toFieldMap = CReflectUtils.getFields(to.getClass());
         toFieldMap.forEach((CBiConsumer<String, Field>)(toFieldName, toField) -> {
 
             val fromFieldValue = fromMap.get(toFieldName);
             if(null == fromFieldValue
-                    || CReflectionUtils.isStatic(toField)
-                    || CReflectionUtils.isFinal(toField)
+                    || CReflectUtils.isStatic(toField)
+                    || CReflectUtils.isFinal(toField)
             ) {
                 return;
             }
 
-            CReflectionUtils.convertOpt(fromFieldValue, toField.getType())
+            CClassUtils.convertOpt(fromFieldValue, toField.getType())
                     .ifPresent((CConsumer<Object>) toValue -> toField.set(to, toValue));
 
         });
@@ -66,7 +66,7 @@ public class CBeanUtils {
     }
 
     public <To> To copy(Map<String, ?> fromMap, Class<To> toClass) {
-        return copy(fromMap, CReflectionUtils.newInstance(toClass));
+        return copy(fromMap, CReflectUtils.newInstance(toClass));
     }
 
     public <To> To copy(Object from, Class<To> toClass) {
@@ -131,7 +131,7 @@ public class CBeanUtils {
             Class<T> annotationClass,
             CFunction<T, String> annotationValueFunction
     ) {
-        return toMap(object, field -> CReflectionUtils.getFieldName(field, annotationClass, annotationValueFunction));
+        return toMap(object, field -> CReflectUtils.getFieldName(field, annotationClass, annotationValueFunction));
     }
 
     /**
@@ -153,16 +153,16 @@ public class CBeanUtils {
 
         Class<?> objClass;
         if(null == object
-                || CReflectionUtils.isBasicClass(objClass = object.getClass())
+                || CClassUtils.isBasicClass(objClass = object.getClass())
         ) {
             return CMap.of();
         }
 
-        val fieldMap = CReflectionUtils.getFields(objClass);
+        val fieldMap = CReflectUtils.getFields(objClass);
         return CCollUtils.toMap(
                 fieldMap.values(),
                 getFieldNameFunction,
-                (Function<Field, Object>) e -> CReflectionUtils.getValue(object, e)
+                (Function<Field, Object>) e -> CReflectUtils.getValue(object, e)
         );
     }
 

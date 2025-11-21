@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.redis.service.impl;
 
-import com.c332030.ctool4j.core.util.CObjUtils;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;

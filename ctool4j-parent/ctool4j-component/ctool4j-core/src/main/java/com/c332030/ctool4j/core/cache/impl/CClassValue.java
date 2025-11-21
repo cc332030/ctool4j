@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.cache.impl;
 
-import com.c332030.ctool4j.core.cache.impl.ICClassValue;
+import com.c332030.ctool4j.core.cache.ICClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.NonNull;
 

@@ -3,7 +3,7 @@ package com.c332030.ctool4j.log.util;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.util.CObjUtils;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.util.CRequestUtils;

@@ -3,7 +3,8 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.lang.CAssert;
+import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.validation.CAssert;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
