@@ -86,7 +86,7 @@ public class CObjUtils {
             return (To) from;
         }
 
-        val converter = (CFunction<From, To>) CClassUtils.getConverter(from.getClass(), toClass);
+        val converter = (CFunction<From, To>) CConvertUtils.getConverter(from.getClass(), toClass);
         if (null == converter) {
             return null;
         }

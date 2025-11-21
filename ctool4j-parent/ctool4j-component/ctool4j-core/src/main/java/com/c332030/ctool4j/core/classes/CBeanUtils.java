@@ -53,7 +53,7 @@ public class CBeanUtils {
                 return;
             }
 
-            CClassUtils.convertOpt(fromFieldValue, toField.getType())
+            CConvertUtils.convertOpt(fromFieldValue, toField.getType())
                     .ifPresent((CConsumer<Object>) toValue -> toField.set(to, toValue));
 
         });

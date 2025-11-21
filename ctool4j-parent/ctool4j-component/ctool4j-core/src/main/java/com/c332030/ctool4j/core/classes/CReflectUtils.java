@@ -2,9 +2,10 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.util.CArrUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
-import com.c332030.ctool4j.core.util.*;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
