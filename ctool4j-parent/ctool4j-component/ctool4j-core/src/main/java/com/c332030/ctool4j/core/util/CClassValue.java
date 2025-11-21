@@ -15,7 +15,12 @@ public class CClassValue<T> {
     private final ClassValue<T> classValue;
 
     protected CClassValue(CFunction<Class<?>, T> function) {
-        classValue = getClassValue(function);
+        classValue = new ClassValue<T>() {
+            @Override
+            protected T computeValue(@NonNull Class<?> type) {
+                return function.apply(type);
+            }
+        };
     }
 
     /**
@@ -35,15 +40,6 @@ public class CClassValue<T> {
      */
     public static <T> CClassValue<T> of(CFunction<Class<?>, T> function) {
         return new CClassValue<>(function);
-    }
-
-    public <T> ClassValue<T> getClassValue(CFunction<Class<?>, T> function) {
-        return new ClassValue<T>() {
-            @Override
-            protected T computeValue(@NonNull Class<?> type) {
-                return function.apply(type);
-            }
-        };
     }
 
 }
