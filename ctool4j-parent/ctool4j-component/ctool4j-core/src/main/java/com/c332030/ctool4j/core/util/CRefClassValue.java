@@ -11,18 +11,20 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2025/11/21
  */
-public class CRefClassValue<T> extends CClassValue<AtomicReference<T>> {
+public class CRefClassValue<T> {
 
-    protected CRefClassValue(CFunction<Class<?>, T> function) {
-        super(type -> new AtomicReference<>(function.apply(type)));
+    private final CClassValue<AtomicReference<T>> classValue;
+
+    private CRefClassValue(CFunction<Class<?>, T> function) {
+        classValue = CClassValue.of(type -> new AtomicReference<>(function.apply(type)));
     }
 
-    public T getValue(Class<?> type) {
-        return get(type).get();
+    public T get(Class<?> type) {
+        return classValue.get(type).get();
     }
 
-    public void setValue(Class<?> type, T value) {
-        get(type).set(value);
+    public void set(Class<?> type, T value) {
+        classValue.get(type).set(value);
     }
 
     /**
@@ -31,7 +33,7 @@ public class CRefClassValue<T> extends CClassValue<AtomicReference<T>> {
      * @return CRefClassValue
      * @param <T> 值泛型
      */
-    public static <T> CRefClassValue<T> ofRef(CFunction<Class<?>, T> function) {
+    public static <T> CRefClassValue<T> of(CFunction<Class<?>, T> function) {
         return new CRefClassValue<>(function);
     }
 

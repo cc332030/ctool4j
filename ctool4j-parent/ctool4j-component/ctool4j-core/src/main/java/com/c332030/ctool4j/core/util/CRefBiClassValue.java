@@ -11,18 +11,20 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2025/11/21
  */
-public class CRefBiClassValue<T> extends CBiClassValue<AtomicReference<T>> {
+public class CRefBiClassValue<T> {
 
-    protected CRefBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
-        super((type1, type2) -> new AtomicReference<>(function.apply(type1, type2)));
+    private final CBiClassValue<AtomicReference<T>> classValue;
+
+    private CRefBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
+        classValue = CBiClassValue.of((type1, type2) -> new AtomicReference<>(function.apply(type1, type2)));
     }
 
-    public T getValue(Class<?> type1, Class<?> type2) {
-        return get(type1, type2).get();
+    public T get(Class<?> type1, Class<?> type2) {
+        return classValue.get(type1, type2).get();
     }
 
-    public void setValue(Class<?> type1, Class<?> type2, T value) {
-        get(type1, type2).set(value);
+    public void set(Class<?> type1, Class<?> type2, T value) {
+        classValue.get(type1, type2).set(value);
     }
 
     /**
@@ -31,7 +33,7 @@ public class CRefBiClassValue<T> extends CBiClassValue<AtomicReference<T>> {
      * @return CRefBiClassValue
      * @param <T> 值泛型
      */
-    public static <T> CRefBiClassValue<T> ofRef(CBiFunction<Class<?>, Class<?>, T> function) {
+    public static <T> CRefBiClassValue<T> of(CBiFunction<Class<?>, Class<?>, T> function) {
         return new CRefBiClassValue<>(function);
     }
 

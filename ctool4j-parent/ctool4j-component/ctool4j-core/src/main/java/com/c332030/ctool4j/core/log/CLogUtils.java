@@ -92,7 +92,7 @@ public class CLogUtils {
         JSON_LOG_SUPERCLASSES.add(tClass);
     }
 
-    public static final CRefClassValue<Boolean> JSON_LOG_CLASS_VALUE = CRefClassValue.ofRef(
+    public static final CRefClassValue<Boolean> JSON_LOG_CLASS_VALUE = CRefClassValue.of(
             type -> {
 
                 if (type.isEnum()) {
@@ -131,7 +131,7 @@ public class CLogUtils {
     );
 
     public void setJsonLog(Collection<Class<?>> types, boolean value) {
-        types.forEach(type -> JSON_LOG_CLASS_VALUE.setValue(type, value));
+        types.forEach(type -> JSON_LOG_CLASS_VALUE.set(type, value));
     }
 
     public void setJsonLog(Class<?> type, boolean value) {
@@ -139,7 +139,7 @@ public class CLogUtils {
     }
 
     public boolean isJsonLog(Class<?> type) {
-        return JSON_LOG_CLASS_VALUE.getValue(type);
+        return JSON_LOG_CLASS_VALUE.get(type);
     }
 
     public Object[] getSupplierArgs(Supplier<Object>[] suppliers) {

@@ -13,7 +13,7 @@ public class CBiClassValue<T> {
 
     private final CClassValue<CClassValue<T>> classValue;
 
-    protected CBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
+    private CBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
         classValue = CClassValue.of(type1 ->
                 CClassValue.of(type2 ->
                         function.apply(type1, type2)));

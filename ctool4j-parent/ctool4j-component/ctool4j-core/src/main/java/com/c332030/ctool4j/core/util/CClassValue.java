@@ -14,7 +14,7 @@ public class CClassValue<T> {
 
     private final ClassValue<T> classValue;
 
-    protected CClassValue(CFunction<Class<?>, T> function) {
+    private CClassValue(CFunction<Class<?>, T> function) {
         classValue = new ClassValue<T>() {
             @Override
             protected T computeValue(@NonNull Class<?> type) {
