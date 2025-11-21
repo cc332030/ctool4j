@@ -567,13 +567,4 @@ public class CClassUtils {
                 .forEach(CClassUtils::addConverter);
     }
 
-    public <T> ClassValue<T> getClassValue(CFunction<Class<?>, T> function) {
-        return new ClassValue<T>() {
-            @Override
-            protected T computeValue(@NonNull Class<?> type) {
-                return function.apply(type);
-            }
-        };
-    }
-
 }
