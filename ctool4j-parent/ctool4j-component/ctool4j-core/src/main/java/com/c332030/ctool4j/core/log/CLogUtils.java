@@ -1,8 +1,11 @@
 package com.c332030.ctool4j.core.log;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.c332030.ctool4j.core.util.*;
-import com.c332030.ctool4j.core.util.reflection.CRefClassValue;
+import com.c332030.ctool4j.core.reflection.CRefClassValue;
+import com.c332030.ctool4j.core.util.CArrUtils;
+import com.c332030.ctool4j.core.util.CClassUtils;
+import com.c332030.ctool4j.core.util.CJsonUtils;
+import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
 import com.c332030.ctool4j.definition.model.ICResult;
 import lombok.experimental.UtilityClass;
