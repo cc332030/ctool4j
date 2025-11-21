@@ -32,14 +32,14 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: CClassUtils
+ * Description: CReflectionUtils
  * </p>
  *
  * @since 2024/4/2
  */
 @CustomLog
 @UtilityClass
-public class CClassUtils {
+public class CReflectionUtils {
 
     public static final Set<String> BASE_PACKAGES = CSet.of(
             String.class.getName().split("\\.")[0]
@@ -89,10 +89,10 @@ public class CClassUtils {
     }
 
     public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
-            CClassValue.of(type -> CClassUtils.get(
+            CClassValue.of(type -> CReflectionUtils.get(
                     type,
                     Class::getDeclaredFields,
-                    field -> !CClassUtils.isStatic(field),
+                    field -> !CReflectionUtils.isStatic(field),
                     Field::getName,
                     field -> {
                         field.setAccessible(true);
@@ -169,7 +169,7 @@ public class CClassUtils {
     }
 
     public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(
-            type -> CClassUtils.get(type, Class::getDeclaredMethods));
+            type -> CReflectionUtils.get(type, Class::getDeclaredMethods));
 
     public List<Method> getMethods(Class<?> type) {
         return METHODS_CLASS_VALUE.get(type);
@@ -569,8 +569,8 @@ public class CClassUtils {
         log.info("初始化 mapstruct 默认类型转换");
         val methods = getMethods(CMapStructConvert.class);
         methods.stream()
-                .filter(CClassUtils::isStatic)
-                .forEach(CClassUtils::addConverter);
+                .filter(CReflectionUtils::isStatic)
+                .forEach(CReflectionUtils::addConverter);
     }
 
 }
