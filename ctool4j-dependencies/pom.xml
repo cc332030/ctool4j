@@ -110,6 +110,22 @@
                 <version>0.0.5-SNAPSHOT</version>
             </dependency>
 
+
+
+
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-test-definition</artifactId>
+                <version>0.0.5-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-test-util</artifactId>
+                <version>0.0.5-SNAPSHOT</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

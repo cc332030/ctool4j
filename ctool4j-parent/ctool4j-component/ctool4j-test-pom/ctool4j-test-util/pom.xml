@@ -4,33 +4,17 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-test-pom</artifactId>
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-core</artifactId>
+    <artifactId>ctool4j-test-util</artifactId>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-definition</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-test-definition</artifactId>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

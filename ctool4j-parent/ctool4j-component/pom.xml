@@ -24,8 +24,10 @@
         <module>ctool4j-nacos</module>
         <module>ctool4j-transaction</module>
         <module>ctool4j-db</module>
-        <module>ctool4j-mybatis</module>
+        <module>ctool4j-mybatis-pom</module>
         <module>ctool4j-job</module>
+
+        <module>ctool4j-test-pom</module>
     </modules>
 
     <dependencies>

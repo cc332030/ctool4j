@@ -8,21 +8,20 @@
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-mybatis</artifactId>
+    <artifactId>ctool4j-test-pom</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>ctool4j-mybatis-base</module>
-        <module>ctool4j-mybatis-33</module>
-        <module>ctool4j-mybatis-34</module>
+        <module>ctool4j-test-definition</module>
+        <module>ctool4j-test-util</module>
     </modules>
 
     <dependencies>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-            <scope>provided</scope>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

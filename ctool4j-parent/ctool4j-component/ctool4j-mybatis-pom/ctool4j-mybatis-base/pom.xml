@@ -4,33 +4,23 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-mybatis-pom</artifactId>
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-core</artifactId>
+    <artifactId>ctool4j-mybatis-base</artifactId>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-definition</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-test-definition</artifactId>
-            <scope>test</scope>
+            <artifactId>ctool4j-transaction</artifactId>
         </dependency>
 
     </dependencies>

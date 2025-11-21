@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.core.function.CFunction;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -26,6 +25,11 @@ public class CObjUtils {
     @SuppressWarnings("unchecked")
     public <T> T emptyObject() {
         return (T) OBJECT;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T anyType(Object object) {
+        return (T) object;
     }
 
     public <T> Supplier<T> toSupplier(Runnable runnable) {

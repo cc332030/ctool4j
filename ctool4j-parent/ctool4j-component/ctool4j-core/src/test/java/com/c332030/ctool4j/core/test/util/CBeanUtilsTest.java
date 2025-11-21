@@ -4,18 +4,13 @@ import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.util.CBeanUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.c332030.ctool4j.test.definition.model.UserDto;
+import com.c332030.ctool4j.test.definition.model.UserRsp;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * <p>
@@ -26,44 +21,6 @@ import java.util.Map;
  */
 public class CBeanUtilsTest {
 
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private static class User {
-        String userName;
-        String password;
-        Integer age;
-        Integer sex;
-        String status;
-        Integer amount;
-        Integer score;
-        Long grade;
-        Date createTime;
-        String updateTime;
-        Collection<String> roles;
-        Map<String, String> tags;
-    }
-
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private static class UserRsp {
-        String userName;
-        String password;
-        Integer age;
-        String sex;
-        Integer status;
-        BigDecimal amount;
-        Long score;
-        Integer grade;
-        String createTime;
-        Date updateTime;
-        Collection<String> roles;
-        Map<String, String> tags;
-    }
-
     @Test
     public void copyMerge() {
 
@@ -71,16 +28,16 @@ public class CBeanUtilsTest {
         val password = "332030";
         val age = 18;
 
-        val user = User.builder()
+        val user = UserDto.builder()
                 .userName(username)
                 .age(age)
                 .build();
 
-        val passwordOnly = User.builder()
+        val passwordOnly = UserDto.builder()
                 .password(password)
                 .build();
 
-        val userNew = CBeanUtils.copy(user, User.class);
+        val userNew = CBeanUtils.copy(user, UserDto.class);
         CBeanUtils.copy(passwordOnly, userNew);
 
         Assertions.assertEquals(username, userNew.getUserName());
@@ -95,7 +52,7 @@ public class CBeanUtilsTest {
         val intValue = 1;
         val bigDecimalValue = BigDecimal.valueOf(intValue);
 
-        val user1 = User.builder()
+        val user1 = UserDto.builder()
                 .amount(1)
                 .build();
 
@@ -105,7 +62,7 @@ public class CBeanUtilsTest {
         val userRsp2 = UserRsp.builder()
                 .amount(bigDecimalValue)
                 .build();
-        val user2 = CBeanUtils.copy(userRsp2, User.class);
+        val user2 = CBeanUtils.copy(userRsp2, UserDto.class);
         Assertions.assertNull(user2.getAmount());
 
     }
@@ -120,7 +77,7 @@ public class CBeanUtilsTest {
 
         val dateStr = "2025-11-20 00:00:00";
 
-        val user = User.builder()
+        val user = UserDto.builder()
                 .sex(sexInt)
                 .status(String.valueOf(statusInt))
                 .score(score)
@@ -144,7 +101,7 @@ public class CBeanUtilsTest {
 
         val roles = CList.of("role1", "role1");
         val tags = CMap.of("tag1", "tag1");
-        val user = User.builder()
+        val user = UserDto.builder()
                 .roles(roles)
                 .tags(tags)
                 .build();

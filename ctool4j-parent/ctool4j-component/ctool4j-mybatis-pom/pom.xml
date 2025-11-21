@@ -4,24 +4,25 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-mybatis</artifactId>
+        <artifactId>ctool4j-component</artifactId>
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-mybatis-33</artifactId>
+    <artifactId>ctool4j-mybatis-pom</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>ctool4j-mybatis-base</module>
+        <module>ctool4j-mybatis-33</module>
+        <module>ctool4j-mybatis-34</module>
+    </modules>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.3.2</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-mybatis-base</artifactId>
         </dependency>
 
     </dependencies>

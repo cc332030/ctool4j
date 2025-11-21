@@ -69,11 +69,6 @@ public class CClassUtils {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T genericCompatibility(Object object) {
-        return (T) object;
-    }
-
     public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.get(
                     type,
@@ -151,7 +146,7 @@ public class CClassUtils {
         val noArgConstructor = getNoArgConstructor(tClass);
         CAssert.notNull(noArgConstructor, () -> " can't find no arg constructor, class: " + tClass);
 
-        return genericCompatibility(noArgConstructor.newInstance());
+        return CObjUtils.anyType(noArgConstructor.newInstance());
     }
 
     public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(
@@ -173,6 +168,20 @@ public class CClassUtils {
 
     public List<Method> getMethodsByName(Class<?> type, String methodName) {
         return getMethodsMap(type).get(methodName);
+    }
+
+    public <T extends Annotation> String getFieldName(
+            Field field,
+            Class<T> annotationClass,
+            CFunction<T, String> annotationValueFunction
+    ) {
+
+        val annotation = field.getAnnotation(annotationClass);
+        if(null != annotation) {
+            return annotationValueFunction.apply(annotation);
+        }
+
+        return field.getName();
     }
 
     public Map<String, Field> getFields(Class<?> type) {
@@ -271,7 +280,7 @@ public class CClassUtils {
         if (!accessible) {
             field.setAccessible(true);
         }
-        return genericCompatibility(field.get(object));
+        return CObjUtils.anyType(field.get(object));
     }
 
     public void setValue(Object object, String fieldName, Object value) {
@@ -355,7 +364,7 @@ public class CClassUtils {
             throw new IllegalStateException("can't find method: " + methodName + " in class: " + clazz);
         }
 
-        return genericCompatibility(method.invoke(value, args));
+        return CObjUtils.anyType(method.invoke(value, args));
     }
 
     @SuppressWarnings("unchecked")
@@ -485,7 +494,7 @@ public class CClassUtils {
                 for (val classConverter : CLASS_CONVERTERS) {
                     if(classConverter.getFromClass().isAssignableFrom(fromClass)
                             && classConverter.getToClass().isAssignableFrom(toClass)) {
-                        return genericCompatibility(classConverter.getConverter());
+                        return CObjUtils.anyType(classConverter.getConverter());
                     }
                 }
 
@@ -493,7 +502,7 @@ public class CClassUtils {
             });
 
     public static <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
-        return genericCompatibility(VALUE_SET_CLASS_VALUE.get(fromClass, toClass));
+        return CObjUtils.anyType(VALUE_SET_CLASS_VALUE.get(fromClass, toClass));
     }
 
     public <To> To convert(Object from, Class<To> toClass) {

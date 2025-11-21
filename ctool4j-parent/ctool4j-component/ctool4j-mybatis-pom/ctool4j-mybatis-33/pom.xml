@@ -4,23 +4,24 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-mybatis</artifactId>
+        <artifactId>ctool4j-mybatis-pom</artifactId>
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-mybatis-base</artifactId>
+    <artifactId>ctool4j-mybatis-33</artifactId>
 
     <dependencies>
 
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.3.2</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-transaction</artifactId>
+            <artifactId>ctool4j-mybatis-base</artifactId>
         </dependency>
 
     </dependencies>

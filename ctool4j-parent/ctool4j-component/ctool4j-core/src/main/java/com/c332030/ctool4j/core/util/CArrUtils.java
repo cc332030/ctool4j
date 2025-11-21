@@ -71,7 +71,7 @@ public class CArrUtils {
             rArr[i] = converter.apply(oArr[i]);
         }
 
-        return CClassUtils.genericCompatibility(rArr);
+        return CObjUtils.anyType(rArr);
     }
 
 }
