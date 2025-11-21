@@ -10,11 +10,11 @@ import org.springframework.lang.NonNull;
  *
  * @since 2025/11/20
  */
-public class CBiClassValue<T> extends ClassValue<ClassValue<T>>{
+public class CBiClassValue<T> extends ClassValue<CClassValue<T>>{
 
     private final CBiFunction<Class<?>, Class<?>, T> function;
 
-    public CBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
+    protected CBiClassValue(CBiFunction<Class<?>, Class<?>, T> function) {
         this.function = function;
     }
 
@@ -28,7 +28,7 @@ public class CBiClassValue<T> extends ClassValue<ClassValue<T>>{
     }
 
     /**
-     * 创建 CClassValue
+     * 创建 CBiClassValue
      * @param function 值函数
      * @return CClassValue
      * @param <T> 值泛型

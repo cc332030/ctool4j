@@ -14,7 +14,7 @@ public class CClassValue<T> extends ClassValue<T> {
 
     private final CFunction<Class<?>, T> function;
 
-    private CClassValue(CFunction<Class<?>, T> function) {
+    protected CClassValue(CFunction<Class<?>, T> function) {
         this.function = function;
     }
 

@@ -1,10 +1,7 @@
 package com.c332030.ctool4j.core.log;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.c332030.ctool4j.core.util.CArrUtils;
-import com.c332030.ctool4j.core.util.CClassUtils;
-import com.c332030.ctool4j.core.util.CJsonUtils;
-import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.core.util.*;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
 import com.c332030.ctool4j.definition.model.ICResult;
 import lombok.experimental.UtilityClass;
@@ -20,7 +17,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 
@@ -44,24 +40,6 @@ public class CLogUtils {
 
     public CLog getLog(Class<?> clazz) {
         return LOGS.get(clazz);
-    }
-
-    public static final Map<String, Boolean> JSON_LOG_CLASS_NAMES = new ConcurrentHashMap<>();
-
-    public void setJsonLog(String className, boolean value) {
-        JSON_LOG_CLASS_NAMES.put(className, value);
-    }
-
-    public void setJsonLog(Collection<Class<?>> types, boolean value) {
-        types.forEach(type -> JSON_LOG_CLASS_NAMES.put(getLogClassName(type), value));
-    }
-
-    public void setJsonLog(Class<?> type, boolean value) {
-        setJsonLog(Collections.singletonList(type), value);
-    }
-
-    public String getLogClassName(Class<?> type) {
-        return type.getName();
     }
 
     private static final Set<String> JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
@@ -114,52 +92,54 @@ public class CLogUtils {
         JSON_LOG_SUPERCLASSES.add(tClass);
     }
 
-    public boolean isJsonLog(Class<?> type) {
+    public static final CRefClassValue<Boolean> JSON_LOG_CLASS_VALUE = CRefClassValue.ofRef(
+            type -> {
 
-        val name = getLogClassName(type);
+                if (type.isEnum()) {
+                    return false;
+                }
 
-        val value = JSON_LOG_CLASS_NAMES.get(name);
-        if (null != value) {
-            return value;
-        }
-
-        return JSON_LOG_CLASS_NAMES.computeIfAbsent(name,
-                k -> {
-
-                    if (type.isEnum()) {
+                // 配置类型 or 报错类型不转 json
+                for (val clazz : NOT_JSON_LOG_SUPERCLASSES) {
+                    if (clazz.isAssignableFrom(type)) {
                         return false;
                     }
-
-                    // 配置类型 or 报错类型不转 json
-                    for (val clazz : NOT_JSON_LOG_SUPERCLASSES) {
-                        if (clazz.isAssignableFrom(type)) {
-                            return false;
-                        }
-                    }
-
-                    // 实现 Serializable.class 转 json 和 java base 包不转 json 冲突
-                    for (val clazz : JSON_LOG_SUPERCLASSES) {
-                        if (clazz.isAssignableFrom(type)) {
-                            return true;
-                        }
-                    }
-
-                    for (val domainPackage : JSON_LOG_DOMAIN_PACKAGE) {
-                        if (name.contains(domainPackage)) {
-                            return true;
-                        }
-                    }
-
-                    for (val clazz : JSON_LOG_ANNOTATIONS) {
-                        if (CClassUtils.isAnnotationPresent(type, clazz)) {
-                            return true;
-                        }
-                    }
-
-                    // 基础数据类型不转 json
-                    return !CClassUtils.isBasicClass(type);
                 }
-        );
+
+                // 实现 Serializable.class 转 json 和 java base 包不转 json 冲突
+                for (val clazz : JSON_LOG_SUPERCLASSES) {
+                    if (clazz.isAssignableFrom(type)) {
+                        return true;
+                    }
+                }
+
+                for (val domainPackage : JSON_LOG_DOMAIN_PACKAGE) {
+                    if (type.getName().contains(domainPackage)) {
+                        return true;
+                    }
+                }
+
+                for (val clazz : JSON_LOG_ANNOTATIONS) {
+                    if (CClassUtils.isAnnotationPresent(type, clazz)) {
+                        return true;
+                    }
+                }
+
+                // 基础数据类型不转 json
+                return !CClassUtils.isBasicClass(type);
+            }
+    );
+
+    public void setJsonLog(Collection<Class<?>> types, boolean value) {
+        types.forEach(type -> JSON_LOG_CLASS_VALUE.setValue(type, value));
+    }
+
+    public void setJsonLog(Class<?> type, boolean value) {
+        setJsonLog(Collections.singletonList(type), value);
+    }
+
+    public boolean isJsonLog(Class<?> type) {
+        return JSON_LOG_CLASS_VALUE.getValue(type);
     }
 
     public Object[] getSupplierArgs(Supplier<Object>[] suppliers) {
