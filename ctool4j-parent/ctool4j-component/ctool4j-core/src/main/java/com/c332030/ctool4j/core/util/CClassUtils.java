@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.util.reflection.CBiClassValue;
+import com.c332030.ctool4j.core.util.reflection.CClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.core.lang.CAssert;
 import com.c332030.ctool4j.core.mapstruct.CMapStructConvert;

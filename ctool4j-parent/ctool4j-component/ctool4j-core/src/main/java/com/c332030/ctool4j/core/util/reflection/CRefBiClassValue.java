@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.core.util.reflection;
 
 import com.c332030.ctool4j.definition.function.CBiFunction;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2025/11/21
  */
-public class CRefBiClassValue<T> {
+public class CRefBiClassValue<T> implements ICRefBiClassValue<T> {
 
     private final CBiClassValue<AtomicReference<T>> classValue;
 
@@ -19,10 +19,12 @@ public class CRefBiClassValue<T> {
         classValue = CBiClassValue.of((type1, type2) -> new AtomicReference<>(function.apply(type1, type2)));
     }
 
+    @Override
     public T get(Class<?> type1, Class<?> type2) {
         return classValue.get(type1, type2).get();
     }
 
+    @Override
     public void set(Class<?> type1, Class<?> type2, T value) {
         classValue.get(type1, type2).set(value);
     }

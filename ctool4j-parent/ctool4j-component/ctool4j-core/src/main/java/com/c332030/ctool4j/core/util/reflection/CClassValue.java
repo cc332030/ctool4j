@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.core.util.reflection;
 
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.NonNull;
@@ -10,7 +10,7 @@ import lombok.NonNull;
  *
  * @since 2025/11/20
  */
-public class CClassValue<T> {
+public class CClassValue<T> implements ICClassValue<T> {
 
     private final ClassValue<T> classValue;
 
@@ -28,6 +28,7 @@ public class CClassValue<T> {
      * @param clazz 类
      * @return 值
      */
+    @Override
     public T get(Class<?> clazz) {
         return classValue.get(clazz);
     }

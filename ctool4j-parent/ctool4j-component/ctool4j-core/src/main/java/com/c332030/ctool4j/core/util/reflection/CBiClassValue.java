@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.core.util.reflection;
 
 import com.c332030.ctool4j.definition.function.CBiFunction;
 
@@ -9,7 +9,7 @@ import com.c332030.ctool4j.definition.function.CBiFunction;
  *
  * @since 2025/11/20
  */
-public class CBiClassValue<T> {
+public class CBiClassValue<T> implements ICBiClassValue<T> {
 
     private final CClassValue<CClassValue<T>> classValue;
 
@@ -25,6 +25,7 @@ public class CBiClassValue<T> {
      * @param type2 类2
      * @return 值
      */
+    @Override
     public T get(Class<?> type1, Class<?> type2) {
         return classValue.get(type1).get(type2);
     }

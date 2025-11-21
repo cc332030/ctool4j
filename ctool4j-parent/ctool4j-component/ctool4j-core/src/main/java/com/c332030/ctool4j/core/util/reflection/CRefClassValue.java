@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.core.util.reflection;
 
 import com.c332030.ctool4j.definition.function.CFunction;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2025/11/21
  */
-public class CRefClassValue<T> {
+public class CRefClassValue<T> implements ICRefClassValue<T> {
 
     private final CClassValue<AtomicReference<T>> classValue;
 
@@ -19,10 +19,12 @@ public class CRefClassValue<T> {
         classValue = CClassValue.of(type -> new AtomicReference<>(function.apply(type)));
     }
 
+    @Override
     public T get(Class<?> type) {
         return classValue.get(type).get();
     }
 
+    @Override
     public void set(Class<?> type, T value) {
         classValue.get(type).set(value);
     }
