@@ -148,11 +148,14 @@ public class CBeanUtils {
      */
     public Map<String, Object> toMap(Object object, ToStringFunction<Field> getFieldNameFunction) {
 
-        if(null == object) {
+        Class<?> objClass;
+        if(null == object
+                || CClassUtils.isBasicClass(objClass = object.getClass())
+        ) {
             return CMap.of();
         }
 
-        val fieldMap = CClassUtils.getFields(object.getClass());
+        val fieldMap = CClassUtils.getFields(objClass);
         return CCollUtils.toMap(
                 fieldMap.values(),
                 getFieldNameFunction,
