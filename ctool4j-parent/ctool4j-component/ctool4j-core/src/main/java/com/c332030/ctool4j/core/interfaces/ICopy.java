@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.interfaces;
 
-import com.c332030.ctool4j.core.util.CBeanUtils;
+import com.c332030.ctool4j.core.reflection.CBeanUtils;
 
 /**
  * <p>

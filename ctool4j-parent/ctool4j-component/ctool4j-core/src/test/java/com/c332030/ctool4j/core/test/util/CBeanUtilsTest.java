@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.test.util;
 
 import cn.hutool.core.date.DateUtil;
-import com.c332030.ctool4j.core.util.CBeanUtils;
+import com.c332030.ctool4j.core.reflection.CBeanUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.test.definition.model.UserDto;

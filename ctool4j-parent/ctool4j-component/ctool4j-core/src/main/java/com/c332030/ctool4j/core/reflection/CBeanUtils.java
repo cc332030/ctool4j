@@ -1,7 +1,10 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.core.reflection;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.definition.function.CFunction;

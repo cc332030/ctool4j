@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.reflection.CBeanUtils;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.google.common.base.CaseFormat;
