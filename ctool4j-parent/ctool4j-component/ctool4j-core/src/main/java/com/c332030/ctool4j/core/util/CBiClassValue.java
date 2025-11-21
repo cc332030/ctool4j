@@ -19,6 +19,12 @@ public class CBiClassValue<T> {
                         function.apply(type1, type2)));
     }
 
+    /**
+     * 获取值
+     * @param type1 类1
+     * @param type2 类2
+     * @return 值
+     */
     public T get(Class<?> type1, Class<?> type2) {
         return classValue.get(type1).get(type2);
     }
