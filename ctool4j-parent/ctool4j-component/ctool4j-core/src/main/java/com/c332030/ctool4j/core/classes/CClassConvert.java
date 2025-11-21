@@ -1,9 +1,8 @@
-package com.c332030.ctool4j.core.mapstruct;
+package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CNumUtils;
-import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.interfaces.IValue;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -14,13 +13,13 @@ import java.util.Date;
 
 /**
  * <p>
- * Description: CMapStructConvert
+ * Description: CClassConvert
  * </p>
  *
  * @since 2025/4/17
  */
 @UtilityClass
-public class CMapStructConvert {
+public class CClassConvert {
 
     public Date parseDateTime(String date) {
         return DateUtil.parse(date);

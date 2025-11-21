@@ -3,7 +3,6 @@ package com.c332030.ctool4j.core.classes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import com.c332030.ctool4j.core.cache.impl.CBiClassValue;
-import com.c332030.ctool4j.core.mapstruct.CMapStructConvert;
 import com.c332030.ctool4j.core.util.CCollectors;
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.function.CFunction;
@@ -51,7 +50,7 @@ public class CClassUtils {
     static {
 
         log.info("初始化 mapstruct 默认类型转换");
-        val methods = CReflectUtils.getMethods(CMapStructConvert.class);
+        val methods = CReflectUtils.getMethods(CClassConvert.class);
         methods.stream()
                 .filter(CReflectUtils::isStatic)
                 .forEach(CClassUtils::addConverter);

@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.mapstruct;
 
+import com.c332030.ctool4j.core.classes.CClassConvert;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -12,7 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
  */
 @MapperConfig(
         componentModel = "spring",
-        uses = {CMapStructConvert.class},
+        uses = {CClassConvert.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface CMapStructConfig {
