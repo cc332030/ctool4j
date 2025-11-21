@@ -16,10 +16,12 @@ import java.util.function.Supplier;
 @UtilityClass
 public class CToolTestConstants {
 
+    public static final String JUNIT_TEST_CLASS_NAME = "org.junit.jupiter.api.Test";
+
     public static final boolean IS_TEST = ((Supplier<Boolean>) () -> {
         try {
 
-            Class.forName("org.junit.jupiter.api.Test");
+            Class.forName(JUNIT_TEST_CLASS_NAME);
             return true;
         } catch (Throwable e) {
             log.debug("check junit result exception", e);
