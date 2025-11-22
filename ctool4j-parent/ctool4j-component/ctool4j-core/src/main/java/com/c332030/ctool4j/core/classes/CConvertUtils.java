@@ -24,17 +24,41 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @UtilityClass
 public class CConvertUtils {
 
+    private static final List<ClassConverter<?, ?>> CLASS_CONVERTERS = new CopyOnWriteArrayList<>();
     static {
 
-        log.info("初始化 mapstruct 默认类型转换");
+        log.info("初始化默认类型转换");
         val methods = CReflectUtils.getMethods(CClassConvert.class);
         methods.stream()
                 .filter(CReflectUtils::isStatic)
                 .forEach(CConvertUtils::addConverter);
     }
 
-    private static final List<ClassConverter<?, ?>> CLASS_CONVERTERS = new CopyOnWriteArrayList<>();
-    public static final CBiClassValue<CFunction<Object, ?>> VALUE_SET_CLASS_VALUE =
+    public void addConverter(Method method) {
+
+        @SuppressWarnings("unchecked")
+        val fromClass = (Class<Object>) method.getParameterTypes()[0];
+        @SuppressWarnings("unchecked")
+        val toClass = (Class<Object>) method.getReturnType();
+        addConverter(fromClass, toClass, o -> method.invoke(null, o));
+    }
+
+    public <From, To> void addConverter(
+            Class<From> fromClass,
+            Class<To> toClass,
+            CFunction<From, To> converter) {
+
+        log.debug("添加映射，fromClass: {}, toClass: {}, converter: {}", fromClass, toClass, converter);
+
+        val classConverter = ClassConverter.<From, To>builder()
+                .fromClass(fromClass)
+                .toClass(toClass)
+                .converter(converter)
+                .build();
+        CLASS_CONVERTERS.add(classConverter);
+    }
+
+    public final CBiClassValue<CFunction<Object, ?>> VALUE_SET_CLASS_VALUE =
             CBiClassValue.of((fromClass, toClass) -> {
 
                 if(Collection.class.isAssignableFrom(fromClass)
@@ -58,7 +82,7 @@ public class CConvertUtils {
                 return null;
             });
 
-    public static <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
+    public <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
         return CObjUtils.anyType(VALUE_SET_CLASS_VALUE.get(fromClass, toClass));
     }
 
@@ -76,30 +100,6 @@ public class CConvertUtils {
 
     public <To> Opt<To> convertOpt(Object from, Class<To> toClass) {
         return Opt.ofNullable(convert(from, toClass));
-    }
-
-    public static <From, To> void addConverter(
-            Class<From> fromClass,
-            Class<To> toClass,
-            CFunction<From, To> converter) {
-
-        log.debug("添加映射，fromClass: {}, toClass: {}, converter: {}", fromClass, toClass, converter);
-
-        val classConverter = ClassConverter.<From, To>builder()
-                .fromClass(fromClass)
-                .toClass(toClass)
-                .converter(converter)
-                .build();
-        CLASS_CONVERTERS.add(classConverter);
-    }
-
-    public static void addConverter(Method method) {
-
-        @SuppressWarnings("unchecked")
-        val fromClass = (Class<Object>) method.getParameterTypes()[0];
-        @SuppressWarnings("unchecked")
-        val toClass = (Class<Object>) method.getReturnType();
-        addConverter(fromClass, toClass, o -> method.invoke(null, o));
     }
 
 }
