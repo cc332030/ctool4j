@@ -94,22 +94,6 @@ public class CBeanUtils {
     public <To> List<To> copyList(Collection<?> fromCollection, Supplier<To> toSupplier) {
         return copyListFromMap(CCollUtils.convert(fromCollection, CBeanUtils::toMap), toSupplier);
     }
-
-    /**
-     * 对象转 map
-     * @param object 源对象
-     * @param useJsonName 是否使用 json 配置的属性名
-     * @return 值 map
-     */
-    @Deprecated
-    public Map<String, Object> toMap(Object object, boolean useJsonName) {
-
-        if(useJsonName) {
-            return toMapJsonName(object);
-        }
-        return toMap(object);
-    }
-
     /**
      * 对象转 map，使用 json 属性名
      * @param object 源对象
