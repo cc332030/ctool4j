@@ -22,9 +22,8 @@ public class CObjUtils {
 
     public static final Object OBJECT = new Object();
 
-    @SuppressWarnings("unchecked")
     public <T> T emptyObject() {
-        return (T) OBJECT;
+        return anyType(OBJECT);
     }
 
     @SuppressWarnings("unchecked")
