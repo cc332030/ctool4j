@@ -25,7 +25,13 @@ public class CSpringUtils {
     }
 
     public boolean isCurrentContextEvent(ApplicationEvent event) {
-        return isCurrentContext((ApplicationContext)event.getSource());
+
+        val source = event.getSource();
+        if (!(source instanceof ApplicationContext)) {
+            return false;
+        }
+
+        return isCurrentContext((ApplicationContext)source);
     }
 
     public boolean isCurrentContext(ApplicationContext applicationContext) {
