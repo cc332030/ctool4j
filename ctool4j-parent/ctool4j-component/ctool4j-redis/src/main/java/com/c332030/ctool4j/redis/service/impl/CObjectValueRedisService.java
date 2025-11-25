@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.service.impl;
 
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.redis.service.ICRedisService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,14 +28,12 @@ public class CObjectValueRedisService implements ICRedisService<Object, Object> 
      * @return RedisTemplate 通用
      */
     @Override
-    @SuppressWarnings("unchecked")
     public RedisTemplate<Object, Object> getRedisTemplate() {
-        return (RedisTemplate<Object, Object>)redisTemplate;
+        return CObjUtils.anyType(redisTemplate);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getValueForGenericType(Object key) {
-        return (T)getValue(key);
+        return CObjUtils.anyType(getValue(key));
     }
 
 }
