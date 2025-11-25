@@ -54,7 +54,8 @@ public class CSpringUtils {
                 tClass, classes
         );
 
-        return (T)CSpringBeans.getApplicationContext().getBeanProvider(resolvableType)
+        return (T)CSpringBeans.getApplicationContext()
+                .getBeanProvider(resolvableType)
                 .getIfAvailable();
     }
 
