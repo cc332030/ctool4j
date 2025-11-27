@@ -11,7 +11,7 @@ import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
  * @since 2025/11/27
  */
 public class CServiceImpl<M extends CBaseMapper<T>, T>
-        extends CBaseServiceImpl<M, T> {
+        extends CAbstractServiceImpl<M, T> {
 
     @Override
     public Class<T> getEntityClass() {

@@ -6,12 +6,12 @@ import com.c332030.ctool4j.mybatisplus.service.ICService;
 
 /**
  * <p>
- * Description: CBaseServiceImpl
+ * Description: CAbstractServiceImpl
  * </p>
  *
  * @since 2025/11/27
  */
-public class CBaseServiceImpl<M extends CBaseMapper<T>, T>
+public abstract class CAbstractServiceImpl<M extends CBaseMapper<T>, T>
         extends ServiceImpl<M, T>
         implements ICService<T> {
 
