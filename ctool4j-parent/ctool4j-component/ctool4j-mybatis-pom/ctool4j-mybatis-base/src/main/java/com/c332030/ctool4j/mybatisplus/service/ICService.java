@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 
@@ -22,6 +23,14 @@ public interface ICService<T> extends IService<T> {
     Class<T> getEntityClass();
 
     CBaseMapper<T> getBaseMapper();
+
+    default String getBizId() {
+        return CIdUtils.nextIdWithPrefix(getEntityClass());
+    }
+
+    default String getBizId(int length) {
+        return CIdUtils.nextIdWithPrefix(getEntityClass(), length);
+    }
 
     default boolean saveIgnore(T entity) {
         return SqlHelper.retBool(getBaseMapper().insertIgnore(entity));
