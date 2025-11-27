@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface ICService<T> extends IService<T> {
 
+    Class<T> getEntityClass();
+
     CBaseMapper<T> getBaseMapper();
 
     default boolean saveIgnore(T entity) {
