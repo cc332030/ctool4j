@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.event.listener;
 
+import com.c332030.ctool4j.definition.interfaces.ICEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.lang.NonNull;
@@ -12,7 +13,7 @@ import org.springframework.lang.NonNull;
  * @since 2025/10/31
  */
 @FunctionalInterface
-public interface CApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E> {
+public interface CApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E>, ICEvent<E> {
 
     default boolean supports(E event) {
         return true;
