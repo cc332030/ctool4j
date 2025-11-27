@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @since 2025/11/27
  */
-public interface ICService<T, R> extends IService<T> {
+public interface ICService<T> extends IService<T> {
 
     CBaseMapper<T> getBaseMapper();
 
