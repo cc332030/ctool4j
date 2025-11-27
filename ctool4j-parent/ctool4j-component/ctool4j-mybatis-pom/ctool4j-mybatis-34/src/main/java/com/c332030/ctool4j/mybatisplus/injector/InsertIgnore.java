@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.mybatisplus;
+package com.c332030.ctool4j.mybatisplus.injector;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;

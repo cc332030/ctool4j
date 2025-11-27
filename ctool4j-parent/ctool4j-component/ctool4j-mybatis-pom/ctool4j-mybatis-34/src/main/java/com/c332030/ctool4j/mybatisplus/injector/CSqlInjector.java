@@ -1,7 +1,8 @@
-package com.c332030.ctool4j.mybatisplus;
+package com.c332030.ctool4j.mybatisplus.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import lombok.val;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +20,8 @@ import java.util.List;
 public class CSqlInjector extends DefaultSqlInjector {
 
     @Override
-    public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
-        val methods = super.getMethodList(mapperClass);
+    public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
+        val methods = super.getMethodList(mapperClass, tableInfo);
         methods.add(new InsertIgnore());
         return methods;
     }
