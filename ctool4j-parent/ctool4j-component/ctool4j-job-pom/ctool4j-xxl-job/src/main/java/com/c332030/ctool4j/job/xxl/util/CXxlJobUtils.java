@@ -68,7 +68,7 @@ public class CXxlJobUtils {
      * @return 任务参数
      */
     public <T> List<T> jobParamSplit(CFunction<String, T> convert) {
-        return CStrUtils.splitToList(getJobParam(), null, convert);
+        return jobParamSplit(null, convert);
     }
 
     /**
