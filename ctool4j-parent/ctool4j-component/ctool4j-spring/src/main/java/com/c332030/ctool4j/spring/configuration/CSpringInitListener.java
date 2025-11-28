@@ -2,9 +2,8 @@ package com.c332030.ctool4j.spring.configuration;
 
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
-import com.c332030.ctool4j.spring.event.listener.CurrentContextRefreshedListener;
+import com.c332030.ctool4j.spring.event.listener.CInitListener;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,10 +14,10 @@ import org.springframework.stereotype.Component;
  * @since 2025/11/10
  */
 @Component
-public class CSpringInitListener implements CurrentContextRefreshedListener {
+public class CSpringInitListener implements CInitListener {
 
     @Override
-    public void onEvent(ContextRefreshedEvent event) {
+    public void onInit() {
         CSpringUtils.wireBean(CSpringApplicationConfig.class, CSpringConfigBeans::setSpringApplicationConfig);
     }
 
