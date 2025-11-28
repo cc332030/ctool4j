@@ -42,15 +42,15 @@ public class CXxlJobAspect {
     @Around("annotationPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) {
 
-        val method = CAspectUtils.getMethod(joinPoint);
-        val parameterTypes = method.getParameterTypes();
-
         val args = joinPoint.getArgs();
         log.debug("args: {}", args);
 
-        if(ArrayUtil.isNotEmpty(parameterTypes)) {
+        if(ArrayUtil.isNotEmpty(args)) {
 
             val arg0 = args[0];
+
+            val method = CAspectUtils.getMethod(joinPoint);
+            val parameterTypes = method.getParameterTypes();
             if(String.class == parameterTypes[0] && StrUtil.isBlank((String)arg0)) {
 
                 val jobParam = CXxlJobUtils.getJobParam();
