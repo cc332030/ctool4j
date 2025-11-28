@@ -268,6 +268,9 @@ public class CStrUtils {
     public List<String> splitToList(String value, String separator) {
         return split(value, separator, Function.identity(), CCollUtils::newList);
     }
+    public <T> List<T> splitToList(String value, String separator, Function<String, T> convert) {
+        return split(value, separator, convert, CCollUtils::newList);
+    }
     public <T> List<T> splitToList(String value, Function<String, T> convert) {
         return split(value, null, convert, CCollUtils::newList);
     }
