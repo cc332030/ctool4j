@@ -54,8 +54,10 @@ public class CXxlJobAspect {
             if(String.class == parameterTypes[0] && StrUtil.isBlank((String)arg0)) {
 
                 val jobParam = CXxlJobUtils.getJobParam();
-                log.info("jobParam: {}", jobParam);
-                args[0] = jobParam;
+                if(StrUtil.isNotBlank(jobParam)) {
+                    log.info("jobParam: {}", jobParam);
+                    args[0] = jobParam;
+                }
             }
         } else {
             log.debug("args is empty");
