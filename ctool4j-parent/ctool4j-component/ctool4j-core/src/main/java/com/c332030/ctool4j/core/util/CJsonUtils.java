@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -39,6 +40,9 @@ public class CJsonUtils {
     }
 
     public String toJson(Object object){
+        if(null == object) {
+            return null;
+        }
         return toJson(object, CJacksonUtils.OBJECT_MAPPER);
     }
 
@@ -55,11 +59,17 @@ public class CJsonUtils {
 
     @SneakyThrows
     public <T> T fromJson(String json, Class<T> tClass, ObjectMapper objectMapper) {
+        if(StrUtil.isBlank(json)) {
+            return null;
+        }
         return objectMapper.readValue(json, tClass);
     }
 
     @SneakyThrows
     public <T> T fromJson(String json, TypeReference<T> typeReference, ObjectMapper objectMapper) {
+        if(StrUtil.isBlank(json)) {
+            return null;
+        }
         return objectMapper.readValue(json, typeReference);
     }
 
