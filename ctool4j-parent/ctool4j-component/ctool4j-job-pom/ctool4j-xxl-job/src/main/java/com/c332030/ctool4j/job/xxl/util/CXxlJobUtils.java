@@ -15,14 +15,28 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CXxlJobUtils {
 
+    /**
+     * 获取任务参数
+     * @return 任务参数
+     */
     public String getJobParam() {
         return XxlJobHelper.getJobParam();
     }
 
+    /**
+     * 获取任务参数
+     * @param clazz 任务参数类型
+     * @return 任务参数
+     */
     public <T> T parseJobParam(Class<T> clazz) {
         return CJsonUtils.fromJson(getJobParam(), clazz);
     }
 
+    /**
+     * 获取任务参数
+     * @param typeReference 任务参数类型
+     * @return 任务参数
+     */
     public <T> T parseJobParam(TypeReference<T> typeReference) {
         return CJsonUtils.fromJson(getJobParam(), typeReference);
     }
