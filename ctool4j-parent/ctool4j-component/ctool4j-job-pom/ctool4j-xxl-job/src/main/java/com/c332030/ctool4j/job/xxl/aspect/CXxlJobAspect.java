@@ -59,8 +59,6 @@ public class CXxlJobAspect {
                     args[0] = jobParam;
                 }
             }
-        } else {
-            log.debug("args is empty");
         }
 
         return joinPoint.proceed(args);
