@@ -8,15 +8,12 @@
         <version>0.0.6-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-job</artifactId>
+    <artifactId>ctool4j-job-pom</artifactId>
+    <packaging>pom</packaging>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-spring</artifactId>
-        </dependency>
-
-    </dependencies>
+    <modules>
+        <module>ctool4j-job-base</module>
+        <module>ctool4j-xxl-job</module>
+    </modules>
 
 </project>
