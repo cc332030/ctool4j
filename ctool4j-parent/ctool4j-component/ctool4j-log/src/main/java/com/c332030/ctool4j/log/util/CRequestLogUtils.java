@@ -46,7 +46,8 @@ public class CRequestLogUtils {
     private static CRequestLogConfig requestLogConfig;
 
     public boolean isEnable() {
-        return BooleanUtil.isTrue(requestLogConfig.getEnable());
+        val enable = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getEnable);
+        return BooleanUtil.isTrue(enable);
     }
 
     public CRequestLog getRequestLog() {
