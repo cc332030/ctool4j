@@ -1,9 +1,13 @@
 package com.c332030.ctool4j.job.xxl.aspect;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.job.xxl.config.CXxlJobExecutorConfig;
 import com.c332030.ctool4j.job.xxl.util.CXxlJobUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -27,6 +31,8 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CXxlJobAspect {
 
+    CXxlJobExecutorConfig executorConfig;
+
     /**
      * 拦截 @XxlJob，切入点
      */
@@ -42,26 +48,35 @@ public class CXxlJobAspect {
     @Around("annotationPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) {
 
+        val method = CAspectUtils.getMethod(joinPoint);
+        val jobName = CReflectUtils.getAnnotationValue(method, XxlJob.class, XxlJob::value);
+
         val args = joinPoint.getArgs();
-        log.debug("args: {}", args);
+        log.debug("jobName: {}, args: {}", jobName, args);
 
         if(ArrayUtil.isNotEmpty(args)) {
 
             val arg0 = args[0];
 
-            val method = CAspectUtils.getMethod(joinPoint);
             val parameterTypes = method.getParameterTypes();
             if(String.class == parameterTypes[0] && StrUtil.isBlank((String)arg0)) {
 
                 val jobParam = CXxlJobUtils.getJobParam();
                 if(StrUtil.isNotBlank(jobParam)) {
-                    log.info("jobParam: {}", jobParam);
+                    log.info("jobName: {}, aram: {}", jobParam);
                     args[0] = jobParam;
                 }
             }
         }
 
-        return joinPoint.proceed(args);
+        try {
+            return joinPoint.proceed(args);
+        } catch (Throwable e) {
+            if(BooleanUtil.isTrue(executorConfig.getLogCatchError())) {
+                log.error("jobName: {} failure", jobName, e);
+            }
+            throw e;
+        }
     }
 
 }

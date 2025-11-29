@@ -2,10 +2,10 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
-import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -14,11 +14,9 @@ import lombok.val;
 import lombok.var;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -270,6 +268,29 @@ public class CReflectUtils {
         }
 
         return CObjUtils.anyType(method.invoke(value, args));
+    }
+
+    /**
+     * 获取注解值
+     * @param executable Class/Method/Field
+     * @param annotationClass 注解类
+     * @param valueFunction 获取注解值的方法
+     * @return 注解值
+     * @param <A> 注解类泛型
+     * @param <T> 返回值泛型
+     */
+    public <A extends Annotation, T> T getAnnotationValue(
+            Executable executable,
+            Class<A> annotationClass,
+            Function<A, T> valueFunction
+    ) {
+
+        val annotation = executable.getAnnotation(annotationClass);
+        if(null != annotation) {
+            return valueFunction.apply(annotation);
+        }
+
+        return null;
     }
 
 }
