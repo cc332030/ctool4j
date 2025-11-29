@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.job.xxl.util;
+package com.c332030.ctool4j.job.xxljob.util;
 
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;

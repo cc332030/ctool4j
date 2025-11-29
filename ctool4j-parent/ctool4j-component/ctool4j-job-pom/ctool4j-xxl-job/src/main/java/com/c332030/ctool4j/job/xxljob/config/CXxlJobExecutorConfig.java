@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.job.xxl.config;
+package com.c332030.ctool4j.job.xxljob.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
