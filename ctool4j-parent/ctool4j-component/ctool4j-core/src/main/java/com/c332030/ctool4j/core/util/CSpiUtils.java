@@ -45,7 +45,7 @@ public class CSpiUtils {
      */
     public <T> T getFirstCustomImplOrDefault(Class<T> clazz, Class<? extends T> defaultImpl) {
 
-        val providers = CSpiUtils.getImpls(clazz);
+        val providers = getImpls(clazz);
 
         T defaultProvider = null;
         T customProvider = null;
