@@ -4,7 +4,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
-import com.c332030.ctool4j.job.xxljob.config.CXxlJobExecutorConfig;
+import com.c332030.ctool4j.job.xxljob.config.CXxlJobExecutorLogConfig;
 import com.c332030.ctool4j.job.xxljob.util.CXxlJobUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import com.xxl.job.core.handler.annotation.XxlJob;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CXxlJobAspect {
 
-    CXxlJobExecutorConfig executorConfig;
+    CXxlJobExecutorLogConfig executorConfig;
 
     /**
      * 拦截 @XxlJob，切入点
