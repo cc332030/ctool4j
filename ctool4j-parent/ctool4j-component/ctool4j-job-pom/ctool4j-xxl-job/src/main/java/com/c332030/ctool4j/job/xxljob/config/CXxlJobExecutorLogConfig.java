@@ -5,14 +5,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>
- * Description: CXxlJobExecutorConfig
+ * Description: CXxlJobExecutorLogConfig
  * </p>
  *
  * @since 2025/11/29
  */
 @Data
 @ConfigurationProperties("xxl.job.executor.log")
-public class CXxlJobExecutorConfig {
+public class CXxlJobExecutorLogConfig {
 
     /**
      * 打印捕获的错误信息
