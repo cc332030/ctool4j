@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 2025/11/29
  */
 @Data
-@ConfigurationProperties("xxl.job.log")
+@ConfigurationProperties("xxl.job.executor.log")
 public class CXxlJobExecutorConfig {
 
     /**
