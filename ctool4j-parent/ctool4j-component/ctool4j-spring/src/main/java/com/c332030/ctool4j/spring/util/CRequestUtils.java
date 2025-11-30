@@ -78,6 +78,7 @@ public class CRequestUtils {
 
     /**
      * 是否是接口请求
+     * @return 结果
      */
     public boolean hasRequest() {
         return null != getServletRequestAttributes();
@@ -85,6 +86,7 @@ public class CRequestUtils {
 
     /**
      * @see CRequestUtils#hasRequest()
+     * @return 结果
      */
     public boolean noRequest() {
         return !hasRequest();
