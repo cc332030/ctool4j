@@ -13,6 +13,7 @@ public interface ICRefBiClassValue <T> extends ICBiClassValue<T> {
      * 设置值
      * @param type1 类
      * @param type2 类2
+     * @param value 值
      */
     void set(Class<?> type1, Class<?> type2, T value);
 

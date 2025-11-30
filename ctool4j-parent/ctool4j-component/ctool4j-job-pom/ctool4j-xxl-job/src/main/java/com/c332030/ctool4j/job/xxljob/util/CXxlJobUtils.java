@@ -30,8 +30,8 @@ public class CXxlJobUtils {
     /**
      * 获取任务参数
      * @param clazz 任务参数类型
-     * @return 任务参数
      * @param <T> 任务参数类型
+     * @return 任务参数
      */
     public <T> T parseJobParam(Class<T> clazz) {
         return CJsonUtils.fromJson(getJobParam(), clazz);
@@ -40,8 +40,8 @@ public class CXxlJobUtils {
     /**
      * 获取任务参数
      * @param typeReference 任务参数类型
-     * @return 任务参数
      * @param <T> 任务参数类型
+     * @return 任务参数
      */
     public <T> T parseJobParam(TypeReference<T> typeReference) {
         return CJsonUtils.fromJson(getJobParam(), typeReference);
@@ -67,8 +67,8 @@ public class CXxlJobUtils {
     /**
      * 获取任务参数
      * @param convert 转换方法
-     * @return 任务参数
      * @param <T> 任务参数类型
+     * @return 任务参数
      */
     public <T> List<T> jobParamSplit(CFunction<String, T> convert) {
         return jobParamSplit(null, convert);
@@ -78,8 +78,8 @@ public class CXxlJobUtils {
      * 获取任务参数
      * @param separator 分隔符
      * @param convert 转换方法
-     * @return 任务参数
      * @param <T> 任务参数类型
+     * @return 任务参数
      */
     public <T> List<T> jobParamSplit(String separator, CFunction<String, T> convert) {
         return CStrUtils.splitToList(getJobParam(), separator, convert);

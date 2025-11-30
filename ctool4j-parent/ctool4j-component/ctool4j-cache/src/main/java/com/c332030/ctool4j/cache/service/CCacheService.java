@@ -29,7 +29,13 @@ public class CCacheService {
     CObjectValueRedisService redisService;
 
     /**
-     * 同步获取值
+     * 分布式同步获取值，如果不存在则计算
+     * @param key 分布式锁
+     * @param waitDuration 获取锁等待时长
+     * @param expireDurationFunction 缓存过期时长
+     * @param valueSupplier 值提供者
+     * @return 值
+     * @param <T> 值泛型
      */
     public <T> T computeIfAbsent(String key, Duration waitDuration,
                                  Function<T, Duration> expireDurationFunction, Supplier<T> valueSupplier) {

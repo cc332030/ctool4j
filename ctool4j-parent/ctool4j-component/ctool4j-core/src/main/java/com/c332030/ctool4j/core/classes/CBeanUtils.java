@@ -36,6 +36,13 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CBeanUtils {
 
+    /**
+     * map 属性复制到对象
+     * @param fromMap 源 map
+     * @param to 目标对象
+     * @return 目标对象
+     * @param <To> 目标对象泛型
+     */
     public <To> To copy(Map<String, ?> fromMap, To to) {
 
         if(MapUtil.isEmpty(fromMap) || null == to) {
@@ -61,25 +68,68 @@ public class CBeanUtils {
         return to;
     }
 
+    /**
+     * 对象属性复制
+     * @param from 源对象
+     * @param to 目标对象
+     * @return 目标对象
+     * @param <To> 目标对象泛型
+     */
     public <To> To copy(Object from, To to) {
         return copy(toMap(from), to);
     }
 
+    /**
+     * 对象属性复制
+     * @param fromMap 属性 map
+     * @param toClass 目标对象类
+     * @param <To> 目标对象泛型
+     * @return 目标对象
+     */
     public <To> To copy(Map<String, ?> fromMap, Class<To> toClass) {
         return copy(fromMap, CReflectUtils.newInstance(toClass));
     }
 
+    /**
+     * 对象属性复制
+     * @param from 源对象
+     * @param toClass 目标对象类
+     * @param <To> 目标对象泛型
+     * @return 目标对象
+     */
     public <To> To copy(Object from, Class<To> toClass) {
         return copy(toMap(from), toClass);
     }
 
+    /**
+     * 对象属性复制
+     * @param fromMap 源 map
+     * @param toSupplier 目标对象提供者
+     * @param <To> 目标对象泛型
+     * @return 目标对象
+     */
     public <To> To copy(Map<String, ?> fromMap, Supplier<To> toSupplier) {
         return copy(fromMap, toSupplier.get());
     }
+
+    /**
+     * 对象属性复制
+     * @param from 源对象
+     * @param toSupplier 目标对象提供者
+     * @param <To> 目标对象泛型
+     * @return 目标对象
+     */
     public <To> To copy(Object from, Supplier<To> toSupplier) {
         return copy(toMap(from), toSupplier);
     }
 
+    /**
+     * 集合对象属性复制
+     * @param fromCollection 源集合
+     * @param toSupplier 目标对象提供者
+     * @param <To> 目标对象泛型
+     * @return 目标对象集合
+     */
     public <To> List<To> copyListFromMap(Collection<Map<String, ?>> fromCollection, Supplier<To> toSupplier) {
 
         if(CollUtil.isEmpty(fromCollection)) {
@@ -91,9 +141,17 @@ public class CBeanUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 集合对象属性复制
+     * @param fromCollection 源集合
+     * @param toSupplier 目标对象获取方法
+     * @param <To> 目标对象泛型
+     * @return 目标对象集合
+     */
     public <To> List<To> copyList(Collection<?> fromCollection, Supplier<To> toSupplier) {
         return copyListFromMap(CCollUtils.convert(fromCollection, CBeanUtils::toMap), toSupplier);
     }
+
     /**
      * 对象转 map，使用 json 属性名
      * @param object 源对象
@@ -104,10 +162,11 @@ public class CBeanUtils {
     }
 
     /**
-     * 对象转 map
+     * 对象转 map，使用注解 key
      * @param object 源对象
      * @param annotationClass 注解类
      * @param annotationValueFunction 注解值获取方法
+     * @param <T> 注解泛型
      * @return 值 map
      */
     public <T extends Annotation> Map<String, Object> toMap(

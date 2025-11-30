@@ -67,10 +67,23 @@ public class CStrUtils {
         return MessageFormatter.arrayFormat(template, params).getMessage();
     }
 
+    /**
+     * 字符串格式化
+     * @param key 模板
+     * @param stringLookup 字符串属性查找函数
+     * @return formatted string
+     */
     public String formatLookup(String key, StringFunction<?> stringLookup) {
         return formatLookup(key, stringLookup, null);
     }
 
+    /**
+     * 模板字符串格式化
+     * @param key 模板
+     * @param stringLookup 模板字符串查找函数
+     * @param defaultValue 默认值
+     * @return formatted string
+     */
     public String formatLookup(String key, StringFunction<?> stringLookup, String defaultValue) {
 
         if(StrUtil.isEmpty(key)) {
@@ -168,7 +181,9 @@ public class CStrUtils {
     }
 
     /**
-     * 大写下划线 转 报文头：TRACE_ID -> Trace-Id
+     * 大写下划线 转 报文头：TRACE_ID - Trace-Id
+     * @param value 待转换值
+     * @return 转换结果
      */
     public String upperUnderscoreToHeaderName(String value) {
         val splits = value.split("_");
@@ -179,7 +194,8 @@ public class CStrUtils {
 
     /**
      * 大写下划线 转 驼峰-首字母大写
-     * Upper underscore to lower camel
+     * @param value 待转换值
+     * @return 转换结果
      */
     public String upperUnderscoreToLowerCamel(String value)  {
 
@@ -192,7 +208,8 @@ public class CStrUtils {
 
     /**
      * 大写下划线 转 驼峰-首字母大写
-     * Upper underscore to upper camel
+     * @param value 待转换值
+     * @return 转换结果
      */
     public String upperUnderscoreToUpperCamel(String value)  {
 
@@ -205,7 +222,8 @@ public class CStrUtils {
 
     /**
      * 驼峰-首字符大写 转 大写下划线
-     * Upper underscore to lower camel
+     * @param value 待转换值
+     * @return 转换结果
      */
     public String upperCamelToUpperUnderscore(String value)  {
 
@@ -218,27 +236,63 @@ public class CStrUtils {
 
     /**
      * 获取字符串里面所有大写字母
+     * @param value 待转换值
+     * @return 大写字母组合字符串
      */
     public String getAllUpperChar(String value) {
         return value.replaceAll("[^A-Z]", "");
     }
 
+    /**
+     * 去除字符串前后空格
+     * @param string 待处理字符串
+     * @return 处理结果
+     */
     public String trim(String string) {
         return string == null ? null : string.trim();
     }
 
+    /**
+     * 转为字符串
+     * @param obj 待转换对象
+     * @return 转换结果
+     */
     public String toString(Object obj) {
         return obj == null ? null : obj.toString();
     }
 
+    /**
+     * 转为字符串，并转为指定类型
+     * @param obj 待转换对象
+     * @param function 转换函数
+     * @param <T> 待转换类型泛型
+     * @return 转换结果
+     */
     public <T> T toStringThenConvert(Object obj, StringFunction<T> function) {
         return function.apply(toString(obj));
     }
 
+    /**
+     * 转为字符串
+     * @param t 待转换对象
+     * @param function 待转换对象转换函数
+     * @param <T> 待转换类型泛型
+     * @return 待转换对象转换结果
+     */
     public <T> String toString(T t, ToStringFunction<T> function) {
         return toString(function.apply(t));
     }
 
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @param separator 分割符
+     * @param convert 转换函数
+     * @param collectionFunction 集合创建函数
+     * @param <T> 待转换类型泛型
+     * @param <C> 结果泛型
+     * @return 分割结果
+     */
     public <T, C extends Collection<T>> C split(
             String value,
             String separator,
@@ -265,41 +319,126 @@ public class CStrUtils {
         return collection;
     }
 
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @param separator 分割符
+     * @return 分割结果
+     */
     public List<String> splitToList(String value, String separator) {
         return split(value, separator, Function.identity(), CCollUtils::newList);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @param separator 分隔符
+     * @param convert 转换函数
+     * @param <T> 待转换类型泛型
+     * @return 分割结果
+     */
     public <T> List<T> splitToList(String value, String separator, Function<String, T> convert) {
         return split(value, separator, convert, CCollUtils::newList);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @param convert 转换函数
+     * @param <T> 待转换类型泛型
+     * @return 分割结果
+     */
     public <T> List<T> splitToList(String value, Function<String, T> convert) {
         return split(value, null, convert, CCollUtils::newList);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @return 分割结果
+     */
     public List<String> splitToList(String value) {
         return splitToList(value, Function.identity());
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @return 分割结果
+     */
     public List<Integer> splitToIntegerList(String value) {
         return splitToList(value, Integer::parseInt);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @return 分割结果
+     */
     public List<Long> splitToLongList(String value) {
         return splitToList(value, Long::parseLong);
     }
 
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @param separator 分割符
+     * @return 分割结果
+     */
     public Set<String> splitToSet(String value, String separator) {
         return split(value, separator, Function.identity(), CCollUtils::newLinkedSet);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @param convert 转换函数
+     * @param <T> 待转换类型泛型
+     * @return 分割结果
+     */
     public <T> Set<T> splitToSet(String value, Function<String, T> convert) {
         return split(value, null, convert, CCollUtils::newLinkedSet);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @return 分割结果
+     */
     public Set<String> splitToSet(String value) {
         return splitToSet(value, Function.identity());
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @return 分割结果
+     */
     public Set<Integer> splitToIntegerSet(String value) {
         return splitToSet(value, Integer::parseInt);
     }
+
+    /**
+     * 分割字符串
+     * @param value 待分割字符串
+     * @return 分割结果
+     */
     public static Set<Long> splitToLongSet(String value) {
         return splitToSet(value, Long::parseLong);
     }
 
+    /**
+     * 分割字符串
+     * @param string 待分割字符串
+     * @param separatorEntry 分割符
+     * @param separatorKeyValue 分割符
+     * @param kFunction 键转换函数
+     * @param vFunction 值转换函数
+     * @param mapFunction 集合创建函数
+     * @param <K> Map key 泛型
+     * @param <V> Map value 泛型
+     * @return 分割结果
+     */
     public static <K, V> Map<K, V> splitToMap(
             String string,
             String separatorEntry, String separatorKeyValue,
@@ -334,14 +473,34 @@ public class CStrUtils {
         return map;
     }
 
+    /**
+     * 分割字符串
+     * @param string 待分割字符串
+     * @param kFunction 键转换函数
+     * @param vFunction 值转换函数
+     * @param <K> Map key 泛型
+     * @param <V> Map value 泛型
+     * @return 分割结果
+     */
     public static <K, V> Map<K, V> splitToMap(String string, Function<String, K> kFunction, Function<String, V> vFunction) {
         return splitToMap(string, null, null, kFunction, vFunction, CCollUtils::newLinkedMap);
     }
 
+    /**
+     * 分割字符串
+     * @param string 待分割字符串
+     * @return 分割结果
+     */
     public static Map<String, String> splitToMap(String string) {
         return splitToMap(string, Function.identity(), Function.identity());
     }
 
+    /**
+     * 连接字符串
+     * @param separator 分割符
+     * @param strings 字符串数组
+     * @return 连接后的字符串
+     */
     public static String concat(String separator, String... strings) {
 
         if(ArrayUtil.isEmpty(strings)) {
@@ -353,13 +512,35 @@ public class CStrUtils {
                 .collect(Collectors.joining(separator));
     }
 
+    /**
+     * 不为空则获取
+     * @param value 待校验值
+     * @param supplier 取值方法
+     * @param <T> 值泛型
+     * @return 值
+     */
     public static <T> T notEmptyThenGet(String value, Supplier<T> supplier) {
         return CObjUtils.ifThenGet(StrUtil.isNotEmpty(value), supplier);
     }
 
+    /**
+     * 不为空则获取
+     * @param value 待校验值
+     * @param supplier 取值方法
+     * @param <T> 值泛型
+     * @return 值
+     */
     public static <T> T notBlackThenGet(String value, Supplier<T> supplier) {
         return CObjUtils.ifThenGet(StrUtil.isNotBlank(value), supplier);
     }
+
+    /**
+     * 转换字符串，如果为空则返回默认值
+     * @param o 源字符串
+     * @param function 转换函数
+     * @param <R> 泛型
+     * @return 转换后的字符串
+     */
     public static <R> R convertNotEmpty(String o, Function<String, R> function) {
         return convertNotEmpty(o, function, null);
     }
@@ -369,8 +550,8 @@ public class CStrUtils {
      * @param o 源字符串
      * @param function 转换函数
      * @param defaultValue 默认值
-     * @return 转换后的字符串
      * @param <R> R
+     * @return 转换后的字符串
      */
     public static <R> R convertNotEmpty(String o, Function<String, R> function, R defaultValue) {
 
@@ -419,6 +600,12 @@ public class CStrUtils {
         return value;
     }
 
+    /**
+     * 获取字符
+     * @param string 字符串
+     * @param index 索引
+     * @return 字符
+     */
     public static Character charAt(String string, int index) {
 
         if(index < 0 || index >= string.length()) {
@@ -427,10 +614,20 @@ public class CStrUtils {
         return string.charAt(index);
     }
 
+    /**
+     * 是否可用字符串
+     * @param string 字符串
+     * @return 结果
+     */
     public static boolean isAvailable(String string) {
         return StrUtil.isNotEmpty(toAvailable(string));
     }
 
+    /**
+     * 转换成可用字符串
+     * @param string 待转换字符串
+     * @return 可用字符串
+     */
     public static String toAvailable(String string) {
 
         string = CStrUtils.trim(string);
@@ -467,10 +664,20 @@ public class CStrUtils {
         return string;
     }
 
+    /**
+     * 转换成可用字符串
+     * @param strings 待转换字符串数组
+     * @return 可用字符串
+     */
     public static List<String> toAvailable(String[] strings) {
         return toAvailable(Arrays.asList(strings));
     }
 
+    /**
+     * 转换成可用字符串
+     * @param strings 待转换字符串集合
+     * @return 可用字符串
+     */
     public static List<String> toAvailable(Collection<String> strings) {
         return strings.stream()
                 .map(CStrUtils::toAvailable)
@@ -479,6 +686,13 @@ public class CStrUtils {
                 ;
     }
 
+    /**
+     * 转换成可用字符串
+     * @param string 待转换字符串
+     * @param function 转换函数
+     * @param <T> 泛型
+     * @return 可用字符串
+     */
     public static <T> T convertAvailable(String string, StringFunction<T> function) {
 
         val value = toAvailable(string);
@@ -489,10 +703,25 @@ public class CStrUtils {
         return function.apply(value);
     }
 
+    /**
+     * 字符串连接
+     * @param collection 集合
+     * @param convert 转换函数
+     * @param <T> 源对象泛型
+     * @return 字符串
+     */
     public <T> String join(Collection<T> collection, Function<T, String> convert) {
         return join(collection, convert, null);
     }
 
+    /**
+     * 字符串连接
+     * @param collection 集合
+     * @param convert 转换函数
+     * @param separator 分隔符
+     * @param <T> 源对象泛型
+     * @return 字符串
+     */
     public <T> String join(Collection<T> collection, Function<T, String> convert, String separator) {
 
         if(null == separator) {
@@ -503,6 +732,11 @@ public class CStrUtils {
         return StrUtil.join(separator, objects);
     }
 
+    /**
+     * 获取默认字符串
+     * @param strings 字符串数组
+     * @return 默认字符串
+     */
     public static String defaultString(String... strings) {
 
         if(ArrayUtil.isEmpty(strings)) {
@@ -518,6 +752,11 @@ public class CStrUtils {
         return null;
     }
 
+    /**
+     * 字符串最好一个数字自增
+     * @param str 待自增字符串
+     * @return 自增后的字符串
+     */
     public String incrLastNum(String str) {
 
         if(StrUtil.isEmpty(str)) {
