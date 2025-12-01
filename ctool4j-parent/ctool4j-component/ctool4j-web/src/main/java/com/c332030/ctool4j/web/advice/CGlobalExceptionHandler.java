@@ -1,10 +1,12 @@
 package com.c332030.ctool4j.web.advice;
 
+import com.c332030.ctool4j.definition.model.CResult;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * <p>
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * @since 2025/10/27
  */
 @CustomLog
-//@RestControllerAdvice
+@RestControllerAdvice
 public class CGlobalExceptionHandler {
 
     @ExceptionHandler({
@@ -22,8 +24,10 @@ public class CGlobalExceptionHandler {
             ClientAbortException.class,
             HttpMessageNotWritableException.class,
     })
-    public void handle(Throwable e) {
-        log.debug("", e);
+    public CResult<Object> handleIgnoreException(Throwable e) {
+
+        log.info("handleIgnoreException", e);
+        return CResult.error(e.getMessage());
     }
 
 }
