@@ -6,7 +6,6 @@ import com.c332030.ctool4j.feign.interceptor.CFeignInterceptor;
 import feign.Client;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>
@@ -15,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 2025/9/21
  */
-@Configuration
+//@Configuration
 public class CFeignConfiguration {
 
     @Bean
