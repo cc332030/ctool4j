@@ -3,8 +3,8 @@ package com.c332030.ctool4j.feign.configuration;
 import com.c332030.ctool4j.feign.client.CFeignClient;
 import com.c332030.ctool4j.feign.config.CFeignLogConfig;
 import com.c332030.ctool4j.feign.interceptor.CFeignInterceptor;
-import feign.Client;
 import feign.RequestInterceptor;
+import org.apache.http.client.HttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,8 +24,8 @@ public class CFeignConfiguration {
     }
 
     @Bean
-    public CFeignClient feignClient(CFeignLogConfig feignLogConfig) {
-        return new CFeignClient(feignLogConfig);
+    public CFeignClient feignClient(HttpClient httpClient, CFeignLogConfig feignLogConfig) {
+        return new CFeignClient(httpClient, feignLogConfig);
     }
 
 }

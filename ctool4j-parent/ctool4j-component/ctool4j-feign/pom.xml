@@ -19,6 +19,11 @@
         </dependency>
 
         <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-httpclient</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-spring-cloud</artifactId>
         </dependency>

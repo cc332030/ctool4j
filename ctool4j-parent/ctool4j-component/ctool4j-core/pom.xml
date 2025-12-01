@@ -28,6 +28,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-test-definition</artifactId>
             <scope>test</scope>
