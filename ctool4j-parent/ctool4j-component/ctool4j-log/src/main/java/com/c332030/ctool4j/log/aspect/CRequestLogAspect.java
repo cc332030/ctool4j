@@ -72,13 +72,6 @@ public class CRequestLogAspect {
             }
         } catch (Throwable e) {
             log.error("init request log failure", e);
-        } finally {
-
-            costMills = System.currentTimeMillis() - startMills;
-            if(BooleanUtil.isTrue(requestLogConfig.getSlowLogEnable())
-                    && costMills > requestLogConfig.getSlowLogMillis()) {
-                log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
-            }
         }
 
         try {
@@ -89,6 +82,13 @@ public class CRequestLogAspect {
             throwable = e;
             throw e;
         } finally {
+
+            costMills = System.currentTimeMillis() - startMills;
+            if(BooleanUtil.isTrue(requestLogConfig.getSlowLogEnable())
+                    && costMills > requestLogConfig.getSlowLogMillis()) {
+                log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
+            }
+
             try {
                 if(CRequestLogUtils.isEnable() && CRequestUtils.hasRequest()) {
                     CRequestLogUtils.write(result, throwable);
