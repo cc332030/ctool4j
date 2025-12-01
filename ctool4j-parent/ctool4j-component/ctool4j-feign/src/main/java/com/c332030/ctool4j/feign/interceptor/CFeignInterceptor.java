@@ -56,7 +56,7 @@ public class CFeignInterceptor implements RequestInterceptor {
 
         val headers = template.headers();
         if(BooleanUtil.isTrue(feignLogConfig.getEnableHeader())) {
-            httpLog.append("\n\n");
+            httpLog.append("\n");
             httpLog.append(CCommUtils.getFullHeaderStr(headers));
         }
 

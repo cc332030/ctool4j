@@ -30,7 +30,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class CFeignClient implements Client {
 
-    Client defaultClient;
+    final Client defaultClient = new feign.Client.Default(null, null);
 
     CFeignLogConfig feignLogConfig;
 
@@ -56,7 +56,8 @@ public class CFeignClient implements Client {
             // 重新构建响应体（因为原流已被读取）
             return Response.builder()
                     .requestTemplate(request.requestTemplate())
-                    .protocolVersion(response.protocolVersion())
+                    // 低版本不支持
+//                    .protocolVersion(response.protocolVersion())
                     .status(response.status())
                     .reason(response.reason())
                     .request(request)
@@ -90,6 +91,8 @@ public class CFeignClient implements Client {
             }
 
         }
+
+        log.info("{}", httpLog::toString);
 
     }
 

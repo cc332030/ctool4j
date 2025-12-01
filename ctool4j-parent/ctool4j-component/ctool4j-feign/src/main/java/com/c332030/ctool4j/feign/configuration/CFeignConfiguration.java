@@ -24,8 +24,8 @@ public class CFeignConfiguration {
     }
 
     @Bean
-    public CFeignClient feignClient(Client client, CFeignLogConfig feignLogConfig) {
-        return new CFeignClient(client, feignLogConfig);
+    public CFeignClient feignClient(CFeignLogConfig feignLogConfig) {
+        return new CFeignClient(feignLogConfig);
     }
 
 }
