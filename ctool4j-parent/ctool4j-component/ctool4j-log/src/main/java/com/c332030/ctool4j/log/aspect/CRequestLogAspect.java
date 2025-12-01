@@ -54,7 +54,7 @@ public class CRequestLogAspect {
 
         try {
 
-            if(CRequestLogUtils.isEnable()) {
+            if(CRequestUtils.hasRequest() && CRequestLogUtils.isEnable()) {
 
                 CTraceUtils.initTrace();
 
@@ -90,7 +90,7 @@ public class CRequestLogAspect {
             throw e;
         } finally {
             try {
-                if(CRequestLogUtils.isEnable()) {
+                if(CRequestUtils.hasRequest() && CRequestLogUtils.isEnable()) {
                     CRequestLogUtils.write(result, throwable);
                     CTraceUtils.removeTraceInfo();
                 }
