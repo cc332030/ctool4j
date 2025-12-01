@@ -10,10 +10,9 @@ import feign.Client;
 import feign.Request;
 import feign.Response;
 import feign.Util;
-import feign.httpclient.ApacheHttpClient;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
-import org.apache.http.client.HttpClient;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,16 +27,12 @@ import java.util.Map;
  * @since 2025/9/21
  */
 @CustomLog
+@AllArgsConstructor
 public class CFeignClient implements Client {
 
     final Client defaultClient;
 
     final CFeignLogConfig feignLogConfig;
-
-    public CFeignClient(HttpClient httpClient, CFeignLogConfig feignLogConfig) {
-        this.defaultClient = new ApacheHttpClient(httpClient);
-        this.feignLogConfig = feignLogConfig;
-    }
 
     @Override
     public Response execute(Request request, Request.Options options) throws IOException {
