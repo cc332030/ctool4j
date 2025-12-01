@@ -52,8 +52,8 @@ public class CRequestLogAspect {
         val startMills = System.currentTimeMillis();
         var costMills = 0L;
 
-        boolean isLogEnable = CRequestLogUtils.isEnable();
-        boolean hasRequest = false;
+        val isLogEnable = CRequestLogUtils.isEnable();
+        var hasRequest = false;
         try {
 
             if(isLogEnable && (hasRequest = CRequestUtils.hasRequest())) {
