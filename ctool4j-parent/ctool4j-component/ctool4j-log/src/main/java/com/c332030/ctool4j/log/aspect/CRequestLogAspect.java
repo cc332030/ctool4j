@@ -52,10 +52,11 @@ public class CRequestLogAspect {
         val startMills = System.currentTimeMillis();
         var costMills = 0L;
 
+        boolean isLogEnable = CRequestLogUtils.isEnable();
         boolean hasRequest = false;
         try {
 
-            if(CRequestLogUtils.isEnable() && (hasRequest = CRequestUtils.hasRequest())) {
+            if(isLogEnable && (hasRequest = CRequestUtils.hasRequest())) {
 
                 CTraceUtils.initTrace();
 
@@ -91,7 +92,7 @@ public class CRequestLogAspect {
             }
 
             try {
-                if(CRequestLogUtils.isEnable() && hasRequest) {
+                if(isLogEnable && hasRequest) {
                     CRequestLogUtils.write(result, throwable);
                     CTraceUtils.removeTraceInfo();
                 }
