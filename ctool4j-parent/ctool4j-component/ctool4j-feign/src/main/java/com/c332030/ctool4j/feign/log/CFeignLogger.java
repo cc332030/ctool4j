@@ -58,7 +58,6 @@ public class CFeignLogger extends Logger {
         val url = request.url();
 
         val httpLog = new StringBuilder();
-        CFeignUtils.HTTP_LOG_THREAD_LOCAL.set(httpLog);
 
         httpLog.append("\n");
         httpLog.append(method);
