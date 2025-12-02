@@ -28,8 +28,8 @@ public class CFeignUtils {
 
         return Response.builder()
             .requestTemplate(request.requestTemplate())
-            // 低版本不支持
-//                    .protocolVersion(response.protocolVersion())
+            // TODO 低版本不支持
+            // .protocolVersion(response.protocolVersion())
             .status(response.status())
             .reason(response.reason())
             .request(request)
