@@ -3,6 +3,7 @@ package com.c332030.ctool4j.feign.log;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.feign.config.CFeignLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
@@ -83,8 +84,9 @@ public class CFeignLogger extends Logger {
     @SneakyThrows
     private byte[] getBodyBytes(Response response) {
         try {
-            return Util.toByteArray(response.body().asInputStream());
-        } catch (IOException e) {
+            val inputStream = CObjUtils.convert(response.body(), Response.Body::asInputStream);
+            return CObjUtils.convert(inputStream, Util::toByteArray);
+        } catch (Exception e) {
             log.debug("获取响应体失败", e);
             return null;
         }

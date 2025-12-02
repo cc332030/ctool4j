@@ -5,6 +5,8 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.google.common.base.CaseFormat;
@@ -17,7 +19,6 @@ import org.slf4j.helpers.MessageFormatter;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -519,7 +520,7 @@ public class CStrUtils {
      * @param <T> 值泛型
      * @return 值
      */
-    public static <T> T notEmptyThenGet(String value, Supplier<T> supplier) {
+    public static <T> T notEmptyThenGet(String value, CSupplier<T> supplier) {
         return CObjUtils.ifThenGet(StrUtil.isNotEmpty(value), supplier);
     }
 
@@ -530,7 +531,7 @@ public class CStrUtils {
      * @param <T> 值泛型
      * @return 值
      */
-    public static <T> T notBlackThenGet(String value, Supplier<T> supplier) {
+    public static <T> T notBlackThenGet(String value, CSupplier<T> supplier) {
         return CObjUtils.ifThenGet(StrUtil.isNotBlank(value), supplier);
     }
 
@@ -710,7 +711,7 @@ public class CStrUtils {
      * @param <T> 源对象泛型
      * @return 字符串
      */
-    public <T> String join(Collection<T> collection, Function<T, String> convert) {
+    public <T> String join(Collection<T> collection, CFunction<T, String> convert) {
         return join(collection, convert, null);
     }
 
@@ -722,7 +723,7 @@ public class CStrUtils {
      * @param <T> 源对象泛型
      * @return 字符串
      */
-    public <T> String join(Collection<T> collection, Function<T, String> convert, String separator) {
+    public <T> String join(Collection<T> collection, CFunction<T, String> convert, String separator) {
 
         if(null == separator) {
             separator = DEFAULT_SEPARATOR;

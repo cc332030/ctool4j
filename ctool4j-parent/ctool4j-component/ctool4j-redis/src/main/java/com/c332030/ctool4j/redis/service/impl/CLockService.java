@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.redis.service.impl;
 
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.function.CRunnable;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -77,7 +78,7 @@ public class CLockService {
         return tryLock(lock, timeout, timeUnit);
     }
 
-    public boolean tryLockThenRun(String key, Runnable runnable) {
+    public boolean tryLockThenRun(String key, CRunnable runnable) {
         return null != tryLockThenRun(key, CObjUtils.toSupplier(runnable), null);
     }
 
@@ -85,14 +86,14 @@ public class CLockService {
         return tryLockThenRun(key, valueSupplier, null);
     }
 
-    public boolean tryLockThenRun(String key, Runnable runnable, Runnable failureRunnable) {
+    public boolean tryLockThenRun(String key, CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, 0, null, CObjUtils.toSupplier(runnable), failureRunnable);
     }
-    public <T> T tryLockThenRun(String key, Supplier<T> valueSupplier, Runnable failureRunnable) {
+    public <T> T tryLockThenRun(String key, Supplier<T> valueSupplier, CRunnable failureRunnable) {
         return tryLockThenRun(key, 0, null, valueSupplier, failureRunnable);
     }
 
-    public boolean tryLockThenRun(String key, Duration waitDuration, Runnable runnable) {
+    public boolean tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), null);
     }
     public <T> T tryLockThenRun(String key, Duration waitDuration, Supplier<T> valueSupplier) {
@@ -100,12 +101,12 @@ public class CLockService {
     }
 
     public boolean tryLockThenRun(String key, Duration waitDuration,
-                                  Runnable runnable, Runnable failureRunnable) {
+                                  CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), failureRunnable);
     }
 
     public <T> T tryLockThenRun(String key, Duration waitDuration,
-                                Supplier<T> valueSupplier, Runnable failureRunnable) {
+                                Supplier<T> valueSupplier, CRunnable failureRunnable) {
 
         long timeout;
         TimeUnit timeUnit;
@@ -122,7 +123,7 @@ public class CLockService {
     }
 
     public boolean tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
-                                  Runnable runnable) {
+                                  CRunnable runnable) {
         return null != tryLockThenRun(key, waitTime, timeUnit, CObjUtils.toSupplier(runnable), null);
     }
     public <T> T tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
@@ -131,12 +132,12 @@ public class CLockService {
     }
 
     public boolean tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
-                                  Runnable runnable, Runnable failureRunnable) {
+                                  CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, waitTime, timeUnit, CObjUtils.toSupplier(runnable), failureRunnable);
     }
 
     public <T> T tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
-                                Supplier<T> valueSupplier, Runnable failureRunnable) {
+                                Supplier<T> valueSupplier, CRunnable failureRunnable) {
 
         RLock lock = getLock(key);
 

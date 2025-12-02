@@ -5,10 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
-import com.c332030.ctool4j.definition.function.CBiConsumer;
-import com.c332030.ctool4j.definition.function.CConsumer;
-import com.c332030.ctool4j.definition.function.CFunction;
-import com.c332030.ctool4j.definition.function.ToStringFunction;
+import com.c332030.ctool4j.definition.function.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -20,8 +17,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -108,7 +103,7 @@ public class CBeanUtils {
      * @param <To> 目标对象泛型
      * @return 目标对象
      */
-    public <To> To copy(Map<String, ?> fromMap, Supplier<To> toSupplier) {
+    public <To> To copy(Map<String, ?> fromMap, CSupplier<To> toSupplier) {
         return copy(fromMap, toSupplier.get());
     }
 
@@ -119,7 +114,7 @@ public class CBeanUtils {
      * @param <To> 目标对象泛型
      * @return 目标对象
      */
-    public <To> To copy(Object from, Supplier<To> toSupplier) {
+    public <To> To copy(Object from, CSupplier<To> toSupplier) {
         return copy(toMap(from), toSupplier);
     }
 
@@ -130,7 +125,7 @@ public class CBeanUtils {
      * @param <To> 目标对象泛型
      * @return 目标对象集合
      */
-    public <To> List<To> copyListFromMap(Collection<Map<String, ?>> fromCollection, Supplier<To> toSupplier) {
+    public <To> List<To> copyListFromMap(Collection<Map<String, ?>> fromCollection, CSupplier<To> toSupplier) {
 
         if(CollUtil.isEmpty(fromCollection)) {
             return CList.of();
@@ -148,7 +143,7 @@ public class CBeanUtils {
      * @param <To> 目标对象泛型
      * @return 目标对象集合
      */
-    public <To> List<To> copyList(Collection<?> fromCollection, Supplier<To> toSupplier) {
+    public <To> List<To> copyList(Collection<?> fromCollection, CSupplier<To> toSupplier) {
         return copyListFromMap(CCollUtils.convert(fromCollection, CBeanUtils::toMap), toSupplier);
     }
 
@@ -205,7 +200,7 @@ public class CBeanUtils {
         return CCollUtils.toMap(
                 fieldMap.values(),
                 getFieldNameFunction,
-                (Function<Field, Object>) e -> CReflectUtils.getValue(object, e)
+                (CFunction<Field, Object>) e -> CReflectUtils.getValue(object, e)
         );
     }
 

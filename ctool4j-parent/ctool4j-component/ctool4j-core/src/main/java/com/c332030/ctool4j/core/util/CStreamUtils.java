@@ -1,11 +1,11 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 @UtilityClass
 public class CStreamUtils {
 
-    public <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    public <T> Predicate<T> distinctByKey(CFunction<? super T, ?> keyExtractor) {
 
         val seen = new ConcurrentHashMap<Object, Boolean>();
         return t -> {

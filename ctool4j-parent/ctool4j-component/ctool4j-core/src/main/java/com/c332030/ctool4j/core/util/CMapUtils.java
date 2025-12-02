@@ -2,12 +2,12 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.map.MapUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.function.CFunction;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * <p>
@@ -83,22 +83,22 @@ public class CMapUtils {
 
     public <K1, K2, V> Map<K2, V> mapKey(
             Map<K1, V> map,
-            Function<K1, K2> keyMapper
+            CFunction<K1, K2> keyMapper
     ) {
-        return map(map, keyMapper, Function.identity());
+        return map(map, keyMapper, CFunction.self());
     }
 
     public <K, V1, V2> Map<K, V2> mapValue(
             Map<K, V1> map,
-            Function<V1, V2> valueMapper
+            CFunction<V1, V2> valueMapper
     ) {
-        return map(map, Function.identity(), valueMapper);
+        return map(map, CFunction.self(), valueMapper);
     }
 
     public <K1, V1, K2, V2> Map<K2, V2> map(
             Map<K1, V1> map,
-            Function<K1, K2> keyMapper,
-            Function<V1, V2> valueMapper
+            CFunction<K1, K2> keyMapper,
+            CFunction<V1, V2> valueMapper
     ) {
 
         if(MapUtil.isEmpty(map)) {
