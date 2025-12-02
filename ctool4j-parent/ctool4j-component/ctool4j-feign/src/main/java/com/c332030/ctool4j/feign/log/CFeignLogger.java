@@ -74,7 +74,7 @@ public class CFeignLogger extends Logger {
         printHeaders(httpLog, responseHeaders);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
 
-        log.info("{}", httpLog::toString);
+        log.info("{}", httpLog);
 
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
