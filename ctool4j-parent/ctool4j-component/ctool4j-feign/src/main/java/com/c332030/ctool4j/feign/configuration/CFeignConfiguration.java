@@ -22,6 +22,11 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "feign.log", name = "enable", havingValue = "true")
 public class CFeignConfiguration {
 
+    @Bean
+    public Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+
 //    @Bean
     public RequestInterceptor requestInterceptor(CFeignLogConfig feignLogConfig) {
         return new CFeignInterceptor(feignLogConfig);
