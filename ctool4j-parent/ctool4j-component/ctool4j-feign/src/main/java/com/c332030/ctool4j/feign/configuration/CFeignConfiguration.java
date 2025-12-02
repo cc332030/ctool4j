@@ -7,6 +7,7 @@ import com.c332030.ctool4j.feign.log.CFeignLogger;
 import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,11 +34,13 @@ public class CFeignConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(Logger.Level.class)
     public Logger.Level loggerLevel() {
         return Logger.Level.FULL;
     }
 
     @Bean
+    @ConditionalOnMissingBean(Logger.class)
     public Logger logger(CFeignLogConfig feignLogConfig) {
         return new CFeignLogger(feignLogConfig);
     }
