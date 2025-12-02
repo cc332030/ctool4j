@@ -123,7 +123,7 @@ public class CFeignLogger extends Logger {
                 val responseBody = new String(bodyBytes, StandardCharsets.UTF_8);
                 httpLog.append(responseBody);
             } else {
-                httpLog.append("[no ");
+                httpLog.append("[not ");
                 httpLog.append(type);
                 httpLog.append(" text body]");
             }
