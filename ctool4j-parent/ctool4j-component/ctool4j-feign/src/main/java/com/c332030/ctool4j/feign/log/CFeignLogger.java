@@ -2,6 +2,7 @@ package com.c332030.ctool4j.feign.log;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.feign.config.CFeignLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
@@ -69,7 +70,7 @@ public class CFeignLogger extends Logger {
         printBody(httpLog, requestHeaders, request.body(), "request");
 
         val responseHeaders = response.headers();
-        val responseBodyBytes = Util.toByteArray(response.body().asInputStream());
+        val responseBodyBytes = getBodyBytes(response);
 
         printHeaders(httpLog, responseHeaders);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
@@ -79,11 +80,25 @@ public class CFeignLogger extends Logger {
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
 
+    @SneakyThrows
+    private byte[] getBodyBytes(Response response) {
+        try {
+            return Util.toByteArray(response.body().asInputStream());
+        } catch (IOException e) {
+            log.debug("获取响应体失败", e);
+            return null;
+        }
+    }
+
     private void printHeaders(StringBuilder httpLog, Map<String, Collection<String>> headers) {
 
         if(BooleanUtil.isTrue(feignLogConfig.getEnableHeader())) {
-            httpLog.append("\n");
-            httpLog.append(CCommUtils.getFullHeaderStr(headers));
+
+            val headerStr = CCommUtils.getFullHeaderStr(headers);
+            if(StrUtil.isNotEmpty(headerStr)) {
+                httpLog.append("\n");
+                httpLog.append(CCommUtils.getFullHeaderStr(headers));
+            }
         }
 
     }
