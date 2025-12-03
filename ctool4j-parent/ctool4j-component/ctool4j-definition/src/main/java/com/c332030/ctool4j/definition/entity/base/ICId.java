@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.definition.entity.base;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * <p>
  * Description: ICId
@@ -9,6 +11,7 @@ package com.c332030.ctool4j.definition.entity.base;
  */
 public interface ICId<T> {
 
+    @ApiModelProperty("主键")
     T getId();
 
 }

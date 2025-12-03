@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public interface ICUpdateTime {
 
-    @ApiModelProperty(value = "更新时间", hidden = true)
+    @ApiModelProperty("更新时间")
     Date getUpdateTime();
 
 }

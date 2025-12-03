@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public interface ICCreateTime {
 
-    @ApiModelProperty(value = "创建时间", hidden = true)
+    @ApiModelProperty("创建时间")
     Date getCreateTime();
 
 }
