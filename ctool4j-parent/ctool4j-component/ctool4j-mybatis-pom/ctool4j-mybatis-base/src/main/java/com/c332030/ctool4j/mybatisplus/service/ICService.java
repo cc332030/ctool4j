@@ -83,6 +83,13 @@ public interface ICService<T> extends IService<T> {
         return SqlHelper.retBool(getBaseMapper().insertIgnore(entity));
     }
 
+    default int batchSaveIgnore(Collection<T> entities) {
+        return entities.stream()
+            .map(this::saveIgnore)
+            .mapToInt(e -> e ? 1 : 0)
+            .sum();
+    }
+
     default Opt<T> getByIdOpt(Serializable id) {
         return Opt.ofNullable(getById(id));
     }
