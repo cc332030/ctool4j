@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * Description: CBaseEntity
+ * Description: CBaseTimeEntity
  * </p>
  *
  * @since 2025/5/26
@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CBaseEntity extends CUpdateTime implements ICLongId {
+public class CBaseTimeEntity extends CUpdateTime implements ICLongId {
 
     @TableId
     Long id;
