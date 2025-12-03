@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -13,6 +14,7 @@ import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 import lombok.val;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -79,6 +81,10 @@ public interface ICService<T> extends IService<T> {
 
     default boolean saveIgnore(T entity) {
         return SqlHelper.retBool(getBaseMapper().insertIgnore(entity));
+    }
+
+    default Opt<T> getByIdOpt(Serializable id) {
+        return Opt.ofNullable(getById(id));
     }
 
     default T getByValue(SFunction<T, ?> column, Object value){
