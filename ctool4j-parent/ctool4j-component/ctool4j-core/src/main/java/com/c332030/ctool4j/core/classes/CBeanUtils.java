@@ -139,6 +139,17 @@ public class CBeanUtils {
     /**
      * 集合对象属性复制
      * @param fromCollection 源集合
+     * @param toClass 目标对象类型
+     * @param <To> 目标对象泛型
+     * @return 目标对象集合
+     */
+    public <To> List<To> copyList(Collection<?> fromCollection, Class<To> toClass) {
+        return copyList(fromCollection, () -> CReflectUtils.newInstance(toClass));
+    }
+
+    /**
+     * 集合对象属性复制
+     * @param fromCollection 源集合
      * @param toSupplier 目标对象获取方法
      * @param <To> 目标对象泛型
      * @return 目标对象集合
