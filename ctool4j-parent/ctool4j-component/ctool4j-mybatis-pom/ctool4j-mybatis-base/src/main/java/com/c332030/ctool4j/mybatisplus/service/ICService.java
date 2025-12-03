@@ -1,12 +1,16 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.c332030.ctool4j.core.classes.CBeanUtils;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
+import lombok.val;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +24,10 @@ import java.util.List;
  */
 public interface ICService<T> extends IService<T> {
 
+    List<OrderItem> ID_ORDER_ITEMS = CList.of(
+        OrderItem.desc("id")
+    );
+
     Class<T> getEntityClass();
 
     CBaseMapper<T> getBaseMapper();
@@ -30,6 +38,23 @@ public interface ICService<T> extends IService<T> {
 
     default String getBizId(int length) {
         return CIdUtils.nextIdWithPrefix(getEntityClass(), length);
+    }
+
+    default T getEntity() {
+        return CReflectUtils.newInstance(getEntityClass());
+    }
+
+    default T getEntity(Object source) {
+        return getEntity(source, null);
+    }
+
+    default T getEntity(Object source, T old) {
+        val entity = getEntity();
+        if(null != old) {
+            CBeanUtils.copy(old, entity);
+        }
+        CBeanUtils.copy(source, entity);
+        return entity;
     }
 
     default boolean saveIgnore(T entity) {

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.val;
 
 import java.util.List;
@@ -23,18 +24,21 @@ public interface ICPage {
      * 当前页
      * @return 当前页
      */
+    @ApiModelProperty(value = "当前页", required = true)
     Integer getPageNum();
 
     /**
      * 页大小
      * @return 页大小
      */
+    @ApiModelProperty(value = "页大小", required = true)
     Integer getPageSize();
 
     /**
      * 排序
      * @return 排序
      */
+    @ApiModelProperty(value = "排序")
     default List<OrderItem> getOrders() {
         return CList.of();
     }
