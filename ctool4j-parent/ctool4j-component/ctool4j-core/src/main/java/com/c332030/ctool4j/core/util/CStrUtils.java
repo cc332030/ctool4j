@@ -158,6 +158,16 @@ public class CStrUtils {
      * 字符串格式化
      * @param template 模板 "My name is ${name}, I come from ${country}"
      * @param object 参数
+     * @return formatted string
+     */
+    public String formatByObject(String template, Object object) {
+        return formatByObject(template, object, StrUtil.EMPTY);
+    }
+
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param object 参数
      * @param defaultValue 默认值
      * @return formatted string
      */
