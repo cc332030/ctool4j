@@ -42,6 +42,30 @@ public class CAssert {
     }
 
     /**
+     * 断言是否相等
+     * @param value1 值1
+     * @param value2 值2
+     * @param messageSupplier 错误信息提供者
+     */
+    public void equals(Object value1, Object value2, Supplier<String> messageSupplier) {
+        if(!Objects.equals(value1, value2)) {
+            CExceptionUtils.throwBusinessException(messageSupplier);
+        }
+    }
+
+    /**
+     * 断言是否相等
+     * @param value1 值1
+     * @param value2 值2
+     * @param message 错误信息
+     */
+    public void equals(Object value1, Object value2, String message) {
+        if(!Objects.equals(value1, value2)) {
+            CExceptionUtils.throwBusinessException(message);
+        }
+    }
+
+    /**
      * 不为空断言
      * @param value 校验值
      * @param messageSupplier 错误信息提供者

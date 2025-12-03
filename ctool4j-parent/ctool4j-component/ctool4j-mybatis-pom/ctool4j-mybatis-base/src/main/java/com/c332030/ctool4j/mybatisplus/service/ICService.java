@@ -9,6 +9,7 @@ import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 import lombok.val;
 
@@ -44,8 +45,21 @@ public interface ICService<T> extends IService<T> {
         return CReflectUtils.newInstance(getEntityClass());
     }
 
+    default T getEntityWithBizId() {
+
+        val entity = getEntity();
+        CBizIdUtils.setBizId(entity, getBizId());
+        return entity;
+    }
+
     default T getEntity(Object source) {
         return getEntity(source, null);
+    }
+
+    default T getEntityWithBizId(Object source) {
+        val entity = getEntity(source);
+        CBizIdUtils.setBizId(entity, getBizId());
+        return entity;
     }
 
     default T getEntity(Object source, T old) {
@@ -54,6 +68,12 @@ public interface ICService<T> extends IService<T> {
             CBeanUtils.copy(old, entity);
         }
         CBeanUtils.copy(source, entity);
+        return entity;
+    }
+
+    default T getEntityWithBizId(Object source, T old) {
+        val entity = getEntity(source, old);
+        CBizIdUtils.setBizId(entity, getBizId());
         return entity;
     }
 
