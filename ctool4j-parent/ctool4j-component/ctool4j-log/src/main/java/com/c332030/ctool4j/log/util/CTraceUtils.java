@@ -5,9 +5,9 @@ import cn.hutool.core.util.IdUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.c332030.ctool4j.core.util.CSpiUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
-import com.c332030.ctool4j.log.model.ITraceInfo;
+import com.c332030.ctool4j.log.model.ICTraceInfo;
 import com.c332030.ctool4j.log.spi.CTraceInfoProvider;
-import com.c332030.ctool4j.log.spi.ITraceInfoProvider;
+import com.c332030.ctool4j.log.spi.ICTraceInfoProvider;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -26,14 +26,14 @@ public class CTraceUtils {
     public static final String TRACE_ID = "c-trace-id";
 
     @SuppressWarnings("unchecked")
-    public static final ITraceInfoProvider<ITraceInfo> BUSINESS_EXCEPTION_PROVIDER =
-            CSpiUtils.getFirstCustomImplOrDefault(ITraceInfoProvider.class, CTraceInfoProvider.class);
+    public static final ICTraceInfoProvider<ICTraceInfo> BUSINESS_EXCEPTION_PROVIDER =
+            CSpiUtils.getFirstCustomImplOrDefault(ICTraceInfoProvider.class, CTraceInfoProvider.class);
 
-    private static final TransmittableThreadLocal<ITraceInfo> TRACE_INFO_THREAD_LOCAL =
+    private static final TransmittableThreadLocal<ICTraceInfo> TRACE_INFO_THREAD_LOCAL =
             TransmittableThreadLocal.withInitial(BUSINESS_EXCEPTION_PROVIDER::getTraceInfo);
 
     @SuppressWarnings("unchecked")
-    public <T extends ITraceInfo> T getTraceInfo() {
+    public <T extends ICTraceInfo> T getTraceInfo() {
         return (T)TRACE_INFO_THREAD_LOCAL.get();
     }
 

@@ -9,7 +9,7 @@ import com.c332030.ctool4j.log.model.CTraceInfo;
  *
  * @since 2025/9/26
  */
-public class CTraceInfoProvider implements ITraceInfoProvider<CTraceInfo> {
+public class CTraceInfoProvider implements ICTraceInfoProvider<CTraceInfo> {
 
     @Override
     public CTraceInfo getTraceInfo() {

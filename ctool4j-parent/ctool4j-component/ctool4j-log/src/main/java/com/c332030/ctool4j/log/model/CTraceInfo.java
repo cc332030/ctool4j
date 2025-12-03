@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CTraceInfo implements ITraceInfo {
+public class CTraceInfo implements ICTraceInfo {
 
     /**
      * 跟踪id
