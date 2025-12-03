@@ -2,10 +2,6 @@ package com.c332030.ctool4j.core.util;
 
 import lombok.experimental.UtilityClass;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 /**
  * <p>
  * Description: CLambdaUtils
@@ -15,17 +11,5 @@ import java.util.function.Supplier;
  */
 @UtilityClass
 public class CLambdaUtils {
-
-    public <T> Function<?, T> emptyFunction() {
-        return o -> null;
-    }
-
-    public <T> Consumer<T> emptyConsumer() {
-        return o -> {};
-    }
-
-    public <T> Supplier<T> emptySupplier() {
-        return () -> null;
-    }
 
 }
