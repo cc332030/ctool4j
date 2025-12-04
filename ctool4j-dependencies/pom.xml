@@ -94,7 +94,7 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-mybatis-34</artifactId>
+                <artifactId>ctool4j-mybatis</artifactId>
                 <version>0.0.6-SNAPSHOT</version>
             </dependency>
 
