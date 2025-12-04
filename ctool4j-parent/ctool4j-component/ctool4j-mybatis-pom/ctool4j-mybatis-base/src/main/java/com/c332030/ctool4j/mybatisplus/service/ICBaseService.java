@@ -157,4 +157,39 @@ public interface ICBaseService<T> extends IService<T> {
                 .list();
     }
 
+    default Long countByValue(T entity, SFunction<T, ?> column){
+        if(null == entity) {
+            return 0L;
+        }
+        return countByValue(column, column.apply(entity));
+    }
+    default Long countByValue(SFunction<T, ?> column, Object value){
+        if(null == value) {
+            return 0L;
+        }
+        return lambdaQuery()
+            .eq(column, value)
+            .count();
+    }
+
+    default Long countByValues(Collection<T> collection, SFunction<T, ?> column){
+
+        if(CollUtil.isEmpty(collection)) {
+            return 0L;
+        }
+
+        val values = CCollUtils.convertSet(collection, column::apply);
+        return countByValues(column, values);
+    }
+
+    default Long countByValues(SFunction<T, ?> column, Collection<?> values){
+
+        if(CollUtil.isEmpty(values)) {
+            return 0L;
+        }
+        return lambdaQuery()
+            .in(column, values)
+            .count();
+    }
+
 }
