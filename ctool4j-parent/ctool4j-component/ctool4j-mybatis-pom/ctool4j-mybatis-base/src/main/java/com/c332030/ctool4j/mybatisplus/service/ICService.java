@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
@@ -104,6 +105,12 @@ public interface ICService<T> extends IService<T> {
         return Opt.ofNullable(getById(id));
     }
 
+    default T getByValue(T entity, SFunction<T, ?> column){
+        if(null == entity) {
+            return null;
+        }
+        return getByValue(column, column.apply(entity));
+    }
     default T getByValue(SFunction<T, ?> column, Object value){
         if(null == value) {
             return null;
@@ -113,6 +120,13 @@ public interface ICService<T> extends IService<T> {
                 .one();
     }
 
+    default List<T> listByValue(T entity, SFunction<T, ?> column){
+        if(null == entity) {
+            return CList.of();
+        }
+        return listByValue(column, column.apply(entity));
+    }
+
     default List<T> listByValue(SFunction<T, ?> column, Object value){
         if(null == value) {
             return CList.of();
@@ -120,6 +134,16 @@ public interface ICService<T> extends IService<T> {
         return lambdaQuery()
                 .eq(column, value)
                 .list();
+    }
+
+    default List<T> listByValues(Collection<T> collection, SFunction<T, ?> column){
+
+        if(CollUtil.isEmpty(collection)) {
+            return CList.of();
+        }
+
+        val values = CCollUtils.convertSet(collection, column::apply);
+        return listByValues(column, values);
     }
 
     default List<T> listByValues(SFunction<T, ?> column, Collection<?> values){
