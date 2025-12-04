@@ -136,6 +136,21 @@ public interface ICService<T> extends IService<T> {
                 .list();
     }
 
+    default Long countByValue(T entity, SFunction<T, ?> column){
+        if(null == entity) {
+            return null;
+        }
+        return countByValue(column, column.apply(entity));
+    }
+    default Long countByValue(SFunction<T, ?> column, Object value){
+        if(null == value) {
+            return null;
+        }
+        return lambdaQuery()
+            .eq(column, value)
+            .count();
+    }
+
     default List<T> listByValues(Collection<T> collection, SFunction<T, ?> column){
 
         if(CollUtil.isEmpty(collection)) {
