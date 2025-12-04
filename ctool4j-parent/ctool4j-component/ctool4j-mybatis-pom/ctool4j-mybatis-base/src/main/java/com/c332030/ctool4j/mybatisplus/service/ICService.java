@@ -80,10 +80,17 @@ public interface ICService<T> extends IService<T> {
     }
 
     default boolean saveIgnore(T entity) {
+
+        if(null == entity) {
+            return false;
+        }
         return SqlHelper.retBool(getBaseMapper().insertIgnore(entity));
     }
 
     default int batchSaveIgnore(Collection<T> entities) {
+        if(CollUtil.isEmpty(entities)) {
+            return 0;
+        }
         return entities.stream()
             .map(this::saveIgnore)
             .mapToInt(e -> e ? 1 : 0)
@@ -91,16 +98,25 @@ public interface ICService<T> extends IService<T> {
     }
 
     default Opt<T> getByIdOpt(Serializable id) {
+        if(null == id) {
+            return Opt.empty();
+        }
         return Opt.ofNullable(getById(id));
     }
 
     default T getByValue(SFunction<T, ?> column, Object value){
+        if(null == value) {
+            return null;
+        }
         return lambdaQuery()
                 .eq(column, value)
                 .one();
     }
 
     default List<T> listByValue(SFunction<T, ?> column, Object value){
+        if(null == value) {
+            return CList.of();
+        }
         return lambdaQuery()
                 .eq(column, value)
                 .list();
