@@ -21,12 +21,12 @@ import java.util.List;
 
 /**
  * <p>
- * Description: ICService
+ * Description: ICBaseService
  * </p>
  *
  * @since 2025/11/27
  */
-public interface ICService<T> extends IService<T> {
+public interface ICBaseService<T> extends IService<T> {
 
     List<OrderItem> ID_ORDER_ITEMS = CList.of(
         OrderItem.desc("id")
@@ -134,21 +134,6 @@ public interface ICService<T> extends IService<T> {
         return lambdaQuery()
                 .eq(column, value)
                 .list();
-    }
-
-    default Long countByValue(T entity, SFunction<T, ?> column){
-        if(null == entity) {
-            return null;
-        }
-        return countByValue(column, column.apply(entity));
-    }
-    default Long countByValue(SFunction<T, ?> column, Object value){
-        if(null == value) {
-            return null;
-        }
-        return lambdaQuery()
-            .eq(column, value)
-            .count();
     }
 
     default List<T> listByValues(Collection<T> collection, SFunction<T, ?> column){
