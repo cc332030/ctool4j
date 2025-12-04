@@ -131,6 +131,16 @@ public class CStrUtils {
      * 字符串格式化
      * @param template 模板 "My name is ${name}, I come from ${country}"
      * @param params 参数
+     * @return formatted string
+     */
+    public String format(String template, Map<String, ?> params) {
+        return format(template, params, null);
+    }
+
+    /**
+     * 字符串格式化
+     * @param template 模板 "My name is ${name}, I come from ${country}"
+     * @param params 参数
      * @param defaultValue 默认值
      * @return formatted string
      */
