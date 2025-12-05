@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -20,10 +21,19 @@ import java.util.function.Consumer;
 @UtilityClass
 public class CSpringUtils {
 
+    /**
+     * 获取当前应用名称
+     * @return 应用名称
+     */
     public String getApplicationName() {
         return CSpringConfigBeans.getSpringApplicationConfig().getName();
     }
 
+    /**
+     * 判断 event 的源是否是当前上下文
+     * @param event 事件
+     * @return 是否是当前上下文的 event
+     */
     public boolean isCurrentContextEvent(ApplicationEvent event) {
 
         val source = event.getSource();
@@ -34,19 +44,61 @@ public class CSpringUtils {
         return isCurrentContext((ApplicationContext)source);
     }
 
-    public boolean isCurrentContext(ApplicationContext applicationContext) {
-        return CSpringBeans.getApplicationContext() == applicationContext;
+    /**
+     * 获取当前应用上下文
+     * @return 当前应用上下文
+     */
+    public ApplicationContext getApplicationContext() {
+        return CSpringBeans.getApplicationContext();
     }
 
+    /**
+     * 判断 applicationContext 是否是当前上下文
+     * @param applicationContext 应用上下文
+     * @return 是否是当前上下文
+     */
+    public boolean isCurrentContext(ApplicationContext applicationContext) {
+        return getApplicationContext() == applicationContext;
+    }
+
+    /**
+     * 获取指定名称的 bean
+     * @param name bean 名称
+     * @return bean
+     * @param <T> 泛型
+     */
     @SuppressWarnings("unchecked")
     public <T> T getBean(String name) {
-        return (T) CSpringBeans.getApplicationContext().getBean(name);
+        return (T) getApplicationContext().getBean(name);
     }
 
+    /**
+     * 获取指定类型的 bean
+     * @param tClass bean 类型
+     * @return bean
+     * @param <T> 泛型
+     */
     public <T> T getBean(Class<T> tClass) {
-        return CSpringBeans.getApplicationContext().getBean(tClass);
+        return getApplicationContext().getBean(tClass);
     }
 
+    /**
+     * 获取指定类型的所有 bean
+     * @param tClass bean 类型
+     * @return bean map
+     * @param <T> 泛型
+     */
+    public <T> Map<String, T> getBeansOfType(Class<T> tClass) {
+        return getApplicationContext().getBeansOfType(tClass);
+    }
+
+    /**
+     * 获取类型指定泛型的 bean
+     * @param tClass bean 类型
+     * @param classes 泛型类型
+     * @return bean
+     * @param <T> 泛型
+     */
     @SuppressWarnings("unchecked")
     public <T> T getBeanByResolvableType(Class<?> tClass, Class<?>... classes) {
 
@@ -54,11 +106,17 @@ public class CSpringUtils {
                 tClass, classes
         );
 
-        return (T)CSpringBeans.getApplicationContext()
+        return (T)getApplicationContext()
                 .getBeanProvider(resolvableType)
                 .getIfAvailable();
     }
 
+    /**
+     * 获取指定类型并注入属性
+     * @param tClass bean 类型
+     * @param consumers 属性注入
+     * @param <T> 泛型
+     */
     @SafeVarargs
     public static <T> void wireBean(Class<T> tClass, Consumer<T>... consumers) {
         val bean = getBean(tClass);
