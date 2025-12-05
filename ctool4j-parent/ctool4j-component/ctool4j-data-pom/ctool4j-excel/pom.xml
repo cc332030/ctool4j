@@ -12,6 +12,11 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-core</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
