@@ -8,7 +8,6 @@ import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
  * @since 2025/9/21
  */
 @Configuration
-@ConditionalOnProperty(prefix = "feign.log", name = "enable", havingValue = "true")
 public class CFeignConfiguration {
 
 //    @Bean
