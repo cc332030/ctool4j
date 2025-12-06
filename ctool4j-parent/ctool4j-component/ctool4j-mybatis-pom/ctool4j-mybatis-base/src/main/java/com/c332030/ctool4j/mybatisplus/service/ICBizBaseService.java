@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -28,6 +29,10 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         return getByValue(getBizIdColumn(), bizId);
     }
 
+    default Opt<ENTITY> getByBizIdOpt(String bizId){
+        return Opt.ofNullable(getByBizId(bizId));
+    }
+
     default List<ENTITY> listByBizId(String bizId){
         return listByValue(getBizIdColumn(), bizId);
     }
@@ -43,6 +48,10 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
             return null;
         }
         return getByBizId(bizId);
+    }
+
+    default Opt<ENTITY> getByBizIdOpt(BIZ_INTERFACE bizInterface){
+        return Opt.ofNullable(getByBizId(bizInterface));
     }
 
     default List<ENTITY> listByBizId(BIZ_INTERFACE bizInterface){
