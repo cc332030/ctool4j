@@ -64,6 +64,13 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         return listByBizId(bizId);
     }
 
+    default boolean updateByBizId(ENTITY entity){
+        if(Objects.isNull(entity)) {
+            return false;
+        }
+        return updateByValue(entity, getBizIdColumn());
+    }
+
     default boolean removeByBizId(BIZ_INTERFACE bizInterface){
 
         if(null == bizInterface) {

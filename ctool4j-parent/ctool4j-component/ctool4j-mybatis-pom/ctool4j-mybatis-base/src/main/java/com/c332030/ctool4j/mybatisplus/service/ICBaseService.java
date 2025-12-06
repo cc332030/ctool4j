@@ -152,6 +152,15 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
                 .list();
     }
 
+    default boolean updateByValue(ENTITY entity, SFunction<ENTITY, ?> column){
+        if(null == entity) {
+            return false;
+        }
+        return lambdaUpdate()
+                .eq(column, convertValue(entity, column))
+                .update(entity);
+    }
+
     default boolean removeByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return false;
