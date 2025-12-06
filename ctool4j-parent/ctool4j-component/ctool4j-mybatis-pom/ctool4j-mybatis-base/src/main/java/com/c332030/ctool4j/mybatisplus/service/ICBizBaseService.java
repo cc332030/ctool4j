@@ -28,10 +28,6 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         return getByValue(getBizIdColumn(), bizId);
     }
 
-    default Opt<ENTITY> getByBizIdOpt(String bizId){
-        return Opt.ofNullable(getByBizId(bizId));
-    }
-
     default ENTITY getByBizId(BIZ_INTERFACE bizInterface){
 
         val bizId = getBizId(bizInterface);
@@ -39,6 +35,10 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
             return null;
         }
         return getByBizId(bizId);
+    }
+
+    default Opt<ENTITY> getByBizIdOpt(String bizId){
+        return Opt.ofNullable(getByBizId(bizId));
     }
 
     default Opt<ENTITY> getByBizIdOpt(BIZ_INTERFACE bizInterface){
