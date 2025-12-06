@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CUpdateBy extends CCreateBy implements ICUpdateBy {
+public class CUpdateBy extends CCreateBy implements ICCreateUpdateBy {
 
     Long updateById;
 

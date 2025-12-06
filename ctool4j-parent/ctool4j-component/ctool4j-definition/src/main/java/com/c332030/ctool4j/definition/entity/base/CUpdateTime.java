@@ -20,7 +20,7 @@ import java.util.Date;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CUpdateTime extends CCreateTime implements ICUpdateTime {
+public class CUpdateTime extends CCreateTime implements ICCreateUpdateTime {
 
     @TableField(
             insertStrategy = FieldStrategy.NEVER,

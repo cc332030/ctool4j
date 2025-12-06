@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
  *
  * @since 2025/12/6
  */
-public interface ICUpdateBy extends ICCreateBy {
+public interface ICUpdateBy {
 
     @ApiModelProperty("更新人ID")
     Long getUpdateById();

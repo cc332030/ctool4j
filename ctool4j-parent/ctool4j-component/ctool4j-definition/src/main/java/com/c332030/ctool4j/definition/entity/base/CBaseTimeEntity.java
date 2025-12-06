@@ -1,10 +1,13 @@
 package com.c332030.ctool4j.definition.entity.base;
 
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -17,9 +20,18 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CBaseTimeEntity extends CUpdateTime implements ICLongId {
+public class CBaseTimeEntity extends CLongId implements ICCreateUpdateTime {
 
-    @TableId
-    Long id;
+    @TableField(
+            insertStrategy = FieldStrategy.NEVER,
+            updateStrategy = FieldStrategy.NEVER
+    )
+    Date createTime;
+
+    @TableField(
+            insertStrategy = FieldStrategy.NEVER,
+            updateStrategy = FieldStrategy.NEVER
+    )
+    Date updateTime;
 
 }
