@@ -148,21 +148,6 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
                 .list();
     }
 
-    default Long countByValue(ENTITY entity, SFunction<ENTITY, ?> column){
-        if(null == entity) {
-            return 0L;
-        }
-        return countByValue(column, convertValue(entity, column));
-    }
-    default Long countByValue(SFunction<ENTITY, ?> column, Object value){
-        if(null == value) {
-            return 0L;
-        }
-        return lambdaQuery()
-                .eq(column, value)
-                .count();
-    }
-
     default boolean removeByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return false;

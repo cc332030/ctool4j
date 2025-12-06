@@ -58,19 +58,6 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         return listByBizId(bizId);
     }
 
-    default Long countByBizId(String bizId){
-        return countByValue(getBizIdColumn(), bizId);
-    }
-
-    default Long countByBizId(BIZ_INTERFACE bizInterface){
-
-        val bizId = getBizId(bizInterface);
-        if(StrUtil.isBlank(bizId)) {
-            return 0L;
-        }
-        return countByBizId(bizId);
-    }
-
     default boolean removeByBizId(BIZ_INTERFACE bizInterface){
         val bizId = getBizId(bizInterface);
         if(StrUtil.isBlank(bizId)) {
