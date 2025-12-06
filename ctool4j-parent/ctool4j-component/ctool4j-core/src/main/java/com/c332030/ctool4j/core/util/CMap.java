@@ -1,12 +1,13 @@
 package com.c332030.ctool4j.core.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import cn.hutool.core.map.MapUtil;
+import com.c332030.ctool4j.definition.function.CSupplier;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -49,6 +50,21 @@ public class CMap {
         map.put(k2, v2);
         map.put(k3, v3);
         return Collections.unmodifiableMap(map);
+    }
+
+    public <K, V> Map<K, V> of(Map<K, V> map) {
+        return of(map, LinkedHashMap::new);
+    }
+
+    public <K, V> Map<K, V> of(Map<K, V> map, CSupplier<Map<K, V>> supplier) {
+
+        if(MapUtil.isEmpty(map)) {
+            return of();
+        }
+
+        val mapNew = supplier.get();
+        mapNew.putAll(map);
+        return mapNew;
     }
 
 }

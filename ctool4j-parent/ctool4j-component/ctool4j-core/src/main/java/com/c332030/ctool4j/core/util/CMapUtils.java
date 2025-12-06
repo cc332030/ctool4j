@@ -81,6 +81,10 @@ public class CMapUtils {
         return new EnumMap(type);
     }
 
+    public <V> TreeMap<String, V> newIgnoreCaseMap() {
+        return new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    }
+
     public <K1, K2, V> Map<K2, V> mapKey(
             Map<K1, V> map,
             CFunction<K1, K2> keyMapper

@@ -5,7 +5,7 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CCommUtils;
-import com.c332030.ctool4j.feign.config.CFeignLogConfig;
+import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
 import feign.Logger;
 import feign.Response;
@@ -31,7 +31,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class CFeignLogger extends Logger {
 
-    CFeignLogConfig feignLogConfig;
+    CFeignClientLogConfig feignLogConfig;
 
     @Override
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) throws IOException {

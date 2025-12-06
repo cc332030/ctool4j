@@ -2,9 +2,12 @@ package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.COpt;
 import com.c332030.ctool4j.core.util.CUrlUtils;
+import com.c332030.ctool4j.definition.function.CBiConsumer;
+import com.c332030.ctool4j.definition.function.StringFunction;
 import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -15,10 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BiConsumer;
 
@@ -92,6 +92,10 @@ public class CRequestUtils {
         return !hasRequest();
     }
 
+    /**
+     * 获取 Request，可为空
+     * @return HttpServletRequest
+     */
     public HttpServletRequest getRequestDefaultNull() {
         val springServletRequestAttributes = getServletRequestAttributes();
         if(null == springServletRequestAttributes) {
@@ -100,11 +104,27 @@ public class CRequestUtils {
         return springServletRequestAttributes.getRequest();
     }
 
+    /**
+     * 获取 Request 的 COpt
+     * @return COpt<HttpServletRequest>
+     */
+    public COpt<HttpServletRequest> getRequestOpt() {
+        return COpt.ofNullable(getRequestDefaultNull());
+    }
+
+    /**
+     * 获取 Request，不能为空
+     * @return
+     */
     public HttpServletRequest getRequest() {
-        return Optional.ofNullable(getRequestDefaultNull())
+        return getRequestOpt()
                 .orElseThrow(() -> new IllegalArgumentException("request 不能为空"));
     }
 
+    /**
+     * 获取 Response，可为空
+     * @return HttpServletResponse
+     */
     public HttpServletResponse getResponseDefaultNull() {
         val springServletRequestAttributes = getServletRequestAttributes();
         if(null == springServletRequestAttributes) {
@@ -113,38 +133,102 @@ public class CRequestUtils {
         return springServletRequestAttributes.getResponse();
     }
 
+    /**
+     * 获取 Response 的 COpt
+     * @return COpt<HttpServletResponse>
+     */
+    public COpt<HttpServletResponse> getResponseOpt() {
+        return COpt.ofNullable(getResponseDefaultNull());
+    }
+
+    /**
+     * 获取 Response，不能为空
+     * @return HttpServletResponse
+     */
     public HttpServletResponse getResponse() {
-        return Optional.ofNullable(getResponseDefaultNull())
+        return getResponseOpt()
                 .orElseThrow(() -> new IllegalArgumentException("response 不能为空"));
     }
 
+    /**
+     * 获取 Context Path，可为空
+     * @return Context Path
+     */
     public String getContextPathDefaultNull() {
         return CObjUtils.convert(getRequestDefaultNull(), HttpServletRequest::getContextPath);
     }
 
+    /**
+     * 获取 Context Path，不能为空
+     * @return Context Path
+     */
     public String getContextPath() {
         return Optional.ofNullable(getContextPathDefaultNull())
                 .orElseThrow(() -> new IllegalArgumentException("contextPath 不能为空"));
     }
 
+    /**
+     * 获取 RequestURI，可为空
+     * @return RequestURI
+     */
     public String getRequestURIDefaultNull() {
         return CObjUtils.convert(getRequestDefaultNull(), HttpServletRequest::getRequestURI);
     }
 
+    /**
+     * 获取 RequestURI，不能为空
+     * @return RequestURI
+     */
     public String getRequestURI() {
         return Optional.ofNullable(getRequestURIDefaultNull())
                 .orElseThrow(() -> new IllegalArgumentException("requestURI 不能为空"));
     }
 
+    /**
+     * 获取 Header
+     * @param header Header Name
+     * @return Header Value
+     */
     public String getHeader(String header) {
         return getHeader(getRequest(), header);
     }
 
+    /**
+     * 获取 Header
+     * @param request HttpServletRequest
+     * @param header Header Name
+     * @return Header Value
+     */
     public String getHeader(HttpServletRequest request, String header) {
         return request.getHeader(header);
     }
 
-    public void getHeaderThenDo(Collection<String> headerNames, BiConsumer<String, String> biConsumer) {
+    /**
+     * 获取 Headers
+     * @param header Header Name
+     * @return Header Values
+     */
+    public List<String> getHeaders(String header) {
+        return getHeaders(getRequest(), header);
+    }
+
+    /**
+     * 获取 Headers
+     * @param request HttpServletRequest
+     * @param header Header Name
+     * @return Header Values
+     */
+    public List<String> getHeaders(HttpServletRequest request, String header) {
+        val valueEnumeration = request.getHeaders(header);
+        return CCollUtils.getValues(valueEnumeration);
+    }
+
+    /**
+     * 获取 Header，并做动作
+     * @param headerNames Header Names
+     * @param biConsumer 动作
+     */
+    public void getHeaderThenDo(Collection<String> headerNames, CBiConsumer<String, String> biConsumer) {
 
         if(CollUtil.isEmpty(headerNames)){
             return;
@@ -160,20 +244,58 @@ public class CRequestUtils {
             if (StrUtil.isEmpty(headerValue)) {
                 return;
             }
-
             biConsumer.accept(headerName, headerValue);
         });
 
     }
 
+    /**
+     * 获取 Header，并做动作
+     * @param headerNames Header Names
+     * @param biConsumer 动作
+     */
+    public void getHeadersThenDo(Collection<String> headerNames, CBiConsumer<String, List<String>> biConsumer) {
+
+        if(CollUtil.isEmpty(headerNames)){
+            return;
+        }
+        val request = getRequestDefaultNull();
+        if(null == request) {
+            return;
+        }
+        headerNames.forEach(headerName -> {
+
+            val headerValues = getHeaders(request, headerName);
+            if (CollUtil.isEmpty(headerValues)) {
+                return;
+            }
+            biConsumer.accept(headerName, headerValues);
+        });
+
+    }
+
+    /**
+     * 获取 Referer
+     * @return Referer
+     */
     public String getReferer() {
         return getRequest().getHeader(HttpHeaders.REFERER);
     }
 
+    /**
+     * 获取 Referer Path
+     * @return Referer Path
+     */
     public String getRefererPath() {
         return CUrlUtils.getPath(getReferer());
     }
 
+    /**
+     * 获取 Referer Path，并做转换
+     * @param function 转换方法
+     * @return 目标
+     * @param <T> 目标泛型
+     */
     public <T> T getRefererPathThenConvert(StringFunction<T> function) {
         val path = getRefererPath();
         if(StrUtil.isEmpty(path)) {
@@ -182,6 +304,12 @@ public class CRequestUtils {
         return function.apply(path);
     }
 
+    /**
+     * 获取 Referer Path，并做转换，默认为空
+     * @param function 转换方法
+     * @return 目标
+     * @param <T> 目标泛型
+     */
     public <T> T getRefererPathThenConvertDefaultNull(StringFunction<T> function) {
         try {
             return getRefererPathThenConvert(function);
@@ -191,10 +319,19 @@ public class CRequestUtils {
         }
     }
 
+    /**
+     * 获取 Ip
+     * @return Ip
+     */
     public String getIp() {
         return getIp(getRequest());
     }
 
+    /**
+     * 获取 Ip
+     * @param request HttpServletRequest
+     * @return Ip
+     */
     public String getIp(HttpServletRequest request) {
 
         String forwardIpBundle = getHeader(request, HttpHeaders.X_FORWARDED_FOR);

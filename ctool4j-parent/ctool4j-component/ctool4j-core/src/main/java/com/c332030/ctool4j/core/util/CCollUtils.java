@@ -425,4 +425,23 @@ public class CCollUtils {
         return CollUtil.containsAny(collection, Arrays.asList(elements));
     }
 
+    /**
+     * 获取枚举所有值
+     * @param enumeration 枚举
+     * @return 枚举所有值
+     * @param <T> 泛型
+     */
+    public <T> List<T> getValues(Enumeration<T> enumeration) {
+
+        if(Objects.isNull(enumeration)) {
+            return CList.of();
+        }
+
+        val values = new ArrayList<T>();
+        while (enumeration.hasMoreElements()) {
+            values.add(enumeration.nextElement());
+        }
+        return values;
+    }
+
 }

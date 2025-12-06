@@ -5,14 +5,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>
- * Description: CFeignLogConfig
+ * Description: CFeignClientLogConfig
  * </p>
  *
  * @since 2025/9/21
  */
 @Data
-@ConfigurationProperties("feign.log")
-public class CFeignLogConfig {
+@ConfigurationProperties("feign.client.log")
+public class CFeignClientLogConfig {
 
     /**
      * 日志开关

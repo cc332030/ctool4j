@@ -1,7 +1,8 @@
 package com.c332030.ctool4j.feign.configuration;
 
 import com.c332030.ctool4j.feign.client.CFeignClient;
-import com.c332030.ctool4j.feign.config.CFeignLogConfig;
+import com.c332030.ctool4j.feign.config.CFeignClientHeaderConfig;
+import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.interceptor.CFeignInterceptor;
 import com.c332030.ctool4j.feign.log.CFeignLogger;
 import feign.Client;
@@ -21,13 +22,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CFeignConfiguration {
 
-//    @Bean
-    public RequestInterceptor requestInterceptor(CFeignLogConfig feignLogConfig) {
-        return new CFeignInterceptor(feignLogConfig);
+    @Bean
+    public RequestInterceptor requestInterceptor(CFeignClientHeaderConfig headerConfig) {
+        return new CFeignInterceptor(headerConfig);
     }
 
 //    @Bean
-    public CFeignClient feignClient(Client client, CFeignLogConfig feignLogConfig) {
+    public CFeignClient feignClient(Client client, CFeignClientLogConfig feignLogConfig) {
         return new CFeignClient(client, feignLogConfig);
     }
 
@@ -39,7 +40,7 @@ public class CFeignConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(Logger.class)
-    public Logger logger(CFeignLogConfig feignLogConfig) {
+    public Logger logger(CFeignClientLogConfig feignLogConfig) {
         return new CFeignLogger(feignLogConfig);
     }
 

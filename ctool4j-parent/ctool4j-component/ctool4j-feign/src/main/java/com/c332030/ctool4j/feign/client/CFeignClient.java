@@ -4,7 +4,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.core.util.CThreadLocalUtils;
-import com.c332030.ctool4j.feign.config.CFeignLogConfig;
+import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
 import feign.Client;
 import feign.Request;
@@ -32,7 +32,7 @@ public class CFeignClient implements Client {
 
     final Client defaultClient;
 
-    final CFeignLogConfig feignLogConfig;
+    final CFeignClientLogConfig feignLogConfig;
 
     @Override
     public Response execute(Request request, Request.Options options) throws IOException {
