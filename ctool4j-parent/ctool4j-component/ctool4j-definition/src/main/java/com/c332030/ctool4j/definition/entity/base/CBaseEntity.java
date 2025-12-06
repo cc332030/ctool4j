@@ -20,14 +20,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class CBaseEntity extends CBaseTimeEntity implements ICCreateUpdateByAndTime {
 
-    @TableField(
-            updateStrategy = FieldStrategy.NEVER
-    )
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     Long createById;
 
-    @TableField(
-            updateStrategy = FieldStrategy.NEVER
-    )
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     String createBy;
 
     Long updateById;
