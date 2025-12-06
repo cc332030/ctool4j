@@ -11,6 +11,7 @@ import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 import lombok.val;
@@ -114,6 +115,9 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
     }
 
     default <O, T> Set<T> convertValues(Collection<O> collection, SFunction<O, T> column) {
+        if(CollUtil.isEmpty(collection)) {
+            return CSet.of();
+        }
         return CCollUtils.convertSet(collection, column::apply);
     }
 
@@ -156,6 +160,7 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
     }
 
     default boolean removeByValue(SFunction<ENTITY, ?> column, Object value){
+
         if(null == value) {
             return false;
         }
@@ -169,7 +174,6 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         if(CollUtil.isEmpty(collection)) {
             return CList.of();
         }
-
         val values = convertValues(collection, column);
         return listByValues(column, values);
     }
@@ -179,7 +183,6 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         if(CollUtil.isEmpty(values)) {
             return CList.of();
         }
-
         return lambdaQuery()
                 .in(column, values)
                 .list();
@@ -190,7 +193,6 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         if(CollUtil.isEmpty(collection)) {
             return false;
         }
-
         val values = convertValues(collection, column);
         return removeByValues(column, values);
     }
@@ -200,30 +202,9 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         if(CollUtil.isEmpty(values)) {
             return false;
         }
-
         return lambdaUpdate()
                 .in(column, values)
                 .remove();
-    }
-
-    default Long countByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
-
-        if(CollUtil.isEmpty(collection)) {
-            return 0L;
-        }
-
-        val values = convertValues(collection, column);
-        return countByValues(column, values);
-    }
-
-    default Long countByValues(SFunction<ENTITY, ?> column, Collection<?> values){
-
-        if(CollUtil.isEmpty(values)) {
-            return 0L;
-        }
-        return lambdaQuery()
-            .in(column, values)
-            .count();
     }
 
 }
