@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CBaseEntity extends CBaseTimeEntity implements ICCreateUpdateBy {
+public class CBaseEntity extends CBaseTimeEntity implements ICCreateUpdateByAndTime {
 
     @TableField(
             updateStrategy = FieldStrategy.NEVER
