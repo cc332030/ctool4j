@@ -156,8 +156,12 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         if(null == entity) {
             return false;
         }
+        val value = convertValue(entity, column);
+        if(null == value) {
+            return false;
+        }
         return lambdaUpdate()
-                .eq(column, convertValue(entity, column))
+                .eq(column, value)
                 .update(entity);
     }
 

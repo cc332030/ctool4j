@@ -68,7 +68,14 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         if(Objects.isNull(entity)) {
             return false;
         }
-        return updateByValue(entity, getBizIdColumn());
+        val bizColumn = getBizIdColumn();
+        val bizId = convertValue(entity, getBizIdColumn());
+        if(StrUtil.isBlank(bizId)) {
+            return false;
+        }
+        return lambdaUpdate()
+                .eq(bizColumn, bizId)
+                .update(entity);
     }
 
     default boolean removeByBizId(BIZ_INTERFACE bizInterface){
