@@ -23,7 +23,7 @@ public class CXxlJobConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(XxlJobExecutor.class)
-    public XxlJobExecutor xxlJobExecutor(CXxlJobAdminConfig adminConfig, CXxlJobExecutorConfig executorConfig) {
+    public XxlJobExecutor cXxlJobExecutor(CXxlJobAdminConfig adminConfig, CXxlJobExecutorConfig executorConfig) {
 
         log.info(">>>>>>>>>>> xxl-job config init.");
 
