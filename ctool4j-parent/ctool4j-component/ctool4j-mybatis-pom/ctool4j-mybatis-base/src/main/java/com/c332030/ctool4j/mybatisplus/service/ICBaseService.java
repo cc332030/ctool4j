@@ -105,24 +105,6 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         return Opt.ofNullable(getById(id));
     }
 
-    default SFunction<ENTITY, String> getBizIdColumn() {
-
-//        return ENTITY::getBizId;
-        throw new UnsupportedOperationException();
-    }
-
-    default ENTITY getByBizId(String bizId){
-        return getByValue(getBizIdColumn(), bizId);
-    }
-
-    default List<ENTITY> listByBizId(String bizId){
-        return listByValue(getBizIdColumn(), bizId);
-    }
-
-    default List<ENTITY> listByBizIds(Collection<String> bizIds){
-        return listByValues(getBizIdColumn(), bizIds);
-    }
-
     default ENTITY getByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return null;
