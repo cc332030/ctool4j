@@ -26,15 +26,15 @@ import java.util.List;
  *
  * @since 2025/11/27
  */
-public interface ICBaseService<T> extends IService<T> {
+public interface ICBaseService<ENTITY> extends IService<ENTITY> {
 
     List<OrderItem> ID_ORDER_ITEMS = CList.of(
         OrderItem.desc("id")
     );
 
-    Class<T> getEntityClass();
+    Class<ENTITY> getEntityClass();
 
-    CBaseMapper<T> getBaseMapper();
+    CBaseMapper<ENTITY> getBaseMapper();
 
     default String getBizId() {
         return CIdUtils.nextIdWithPrefix(getEntityClass());
@@ -44,28 +44,28 @@ public interface ICBaseService<T> extends IService<T> {
         return CIdUtils.nextIdWithPrefix(getEntityClass(), length);
     }
 
-    default T getEntity() {
+    default ENTITY getEntity() {
         return CReflectUtils.newInstance(getEntityClass());
     }
 
-    default T getEntityWithBizId() {
+    default ENTITY getEntityWithBizId() {
 
         val entity = getEntity();
         CBizIdUtils.setBizId(entity, getBizId());
         return entity;
     }
 
-    default T getEntity(Object source) {
+    default ENTITY getEntity(Object source) {
         return getEntity(source, null);
     }
 
-    default T getEntityWithBizId(Object source) {
+    default ENTITY getEntityWithBizId(Object source) {
         val entity = getEntity(source);
         CBizIdUtils.setBizId(entity, getBizId());
         return entity;
     }
 
-    default T getEntity(Object source, T old) {
+    default ENTITY getEntity(Object source, ENTITY old) {
         val entity = getEntity();
         if(null != old) {
             CBeanUtils.copy(old, entity);
@@ -74,13 +74,13 @@ public interface ICBaseService<T> extends IService<T> {
         return entity;
     }
 
-    default T getEntityWithBizId(Object source, T old) {
+    default ENTITY getEntityWithBizId(Object source, ENTITY old) {
         val entity = getEntity(source, old);
         CBizIdUtils.setBizId(entity, getBizId());
         return entity;
     }
 
-    default boolean saveIgnore(T entity) {
+    default boolean saveIgnore(ENTITY entity) {
 
         if(null == entity) {
             return false;
@@ -88,7 +88,7 @@ public interface ICBaseService<T> extends IService<T> {
         return SqlHelper.retBool(getBaseMapper().insertIgnore(entity));
     }
 
-    default int batchSaveIgnore(Collection<T> entities) {
+    default int batchSaveIgnore(Collection<ENTITY> entities) {
         if(CollUtil.isEmpty(entities)) {
             return 0;
         }
@@ -98,38 +98,38 @@ public interface ICBaseService<T> extends IService<T> {
             .sum();
     }
 
-    default Opt<T> getByIdOpt(Serializable id) {
+    default Opt<ENTITY> getByIdOpt(Serializable id) {
         if(null == id) {
             return Opt.empty();
         }
         return Opt.ofNullable(getById(id));
     }
 
-    default SFunction<T, String> getBizIdColumn() {
+    default SFunction<ENTITY, String> getBizIdColumn() {
 
-//        return T::getBizId;
+//        return ENTITY::getBizId;
         throw new UnsupportedOperationException();
     }
 
-    default T getByBizId(String bizId){
+    default ENTITY getByBizId(String bizId){
         return getByValue(getBizIdColumn(), bizId);
     }
 
-    default List<T> listByBizId(String bizId){
+    default List<ENTITY> listByBizId(String bizId){
         return listByValue(getBizIdColumn(), bizId);
     }
 
-    default List<T> listByBizIds(Collection<String> bizIds){
+    default List<ENTITY> listByBizIds(Collection<String> bizIds){
         return listByValues(getBizIdColumn(), bizIds);
     }
 
-    default T getByValue(T entity, SFunction<T, ?> column){
+    default ENTITY getByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return null;
         }
         return getByValue(column, column.apply(entity));
     }
-    default T getByValue(SFunction<T, ?> column, Object value){
+    default ENTITY getByValue(SFunction<ENTITY, ?> column, Object value){
         if(null == value) {
             return null;
         }
@@ -138,14 +138,14 @@ public interface ICBaseService<T> extends IService<T> {
                 .one();
     }
 
-    default List<T> listByValue(T entity, SFunction<T, ?> column){
+    default List<ENTITY> listByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return CList.of();
         }
         return listByValue(column, column.apply(entity));
     }
 
-    default List<T> listByValue(SFunction<T, ?> column, Object value){
+    default List<ENTITY> listByValue(SFunction<ENTITY, ?> column, Object value){
         if(null == value) {
             return CList.of();
         }
@@ -154,7 +154,7 @@ public interface ICBaseService<T> extends IService<T> {
                 .list();
     }
 
-    default List<T> listByValues(Collection<T> collection, SFunction<T, ?> column){
+    default List<ENTITY> listByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
 
         if(CollUtil.isEmpty(collection)) {
             return CList.of();
@@ -164,7 +164,7 @@ public interface ICBaseService<T> extends IService<T> {
         return listByValues(column, values);
     }
 
-    default List<T> listByValues(SFunction<T, ?> column, Collection<?> values){
+    default List<ENTITY> listByValues(SFunction<ENTITY, ?> column, Collection<?> values){
 
         if(CollUtil.isEmpty(values)) {
             return CList.of();
@@ -175,13 +175,13 @@ public interface ICBaseService<T> extends IService<T> {
                 .list();
     }
 
-    default Long countByValue(T entity, SFunction<T, ?> column){
+    default Long countByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return 0L;
         }
         return countByValue(column, column.apply(entity));
     }
-    default Long countByValue(SFunction<T, ?> column, Object value){
+    default Long countByValue(SFunction<ENTITY, ?> column, Object value){
         if(null == value) {
             return 0L;
         }
@@ -190,7 +190,7 @@ public interface ICBaseService<T> extends IService<T> {
             .count();
     }
 
-    default Long countByValues(Collection<T> collection, SFunction<T, ?> column){
+    default Long countByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
 
         if(CollUtil.isEmpty(collection)) {
             return 0L;
@@ -200,7 +200,7 @@ public interface ICBaseService<T> extends IService<T> {
         return countByValues(column, values);
     }
 
-    default Long countByValues(SFunction<T, ?> column, Collection<?> values){
+    default Long countByValues(SFunction<ENTITY, ?> column, Collection<?> values){
 
         if(CollUtil.isEmpty(values)) {
             return 0L;
