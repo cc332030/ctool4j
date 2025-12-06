@@ -19,7 +19,7 @@ import java.util.Set;
 @Data
 @ConfigurationProperties("cors")
 @ConditionalOnProperty(prefix = "cors", name = "allowed-origins")
-public class CorsConfig {
+public class CCorsConfig {
 
     public static final String ALL = "*";
 

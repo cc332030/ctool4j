@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: CorsHandler
+ * Description: CCorsHandler
  * </p>
  *
  * @since 2025/11/12
@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 @CustomLog
 @Component
 @AllArgsConstructor
-@ConditionalOnBean(CorsConfig.class)
-public class CorsHandler implements ICResponseBeforeBodyWriteHandler {
+@ConditionalOnBean(CCorsConfig.class)
+public class CCorsHandler implements ICResponseBeforeBodyWriteHandler {
 
-    CorsConfig config;
+    CCorsConfig config;
 
     @Override
     public Object applyThrowable(HttpServletRequest request, HttpServletResponse response, Object o) {
@@ -60,14 +60,14 @@ public class CorsHandler implements ICResponseBeforeBodyWriteHandler {
 
         val allowedMethods = config.getAllowedMethods();
         val method = request.getMethod();
-        if (!CCollUtils.containsAny(allowedMethods, CorsConfig.ALL, method)) {
+        if (!CCollUtils.containsAny(allowedMethods, CCorsConfig.ALL, method)) {
             log.info("Not allow origin with method: {} {}", method, origin);
             return;
         }
 
         val allowedHeaders = config.getAllowedHeaders();
-        val headers = allowedHeaders.contains(CorsConfig.ALL)
-                ? CorsConfig.ALL
+        val headers = allowedHeaders.contains(CCorsConfig.ALL)
+                ? CCorsConfig.ALL
                 : allowedHeaders.stream()
                 .filter(header -> StrUtil.isNotEmpty(request.getHeader(header)))
                 .collect(Collectors.joining(","));
