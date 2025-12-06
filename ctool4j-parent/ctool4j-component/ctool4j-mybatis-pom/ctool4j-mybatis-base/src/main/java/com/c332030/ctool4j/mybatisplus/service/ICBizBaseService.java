@@ -9,6 +9,7 @@ import lombok.val;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -25,15 +26,17 @@ public interface ICBizBaseService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
     SFunction<ENTITY, String> getBizIdColumn();
 
     default ENTITY getByBizId(String bizId){
+        if(StrUtil.isBlank(bizId)) {
+            return null;
+        }
         return getByValue(getBizIdColumn(), bizId);
     }
 
     default ENTITY getByBizId(BIZ_INTERFACE bizInterface){
-
-        val bizId = getBizId(bizInterface);
-        if(StrUtil.isBlank(bizId)) {
+        if(Objects.isNull(bizInterface)) {
             return null;
         }
+        val bizId = getBizId(bizInterface);
         return getByBizId(bizId);
     }
 
