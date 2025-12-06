@@ -18,6 +18,7 @@ import lombok.val;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -105,11 +106,22 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         return Opt.ofNullable(getById(id));
     }
 
+    default <O, T> T convertValue(O o, SFunction<O, T> column) {
+        if(null == o) {
+            return null;
+        }
+        return column.apply(o);
+    }
+
+    default <O, T> Set<T> convertValues(Collection<O> collection, SFunction<O, T> column) {
+        return CCollUtils.convertSet(collection, column::apply);
+    }
+
     default ENTITY getByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
             return null;
         }
-        return getByValue(column, column.apply(entity));
+        return getByValue(column, convertValue(entity, column));
     }
     default ENTITY getByValue(SFunction<ENTITY, ?> column, Object value){
         if(null == value) {
@@ -124,7 +136,7 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
         if(null == entity) {
             return CList.of();
         }
-        return listByValue(column, column.apply(entity));
+        return listByValue(column, convertValue(entity, column));
     }
 
     default List<ENTITY> listByValue(SFunction<ENTITY, ?> column, Object value){
@@ -136,13 +148,44 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
                 .list();
     }
 
+    default Long countByValue(ENTITY entity, SFunction<ENTITY, ?> column){
+        if(null == entity) {
+            return 0L;
+        }
+        return countByValue(column, convertValue(entity, column));
+    }
+    default Long countByValue(SFunction<ENTITY, ?> column, Object value){
+        if(null == value) {
+            return 0L;
+        }
+        return lambdaQuery()
+                .eq(column, value)
+                .count();
+    }
+
+    default boolean removeByValue(ENTITY entity, SFunction<ENTITY, ?> column){
+        if(null == entity) {
+            return false;
+        }
+        return removeByValue(column, convertValue(entity, column));
+    }
+
+    default boolean removeByValue(SFunction<ENTITY, ?> column, Object value){
+        if(null == value) {
+            return false;
+        }
+        return lambdaUpdate()
+                .eq(column, value)
+                .remove();
+    }
+
     default List<ENTITY> listByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
 
         if(CollUtil.isEmpty(collection)) {
             return CList.of();
         }
 
-        val values = CCollUtils.convertSet(collection, column::apply);
+        val values = convertValues(collection, column);
         return listByValues(column, values);
     }
 
@@ -157,19 +200,25 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
                 .list();
     }
 
-    default Long countByValue(ENTITY entity, SFunction<ENTITY, ?> column){
-        if(null == entity) {
-            return 0L;
+    default boolean removeByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
+
+        if(CollUtil.isEmpty(collection)) {
+            return false;
         }
-        return countByValue(column, column.apply(entity));
+
+        val values = convertValues(collection, column);
+        return removeByValues(column, values);
     }
-    default Long countByValue(SFunction<ENTITY, ?> column, Object value){
-        if(null == value) {
-            return 0L;
+
+    default boolean removeByValues(SFunction<ENTITY, ?> column, Collection<?> values){
+
+        if(CollUtil.isEmpty(values)) {
+            return false;
         }
-        return lambdaQuery()
-            .eq(column, value)
-            .count();
+
+        return lambdaUpdate()
+                .in(column, values)
+                .remove();
     }
 
     default Long countByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
@@ -178,7 +227,7 @@ public interface ICBaseService<ENTITY> extends IService<ENTITY> {
             return 0L;
         }
 
-        val values = CCollUtils.convertSet(collection, column::apply);
+        val values = convertValues(collection, column);
         return countByValues(column, values);
     }
 
