@@ -7,13 +7,13 @@ import org.springframework.lang.NonNull;
 
 /**
  * <p>
- * Description: CApplicationListener
+ * Description: ICApplicationListener
  * </p>
  *
  * @since 2025/10/31
  */
 @FunctionalInterface
-public interface CApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E>, ICEvent<E> {
+public interface ICApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E>, ICEvent<E> {
 
     default boolean supports(E event) {
         return true;

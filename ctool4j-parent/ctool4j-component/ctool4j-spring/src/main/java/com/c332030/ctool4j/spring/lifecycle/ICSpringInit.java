@@ -1,15 +1,15 @@
-package com.c332030.ctool4j.spring.event.listener;
+package com.c332030.ctool4j.spring.lifecycle;
 
 import org.springframework.beans.factory.SmartInitializingSingleton;
 
 /**
  * <p>
- * Description: CInitListener
+ * Description: ICSpringInit
  * </p>
  *
  * @since 2025/11/28
  */
-public interface CInitListener extends SmartInitializingSingleton {
+public interface ICSpringInit extends SmartInitializingSingleton {
 
     @Override
     default void afterSingletonsInstantiated() {

@@ -5,13 +5,13 @@ import org.springframework.context.ApplicationEvent;
 
 /**
  * <p>
- * Description: SpringSourceApplicationListener
+ * Description: ICSpringSourceApplicationListener
  * </p>
  *
  * @since 2025/10/31
  */
 @FunctionalInterface
-public interface SpringSourceApplicationListener<T extends ApplicationEvent> extends CApplicationListener<T> {
+public interface ICSpringSourceApplicationListener<T extends ApplicationEvent> extends ICApplicationListener<T> {
 
     @Override
     default boolean supports(T event) {
