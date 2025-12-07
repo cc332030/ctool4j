@@ -63,6 +63,7 @@ public class CDateUtilsTests {
 
         Assertions.assertNull(CDateUtils.toDate((Long) null));
         Assertions.assertNull(CDateUtils.toDate((Instant) null));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(CDateUtils.toDate(MILLS)));
         Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(CDateUtils.toDate(INSTANT)));
 
     }
@@ -72,6 +73,7 @@ public class CDateUtilsTests {
 
         Assertions.assertNull(CDateUtils.toInstant((Long) null));
         Assertions.assertNull(CDateUtils.toInstant((Date) null));
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(CDateUtils.toInstant(MILLS)));
         Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(CDateUtils.toInstant(DATE)));
 
     }
