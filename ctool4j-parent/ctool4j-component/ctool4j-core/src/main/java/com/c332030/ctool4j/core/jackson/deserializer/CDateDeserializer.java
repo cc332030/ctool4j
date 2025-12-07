@@ -1,8 +1,6 @@
 package com.c332030.ctool4j.core.jackson.deserializer;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CDateUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -25,42 +23,14 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
     public static final CDateDeserializer INSTANCE = new CDateDeserializer();
 
     @Override
-    public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Date deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 
-        switch (p.currentTokenId()) {
+        switch (parser.currentTokenId()) {
             case JsonTokenId.ID_STRING:
-                return strToDate(p.getText());
+                return CDateUtils.parseMaybeMills(parser.getText());
             case JsonTokenId.ID_NUMBER_INT:
-                return longToDate(p.getLongValue());
+                return CDateUtils.toDate(parser.getLongValue());
         }
-
-        return null;
-    }
-
-    private static Date longToDate(long time) {
-        return new Date(time);
-    }
-
-    private static Date strToDate(String text) {
-
-        if(StrUtil.isEmpty(text)) {
-            return null;
-        }
-
-        try {
-            return DateUtil.parse(text);
-        } catch (Exception ex) {
-            log.debug("strToDate parse text error", ex);
-        }
-
-        try {
-            if(NumberUtil.isNumber(text)) {
-                return longToDate(Long.parseLong(text));
-            }
-        } catch (Exception ex) {
-            log.debug("strToDate parse long error", ex);
-        }
-
         return null;
     }
 

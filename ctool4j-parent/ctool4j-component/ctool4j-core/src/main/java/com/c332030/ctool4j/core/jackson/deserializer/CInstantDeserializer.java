@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.jackson.deserializer;
 
-import cn.hutool.core.date.DateUtil;
+import com.c332030.ctool4j.core.util.CDateUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -27,10 +27,12 @@ public class CInstantDeserializer extends JsonDeserializer<Instant> {
 
     @Override
     public Instant deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        if(JsonTokenId.ID_STRING == parser.currentTokenId()) {
-            try {
-                return DateUtil.parse(parser.getText()).toInstant();
-            } catch (Exception ignored) {}
+
+        switch (parser.currentTokenId()) {
+            case JsonTokenId.ID_STRING:
+                return CDateUtils.parseInstantMaybeMills(parser.getText());
+            case JsonTokenId.ID_NUMBER_INT:
+                return CDateUtils.toInstant(parser.getLongValue());
         }
         return InstantDeserializer.INSTANT.deserialize(parser, context);
     }
