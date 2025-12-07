@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.spring.event.listener;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 
 /**
  * <p>
@@ -10,21 +9,10 @@ import org.springframework.context.event.ContextRefreshedEvent;
  *
  * @since 2025/11/28
  */
-public interface CInitListener extends InitializingBean, CurrentContextRefreshedListener {
+public interface CInitListener extends SmartInitializingSingleton {
 
-    /**
-     * 有的项目中，创建 Feign Client 的时候，会触发这个事件，但是这个时候，Bean 没有生成
-     */
     @Override
-    default void afterPropertiesSet() {
-        onInit();
-    }
-
-    /**
-     * 刷新上下文时
-     */
-    @Override
-    default void onEvent(ContextRefreshedEvent event) {
+    default void afterSingletonsInstantiated() {
         onInit();
     }
 

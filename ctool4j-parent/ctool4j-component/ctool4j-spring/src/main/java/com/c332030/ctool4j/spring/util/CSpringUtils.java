@@ -1,7 +1,5 @@
 package com.c332030.ctool4j.spring.util;
 
-import com.c332030.ctool4j.core.util.CMapOpt;
-import com.c332030.ctool4j.core.util.COpt;
 import com.c332030.ctool4j.spring.bean.CSpringBeans;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.experimental.UtilityClass;
@@ -50,14 +48,6 @@ public class CSpringUtils {
      * 获取当前应用上下文
      * @return 当前应用上下文
      */
-    public COpt<ApplicationContext> getApplicationContextOpt() {
-        return CSpringBeans.getApplicationContextOpt();
-    }
-
-    /**
-     * 获取当前应用上下文
-     * @return 当前应用上下文
-     */
     public ApplicationContext getApplicationContext() {
         return CSpringBeans.getApplicationContext();
     }
@@ -68,21 +58,7 @@ public class CSpringUtils {
      * @return 是否是当前上下文
      */
     public boolean isCurrentContext(ApplicationContext applicationContext) {
-        return getApplicationContextOpt()
-            .map(e -> e == applicationContext)
-            .orElse(false);
-    }
-
-    /**
-     * 获取指定名称的 bean
-     * @param name bean 名称
-     * @return bean COpt
-     * @param <T> 泛型
-     */
-    @SuppressWarnings("unchecked")
-    public <T> COpt<T> getBeanOpt(String name) {
-        return getApplicationContextOpt()
-            .map(e -> (T)e.getBean(name));
+        return getApplicationContext() == applicationContext;
     }
 
     /**
@@ -94,17 +70,6 @@ public class CSpringUtils {
     @SuppressWarnings("unchecked")
     public <T> T getBean(String name) {
         return (T)getApplicationContext().getBean(name);
-    }
-
-    /**
-     * 获取指定类型的 bean
-     * @param tClass bean 类型
-     * @return bean COpt
-     * @param <T> 泛型
-     */
-    public <T> COpt<T> getBeanOpt(Class<T> tClass) {
-        return getApplicationContextOpt()
-            .map(e -> e.getBean(tClass));
     }
 
     /**
@@ -123,43 +88,8 @@ public class CSpringUtils {
      * @return bean map
      * @param <T> 泛型
      */
-    public <T> CMapOpt<String, T, Map<String, T>> getBeansOfTypeOpt(Class<T> tClass) {
-
-        val map = getApplicationContextOpt()
-            .map(e -> e.getBeansOfType(tClass))
-            .orElse(null);
-        return CMapOpt.ofEmptyAble(map);
-    }
-
-    /**
-     * 获取指定类型的所有 bean
-     * @param tClass bean 类型
-     * @return bean map
-     * @param <T> 泛型
-     */
     public <T> Map<String, T> getBeansOfType(Class<T> tClass) {
         return getApplicationContext().getBeansOfType(tClass);
-    }
-
-    /**
-     * 获取类型指定泛型的 bean
-     * @param tClass bean 类型
-     * @param classes 泛型类型
-     * @return bean
-     * @param <T> 泛型
-     */
-    @SuppressWarnings("unchecked")
-    public <T> COpt<T> getBeanByResolvableTypeOpt(Class<?> tClass, Class<?>... classes) {
-        return getApplicationContextOpt()
-            .map(e -> {
-
-                val resolvableType = ResolvableType.forClassWithGenerics(
-                    tClass, classes
-                );
-                return e.getBeanProvider(resolvableType);
-            })
-            .map(e -> (T)e.getIfAvailable())
-            ;
     }
 
     /**
@@ -189,12 +119,10 @@ public class CSpringUtils {
      */
     @SafeVarargs
     public static <T> void wireBean(Class<T> tClass, Consumer<T>... consumers) {
-
-        getBeanOpt(tClass).ifPresent(bean -> {
-            for (val consumer : consumers) {
-                consumer.accept(bean);
-            }
-        });
+        val bean = getBean(tClass);
+        for (val consumer : consumers) {
+            consumer.accept(bean);
+        }
     }
 
 }
