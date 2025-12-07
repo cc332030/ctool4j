@@ -34,7 +34,7 @@ public class CEnumDeserializer
     }
 
     @Override
-    public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Enum<?> deserialize(JsonParser p, DeserializationContext context) throws IOException {
 
         val value = StringUtils.trim(p.getText());
         if(StringUtils.isBlank(value)) {
@@ -46,7 +46,7 @@ public class CEnumDeserializer
 
     @Override
     @SuppressWarnings("unchecked")
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+    public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) {
 
         JavaType type = property.getType();
         return new CEnumDeserializer((Class<Enum<?>>) type.getRawClass());
