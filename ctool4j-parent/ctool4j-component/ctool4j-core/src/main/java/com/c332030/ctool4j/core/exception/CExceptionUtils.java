@@ -4,7 +4,7 @@ import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.function.CTriFunction;
 import com.c332030.ctool4j.core.util.CSpiUtils;
-import com.c332030.ctool4j.definition.interfaces.ICError;
+import com.c332030.ctool4j.definition.interfaces.ICRes;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -26,11 +26,11 @@ public class CExceptionUtils {
     public static final ICBusinessExceptionProvider<? extends Throwable> BUSINESS_EXCEPTION_PROVIDER =
             CSpiUtils.getFirstCustomImplOrDefault(ICBusinessExceptionProvider.class, CBusinessExceptionProvider.class);
 
-    public CTriFunction<ICError<?>, String, Throwable, ? extends Throwable> getBusinessExceptionFunction() {
+    public CTriFunction<ICRes<?>, String, Throwable, ? extends Throwable> getBusinessExceptionFunction() {
         return BUSINESS_EXCEPTION_PROVIDER.getExceptionFunction();
     }
 
-    public <T extends Throwable> T newBusinessException(ICError<?> error) {
+    public <T extends Throwable> T newBusinessException(ICRes<?> error) {
         return newBusinessException(error, null);
     }
 
@@ -38,17 +38,17 @@ public class CExceptionUtils {
         return newBusinessException(null, message);
     }
 
-    public <T extends Throwable> T newBusinessException(ICError<?> error, String message) {
+    public <T extends Throwable> T newBusinessException(ICRes<?> error, String message) {
         return newBusinessException(error, message, null);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Throwable> T newBusinessException(ICError<?> error, String message, Throwable cause) {
+    public <T extends Throwable> T newBusinessException(ICRes<?> error, String message, Throwable cause) {
         return (T) getBusinessExceptionFunction().apply(error, message, cause);
     }
 
     @SneakyThrows
-    public void throwBusinessException(ICError<?> error) {
+    public void throwBusinessException(ICRes<?> error) {
         throw newBusinessException(error);
     }
 
@@ -58,12 +58,12 @@ public class CExceptionUtils {
     }
 
     @SneakyThrows
-    public void throwBusinessException(ICError<?> error, String message) {
+    public void throwBusinessException(ICRes<?> error, String message) {
         throw newBusinessException(error, message);
     }
 
     @SneakyThrows
-    public void throwBusinessException(ICError<?> error, String message, Throwable cause) {
+    public void throwBusinessException(ICRes<?> error, String message, Throwable cause) {
         throw newBusinessException(error, message, cause);
     }
 
@@ -71,11 +71,11 @@ public class CExceptionUtils {
         throwBusinessException(messageSupplier.get());
     }
 
-    public void throwBusinessException(ICError<?> error, Supplier<String> messageSupplier) {
+    public void throwBusinessException(ICRes<?> error, Supplier<String> messageSupplier) {
         throwBusinessException(error, messageSupplier.get());
     }
 
-    public void throwBusinessException(ICError<?> error, Supplier<String> messageSupplier, Throwable cause) {
+    public void throwBusinessException(ICRes<?> error, Supplier<String> messageSupplier, Throwable cause) {
         throwBusinessException(error, messageSupplier.get(), cause);
     }
 
