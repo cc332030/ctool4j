@@ -20,7 +20,7 @@ public class CDateUtilsTests {
 
     private static final String DATE_STR = "2025-03-03";
     private static final String TIME_STR = "08:01:03";
-    private static final String DATE_TIME_STR = DATE_STR+ " " + TIME_STR;
+    private static final String DATE_TIME_STR = DATE_STR + " " + TIME_STR;
 
     private static final Date DATE = DateUtil.parseDateTime(DATE_TIME_STR);
     private static final Instant INSTANT  = DATE.toInstant();
