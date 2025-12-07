@@ -106,7 +106,7 @@ public class CRequestUtils {
 
     /**
      * 获取 Request 的 COpt
-     * @return COpt<HttpServletRequest>
+     * @return COpt HttpServletRequest
      */
     public COpt<HttpServletRequest> getRequestOpt() {
         return COpt.ofNullable(getRequestDefaultNull());
@@ -135,7 +135,7 @@ public class CRequestUtils {
 
     /**
      * 获取 Response 的 COpt
-     * @return COpt<HttpServletResponse>
+     * @return COpt HttpServletResponse
      */
     public COpt<HttpServletResponse> getResponseOpt() {
         return COpt.ofNullable(getResponseDefaultNull());

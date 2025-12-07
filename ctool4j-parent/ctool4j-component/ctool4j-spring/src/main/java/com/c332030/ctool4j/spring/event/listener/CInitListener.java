@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.event.listener;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
@@ -9,7 +10,12 @@ import org.springframework.context.event.ContextRefreshedEvent;
  *
  * @since 2025/11/28
  */
-public interface CInitListener extends CurrentContextRefreshedListener {
+public interface CInitListener extends InitializingBean, CurrentContextRefreshedListener {
+
+    @Override
+    default void afterPropertiesSet() {
+        onInit();
+    }
 
     @Override
     default void onEvent(ContextRefreshedEvent event) {
