@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.val;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -26,10 +25,7 @@ public class CInstantSerializer extends JsonSerializer<Instant> {
 
     @Override
     public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-
-        val str = CDateUtils.formatDateTime(value);
-        gen.writeString(str);
-
+        gen.writeString(CDateUtils.formatDateTime(value));
     }
 
 }
