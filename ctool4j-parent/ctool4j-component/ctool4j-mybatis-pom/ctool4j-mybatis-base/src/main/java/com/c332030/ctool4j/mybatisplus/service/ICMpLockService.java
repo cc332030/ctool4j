@@ -44,37 +44,37 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
     /**
      * 尝试获取插入锁并做处理
      * @param key 业务 key
-     * @param waitDuration 等待时长，单位：秒
+     * @param waitSeconds 等锁秒数
      * @param valueSupplier 处理逻辑
      * @return 处理结果
      * @param <T> 处理结果泛型
      */
-    default <T> T tryLockInsertThenRun(String key, int waitDuration, Supplier<T> valueSupplier) {
-        return CLockUtils.tryLockThenRun(getInsertLockKey(key), waitDuration, valueSupplier);
+    default <T> T tryLockInsertThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+        return CLockUtils.tryLockThenRun(getInsertLockKey(key), waitSeconds, valueSupplier);
     }
 
     /**
      * 尝试获取更新锁并做处理
      * @param key 业务 key
-     * @param waitDuration 等待时长，单位：秒
+     * @param waitSeconds 等锁秒数
      * @param valueSupplier 处理逻辑
      * @return 处理结果
      * @param <T> 处理结果泛型
      */
-    default <T> T tryLockUpdateThenRun(String key, int waitDuration, Supplier<T> valueSupplier) {
-        return CLockUtils.tryLockThenRun(getUpdateLockKey(key), waitDuration, valueSupplier);
+    default <T> T tryLockUpdateThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+        return CLockUtils.tryLockThenRun(getUpdateLockKey(key), waitSeconds, valueSupplier);
     }
 
     /**
      * 尝试获取删除锁并做处理
      * @param key 业务 key
-     * @param waitDuration 等待时长，单位：秒
+     * @param waitSeconds 等锁秒数
      * @param valueSupplier 处理逻辑
      * @return 处理结果
      * @param <T> 处理结果泛型
      */
-    default <T> T tryLockDeleteThenRun(String key, int waitDuration, Supplier<T> valueSupplier) {
-        return CLockUtils.tryLockThenRun(getDeleteLockKey(key), waitDuration, valueSupplier);
+    default <T> T tryLockDeleteThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+        return CLockUtils.tryLockThenRun(getDeleteLockKey(key), waitSeconds, valueSupplier);
     }
 
 }

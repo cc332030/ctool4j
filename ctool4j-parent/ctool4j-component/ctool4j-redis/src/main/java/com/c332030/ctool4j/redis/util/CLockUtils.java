@@ -49,13 +49,13 @@ public class CLockUtils {
     /**
      * 获取锁并做处理
      * @param key lockKey
-     * @param waitDuration 等待时长，单位：秒
+     * @param waitSeconds 等锁秒数
      * @param valueSupplier 锁成功操作
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
-    public <T> T tryLockThenRun(String key, int waitDuration, Supplier<T> valueSupplier) {
-        return tryLockThenRun(key, Duration.ofSeconds(waitDuration), valueSupplier);
+    public <T> T tryLockThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+        return tryLockThenRun(key, Duration.ofSeconds(waitSeconds), valueSupplier);
     }
 
     /**
