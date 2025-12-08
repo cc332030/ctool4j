@@ -38,12 +38,12 @@ public interface ICMainBizService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
         return countByValues(getMainBizIdColumn(), mainBizIds);
     }
 
-    default Long countByMainBizIds(List<? extends MAIN_BIZ> mainBizs){
+    default Long countByMainBizIds(List<? extends MAIN_BIZ> mainBizList){
 
-        if(CollUtil.isEmpty(mainBizs)) {
+        if(CollUtil.isEmpty(mainBizList)) {
             return 0L;
         }
-        val mainBizIds = convertValues(mainBizs, this::getMainBizId);
+        val mainBizIds = convertValues(mainBizList, this::getMainBizId);
         return countByMainBizIds(mainBizIds);
     }
 

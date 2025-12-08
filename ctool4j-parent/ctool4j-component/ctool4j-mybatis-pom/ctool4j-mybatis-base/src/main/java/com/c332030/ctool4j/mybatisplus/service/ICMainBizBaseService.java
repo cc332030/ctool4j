@@ -101,12 +101,12 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
         return listByValues(getMainBizIdColumn(), mainBizIds);
     }
 
-    default List<ENTITY> listByMainBizIds(List<? extends MAIN_BIZ> mainBizs){
+    default List<ENTITY> listByMainBizIds(List<? extends MAIN_BIZ> mainBizList){
 
-        if(CollUtil.isEmpty(mainBizs)) {
+        if(CollUtil.isEmpty(mainBizList)) {
             return CList.of();
         }
-        val mainBizIds = convertValues(mainBizs, this::getMainBizId);
+        val mainBizIds = convertValues(mainBizList, this::getMainBizId);
         return listByMainBizIds(mainBizIds);
     }
 
@@ -117,12 +117,12 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
         return removeByValues(getMainBizIdColumn(), mainBizIds);
     }
 
-    default boolean removeByMainBizIds(List<? extends MAIN_BIZ> mainBizs){
+    default boolean removeByMainBizIds(List<? extends MAIN_BIZ> mainBizList){
 
-        if(CollUtil.isEmpty(mainBizs)) {
+        if(CollUtil.isEmpty(mainBizList)) {
             return false;
         }
-        val mainBizIds = convertValues(mainBizs, this::getMainBizId);
+        val mainBizIds = convertValues(mainBizList, this::getMainBizId);
         return removeByMainBizIds(mainBizIds);
     }
 
