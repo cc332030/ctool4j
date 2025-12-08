@@ -23,6 +23,12 @@
             <artifactId>ctool4j-transaction</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-redis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
