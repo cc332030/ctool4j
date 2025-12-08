@@ -116,10 +116,9 @@ public class COpt<T> {
     /**
      * 创建空迭代器 CIterOpt
      * @return CIterOpt
-     * @param <E> 值泛型
-     * @param <T> Iterable 泛型
+     * @param <T> 值泛型
      */
-    public static <E, T extends Iterable<E>> CIterOpt<E, T> emptyIter() {
+    public static <T> CIterOpt<T> emptyIter() {
         return CObjUtils.anyType(CIterOpt.EMPTY);
     }
 
@@ -127,10 +126,9 @@ public class COpt<T> {
      * 创建迭代器 CIterOpt
      * @param value Iterable
      * @return CIterOpt
-     * @param <E> 值泛型
-     * @param <T> Iterable 泛型
+     * @param <T> 值泛型
      */
-    public static <E, T extends Iterable<E>> CIterOpt<E, T> of(T value) {
+    public static <T> CIterOpt<T> of(Iterable<T> value) {
         if(IterUtil.isEmpty(value)) {
             throw new NoSuchElementException("Iterator is empty");
         }
@@ -141,10 +139,9 @@ public class COpt<T> {
      * 创建可空迭代器 CIterOpt
      * @param value Iterable
      * @return CIterOpt
-     * @param <E> 值泛型
-     * @param <T> Iterable 泛型
+     * @param <T> 值泛型
      */
-    public static <E, T extends Iterable<E>> CIterOpt<E, T> ofEmptyAble(T value) {
+    public static <T> CIterOpt<T> ofEmptyAble(Iterable<T> value) {
         if(IterUtil.isEmpty(value)) {
             return emptyIter();
         }
@@ -154,10 +151,9 @@ public class COpt<T> {
     /**
      * 创建空集合 CCollOpt
      * @return CCollOpt
-     * @param <E> 值泛型
-     * @param <T> Collection 泛型
+     * @param <T> 值泛型
      */
-    public static <E, T extends Collection<E>> CCollOpt<E, T> emptyColl() {
+    public static <T> CCollOpt<T> emptyColl() {
         return CObjUtils.anyType(CCollOpt.EMPTY);
     }
 
@@ -165,10 +161,9 @@ public class COpt<T> {
      * 创建集合 CCollOpt
      * @param value Collection
      * @return CCollOpt
-     * @param <E> 值泛型
-     * @param <T> Collection 泛型
+     * @param <T> 值泛型
      */
-    public static <E, T extends Collection<E>> CCollOpt<E, T> of(T value) {
+    public static <T> CCollOpt<T> of(Collection<T> value) {
         if(CollUtil.isEmpty(value)) {
             throw new NoSuchElementException("Collection is empty");
         }
@@ -179,10 +174,9 @@ public class COpt<T> {
      * 创建可空集合 CCollOpt
      * @param value Collection
      * @return CCollOpt
-     * @param <E> 值泛型
-     * @param <T> Collection 泛型
+     * @param <T> 值泛型
      */
-    public static <E, T extends Collection<E>> CCollOpt<E, T> ofEmptyAble(T value) {
+    public static <T> CCollOpt<T> ofEmptyAble(Collection<T> value) {
         if(CollUtil.isEmpty(value)) {
             return emptyColl();
         }
@@ -194,9 +188,8 @@ public class COpt<T> {
      * @return CMapOpt
      * @param <K> 键泛型
      * @param <V> 值泛型
-     * @param <T> Map 泛型
      */
-    public static <K, V, T extends Map<K, V>> CMapOpt<K, V, T> emptyMap() {
+    public static <K, V> CMapOpt<K, V> emptyMap() {
         return CObjUtils.anyType(CMapOpt.EMPTY);
     }
 
@@ -206,9 +199,8 @@ public class COpt<T> {
      * @return CMapOpt
      * @param <K> 键泛型
      * @param <V> 值泛型
-     * @param <T> Map 泛型
      */
-    public static <K, V, T extends Map<K, V>> CMapOpt<K, V, T> of(T t) {
+    public static <K, V> CMapOpt<K, V> of(Map<K, V> t) {
         if(MapUtil.isEmpty(t)) {
             throw new NoSuchElementException("Map is empty");
         }
@@ -221,9 +213,8 @@ public class COpt<T> {
      * @return CMapOpt
      * @param <K> 键泛型
      * @param <V> 值泛型
-     * @param <T> Map 泛型
      */
-    public static <K, V, T extends Map<K, V>> CMapOpt<K, V, T> ofEmptyAble(T t) {
+    public static <K, V> CMapOpt<K, V> ofEmptyAble(Map<K, V> t) {
         if(MapUtil.isEmpty(t)) {
             return emptyMap();
         }

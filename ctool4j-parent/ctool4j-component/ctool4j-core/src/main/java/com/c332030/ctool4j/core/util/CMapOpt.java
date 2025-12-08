@@ -13,11 +13,11 @@ import java.util.function.Consumer;
  *
  * @since 2025/12/6
  */
-public class CMapOpt<K, V, T extends Map<K, V>> extends COpt<T> {
+public class CMapOpt<K, V> extends COpt<Map<K, V>> {
 
-    public static final CMapOpt<?, ?, ?> EMPTY = new CMapOpt<>(null);
+    public static final CMapOpt<?, ?> EMPTY = new CMapOpt<>(null);
 
-    protected CMapOpt(T value){
+    protected CMapOpt(Map<K, V> value){
         super(value);
     }
 
@@ -25,7 +25,7 @@ public class CMapOpt<K, V, T extends Map<K, V>> extends COpt<T> {
         return MapUtil.isEmpty(value);
     }
 
-    public void ifNotEmpty(Consumer<T> consumer) {
+    public void ifNotEmpty(Consumer<Map<K, V>> consumer) {
         if (!isEmpty()) {
             consumer.accept(value);
         }

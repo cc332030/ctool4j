@@ -42,20 +42,19 @@ public class COptIterTests {
     @Test
     public void ifNotEmpty() {
 
-        val cCollOpt = COpt.ofEmptyAble(CList.of(1));
+        val cIterOpt = COpt.ofEmptyAble((Iterable<Integer>)CList.of(1));
         Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->
-                cCollOpt.ifNotEmpty(list -> {
+            cIterOpt.ifNotEmpty(iterable -> {
 
-                    if(1 == list.size()) {
+                    if(iterable.iterator().hasNext()) {
                         throw new IllegalArgumentException();
                     }
-
                 })
         );
 
         Assertions.assertDoesNotThrow(() -> {
-            val cCollOpt2 = COpt.ofEmptyAble(CList.of());
-            cCollOpt2.ifNotEmpty((e) -> {
+            val cIterOpt2 = COpt.ofEmptyAble((Iterable<Object>)CList.of());
+            cIterOpt2.ifNotEmpty((e) -> {
                 throw new IllegalArgumentException();
             });
         });
@@ -73,9 +72,9 @@ public class COptIterTests {
     @Test
     public void forEachIfNotEmpty() {
 
-        val cCollOpt = COpt.ofEmptyAble(CList.of(1));
+        val cIterOpt = COpt.ofEmptyAble((Iterable<Integer>)CList.of(1));
         Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->
-                cCollOpt.forEachIfNotEmpty((e) -> {
+                cIterOpt.forEachIfNotEmpty((e) -> {
                     if (1 == e) {
                         throw new IllegalArgumentException();
                     }
@@ -83,8 +82,8 @@ public class COptIterTests {
         );
 
         Assertions.assertDoesNotThrow(() -> {
-            val cCollOpt2 = COpt.ofEmptyAble(CList.of());
-            cCollOpt2.forEachIfNotEmpty((e) -> {
+            val cIterOpt2 = COpt.ofEmptyAble((Iterable<Object>)CList.of());
+            cIterOpt2.forEachIfNotEmpty((e) -> {
                 throw new IllegalArgumentException();
             });
         });

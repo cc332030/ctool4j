@@ -9,11 +9,11 @@ import java.util.Collection;
  *
  * @since 2025/12/6
  */
-public class CCollOpt<E, T extends Collection<E>> extends CIterOpt<E, T> {
+public class CCollOpt<T> extends CIterOpt<T> {
 
-    public static final CCollOpt<?, ?> EMPTY = new CCollOpt<>(null);
+    public static final CCollOpt<?> EMPTY = new CCollOpt<>(null);
 
-    protected CCollOpt(T value){
+    protected CCollOpt(Collection<T> value){
         super(value);
     }
 

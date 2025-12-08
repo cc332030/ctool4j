@@ -12,11 +12,11 @@ import java.util.function.Consumer;
  *
  * @since 2025/12/6
  */
-public class CIterOpt<E, T extends Iterable<E>> extends COpt<T> {
+public class CIterOpt<T> extends COpt<Iterable<T>> {
 
-    public static final CIterOpt<?, ?> EMPTY = new CIterOpt<>(null);
+    public static final CIterOpt<?> EMPTY = new CIterOpt<>(null);
 
-    protected CIterOpt(T value){
+    protected CIterOpt(Iterable<T> value){
         super(value);
     }
 
@@ -24,13 +24,13 @@ public class CIterOpt<E, T extends Iterable<E>> extends COpt<T> {
         return IterUtil.isEmpty(value);
     }
 
-    public void ifNotEmpty(Consumer<T> consumer) {
+    public void ifNotEmpty(Consumer<Iterable<T>> consumer) {
         if (!isEmpty()) {
             consumer.accept(value);
         }
     }
 
-    public void forEachIfNotEmpty(CConsumer<E> consumer) {
+    public void forEachIfNotEmpty(CConsumer<T> consumer) {
         ifNotEmpty(e -> e.forEach(consumer));
     }
 
