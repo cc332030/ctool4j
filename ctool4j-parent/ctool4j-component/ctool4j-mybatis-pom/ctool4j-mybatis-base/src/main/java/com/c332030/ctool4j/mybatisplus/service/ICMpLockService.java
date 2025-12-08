@@ -19,7 +19,7 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * @param key 业务 key
      * @return 锁 key
      */
-    default String getInsertLockKey(String key) {
+    default String getInsertLockKey(Object key) {
         return CLockUtils.getLockKey(getEntityClass(), CDbOperateEnum.INSERT, key);
     }
 
@@ -28,7 +28,7 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * @param key 业务 key
      * @return 锁 key
      */
-    default String getUpdateLockKey(String key) {
+    default String getUpdateLockKey(Object key) {
         return CLockUtils.getLockKey(getEntityClass(), CDbOperateEnum.UPDATE, key);
     }
 
@@ -37,7 +37,7 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * @param key 业务 key
      * @return 锁 key
      */
-    default String getDeleteLockKey(String key) {
+    default String getDeleteLockKey(Object key) {
         return CLockUtils.getLockKey(getEntityClass(), CDbOperateEnum.DELETE, key);
     }
 
@@ -49,7 +49,7 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * @return 处理结果
      * @param <T> 处理结果泛型
      */
-    default <T> T tryLockInsertThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+    default <T> T tryLockInsertThenRun(Object key, int waitSeconds, Supplier<T> valueSupplier) {
         return CLockUtils.tryLockThenRun(getInsertLockKey(key), waitSeconds, valueSupplier);
     }
 
@@ -61,7 +61,7 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * @return 处理结果
      * @param <T> 处理结果泛型
      */
-    default <T> T tryLockUpdateThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+    default <T> T tryLockUpdateThenRun(Object key, int waitSeconds, Supplier<T> valueSupplier) {
         return CLockUtils.tryLockThenRun(getUpdateLockKey(key), waitSeconds, valueSupplier);
     }
 
@@ -73,7 +73,7 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * @return 处理结果
      * @param <T> 处理结果泛型
      */
-    default <T> T tryLockDeleteThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+    default <T> T tryLockDeleteThenRun(Object key, int waitSeconds, Supplier<T> valueSupplier) {
         return CLockUtils.tryLockThenRun(getDeleteLockKey(key), waitSeconds, valueSupplier);
     }
 
