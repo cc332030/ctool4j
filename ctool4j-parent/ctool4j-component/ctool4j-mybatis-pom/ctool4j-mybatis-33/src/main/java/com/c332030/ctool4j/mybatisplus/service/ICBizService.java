@@ -14,8 +14,8 @@ import java.util.List;
  *
  * @since 2025/12/6
  */
-public interface ICBizService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
-        extends ICService<ENTITY>, ICBizBaseService<ENTITY, BIZ_INTERFACE>{
+public interface ICBizService<ENTITY extends BIZ, BIZ>
+        extends ICService<ENTITY>, ICBizBaseService<ENTITY, BIZ>{
 
     default Integer countByBizId(String bizId){
         if(StrUtil.isBlank(bizId)) {
@@ -24,11 +24,11 @@ public interface ICBizService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         return countByValue(getBizIdColumn(), bizId);
     }
 
-    default Integer countByBizId(BIZ_INTERFACE bizInterface){
-        if(bizInterface == null) {
+    default Integer countByBizId(BIZ biz){
+        if(biz == null) {
             return 0;
         }
-        return countByBizId(getBizId(bizInterface));
+        return countByBizId(getBizId(biz));
     }
 
     default Integer countByBizIds(Collection<String> bizIds){
@@ -38,12 +38,12 @@ public interface ICBizService<ENTITY extends BIZ_INTERFACE, BIZ_INTERFACE>
         return countByValues(getBizIdColumn(), bizIds);
     }
 
-    default Integer countByBizIds(List<? extends BIZ_INTERFACE> bizInterfaces){
+    default Integer countByBizIds(List<? extends BIZ> bizList){
 
-        if(CollUtil.isEmpty(bizInterfaces)) {
+        if(CollUtil.isEmpty(bizList)) {
             return 0;
         }
-        val bizIds = convertValues(bizInterfaces, this::getBizId);
+        val bizIds = convertValues(bizList, this::getBizId);
         return countByBizIds(bizIds);
     }
 

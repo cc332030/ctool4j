@@ -18,10 +18,10 @@ import java.util.Objects;
  *
  * @since 2025/12/6
  */
-public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BIZ_INTERFACE>
+public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
         extends ICBaseService<ENTITY>{
 
-    String getMainBizId(MAIN_BIZ_INTERFACE mainBizInterface);
+    String getMainBizId(MAIN_BIZ mainBiz);
 
     SFunction<ENTITY, String> getMainBizIdColumn();
 
@@ -32,11 +32,11 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BI
         return getByValue(getMainBizIdColumn(), mainBizId);
     }
 
-    default ENTITY getByMainBizId(MAIN_BIZ_INTERFACE mainBizInterface){
-        if(Objects.isNull(mainBizInterface)) {
+    default ENTITY getByMainBizId(MAIN_BIZ mainBiz){
+        if(Objects.isNull(mainBiz)) {
             return null;
         }
-        val mainBizId = getMainBizId(mainBizInterface);
+        val mainBizId = getMainBizId(mainBiz);
         return getByMainBizId(mainBizId);
     }
 
@@ -44,8 +44,8 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BI
         return Opt.ofNullable(getByMainBizId(mainBizId));
     }
 
-    default Opt<ENTITY> getByMainBizIdOpt(MAIN_BIZ_INTERFACE mainBizInterface){
-        return Opt.ofNullable(getByMainBizId(mainBizInterface));
+    default Opt<ENTITY> getByMainBizIdOpt(MAIN_BIZ mainBiz){
+        return Opt.ofNullable(getByMainBizId(mainBiz));
     }
 
     default List<ENTITY> listByMainBizId(String mainBizId){
@@ -55,12 +55,12 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BI
         return listByValue(getMainBizIdColumn(), mainBizId);
     }
 
-    default List<ENTITY> listByMainBizId(MAIN_BIZ_INTERFACE mainBizInterface){
+    default List<ENTITY> listByMainBizId(MAIN_BIZ mainBiz){
 
-        if(null == mainBizInterface) {
+        if(null == mainBiz) {
             return CList.of();
         }
-        val mainBizId = getMainBizId(mainBizInterface);
+        val mainBizId = getMainBizId(mainBiz);
         return listByMainBizId(mainBizId);
     }
 
@@ -78,12 +78,12 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BI
                 .update(entity);
     }
 
-    default boolean removeByMainBizId(MAIN_BIZ_INTERFACE mainBizInterface){
+    default boolean removeByMainBizId(MAIN_BIZ mainBiz){
 
-        if(null == mainBizInterface) {
+        if(null == mainBiz) {
             return false;
         }
-        val mainBizId = getMainBizId(mainBizInterface);
+        val mainBizId = getMainBizId(mainBiz);
         return removeByMainBizId(mainBizId);
     }
 
@@ -101,12 +101,12 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BI
         return listByValues(getMainBizIdColumn(), mainBizIds);
     }
 
-    default List<ENTITY> listByMainBizIds(List<? extends MAIN_BIZ_INTERFACE> mainBizInterfaces){
+    default List<ENTITY> listByMainBizIds(List<? extends MAIN_BIZ> mainBizs){
 
-        if(CollUtil.isEmpty(mainBizInterfaces)) {
+        if(CollUtil.isEmpty(mainBizs)) {
             return CList.of();
         }
-        val mainBizIds = convertValues(mainBizInterfaces, this::getMainBizId);
+        val mainBizIds = convertValues(mainBizs, this::getMainBizId);
         return listByMainBizIds(mainBizIds);
     }
 
@@ -117,12 +117,12 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BI
         return removeByValues(getMainBizIdColumn(), mainBizIds);
     }
 
-    default boolean removeByMainBizIds(List<? extends MAIN_BIZ_INTERFACE> mainBizInterfaces){
+    default boolean removeByMainBizIds(List<? extends MAIN_BIZ> mainBizs){
 
-        if(CollUtil.isEmpty(mainBizInterfaces)) {
+        if(CollUtil.isEmpty(mainBizs)) {
             return false;
         }
-        val mainBizIds = convertValues(mainBizInterfaces, this::getMainBizId);
+        val mainBizIds = convertValues(mainBizs, this::getMainBizId);
         return removeByMainBizIds(mainBizIds);
     }
 

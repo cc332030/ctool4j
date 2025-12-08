@@ -14,8 +14,8 @@ import java.util.List;
  *
  * @since 2025/12/6
  */
-public interface ICMainBizService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BIZ_INTERFACE>
-        extends ICService<ENTITY>, ICMainBizBaseService<ENTITY, MAIN_BIZ_INTERFACE> {
+public interface ICMainBizService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
+        extends ICService<ENTITY>, ICMainBizBaseService<ENTITY, MAIN_BIZ> {
 
     default Long countByMainBizId(String mainBizId){
         if(StrUtil.isBlank(mainBizId)) {
@@ -24,11 +24,11 @@ public interface ICMainBizService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BIZ_IN
         return countByValue(getMainBizIdColumn(), mainBizId);
     }
 
-    default Long countByMainBizId(MAIN_BIZ_INTERFACE mainBizInterface){
-        if(mainBizInterface == null) {
+    default Long countByMainBizId(MAIN_BIZ mainBiz){
+        if(mainBiz == null) {
             return 0L;
         }
-        return countByMainBizId(getMainBizId(mainBizInterface));
+        return countByMainBizId(getMainBizId(mainBiz));
     }
 
     default Long countByMainBizIds(Collection<String> mainBizIds){
@@ -38,12 +38,12 @@ public interface ICMainBizService<ENTITY extends MAIN_BIZ_INTERFACE, MAIN_BIZ_IN
         return countByValues(getMainBizIdColumn(), mainBizIds);
     }
 
-    default Long countByMainBizIds(List<? extends MAIN_BIZ_INTERFACE> mainBizInterfaces){
+    default Long countByMainBizIds(List<? extends MAIN_BIZ> mainBizs){
 
-        if(CollUtil.isEmpty(mainBizInterfaces)) {
+        if(CollUtil.isEmpty(mainBizs)) {
             return 0L;
         }
-        val mainBizIds = convertValues(mainBizInterfaces, this::getMainBizId);
+        val mainBizIds = convertValues(mainBizs, this::getMainBizId);
         return countByMainBizIds(mainBizIds);
     }
 
