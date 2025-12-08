@@ -1,9 +1,9 @@
 package com.c332030.ctool4j.core.exception;
 
+import com.c332030.ctool4j.core.util.CResUtils;
 import com.c332030.ctool4j.definition.function.CBiFunction;
 import com.c332030.ctool4j.definition.function.CTriFunction;
-import com.c332030.ctool4j.core.util.CErrorUtils;
-import com.c332030.ctool4j.definition.interfaces.ICError;
+import com.c332030.ctool4j.definition.interfaces.ICRes;
 import lombok.val;
 
 /**
@@ -15,10 +15,10 @@ import lombok.val;
  */
 public interface ICBusinessExceptionProvider<T extends Throwable> {
 
-    default CTriFunction<ICError<?>, String, Throwable, T> getExceptionFunction() {
+    default CTriFunction<ICRes<?>, String, Throwable, T> getExceptionFunction() {
         return (error, errorExtend, cause) -> {
 
-            val message = CErrorUtils.formatMessage(error, errorExtend);
+            val message = CResUtils.formatMessage(error, errorExtend);
             return getMessageExceptionFunction().apply(message, cause);
         };
     }

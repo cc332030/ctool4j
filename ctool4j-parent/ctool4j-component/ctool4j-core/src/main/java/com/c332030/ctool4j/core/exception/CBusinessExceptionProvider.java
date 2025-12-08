@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.exception;
 
 import com.c332030.ctool4j.definition.function.CTriFunction;
-import com.c332030.ctool4j.definition.interfaces.ICError;
+import com.c332030.ctool4j.definition.interfaces.ICRes;
 
 /**
  * <p>
@@ -13,7 +13,7 @@ import com.c332030.ctool4j.definition.interfaces.ICError;
 public class CBusinessExceptionProvider implements ICBusinessExceptionProvider<CBusinessException> {
 
     @Override
-    public CTriFunction<ICError<?>, String, Throwable, CBusinessException> getExceptionFunction() {
+    public CTriFunction<ICRes<?>, String, Throwable, CBusinessException> getExceptionFunction() {
         return CBusinessException::new;
     }
 
