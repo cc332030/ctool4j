@@ -22,10 +22,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public class CResult<T> extends CCodeMsgDataResult<Integer, T> implements ICResult<Integer, T>, ICCodeMsgDataResult<Integer, T> {
 
-    public static <T> CResult<T> newInstance(Integer code, String msg, T data) {
+    public static <T> CResult<T> newInstance(Integer code, String message, T data) {
         return CResult.<T>builder()
                 .code(code)
-                .msg(msg)
+                .msg(message)
                 .data(data)
                 .build();
     }
