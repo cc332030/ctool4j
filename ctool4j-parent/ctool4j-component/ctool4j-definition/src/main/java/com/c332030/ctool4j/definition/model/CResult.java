@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.definition.model.result.ICCodeMsgDataResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CResult<T> implements ICResult<Integer, T> {
+public class CResult<T> implements ICResult<Integer, T>, ICCodeMsgDataResult<Integer, T> {
 
     Integer code;
 
