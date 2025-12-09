@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,12 +25,6 @@ public class CResult<T> implements ICResult<Integer, T> {
     String msg;
 
     T data;
-
-    @JsonIgnore
-    @Override
-    public String getMessage() {
-        return getMsg();
-    }
 
     public static <T> CResult<T> newInstance(Integer code, String msg, T data) {
         return CResult.<T>builder()
