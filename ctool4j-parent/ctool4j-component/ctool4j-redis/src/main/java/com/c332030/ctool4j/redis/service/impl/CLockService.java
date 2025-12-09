@@ -2,6 +2,7 @@ package com.c332030.ctool4j.redis.service.impl;
 
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
+import com.c332030.ctool4j.definition.function.CSupplier;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -96,7 +97,7 @@ public class CLockService {
     public boolean tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), null);
     }
-    public <T> T tryLockThenRun(String key, Duration waitDuration, Supplier<T> valueSupplier) {
+    public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier) {
         return tryLockThenRun(key, waitDuration, valueSupplier, null);
     }
 
@@ -106,7 +107,7 @@ public class CLockService {
     }
 
     public <T> T tryLockThenRun(String key, Duration waitDuration,
-                                Supplier<T> valueSupplier, CRunnable failureRunnable) {
+                                CSupplier<T> valueSupplier, CRunnable failureRunnable) {
 
         long timeout;
         TimeUnit timeUnit;

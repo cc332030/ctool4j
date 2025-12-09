@@ -1,12 +1,13 @@
 package com.c332030.ctool4j.redis.util;
 
+import com.c332030.ctool4j.definition.function.CRunnable;
+import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.interfaces.IOperate;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
 import java.time.Duration;
-import java.util.function.Supplier;
 
 /**
  * <p>
@@ -54,7 +55,7 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
-    public <T> T tryLockThenRun(String key, int waitSeconds, Supplier<T> valueSupplier) {
+    public <T> T tryLockThenRun(String key, int waitSeconds, CSupplier<T> valueSupplier) {
         return tryLockThenRun(key, Duration.ofSeconds(waitSeconds), valueSupplier);
     }
 
@@ -66,8 +67,28 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
-    public <T> T tryLockThenRun(String key, Duration waitDuration, Supplier<T> valueSupplier) {
+    public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier) {
         return lockService.tryLockThenRun(key, waitDuration, valueSupplier);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
+     * @param waitSeconds 等锁秒数
+     * @param runnable 锁成功操作
+     */
+    public void tryLockThenRun(String key, int waitSeconds, CRunnable runnable) {
+        tryLockThenRun(key, Duration.ofSeconds(waitSeconds), runnable);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
+     * @param waitDuration 等待时长
+     * @param runnable 锁成功操作
+     */
+    public void tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
+        lockService.tryLockThenRun(key, waitDuration, runnable);
     }
 
 }
