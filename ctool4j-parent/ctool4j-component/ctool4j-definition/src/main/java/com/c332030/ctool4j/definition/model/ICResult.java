@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.model;
 
-import com.c332030.ctool4j.definition.annotation.CJsonLog;
+import com.c332030.ctool4j.definition.model.result.ICCodeMessageDataResult;
 
 /**
  * <p>
@@ -9,13 +9,6 @@ import com.c332030.ctool4j.definition.annotation.CJsonLog;
  *
  * @since 2025/2/24
  */
-@CJsonLog
-public interface ICResult<C, T> {
-
-    C getCode();
-
-    String getMessage();
-
-    T getData();
+public interface ICResult<CODE, DATA> extends ICCodeMessageDataResult<CODE, DATA> {
 
 }
