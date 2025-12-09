@@ -4,7 +4,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.exception.CExceptionUtils;
-import com.c332030.ctool4j.definition.model.result.ICCodeMessageDataResult;
+import com.c332030.ctool4j.definition.model.result.ICBaseResult;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -34,10 +34,10 @@ public class CResultUtils {
             "000000"
     ).map(String::valueOf).collect(Collectors.toSet());
 
-    public static boolean isSuccess(@Nullable ICCodeMessageDataResult<?, ?> result) {
+    public static boolean isSuccess(@Nullable ICBaseResult<?, ?> result) {
 
         val code = Opt.ofNullable(result)
-                .map(ICCodeMessageDataResult::getCode)
+                .map(ICBaseResult::getCode)
                 .map(StrUtil::toStringOrNull)
                 .orElse(null);
         if (StrUtil.isBlank(code)) {
@@ -47,21 +47,21 @@ public class CResultUtils {
         return SUCCESS_CODES.contains(code);
     }
 
-    public static boolean isNotSuccess(@Nullable ICCodeMessageDataResult<?, ?> result) {
+    public static boolean isNotSuccess(@Nullable ICBaseResult<?, ?> result) {
         return !isSuccess(result);
     }
 
     private static final String EXCEPTION_MESSAGE_TEMPLATE = "错误码：{}，错误信息：{}";
 
     @SneakyThrows
-    private static void throwException(ICCodeMessageDataResult<?, ?> result) {
+    private static void throwException(ICBaseResult<?, ?> result) {
 
         val message = StrUtil.format(EXCEPTION_MESSAGE_TEMPLATE, result.getCode(), result.getMessage());
         throw CExceptionUtils.newBusinessException(null, message);
     }
 
     @SneakyThrows
-    public static void assertSuccess(@Nullable ICCodeMessageDataResult<?, ?> result) {
+    public static void assertSuccess(@Nullable ICBaseResult<?, ?> result) {
 
         if(null == result) {
             throw CExceptionUtils.newBusinessException(null, "未返回数据");
@@ -72,15 +72,15 @@ public class CResultUtils {
         }
     }
 
-    public static <T> T getData(@Nullable ICCodeMessageDataResult<?, T> result) {
+    public static <T> T getData(@Nullable ICBaseResult<?, T> result) {
         return getData(result, null);
     }
 
-    public static <T> List<T> getDataDefaultEmptyList(@Nullable ICCodeMessageDataResult<?, List<T>> result) {
+    public static <T> List<T> getDataDefaultEmptyList(@Nullable ICBaseResult<?, List<T>> result) {
         return getData(result, CList.of());
     }
 
-    public static <T> T getData(@Nullable ICCodeMessageDataResult<?, T> result, T defaultValue) {
+    public static <T> T getData(@Nullable ICBaseResult<?, T> result, T defaultValue) {
 
         assertSuccess(result);
         return ObjUtil.defaultIfNull(result.getData(), defaultValue);
