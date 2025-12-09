@@ -2,6 +2,7 @@ package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.model.result.ICCodeMsgDataResult;
+import com.c332030.ctool4j.definition.model.result.impl.CCodeMsgDataResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,13 +20,7 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CResult<T> implements ICResult<Integer, T>, ICCodeMsgDataResult<Integer, T> {
-
-    Integer code;
-
-    String msg;
-
-    T data;
+public class CResult<T> extends CCodeMsgDataResult<Integer, T> implements ICResult<Integer, T>, ICCodeMsgDataResult<Integer, T> {
 
     public static <T> CResult<T> newInstance(Integer code, String msg, T data) {
         return CResult.<T>builder()
