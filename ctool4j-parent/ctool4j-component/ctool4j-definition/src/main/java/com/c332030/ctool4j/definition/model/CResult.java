@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.definition.model.result.ICIntCodeResult;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +19,7 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CResult<T> implements ICResult<Integer, T>, ICIntCodeResult<T> {
+public class CResult<T> implements ICResult<Integer, T> {
 
     Integer code;
 

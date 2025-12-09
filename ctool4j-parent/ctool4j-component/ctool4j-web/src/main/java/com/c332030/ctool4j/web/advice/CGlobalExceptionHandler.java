@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.web.advice;
 
 import com.c332030.ctool4j.definition.model.CResult;
-import com.c332030.ctool4j.definition.model.result.ICIntCodeResult;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -25,7 +24,7 @@ public class CGlobalExceptionHandler {
             ClientAbortException.class,
             HttpMessageNotWritableException.class,
     })
-    public ICIntCodeResult<Object> handleIgnoreException(Throwable e) {
+    public CResult<Object> handleIgnoreException(Throwable e) {
 
         log.info("handleIgnoreException", e);
         return CResult.error(e.getMessage());

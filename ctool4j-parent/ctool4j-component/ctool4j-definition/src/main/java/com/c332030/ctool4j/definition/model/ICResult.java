@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.model;
 
-import com.c332030.ctool4j.definition.model.result.ICCodeMessageDataResult;
+import com.c332030.ctool4j.definition.model.result.ICCodeMsgDataResult;
 
 /**
  * <p>
@@ -9,6 +9,6 @@ import com.c332030.ctool4j.definition.model.result.ICCodeMessageDataResult;
  *
  * @since 2025/2/24
  */
-public interface ICResult<CODE, DATA> extends ICCodeMessageDataResult<CODE, DATA> {
+public interface ICResult<CODE, DATA> extends ICCodeMsgDataResult<CODE, DATA> {
 
 }
