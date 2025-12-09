@@ -82,6 +82,9 @@ public class CBeanUtils {
      * @return 目标对象
      */
     public <To> To copy(Map<String, ?> fromMap, Class<To> toClass) {
+        if(MapUtil.isEmpty(fromMap)) {
+            return null;
+        }
         return copy(fromMap, CReflectUtils.newInstance(toClass));
     }
 
@@ -104,6 +107,9 @@ public class CBeanUtils {
      * @return 目标对象
      */
     public <To> To copy(Map<String, ?> fromMap, CSupplier<To> toSupplier) {
+        if(MapUtil.isEmpty(fromMap)) {
+            return null;
+        }
         return copy(fromMap, toSupplier.get());
     }
 
@@ -126,7 +132,6 @@ public class CBeanUtils {
      * @return 目标对象集合
      */
     public <To> List<To> copyListFromMap(Collection<Map<String, ?>> fromCollection, CSupplier<To> toSupplier) {
-
         if(CollUtil.isEmpty(fromCollection)) {
             return CList.of();
         }
@@ -144,6 +149,9 @@ public class CBeanUtils {
      * @return 目标对象集合
      */
     public <To> List<To> copyList(Collection<?> fromCollection, Class<To> toClass) {
+        if(CollUtil.isEmpty(fromCollection)) {
+            return CList.of();
+        }
         return copyList(fromCollection, () -> CReflectUtils.newInstance(toClass));
     }
 
@@ -155,6 +163,9 @@ public class CBeanUtils {
      * @return 目标对象集合
      */
     public <To> List<To> copyList(Collection<?> fromCollection, CSupplier<To> toSupplier) {
+        if(CollUtil.isEmpty(fromCollection)) {
+            return CList.of();
+        }
         return copyListFromMap(CCollUtils.convert(fromCollection, CBeanUtils::toMap), toSupplier);
     }
 
@@ -164,6 +175,9 @@ public class CBeanUtils {
      * @return 值 map
      */
     public Map<String, Object> toMapJsonName(Object object) {
+        if(null == object) {
+            return CMap.of();
+        }
         return toMap(object, JsonProperty.class, JsonProperty::value);
     }
 
@@ -180,6 +194,9 @@ public class CBeanUtils {
             Class<T> annotationClass,
             CFunction<T, String> annotationValueFunction
     ) {
+        if(null == object) {
+            return CMap.of();
+        }
         return toMap(object, field -> CReflectUtils.getFieldName(field, annotationClass, annotationValueFunction));
     }
 
@@ -189,6 +206,9 @@ public class CBeanUtils {
      * @return 值 map
      */
     public Map<String, Object> toMap(Object object) {
+        if(null == object) {
+            return CMap.of();
+        }
         return toMap(object, Field::getName);
     }
 
