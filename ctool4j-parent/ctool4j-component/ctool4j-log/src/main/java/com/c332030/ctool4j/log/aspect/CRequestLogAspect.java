@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.log.aspect;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.log.util.CTraceUtils;
@@ -66,7 +67,7 @@ public class CRequestLogAspect {
                 val argMap = new LinkedHashMap<String, Object>(parameters.length);
                 for (int i = 0; i < parameters.length; i++) {
                     val parameter = parameters[i];
-                    argMap.put(parameter.getName(), args[i]);
+                    argMap.put(parameter.getName(), dealArg(args[i]));
                 }
 
                 CRequestLogUtils.init(argMap);
@@ -101,6 +102,20 @@ public class CRequestLogAspect {
             }
         }
 
+    }
+
+    private Object dealArg(Object arg) {
+
+        if(null == arg) {
+            return null;
+        }
+
+        val argClass = arg.getClass();
+        if(CLogUtils.isJsonLog(argClass)) {
+            return arg;
+        }
+
+        return argClass.getName();
     }
 
 }

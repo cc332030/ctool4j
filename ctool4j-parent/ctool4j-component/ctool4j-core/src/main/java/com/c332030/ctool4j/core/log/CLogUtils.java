@@ -46,6 +46,11 @@ public class CLogUtils {
         return LOGS.get(clazz);
     }
 
+    private static final Set<String> NOT_JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
+            ".sun.",
+            ".apache."
+    ));
+
     private static final Set<String> JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
             ".config.",
             ".entity.",
@@ -106,6 +111,12 @@ public class CLogUtils {
                 // 配置类型 or 报错类型不转 json
                 for (val clazz : NOT_JSON_LOG_SUPERCLASSES) {
                     if (clazz.isAssignableFrom(type)) {
+                        return false;
+                    }
+                }
+
+                for (val domainPackage : NOT_JSON_LOG_DOMAIN_PACKAGE) {
+                    if (type.getName().contains(domainPackage)) {
                         return false;
                     }
                 }
