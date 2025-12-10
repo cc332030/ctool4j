@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.definition.model.result.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.definition.model.result.ICIntMsgResult;
 import com.c332030.ctool4j.definition.model.result.ICIntResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,38 +20,38 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CIntResult<DATA> implements ICIntResult<DATA> {
+public class CIntMsgResult<DATA> implements ICIntResult<DATA>, ICIntMsgResult<DATA> {
 
     Integer code;
 
-    String message;
+    String msg;
 
     DATA data;
 
-    public static <DATA> CIntResult<DATA> newInstance(Integer code, String message, DATA data) {
-        return CIntResult.<DATA>builder()
+    public static <DATA> CIntMsgResult<DATA> newInstance(Integer code, String message, DATA data) {
+        return CIntMsgResult.<DATA>builder()
                 .code(code)
-                .message(message)
+                .msg(message)
                 .data(data)
                 .build();
     }
 
-    public static <DATA> CIntResult<DATA> success() {
+    public static <DATA> CIntMsgResult<DATA> success() {
         return success(null);
     }
 
-    public static <DATA> CIntResult<DATA> success(DATA data) {
+    public static <DATA> CIntMsgResult<DATA> success(DATA data) {
         return newInstance(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), data);
     }
 
-    public static <DATA> CIntResult<DATA> error(String message) {
+    public static <DATA> CIntMsgResult<DATA> error(String message) {
         return error(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 StrUtil.nullToDefault(message, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
         );
     }
 
-    public static <DATA> CIntResult<DATA> error(Integer code, String message) {
+    public static <DATA> CIntMsgResult<DATA> error(Integer code, String message) {
         return newInstance(code, message, null);
     }
 

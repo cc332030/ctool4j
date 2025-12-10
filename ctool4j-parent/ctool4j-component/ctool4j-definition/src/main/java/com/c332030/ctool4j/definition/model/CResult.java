@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
+import com.c332030.ctool4j.definition.model.result.ICIntMsgResult;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -17,7 +17,13 @@ import org.springframework.http.HttpStatus;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class CResult<DATA> extends CIntResult<DATA> implements ICResult<Integer, DATA> {
+public class CResult<DATA> implements ICResult<Integer, DATA>, ICIntMsgResult<DATA> {
+
+    Integer code;
+
+    String msg;
+
+    DATA data;
 
     public static <DATA> CResult<DATA> newInstance(Integer code, String message, DATA data) {
         return CResult.<DATA>builder()

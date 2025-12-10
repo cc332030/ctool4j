@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * <p>
- * Description: CIntResult
+ * Description: CStrResult
  * </p>
  *
  * @since 2025/5/13
