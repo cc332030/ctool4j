@@ -1,6 +1,7 @@
-package com.c332030.ctool4j.definition.model;
+package com.c332030.ctool4j.definition.model.result.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.definition.model.ICResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

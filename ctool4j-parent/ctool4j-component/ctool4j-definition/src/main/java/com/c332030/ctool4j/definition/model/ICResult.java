@@ -1,7 +1,5 @@
 package com.c332030.ctool4j.definition.model;
 
-import com.c332030.ctool4j.definition.model.result.ICBaseResult;
-
 /**
  * <p>
  * Description: ICResult
@@ -9,6 +7,7 @@ import com.c332030.ctool4j.definition.model.result.ICBaseResult;
  *
  * @since 2025/2/24
  */
-public interface ICResult<CODE, DATA> extends ICBaseResult<CODE, DATA> {
+@Deprecated
+public interface ICResult<CODE, DATA> extends com.c332030.ctool4j.definition.model.result.impl.ICResult<CODE, DATA> {
 
 }
