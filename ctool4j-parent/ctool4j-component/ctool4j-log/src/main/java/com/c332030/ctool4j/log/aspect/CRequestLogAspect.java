@@ -14,6 +14,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 
 /**
@@ -108,6 +109,10 @@ public class CRequestLogAspect {
 
         if(null == arg) {
             return null;
+        }
+
+        if(arg instanceof Serializable) {
+            return arg;
         }
 
         val argClass = arg.getClass();
