@@ -2,7 +2,6 @@ package com.c332030.ctool4j.definition.model;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.model.result.ICCodeMsgDataResult;
-import com.c332030.ctool4j.definition.model.result.impl.CCodeMsgDataResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,32 +19,38 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CResult<T> extends CCodeMsgDataResult<Integer, T> implements ICResult<Integer, T>, ICCodeMsgDataResult<Integer, T> {
+public class CResult<DATA> implements ICResult<Integer, DATA>, ICCodeMsgDataResult<Integer, DATA> {
 
-    public static <T> CResult<T> newInstance(Integer code, String message, T data) {
-        return CResult.<T>builder()
+    Integer code;
+
+    String msg;
+
+    DATA data;
+
+    public static <DATA> CResult<DATA> newInstance(Integer code, String message, DATA data) {
+        return CResult.<DATA>builder()
                 .code(code)
                 .msg(message)
                 .data(data)
                 .build();
     }
 
-    public static <T> CResult<T> success() {
+    public static <DATA> CResult<DATA> success() {
         return success(null);
     }
 
-    public static <T> CResult<T> success(T data) {
+    public static <DATA> CResult<DATA> success(DATA data) {
         return newInstance(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), data);
     }
 
-    public static <T> CResult<T> error(String message) {
+    public static <DATA> CResult<DATA> error(String message) {
         return error(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 StrUtil.nullToDefault(message, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
         );
     }
 
-    public static <T> CResult<T> error(Integer code, String message) {
+    public static <DATA> CResult<DATA> error(Integer code, String message) {
         return newInstance(code, message, null);
     }
 
