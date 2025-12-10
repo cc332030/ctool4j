@@ -1,6 +1,4 @@
-package com.c332030.ctool4j.definition.model.result.impl;
-
-import com.c332030.ctool4j.definition.model.result.ICBaseResult;
+package com.c332030.ctool4j.definition.model.result;
 
 /**
  * <p>

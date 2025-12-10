@@ -1,12 +1,13 @@
 package com.c332030.ctool4j.definition.model;
 
+import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * Description: CResult
+ * Description: CIntResult
  * </p>
  *
  * @since 2025/5/13
@@ -15,6 +16,6 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class CResult<DATA> extends com.c332030.ctool4j.definition.model.result.impl.CResult<DATA> implements ICResult<Integer, DATA> {
+public class CResult<DATA> extends CIntResult<DATA> implements ICResult<Integer, DATA> {
 
 }

@@ -2,6 +2,7 @@ package com.c332030.ctool4j.definition.model.result.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.model.result.ICCodeMsgDataResult;
+import com.c332030.ctool4j.definition.model.result.ICIntResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * <p>
- * Description: CResult
+ * Description: CIntResult
  * </p>
  *
  * @since 2025/5/13
@@ -19,7 +20,7 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CResult<DATA> implements ICResult<Integer, DATA>, ICCodeMsgDataResult<Integer, DATA> {
+public class CIntResult<DATA> implements ICIntResult<DATA>, ICCodeMsgDataResult<Integer, DATA> {
 
     Integer code;
 
@@ -27,30 +28,30 @@ public class CResult<DATA> implements ICResult<Integer, DATA>, ICCodeMsgDataResu
 
     DATA data;
 
-    public static <DATA> CResult<DATA> newInstance(Integer code, String message, DATA data) {
-        return CResult.<DATA>builder()
+    public static <DATA> CIntResult<DATA> newInstance(Integer code, String message, DATA data) {
+        return CIntResult.<DATA>builder()
                 .code(code)
                 .msg(message)
                 .data(data)
                 .build();
     }
 
-    public static <DATA> CResult<DATA> success() {
+    public static <DATA> CIntResult<DATA> success() {
         return success(null);
     }
 
-    public static <DATA> CResult<DATA> success(DATA data) {
+    public static <DATA> CIntResult<DATA> success(DATA data) {
         return newInstance(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), data);
     }
 
-    public static <DATA> CResult<DATA> error(String message) {
+    public static <DATA> CIntResult<DATA> error(String message) {
         return error(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 StrUtil.nullToDefault(message, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
         );
     }
 
-    public static <DATA> CResult<DATA> error(Integer code, String message) {
+    public static <DATA> CIntResult<DATA> error(Integer code, String message) {
         return newInstance(code, message, null);
     }
 
