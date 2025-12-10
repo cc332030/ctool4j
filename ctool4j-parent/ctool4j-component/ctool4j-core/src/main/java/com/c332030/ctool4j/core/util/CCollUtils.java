@@ -444,4 +444,16 @@ public class CCollUtils {
         return values;
     }
 
+    /**
+     * 获取集合大小
+     * @param collection 集合
+     * @return 集合大小
+     */
+    public int size(Collection<?> collection) {
+        if(CollUtil.isEmpty(collection)) {
+            return 0;
+        }
+        return collection.size();
+    }
+
 }
