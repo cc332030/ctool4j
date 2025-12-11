@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.exception.CExceptionUtils;
-import com.c332030.ctool4j.definition.model.ICResult;
 import com.c332030.ctool4j.definition.model.result.ICBaseResult;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -82,81 +81,6 @@ public class CResultUtils {
     }
 
     public static <T> T getData(@Nullable ICBaseResult<?, T> result, T defaultValue) {
-
-        assertSuccess(result);
-        return ObjUtil.defaultIfNull(result.getData(), defaultValue);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @Deprecated
-    public static boolean isSuccess(@Nullable ICResult<?, ?> result) {
-
-        val code = Opt.ofNullable(result)
-                .map(ICResult::getCode)
-                .map(StrUtil::toStringOrNull)
-                .orElse(null);
-        if (StrUtil.isBlank(code)) {
-            return false;
-        }
-
-        return SUCCESS_CODES.contains(code);
-    }
-
-    @Deprecated
-    public static boolean isNotSuccess(@Nullable ICResult<?, ?> result) {
-        return !isSuccess(result);
-    }
-
-    @Deprecated
-    @SneakyThrows
-    private static void throwException(ICResult<?, ?> result) {
-
-        val message = StrUtil.format(EXCEPTION_MESSAGE_TEMPLATE, result.getCode(), result.getMessage());
-        throw CExceptionUtils.newBusinessException(null, message);
-    }
-
-    @Deprecated
-    @SneakyThrows
-    public static void assertSuccess(@Nullable ICResult<?, ?> result) {
-
-        if(null == result) {
-            throw CExceptionUtils.newBusinessException(null, "未返回数据");
-        }
-
-        if (isNotSuccess(result)) {
-            throwException(result);
-        }
-    }
-
-    @Deprecated
-    public static <T> T getData(@Nullable ICResult<?, T> result) {
-        return getData(result, null);
-    }
-
-    @Deprecated
-    public static <T> List<T> getDataDefaultEmptyList(@Nullable ICResult<?, List<T>> result) {
-        return getData(result, CList.of());
-    }
-
-    @Deprecated
-    public static <T> T getData(@Nullable ICResult<?, T> result, T defaultValue) {
 
         assertSuccess(result);
         return ObjUtil.defaultIfNull(result.getData(), defaultValue);
