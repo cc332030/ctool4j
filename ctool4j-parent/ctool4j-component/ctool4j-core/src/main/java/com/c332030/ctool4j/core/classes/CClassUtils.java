@@ -28,7 +28,12 @@ import java.util.stream.Collectors;
 public class CClassUtils {
 
     public static final Set<String> BASE_PACKAGES = CSet.of(
-            String.class.getName().split("\\.")[0]
+        "java"
+        , "javax"
+        , "sun"
+        , "com.sun"
+        , "com.oracle"
+        , "jdk"
     );
 
     public static final Set<Class<?>> BASE_CLASSES = CSet.of(
@@ -41,6 +46,10 @@ public class CClassUtils {
             boolean.class,
             char.class
     );
+
+    public String getFirstPackage(Class<?> clazz) {
+        return clazz.getName().split("\\.")[0];
+    }
 
     public boolean isBasicClass(Class<?> clazz) {
 
