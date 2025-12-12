@@ -517,6 +517,27 @@ public class CStrUtils {
     }
 
     /**
+     * 分割字符串取第一个
+     * @param string 需要分割的字符串
+     * @return 分割后的第一个字符串
+     */
+    public String splitThenGetFirst(String string) {
+        val list = splitToList(string);
+        return CCollUtils.first(list);
+    }
+
+    /**
+     * 分割字符串取第一个
+     * @param string 需要分割的字符串
+     * @param separator 分割符
+     * @return 分割后的第一个字符串
+     */
+    public String splitThenGetFirst(String string, String separator) {
+        val list = splitToList(string, separator);
+        return CCollUtils.first(list);
+    }
+
+    /**
      * 连接字符串
      * @param separator 分割符
      * @param strings 字符串数组
