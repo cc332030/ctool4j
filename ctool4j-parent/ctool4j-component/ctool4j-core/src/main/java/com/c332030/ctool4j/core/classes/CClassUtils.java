@@ -36,6 +36,11 @@ public class CClassUtils {
         , "jdk"
     );
 
+    public static final Set<String> BASE_PACKAGES_START = BASE_PACKAGES
+        .stream()
+        .map(e -> e + ".")
+        .collect(Collectors.toSet());
+
     public static final Set<Class<?>> BASE_CLASSES = CSet.of(
             byte.class,
             short.class,
@@ -58,7 +63,7 @@ public class CClassUtils {
         }
 
         val className = clazz.getName();
-        for (val basePackage : BASE_PACKAGES) {
+        for (val basePackage : BASE_PACKAGES_START) {
             if (className.startsWith(basePackage)) {
                 return true;
             }
