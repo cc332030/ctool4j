@@ -7,7 +7,7 @@ import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
-import com.c332030.ctool4j.definition.model.ICResult;
+import com.c332030.ctool4j.definition.model.result.ICBaseResult;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -92,7 +92,7 @@ public class CLogUtils {
     }
 
     private static final Set<Class<?>> JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
-            ICResult.class,
+            ICBaseResult.class,
             Collection.class,
             Map.class
     ));
