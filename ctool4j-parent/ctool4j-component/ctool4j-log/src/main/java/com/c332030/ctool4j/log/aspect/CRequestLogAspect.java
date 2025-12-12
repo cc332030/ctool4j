@@ -34,18 +34,12 @@ public class CRequestLogAspect {
     CRequestLogConfig requestLogConfig;
 
     @Pointcut(
-            "("
-                + "@within(org.springframework.web.bind.annotation.RestController) "
-                + "|| @within(org.springframework.stereotype.Controller) "
-            + ") "
-            + "&& ("
-                + "@annotation(org.springframework.web.bind.annotation.RequestMapping) "
-                + "|| @annotation(org.springframework.web.bind.annotation.GetMapping) "
-                + "|| @annotation(org.springframework.web.bind.annotation.PostMapping) "
-                + "|| @annotation(org.springframework.web.bind.annotation.PutMapping) "
-                + "|| @annotation(org.springframework.web.bind.annotation.PatchMapping) "
-                + "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)"
-            + ")"
+        "@annotation(org.springframework.web.bind.annotation.RequestMapping) "
+            + "|| @annotation(org.springframework.web.bind.annotation.GetMapping) "
+            + "|| @annotation(org.springframework.web.bind.annotation.PostMapping) "
+            + "|| @annotation(org.springframework.web.bind.annotation.PutMapping) "
+            + "|| @annotation(org.springframework.web.bind.annotation.PatchMapping) "
+            + "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)"
     )
     public void annotationPointcut() {}
 
