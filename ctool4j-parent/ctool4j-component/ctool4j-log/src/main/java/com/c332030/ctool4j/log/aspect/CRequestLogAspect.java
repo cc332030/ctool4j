@@ -34,14 +34,20 @@ public class CRequestLogAspect {
     CRequestLogConfig requestLogConfig;
 
     @Pointcut(
-            "@annotation(org.springframework.web.bind.annotation.RequestMapping)"
-                    + " || @annotation(org.springframework.web.bind.annotation.GetMapping)"
-                    + " || @annotation(org.springframework.web.bind.annotation.PostMapping)"
-                    + " || @annotation(org.springframework.web.bind.annotation.PutMapping)"
-                    + " || @annotation(org.springframework.web.bind.annotation.PatchMapping)"
-                    + " || @annotation(org.springframework.web.bind.annotation.DeleteMapping)"
+            "("
+                + "@within(org.springframework.web.bind.annotation.RestController) "
+                + "|| @within(org.springframework.stereotype.Controller) "
+            + ") "
+            + "&& ("
+                + "@annotation(org.springframework.web.bind.annotation.RequestMapping) "
+                + "|| @annotation(org.springframework.web.bind.annotation.GetMapping) "
+                + "|| @annotation(org.springframework.web.bind.annotation.PostMapping) "
+                + "|| @annotation(org.springframework.web.bind.annotation.PutMapping) "
+                + "|| @annotation(org.springframework.web.bind.annotation.PatchMapping) "
+                + "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)"
+            + ")"
     )
-    public void annotationPointcut(){}
+    public void annotationPointcut() {}
 
     @SneakyThrows
     @Around("annotationPointcut()")
@@ -58,7 +64,7 @@ public class CRequestLogAspect {
         var hasRequest = false;
         try {
 
-            if(isLogEnable && (hasRequest = CRequestUtils.hasRequest())) {
+            if (isLogEnable && (hasRequest = CRequestUtils.hasRequest())) {
 
                 CTraceUtils.initTrace();
 
@@ -88,13 +94,13 @@ public class CRequestLogAspect {
         } finally {
 
             costMills = System.currentTimeMillis() - startMills;
-            if(BooleanUtil.isTrue(requestLogConfig.getSlowLogEnable())
-                    && costMills > requestLogConfig.getSlowLogMillis()) {
+            if (BooleanUtil.isTrue(requestLogConfig.getSlowLogEnable())
+                && costMills > requestLogConfig.getSlowLogMillis()) {
                 log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
             }
 
             try {
-                if(isLogEnable && hasRequest) {
+                if (isLogEnable && hasRequest) {
                     CRequestLogUtils.write(result, throwable);
                     CTraceUtils.removeTraceInfo();
                 }
@@ -107,16 +113,16 @@ public class CRequestLogAspect {
 
     private Object dealArg(Object arg) {
 
-        if(null == arg) {
+        if (null == arg) {
             return null;
         }
 
-        if(arg instanceof Serializable) {
+        if (arg instanceof Serializable) {
             return arg;
         }
 
         val argClass = arg.getClass();
-        if(CLogUtils.isJsonLog(argClass)) {
+        if (CLogUtils.isJsonLog(argClass)) {
             return arg;
         }
 
