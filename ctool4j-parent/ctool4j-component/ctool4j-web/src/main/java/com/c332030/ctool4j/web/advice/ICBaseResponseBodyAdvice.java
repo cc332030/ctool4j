@@ -8,7 +8,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
-import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,38 +25,38 @@ public interface ICBaseResponseBodyAdvice<T> extends ResponseBodyAdvice<T> {
 
     @Override
     default boolean supports(
-            @NonNull MethodParameter returnType,
-            @NonNull Class<? extends HttpMessageConverter<?>> converterType
+        MethodParameter returnType,
+        Class<? extends HttpMessageConverter<?>> converterType
     ) {
         return true;
     }
 
     @Override
     default T beforeBodyWrite(
-            T body,
-            @NonNull MethodParameter returnType,
-            @NonNull MediaType selectedContentType,
-            @NonNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
-            @NonNull ServerHttpRequest request,
-            @NonNull ServerHttpResponse response
+        @Nullable T body,
+        MethodParameter returnType,
+        MediaType selectedContentType,
+        Class<? extends HttpMessageConverter<?>> selectedConverterType,
+        ServerHttpRequest request,
+        ServerHttpResponse response
     ) {
 
-        val httpServletRequest = ((ServletServerHttpRequest)request).getServletRequest();
-        val httpServletResponse = ((ServletServerHttpResponse)response).getServletResponse();
+        val httpServletRequest = ((ServletServerHttpRequest) request).getServletRequest();
+        val httpServletResponse = ((ServletServerHttpResponse) response).getServletResponse();
         return beforeBodyWrite(
-                body, returnType, selectedContentType, selectedConverterType,
-                httpServletRequest,
-                httpServletResponse
+            body, returnType, selectedContentType, selectedConverterType,
+            httpServletRequest,
+            httpServletResponse
         );
     }
 
     T beforeBodyWrite(
-            T body,
-            MethodParameter returnType,
-            MediaType selectedContentType,
-            Class<? extends HttpMessageConverter<?>> selectedConverterType,
-            HttpServletRequest request,
-            HttpServletResponse response
+        @Nullable T body,
+        MethodParameter returnType,
+        MediaType selectedContentType,
+        Class<? extends HttpMessageConverter<?>> selectedConverterType,
+        HttpServletRequest request,
+        HttpServletResponse response
     );
 
 }

@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.web.advice;
+package com.c332030.ctool4j.web.exception;
 
 import com.c332030.ctool4j.definition.model.result.ICIntResult;
 import lombok.CustomLog;
