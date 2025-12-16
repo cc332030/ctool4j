@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j</artifactId>
-        <version>0.0.6-SNAPSHOT</version>
+        <version>0.0.6</version>
     </parent>
 
     <artifactId>ctool4j-dependencies</artifactId>
@@ -17,79 +17,79 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-definition</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-core</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-log</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-spring</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-web</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-spring-cloud</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-redis</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-cache</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-nacos</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-transaction</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-db</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mybatis-base</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mybatis-33</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
@@ -101,19 +101,19 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mybatis</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-feign</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-job-base</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
@@ -125,13 +125,13 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-xxl-job</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-excel</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
 
@@ -141,13 +141,13 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-test-definition</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-test-util</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
+                <version>0.0.6</version>
             </dependency>
 
         </dependencies>
