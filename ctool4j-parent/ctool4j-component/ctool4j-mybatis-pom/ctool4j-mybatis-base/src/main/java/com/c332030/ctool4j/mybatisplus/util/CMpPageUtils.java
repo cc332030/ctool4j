@@ -21,7 +21,7 @@ public class CMpPageUtils {
      * @param <T> 泛型
      */
     public <T> Page<T> emptyPage(ICPage iCPage) {
-        return new Page<T>(iCPage.getPageNum(), iCPage.getPageSize(), 0);
+        return new Page<>(iCPage.getPageNum(), iCPage.getPageSize(), 0);
     }
 
 }
