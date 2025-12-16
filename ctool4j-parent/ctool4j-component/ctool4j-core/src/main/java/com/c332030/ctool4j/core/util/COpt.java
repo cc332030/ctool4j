@@ -75,7 +75,7 @@ public class COpt<T> {
         if(StrUtil.isEmpty(value)) {
             return empty();
         }
-        return new COpt<>(value);
+        return of(value);
     }
 
     /**
@@ -88,7 +88,7 @@ public class COpt<T> {
         if(StrUtil.isBlank(value)) {
             return empty();
         }
-        return new COpt<>(value);
+        return of(value);
     }
 
     /**
@@ -102,7 +102,7 @@ public class COpt<T> {
         if(IterUtil.isEmpty(value)) {
             return empty();
         }
-        return new COpt<>(value);
+        return of(value);
     }
 
     /**
@@ -116,7 +116,7 @@ public class COpt<T> {
         if(CollUtil.isEmpty(value)) {
             return empty();
         }
-        return new COpt<>(value);
+        return of(value);
     }
 
     /**
