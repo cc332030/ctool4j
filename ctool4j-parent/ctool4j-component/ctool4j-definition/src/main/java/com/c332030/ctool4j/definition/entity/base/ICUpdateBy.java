@@ -14,7 +14,11 @@ public interface ICUpdateBy {
     @ApiModelProperty("更新人ID")
     Long getUpdateById();
 
+    void setUpdateById(Long updateById);
+
     @ApiModelProperty("更新人")
     String getUpdateBy();
+
+    void setUpdateBy(String updateBy);
 
 }
