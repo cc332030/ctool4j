@@ -19,7 +19,7 @@ public class COptTests {
     @Test
     public void of() {
 
-        Assertions.assertThrowsExactly(NullPointerException.class, () -> COpt.of((Object) null));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> COpt.of(null));
 
     }
 

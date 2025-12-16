@@ -27,7 +27,7 @@ import java.util.Objects;
  * @since 2025/12/6
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class COpt<T> {
+public final class COpt<T> {
 
     public static final COpt<?> EMPTY = new COpt<>(null);
 
