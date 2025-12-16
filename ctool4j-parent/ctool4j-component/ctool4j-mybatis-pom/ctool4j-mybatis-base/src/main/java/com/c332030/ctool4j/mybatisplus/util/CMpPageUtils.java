@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.util;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.c332030.ctool4j.mybatis.model.ICPage;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -11,5 +13,15 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class CMpPageUtils {
+
+    /**
+     * 创建一个空的Page
+     * @param iCPage iCPage
+     * @return Page
+     * @param <T> 泛型
+     */
+    public <T> Page<T> emptyPage(ICPage iCPage) {
+        return new Page<>(iCPage.getPageNum(), iCPage.getPageSize(), 0);
+    }
 
 }
