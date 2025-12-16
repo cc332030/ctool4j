@@ -94,12 +94,6 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-mybatis-34</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mybatis</artifactId>
                 <version>0.0.7-SNAPSHOT</version>
             </dependency>
@@ -114,12 +108,6 @@
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-job-base</artifactId>
                 <version>0.0.7-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-job</artifactId>
-                <version>0.0.6-SNAPSHOT</version>
             </dependency>
 
             <dependency>
