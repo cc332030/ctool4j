@@ -31,7 +31,7 @@ public class COpt<T> {
 
     public static final COpt<?> EMPTY = new COpt<>(null);
 
-    protected final T value;
+    final T value;
 
     /**
      * 返回空 COpt
