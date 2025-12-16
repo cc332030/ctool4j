@@ -10,9 +10,7 @@ import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -26,8 +24,8 @@ import java.util.LinkedHashMap;
  * @since 2024/5/6
  */
 @CustomLog
-@Aspect
-@Component
+//@Aspect
+//@Component
 @AllArgsConstructor
 public class CRequestLogAspect {
 
