@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>ctool4j-knife4j-openapi2</module>
+        <module>ctool4j-doc-openapi2</module>
     </modules>
 
 </project>
