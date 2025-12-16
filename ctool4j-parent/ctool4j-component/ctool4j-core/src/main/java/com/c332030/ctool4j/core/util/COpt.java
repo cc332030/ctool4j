@@ -26,12 +26,12 @@ import java.util.Objects;
  *
  * @since 2025/12/6
  */
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class COpt<T> {
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class COpt<T> {
 
     public static final COpt<?> EMPTY = new COpt<>(null);
 
-    final T value;
+    protected final T value;
 
     /**
      * 返回空 COpt
