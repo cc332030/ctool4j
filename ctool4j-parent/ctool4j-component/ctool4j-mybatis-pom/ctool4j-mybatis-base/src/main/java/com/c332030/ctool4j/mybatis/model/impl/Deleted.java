@@ -1,6 +1,7 @@
-package com.c332030.ctool4j.mybatis.model;
+package com.c332030.ctool4j.mybatis.model.impl;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.c332030.ctool4j.mybatis.model.IDeleted;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
