@@ -18,7 +18,7 @@ import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration
 public class COpenApi2Configuration {
 
     @Bean
-    public CNotEmptyAnnotationPlugin cNotEmptyAnnotationPlugin() {
+    public CNotEmptyAnnotationPlugin cExpanderNotEmpty() {
         return new CNotEmptyAnnotationPlugin();
     }
 
