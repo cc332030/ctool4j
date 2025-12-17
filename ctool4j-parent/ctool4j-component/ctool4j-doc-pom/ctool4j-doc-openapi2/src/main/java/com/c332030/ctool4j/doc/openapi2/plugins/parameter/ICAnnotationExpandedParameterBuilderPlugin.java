@@ -1,9 +1,9 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.parameter;
 
+import lombok.val;
 import springfox.documentation.spi.service.contexts.ParameterExpansionContext;
 
 import java.lang.annotation.Annotation;
-import java.util.Optional;
 
 /**
  * <p>
@@ -17,7 +17,7 @@ public interface ICAnnotationExpandedParameterBuilderPlugin<T extends Annotation
     @Override
     default void apply(ParameterExpansionContext context) {
 
-        Optional<T> annotationOpt = context.findAnnotation(getAnnotationClass());
+        val annotationOpt = context.findAnnotation(getAnnotationClass());
         if (annotationOpt.isPresent()) {
             context.getParameterBuilder().required(true);
         }
