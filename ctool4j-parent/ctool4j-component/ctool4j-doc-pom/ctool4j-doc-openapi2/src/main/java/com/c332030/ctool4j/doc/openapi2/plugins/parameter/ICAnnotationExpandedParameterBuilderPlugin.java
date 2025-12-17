@@ -17,8 +17,8 @@ public interface ICAnnotationExpandedParameterBuilderPlugin<T extends Annotation
     @Override
     default void apply(ParameterExpansionContext context) {
 
-        Optional<T> notNull = context.findAnnotation(getAnnotationClass());
-        if (notNull.isPresent()) {
+        Optional<T> annotationOpt = context.findAnnotation(getAnnotationClass());
+        if (annotationOpt.isPresent()) {
             context.getParameterBuilder().required(true);
         }
     }
