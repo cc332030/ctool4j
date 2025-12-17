@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.c332030.ctool4j.core.util.CIdUtils;
+import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 
 /**
  * <p>
@@ -15,11 +15,11 @@ public interface ICBizIdService<ENTITY> extends IService<ENTITY> {
     Class<ENTITY> getEntityClass();
 
     default String getBizId() {
-        return CIdUtils.nextIdWithPrefix(getEntityClass());
+        return CBizIdUtils.getBizId(getEntityClass());
     }
 
     default String getBizId(int length) {
-        return CIdUtils.nextIdWithPrefix(getEntityClass(), length);
+        return CBizIdUtils.getBizId(getEntityClass(), length);
     }
 
 }
