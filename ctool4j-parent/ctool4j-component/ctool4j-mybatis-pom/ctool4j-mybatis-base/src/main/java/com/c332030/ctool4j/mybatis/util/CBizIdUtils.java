@@ -55,7 +55,7 @@ public class CBizIdUtils {
         }
 
         val cBizId = field.getAnnotation(CBizId.class);
-        val prefix = cBizId.prefix();
+        val prefix = cBizId.value();
 
         val bizId = StrUtil.isNotBlank(prefix)
             ? CIdUtils.nextIdWithPrefix(prefix)
