@@ -16,6 +16,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CBizId {
 
-    String value();
+    String value() default "";
 
 }
