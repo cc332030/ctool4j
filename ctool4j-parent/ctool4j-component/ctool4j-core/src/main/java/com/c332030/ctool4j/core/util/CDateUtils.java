@@ -6,10 +6,7 @@ import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.Date;
 
 /**
@@ -215,8 +212,7 @@ public class CDateUtils {
         if(null == localDateTime) {
             return null;
         }
-        return localDateTime.atZone(DEFAULT_ZONE_ID)
-            .toInstant();
+        return toZonedDateTime(localDateTime).toInstant();
     }
 
     /**
@@ -229,6 +225,27 @@ public class CDateUtils {
             return null;
         }
         return toInstant(localDate.atStartOfDay());
+    }
+
+    public ZonedDateTime toZonedDateTime(Date date) {
+        if(null == date) {
+            return null;
+        }
+        return toZonedDateTime(toInstant(date));
+    }
+
+    public ZonedDateTime toZonedDateTime(LocalDateTime localDateTime) {
+        if(null == localDateTime) {
+            return null;
+        }
+        return localDateTime.atZone(DEFAULT_ZONE_ID);
+    }
+
+    public ZonedDateTime toZonedDateTime(Instant instant) {
+        if(null == instant) {
+            return null;
+        }
+        return ZonedDateTime.ofInstant(instant, DEFAULT_ZONE_ID);
     }
 
 }
