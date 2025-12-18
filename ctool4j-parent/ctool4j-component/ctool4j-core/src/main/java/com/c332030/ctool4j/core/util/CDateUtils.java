@@ -23,6 +23,8 @@ import java.util.Date;
 @UtilityClass
 public class CDateUtils {
 
+    public static final Instant INITIAL_INSTANT = Instant.ofEpochMilli(0);
+
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
     public Date initialDate() {
