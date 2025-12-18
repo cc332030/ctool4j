@@ -24,7 +24,19 @@ public class CAmountUtils {
         if(null == value) {
             return null;
         }
+        return toCent(new BigDecimal(value));
+    }
 
+    /**
+     * 分转元
+     * @param value 分
+     * @return 元
+     */
+    public BigDecimal toCent(Long value) {
+
+        if(null == value) {
+            return null;
+        }
         return toCent(new BigDecimal(value));
     }
 
