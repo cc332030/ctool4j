@@ -16,4 +16,6 @@ public interface ICUpdateTime {
     @ApiModelProperty("更新时间")
     Date getUpdateTime();
 
+    void setUpdateTime(Date updateTime);
+
 }

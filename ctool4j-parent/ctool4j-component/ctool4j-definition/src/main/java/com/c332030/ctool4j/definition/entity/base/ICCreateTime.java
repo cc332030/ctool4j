@@ -16,4 +16,6 @@ public interface ICCreateTime {
     @ApiModelProperty("创建时间")
     Date getCreateTime();
 
+    void setCreateTime(Date createTime);
+
 }
