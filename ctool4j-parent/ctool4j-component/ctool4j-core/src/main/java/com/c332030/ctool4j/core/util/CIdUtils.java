@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.annotation.CIdPrefix;
+import com.c332030.ctool4j.definition.entity.base.ICId;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -54,6 +55,24 @@ public class CIdUtils {
 
     public String nextIdWithPrefix(Class<?> clazz, int length) {
         return nextIdWithPrefix(getPrefix(clazz, length));
+    }
+
+    /**
+     * 清空ID
+     * @param entity 实体
+     */
+    public void clearId(Object entity) {
+        if(entity instanceof ICId) {
+            clearId((ICId<?>)entity);
+        }
+    }
+
+    /**
+     * 清空ID
+     * @param entity 实体
+     */
+    public void clearId(ICId<?> entity) {
+        entity.setId(null);
     }
 
 }

@@ -14,4 +14,6 @@ public interface ICId<T> {
     @ApiModelProperty("主键")
     T getId();
 
+    void setId(T id);
+
 }

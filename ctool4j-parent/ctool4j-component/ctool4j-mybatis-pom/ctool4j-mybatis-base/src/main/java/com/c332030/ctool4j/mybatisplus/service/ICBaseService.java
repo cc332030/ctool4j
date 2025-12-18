@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
@@ -41,6 +42,7 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
     default ENTITY getEntity(Object... sources) {
         val entity = getEntity();
         CBeanUtils.copyFromArr(sources, entity);
+        CIdUtils.clearId(entity);
         return entity;
     }
 
