@@ -227,6 +227,11 @@ public class CDateUtils {
         return toInstant(localDate.atStartOfDay());
     }
 
+    /**
+     * Date 转 ZonedDateTime
+     * @param date date
+     * @return ZonedDateTime
+     */
     public ZonedDateTime toZonedDateTime(Date date) {
         if(null == date) {
             return null;
@@ -234,6 +239,11 @@ public class CDateUtils {
         return toZonedDateTime(toInstant(date));
     }
 
+    /**
+     * LocalDateTime 转 ZonedDateTime
+     * @param localDateTime localDateTime
+     * @return ZonedDateTime
+     */
     public ZonedDateTime toZonedDateTime(LocalDateTime localDateTime) {
         if(null == localDateTime) {
             return null;
@@ -241,6 +251,11 @@ public class CDateUtils {
         return localDateTime.atZone(DEFAULT_ZONE_ID);
     }
 
+    /**
+     * Instant 转 ZonedDateTime
+     * @param instant instant
+     * @return ZonedDateTime
+     */
     public ZonedDateTime toZonedDateTime(Instant instant) {
         if(null == instant) {
             return null;
