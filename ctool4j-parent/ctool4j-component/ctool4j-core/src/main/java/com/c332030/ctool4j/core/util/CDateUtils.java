@@ -7,6 +7,9 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -19,6 +22,8 @@ import java.util.Date;
 @CustomLog
 @UtilityClass
 public class CDateUtils {
+
+    public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
     /**
      * 格式化日期时间字符串
@@ -175,6 +180,28 @@ public class CDateUtils {
             return null;
         }
         return Instant.ofEpochMilli(mills);
+    }
+
+    /**
+     * LocalDateTime 转 Date
+     * @param localDateTime localDateTime
+     * @return Date
+     */
+    public Instant toInstant(LocalDateTime localDateTime) {
+        if(null == localDateTime) {
+            return null;
+        }
+        return localDateTime.atZone(DEFAULT_ZONE_ID)
+            .toInstant();
+    }
+
+    /**
+     * LocalDate 转 Date
+     * @param localDate localDate
+     * @return Date
+     */
+    public Instant toInstant(LocalDate localDate) {
+        return toInstant(localDate.atStartOfDay());
     }
 
 }
