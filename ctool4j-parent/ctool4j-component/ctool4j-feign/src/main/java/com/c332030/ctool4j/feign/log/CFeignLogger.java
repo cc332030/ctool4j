@@ -113,7 +113,7 @@ public class CFeignLogger extends Logger {
         String type
     ) {
 
-        httpLog.append("\n");
+        httpLog.append("\n\n");
         if(ArrayUtil.isEmpty(bodyBytes)) {
 
             httpLog.append("[no ");
