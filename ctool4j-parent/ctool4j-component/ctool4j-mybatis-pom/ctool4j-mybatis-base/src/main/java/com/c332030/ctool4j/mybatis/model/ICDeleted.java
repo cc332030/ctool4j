@@ -2,12 +2,12 @@ package com.c332030.ctool4j.mybatis.model;
 
 /**
  * <p>
- * Description: IDeleted
+ * Description: ICDeleted
  * </p>
  *
  * @since 2025/12/16
  */
-public interface IDeleted {
+public interface ICDeleted {
 
     Boolean getDeleted();
 
