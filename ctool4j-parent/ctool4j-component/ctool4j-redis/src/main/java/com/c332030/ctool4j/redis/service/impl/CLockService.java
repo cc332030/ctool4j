@@ -101,6 +101,14 @@ public class CLockService {
         return tryLockThenRun(key, waitDuration, valueSupplier, null);
     }
 
+    /**
+     * 尝试加锁并执行
+     * @param key 锁key
+     * @param waitDuration 等锁时长
+     * @param runnable 锁成功操作
+     * @param failureRunnable 锁失败操作
+     * @return 操作结果
+     */
     public boolean tryLockThenRun(String key, Duration waitDuration,
                                   CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), failureRunnable);
