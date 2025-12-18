@@ -159,6 +159,24 @@ public class CDateUtils {
     }
 
     /**
+     * LocalDateTime 转 Date
+     * @param localDateTime localDateTime
+     * @return Date
+     */
+    public Date toDate(LocalDateTime localDateTime) {
+        return toDate(toInstant(localDateTime));
+    }
+
+    /**
+     * LocalDate 转 Date
+     * @param localDate localDate
+     * @return Date
+     */
+    public Date toDate(LocalDate localDate) {
+        return toDate(toInstant(localDate));
+    }
+
+    /**
      * Date 转 Instant
      * @param date Date
      * @return Instant
@@ -183,7 +201,7 @@ public class CDateUtils {
     }
 
     /**
-     * LocalDateTime 转 Date
+     * LocalDateTime 转 Instant
      * @param localDateTime localDateTime
      * @return Date
      */
@@ -196,11 +214,14 @@ public class CDateUtils {
     }
 
     /**
-     * LocalDate 转 Date
+     * LocalDate 转 Instant
      * @param localDate localDate
      * @return Date
      */
     public Instant toInstant(LocalDate localDate) {
+        if(null == localDate) {
+            return null;
+        }
         return toInstant(localDate.atStartOfDay());
     }
 
