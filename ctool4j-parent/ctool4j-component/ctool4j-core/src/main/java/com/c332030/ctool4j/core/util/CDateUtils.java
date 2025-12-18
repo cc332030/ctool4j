@@ -25,7 +25,7 @@ public class CDateUtils {
 
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
-    public Date initialTime() {
+    public Date initialDate() {
         return new Date(0);
     }
 
