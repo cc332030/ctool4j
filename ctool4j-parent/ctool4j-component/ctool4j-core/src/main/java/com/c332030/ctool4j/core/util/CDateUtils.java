@@ -25,6 +25,10 @@ public class CDateUtils {
 
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
+    public Date initialTime() {
+        return new Date(0);
+    }
+
     /**
      * 格式化日期时间字符串
      * @param instant Instant
