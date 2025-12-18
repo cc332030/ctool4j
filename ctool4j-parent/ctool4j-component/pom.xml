@@ -29,8 +29,10 @@
         <module>ctool4j-job-pom</module>
         <module>ctool4j-data-pom</module>
         <module>ctool4j-doc-pom</module>
-
         <module>ctool4j-test-pom</module>
+
+        <module>ctool4j-wechat-pom</module>
+
     </modules>
 
     <dependencies>

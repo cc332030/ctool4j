@@ -128,6 +128,12 @@
                 <version>0.0.7-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-wechat-base</artifactId>
+                <version>0.0.7-SNAPSHOT</version>
+            </dependency>
+
 
 
 
