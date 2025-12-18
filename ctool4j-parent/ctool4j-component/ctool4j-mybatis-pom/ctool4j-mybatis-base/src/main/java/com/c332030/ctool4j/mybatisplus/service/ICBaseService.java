@@ -38,34 +38,20 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         return CReflectUtils.newInstance(getEntityClass());
     }
 
+    default ENTITY getEntity(Object... sources) {
+        val entity = getEntity();
+        CBeanUtils.copyFromArr(sources, entity);
+        return entity;
+    }
+
     default ENTITY getEntityWithBizId() {
-
         val entity = getEntity();
         CBizIdUtils.setBizId(entity, this);
         return entity;
     }
 
-    default ENTITY getEntity(Object source) {
-        return getEntity(source, null);
-    }
-
-    default ENTITY getEntityWithBizId(Object source) {
-        val entity = getEntity(source);
-        CBizIdUtils.setBizId(entity, this);
-        return entity;
-    }
-
-    default ENTITY getEntity(Object source, ENTITY old) {
-        val entity = getEntity();
-        if(null != old) {
-            CBeanUtils.copy(old, entity);
-        }
-        CBeanUtils.copy(source, entity);
-        return entity;
-    }
-
-    default ENTITY getEntityWithBizId(Object source, ENTITY old) {
-        val entity = getEntity(source, old);
+    default ENTITY getEntityWithBizId(Object... sources) {
+        val entity = getEntity(sources);
         CBizIdUtils.setBizId(entity, this);
         return entity;
     }
