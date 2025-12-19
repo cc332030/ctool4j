@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 /**
@@ -81,17 +82,127 @@ public class CDateUtilsTests {
     }
 
     @Test
-    public void plus() {
+    public void plusSecond() {
 
-        val dateStr1 = "2025-03-03";
-        val dateStr2 = "2025-03-04";
+        val dateStr = DATE_STR + " 08:01:04";
 
-        Assertions.assertEquals(dateStr2, CDateUtils.formatDate(
-            CDateUtils.plus(CDateUtils.parseInstant(dateStr1), Duration.ofDays(1))
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofSeconds(1))
+        ));
+        Assertions.assertEquals(dateStr, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofSeconds(1))
         ));
 
-        Assertions.assertEquals(dateStr2, DateUtil.formatDate(
-            CDateUtils.plus(DateUtil.parseDate(dateStr1), Duration.ofDays(1))
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofSeconds(0))
+        ));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofSeconds(0))
+        ));
+
+    }
+
+    @Test
+    public void plusMinute() {
+
+        val dateStr = DATE_STR + " 08:02:03";
+
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofMinutes(1))
+        ));
+        Assertions.assertEquals(dateStr, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofMinutes(1))
+        ));
+
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofMinutes(0))
+        ));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofMinutes(0))
+        ));
+
+    }
+
+    @Test
+    public void plusHour() {
+
+        val dateStr = DATE_STR + " 09:01:03";
+
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofHours(1))
+        ));
+        Assertions.assertEquals(dateStr, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofHours(1))
+        ));
+
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofHours(0))
+        ));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofHours(0))
+        ));
+
+    }
+
+    @Test
+    public void plusDay() {
+
+        val dateStr = "2025-03-04 " + TIME_STR;
+
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofDays(1))
+        ));
+        Assertions.assertEquals(dateStr, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofDays(1))
+        ));
+
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), Duration.ofDays(0))
+        ));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), Duration.ofDays(0))
+        ));
+
+    }
+
+    @Test
+    public void plusMonth() {
+
+        val dateStr = "2025-04-03 " + TIME_STR;
+
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), 1, ChronoUnit.MONTHS)
+        ));
+        Assertions.assertEquals(dateStr, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), 1, ChronoUnit.MONTHS)
+        ));
+
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), 0, ChronoUnit.MONTHS)
+        ));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), 0, ChronoUnit.MONTHS)
+        ));
+
+    }
+
+    @Test
+    public void plusYear() {
+
+        val dateStr = "2026-03-03 " + TIME_STR;
+
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), 1, ChronoUnit.YEARS)
+        ));
+        Assertions.assertEquals(dateStr, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), 1, ChronoUnit.YEARS)
+        ));
+
+        Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), 0, ChronoUnit.YEARS)
+        ));
+        Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
+            CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), 0, ChronoUnit.YEARS)
         ));
 
     }
