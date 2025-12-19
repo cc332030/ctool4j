@@ -20,10 +20,16 @@ import java.util.List;
 @UtilityClass
 public class CEntityUtils {
 
+    /**
+     * 清除方法
+     */
     private static final List<Method> CLEAR_METHODS = CReflectUtils.getMethodsByName(
             CEntityUtils.class, "clear"
     );
 
+    /**
+     * 各实体类清除方法缓存
+     */
     private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(type -> {
 
         for (int i = CLEAR_METHODS.size() - 1; i >= 0; i--) {
@@ -38,6 +44,10 @@ public class CEntityUtils {
         return CConsumer.empty();
     });
 
+    /**
+     * 清空实体
+     * @param entity 实体
+     */
     public void clear(Object entity) {
         CLEAN_ENTITY_CONSUMER.get(entity.getClass())
                 .accept(entity);
