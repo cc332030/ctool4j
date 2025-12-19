@@ -1,7 +1,14 @@
 package com.c332030.ctool4j.core.util;
 
+import com.c332030.ctool4j.core.cache.impl.CClassValue;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.entity.base.*;
+import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.experimental.UtilityClass;
+import lombok.val;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * <p>
@@ -12,6 +19,29 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class CEntityUtils {
+
+    private static final List<Method> CLEAR_METHODS = CReflectUtils.getMethodsByName(
+            CEntityUtils.class, "clear"
+    );
+
+    private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(type -> {
+
+        for (int i = CLEAR_METHODS.size() - 1; i >= 0; i--) {
+
+            val method = CLEAR_METHODS.get(i);
+            val param0 = method.getParameterTypes()[0];
+            if(param0 != Object.class && param0.isAssignableFrom(type)) {
+                return e -> method.invoke(null, e);
+            }
+        }
+
+        return CConsumer.empty();
+    });
+
+    public void clear(Object entity) {
+        CLEAN_ENTITY_CONSUMER.get(entity.getClass())
+                .accept(entity);
+    }
 
     /**
      * 清空实体
