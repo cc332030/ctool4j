@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
@@ -225,6 +226,28 @@ public class CNumUtils {
         if(!checkOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
+    }
+
+    /**
+     * Long 转换为 Integer
+     * @param value 值
+     * @return Integer
+     */
+    public Integer toInt(Long value) {
+        if(null == value) {
+            return null;
+        }
+        assertOverflow(value);
+        return value.intValue();
+    }
+
+    /**
+     * Integer 转换为 Long
+     * @param value 值
+     * @return Long
+     */
+    public Long toLong(Integer value) {
+        return CObjUtils.convert(value, Integer::longValue);
     }
 
 }
