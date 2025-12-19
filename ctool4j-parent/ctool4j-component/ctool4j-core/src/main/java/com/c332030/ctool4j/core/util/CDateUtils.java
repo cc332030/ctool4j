@@ -2,11 +2,13 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.time.*;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 /**
@@ -264,33 +266,76 @@ public class CDateUtils {
     }
 
     /**
-     * Instant 加上指定时间
+     * Instant 计算
      * @param value 时间
+     * @param function 函数
      * @return 结果
      */
-    public Instant plus(Instant value, Duration duration) {
+    public Instant calc(Instant value, CFunction<ZonedDateTime, ZonedDateTime> function) {
 
         if(null == value) {
             return null;
         }
 
         val zonedDateTime = toZonedDateTime(value);
-        return zonedDateTime.plus(duration)
-            .toInstant();
+        val result = function.apply(zonedDateTime);
+        return result.toInstant();
+    }
+
+    /**
+     * Instant 计算
+     * @param value 时间
+     * @param function 函数
+     * @return 结果
+     */
+    public Date calc(Date value, CFunction<ZonedDateTime, ZonedDateTime> function) {
+        return toDate(calc(toInstant(value), function));
+    }
+
+    /**
+     * Instant 加上指定时间
+     * @param value 时间
+     * @param amount 数量
+     * @param unit 单位
+     * @return 结果
+     */
+    public Instant plus(Instant value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.plus(amount, unit));
+    }
+
+    /**
+     * Instant 加上指定时间
+     * @param value 时间
+     * @param duration 指定时间段
+     * @return 结果
+     */
+    public Instant plus(Instant value, Duration duration) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.plus(duration));
     }
 
     /**
      * Date 加上指定时间
      * @param value 时间
+     * @param amount 数量
+     * @param unit 单位
+     * @return 结果
+     */
+    public Date plus(Date value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.plus(amount, unit));
+    }
+
+    /**
+     * Date 加上指定时间
+     * @param value 时间
+     * @param duration 指定时间段
      * @return 结果
      */
     public Date plus(Date value, Duration duration) {
-
-        if(null == value) {
-            return null;
-        }
-
-        return toDate(plus(toInstant(value), duration));
+        return calc(value, zonedDateTime ->
+            zonedDateTime.plus(duration));
     }
 
 }
