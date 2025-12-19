@@ -263,4 +263,34 @@ public class CDateUtils {
         return ZonedDateTime.ofInstant(instant, DEFAULT_ZONE_ID);
     }
 
+    /**
+     * Instant 加上指定时间
+     * @param value 时间
+     * @return 结果
+     */
+    public Instant plus(Instant value, Duration duration) {
+
+        if(null == value) {
+            return null;
+        }
+
+        val zonedDateTime = toZonedDateTime(value);
+        return zonedDateTime.plus(duration)
+            .toInstant();
+    }
+
+    /**
+     * Date 加上指定时间
+     * @param value 时间
+     * @return 结果
+     */
+    public Date plus(Date value, Duration duration) {
+
+        if(null == value) {
+            return null;
+        }
+
+        return toDate(plus(toInstant(value), duration));
+    }
+
 }

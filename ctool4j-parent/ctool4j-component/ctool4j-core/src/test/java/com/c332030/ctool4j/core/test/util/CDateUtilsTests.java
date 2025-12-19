@@ -3,9 +3,11 @@ package com.c332030.ctool4j.core.test.util;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.util.CDateUtils;
+import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
@@ -75,6 +77,22 @@ public class CDateUtilsTests {
         Assertions.assertNull(CDateUtils.toInstant((Date) null));
         Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(CDateUtils.toInstant(MILLS)));
         Assertions.assertEquals(DATE_TIME_STR, CDateUtils.formatDateTime(CDateUtils.toInstant(DATE)));
+
+    }
+
+    @Test
+    public void plus() {
+
+        val dateStr1 = "2025-03-03";
+        val dateStr2 = "2025-03-04";
+
+        Assertions.assertEquals(dateStr2, CDateUtils.formatDate(
+            CDateUtils.plus(CDateUtils.parseInstant(dateStr1), Duration.ofDays(1))
+        ));
+
+        Assertions.assertEquals(dateStr2, DateUtil.formatDate(
+            CDateUtils.plus(DateUtil.parseDate(dateStr1), Duration.ofDays(1))
+        ));
 
     }
 
