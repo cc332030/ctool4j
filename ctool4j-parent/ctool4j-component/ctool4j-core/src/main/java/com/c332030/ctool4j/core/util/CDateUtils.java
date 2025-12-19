@@ -1,8 +1,11 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.definition.function.CBiFunction;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -11,6 +14,7 @@ import lombok.var;
 
 import java.time.*;
 import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -319,6 +323,85 @@ public class CDateUtils {
     }
 
     /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Instant calc(
+        Instant value,
+        Collection<T> collection,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(CollUtil.isEmpty(collection)) {
+            return value;
+        }
+        return calc(value, zonedDateTime -> {
+
+            var zonedDateTimeNew = zonedDateTime;
+            for (T t : collection) {
+                zonedDateTimeNew = function.apply(zonedDateTimeNew, t);
+            }
+            return zonedDateTimeNew;
+        });
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Date calc(
+        Date value,
+        Collection<T> collection,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(CollUtil.isEmpty(collection)) {
+            return value;
+        }
+        return toDate(calc(toInstant(value), collection, function));
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Instant calc(
+        Instant value,
+        T[] arr,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(ArrayUtil.isEmpty(arr)) {
+            return value;
+        }
+        return calc(value, Arrays.asList(arr), function);
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Date calc(
+        Date value,
+        T[] arr,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(ArrayUtil.isEmpty(arr)) {
+            return value;
+        }
+        return calc(value, Arrays.asList(arr), function);
+    }
+
+    /**
      * Instant 加上指定时间
      *
      * @param value  时间
@@ -332,6 +415,19 @@ public class CDateUtils {
     }
 
     /**
+     * Instant 减去指定时间
+     *
+     * @param value  时间
+     * @param amount 数量
+     * @param unit   单位
+     * @return 结果
+     */
+    public Instant minus(Instant value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.minus(amount, unit));
+    }
+
+    /**
      * Instant 加上指定时间
      *
      * @param value  时间
@@ -339,13 +435,20 @@ public class CDateUtils {
      * @return 结果
      */
     public Instant plus(Instant value, Collection<Pair<Long, TemporalUnit>> pairs) {
-        return calc(value, zonedDateTime -> {
-            var zonedDateTimeNew = zonedDateTime;
-            for (val pair : pairs) {
-                zonedDateTimeNew = zonedDateTimeNew.plus(pair.getKey(), pair.getValue());
-            }
-            return zonedDateTimeNew;
-        });
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.plus(pair.getKey(), pair.getValue()));
+    }
+
+    /**
+     * Instant 减去指定时间
+     *
+     * @param value  时间
+     * @param pairs 数量、单位集合
+     * @return 结果
+     */
+    public Instant minus(Instant value, Collection<Pair<Long, TemporalUnit>> pairs) {
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.minus(pair.getKey(), pair.getValue()));
     }
 
     /**
@@ -356,14 +459,18 @@ public class CDateUtils {
      * @return 结果
      */
     public Instant plus(Instant value, Duration... durations) {
-        return calc(value, zonedDateTime -> {
+        return calc(value, durations, ZonedDateTime::plus);
+    }
 
-            var zonedDateTimeNew = zonedDateTime;
-            for (val duration : durations) {
-                zonedDateTimeNew = zonedDateTimeNew.plus(duration);
-            }
-            return zonedDateTimeNew;
-        });
+    /**
+     * Instant 减去指定时间
+     *
+     * @param value     时间
+     * @param durations 指定时间段
+     * @return 结果
+     */
+    public Instant minus(Instant value, Duration... durations) {
+        return calc(value, durations, ZonedDateTime::minus);
     }
 
     /**
@@ -380,6 +487,19 @@ public class CDateUtils {
     }
 
     /**
+     * Date 减去指定时间
+     *
+     * @param value  时间
+     * @param amount 数量
+     * @param unit   单位
+     * @return 结果
+     */
+    public Date minus(Date value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.minus(amount, unit));
+    }
+
+    /**
      * Date 加上指定时间
      *
      * @param value 时间
@@ -387,13 +507,20 @@ public class CDateUtils {
      * @return 结果
      */
     public Date plus(Date value, Collection<Pair<Long, TemporalUnit>> pairs) {
-        return calc(value, zonedDateTime -> {
-            var zonedDateTimeNew = zonedDateTime;
-            for (val pair : pairs) {
-                zonedDateTimeNew = zonedDateTimeNew.plus(pair.getKey(), pair.getValue());
-            }
-            return zonedDateTimeNew;
-        });
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.plus(pair.getKey(), pair.getValue()));
+    }
+
+    /**
+     * Date 减去指定时间
+     *
+     * @param value 时间
+     * @param pairs 数量、单位集合
+     * @return 结果
+     */
+    public Date minus(Date value, Collection<Pair<Long, TemporalUnit>> pairs) {
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.minus(pair.getKey(), pair.getValue()));
     }
 
     /**
@@ -404,14 +531,18 @@ public class CDateUtils {
      * @return 结果
      */
     public Date plus(Date value, Duration... durations) {
-        return calc(value, zonedDateTime -> {
+        return calc(value, durations, ZonedDateTime::plus);
+    }
 
-            var zonedDateTimeNew = zonedDateTime;
-            for (val duration : durations) {
-                zonedDateTimeNew = zonedDateTimeNew.plus(duration);
-            }
-            return zonedDateTimeNew;
-        });
+    /**
+     * Date 减去指定时间
+     *
+     * @param value     时间
+     * @param durations 指定时间段
+     * @return 结果
+     */
+    public Date minus(Date value, Duration... durations) {
+        return calc(value, durations, ZonedDateTime::minus);
     }
 
 }
