@@ -229,6 +229,24 @@ public class CNumUtils {
     }
 
     /**
+     * 是否为空或0
+     * @param value 值
+     * @return boolean
+     */
+    public boolean isNullOrZero(Integer value) {
+        return value == null || value == 0;
+    }
+
+    /**
+     * 是否为空或0
+     * @param value 值
+     * @return boolean
+     */
+    public boolean isNullOrZero(Long value) {
+        return value == null || value == 0;
+    }
+
+    /**
      * Long 转换为 Integer
      * @param value 值
      * @return Integer
