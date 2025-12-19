@@ -2,7 +2,9 @@ package com.c332030.ctool4j.core.test.util;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Pair;
 import com.c332030.ctool4j.core.util.CDateUtils;
+import com.c332030.ctool4j.core.util.CList;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -203,6 +205,24 @@ public class CDateUtilsTests {
         ));
         Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(
             CDateUtils.plus(DateUtil.parseDateTime(DATE_TIME_STR), 0, ChronoUnit.YEARS)
+        ));
+
+    }
+
+    @Test
+    public void plusArr() {
+
+        val dateStr = "2026-04-04 09:02:04";
+
+        Assertions.assertEquals(dateStr, CDateUtils.formatDateTime(
+            CDateUtils.plus(CDateUtils.parseInstantDateTime(DATE_TIME_STR), CList.of(
+                Pair.of(1L, ChronoUnit.SECONDS),
+                Pair.of(1L, ChronoUnit.MINUTES),
+                Pair.of(1L, ChronoUnit.HOURS),
+                Pair.of(1L, ChronoUnit.DAYS),
+                Pair.of(1L, ChronoUnit.MONTHS),
+                Pair.of(1L, ChronoUnit.YEARS)
+            ))
         ));
 
     }
