@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.log.aspect;
 
-import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
@@ -57,10 +56,10 @@ public class CRequestLogAspect {
                 val argMap = new LinkedHashMap<String, Object>(parameters.length);
                 for (int i = 0; i < parameters.length; i++) {
                     val parameter = parameters[i];
-                    argMap.put(parameter.getName(), CLogUtils.getPrintAble(args[i]));
+                    argMap.put(parameter.getName(), args[i]);
                 }
 
-                CRequestLogUtils.setReqs(argMap);
+                CRequestLogUtils.setPrintAbleReqs(argMap);
 
             }
         } catch (Throwable e) {

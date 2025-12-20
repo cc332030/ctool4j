@@ -1,11 +1,9 @@
 package com.c332030.ctool4j.log.advice;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.web.advice.ICBaseRequestBodyAdvice;
 import lombok.CustomLog;
-import lombok.val;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -36,11 +34,7 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
 
         if(BooleanUtil.isTrue(CRequestLogUtils.isAdviceEnable())) {
             try {
-
-                val argMap = CMap.of(
-                        "requestBody", body
-                );
-                CRequestLogUtils.setReqs(argMap);
+                CRequestLogUtils.setRequestBodyReq(body);
             } catch (Throwable e) {
                 log.error("setReqs failure", e);
             }

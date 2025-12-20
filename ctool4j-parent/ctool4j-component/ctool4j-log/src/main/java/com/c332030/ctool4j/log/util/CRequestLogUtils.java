@@ -32,7 +32,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 @UtilityClass
 public class CRequestLogUtils {
 
-    final String REQUEST_LOG_STR = "request-log";
+    public final String REQUEST_LOG_STR = "request-log";
+
+    public final String REQUEST_BODY = "requestBody";
 
     final CLog REQUEST_LOG = CLogUtils.getLog(REQUEST_LOG_STR);
 
@@ -46,9 +48,7 @@ public class CRequestLogUtils {
         REQUEST_LOG_THREAD.start();
     }
 
-    final Map<String, Object> EMPTY_REQS = CMap.of(
-        "jsonBody", "[no json body]"
-    );
+    final Map<String, Object> EMPTY_REQS = getRequestBodyMap("[no request body]");
 
     @Setter
     CRequestLogConfig requestLogConfig;
@@ -102,15 +102,27 @@ public class CRequestLogUtils {
         REQUEST_LOG_THREAD_LOCAL.remove();
     }
 
-    public void setReqs(Map<String, Object> reqs) {
+    public Map<String, Object> getRequestBodyMap(Object requestBody) {
+        return CMap.of(
+            REQUEST_BODY, requestBody
+        );
+    }
+
+    public void setRequestBodyReq(Object req) {
+        setPrintAbleReqs(getRequestBodyMap(req));
+    }
+
+    public void setPrintAbleReqs(Map<String, Object> reqs) {
 
         val reqMap = CMapUtils.mapValue(
             reqs,
             CLogUtils::getPrintAble
         );
+        setReqs(reqMap);
+    }
 
-        get().setReqs(reqMap);
-
+    public void setReqs(Map<String, Object> reqs) {
+        get().setReqs(reqs);
     }
 
     public void write(Object rsp, Throwable throwable) {
