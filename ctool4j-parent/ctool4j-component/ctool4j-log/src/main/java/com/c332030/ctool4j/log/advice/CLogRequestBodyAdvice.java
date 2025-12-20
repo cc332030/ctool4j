@@ -3,7 +3,6 @@ package com.c332030.ctool4j.log.advice;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
-import com.c332030.ctool4j.log.util.CTraceUtils;
 import com.c332030.ctool4j.web.advice.ICBaseRequestBodyAdvice;
 import lombok.val;
 import org.springframework.core.MethodParameter;
@@ -33,8 +32,6 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
 
         if(BooleanUtil.isTrue(CRequestLogUtils.isAdviceEnable())) {
             try {
-
-                CTraceUtils.initTrace();
 
                 val argMap = CMap.of(
                         "jsonBody", body

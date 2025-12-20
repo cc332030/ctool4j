@@ -2,7 +2,6 @@ package com.c332030.ctool4j.log.advice;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
-import com.c332030.ctool4j.log.util.CTraceUtils;
 import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -35,9 +34,7 @@ public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> 
 
         if(BooleanUtil.isTrue(CRequestLogUtils.isAdviceEnable())) {
             try {
-
                 CRequestLogUtils.write(body, null);
-                CTraceUtils.removeTraceInfo();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
