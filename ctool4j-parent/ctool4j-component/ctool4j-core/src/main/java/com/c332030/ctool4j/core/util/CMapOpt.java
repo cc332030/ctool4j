@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  *
  * @since 2025/12/6
  */
+@Deprecated
 public class CMapOpt<K, V> extends COpt<Map<K, V>> {
 
     public static final CMapOpt<?, ?> EMPTY = new CMapOpt<>(null);

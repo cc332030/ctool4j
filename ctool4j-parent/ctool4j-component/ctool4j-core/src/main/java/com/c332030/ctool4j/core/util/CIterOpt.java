@@ -12,6 +12,7 @@ import java.util.function.Consumer;
  *
  * @since 2025/12/6
  */
+@Deprecated
 public class CIterOpt<T> extends COpt<Iterable<T>> {
 
     public static final CIterOpt<?> EMPTY = new CIterOpt<>(null);

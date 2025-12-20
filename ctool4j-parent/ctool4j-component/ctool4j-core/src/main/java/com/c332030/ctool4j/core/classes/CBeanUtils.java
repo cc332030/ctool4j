@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
@@ -233,6 +234,44 @@ public class CBeanUtils {
                 getFieldNameFunction,
                 (CFunction<Field, Object>) e -> CReflectUtils.getValue(object, e)
         );
+    }
+
+    /**
+     * 对象数组元素属性复制，反顺序遍历
+     * @param fromArr 源对象数组
+     * @param to 目标对象
+     * @return 目标对象
+     * @param <To> 目标对象泛型
+     */
+    public <To> To copyFromArr(Object[] fromArr, To to) {
+
+        if(ArrayUtil.isEmpty(fromArr)) {
+            return to;
+        }
+
+        for (int i = fromArr.length-1; i >= 0; i--) {
+            val source = fromArr[i];
+            CBeanUtils.copy(source, to);
+        }
+
+        return to;
+    }
+
+    /**
+     * 对象数组元素属性复制，反顺序遍历
+     * @param fromArr 源对象数组
+     * @param toClass 目标对象类
+     * @return 目标对象
+     * @param <To> 目标对象泛型
+     */
+    public <To> To copyFromArr(Object[] fromArr, Class<To> toClass) {
+
+        if(ArrayUtil.isEmpty(fromArr)) {
+            return null;
+        }
+
+        val to = CReflectUtils.newInstance(toClass);
+        return copyFromArr(fromArr, to);
     }
 
 }

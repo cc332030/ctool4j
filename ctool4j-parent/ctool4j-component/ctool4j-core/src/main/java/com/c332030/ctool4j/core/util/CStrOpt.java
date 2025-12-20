@@ -10,6 +10,7 @@ import com.c332030.ctool4j.definition.function.CConsumer;
  *
  * @since 2025/12/6
  */
+@Deprecated
 public class CStrOpt<T extends CharSequence> extends COpt<T> {
 
     public static final CStrOpt<?> EMPTY = new CStrOpt<>(null);

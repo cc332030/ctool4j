@@ -9,6 +9,7 @@ import java.util.Collection;
  *
  * @since 2025/12/6
  */
+@Deprecated
 public class CCollOpt<T> extends CIterOpt<T> {
 
     public static final CCollOpt<?> EMPTY = new CCollOpt<>(null);

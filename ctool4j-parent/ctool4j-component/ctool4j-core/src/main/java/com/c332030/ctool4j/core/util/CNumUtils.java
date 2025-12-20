@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
@@ -9,6 +10,7 @@ import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * <p>
@@ -20,6 +22,8 @@ import java.math.BigDecimal;
 @CustomLog
 @UtilityClass
 public class CNumUtils {
+
+    public final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
     public Integer defaultZero(Integer value) {
         return ObjUtil.defaultIfNull(value, 0);
@@ -75,6 +79,42 @@ public class CNumUtils {
         }
 
         return result;
+    }
+
+    public BigDecimal divide(BigDecimal value1, BigDecimal value2, int scale) {
+
+        if(null == value1 || null == value2 ) {
+            return null;
+        }
+
+        if(value1.compareTo(BigDecimal.ZERO) == 0) {
+            return scale(BigDecimal.ZERO, scale);
+        }
+
+        if(value2.compareTo(BigDecimal.ZERO) == 0) {
+            throw new IllegalArgumentException("除数不能为0");
+        }
+
+        return value1.divide(value2, scale, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 设置小数位数
+     * @param value 值
+     * @param scale 小数位数
+     * @return 值
+     */
+    public BigDecimal scale(BigDecimal value, int scale) {
+        return value.setScale(scale, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * 设置小数位数
+     * @param value 值
+     * @return 值
+     */
+    public BigDecimal scale2(BigDecimal value) {
+        return value.setScale(2, RoundingMode.HALF_UP);
     }
 
     public int compare(Integer v1, Integer v2) {
@@ -186,6 +226,46 @@ public class CNumUtils {
         if(!checkOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
+    }
+
+    /**
+     * 是否为空或0
+     * @param value 值
+     * @return boolean
+     */
+    public boolean isNullOrZero(Integer value) {
+        return value == null || value == 0;
+    }
+
+    /**
+     * 是否为空或0
+     * @param value 值
+     * @return boolean
+     */
+    public boolean isNullOrZero(Long value) {
+        return value == null || value == 0;
+    }
+
+    /**
+     * Long 转换为 Integer
+     * @param value 值
+     * @return Integer
+     */
+    public Integer toInt(Long value) {
+        if(null == value) {
+            return null;
+        }
+        assertOverflow(value);
+        return value.intValue();
+    }
+
+    /**
+     * Integer 转换为 Long
+     * @param value 值
+     * @return Long
+     */
+    public Long toLong(Integer value) {
+        return CObjUtils.convert(value, Integer::longValue);
     }
 
 }

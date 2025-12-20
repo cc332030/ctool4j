@@ -73,6 +73,7 @@ public class CFeignLogger extends Logger {
         val responseHeaders = response.headers();
         val responseBodyBytes = getBodyBytes(response);
 
+        httpLog.append("\n");
         printHeaders(httpLog, responseHeaders);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
 
@@ -98,7 +99,7 @@ public class CFeignLogger extends Logger {
 
             val headerStr = CCommUtils.getFullHeaderStr(headers);
             if(StrUtil.isNotEmpty(headerStr)) {
-                httpLog.append("\n\n");
+                httpLog.append("\n");
                 httpLog.append(CCommUtils.getFullHeaderStr(headers));
             }
         }
@@ -112,7 +113,7 @@ public class CFeignLogger extends Logger {
         String type
     ) {
 
-        httpLog.append("\n");
+        httpLog.append("\n\n");
         if(ArrayUtil.isEmpty(bodyBytes)) {
 
             httpLog.append("[no ");

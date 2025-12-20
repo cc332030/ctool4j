@@ -81,6 +81,45 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      * 尝试获取插入锁并做处理
      * @param key 业务 key
      * @param waitSeconds 等锁秒数
+     * @param valueSupplier 处理逻辑
+     * @param failureRunnable 锁失败操作
+     * @return 处理结果
+     * @param <T> 处理结果泛型
+     */
+    default <T> T tryLockInsertThenRun(Object key, int waitSeconds, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
+        return CLockUtils.tryLockThenRun(getInsertLockKey(key), waitSeconds, valueSupplier, failureRunnable);
+    }
+
+    /**
+     * 尝试获取更新锁并做处理
+     * @param key 业务 key
+     * @param waitSeconds 等锁秒数
+     * @param valueSupplier 处理逻辑
+     * @param failureRunnable 锁失败操作
+     * @return 处理结果
+     * @param <T> 处理结果泛型
+     */
+    default <T> T tryLockUpdateThenRun(Object key, int waitSeconds, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
+        return CLockUtils.tryLockThenRun(getUpdateLockKey(key), waitSeconds, valueSupplier, failureRunnable);
+    }
+
+    /**
+     * 尝试获取删除锁并做处理
+     * @param key 业务 key
+     * @param waitSeconds 等锁秒数
+     * @param valueSupplier 处理逻辑
+     * @param failureRunnable 锁失败操作
+     * @return 处理结果
+     * @param <T> 处理结果泛型
+     */
+    default <T> T tryLockDeleteThenRun(Object key, int waitSeconds, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
+        return CLockUtils.tryLockThenRun(getDeleteLockKey(key), waitSeconds, valueSupplier, failureRunnable);
+    }
+
+    /**
+     * 尝试获取插入锁并做处理
+     * @param key 业务 key
+     * @param waitSeconds 等锁秒数
      * @param runnable 处理逻辑
      */
     default void tryLockInsertThenRun(Object key, int waitSeconds, CRunnable runnable) {
@@ -105,6 +144,39 @@ public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
      */
     default void tryLockDeleteThenRun(Object key, int waitSeconds, CRunnable runnable) {
         CLockUtils.tryLockThenRun(getDeleteLockKey(key), waitSeconds, runnable);
+    }
+
+    /**
+     * 尝试获取插入锁并做处理
+     * @param key 业务 key
+     * @param waitSeconds 等锁秒数
+     * @param runnable 处理逻辑
+     * @param failureRunnable 锁失败操作
+     */
+    default void tryLockInsertThenRun(Object key, int waitSeconds, CRunnable runnable, CRunnable failureRunnable) {
+        CLockUtils.tryLockThenRun(getInsertLockKey(key), waitSeconds, runnable, failureRunnable);
+    }
+
+    /**
+     * 尝试获取更新锁并做处理
+     * @param key 业务 key
+     * @param waitSeconds 等锁秒数
+     * @param runnable 处理逻辑
+     * @param failureRunnable 锁失败操作
+     */
+    default void tryLockUpdateThenRun(Object key, int waitSeconds, CRunnable runnable, CRunnable failureRunnable) {
+        CLockUtils.tryLockThenRun(getUpdateLockKey(key), waitSeconds, runnable, failureRunnable);
+    }
+
+    /**
+     * 尝试获取删除锁并做处理
+     * @param key 业务 key
+     * @param waitSeconds 等锁秒数
+     * @param runnable 处理逻辑
+     * @param failureRunnable 锁失败操作
+     */
+    default void tryLockDeleteThenRun(Object key, int waitSeconds, CRunnable runnable, CRunnable failureRunnable) {
+        CLockUtils.tryLockThenRun(getDeleteLockKey(key), waitSeconds, runnable, failureRunnable);
     }
 
 }

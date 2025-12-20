@@ -25,7 +25,7 @@ public class CAssert {
      * @param messageSupplier 错误信息提供者
      */
     public void isTrue(boolean value, Supplier<String> messageSupplier) {
-        if(value) {
+        if(!value) {
             CExceptionUtils.throwBusinessException(messageSupplier);
         }
     }
@@ -36,7 +36,7 @@ public class CAssert {
      * @param message 错误信息
      */
     public void isTrue(boolean value, String message) {
-        if(value) {
+        if(!value) {
             CExceptionUtils.throwBusinessException(message);
         }
     }

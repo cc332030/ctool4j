@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.core.test.util;
 
+import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.COpt;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +19,7 @@ public class COptTests {
     @Test
     public void of() {
 
-        Assertions.assertThrowsExactly(NullPointerException.class, () -> COpt.of((Object) null));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> COpt.of(null));
 
     }
 
@@ -25,6 +27,29 @@ public class COptTests {
     public void empty() {
 
         Assertions.assertEquals(COpt.empty(), COpt.ofNullable(null));
+
+    }
+
+
+    @Test
+    public void ofEmptyAble() {
+
+        Assertions.assertFalse(COpt.ofEmptyAble(CList.of()).isPresent());
+        Assertions.assertTrue(COpt.ofEmptyAble(CList.of(1)).isPresent());
+
+        Assertions.assertFalse(COpt.ofEmptyAble(CMap.of()).isPresent());
+        Assertions.assertTrue(COpt.ofEmptyAble(CMap.of(1, 1)).isPresent());
+
+        Assertions.assertFalse(COpt.ofEmptyAble("").isPresent());
+        Assertions.assertTrue(COpt.ofEmptyAble(" ").isPresent());
+
+    }
+
+    @Test
+    public void ofBlankAble() {
+
+        Assertions.assertFalse(COpt.ofBlankAble(" ").isPresent());
+        Assertions.assertTrue(COpt.ofBlankAble("1").isPresent());
 
     }
 

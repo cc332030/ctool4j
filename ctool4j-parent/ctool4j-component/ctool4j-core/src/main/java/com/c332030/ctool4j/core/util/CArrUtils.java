@@ -25,6 +25,13 @@ public class CArrUtils {
 
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
+    /**
+     * 过滤
+     * @param array 数组
+     * @param predicate 断言
+     * @return 过滤后的数组
+     * @param <T> 泛型
+     */
     public <T> List<T> filter(T[] array, Predicate<T> predicate) {
 
         if(ArrayUtil.isEmpty(array)) {
@@ -36,10 +43,23 @@ public class CArrUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取非空的数组元素
+     * @param array 数组
+     * @return 非空的数组元素
+     * @param <T> 泛型
+     */
     public <T> List<T> filterNull(T[] array) {
         return filter(array, Objects::nonNull);
     }
 
+    /**
+     * 获取数组元素
+     * @param arr 数组
+     * @param index 索引
+     * @return 数组元素
+     * @param <T> 泛型
+     */
     public <T> T get(T[] arr, int index) {
 
         if(ArrayUtil.isEmpty(arr)) {
@@ -59,6 +79,14 @@ public class CArrUtils {
         return arr[newIndex];
     }
 
+    /**
+     * 转换
+     * @param oArr 原数组
+     * @param converter 转换
+     * @return 转换后的数组
+     * @param <O> 原数组元素类型
+     * @param <R> 转换后的数组元素类型
+     */
     public <O, R> R[] convert(O[] oArr, CFunction<O, R> converter) {
 
         if(ArrayUtil.isEmpty(oArr)) {
@@ -73,6 +101,17 @@ public class CArrUtils {
         }
 
         return CObjUtils.anyType(rArr);
+    }
+
+    /**
+     * 获取泛型数组，解决这样的问题：new Class<? extends Annotation>[2]
+     * @param arr 数据
+     * @return 泛型数组
+     * @param <T> 泛型
+     */
+    @SafeVarargs
+    public <T> T[] getArr(T... arr) {
+        return arr;
     }
 
 }

@@ -67,11 +67,7 @@ public class CClassConvert {
     }
 
     public Integer toInt(Long value) {
-        if(null == value) {
-            return null;
-        }
-        CNumUtils.assertOverflow(value);
-        return value.intValue();
+        return CNumUtils.toInt(value);
     }
 
     public String intStr(Integer value) {
@@ -97,7 +93,7 @@ public class CClassConvert {
     }
 
     public Long toLong(Integer value) {
-        return CObjUtils.convert(value, Integer::longValue);
+        return CNumUtils.toLong(value);
     }
 
     public Long toLong(long value) {

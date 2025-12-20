@@ -62,13 +62,39 @@ public class CLockUtils {
     /**
      * 获取锁并做处理
      * @param key lockKey
+     * @param waitSeconds 等锁秒数
+     * @param valueSupplier 锁成功操作
+     * @param failureRunnable 锁失败操作
+     * @return 锁成功操作结果
+     * @param <T> 返回结果类型
+     */
+    public <T> T tryLockThenRun(String key, int waitSeconds, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
+        return tryLockThenRun(key, Duration.ofSeconds(waitSeconds), valueSupplier, failureRunnable);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
      * @param waitDuration 等待时长
      * @param valueSupplier 锁成功操作
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
     public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier) {
-        return lockService.tryLockThenRun(key, waitDuration, valueSupplier);
+        return tryLockThenRun(key, waitDuration, valueSupplier, null);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
+     * @param waitDuration 等待时长
+     * @param valueSupplier 锁成功操作
+     * @param failureRunnable 锁失败操作
+     * @return 锁成功操作结果
+     * @param <T> 返回结果类型
+     */
+    public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
+        return lockService.tryLockThenRun(key, waitDuration, valueSupplier, failureRunnable);
     }
 
     /**
@@ -84,11 +110,33 @@ public class CLockUtils {
     /**
      * 获取锁并做处理
      * @param key lockKey
+     * @param waitSeconds 等锁秒数
+     * @param runnable 锁成功操作
+     * @param failureRunnable 锁失败操作
+     */
+    public void tryLockThenRun(String key, int waitSeconds, CRunnable runnable, CRunnable failureRunnable) {
+        tryLockThenRun(key, Duration.ofSeconds(waitSeconds), runnable, failureRunnable);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
      * @param waitDuration 等待时长
      * @param runnable 锁成功操作
      */
     public void tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
-        lockService.tryLockThenRun(key, waitDuration, runnable);
+        tryLockThenRun(key, waitDuration, runnable, null);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
+     * @param waitDuration 等待时长
+     * @param runnable 锁成功操作
+     * @param failureRunnable 锁失败操作
+     */
+    public void tryLockThenRun(String key, Duration waitDuration, CRunnable runnable, CRunnable failureRunnable) {
+        lockService.tryLockThenRun(key, waitDuration, runnable, failureRunnable);
     }
 
 }

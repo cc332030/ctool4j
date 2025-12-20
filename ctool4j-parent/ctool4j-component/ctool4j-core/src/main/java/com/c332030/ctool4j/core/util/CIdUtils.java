@@ -25,7 +25,7 @@ public class CIdUtils {
     private final CClassValue<String> CLASS_PREFIX = CClassValue.of(type -> {
 
         val idPrefixAnno = type.getAnnotation(CIdPrefix.class);
-        val idPrefix = CObjUtils.convert(idPrefixAnno, CIdPrefix::prefix);
+        val idPrefix = CObjUtils.convert(idPrefixAnno, CIdPrefix::value);
         if(StrUtil.isNotBlank(idPrefix)) {
             return idPrefix;
         }

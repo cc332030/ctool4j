@@ -14,7 +14,11 @@ public interface ICCreateBy {
     @ApiModelProperty("创建人ID")
     Long getCreateById();
 
+    void setCreateById(Long createById);
+
     @ApiModelProperty("创建人")
     String getCreateBy();
+
+    void setCreateBy(String createBy);
 
 }

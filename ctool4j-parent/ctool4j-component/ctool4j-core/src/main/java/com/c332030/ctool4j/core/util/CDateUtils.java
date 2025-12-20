@@ -1,12 +1,21 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.definition.function.CBiFunction;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
 
-import java.time.Instant;
+import java.time.*;
+import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -20,8 +29,17 @@ import java.util.Date;
 @UtilityClass
 public class CDateUtils {
 
+    public static final Instant INITIAL_INSTANT = Instant.ofEpochMilli(0);
+
+    public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
+
+    public Date initialDate() {
+        return new Date(0);
+    }
+
     /**
      * 格式化日期时间字符串
+     *
      * @param instant Instant
      * @param pattern 日期时间格式
      * @return 日期时间字符串
@@ -32,6 +50,7 @@ public class CDateUtils {
 
     /**
      * 格式化日期字符串
+     *
      * @param instant Instant
      * @return 日期字符串
      */
@@ -41,6 +60,7 @@ public class CDateUtils {
 
     /**
      * 格式化时间字符串
+     *
      * @param instant Instant
      * @return 时间字符串
      */
@@ -50,6 +70,7 @@ public class CDateUtils {
 
     /**
      * 格式化日期时间字符串
+     *
      * @param instant Instant
      * @return 日期时间字符串
      */
@@ -59,6 +80,7 @@ public class CDateUtils {
 
     /**
      * 日期时间字符串转Instant
+     *
      * @param dateStr 日期时间字符串
      * @return Instant
      */
@@ -68,6 +90,7 @@ public class CDateUtils {
 
     /**
      * 日期字符串转Instant
+     *
      * @param dateStr 日期字符串
      * @return Instant
      */
@@ -77,6 +100,7 @@ public class CDateUtils {
 
     /**
      * 时间字符串转Instant
+     *
      * @param timeStr 时间字符串
      * @return Instant
      */
@@ -86,6 +110,7 @@ public class CDateUtils {
 
     /**
      * 日期时间字符串转Instant
+     *
      * @param dateStr 日期时间字符串
      * @return Instant
      */
@@ -95,12 +120,13 @@ public class CDateUtils {
 
     /**
      * 日期时间字符串转Date，可能是字符串类型的时间戳
+     *
      * @param text 日期时间字符串
      * @return Date
      */
     public Date parseMaybeMills(String text) {
 
-        if(StrUtil.isEmpty(text)) {
+        if (StrUtil.isEmpty(text)) {
             return null;
         }
 
@@ -122,6 +148,7 @@ public class CDateUtils {
 
     /**
      * 日期时间字符串转 Instant，可能是字符串类型的时间戳
+     *
      * @param text 日期时间字符串
      * @return Instant
      */
@@ -131,11 +158,12 @@ public class CDateUtils {
 
     /**
      * 时间戳转 Date
+     *
      * @param mills 时间戳
      * @return Date
      */
     public Date toDate(Long mills) {
-        if(null == mills) {
+        if (null == mills) {
             return null;
         }
         return new Date(mills);
@@ -143,23 +171,45 @@ public class CDateUtils {
 
     /**
      * Instant 转 Date
+     *
      * @param instant Instant
      * @return Date
      */
     public Date toDate(Instant instant) {
-        if(null == instant) {
+        if (null == instant) {
             return null;
         }
         return Date.from(instant);
     }
 
     /**
+     * LocalDateTime 转 Date
+     *
+     * @param localDateTime localDateTime
+     * @return Date
+     */
+    public Date toDate(LocalDateTime localDateTime) {
+        return toDate(toInstant(localDateTime));
+    }
+
+    /**
+     * LocalDate 转 Date
+     *
+     * @param localDate localDate
+     * @return Date
+     */
+    public Date toDate(LocalDate localDate) {
+        return toDate(toInstant(localDate));
+    }
+
+    /**
      * Date 转 Instant
+     *
      * @param date Date
      * @return Instant
      */
     public Instant toInstant(Date date) {
-        if(null == date) {
+        if (null == date) {
             return null;
         }
         return date.toInstant();
@@ -167,14 +217,332 @@ public class CDateUtils {
 
     /**
      * 时间戳转 Instant
+     *
      * @param mills 时间戳
      * @return Instant
      */
     public Instant toInstant(Long mills) {
-        if(null == mills) {
+        if (null == mills) {
             return null;
         }
         return Instant.ofEpochMilli(mills);
+    }
+
+    /**
+     * LocalDateTime 转 Instant
+     *
+     * @param localDateTime localDateTime
+     * @return Date
+     */
+    public Instant toInstant(LocalDateTime localDateTime) {
+        if (null == localDateTime) {
+            return null;
+        }
+        return toZonedDateTime(localDateTime).toInstant();
+    }
+
+    /**
+     * LocalDate 转 Instant
+     *
+     * @param localDate localDate
+     * @return Date
+     */
+    public Instant toInstant(LocalDate localDate) {
+        if (null == localDate) {
+            return null;
+        }
+        return toInstant(localDate.atStartOfDay());
+    }
+
+    /**
+     * Date 转 ZonedDateTime
+     *
+     * @param date date
+     * @return ZonedDateTime
+     */
+    public ZonedDateTime toZonedDateTime(Date date) {
+        if (null == date) {
+            return null;
+        }
+        return toZonedDateTime(toInstant(date));
+    }
+
+    /**
+     * LocalDateTime 转 ZonedDateTime
+     *
+     * @param localDateTime localDateTime
+     * @return ZonedDateTime
+     */
+    public ZonedDateTime toZonedDateTime(LocalDateTime localDateTime) {
+        if (null == localDateTime) {
+            return null;
+        }
+        return localDateTime.atZone(DEFAULT_ZONE_ID);
+    }
+
+    /**
+     * Instant 转 ZonedDateTime
+     *
+     * @param instant instant
+     * @return ZonedDateTime
+     */
+    public ZonedDateTime toZonedDateTime(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return ZonedDateTime.ofInstant(instant, DEFAULT_ZONE_ID);
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public Instant calc(Instant value, CFunction<ZonedDateTime, ZonedDateTime> function) {
+
+        if (null == value) {
+            return null;
+        }
+
+        val zonedDateTime = toZonedDateTime(value);
+        val result = function.apply(zonedDateTime);
+        return result.toInstant();
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public Date calc(Date value, CFunction<ZonedDateTime, ZonedDateTime> function) {
+        return toDate(calc(toInstant(value), function));
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Instant calc(
+        Instant value,
+        Collection<T> collection,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(CollUtil.isEmpty(collection)) {
+            return value;
+        }
+        return calc(value, zonedDateTime -> {
+
+            var zonedDateTimeNew = zonedDateTime;
+            for (T t : collection) {
+                zonedDateTimeNew = function.apply(zonedDateTimeNew, t);
+            }
+            return zonedDateTimeNew;
+        });
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Date calc(
+        Date value,
+        Collection<T> collection,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(CollUtil.isEmpty(collection)) {
+            return value;
+        }
+        return toDate(calc(toInstant(value), collection, function));
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Instant calc(
+        Instant value,
+        T[] arr,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(ArrayUtil.isEmpty(arr)) {
+            return value;
+        }
+        return calc(value, Arrays.asList(arr), function);
+    }
+
+    /**
+     * Instant 计算
+     *
+     * @param value    时间
+     * @param function 函数
+     * @return 结果
+     */
+    public <T> Date calc(
+        Date value,
+        T[] arr,
+        CBiFunction<ZonedDateTime, T, ZonedDateTime> function
+    ) {
+        if(ArrayUtil.isEmpty(arr)) {
+            return value;
+        }
+        return calc(value, Arrays.asList(arr), function);
+    }
+
+    /**
+     * Instant 加上指定时间
+     *
+     * @param value  时间
+     * @param amount 数量
+     * @param unit   单位
+     * @return 结果
+     */
+    public Instant plus(Instant value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.plus(amount, unit));
+    }
+
+    /**
+     * Instant 减去指定时间
+     *
+     * @param value  时间
+     * @param amount 数量
+     * @param unit   单位
+     * @return 结果
+     */
+    public Instant minus(Instant value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.minus(amount, unit));
+    }
+
+    /**
+     * Instant 加上指定时间
+     *
+     * @param value  时间
+     * @param pairs 数量、单位集合
+     * @return 结果
+     */
+    public Instant plus(Instant value, Collection<Pair<Long, TemporalUnit>> pairs) {
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.plus(pair.getKey(), pair.getValue()));
+    }
+
+    /**
+     * Instant 减去指定时间
+     *
+     * @param value  时间
+     * @param pairs 数量、单位集合
+     * @return 结果
+     */
+    public Instant minus(Instant value, Collection<Pair<Long, TemporalUnit>> pairs) {
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.minus(pair.getKey(), pair.getValue()));
+    }
+
+    /**
+     * Instant 加上指定时间
+     *
+     * @param value     时间
+     * @param durations 指定时间段
+     * @return 结果
+     */
+    public Instant plus(Instant value, Duration... durations) {
+        return calc(value, durations, ZonedDateTime::plus);
+    }
+
+    /**
+     * Instant 减去指定时间
+     *
+     * @param value     时间
+     * @param durations 指定时间段
+     * @return 结果
+     */
+    public Instant minus(Instant value, Duration... durations) {
+        return calc(value, durations, ZonedDateTime::minus);
+    }
+
+    /**
+     * Date 加上指定时间
+     *
+     * @param value  时间
+     * @param amount 数量
+     * @param unit   单位
+     * @return 结果
+     */
+    public Date plus(Date value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.plus(amount, unit));
+    }
+
+    /**
+     * Date 减去指定时间
+     *
+     * @param value  时间
+     * @param amount 数量
+     * @param unit   单位
+     * @return 结果
+     */
+    public Date minus(Date value, long amount, TemporalUnit unit) {
+        return calc(value, zonedDateTime ->
+            zonedDateTime.minus(amount, unit));
+    }
+
+    /**
+     * Date 加上指定时间
+     *
+     * @param value 时间
+     * @param pairs 数量、单位集合
+     * @return 结果
+     */
+    public Date plus(Date value, Collection<Pair<Long, TemporalUnit>> pairs) {
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.plus(pair.getKey(), pair.getValue()));
+    }
+
+    /**
+     * Date 减去指定时间
+     *
+     * @param value 时间
+     * @param pairs 数量、单位集合
+     * @return 结果
+     */
+    public Date minus(Date value, Collection<Pair<Long, TemporalUnit>> pairs) {
+        return calc(value, pairs, (zonedDateTime, pair) ->
+            zonedDateTime.minus(pair.getKey(), pair.getValue()));
+    }
+
+    /**
+     * Date 加上指定时间
+     *
+     * @param value     时间
+     * @param durations 指定时间段
+     * @return 结果
+     */
+    public Date plus(Date value, Duration... durations) {
+        return calc(value, durations, ZonedDateTime::plus);
+    }
+
+    /**
+     * Date 减去指定时间
+     *
+     * @param value     时间
+     * @param durations 指定时间段
+     * @return 结果
+     */
+    public Date minus(Date value, Duration... durations) {
+        return calc(value, durations, ZonedDateTime::minus);
     }
 
 }

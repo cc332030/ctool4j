@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-parent</artifactId>
-        <version>0.0.6-SNAPSHOT</version>
+        <version>0.0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-component</artifactId>
@@ -28,8 +28,11 @@
         <module>ctool4j-mybatis-pom</module>
         <module>ctool4j-job-pom</module>
         <module>ctool4j-data-pom</module>
-
+        <module>ctool4j-doc-pom</module>
         <module>ctool4j-test-pom</module>
+
+        <module>ctool4j-wechat-pom</module>
+
     </modules>
 
     <dependencies>
