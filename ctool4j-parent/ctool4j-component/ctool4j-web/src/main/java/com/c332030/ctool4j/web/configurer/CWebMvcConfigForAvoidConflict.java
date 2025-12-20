@@ -13,14 +13,14 @@ import java.util.Collection;
 
 /**
  * <p>
- * Description: CWebMvcConfigNew
+ * Description: CWebMvcConfigForAvoidConflict
  * </p>
  *
  * @since 2025/9/28
  */
 @Configuration
-@AllArgsConstructor(onConstructor = @__(@Autowired(required = false)))
-public class CWebMvcConfigNew implements WebMvcConfigurer {
+@AllArgsConstructor(onConstructor_ = @Autowired(required = false))
+public class CWebMvcConfigForAvoidConflict implements WebMvcConfigurer {
 
     Collection<ICHandlerInterceptor> icHandlerInterceptors;
 
