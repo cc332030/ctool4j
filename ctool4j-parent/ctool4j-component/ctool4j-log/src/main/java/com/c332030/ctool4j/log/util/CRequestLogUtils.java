@@ -40,7 +40,7 @@ public class CRequestLogUtils {
 
     final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
 
-    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite, REQUEST_LOG_STR);
+    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite, REQUEST_LOG_STR + "-thread");
 
     {
         REQUEST_LOG_THREAD.start();
