@@ -275,12 +275,26 @@ public class CLogUtils {
     }
 
     /**
+     * 转 json 的父类
+     */
+    final Set<Class<?>> PRINT_ABLE_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
+        Number.class,
+        Date.class
+    ));
+
+    /**
      * 类是否可打印在日志里的缓存
      */
     final CClassValue<Boolean> PRINT_ABLE_CLASS_VALUE = CClassValue.of(type -> {
 
         if (type.isEnum()) {
             return true;
+        }
+
+        for (val clazz : PRINT_ABLE_SUPERCLASSES) {
+            if (clazz.isAssignableFrom(type)) {
+                return true;
+            }
         }
 
         return CClassUtils.isBasicClass(type);
