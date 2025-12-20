@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.function.CBiFunction;
+import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.experimental.UtilityClass;
@@ -36,6 +37,18 @@ public class CCollUtils {
 
     public <T> Set<T> defaultEmpty(Set<T> list) {
         return CollUtil.isEmpty(list) ? CSet.of() : list;
+    }
+
+    /**
+     * 集合遍历
+     * @param collection 集合
+     * @param consumer 消费方法
+     * @param <T> T
+     */
+    public <T> void forEach(Collection<T> collection, CConsumer<T> consumer) {
+        if(CollUtil.isNotEmpty(collection)) {
+            collection.forEach(consumer);
+        }
     }
 
     public <K, V> Map<K, List<V>> groupingBy(Collection<V> collection, CFunction<V, K> function) {
