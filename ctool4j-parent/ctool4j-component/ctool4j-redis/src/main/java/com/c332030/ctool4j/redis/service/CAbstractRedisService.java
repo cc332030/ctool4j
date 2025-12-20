@@ -18,7 +18,7 @@ public abstract class CAbstractRedisService<K, V> implements ICRedisService<K, V
      * RedisTemplate
      */
     @Getter
-    @Setter(onMethod = @__({@Autowired}))
+    @Setter(onMethod_ = @Autowired)
     RedisTemplate<K, V> redisTemplate;
 
 }
