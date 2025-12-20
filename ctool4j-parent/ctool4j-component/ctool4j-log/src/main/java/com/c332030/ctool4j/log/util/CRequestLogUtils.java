@@ -32,13 +32,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 @UtilityClass
 public class CRequestLogUtils {
 
-    final CLog REQUEST_LOGGER = CLogUtils.getLog("request-log");
+    final String REQUEST_LOG_STR = "request-log";
+
+    final CLog REQUEST_LOG = CLogUtils.getLog(REQUEST_LOG_STR);
 
     final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
     final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
 
-    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite);
+    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite, REQUEST_LOG_STR);
 
     {
         REQUEST_LOG_THREAD.start();
@@ -141,7 +143,7 @@ public class CRequestLogUtils {
             try {
 
                 val requestLog = REQUEST_LOG_QUEUE.take();
-                REQUEST_LOGGER.infoNonNull("{}", requestLog);
+                REQUEST_LOG.infoNonNull("{}", requestLog);
             } catch (Throwable e) {
                 log.error("RequestLogUtils asyncWrite error", e);
             }
