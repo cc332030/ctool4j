@@ -27,8 +27,8 @@ public interface CFunction<O, R> extends Function<O, R> {
     CFunction<Object, Object> SELF = o -> o;
 
     @SuppressWarnings("unchecked")
-    static <O, R> CFunction<O, R> self() {
-        return (CFunction<O, R>)SELF;
+    static <O> CFunction<O, O> self() {
+        return (CFunction<O, O>)SELF;
     }
 
     CFunction<Object, Object> EMPTY = o -> null;
