@@ -31,6 +31,9 @@ import java.util.function.Supplier;
 @UtilityClass
 public class CLogUtils {
 
+    /**
+     * 日志缓存
+     */
     private static final ClassValue<CLog> LOGS = new ClassValue<CLog>() {
         @Override
         protected CLog computeValue(@NonNull Class<?> type) {
@@ -38,19 +41,35 @@ public class CLogUtils {
         }
     };
 
+    /**
+     * 获取日志
+     * @param name 日志名称
+     * @return CLog
+     */
     public CLog getLog(String name) {
         return new CLog(name);
     }
 
+    /**
+     * 获取日志
+     * @param clazz 获取日志
+     * @return CLog
+     */
     public CLog getLog(Class<?> clazz) {
         return LOGS.get(clazz);
     }
 
+    /**
+     * 不转 json 的包名
+     */
     private static final Set<String> NOT_JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
             ".sun.",
             ".apache."
     ));
 
+    /**
+     * 转 json 的包名
+     */
     private static final Set<String> JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
             ".config.",
             ".entity.",
@@ -66,19 +85,33 @@ public class CLogUtils {
             ".domain."
     ));
 
+    /**
+     * 添加转 json 的包名
+     * @param domainPackage 转 json 的包名
+     */
     public void addJsonLogDomainPackage(String domainPackage) {
         JSON_LOG_DOMAIN_PACKAGE.add(domainPackage);
     }
 
+    /**
+     * 转 json 的注解
+     */
     private static final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = new CopyOnWriteArraySet<>(CSet.of(
             CJsonLog.class,
             ConfigurationProperties.class
     ));
 
+    /**
+     * 添加转 json 的注解
+     * @param tClass 转 json 的注解
+     */
     public void addJsonLogAnnotations(Class<? extends Annotation> tClass) {
         JSON_LOG_ANNOTATIONS.add(tClass);
     }
 
+    /**
+     * 不转 json 的父类
+     */
     private static final Set<Class<?>> NOT_JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
             DataSource.class,
             InputStream.class,
@@ -87,20 +120,34 @@ public class CLogUtils {
             Throwable.class
     ));
 
+    /**
+     * 添加不转 json 的父类
+     * @param tClass 不转 json 的父类
+     */
     public void addNotJsonLogSuperclasses(Class<?> tClass) {
         NOT_JSON_LOG_SUPERCLASSES.add(tClass);
     }
 
+    /**
+     * 转 json 的父类
+     */
     private static final Set<Class<?>> JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
             ICBaseResult.class,
             Collection.class,
             Map.class
     ));
 
+    /**
+     * 添加转 json 的父类
+     * @param tClass 转 json 的父类
+     */
     public void addJsonLogSuperclasses(Class<?> tClass) {
         JSON_LOG_SUPERCLASSES.add(tClass);
     }
 
+    /**
+     * 是否转换 json 缓存
+     */
     public static final CRefClassValue<Boolean> JSON_LOG_CLASS_VALUE = CRefClassValue.of(
             type -> {
 
@@ -145,18 +192,38 @@ public class CLogUtils {
             }
     );
 
+    /**
+     * 设置是否转 json
+     * @param types types
+     * @param value value
+     */
     public void setJsonLog(Collection<Class<?>> types, boolean value) {
         types.forEach(type -> JSON_LOG_CLASS_VALUE.set(type, value));
     }
 
+    /**
+     * 设置是否转 json
+     * @param type type
+     * @param value value
+     */
     public void setJsonLog(Class<?> type, boolean value) {
         setJsonLog(Collections.singletonList(type), value);
     }
 
+    /**
+     * 是否能转 json
+     * @param type type
+     * @return boolean
+     */
     public boolean isJsonLog(Class<?> type) {
         return JSON_LOG_CLASS_VALUE.get(type);
     }
 
+    /**
+     * 获取 Supplier<Object>[] 的参数
+     * @param suppliers Supplier<Object>[]
+     * @return Object[]
+     */
     public Object[] getSupplierArgs(Supplier<Object>[] suppliers) {
 
         if (ArrayUtil.isEmpty(suppliers)) {
@@ -168,10 +235,19 @@ public class CLogUtils {
                 .toArray();
     }
 
+    /**
+     * 处理参数
+     * @param args args
+     */
     public void dealArgs(Object[] args) {
         dealArgs(args, false);
     }
 
+    /**
+     * 处理参数
+     * @param args args
+     * @param nonNull 是否不打印 null
+     */
     public void dealArgs(Object[] args, boolean nonNull) {
 
         if (ArrayUtil.isEmpty(args)) {
