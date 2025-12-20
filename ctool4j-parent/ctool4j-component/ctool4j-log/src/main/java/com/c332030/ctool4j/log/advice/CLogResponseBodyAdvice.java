@@ -8,6 +8,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 2025/12/20
  */
 @CustomLog
+@ControllerAdvice
 public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
 
     @Nullable
