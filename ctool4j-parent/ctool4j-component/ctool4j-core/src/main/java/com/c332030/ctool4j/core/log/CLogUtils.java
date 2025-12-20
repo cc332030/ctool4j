@@ -8,6 +8,7 @@ import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
+import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.model.result.ICBaseResult;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import lombok.var;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.lang.NonNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
 import java.io.InputStream;
@@ -312,6 +314,45 @@ public class CLogUtils {
         }
 
         return PRINT_ABLE_CLASS_VALUE.get(type);
+    }
+
+    /**
+     * 转换函数缓存
+     */
+    final CClassValue<CFunction<Object, Object>> PRINT_ABLE_CONVERT_FUNCTION = CClassValue.of(type -> {
+
+        if(byte[].class.isAssignableFrom(type)) {
+            return value -> "[byte[" + ((byte[])value).length + "]]";
+        }
+
+        if(MultipartFile.class.isAssignableFrom(type)) {
+            return value -> {
+                val file = (MultipartFile) value;
+                return file.getOriginalFilename() + ":" + file.getSize();
+            };
+        }
+
+        return e -> "[" + type.getName() + "]";
+    });
+
+    /**
+     * 获取可打印的数据
+     * @param value 源数据
+     * @return 可打印的数据
+     */
+    public Object getPrintAble(Object value) {
+
+        if (null == value) {
+            return "[null]";
+        }
+
+        val argType = value.getClass();
+        if (isPrintAble(argType)) {
+            return value;
+        }
+
+        return PRINT_ABLE_CONVERT_FUNCTION.get(argType)
+            .apply(value);
     }
 
 }

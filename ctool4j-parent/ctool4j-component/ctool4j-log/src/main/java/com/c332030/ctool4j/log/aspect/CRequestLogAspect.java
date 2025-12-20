@@ -57,7 +57,7 @@ public class CRequestLogAspect {
                 val argMap = new LinkedHashMap<String, Object>(parameters.length);
                 for (int i = 0; i < parameters.length; i++) {
                     val parameter = parameters[i];
-                    argMap.put(parameter.getName(), dealArg(args[i]));
+                    argMap.put(parameter.getName(), CLogUtils.getPrintAble(args[i]));
                 }
 
                 CRequestLogUtils.setReqs(argMap);
@@ -85,20 +85,6 @@ public class CRequestLogAspect {
             }
         }
 
-    }
-
-    private Object dealArg(Object arg) {
-
-        if (null == arg) {
-            return null;
-        }
-
-        val argClass = arg.getClass();
-        if (CLogUtils.isPrintAble(argClass)) {
-            return arg;
-        }
-
-        return argClass.getName();
     }
 
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
 import com.c332030.ctool4j.log.model.CRequestLog;
@@ -12,9 +13,7 @@ import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -92,27 +91,12 @@ public class CRequestLogUtils {
 
     public void setReqs(Map<String, Object> reqs) {
 
-        reqs.entrySet().forEach(entry -> {
+        val reqMap = CMapUtils.mapValue(
+            reqs,
+            CLogUtils::getPrintAble
+        );
 
-            val value = entry.getValue();
-            var newValue = value;
-            val vClass = CObjUtils.convert(value, Object::getClass);
-
-            if(value == null) {
-                newValue = "[null]";
-            } else if(value instanceof MultipartFile) {
-                val file = (MultipartFile) value;
-                newValue = file.getOriginalFilename() + ":" + file.getSize();
-            } else if(!CLogUtils.isJsonLog(vClass)) {
-                newValue = "[not json class: " + vClass + "]";
-            }
-
-            entry.setValue(newValue);
-
-        });
-
-        val requestLog = get();
-        requestLog.setReqs(reqs);
+        get().setReqs(reqMap);
 
     }
 
