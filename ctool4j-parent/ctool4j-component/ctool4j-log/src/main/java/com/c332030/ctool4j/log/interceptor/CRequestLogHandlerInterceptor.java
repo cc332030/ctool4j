@@ -1,7 +1,7 @@
-package com.c332030.ctool4j.web.interceptor;
+package com.c332030.ctool4j.log.interceptor;
 
+import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @since 2025/9/28
  */
-@Component
+//@Component
 public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
 
     @Override
