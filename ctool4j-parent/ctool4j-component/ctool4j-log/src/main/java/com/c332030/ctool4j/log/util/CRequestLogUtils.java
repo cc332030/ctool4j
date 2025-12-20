@@ -2,7 +2,6 @@ package com.c332030.ctool4j.log.util;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
-import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
@@ -32,15 +31,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 @UtilityClass
 public class CRequestLogUtils {
 
-    final String REQUEST_LOG_STR = "request-log";
-
-    final CLog REQUEST_LOG = CLogUtils.getLog(REQUEST_LOG_STR);
+    final String REQUEST_LOG = "request-log";
 
     final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
     final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
 
-    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite, REQUEST_LOG_STR);
+    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite, REQUEST_LOG);
 
     {
         REQUEST_LOG_THREAD.start();
@@ -143,7 +140,7 @@ public class CRequestLogUtils {
             try {
 
                 val requestLog = REQUEST_LOG_QUEUE.take();
-                REQUEST_LOG.infoNonNull("{}", requestLog);
+                log.infoNonNull("{}", requestLog);
             } catch (Throwable e) {
                 log.error("RequestLogUtils asyncWrite error", e);
             }
