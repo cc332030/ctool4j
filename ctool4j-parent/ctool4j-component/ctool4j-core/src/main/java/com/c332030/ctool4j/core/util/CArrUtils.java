@@ -104,7 +104,7 @@ public class CArrUtils {
     }
 
     /**
-     * 获取泛型数组，解决这样的问题：new Class<? extends Annotation>[2]
+     * 获取泛型数组
      * @param arr 数据
      * @return 泛型数组
      * @param <T> 泛型

@@ -221,8 +221,8 @@ public class CLogUtils {
     }
 
     /**
-     * 获取 Supplier<Object>[] 的参数
-     * @param suppliers Supplier<Object>[]
+     * 获取参数 Supplier 的结果
+     * @param suppliers Supplier[]
      * @return Object[]
      */
     public Object[] getSupplierArgs(Supplier<Object>[] suppliers) {

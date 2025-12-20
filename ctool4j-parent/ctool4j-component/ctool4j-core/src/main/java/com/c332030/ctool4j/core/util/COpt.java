@@ -123,6 +123,7 @@ public class COpt<T> {
      * 创建可空 COpt
      * @param t Map
      * @return COpt
+     * @param <T> Map 泛型
      * @param <K> 键泛型
      * @param <V> 值泛型
      */

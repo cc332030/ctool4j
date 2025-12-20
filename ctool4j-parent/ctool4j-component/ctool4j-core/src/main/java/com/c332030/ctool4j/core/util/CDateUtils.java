@@ -326,7 +326,9 @@ public class CDateUtils {
      * Instant 计算
      *
      * @param value    时间
+     * @param collection 集合
      * @param function 函数
+     * @param <T> 泛型
      * @return 结果
      */
     public <T> Instant calc(
@@ -351,7 +353,9 @@ public class CDateUtils {
      * Instant 计算
      *
      * @param value    时间
+     * @param collection 集合
      * @param function 函数
+     * @param <T> 泛型
      * @return 结果
      */
     public <T> Date calc(
@@ -369,7 +373,9 @@ public class CDateUtils {
      * Instant 计算
      *
      * @param value    时间
+     * @param arr 数组
      * @param function 函数
+     * @param <T> 泛型
      * @return 结果
      */
     public <T> Instant calc(
@@ -387,7 +393,9 @@ public class CDateUtils {
      * Instant 计算
      *
      * @param value    时间
+     * @param arr 数组
      * @param function 函数
+     * @param <T> 泛型
      * @return 结果
      */
     public <T> Date calc(
