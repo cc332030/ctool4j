@@ -132,7 +132,7 @@ public class CRequestLogUtils {
 
         val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
         if (!offerResult) {
-            log.error("REQUEST_LOG_THREAD offer error, requestLog: {}", requestLog);
+            log.error("REQUEST_LOG_QUEUE offer error, requestLog: {}", requestLog);
         }
 
     }
