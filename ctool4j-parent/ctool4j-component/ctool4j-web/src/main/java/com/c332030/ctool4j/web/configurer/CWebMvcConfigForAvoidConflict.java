@@ -5,7 +5,6 @@ import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,7 +24,7 @@ public class CWebMvcConfigForAvoidConflict implements WebMvcConfigurer {
     Collection<ICHandlerInterceptor> icHandlerInterceptors;
 
     @Override
-    public void addInterceptors(@NonNull InterceptorRegistry registry) {
+    public void addInterceptors(InterceptorRegistry registry) {
 
         CCollUtils.forEach(icHandlerInterceptors, registry::addInterceptor);
 
