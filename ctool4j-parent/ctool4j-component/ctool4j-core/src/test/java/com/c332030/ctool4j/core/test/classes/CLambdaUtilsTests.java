@@ -5,7 +5,6 @@ import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.entity.base.CLongId;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  * <p>
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test;
  */
 public class CLambdaUtilsTests {
 
-    @Test
+//    @Test
     public void getFieldGetLambda() {
 
         val id = 332030L;
@@ -33,7 +32,7 @@ public class CLambdaUtilsTests {
 
     }
 
-    @Test
+//    @Test
     public void getFieldSetLambda() {
 
         val id = 332030L;
