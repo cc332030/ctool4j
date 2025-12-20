@@ -4,6 +4,7 @@ import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
@@ -31,19 +32,24 @@ import java.util.concurrent.LinkedBlockingQueue;
 @UtilityClass
 public class CRequestLogUtils {
 
-    private static final CLog REQUEST_LOGGER = CLogUtils.getLog("request-log");
+    final CLog REQUEST_LOGGER = CLogUtils.getLog("request-log");
 
-    private static final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
+    final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
-    private static final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
+    final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
 
-    private final static Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite);
-    static {
+    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite);
+
+    {
         REQUEST_LOG_THREAD.start();
     }
 
+    final Map<String, Object> EMPTY_REQS = CMap.of(
+        "jsonBody", "[no json body]"
+    );
+
     @Setter
-    private static CRequestLogConfig requestLogConfig;
+    CRequestLogConfig requestLogConfig;
 
     public boolean isEnable() {
         val enable = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getEnable);
@@ -78,12 +84,13 @@ public class CRequestLogUtils {
         val traceId = CTraceUtils.getTraceId();
 
         val requestLog = CRequestLog.builder()
-                .path(request.getRequestURI())
-                .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
-                .traceId(traceId)
-                .ip(CRequestUtils.getIp(request))
-                .beginTimeMillis(System.currentTimeMillis())
-                .build();
+            .traceId(traceId)
+            .path(request.getRequestURI())
+            .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
+            .reqs(EMPTY_REQS)
+            .ip(CRequestUtils.getIp(request))
+            .beginTimeMillis(System.currentTimeMillis())
+            .build();
 
         REQUEST_LOG_THREAD_LOCAL.set(requestLog);
 
@@ -107,7 +114,7 @@ public class CRequestLogUtils {
     public void write(Object rsp, Throwable throwable) {
 
         val requestLog = get();
-        if(null == requestLog) {
+        if (null == requestLog) {
             log.debug("write failure because requestLog is null");
             return;
         }
@@ -117,12 +124,12 @@ public class CRequestLogUtils {
         requestLog.setEndTimeMillis(endTimeMillis);
         requestLog.setRt(endTimeMillis - requestLog.getBeginTimeMillis());
         requestLog.setRsp(rsp);
-        if(null != throwable) {
+        if (null != throwable) {
             requestLog.setThrowableMessage(throwable.getMessage());
         }
 
         val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
-        if(!offerResult) {
+        if (!offerResult) {
             log.error("REQUEST_LOG_THREAD offer error, requestLog: {}", requestLog);
         }
 
