@@ -58,6 +58,10 @@ public class CRequestLogUtils {
         return isEnable() && CRequestLogTypeEnum.ADVICE.equals(requestLogConfig.getType());
     }
 
+    public boolean isInterceptorEnable() {
+        return isEnable() && CRequestLogTypeEnum.INTERCEPTOR.equals(requestLogConfig.getType());
+    }
+
     public CRequestLog get() {
         return REQUEST_LOG_THREAD_LOCAL.get();
     }

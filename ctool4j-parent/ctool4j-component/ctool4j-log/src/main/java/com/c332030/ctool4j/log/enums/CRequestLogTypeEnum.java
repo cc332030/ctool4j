@@ -18,6 +18,8 @@ public enum CRequestLogTypeEnum {
 
     ADVICE("Advice"),
 
+    INTERCEPTOR("拦截器"),
+
     ;
 
     /**
