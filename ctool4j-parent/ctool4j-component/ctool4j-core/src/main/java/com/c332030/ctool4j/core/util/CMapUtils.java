@@ -19,6 +19,15 @@ import java.util.*;
 @UtilityClass
 public class CMapUtils {
 
+    /**
+     * 设置 map 值
+     * @param map Map
+     * @param k 键
+     * @param v 值
+     * @return 值
+     * @param <K> 键泛型
+     * @param <V> 值泛型
+     */
     public <K, V> V put(Map<K, V> map, K k, V v) {
         if(Objects.isNull(map) || Objects.isNull(k) || Objects.isNull(v)) {
             return null;
@@ -27,20 +36,42 @@ public class CMapUtils {
         return map.put(k, v);
     }
 
+    /**
+     * 默认空 map
+     * @param map Map
+     * @return 原 Map 或 空 Map
+     * @param <K> 键泛型
+     * @param <V> 值泛型
+     */
     public <K, V> Map<K, V> defaultEmpty(Map<K, V> map) {
         return MapUtil.isEmpty(map) ? Collections.emptyMap() : map;
     }
 
-    public static final TypeReference<Map<String, Object>> MAP_STRING_OBJECT_TYPE_REFERENCE =
+    /**
+     * Map[String, Object] 映射
+     */
+    public final TypeReference<Map<String, Object>> MAP_STRING_OBJECT_TYPE_REFERENCE =
             new TypeReference<Map<String, Object>>() {};
 
-    public static final TypeReference<List<Map<String, Object>>> LIST_MAP_STRING_OBJECT_TYPE_REFERENCE =
+    /**
+     * List[Map[String, Object]]映射
+     */
+    public final TypeReference<List<Map<String, Object>>> LIST_MAP_STRING_OBJECT_TYPE_REFERENCE =
             new TypeReference<List<Map<String, Object>>>() {};
 
-    public static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE_REFERENCE =
+    /**
+     * Map[String, String] 映射
+     */
+    public final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE_REFERENCE =
             new TypeReference<Map<String, String>>() {};
 
-    private static Map<String, String> toStringValueMap(Map<String, Object> map) {
+    /**
+     * 将 Map[String, Object] 转换为 Map[String, String]
+     * @param map Map[String, Object]
+     * @return Map[String, String]
+     */
+    public Map<String, String> toStringValueMap(Map<String, Object> map) {
+
         if(null == map) {
             return null;
         }
@@ -50,6 +81,14 @@ public class CMapUtils {
         return stringStringMap;
     }
 
+    /**
+     * 创建 Map
+     * @param object 键值（任意一个）
+     * @param size 大小
+     * @return Map
+     * @param <K> 键泛型
+     * @param <V> 值泛型
+     */
     public <K, V> Map<K, V> newMap(K object, Integer size) {
 
         if(null == object) {
@@ -59,6 +98,14 @@ public class CMapUtils {
         return newMap(object.getClass(), size);
     }
 
+    /**
+     * 创建 Map
+     * @param type 键类
+     * @param size 大小
+     * @return Map
+     * @param <K> 键泛型
+     * @param <V> 值泛型
+     */
     @SuppressWarnings("unchecked")
     public <K, V> Map<K, V> newMap(Class<?> type, Integer size) {
 
@@ -68,6 +115,13 @@ public class CMapUtils {
         return new LinkedHashMap<>(size);
     }
 
+    /**
+     * 创建 EnumMap
+     * @param type 枚举类
+     * @return Map
+     * @param <K> 键泛型
+     * @param <V> 值泛型
+     */
     @SuppressWarnings({
             "unchecked",
             "rawtypes"
@@ -81,10 +135,24 @@ public class CMapUtils {
         return new EnumMap(type);
     }
 
+    /**
+     * 创建忽略大小写排序的 Map
+     * @return Map
+     * @param <V> 值泛型
+     */
     public <V> TreeMap<String, V> newIgnoreCaseMap() {
         return new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     }
 
+    /**
+     * Map 键映射
+     * @param map 原 Map
+     * @param keyMapper 键映射
+     * @return 新 Map
+     * @param <K1> 原键泛型
+     * @param <K2> 新键泛型
+     * @param <V> 值泛型
+     */
     public <K1, K2, V> Map<K2, V> mapKey(
             Map<K1, V> map,
             CFunction<K1, K2> keyMapper
@@ -92,6 +160,15 @@ public class CMapUtils {
         return map(map, keyMapper, CFunction.self());
     }
 
+    /**
+     * Map 值映射
+     * @param map 原 Map
+     * @param valueMapper 值映射
+     * @return 新 Map
+     * @param <K> 键泛型
+     * @param <V1> 原值泛型
+     * @param <V2> 新值泛型
+     */
     public <K, V1, V2> Map<K, V2> mapValue(
             Map<K, V1> map,
             CFunction<V1, V2> valueMapper
@@ -99,6 +176,17 @@ public class CMapUtils {
         return map(map, CFunction.self(), valueMapper);
     }
 
+    /**
+     * Map 键值映射
+     * @param map 原 Map
+     * @param keyMapper 键映射
+     * @param valueMapper 值映射
+     * @return 新 Map
+     * @param <K1> 原键泛型
+     * @param <V1> 原值泛型
+     * @param <K2> 新键泛型
+     * @param <V2> 新值泛型
+     */
     public <K1, V1, K2, V2> Map<K2, V2> map(
             Map<K1, V1> map,
             CFunction<K1, K2> keyMapper,
