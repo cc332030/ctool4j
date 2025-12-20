@@ -9,14 +9,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * <p>
- * Description: CWebMvcConfig
+ * Description: CWebMvcConfigNew
  * </p>
  *
  * @since 2025/9/28
  */
 @Configuration
 @AllArgsConstructor
-public class CWebMvcConfig implements WebMvcConfigurer {
+public class CWebMvcConfigNew implements WebMvcConfigurer {
 
     CRequestLogHandlerInterceptor requestLogHandlerInterceptor;
 
