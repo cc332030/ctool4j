@@ -48,6 +48,7 @@ public interface ICBaseRequestBodyAdvice extends RequestBodyAdvice {
         return body;
     }
 
+    @Nullable
     @Override
     default Object handleEmptyBody(
         @Nullable Object body,
