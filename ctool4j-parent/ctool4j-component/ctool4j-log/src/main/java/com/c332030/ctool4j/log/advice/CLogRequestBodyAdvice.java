@@ -38,7 +38,7 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
             try {
 
                 val argMap = CMap.of(
-                        "jsonBody", body
+                        "requestBody", body
                 );
                 CRequestLogUtils.setReqs(argMap);
             } catch (Throwable e) {
