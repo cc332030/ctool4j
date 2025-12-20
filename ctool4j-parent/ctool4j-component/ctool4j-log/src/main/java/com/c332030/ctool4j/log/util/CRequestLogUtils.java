@@ -42,12 +42,12 @@ public class CRequestLogUtils {
 
     final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
 
+    final Map<String, Object> EMPTY_REQS = getRequestBodyMap("[no request body]");
+
     final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::logWrite, REQUEST_LOG_STR + "-thread");
-    {
+    static {
         REQUEST_LOG_THREAD.start();
     }
-
-    final Map<String, Object> EMPTY_REQS = getRequestBodyMap("[no request body]");
 
     @Setter
     CRequestLogConfig requestLogConfig;
