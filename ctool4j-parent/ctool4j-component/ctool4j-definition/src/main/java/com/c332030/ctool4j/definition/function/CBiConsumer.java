@@ -14,6 +14,8 @@ import java.util.function.BiConsumer;
 @FunctionalInterface
 public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
 
+    String ACCEPT = "accept";
+
     @Override
     @SneakyThrows
     default void accept(T t, U u) {

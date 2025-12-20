@@ -14,6 +14,8 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface CFunction<O, R> extends Function<O, R> {
 
+    String APPLY = "apply";
+
     @Override
     @SneakyThrows
     default R apply(O o) {
