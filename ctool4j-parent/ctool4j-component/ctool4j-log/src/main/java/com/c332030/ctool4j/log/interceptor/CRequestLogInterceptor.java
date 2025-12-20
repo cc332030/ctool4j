@@ -12,14 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
- * Description: CRequestLogHandlerInterceptor
+ * Description: CRequestLogInterceptor
  * </p>
  *
  * @since 2025/9/28
  */
 @CustomLog
 @Component
-public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
+public class CRequestLogInterceptor implements ICHandlerInterceptor {
 
     @Override
     public boolean preHandle(
