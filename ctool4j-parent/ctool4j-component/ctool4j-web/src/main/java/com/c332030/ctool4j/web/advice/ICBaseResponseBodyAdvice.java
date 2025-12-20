@@ -31,6 +31,7 @@ public interface ICBaseResponseBodyAdvice<T> extends ResponseBodyAdvice<T> {
         return true;
     }
 
+    @Nullable
     @Override
     default T beforeBodyWrite(
         @Nullable T body,
@@ -50,6 +51,7 @@ public interface ICBaseResponseBodyAdvice<T> extends ResponseBodyAdvice<T> {
         );
     }
 
+    @Nullable
     T beforeBodyWrite(
         @Nullable T body,
         MethodParameter returnType,

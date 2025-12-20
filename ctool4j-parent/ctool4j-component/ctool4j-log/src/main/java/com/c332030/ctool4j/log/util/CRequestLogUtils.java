@@ -97,7 +97,7 @@ public class CRequestLogUtils {
 
             val requestLog = getRequestLog();
             if(null == requestLog) {
-                log.warn("write failure because requestLog is null");
+                log.debug("write failure because requestLog is null");
                 return;
             }
 
