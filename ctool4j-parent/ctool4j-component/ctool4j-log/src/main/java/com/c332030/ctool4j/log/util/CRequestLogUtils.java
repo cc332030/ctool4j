@@ -156,7 +156,7 @@ public class CRequestLogUtils {
                 val requestLog = REQUEST_LOG_QUEUE.take();
                 REQUEST_LOG.infoNonNull("{}", requestLog);
             } catch (Throwable e) {
-                log.error("RequestLogUtils asyncWrite error", e);
+                log.error("logWrite error", e);
             }
         }
 
