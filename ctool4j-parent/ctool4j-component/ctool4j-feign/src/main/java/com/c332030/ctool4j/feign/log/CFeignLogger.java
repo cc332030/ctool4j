@@ -4,6 +4,8 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.log.CLog;
+import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
@@ -30,6 +32,10 @@ import java.util.Map;
 @CustomLog
 @AllArgsConstructor
 public class CFeignLogger extends Logger {
+
+    static final String FEIGN_LOG_STR = "feign-log";
+
+    static final CLog FEIGN_LOG = CLogUtils.getLog(FEIGN_LOG_STR);
 
     CFeignClientLogConfig feignLogConfig;
 
@@ -77,7 +83,7 @@ public class CFeignLogger extends Logger {
         printHeaders(httpLog, responseHeaders);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
 
-        log.info("{}", httpLog);
+        FEIGN_LOG.info("{}", httpLog);
 
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
