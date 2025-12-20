@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.log;
 
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.cache.impl.CRefClassValue;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
@@ -188,7 +189,7 @@ public class CLogUtils {
                 }
 
                 // 基础数据类型不转 json
-                return !CClassUtils.isBasicClass(type);
+                return !CClassUtils.isJdkClass(type);
             }
     );
 
@@ -271,6 +272,32 @@ public class CLogUtils {
                 }
             }
         }
+    }
+
+    /**
+     * 类是否可打印在日志里的缓存
+     */
+    final CClassValue<Boolean> PRINT_ABLE_CLASS_VALUE = CClassValue.of(type -> {
+
+        if (type.isEnum()) {
+            return true;
+        }
+
+        return CClassUtils.isBasicClass(type);
+    });
+
+    /**
+     * 类是否可打印在日志里
+     * @param type type
+     * @return boolean
+     */
+    public boolean isPrintAble(Class<?> type) {
+
+        if(isJsonLog(type)) {
+            return true;
+        }
+
+        return PRINT_ABLE_CLASS_VALUE.get(type);
     }
 
 }

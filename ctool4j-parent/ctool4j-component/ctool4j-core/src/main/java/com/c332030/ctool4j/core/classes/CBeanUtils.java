@@ -223,7 +223,7 @@ public class CBeanUtils {
 
         Class<?> objClass;
         if(null == object
-                || CClassUtils.isBasicClass(objClass = object.getClass())
+                || CClassUtils.isJdkClass(objClass = object.getClass())
         ) {
             return CMap.of();
         }

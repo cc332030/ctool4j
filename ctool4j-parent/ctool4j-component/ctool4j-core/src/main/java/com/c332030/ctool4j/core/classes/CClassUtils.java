@@ -57,6 +57,10 @@ public class CClassUtils {
     }
 
     public boolean isBasicClass(Class<?> clazz) {
+        return BASE_CLASSES.contains(clazz);
+    }
+
+    public boolean isJdkClass(Class<?> clazz) {
 
         if (BASE_CLASSES.contains(clazz)) {
             return true;

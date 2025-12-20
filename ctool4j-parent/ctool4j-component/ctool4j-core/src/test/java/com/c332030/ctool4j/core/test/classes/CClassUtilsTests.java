@@ -30,14 +30,14 @@ public class CClassUtilsTests {
     }
 
     @Test
-    public void isBasicClass() {
+    public void isJdkClass() {
 
-        Assertions.assertTrue(CClassUtils.isBasicClass(String.class));
-        Assertions.assertTrue(CClassUtils.isBasicClass(DataSource.class));
-        Assertions.assertTrue(CClassUtils.isBasicClass(Exported.class));
-        Assertions.assertTrue(CClassUtils.isBasicClass(Unsafe.class));
-        Assertions.assertTrue(CClassUtils.isBasicClass(TypeResolver.class));
-        Assertions.assertTrue(CClassUtils.isBasicClass(Sdp.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(String.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(DataSource.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(Exported.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(Unsafe.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(TypeResolver.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(Sdp.class));
 
     }
 
