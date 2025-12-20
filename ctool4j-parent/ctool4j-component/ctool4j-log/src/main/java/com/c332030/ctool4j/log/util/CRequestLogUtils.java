@@ -1,10 +1,11 @@
 package com.c332030.ctool4j.log.util;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
+import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
@@ -48,6 +49,14 @@ public class CRequestLogUtils {
     public boolean isEnable() {
         val enable = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getEnable);
         return BooleanUtil.isTrue(enable);
+    }
+
+    public boolean isAopEnable() {
+        return isEnable() && CRequestLogTypeEnum.AOP.equals(requestLogConfig.getType());
+    }
+
+    public boolean isAdviceEnable() {
+        return isEnable() && CRequestLogTypeEnum.ADVICE.equals(requestLogConfig.getType());
     }
 
     public CRequestLog getRequestLog() {

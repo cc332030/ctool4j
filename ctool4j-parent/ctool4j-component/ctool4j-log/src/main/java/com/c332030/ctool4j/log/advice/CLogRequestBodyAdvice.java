@@ -31,7 +31,7 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
             Class<? extends HttpMessageConverter<?>> converterType
     ) {
 
-        if(BooleanUtil.isTrue(CRequestLogUtils.isEnable())) {
+        if(BooleanUtil.isTrue(CRequestLogUtils.isAdviceEnable())) {
             try {
 
                 CTraceUtils.initTrace();

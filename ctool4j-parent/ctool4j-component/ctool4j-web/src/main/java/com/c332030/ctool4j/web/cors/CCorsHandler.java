@@ -3,13 +3,17 @@ package com.c332030.ctool4j.web.cors;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
-import com.c332030.ctool4j.web.advice.handler.ICResponseBeforeBodyWriteHandler;
+import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,15 +32,21 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 @ConditionalOnBean(CCorsConfig.class)
-public class CCorsHandler implements ICResponseBeforeBodyWriteHandler {
+public class CCorsHandler implements ICBaseResponseBodyAdvice<Object> {
 
     CCorsConfig config;
 
     @Override
-    public Object applyThrowable(HttpServletRequest request, HttpServletResponse response, Object o) {
-
+    public Object beforeBodyWrite(
+        Object body,
+        @NonNull MethodParameter returnType,
+        @NonNull MediaType selectedContentType,
+        @NonNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response
+    ) {
         handle(request, response);
-        return o;
+        return body;
     }
 
     private void handle(HttpServletRequest request, HttpServletResponse response) {
