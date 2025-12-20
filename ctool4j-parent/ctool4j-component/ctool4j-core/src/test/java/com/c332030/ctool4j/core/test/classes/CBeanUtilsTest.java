@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.test.util;
+package com.c332030.ctool4j.core.test.classes;
 
 import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
