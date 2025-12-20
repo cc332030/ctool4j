@@ -35,7 +35,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
         HttpServletRequest request,
         HttpServletResponse response,
         Object handler
-    ) throws Exception {
+    ) {
         try {
             CTraceUtils.initTrace();
             CRequestLogUtils.init();
@@ -51,7 +51,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
         HttpServletResponse response,
         Object handler,
         @Nullable ModelAndView modelAndView
-    ) throws Exception {
+    ) {
         try {
 
             val requestLog = CRequestLogUtils.getThenRemove();
