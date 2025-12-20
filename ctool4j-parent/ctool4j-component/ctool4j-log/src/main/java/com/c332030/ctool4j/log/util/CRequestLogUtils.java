@@ -42,8 +42,7 @@ public class CRequestLogUtils {
 
     final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
 
-    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::asyncWrite, REQUEST_LOG_STR + "-thread");
-
+    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::logWrite, REQUEST_LOG_STR + "-thread");
     {
         REQUEST_LOG_THREAD.start();
     }
@@ -149,7 +148,7 @@ public class CRequestLogUtils {
 
     }
 
-    public void asyncWrite() {
+    public void logWrite() {
 
         while (true) {
             try {
