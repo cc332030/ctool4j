@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.log.aspect;
 
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
@@ -28,8 +27,6 @@ import java.util.LinkedHashMap;
 @Component
 @AllArgsConstructor
 public class CRequestLogAspect {
-
-    CRequestLogConfig requestLogConfig;
 
     @Pointcut(
         "@annotation(org.springframework.web.bind.annotation.RequestMapping) "
