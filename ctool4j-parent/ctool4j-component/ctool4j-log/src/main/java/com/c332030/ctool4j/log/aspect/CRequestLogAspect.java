@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.log.aspect;
 
-import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
@@ -50,9 +49,6 @@ public class CRequestLogAspect {
         Throwable throwable = null;
         val args = joinPoint.getArgs();
 
-        val startMills = System.currentTimeMillis();
-        var costMills = 0L;
-
         val isLogEnable = CRequestLogUtils.isAopEnable();
         var hasRequest = false;
         try {
@@ -83,14 +79,8 @@ public class CRequestLogAspect {
             throwable = e;
             throw e;
         } finally {
-
-            costMills = System.currentTimeMillis() - startMills;
-            if (BooleanUtil.isTrue(requestLogConfig.getSlowLogEnable())
-                && costMills > requestLogConfig.getSlowLogMillis()) {
-                log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), costMills);
-            }
-
             try {
+
                 if (isLogEnable && hasRequest) {
                     CRequestLogUtils.write(result, throwable);
                 }

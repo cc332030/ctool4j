@@ -1,9 +1,14 @@
 package com.c332030.ctool4j.log.interceptor;
 
+import cn.hutool.core.util.BooleanUtil;
+import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.log.util.CTraceUtils;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,7 +25,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 @CustomLog
 @Component
+@AllArgsConstructor
 public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
+
+    CRequestLogConfig config;
 
     @Override
     public boolean preHandle(
@@ -45,7 +53,15 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
         @Nullable ModelAndView modelAndView
     ) throws Exception {
         try {
-            CRequestLogUtils.remove();
+
+            val requestLog = CRequestLogUtils.getThenRemove();
+
+            val rt = requestLog.getRt();
+            if (BooleanUtil.isTrue(config.getSlowLogEnable())
+                && rt > config.getSlowLogMillis()) {
+                log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), rt);
+            }
+
             CTraceUtils.removeTraceInfo();
         } catch (Throwable e) {
             log.error("removeTraceInfo failure", e);

@@ -59,8 +59,14 @@ public class CRequestLogUtils {
         return isEnable() && CRequestLogTypeEnum.ADVICE.equals(requestLogConfig.getType());
     }
 
-    public CRequestLog getRequestLog() {
+    public CRequestLog get() {
         return REQUEST_LOG_THREAD_LOCAL.get();
+    }
+
+    public CRequestLog getThenRemove() {
+        val requestLog = get();
+        remove();
+        return requestLog;
     }
 
     public void init() {
@@ -105,14 +111,14 @@ public class CRequestLogUtils {
 
         });
 
-        val requestLog = getRequestLog();
+        val requestLog = get();
         requestLog.setReqs(reqs);
 
     }
 
     public void write(Object rsp, Throwable throwable) {
 
-        val requestLog = getRequestLog();
+        val requestLog = get();
         if(null == requestLog) {
             log.debug("write failure because requestLog is null");
             return;
