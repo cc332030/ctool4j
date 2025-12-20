@@ -63,7 +63,28 @@ public class CRequestLogUtils {
         return REQUEST_LOG_THREAD_LOCAL.get();
     }
 
-    public void init(Map<String, Object> reqs) {
+    public void init() {
+
+        val request = CRequestUtils.getRequest();
+        val traceId = CTraceUtils.getTraceId();
+
+        val requestLog = CRequestLog.builder()
+                .path(request.getRequestURI())
+                .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
+                .traceId(traceId)
+                .ip(CRequestUtils.getIp(request))
+                .beginTimeMillis(System.currentTimeMillis())
+                .build();
+
+        REQUEST_LOG_THREAD_LOCAL.set(requestLog);
+
+    }
+
+    public void remove() {
+        REQUEST_LOG_THREAD_LOCAL.remove();
+    }
+
+    public void setReqs(Map<String, Object> reqs) {
 
         reqs.entrySet().forEach(entry -> {
 
@@ -84,47 +105,31 @@ public class CRequestLogUtils {
 
         });
 
-        val request = CRequestUtils.getRequest();
-        val traceId = CTraceUtils.getTraceId();
-
-        val requestLog = CRequestLog.builder()
-                .path(request.getRequestURI())
-                .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
-                .reqs(reqs)
-                .traceId(traceId)
-                .ip(CRequestUtils.getIp(request))
-                .beginTimeMillis(System.currentTimeMillis())
-                .build();
-
-        REQUEST_LOG_THREAD_LOCAL.set(requestLog);
+        val requestLog = getRequestLog();
+        requestLog.setReqs(reqs);
 
     }
 
     public void write(Object rsp, Throwable throwable) {
 
-        try {
+        val requestLog = getRequestLog();
+        if(null == requestLog) {
+            log.debug("write failure because requestLog is null");
+            return;
+        }
 
-            val requestLog = getRequestLog();
-            if(null == requestLog) {
-                log.debug("write failure because requestLog is null");
-                return;
-            }
+        val endTimeMillis = System.currentTimeMillis();
 
-            val endTimeMillis = System.currentTimeMillis();
+        requestLog.setEndTimeMillis(endTimeMillis);
+        requestLog.setRt(endTimeMillis - requestLog.getBeginTimeMillis());
+        requestLog.setRsp(rsp);
+        if(null != throwable) {
+            requestLog.setThrowableMessage(throwable.getMessage());
+        }
 
-            requestLog.setEndTimeMillis(endTimeMillis);
-            requestLog.setRt(endTimeMillis - requestLog.getBeginTimeMillis());
-            requestLog.setRsp(rsp);
-            if(null != throwable) {
-                requestLog.setThrowableMessage(throwable.getMessage());
-            }
-
-            val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
-            if(!offerResult) {
-                log.error("REQUEST_LOG_THREAD offer error, requestLog: {}", requestLog);
-            }
-        } finally {
-            REQUEST_LOG_THREAD_LOCAL.remove();
+        val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
+        if(!offerResult) {
+            log.error("REQUEST_LOG_THREAD offer error, requestLog: {}", requestLog);
         }
 
     }

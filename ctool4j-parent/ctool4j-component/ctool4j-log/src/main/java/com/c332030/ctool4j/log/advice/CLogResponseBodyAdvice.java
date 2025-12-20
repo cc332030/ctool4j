@@ -3,6 +3,7 @@ package com.c332030.ctool4j.log.advice;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
+import lombok.CustomLog;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author c332030
  * @since 2025/12/20
  */
+@CustomLog
 public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
 
     @Nullable
@@ -36,7 +38,7 @@ public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> 
             try {
                 CRequestLogUtils.write(body, null);
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                log.error("write failure", e);
             }
         }
 

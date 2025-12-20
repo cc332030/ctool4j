@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.log.interceptor;
 
+import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.log.util.CTraceUtils;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.CustomLog;
@@ -29,6 +30,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
     ) throws Exception {
         try {
             CTraceUtils.initTrace();
+            CRequestLogUtils.init();
         } catch (Throwable e) {
             log.error("initTrace failure", e);
         }
@@ -43,6 +45,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
         @Nullable ModelAndView modelAndView
     ) throws Exception {
         try {
+            CRequestLogUtils.remove();
             CTraceUtils.removeTraceInfo();
         } catch (Throwable e) {
             log.error("removeTraceInfo failure", e);

@@ -4,6 +4,7 @@ import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.web.advice.ICBaseRequestBodyAdvice;
+import lombok.CustomLog;
 import lombok.val;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -19,6 +20,7 @@ import java.lang.reflect.Type;
  * @author c332030
  * @since 2025/12/20
  */
+@CustomLog
 public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
 
     @Override
@@ -36,9 +38,9 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
                 val argMap = CMap.of(
                         "jsonBody", body
                 );
-                CRequestLogUtils.init(argMap);
+                CRequestLogUtils.setReqs(argMap);
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                log.error("setReqs failure", e);
             }
         }
 

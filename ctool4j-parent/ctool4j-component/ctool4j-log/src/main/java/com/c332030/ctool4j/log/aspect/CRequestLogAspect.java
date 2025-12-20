@@ -68,7 +68,7 @@ public class CRequestLogAspect {
                     argMap.put(parameter.getName(), dealArg(args[i]));
                 }
 
-                CRequestLogUtils.init(argMap);
+                CRequestLogUtils.setReqs(argMap);
 
             }
         } catch (Throwable e) {
