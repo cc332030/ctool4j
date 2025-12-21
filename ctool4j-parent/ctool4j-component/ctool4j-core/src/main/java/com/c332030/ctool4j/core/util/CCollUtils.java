@@ -57,6 +57,10 @@ public class CCollUtils {
 
     public <K, V> Map<K, List<V>> groupingBy(Collection<V> collection, CFunction<V, K> function, CPredicate<K> predicate) {
 
+        if(CollUtil.isEmpty(collection)) {
+            return CMap.of();
+        }
+
         val map = new LinkedHashMap<K, List<V>>();
 
         collection.forEach(item -> {
