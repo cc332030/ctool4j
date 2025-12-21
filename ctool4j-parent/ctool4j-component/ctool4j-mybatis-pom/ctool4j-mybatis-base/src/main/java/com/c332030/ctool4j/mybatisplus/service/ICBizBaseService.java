@@ -4,11 +4,15 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CMap;
+import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.val;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -108,6 +112,35 @@ public interface ICBizBaseService<ENTITY extends BIZ, BIZ>
         }
         val bizIds = convertValues(bizList, this::getBizId);
         return listByBizIds(bizIds);
+    }
+
+    default <T> T listByBizIdsThenConvert(Collection<String> bizIds, CFunction<List<ENTITY>, T> converter){
+
+        val list = listByValues(getBizIdColumn(), bizIds);
+        return converter.apply(list);
+    }
+
+    default Map<String, ENTITY> listMapByBizIds(Collection<String> bizIds){
+
+        if(CollUtil.isEmpty(bizIds)) {
+            return CMap.of();
+        }
+        return listByBizIdsThenConvert(bizIds, list ->
+                CCollUtils.toMap(list, this::getBizId));
+    }
+
+    default Map<String, ENTITY> listMapByBizIds(List<? extends BIZ> bizList){
+        val bizIds = convertValues(bizList, this::getBizId);
+        return listMapByBizIds(bizIds);
+    }
+
+    default Map<String, List<ENTITY>> listGroupMapByBizIds(Collection<String> bizIds){
+
+        if(CollUtil.isEmpty(bizIds)) {
+            return CMap.of();
+        }
+        return listByBizIdsThenConvert(bizIds, list ->
+                CCollUtils.groupingBy(list, this::getBizId));
     }
 
     default boolean removeByBizIds(Collection<String> bizIds){
