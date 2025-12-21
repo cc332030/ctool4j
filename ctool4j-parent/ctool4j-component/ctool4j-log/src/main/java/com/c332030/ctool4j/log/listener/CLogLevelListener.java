@@ -71,7 +71,7 @@ public class CLogLevelListener implements ICApplicationListener<EnvironmentChang
 
         val levelNew = Level.toLevel(levelStrNew);
         log.info("update logback level, logger: {}, {} -> {}",
-            logger.getName(), logger.getLevel().levelStr, levelNew.levelStr
+            logger.getName(), logger.getLevel(), levelNew
         );
         logger.setLevel(levelNew);
 
