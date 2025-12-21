@@ -31,10 +31,11 @@ public class CCatchAndLogThrowableAspect {
     @Around("annotationPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) {
 
-        val method = CAspectUtils.getMethod(joinPoint);
         try {
             return joinPoint.proceed(joinPoint.getArgs());
         } catch (Throwable t) {
+
+            val method = CAspectUtils.getMethod(joinPoint);
             log.error("log Throwable on method: {}", method.getName(), t);
         }
 
