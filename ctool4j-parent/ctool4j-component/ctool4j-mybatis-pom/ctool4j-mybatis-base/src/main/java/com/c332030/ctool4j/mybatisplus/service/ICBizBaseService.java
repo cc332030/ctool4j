@@ -116,7 +116,7 @@ public interface ICBizBaseService<ENTITY extends BIZ, BIZ>
 
     default <T> T listByBizIdsThenConvert(Collection<String> bizIds, CFunction<List<ENTITY>, T> converter){
 
-        val list = listByValues(getBizIdColumn(), bizIds);
+        val list = listByBizIds(bizIds);
         return converter.apply(list);
     }
 

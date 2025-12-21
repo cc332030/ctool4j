@@ -114,32 +114,32 @@ public interface ICMainBizBaseService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
         return listByMainBizIds(mainBizIds);
     }
 
-    default <T> T listByMainBizIdsThenConvert(Collection<String> bizIds, CFunction<List<ENTITY>, T> converter){
+    default <T> T listByMainBizIdsThenConvert(Collection<String> mainBizIds, CFunction<List<ENTITY>, T> converter){
 
-        val list = listByValues(getMainBizIdColumn(), bizIds);
+        val list = listByMainBizIds(mainBizIds);
         return converter.apply(list);
     }
 
-    default Map<String, ENTITY> listMapByBizIds(Collection<String> bizIds){
+    default Map<String, ENTITY> listMapByBizIds(Collection<String> mainBizIds){
 
-        if(CollUtil.isEmpty(bizIds)) {
+        if(CollUtil.isEmpty(mainBizIds)) {
             return CMap.of();
         }
-        return listByMainBizIdsThenConvert(bizIds, list ->
+        return listByMainBizIdsThenConvert(mainBizIds, list ->
                 CCollUtils.toMap(list, this::getMainBizId));
     }
 
-    default Map<String, ENTITY> listMapByMainBizIds(List<? extends MAIN_BIZ> bizList){
-        val bizIds = convertValues(bizList, this::getMainBizId);
-        return listMapByBizIds(bizIds);
+    default Map<String, ENTITY> listMapByMainBizIds(List<? extends MAIN_BIZ> mainBizList){
+        val mainBizIds = convertValues(mainBizList, this::getMainBizId);
+        return listMapByBizIds(mainBizIds);
     }
 
-    default Map<String, List<ENTITY>> listGroupMapByBizIds(Collection<String> bizIds){
+    default Map<String, List<ENTITY>> listGroupMapByBizIds(Collection<String> mainBizIds){
 
-        if(CollUtil.isEmpty(bizIds)) {
+        if(CollUtil.isEmpty(mainBizIds)) {
             return CMap.of();
         }
-        return listByMainBizIdsThenConvert(bizIds, list ->
+        return listByMainBizIdsThenConvert(mainBizIds, list ->
                 CCollUtils.groupingBy(list, this::getMainBizId));
     }
 
