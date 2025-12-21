@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollectors;
 import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.core.util.CStrUtils;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -174,11 +175,9 @@ public class CClassUtils {
                 .collect(Collectors.toList());
     }
 
-    final String LINE_SEPARATOR = String.join(" ", Collections.nCopies(100, ""));
-
     public void compareField(Class<?>... classes) {
 
-        val fieldClassMap = new TreeMap<String, Map<Class<?>, Field>>();
+        val fieldClassMap = new LinkedHashMap<String, Map<Class<?>, Field>>();
 
         val sb = new StringBuilder("\n\n");
         for (val aClass : classes) {
@@ -237,8 +236,16 @@ public class CClassUtils {
                 val columnList = tables.get(i1);
                 val column = columnList.get(i);
 
-                val width = columnWidthList.get(i1);
-                sb.append(StrUtil.fillAfter(column, ' ', width + 2));
+                val width = columnWidthList.get(i1) + 2;
+
+                String columnReal;
+                if (i1 == 0) {
+                    columnReal = StrUtil.fillAfter(column, ' ', width);
+                } else {
+                    columnReal = CStrUtils.fillSide(column, ' ', width);
+                }
+
+                sb.append(columnReal);
             }
             sb.append("\n");
         }

@@ -825,4 +825,30 @@ public class CStrUtils {
         return str;
     }
 
+    public String repeat(String str, int count) {
+        return repeat(str, count, "");
+    }
+
+    public String repeat(String str, int count, String separator) {
+        return String.join(separator, Collections.nCopies(count, str));
+    }
+
+    public String fillSide(String str, char fillChar, int length) {
+
+        if(StrUtil.isEmpty(str)) {
+            return repeat(String.valueOf(fillChar), length);
+        }
+
+        val restWidth = length - str.length();
+        if(restWidth <= 0) {
+            return str;
+        }
+
+        val halfRestWidth = restWidth / 2;
+        return repeat(String.valueOf(fillChar), halfRestWidth)
+                + str
+                + repeat(String.valueOf(fillChar), restWidth - halfRestWidth)
+                ;
+    }
+
 }
