@@ -13,6 +13,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring-cloud</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
             <scope>provided</scope>
