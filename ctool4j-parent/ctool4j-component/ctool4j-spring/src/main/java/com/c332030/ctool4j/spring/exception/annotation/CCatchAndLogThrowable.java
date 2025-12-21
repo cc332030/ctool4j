@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.log.exception.annotation;
+package com.c332030.ctool4j.spring.exception.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

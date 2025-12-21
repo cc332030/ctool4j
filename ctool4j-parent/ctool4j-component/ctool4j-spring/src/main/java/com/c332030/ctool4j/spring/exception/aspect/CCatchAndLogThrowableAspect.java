@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.log.exception.aspect;
+package com.c332030.ctool4j.spring.exception.aspect;
 
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import lombok.AllArgsConstructor;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CCatchAndLogThrowableAspect {
 
-    @Pointcut("@annotation(com.c332030.ctool4j.log.exception.annotation.CCatchAndLogThrowable)")
+    @Pointcut("@annotation(com.c332030.ctool4j.spring.exception.annotation.CCatchAndLogThrowable)")
     public void annotationPointcut() {}
 
     @SneakyThrows
