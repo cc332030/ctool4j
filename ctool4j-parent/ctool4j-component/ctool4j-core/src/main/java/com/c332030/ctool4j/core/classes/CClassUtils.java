@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.classes;
 
-import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollectors;
 import com.c332030.ctool4j.core.util.CSet;
 import lombok.CustomLog;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -172,57 +174,76 @@ public class CClassUtils {
                 .collect(Collectors.toList());
     }
 
-    public void compareField(Class<?> class1, Class<?> class2) {
+    final String LINE_SEPARATOR = String.join(" ", Collections.nCopies(100, ""));
 
-        log.info("class1: {}", class1);
-        log.info("class2: {}", class2);
+    public void compareField(Class<?>... classes) {
 
-        val fieldMap1 = CReflectUtils.getFields(class1);
-        val fieldMap2 = CReflectUtils.getFields(class2);
+        val fieldClassMap = new TreeMap<String, Map<Class<?>, Field>>();
 
-        log.info("\n");
-        val commonFieldNames = new LinkedHashSet<>(fieldMap1.keySet());
-        commonFieldNames.retainAll(fieldMap2.keySet());
-        log.info("commonFields.size: {}", commonFieldNames::size);
-        if (CollUtil.isNotEmpty(commonFieldNames)) {
+        val sb = new StringBuilder("\n\n");
+        for (val aClass : classes) {
+            sb.append(aClass.getName()).append("\n");
 
-            val typeMatchFieldNames = new ArrayList<>();
-            val typeMismatchFieldNames = new ArrayList<>();
-
-            commonFieldNames.forEach(fieldName -> {
-
-                if (fieldMap1.get(fieldName).getType().equals(fieldMap2.get(fieldName).getType())) {
-                    typeMatchFieldNames.add(fieldName);
-                } else {
-                    typeMismatchFieldNames.add(fieldName);
-                }
-            });
-
-            typeMatchFieldNames.forEach(fieldName -> log.info("match name: {}, type: {}",
-                    fieldName, fieldMap1.get(fieldName).getType()));
-
-            typeMismatchFieldNames.forEach(fieldName -> log.info("mismatch name: {}, type1: {}, type2: {}",
-                    fieldName, fieldMap1.get(fieldName).getType(), fieldMap2.get(fieldName).getType()));
-
+            val fieldMap = CReflectUtils.getFields(aClass);
+            fieldMap.forEach((fieldName, field) ->
+                    fieldClassMap.computeIfAbsent(fieldName, k -> new HashMap<>())
+                            .put(aClass, field));
         }
 
+        val tables = new ArrayList<List<String>>(classes.length + 1);
 
-        log.info("\n");
-        val leftFieldNames = new LinkedHashSet<>(fieldMap1.keySet());
-        leftFieldNames.removeAll(fieldMap2.keySet());
-        log.info("leftFields.size: {}", leftFieldNames::size);
+        val fieldNameColumn = new ArrayList<String>(fieldClassMap.size() + 1);
+        fieldNameColumn.add("");
+        tables.add(fieldNameColumn);
 
-        leftFieldNames.forEach(name -> log.info("left name: {}, type: {}",
-                name, fieldMap1.get(name).getType()));
+        for (val clazz : classes) {
+            val list = new ArrayList<String>(fieldClassMap.size() + 1);
+            list.add(clazz.getSimpleName());
+            tables.add(list);
+        }
 
+        fieldClassMap.forEach((fieldName, map) -> {
 
-        log.info("\n");
-        val rightFieldNames = new LinkedHashSet<>(fieldMap2.keySet());
-        rightFieldNames.removeAll(fieldMap1.keySet());
-        log.info("rightFields.size: {}", rightFieldNames::size);
+            fieldNameColumn.add(fieldName);
+            for (int i = 0; i < classes.length; i++) {
 
-        rightFieldNames.forEach(name -> log.info("right name: {}, type: {}",
-                name, fieldMap2.get(name).getType()));
+                val className = classes[i];
+                val columnList = tables.get(i + 1);
+
+                val fieldType = Opt.ofNullable(map.get(className))
+                        .map(Field::getType)
+                        .map(Class::getSimpleName)
+                        .orElse("-");
+                columnList.add(fieldType);
+            }
+
+        });
+
+        val columnWidthList = new ArrayList<Integer>();
+        tables.forEach(columnList -> {
+
+            val maxWidth = columnList.stream()
+                    .mapToInt(String::length)
+                    .max()
+                    .orElse(0);
+            columnWidthList.add(maxWidth);
+
+        });
+
+        val lineSize = tables.get(0).size();
+        for (int i = 0; i < lineSize; i++) {
+            for (int i1 = 0; i1 < tables.size(); i1++) {
+
+                val columnList = tables.get(i1);
+                val column = columnList.get(i);
+
+                val width = columnWidthList.get(i1);
+                sb.append(StrUtil.fillAfter(column, ' ', width + 2));
+            }
+            sb.append("\n");
+        }
+
+        System.out.println(sb);
 
     }
 

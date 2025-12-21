@@ -1,6 +1,9 @@
 package com.c332030.ctool4j.core.test.classes;
 
 import com.c332030.ctool4j.core.classes.CClassUtils;
+import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
+import com.c332030.ctool4j.definition.entity.base.CBaseTimeEntity;
+import com.c332030.ctool4j.definition.entity.base.CId;
 import com.oracle.net.Sdp;
 import com.sun.beans.TypeResolver;
 import jdk.Exported;
@@ -18,6 +21,13 @@ import javax.sql.DataSource;
  * @since 2025/12/12
  */
 public class CClassUtilsTests {
+
+    @Test
+    public void compareField(){
+
+        CClassUtils.compareField(CId.class, CBaseTimeEntity.class, CBaseEntity.class);
+
+    }
 
     @Test
     public void getFirstPackage() {
