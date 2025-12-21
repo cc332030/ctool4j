@@ -179,7 +179,7 @@ public class CClassUtils {
 
         val fieldClassMap = new LinkedHashMap<String, Map<Class<?>, Field>>();
 
-        val sb = new StringBuilder("\n\n");
+        val sb = new StringBuilder("\n");
         for (val aClass : classes) {
             sb.append(aClass.getName()).append("\n");
 
