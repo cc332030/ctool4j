@@ -14,7 +14,6 @@ import lombok.val;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  * @since 2025/12/21
  */
 @CustomLog
-@Component
+//@Component // 好像已经支持了
 @AllArgsConstructor
 public class CLogLevelListener implements ICApplicationListener<EnvironmentChangeEvent>, ICProxyService<CLogLevelListener> {
 
