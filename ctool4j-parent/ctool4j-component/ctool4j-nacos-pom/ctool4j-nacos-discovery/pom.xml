@@ -4,23 +4,17 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-nacos-pom</artifactId>
         <version>0.0.7-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-nacos</artifactId>
+    <artifactId>ctool4j-nacos-discovery</artifactId>
 
     <dependencies>
 
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
             <scope>provided</scope>
         </dependency>
 

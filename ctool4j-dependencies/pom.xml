@@ -64,7 +64,13 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-nacos</artifactId>
+                <artifactId>ctool4j-nacos-config</artifactId>
+                <version>0.0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-nacos-discovery</artifactId>
                 <version>0.0.7-SNAPSHOT</version>
             </dependency>
 

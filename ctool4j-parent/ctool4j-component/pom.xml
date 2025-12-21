@@ -21,11 +21,11 @@
         <module>ctool4j-feign</module>
         <module>ctool4j-redis</module>
         <module>ctool4j-cache</module>
-        <module>ctool4j-nacos</module>
         <module>ctool4j-transaction</module>
         <module>ctool4j-db</module>
 
         <module>ctool4j-mybatis-pom</module>
+        <module>ctool4j-nacos-pom</module>
         <module>ctool4j-job-pom</module>
         <module>ctool4j-data-pom</module>
         <module>ctool4j-doc-pom</module>
