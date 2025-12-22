@@ -137,9 +137,8 @@ public class CSpringUtils {
      * @param classes 需要注入的类
      * @param <T> 泛型
      */
-    @SafeVarargs
     @SneakyThrows
-    public static <T> void wireBean(Class<T> tClass, Class<T>... classes) {
+    public static <T> void wireBean(Class<T> tClass, Class<?>... classes) {
 
         val setMethods = Arrays.stream(classes)
             .map(clazz -> {
