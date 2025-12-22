@@ -26,8 +26,7 @@ public class CRestTemplateUtils {
 
     public RestTemplate restTemplate(ObjectMapper objectMapper) {
 
-        RestTemplate restTemplate = new RestTemplate(CHttpClientUtils.REQUEST_FACTORY);
-
+        val restTemplate = new RestTemplate(CHttpClientUtils.REQUEST_FACTORY);
         CJsonUtils.configureMessageConverters(restTemplate.getMessageConverters(), objectMapper);
 
         return restTemplate;
