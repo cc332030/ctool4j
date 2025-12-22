@@ -7,9 +7,11 @@ import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CCommUtils;
+import com.c332030.ctool4j.core.util.CThreadLocalUtils;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
 import feign.Logger;
+import feign.Request;
 import feign.Response;
 import feign.Util;
 import lombok.AllArgsConstructor;
@@ -37,7 +39,17 @@ public class CFeignLogger extends Logger {
 
     static final CLog FEIGN_LOG = CLogUtils.getLog(FEIGN_LOG_STR);
 
+    static final ThreadLocal<Long> START_MILLS = new ThreadLocal<>();
+
     CFeignClientLogConfig feignLogConfig;
+
+    @Override
+    protected void logRequest(String configKey, Level logLevel, Request request) {
+        if(BooleanUtil.isTrue(feignLogConfig.getEnable())) {
+            START_MILLS.set(System.currentTimeMillis());
+        }
+        super.logRequest(configKey, logLevel, request);
+    }
 
     @Override
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) throws IOException {
@@ -61,6 +73,8 @@ public class CFeignLogger extends Logger {
     @SneakyThrows
     private Response dealLog(Response response) {
 
+        val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
+
         val request = response.request();
         val method = request.httpMethod();
         val url = request.url();
@@ -82,6 +96,11 @@ public class CFeignLogger extends Logger {
         httpLog.append("\n");
         printHeaders(httpLog, responseHeaders);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
+        if(null != startMills) {
+            val cost= System.currentTimeMillis() - startMills;
+            httpLog.append("\ncost: ");
+            httpLog.append(cost);
+        }
 
         FEIGN_LOG.info("{}", httpLog);
 
