@@ -60,19 +60,19 @@ public class CUrlUtils {
         return port == null ? host : host + ":" + port;
     }
 
-    public static String getParam(String url, String paramName) {
+    public String getParam(String url, String paramName) {
         return getParam(getParamMap(url), paramName);
     }
 
-    public static String getParam(Map<String, String> paramMap, String paramName) {
+    public String getParam(Map<String, String> paramMap, String paramName) {
         return paramMap.getOrDefault(paramName, null);
     }
 
-    public static Map<String, String> getParams(String url, Collection<String> paramNames) {
+    public Map<String, String> getParams(String url, Collection<String> paramNames) {
         return getParams(getParamMap(url), paramNames);
     }
 
-    public static Map<String, String> getParams(Map<String, String> paramMap, Collection<String> paramNames) {
+    public Map<String, String> getParams(Map<String, String> paramMap, Collection<String> paramNames) {
 
         if(MapUtil.isEmpty(paramMap)
                 || CollUtil.isEmpty(paramNames = CCollUtils.filterString(paramNames))
@@ -92,7 +92,7 @@ public class CUrlUtils {
         return newMap;
     }
 
-    public static Map<String, String> getParamMap(String url) {
+    public Map<String, String> getParamMap(String url) {
 
         if(StrUtil.isEmpty(url)) {
             return Collections.emptyMap();
@@ -118,14 +118,14 @@ public class CUrlUtils {
     }
 
     @SneakyThrows
-    public static String decode(String value) {
+    public String decode(String value) {
         if(StrUtil.isEmpty(value)) {
             return null;
         }
         return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
     }
 
-    public static String getUrl(String url) {
+    public String getUrl(String url) {
         if(StrUtil.isEmpty(url)) {
             return null;
         }
@@ -133,7 +133,7 @@ public class CUrlUtils {
     }
 
     @SneakyThrows
-    public static String getPath(String url) {
+    public String getPath(String url) {
         url = getUrl(url);
         if(StrUtil.isEmpty(url)) {
             return null;
@@ -141,7 +141,7 @@ public class CUrlUtils {
         return new URL(url).getPath();
     }
 
-    public static List<String> splitToPath(String urlStr) {
+    public List<String> splitToPath(String urlStr) {
 
         val path = getPath(urlStr);
         if(StrUtil.isEmpty(path)) {
@@ -157,12 +157,17 @@ public class CUrlUtils {
                 .collect(Collectors.toList());
     }
 
-    public static String firstPath(String url) {
+    public String firstPath(String url) {
         return CCollUtils.first(splitToPath(url));
     }
 
-    public static String lastPath(String url) {
+    public String lastPath(String url) {
         return CCollUtils.last(splitToPath(url));
+    }
+
+    public String replaceDomain(String url, String newDomain) {
+        val path = getPath(url);
+        return newDomain + path;
     }
 
 }
