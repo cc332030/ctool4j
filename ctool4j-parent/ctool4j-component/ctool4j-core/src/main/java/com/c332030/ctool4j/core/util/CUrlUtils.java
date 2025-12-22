@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.validation.CAssert;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -166,6 +167,9 @@ public class CUrlUtils {
     }
 
     public String replaceDomain(String url, String newDomain) {
+
+        CAssert.notBlank(newDomain, "newDomain must not be blank");
+
         val path = getPath(url);
         return newDomain + path;
     }
