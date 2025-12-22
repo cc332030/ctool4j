@@ -1,8 +1,13 @@
 package com.c332030.ctool4j.feign.util;
 
+import com.c332030.ctool4j.definition.function.CConsumer;
+import feign.RequestTemplate;
 import feign.Response;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -15,6 +20,28 @@ import lombok.val;
 public class CFeignUtils {
 
     public final ThreadLocal<StringBuilder> HTTP_LOG_THREAD_LOCAL = ThreadLocal.withInitial(StringBuilder::new);
+
+    private static final Map<Class<?>, CConsumer<RequestTemplate>> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
+
+    public void addInterceptor(Class<?> clazz, CConsumer<RequestTemplate> consumer) {
+        INTERCEPTOR_MAP.put(clazz, consumer);
+    }
+
+    public boolean intercept(RequestTemplate template) {
+        val type = template.feignTarget().type();
+        return intercept(type, template);
+    }
+
+    public boolean intercept(Class<?> type, RequestTemplate template) {
+
+        for (val entry : INTERCEPTOR_MAP.entrySet()) {
+            if(entry.getKey().isAssignableFrom(type)) {
+                entry.getValue().accept(template);
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * 构建新的响应

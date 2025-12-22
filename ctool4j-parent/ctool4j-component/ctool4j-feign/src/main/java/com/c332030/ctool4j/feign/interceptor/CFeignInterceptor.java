@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.feign.config.CFeignClientHeaderConfig;
 import com.c332030.ctool4j.feign.enums.CFeignClientHeaderPropagationModeEnum;
+import com.c332030.ctool4j.feign.util.CFeignUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -31,6 +32,7 @@ public class CFeignInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate template) {
         try {
             dealHeaders(template);
+            CFeignUtils.intercept(template);
         } catch (Throwable t) {
             log.error("dealHeaders error", t);
         }
