@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.feign.configuration;
 
 import com.c332030.ctool4j.feign.client.CFeignClient;
-import com.c332030.ctool4j.feign.config.CFeignClientHeaderConfig;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.interceptor.CFeignInterceptor;
 import com.c332030.ctool4j.feign.log.CFeignLogger;
@@ -22,8 +21,8 @@ import org.springframework.context.annotation.Configuration;
 public class CFeignConfiguration {
 
     @Bean
-    public CFeignInterceptor cFeignInterceptor(CFeignClientHeaderConfig headerConfig) {
-        return new CFeignInterceptor(headerConfig);
+    public CFeignInterceptor cFeignInterceptor() {
+        return new CFeignInterceptor();
     }
 
 //    @Bean

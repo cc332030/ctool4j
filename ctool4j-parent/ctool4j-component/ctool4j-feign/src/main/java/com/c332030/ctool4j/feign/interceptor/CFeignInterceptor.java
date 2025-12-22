@@ -24,9 +24,9 @@ public class CFeignInterceptor implements RequestInterceptor {
             if(CFeignUtils.intercept(template)) {
                 return;
             }
-            CFeignUtils.dealHeaders(template);
+            CFeignUtils.transferHeaders(template);
         } catch (Throwable t) {
-            log.error("dealHeaders error", t);
+            log.error("transferHeaders error", t);
         }
     }
 

@@ -78,7 +78,7 @@ public class CFeignUtils {
             .build();
     }
 
-    public void dealHeaders(RequestTemplate template) {
+    public void transferHeaders(RequestTemplate template) {
 
         val propagationMode = headerConfig.getPropagationMode();
         val propagationRequestHeaders = headerConfig.getPropagationRequestHeaders();
