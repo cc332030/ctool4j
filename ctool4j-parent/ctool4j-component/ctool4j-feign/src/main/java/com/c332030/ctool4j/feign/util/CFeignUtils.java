@@ -80,6 +80,10 @@ public class CFeignUtils {
 
     public void transferHeaders(RequestTemplate template) {
 
+        if(null == headerConfig) {
+            return;
+        }
+
         val propagationMode = headerConfig.getPropagationMode();
         val propagationRequestHeaders = headerConfig.getPropagationRequestHeaders();
 
