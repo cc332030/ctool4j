@@ -8,6 +8,7 @@ import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,6 +23,10 @@ import java.math.RoundingMode;
 @CustomLog
 @UtilityClass
 public class CNumUtils {
+
+    public final String CHARTSET_62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public final char[] CHARTSET_62_ARR = CHARTSET_62.toCharArray();
 
     public final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
@@ -266,6 +271,19 @@ public class CNumUtils {
      */
     public Long toLong(Integer value) {
         return CObjUtils.convert(value, Integer::longValue);
+    }
+
+    public String to62(long value) {
+
+        val sb = new StringBuilder();
+        while (value != 0) {
+
+            val index = (int) (value % 62);
+            sb.append(CHARTSET_62_ARR[index]);
+            value /= 62;
+        }
+
+        return sb.reverse().toString();
     }
 
 }
