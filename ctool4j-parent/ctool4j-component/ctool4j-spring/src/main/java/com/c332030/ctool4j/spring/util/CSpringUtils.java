@@ -1,15 +1,21 @@
 package com.c332030.ctool4j.spring.util;
 
+import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.spring.bean.CSpringBeans;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -122,6 +128,37 @@ public class CSpringUtils {
         val bean = getBean(tClass);
         for (val consumer : consumers) {
             consumer.accept(bean);
+        }
+    }
+
+    /**
+     * 获取指定类型并注入属性
+     * @param tClass bean 类型
+     * @param classes 需要注入的类
+     * @param <T> 泛型
+     */
+    @SafeVarargs
+    @SneakyThrows
+    public static <T> void wireBean(Class<T> tClass, Class<T>... classes) {
+
+        val setMethods = Arrays.stream(classes)
+            .map(clazz -> {
+                val methods = CReflectUtils.getMethods(clazz)
+                    .stream()
+                    .filter(CReflectUtils::isStatic)
+                    .filter(e -> e.getName().startsWith("set"))
+                    .filter(e -> e.getParameterCount() == 1 && e.getParameterTypes()[0] == tClass)
+                    .collect(Collectors.toList());
+
+                CAssert.notEmpty(methods, () -> "没有找到注入类的 set 方法，tClass：" +  clazz);
+                return methods;
+            })
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        val bean = getBean(tClass);
+        for (val setMethod : setMethods) {
+            setMethod.invoke(null, bean);
         }
     }
 
