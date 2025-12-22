@@ -135,10 +135,9 @@ public class CSpringUtils {
      * 获取指定类型并注入属性
      * @param tClass bean 类型
      * @param classes 需要注入的类
-     * @param <T> 泛型
      */
     @SneakyThrows
-    public static <T> void wireBean(Class<T> tClass, Class<?>... classes) {
+    public static void wireBean(Class<?> tClass, Class<?>... classes) {
 
         val setMethods = Arrays.stream(classes)
             .map(clazz -> {
