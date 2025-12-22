@@ -149,7 +149,7 @@ public class CSpringUtils {
                     .filter(e -> e.getParameterCount() == 1 && e.getParameterTypes()[0] == tClass)
                     .collect(Collectors.toList());
 
-                CAssert.notEmpty(methods, () -> "没有找到注入类的 set 方法，tClass：" +  clazz);
+                CAssert.notEmpty(methods, () -> clazz + " 中没有 " + tClass + " 的 set 方法");
                 return methods;
             })
             .flatMap(Collection::stream)
