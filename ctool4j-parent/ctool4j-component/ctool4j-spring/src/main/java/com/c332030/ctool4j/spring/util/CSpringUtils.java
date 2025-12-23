@@ -172,7 +172,7 @@ public class CSpringUtils {
         }
     }
 
-    public Set<String> listScanBasePackages() {
+    public Set<String> getBasePackages() {
 
         val springApplicationMap = getBeansWithAnnotation(SpringBootApplication.class);
         CAssert.notEmpty(springApplicationMap, "springApplicationMap 不能为空");

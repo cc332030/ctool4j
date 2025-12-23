@@ -24,7 +24,7 @@ public class CSpringInit implements ICSpringInit {
 
         CAutowiredUtils.autowired(CToolConstants.BASE_PACKAGE);
 
-        val basePackages = CSpringUtils.listScanBasePackages();
+        val basePackages = CSpringUtils.getBasePackages();
         log.info("basePackages: {}", basePackages);
         basePackages.forEach(CAutowiredUtils::autowired);
 
