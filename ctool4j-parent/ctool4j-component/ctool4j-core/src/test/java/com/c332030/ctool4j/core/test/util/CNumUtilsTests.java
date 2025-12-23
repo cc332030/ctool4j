@@ -27,4 +27,38 @@ public class CNumUtilsTests {
 
     }
 
+    @Test
+    public void max() {
+
+        Assertions.assertEquals(9, CNumUtils.max(
+            -1, 1, 3, 9
+        ));
+
+        Assertions.assertEquals(9, CNumUtils.max(
+            1, 3, 9
+        ));
+
+        Assertions.assertEquals(-1, CNumUtils.max(
+            -1, -3, -9
+        ));
+
+    }
+
+    @Test
+    public void min() {
+
+        Assertions.assertEquals(-1, CNumUtils.min(
+            -1, 1, 3, 9
+        ));
+
+        Assertions.assertEquals(1, CNumUtils.min(
+            1, 3, 9
+        ));
+
+        Assertions.assertEquals(-9, CNumUtils.min(
+            -1, -3, -9
+        ));
+
+    }
+
 }
