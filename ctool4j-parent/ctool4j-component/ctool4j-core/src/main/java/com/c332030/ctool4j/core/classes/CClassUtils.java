@@ -11,6 +11,7 @@ import lombok.val;
 import lombok.var;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.core.type.filter.TypeFilter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -154,25 +155,29 @@ public class CClassUtils {
                 .collect(Collectors.toList());
     }
 
-
-    @SuppressWarnings("unchecked")
-    public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
+    public <T> List<Class<T>> findClasses(TypeFilter typeFilter, String packageName) {
 
         val provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(superClass));
+        provider.addIncludeFilter(typeFilter);
 
         val components = provider.findCandidateComponents(packageName);
         return components.stream()
-                .map(beanDefinition -> {
-                    try {
-                        return (Class<T>) Class.forName(beanDefinition.getBeanClassName());
-                    } catch (ClassNotFoundException e) {
-                        log.debug("can't find subclass for: {}", superClass, e);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .map(beanDefinition -> {
+                try {
+                    @SuppressWarnings("unchecked")
+                    val clazz = (Class<T>) Class.forName(beanDefinition.getBeanClassName());
+                    return clazz;
+                } catch (ClassNotFoundException e) {
+                    log.debug("can't find class for:", e);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    }
+
+    public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
+        return findClasses(new AssignableTypeFilter(superClass), packageName);
     }
 
     public void compareField(Class<?>... classes) {
