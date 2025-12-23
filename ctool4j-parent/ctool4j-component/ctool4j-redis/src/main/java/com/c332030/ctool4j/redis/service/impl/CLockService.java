@@ -117,15 +117,17 @@ public class CLockService {
     public <T> T tryLockThenRun(String key, Duration waitDuration,
                                 CSupplier<T> valueSupplier, CRunnable failureRunnable) {
 
-        long timeout;
-        TimeUnit timeUnit;
+        long timeout = 0;
+        TimeUnit timeUnit = null;
 
-        if (TimeoutUtils.hasMillis(waitDuration)) {
-            timeout = waitDuration.toMillis();
-            timeUnit = TimeUnit.MILLISECONDS;
-        } else {
-            timeout = waitDuration.getSeconds();
-            timeUnit = TimeUnit.SECONDS;
+        if(null != waitDuration) {
+            if (TimeoutUtils.hasMillis(waitDuration)) {
+                timeout = waitDuration.toMillis();
+                timeUnit = TimeUnit.MILLISECONDS;
+            } else {
+                timeout = waitDuration.getSeconds();
+                timeUnit = TimeUnit.SECONDS;
+            }
         }
 
         return tryLockThenRun(key, timeout, timeUnit, valueSupplier, failureRunnable);

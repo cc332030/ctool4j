@@ -62,6 +62,18 @@ public class CLockUtils {
     /**
      * 获取锁并做处理
      * @param key lockKey
+     * @param valueSupplier 锁成功操作
+     * @param failureRunnable 锁失败操作
+     * @return 锁成功操作结果
+     * @param <T> 返回结果类型
+     */
+    public <T> T tryLockThenRun(String key, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
+        return tryLockThenRun(key, null, valueSupplier, failureRunnable);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
      * @param waitSeconds 等锁秒数
      * @param valueSupplier 锁成功操作
      * @param failureRunnable 锁失败操作
@@ -105,6 +117,16 @@ public class CLockUtils {
      */
     public void tryLockThenRun(String key, int waitSeconds, CRunnable runnable) {
         tryLockThenRun(key, Duration.ofSeconds(waitSeconds), runnable);
+    }
+
+    /**
+     * 获取锁并做处理
+     * @param key lockKey
+     * @param runnable 锁成功操作
+     * @param failureRunnable 锁失败操作
+     */
+    public void tryLockThenRun(String key, CRunnable runnable, CRunnable failureRunnable) {
+        tryLockThenRun(key, null, runnable, failureRunnable);
     }
 
     /**
