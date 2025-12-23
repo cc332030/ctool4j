@@ -17,6 +17,7 @@ import lombok.var;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -849,6 +850,18 @@ public class CStrUtils {
                 + str
                 + repeat(String.valueOf(fillChar), restWidth - halfRestWidth)
                 ;
+    }
+
+    public String generateRandomString(int length) {
+
+        String characters = CNumUtils.CHARTSET_62;
+        val sb = new StringBuilder(length);
+        val secureRandom = new SecureRandom();
+        for (int i = 0; i < length; i++) {
+            int index = secureRandom.nextInt(characters.length());
+            sb.append(characters.charAt(index));
+        }
+        return sb.toString();
     }
 
 }
