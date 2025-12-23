@@ -2,6 +2,7 @@ package com.c332030.ctool4j.redis.util;
 
 import com.c332030.ctool4j.definition.interfaces.IOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
+import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
@@ -19,6 +20,7 @@ import java.util.Collections;
  * @since 2025/11/10
  */
 @UtilityClass
+@CAutowired
 public class CRedisUtils {
 
     public final String KEY_SEPARATOR = ":";

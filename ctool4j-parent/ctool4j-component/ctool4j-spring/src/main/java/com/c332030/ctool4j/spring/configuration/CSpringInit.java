@@ -1,7 +1,11 @@
 package com.c332030.ctool4j.spring.configuration;
 
+import com.c332030.ctool4j.definition.constant.CToolConstants;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
 import com.c332030.ctool4j.spring.util.CAutowiredUtils;
+import com.c332030.ctool4j.spring.util.CSpringUtils;
+import lombok.CustomLog;
+import lombok.val;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,13 +15,18 @@ import org.springframework.stereotype.Component;
  *
  * @since 2025/11/10
  */
+@CustomLog
 @Component
 public class CSpringInit implements ICSpringInit {
 
     @Override
     public void onInit() {
 
-        CAutowiredUtils.autowired();
+        CAutowiredUtils.autowired(CToolConstants.BASE_PACKAGE);
+
+        val basePackages = CSpringUtils.listScanBasePackages();
+        log.info("basePackages: {}", basePackages);
+        basePackages.forEach(CAutowiredUtils::autowired);
 
     }
 

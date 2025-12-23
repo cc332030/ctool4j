@@ -25,10 +25,9 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CAutowiredUtils {
 
-    public void autowired() {
+    public void autowired(String packageName) {
 
-        val annotatedClasses = CClassUtils.listAnnotatedClass(CAutowired.class, "com");
-
+        val annotatedClasses = CClassUtils.listAnnotatedClass(CAutowired.class, packageName);
         annotatedClasses.forEach(annotatedClass -> {
 
             val methods = listSetMethod(annotatedClass);

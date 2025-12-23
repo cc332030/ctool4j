@@ -1,19 +1,22 @@
 package com.c332030.ctool4j.spring.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.spring.bean.CSpringBeans;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -124,7 +127,7 @@ public class CSpringUtils {
      * @param <T> 泛型
      */
     @SafeVarargs
-    public static <T> void wireBean(Class<T> tClass, Consumer<T>... consumers) {
+    public <T> void wireBean(Class<T> tClass, Consumer<T>... consumers) {
         val bean = getBean(tClass);
         for (val consumer : consumers) {
             consumer.accept(bean);
@@ -137,7 +140,7 @@ public class CSpringUtils {
      * @param classes 需要注入的类
      */
     @SneakyThrows
-    public static void wireBean(Class<?> tClass, Class<?>... classes) {
+    public void wireBean(Class<?> tClass, Class<?>... classes) {
 
         val setMethods = Arrays.stream(classes)
             .map(clazz -> {
@@ -158,6 +161,29 @@ public class CSpringUtils {
         for (val setMethod : setMethods) {
             setMethod.invoke(null, bean);
         }
+    }
+
+    public List<String> listScanBasePackages() {
+
+        val springApplication = getBean(SpringApplication.class);
+        CAssert.notNull(springApplication, "SpringApplication 不能为空");
+
+        val mainApplicationClass = springApplication.getMainApplicationClass();
+        CAssert.notNull(springApplication, "mainApplicationClass 不能为空");
+
+        val springBootAppAnnotation = mainApplicationClass.getAnnotation(SpringBootApplication.class);
+        CAssert.notNull(springApplication, "mainApplicationClass 未标识 @SpringBootApplication");
+
+        val explicitScanPackages = springBootAppAnnotation.scanBasePackages();
+        if(ArrayUtil.isNotEmpty(explicitScanPackages)) {
+            return Arrays.stream(explicitScanPackages)
+                .map(CStrUtils::toAvailable)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        }
+
+        return CList.of(mainApplicationClass.getPackage().getName());
     }
 
 }
