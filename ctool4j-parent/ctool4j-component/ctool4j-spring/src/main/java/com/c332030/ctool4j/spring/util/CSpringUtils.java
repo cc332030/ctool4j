@@ -178,7 +178,6 @@ public class CSpringUtils {
         CAssert.notEmpty(springApplicationMap, "springApplicationMap 不能为空");
 
         val basePackages = new LinkedHashSet<String>();
-
         springApplicationMap.values().forEach(springApplication -> {
 
             val mainApplicationClass = springApplication.getClass();
