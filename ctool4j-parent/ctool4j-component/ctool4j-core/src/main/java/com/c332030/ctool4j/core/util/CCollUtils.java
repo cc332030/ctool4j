@@ -75,6 +75,24 @@ public class CCollUtils {
         return Collections.unmodifiableMap(map);
     }
 
+    public <P> void addIgnoreNull(Collection<P> collection, P value) {
+        if(null != value) {
+            collection.add(value);
+        }
+    }
+
+    public <T extends CharSequence> void addIgnoreEmpty(Collection<T> collection, T value) {
+        if(StrUtil.isNotEmpty(value)) {
+            collection.add(value);
+        }
+    }
+
+    public <T extends CharSequence> void addIgnoreBlank(Collection<T> collection, T value) {
+        if(StrUtil.isNotBlank(value)) {
+            collection.add(value);
+        }
+    }
+
     public <P, C extends P> void addAllIgnoreNull(Collection<P> collection1, Collection<C> collection2) {
         if(null != collection2) {
             collection1.addAll(collection2);

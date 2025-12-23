@@ -2,7 +2,7 @@ package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
-import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.spring.bean.CSpringBeans;
@@ -10,12 +10,12 @@ import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -102,6 +102,15 @@ public class CSpringUtils {
     }
 
     /**
+     * 获取有指定注解的所有 bean
+     * @param tClass bean 类型
+     * @return bean map
+     */
+    public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> tClass) {
+        return getApplicationContext().getBeansWithAnnotation(tClass);
+    }
+
+    /**
      * 获取类型指定泛型的 bean
      * @param tClass bean 类型
      * @param classes 泛型类型
@@ -163,27 +172,34 @@ public class CSpringUtils {
         }
     }
 
-    public List<String> listScanBasePackages() {
+    public Set<String> listScanBasePackages() {
 
-        val springApplication = getBean(SpringApplication.class);
-        CAssert.notNull(springApplication, "SpringApplication 不能为空");
+        val springApplicationMap = getBeansWithAnnotation(SpringBootApplication.class);
+        CAssert.notEmpty(springApplicationMap, "springApplicationMap 不能为空");
 
-        val mainApplicationClass = springApplication.getMainApplicationClass();
-        CAssert.notNull(springApplication, "mainApplicationClass 不能为空");
+        val basePackages = new LinkedHashSet<String>();
 
-        val springBootAppAnnotation = mainApplicationClass.getAnnotation(SpringBootApplication.class);
-        CAssert.notNull(springApplication, "mainApplicationClass 未标识 @SpringBootApplication");
+        springApplicationMap.values().forEach(springApplication -> {
 
-        val explicitScanPackages = springBootAppAnnotation.scanBasePackages();
-        if(ArrayUtil.isNotEmpty(explicitScanPackages)) {
-            return Arrays.stream(explicitScanPackages)
-                .map(CStrUtils::toAvailable)
-                .filter(Objects::nonNull)
-                .distinct()
-                .collect(Collectors.toList());
-        }
+            val mainApplicationClass = springApplication.getClass();
+            CAssert.notNull(mainApplicationClass, "mainApplicationClass 不能为空");
 
-        return CList.of(mainApplicationClass.getPackage().getName());
+            val springBootAppAnnotation = mainApplicationClass.getAnnotation(SpringBootApplication.class);
+            CAssert.notNull(springApplication, "mainApplicationClass 未标识 @SpringBootApplication");
+
+            val scanBasePackages = springBootAppAnnotation.scanBasePackages();
+            if(ArrayUtil.isNotEmpty(scanBasePackages)) {
+
+                for (val scanBasePackage : scanBasePackages) {
+                    val basePackage = CStrUtils.toAvailable(scanBasePackage);
+                    CCollUtils.addIgnoreBlank(basePackages, basePackage);
+                }
+            } else {
+                CCollUtils.addIgnoreBlank(basePackages, mainApplicationClass.getPackage().getName());
+            }
+        });
+
+        return basePackages;
     }
 
 }

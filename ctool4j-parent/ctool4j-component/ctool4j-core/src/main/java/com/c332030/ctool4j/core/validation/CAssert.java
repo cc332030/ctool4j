@@ -1,11 +1,13 @@
 package com.c332030.ctool4j.core.validation;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.exception.CExceptionUtils;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -149,6 +151,28 @@ public class CAssert {
      */
     public void notEmpty(Collection<?> collection, String message) {
         if(CollUtil.isEmpty(collection)) {
+            CExceptionUtils.throwBusinessException(message);
+        }
+    }
+
+    /**
+     * 不为空断言
+     * @param map 校验值
+     * @param messageSupplier 错误信息提供者
+     */
+    public void notEmpty(Map<?, ?> map, Supplier<String> messageSupplier) {
+        if(MapUtil.isEmpty(map)) {
+            CExceptionUtils.throwBusinessException(messageSupplier);
+        }
+    }
+
+    /**
+     * 不为空断言
+     * @param map 校验值
+     * @param message 错误信息
+     */
+    public void notEmpty(Map<?, ?> map, String message) {
+        if(MapUtil.isEmpty(map)) {
             CExceptionUtils.throwBusinessException(message);
         }
     }
