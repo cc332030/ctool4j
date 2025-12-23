@@ -1,15 +1,19 @@
 package com.c332030.ctool4j.core.exception;
 
+import com.c332030.ctool4j.core.util.CSpiUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.function.CTriFunction;
-import com.c332030.ctool4j.core.util.CSpiUtils;
 import com.c332030.ctool4j.definition.interfaces.ICRes;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.val;
+import lombok.var;
 
+import java.util.LinkedHashSet;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -102,6 +106,27 @@ public class CExceptionUtils {
             log.error(message, e);
             return null;
         }
+    }
+
+    public String getMessageWithCause(Throwable throwable) {
+
+        val throwableSet = new LinkedHashSet<Throwable>();
+
+        var throwableNew = throwable;
+        while (true) {
+
+            throwableSet.add(throwableNew);
+            val cause = throwableNew.getCause();
+            if(null == cause || throwableSet.contains(cause)) {
+                break;
+            }
+            throwableNew = cause;
+
+        }
+
+        return throwableSet.stream()
+            .map(Throwable::getMessage)
+            .collect(Collectors.joining("\ncause by "));
     }
 
 }
