@@ -1,9 +1,7 @@
 package com.c332030.ctool4j.spring.configuration;
 
-import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
-import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
-import com.c332030.ctool4j.spring.util.CSpringUtils;
+import com.c332030.ctool4j.spring.util.CAutowiredUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,7 +16,9 @@ public class CSpringInit implements ICSpringInit {
 
     @Override
     public void onInit() {
-        CSpringUtils.wireBean(CSpringApplicationConfig.class, CSpringConfigBeans::setSpringApplicationConfig);
+
+        CAutowiredUtils.autowired();
+
     }
 
 }

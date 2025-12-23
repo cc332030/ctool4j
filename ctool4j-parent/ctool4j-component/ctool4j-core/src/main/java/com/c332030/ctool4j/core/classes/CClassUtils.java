@@ -10,6 +10,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 
@@ -178,6 +179,10 @@ public class CClassUtils {
 
     public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
         return findClasses(new AssignableTypeFilter(superClass), packageName);
+    }
+
+    public <T> List<Class<T>> listAnnotatedClass(Class<? extends Annotation> annotationClass, String packageName) {
+        return findClasses(new AnnotationTypeFilter(annotationClass), packageName);
     }
 
     public void compareField(Class<?>... classes) {
