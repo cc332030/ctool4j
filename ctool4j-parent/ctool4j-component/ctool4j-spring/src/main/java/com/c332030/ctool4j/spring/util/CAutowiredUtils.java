@@ -38,8 +38,8 @@ public class CAutowiredUtils {
                 method.invoke(null, bean);
 
                 log.info("class: {} autowire bean: {}",
-                    annotatedClass.getName(),
-                    paramType.getName()
+                    annotatedClass.getSimpleName(),
+                    paramType.getSimpleName()
                 );
 
             });
