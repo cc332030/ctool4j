@@ -48,7 +48,7 @@ public class CAutowiredUtils {
 
     }
 
-    List<Method> listSetMethod(Class<?> clazz) {
+    public List<Method> listSetMethod(Class<?> clazz) {
         return CReflectUtils.getMethods(clazz)
             .stream()
             .filter(CReflectUtils::isStatic)
