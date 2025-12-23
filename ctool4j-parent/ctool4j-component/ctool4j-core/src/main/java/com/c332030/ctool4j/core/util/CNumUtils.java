@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
@@ -284,6 +285,50 @@ public class CNumUtils {
         }
 
         return sb.reverse().toString();
+    }
+
+    public Integer max(Integer... values) {
+
+        if(ArrayUtil.isEmpty(values)) {
+            return null;
+        }
+
+        Integer result = null;
+        for (val value : values) {
+
+            if(null == value) {
+                continue;
+            }
+            if(null == result) {
+                result = Integer.MIN_VALUE;
+            }
+
+            result = Math.max(result, value);
+        }
+
+        return result;
+    }
+
+    public Integer min(Integer... values) {
+
+        if(ArrayUtil.isEmpty(values)) {
+            return null;
+        }
+
+        Integer result = null;
+        for (val value : values) {
+
+            if(null == value) {
+                continue;
+            }
+            if(null == result) {
+                result = Integer.MAX_VALUE;
+            }
+
+            result = Math.min(result, value);
+        }
+
+        return result;
     }
 
 }
