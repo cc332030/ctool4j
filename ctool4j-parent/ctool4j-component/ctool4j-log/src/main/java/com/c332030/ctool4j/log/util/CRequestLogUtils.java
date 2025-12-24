@@ -12,7 +12,6 @@ import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -51,7 +50,7 @@ public class CRequestLogUtils {
         REQUEST_LOG_THREAD.start();
     }
 
-    @Setter
+    @CAutowired
     CRequestLogConfig requestLogConfig;
 
     public boolean isEnable() {

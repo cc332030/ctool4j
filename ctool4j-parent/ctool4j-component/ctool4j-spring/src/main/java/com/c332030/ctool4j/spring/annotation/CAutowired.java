@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  *
  * @since 2025/12/23
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CAutowired {
 

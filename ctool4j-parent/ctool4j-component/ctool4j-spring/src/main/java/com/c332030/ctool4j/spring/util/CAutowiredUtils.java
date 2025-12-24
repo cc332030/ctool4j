@@ -10,6 +10,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,22 +31,32 @@ public class CAutowiredUtils {
         val annotatedClasses = CClassUtils.listAnnotatedClass(CAutowired.class, packageName);
         annotatedClasses.forEach(annotatedClass -> {
 
-            val methods = listSetMethod(annotatedClass);
-            methods.forEach((CConsumer<Method>)method -> {
+            val fields = listAutowiredField(annotatedClass);
+            fields.forEach((CConsumer<Field>)field -> {
 
-                val paramType = method.getParameterTypes()[0];
-                val bean = SpringUtil.getBean(paramType);
-                method.invoke(null, bean);
+                val fieldType = field.getType();
+                val bean = SpringUtil.getBean(fieldType);
+                field.set(null, bean);
 
-                log.info("class: {} autowire bean: {}",
-                    annotatedClass.getName(),
-                    paramType.getName()
+                log.info("autowired class: {} field: {}({})",
+                    annotatedClass,
+                    field.getName(),
+                    fieldType
                 );
 
             });
 
         });
 
+    }
+
+    public List<Field> listAutowiredField(Class<?> clazz) {
+        return CReflectUtils.getFieldMap(clazz)
+            .values()
+            .stream()
+            .filter(CReflectUtils::isStatic)
+            .filter(e -> CClassUtils.isAnnotationPresent(e, CAutowired.class))
+            .collect(Collectors.toList());
     }
 
     public List<Method> listSetMethod(Class<?> clazz) {

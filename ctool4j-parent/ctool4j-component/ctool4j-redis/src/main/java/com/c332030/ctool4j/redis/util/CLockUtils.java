@@ -5,7 +5,6 @@ import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.interfaces.IOperate;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
 import java.time.Duration;
@@ -24,7 +23,7 @@ public class CLockUtils {
 
     public static final String LOCK_STR = "lock";
 
-    @Setter
+    @CAutowired
     CLockService lockService;
 
     /**

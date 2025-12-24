@@ -4,7 +4,6 @@ import com.c332030.ctool4j.definition.interfaces.IOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -25,7 +24,7 @@ public class CRedisUtils {
 
     public final String KEY_SEPARATOR = ":";
 
-    @Setter
+    @CAutowired
     CObjectValueRedisService redisService;
 
     public static String getKey(Class<?> clazz, IOperate iOperate, Object key) {

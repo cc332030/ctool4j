@@ -45,7 +45,7 @@ public class CBeanUtils {
             return to;
         }
 
-        val toFieldMap = CReflectUtils.getFields(to.getClass());
+        val toFieldMap = CReflectUtils.getFieldMap(to.getClass());
         toFieldMap.forEach((CBiConsumer<String, Field>)(toFieldName, toField) -> {
 
             val fromFieldValue = fromMap.get(toFieldName);
@@ -228,7 +228,7 @@ public class CBeanUtils {
             return CMap.of();
         }
 
-        val fieldMap = CReflectUtils.getFields(objClass);
+        val fieldMap = CReflectUtils.getFieldMap(objClass);
         return CCollUtils.toMap(
                 fieldMap.values(),
                 getFieldNameFunction,

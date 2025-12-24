@@ -16,6 +16,7 @@ import org.springframework.core.type.filter.TypeFilter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -193,7 +194,7 @@ public class CClassUtils {
         for (val aClass : classes) {
             sb.append(aClass.getName()).append("\n");
 
-            val fieldMap = CReflectUtils.getFields(aClass);
+            val fieldMap = CReflectUtils.getFieldMap(aClass);
             fieldMap.forEach((fieldName, field) ->
                     fieldClassMap.computeIfAbsent(fieldName, k -> new HashMap<>())
                             .put(aClass, field));
@@ -281,6 +282,22 @@ public class CClassUtils {
         return getSuperClasses(tClass).stream()
                 .flatMap(e -> Arrays.stream(e.getInterfaces()))
                 .collect(CCollectors.toLinkedSet());
+    }
+
+    public boolean isAnnotationPresent(Field field, Class<? extends Annotation> annotationClass) {
+
+        if(null == field) {
+            return false;
+        }
+        return field.isAnnotationPresent(annotationClass);
+    }
+
+    public boolean isAnnotationPresent(Method method, Class<? extends Annotation> annotationClass) {
+
+        if(null == method) {
+            return false;
+        }
+        return method.isAnnotationPresent(annotationClass);
     }
 
     public boolean isAnnotationPresent(Class<?> tClass, Class<? extends Annotation> annotationClass) {

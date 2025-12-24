@@ -10,7 +10,6 @@ import com.c332030.ctool4j.spring.util.CRequestUtils;
 import feign.RequestTemplate;
 import feign.Response;
 import lombok.CustomLog;
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -35,7 +34,7 @@ public class CFeignUtils {
 
     private static final Map<Class<?>, CConsumer<RequestTemplate>> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
 
-    @Setter
+    @CAutowired
     CFeignClientHeaderConfig headerConfig;
 
     public void addInterceptor(Class<?> clazz, CConsumer<RequestTemplate> consumer) {

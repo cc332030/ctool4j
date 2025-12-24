@@ -145,12 +145,12 @@ public class CReflectUtils {
         return field.getName();
     }
 
-    public Map<String, Field> getFields(Class<?> type) {
+    public Map<String, Field> getFieldMap(Class<?> type) {
         return FIELD_MAP_CLASS_VALUE.get(type);
     }
 
     public Field getField(Class<?> type, String fieldName) {
-        return Optional.ofNullable(getFields(type).get(fieldName))
+        return Optional.ofNullable(getFieldMap(type).get(fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(type + " no field with name: " + fieldName));
     }
 
@@ -171,7 +171,7 @@ public class CReflectUtils {
     }
 
     public <T> T getValue(Object object, String fieldName) {
-        return getValue(object, getFields(object.getClass()).get(fieldName));
+        return getValue(object, getFieldMap(object.getClass()).get(fieldName));
     }
 
     public <T> T getValue(Object object, Field field) {
@@ -187,7 +187,7 @@ public class CReflectUtils {
     }
 
     public void setValue(Object object, String fieldName, Object value) {
-        setValue(object, getFields(object.getClass()).get(fieldName), value, true);
+        setValue(object, getFieldMap(object.getClass()).get(fieldName), value, true);
     }
 
 
@@ -221,7 +221,7 @@ public class CReflectUtils {
             return;
         }
 
-        val fieldMap = getFields(object.getClass());
+        val fieldMap = getFieldMap(object.getClass());
 
         for (val entry : fieldValueMap.entrySet()) {
 
