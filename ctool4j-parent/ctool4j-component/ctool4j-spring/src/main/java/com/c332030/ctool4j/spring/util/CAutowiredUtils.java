@@ -51,7 +51,7 @@ public class CAutowiredUtils {
     }
 
     public List<Field> listAutowiredField(Class<?> clazz) {
-        return CReflectUtils.getFieldMap(clazz)
+        return CReflectUtils.FIELDS_CLASS_VALUE.get(clazz)
             .values()
             .stream()
             .filter(CReflectUtils::isStatic)

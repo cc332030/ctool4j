@@ -30,6 +30,17 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CReflectUtils {
 
+    public static final CClassValue<Map<String, Field>> FIELDS_CLASS_VALUE =
+            CClassValue.of(type -> CClassUtils.get(
+                    type,
+                    Class::getDeclaredFields,
+                    Field::getName,
+                    field -> {
+                        field.setAccessible(true);
+                        return field;
+                    }
+            ));
+
     public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.get(
                     type,
