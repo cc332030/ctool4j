@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class CReflectUtils {
 
     public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
-            CClassValue.of(type -> CClassUtils.get(
+            CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
                     Field::getName,
@@ -110,7 +110,7 @@ public class CReflectUtils {
     }
 
     public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(
-            type -> CClassUtils.get(type, Class::getDeclaredMethods));
+            type -> CClassUtils.getMap(type, Class::getDeclaredMethods));
 
     public List<Method> getMethods(Class<?> type) {
         return METHODS_CLASS_VALUE.get(type);

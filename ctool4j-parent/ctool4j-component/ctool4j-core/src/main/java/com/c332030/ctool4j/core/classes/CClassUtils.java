@@ -99,16 +99,16 @@ public class CClassUtils {
     }
 
 
-    public <T, V> Map<String, V> get(
+    public <T, V> Map<String, V> getMap(
             Class<?> type,
             Function<Class<?>, T[]> getTArr,
             Function<T, String> getName,
             Function<T, V> convert
     ) {
-        return get(type, getTArr, Objects::nonNull, getName, convert);
+        return getMap(type, getTArr, Objects::nonNull, getName, convert);
     }
 
-    public <T, V> Map<String, V> get(
+    public <T, V> Map<String, V> getMap(
             Class<?> type,
             Function<Class<?>, T[]> getTArr,
             Predicate<T> predicate,
@@ -133,14 +133,14 @@ public class CClassUtils {
                 ), Collections::unmodifiableMap));
     }
 
-    public <T> List<T> get(
+    public <T> List<T> getMap(
             Class<?> type,
             Function<Class<?>, T[]> getTArr
     ) {
-        return get(type, getTArr, Objects::nonNull);
+        return getMap(type, getTArr, Objects::nonNull);
     }
 
-    public <T> List<T> get(
+    public <T> List<T> getMap(
             Class<?> type,
             Function<Class<?>, T[]> getTArr,
             Predicate<T> predicate
