@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CReflectUtils {
 
-    public static final CClassValue<Map<String, Field>> FIELDS_CLASS_VALUE =
+    public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE_NEW =
             CClassValue.of(type -> CClassUtils.get(
                     type,
                     Class::getDeclaredFields,
@@ -41,6 +41,7 @@ public class CReflectUtils {
                     }
             ));
 
+    @Deprecated
     public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.get(
                     type,
@@ -156,7 +157,12 @@ public class CReflectUtils {
         return field.getName();
     }
 
+    @Deprecated
     public Map<String, Field> getFieldMap(Class<?> type) {
+        return FIELD_MAP_CLASS_VALUE.get(type);
+    }
+
+    public Map<String, Field> getFieldMapNew(Class<?> type) {
         return FIELD_MAP_CLASS_VALUE.get(type);
     }
 
