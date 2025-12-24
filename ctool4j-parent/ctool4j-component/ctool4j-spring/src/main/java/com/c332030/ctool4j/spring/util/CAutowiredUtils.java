@@ -38,7 +38,7 @@ public class CAutowiredUtils {
                 val bean = SpringUtil.getBean(fieldType);
                 field.set(null, bean);
 
-                log.info("autowired class: {} field: {}({})",
+                log.info("CAutowired {}.({})",
                     annotatedClass,
                     field.getName(),
                     fieldType
