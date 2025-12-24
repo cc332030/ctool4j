@@ -39,9 +39,9 @@ public class CAutowiredUtils {
                 field.set(null, bean);
 
                 log.info("CAutowired {}.{}({})",
-                    annotatedClass,
+                    annotatedClass.getSimpleName(),
                     field.getName(),
-                    fieldType
+                    fieldType.getSimpleName()
                 );
 
             });
