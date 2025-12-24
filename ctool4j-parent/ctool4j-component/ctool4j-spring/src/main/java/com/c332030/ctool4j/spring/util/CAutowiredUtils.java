@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.util;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.function.CConsumer;
@@ -34,7 +35,7 @@ public class CAutowiredUtils {
             fields.forEach((CConsumer<Field>)field -> {
 
                 val fieldType = field.getType();
-                val bean = CSpringUtils.getBean(fieldType);
+                val bean = SpringUtil.getBean(fieldType);
                 field.set(null, bean);
 
                 log.info("CAutowired {}.{}({})",
