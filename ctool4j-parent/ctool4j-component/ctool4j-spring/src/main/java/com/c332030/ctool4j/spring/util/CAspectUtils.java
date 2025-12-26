@@ -37,7 +37,7 @@ public class CAspectUtils {
         try {
             return joinPoint.proceed(joinPoint.getArgs());
         } catch (UndeclaredThrowableException e) {
-            log.debug("process failure", e);
+            log.debug("catch UndeclaredThrowableException", e);
             throw e.getUndeclaredThrowable();
         }
     }
