@@ -32,7 +32,7 @@ public class CCatchAndLogThrowableAspect {
     public Object around(ProceedingJoinPoint joinPoint) {
 
         try {
-            return joinPoint.proceed(joinPoint.getArgs());
+            return CAspectUtils.process(joinPoint);
         } catch (Throwable t) {
 
             val method = CAspectUtils.getMethod(joinPoint);

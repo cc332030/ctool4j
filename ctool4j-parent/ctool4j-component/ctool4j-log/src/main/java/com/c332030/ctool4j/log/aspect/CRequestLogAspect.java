@@ -67,8 +67,7 @@ public class CRequestLogAspect {
         }
 
         try {
-
-            result = joinPoint.proceed(args);
+            result = CAspectUtils.process(joinPoint);
             return result;
         } catch (Throwable e) {
             throwable = e;

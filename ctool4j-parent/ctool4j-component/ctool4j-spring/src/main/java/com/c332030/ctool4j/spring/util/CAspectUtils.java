@@ -1,11 +1,14 @@
 package com.c332030.ctool4j.spring.util;
 
+import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * <p>
@@ -15,6 +18,7 @@ import java.lang.reflect.Method;
  * @author c332030
  * @since 2024/5/6
  */
+@CustomLog
 @UtilityClass
 public class CAspectUtils {
 
@@ -26,6 +30,16 @@ public class CAspectUtils {
     public Method getMethod(ProceedingJoinPoint joinPoint) {
         val signature = (MethodSignature) joinPoint.getSignature();
         return signature.getMethod();
+    }
+
+    @SneakyThrows
+    public Object process(ProceedingJoinPoint joinPoint) {
+        try {
+            return joinPoint.proceed(joinPoint.getArgs());
+        } catch (UndeclaredThrowableException e) {
+            log.debug("process failure", e);
+            throw e.getUndeclaredThrowable();
+        }
     }
 
 }

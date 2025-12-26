@@ -70,7 +70,7 @@ public class CXxlJobAspect {
         }
 
         try {
-            return joinPoint.proceed(args);
+            return CAspectUtils.process(joinPoint);
         } catch (Throwable e) {
             if(BooleanUtil.isTrue(executorConfig.getLogCatchError())) {
                 log.error("jobName: {} failure", jobName, e);
