@@ -99,6 +99,52 @@ public class CCollUtils {
         }
     }
 
+    /**
+     * 链接集合和元素，与 addFirst 的区别：此方法返回一个新集合
+     * @param p 元素
+     * @param collection 集合
+     * @return 新 list
+     * @param <P> 泛型
+     */
+    public <P> List<P> concat(P p, Collection<? extends P> collection) {
+
+        val size1 = null == p ? 0 : 1;
+        val size2 = size(collection);
+
+        val list = new ArrayList<P>(size1 + size2);
+        if(null != p) {
+            list.add(p);
+        }
+        if(CollUtil.isNotEmpty(collection)) {
+            list.addAll(collection);
+        }
+
+        return list;
+    }
+
+    /**
+     * 链接集合和元素，与 addFirst 的区别：此方法返回一个新集合
+     * @param collection 集合
+     * @param p 元素
+     * @return 新 list
+     * @param <P> 泛型
+     */
+    public <P> List<P> concat(Collection<? extends P> collection, P p) {
+
+        val size1 = null == p ? 0 : 1;
+        val size2 = size(collection);
+
+        val list = new ArrayList<P>(size1 + size2);
+        if(CollUtil.isNotEmpty(collection)) {
+            list.addAll(collection);
+        }
+        if(null != p) {
+            list.add(p);
+        }
+
+        return list;
+    }
+
     @SafeVarargs
     public <P> List<P> concat(Collection<? extends P>... collections) {
 
