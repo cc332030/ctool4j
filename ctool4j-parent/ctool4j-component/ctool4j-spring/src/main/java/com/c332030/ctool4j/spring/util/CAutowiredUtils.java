@@ -14,7 +14,6 @@ import lombok.val;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,9 +87,10 @@ public class CAutowiredUtils {
         CConsumer<Class<Object>> consumer
     ) {
 
-        val basePackages = new ArrayList<String>();
-        basePackages.add(CToolConstants.BASE_PACKAGE);
-        basePackages.addAll(CSpringUtils.getBasePackages());
+        val basePackages = CCollUtils.concat(
+            CToolConstants.BASE_PACKAGE,
+            CSpringUtils.getBasePackages()
+        );
 
         basePackages.forEach(basePackage -> {
             val classes = CClassUtils.listAnnotatedClass(annotationClass, basePackage);
