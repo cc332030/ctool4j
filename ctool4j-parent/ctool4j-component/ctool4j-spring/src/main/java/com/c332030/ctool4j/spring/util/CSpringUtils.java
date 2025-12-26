@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
@@ -16,6 +17,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -199,6 +201,30 @@ public class CSpringUtils {
         });
 
         return basePackages;
+    }
+
+    @SneakyThrows
+    public <T> T newInstance(Class<T> type) {
+
+        val constructors = CReflectUtils.getAllConstructors(type)
+            .entrySet().stream()
+            .max(Comparator.comparingInt(Map.Entry::getKey))
+            .map(Map.Entry::getValue)
+            .orElseThrow(() -> new RuntimeException("type " + type + " 没有构造方法"))
+            ;
+
+        if(constructors.size() > 1) {
+            throw new RuntimeException("不支持多个相同参数构造方法的初始化，type: " + type + " ");
+        }
+
+        @SuppressWarnings("unchecked")
+        val constructor = (Constructor<? extends T>) constructors.get(0);
+        constructor.setAccessible(true);
+
+        val params = Arrays.stream(constructor.getParameterTypes())
+            .map(SpringUtil::getBean)
+            .toArray();
+        return CReflectUtils.newInstance(constructor, params);
     }
 
 }

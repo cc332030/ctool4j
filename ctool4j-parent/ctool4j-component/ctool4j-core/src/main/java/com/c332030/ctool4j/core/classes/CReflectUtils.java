@@ -52,6 +52,10 @@ public class CReflectUtils {
                         .collect(Collectors.groupingBy(Constructor::getParameterCount));
             });
 
+    public Map<Integer, List<Constructor<?>>> getAllConstructors(Class<?> tClass) {
+        return CONSTRUCTOR_MAP_CLASS_VALUE.get(tClass);
+    }
+
     public List<Constructor<?>> getConstructors(Class<?> tClass, Object... args) {
 
         val argTypes = CArrUtils.convert(args, Object::getClass);
@@ -107,6 +111,11 @@ public class CReflectUtils {
         CAssert.notNull(noArgConstructor, () -> " can't find no arg constructor, class: " + tClass);
 
         return CObjUtils.anyType(noArgConstructor.newInstance());
+    }
+
+    @SneakyThrows
+    public <T> T newInstance(Constructor<T> constructor, Object... args) {
+        return constructor.newInstance(args);
     }
 
     public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(

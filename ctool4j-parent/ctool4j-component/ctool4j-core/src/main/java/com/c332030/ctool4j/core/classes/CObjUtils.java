@@ -27,6 +27,10 @@ public class CObjUtils {
         return (T) object;
     }
 
+    public <T> T anyType(CSupplier<T> supplier) {
+        return anyType(supplier.get());
+    }
+
     public <T> CSupplier<T> toSupplier(CRunnable runnable) {
         return () -> {
             runnable.run();

@@ -185,7 +185,10 @@ public class CClassUtils {
     }
 
     public <T> List<Class<T>> listAnnotatedClass(Class<? extends Annotation> annotationClass, String packageName) {
-        return findClasses(new AnnotationTypeFilter(annotationClass), packageName);
+        return findClasses(
+            new AnnotationTypeFilter(annotationClass, true, true),
+            packageName
+        );
     }
 
     public void listAnnotatedClassThenDo(
