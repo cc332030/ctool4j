@@ -24,7 +24,10 @@ public class CFeignInit implements ICSpringInit {
         CAutowiredUtils.listAnnotatedClassThenDo(CCustomerFeignInterceptor.class, type -> {
 
             val anno = type.getAnnotation(CCustomerFeignInterceptor.class);
-            val interceptor = CReflectUtils.newInstance(anno.value());
+            val annoClass = anno.value();
+
+            val interceptor = CReflectUtils.newInstance(annoClass);
+            CAutowiredUtils.autowired(interceptor);
             CFeignUtils.addInterceptor(type, interceptor);
 
         });
