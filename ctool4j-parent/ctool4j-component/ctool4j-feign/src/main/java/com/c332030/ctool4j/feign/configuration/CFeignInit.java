@@ -1,11 +1,9 @@
 package com.c332030.ctool4j.feign.configuration;
 
-import com.c332030.ctool4j.feign.annotation.CCustomerFeignInterceptor;
+import com.c332030.ctool4j.feign.config.CFeignClientHeaderConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
-import com.c332030.ctool4j.spring.util.CAutowiredUtils;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
-import lombok.val;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,15 +19,7 @@ public class CFeignInit implements ICSpringInit {
     @Override
     public void onInit() {
 
-        CAutowiredUtils.listAnnotatedClassThenDo(CCustomerFeignInterceptor.class, type -> {
-
-            val anno = type.getAnnotation(CCustomerFeignInterceptor.class);
-            val annoClass = anno.value();
-
-            val interceptor = CSpringUtils.newInstance(annoClass);
-            CFeignUtils.addInterceptor(type, interceptor);
-
-        });
+        CSpringUtils.wireBean(CFeignClientHeaderConfig.class, CFeignUtils.class);
 
     }
 
