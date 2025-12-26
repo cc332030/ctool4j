@@ -34,7 +34,7 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
     })
     public ICIntResult<Object> handleIgnoreException(Throwable e) {
 
-        log.info("handleIgnoreException", e);
+        log.debug("handleIgnoreException", e);
         return ICIntResult.error(e.getMessage());
     }
 
