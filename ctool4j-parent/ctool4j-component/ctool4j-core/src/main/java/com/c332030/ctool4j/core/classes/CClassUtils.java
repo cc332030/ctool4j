@@ -161,23 +161,30 @@ public class CClassUtils {
 
     public <T> List<Class<T>> findClasses(TypeFilter typeFilter, String packageName) {
 
-        val provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(typeFilter);
+        val startMills = System.currentTimeMillis();
+        try {
 
-        val components = provider.findCandidateComponents(packageName);
-        return components.stream()
-            .map(beanDefinition -> {
-                try {
-                    @SuppressWarnings("unchecked")
-                    val clazz = (Class<T>) Class.forName(beanDefinition.getBeanClassName());
-                    return clazz;
-                } catch (ClassNotFoundException e) {
-                    log.debug("can't find class for:", e);
-                    return null;
-                }
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            val provider = new ClassPathScanningCandidateComponentProvider(false);
+            provider.addIncludeFilter(typeFilter);
+
+            val components = provider.findCandidateComponents(packageName);
+            return components.stream()
+                .map(beanDefinition -> {
+                    try {
+                        @SuppressWarnings("unchecked")
+                        val clazz = (Class<T>) Class.forName(beanDefinition.getBeanClassName());
+                        return clazz;
+                    } catch (ClassNotFoundException e) {
+                        log.debug("can't find class for:", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        } finally {
+            val cost = System.currentTimeMillis() - startMills;
+            log.info("find {} classes cost: {}", packageName, cost);
+        }
     }
 
     public <T> List<Class<T>> listSubClass(Class<T> superClass, String packageName) {
@@ -186,7 +193,7 @@ public class CClassUtils {
 
     public <T> List<Class<T>> listAnnotatedClass(Class<? extends Annotation> annotationClass, String packageName) {
         return findClasses(
-            new AnnotationTypeFilter(annotationClass, true, true),
+            new AnnotationTypeFilter(annotationClass, true, false),
             packageName
         );
     }
