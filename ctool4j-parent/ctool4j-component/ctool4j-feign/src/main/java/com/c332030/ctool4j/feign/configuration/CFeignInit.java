@@ -27,7 +27,6 @@ public class CFeignInit implements ICSpringInit {
             val annoClass = anno.value();
 
             val interceptor = CSpringUtils.newInstance(annoClass);
-            CAutowiredUtils.autowired(interceptor);
             CFeignUtils.addInterceptor(type, interceptor);
 
         });
