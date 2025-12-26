@@ -39,7 +39,7 @@ public class CFeignUtils {
 
     public void addInterceptor(Class<?> clazz, CConsumer<RequestTemplate> consumer) {
 
-        log.debug("addInterceptor: {}, consumer: {}", clazz, consumer);
+        log.info("addInterceptor to: {}, consumer: {}", clazz, consumer);
         INTERCEPTOR_MAP.put(clazz, consumer);
 
     }
