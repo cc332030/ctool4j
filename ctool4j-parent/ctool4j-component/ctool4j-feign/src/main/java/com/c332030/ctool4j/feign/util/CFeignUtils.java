@@ -38,7 +38,10 @@ public class CFeignUtils {
     CFeignClientHeaderConfig headerConfig;
 
     public void addInterceptor(Class<?> clazz, CConsumer<RequestTemplate> consumer) {
+
+        log.debug("addInterceptor: {}, consumer: {}", clazz, consumer);
         INTERCEPTOR_MAP.put(clazz, consumer);
+
     }
 
     public boolean intercept(RequestTemplate template) {

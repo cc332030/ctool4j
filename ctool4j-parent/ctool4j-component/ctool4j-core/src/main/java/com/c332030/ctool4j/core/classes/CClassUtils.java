@@ -2,9 +2,11 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CCollectors;
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.core.util.CStrUtils;
+import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -184,6 +186,15 @@ public class CClassUtils {
 
     public <T> List<Class<T>> listAnnotatedClass(Class<? extends Annotation> annotationClass, String packageName) {
         return findClasses(new AnnotationTypeFilter(annotationClass), packageName);
+    }
+
+    public void listAnnotatedClassThenDo(
+        Class<? extends Annotation> annotationClass,
+        String packageName,
+        CConsumer<Class<Object>> consumer
+    ) {
+        val classes = listAnnotatedClass(annotationClass, packageName);
+        CCollUtils.forEach(classes, consumer);
     }
 
     public void compareField(Class<?>... classes) {

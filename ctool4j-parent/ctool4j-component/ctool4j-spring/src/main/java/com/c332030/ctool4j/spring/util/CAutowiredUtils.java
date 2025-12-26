@@ -3,6 +3,8 @@ package com.c332030.ctool4j.spring.util;
 import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.definition.constant.CToolConstants;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import lombok.CustomLog;
@@ -10,8 +12,10 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,28 +30,21 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CAutowiredUtils {
 
-    public void autowired(String packageName) {
+    public void autowired(Class<?> type) {
 
-        val annotatedClasses = CClassUtils.listAnnotatedClass(CAutowired.class, packageName);
-        annotatedClasses.forEach(annotatedClass -> {
+        val fields = listAutowiredField(type);
+        fields.forEach((CConsumer<Field>)field -> {
 
-            val fields = listAutowiredField(annotatedClass);
-            fields.forEach((CConsumer<Field>)field -> {
+            val fieldType = field.getType();
+            val bean = SpringUtil.getBean(fieldType);
+            field.set(null, bean);
 
-                val fieldType = field.getType();
-                val bean = SpringUtil.getBean(fieldType);
-                field.set(null, bean);
-
-                log.info("CAutowired {}.{}({})",
-                    annotatedClass.getSimpleName(),
-                    field.getName(),
-                    fieldType.getSimpleName()
-                );
-
-            });
-
+            log.info("CAutowired {}.{}({})",
+                type.getSimpleName(),
+                field.getName(),
+                fieldType.getSimpleName()
+            );
         });
-
     }
 
     public List<Field> listAutowiredField(Class<?> clazz) {
@@ -70,6 +67,22 @@ public class CAutowiredUtils {
                 return CClassUtils.isAnnotationPresent(paramType, ConfigurationProperties.class);
             })
             .collect(Collectors.toList());
+    }
+
+    public <T extends Annotation> void listAnnotatedClassThenDo(
+        Class<T> annotationClass,
+        CConsumer<Class<Object>> consumer
+    ) {
+
+        val basePackages = new ArrayList<String>();
+        basePackages.add(CToolConstants.BASE_PACKAGE);
+        basePackages.addAll(CSpringUtils.getBasePackages());
+
+        basePackages.forEach(basePackage -> {
+            val classes = CClassUtils.listAnnotatedClass(annotationClass, basePackage);
+            CCollUtils.forEach(classes, consumer);
+        });
+
     }
 
 }
