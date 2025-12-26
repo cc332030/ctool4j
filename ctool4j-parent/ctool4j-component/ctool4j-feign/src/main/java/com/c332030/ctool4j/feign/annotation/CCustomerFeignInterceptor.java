@@ -18,6 +18,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CCustomerFeignInterceptor {
 
-    Class<ICRequestInterceptor> value();
+    Class<? extends ICRequestInterceptor> value();
 
 }
