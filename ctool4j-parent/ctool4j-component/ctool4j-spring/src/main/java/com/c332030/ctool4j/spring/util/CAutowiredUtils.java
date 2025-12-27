@@ -44,9 +44,8 @@ public class CAutowiredUtils {
             .filter(e -> CClassUtils.isAnnotationPresent(e, CAutowired.class))
             .forEach(field -> {
 
-                val isStatic = CReflectUtils.isStatic(field);
                 if(null == object
-                    && !isStatic
+                    && !CReflectUtils.isStatic(field)
                 ) {
                     return;
                 }
