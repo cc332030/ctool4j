@@ -1,9 +1,8 @@
 package com.c332030.ctool4j.log.configuration;
 
-import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
-import com.c332030.ctool4j.spring.util.CSpringUtils;
+import com.c332030.ctool4j.spring.util.CAutowiredUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,7 +20,7 @@ public class CLogInit implements ICSpringInit {
     @Override
     public void onInit() {
 
-        CSpringUtils.wireBean(CRequestLogConfig.class, CRequestLogUtils::setRequestLogConfig);
+        CAutowiredUtils.autowired(CRequestLogUtils.class);
 
     }
 

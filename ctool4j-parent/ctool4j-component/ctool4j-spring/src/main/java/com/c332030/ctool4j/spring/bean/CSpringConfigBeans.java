@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.spring.bean;
 
+import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -16,7 +16,7 @@ import lombok.experimental.UtilityClass;
 public class CSpringConfigBeans {
 
     @Getter
-    @Setter
+    @CAutowired
     CSpringApplicationConfig springApplicationConfig;
 
 }
