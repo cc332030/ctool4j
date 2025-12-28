@@ -2,12 +2,15 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.map.MapUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.function.CBiPredicate;
 import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.definition.function.CPredicate;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -213,6 +216,24 @@ public class CMapUtils {
         });
 
         return map2;
+    }
+
+    public <K, V> Map<K, V> filter(Map<K, V> map, CBiPredicate<K, V> predicate) {
+        if(MapUtil.isEmpty(map)) {
+            return CMap.of();
+        }
+
+        return map.entrySet().stream()
+            .filter(entry -> predicate.test(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public <K, V> Map<K, V> filterKey(Map<K, V> map, CPredicate<K> predicate) {
+        return filter(map, (k, v) -> predicate.test(k));
+    }
+
+    public <K, V> Map<K, V> filterValue(Map<K, V> map, CPredicate<V> predicate) {
+        return filter(map, (k, v) -> predicate.test(v));
     }
 
 }
