@@ -158,7 +158,13 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-test-util</artifactId>
+                <artifactId>ctool4j-test-core</artifactId>
+                <version>0.0.7-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-test-spring</artifactId>
                 <version>0.0.7-SNAPSHOT</version>
             </dependency>
 

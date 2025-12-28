@@ -10,4 +10,13 @@
 
     <artifactId>ctool4j-test-definition</artifactId>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-definition</artifactId>
+        </dependency>
+
+    </dependencies>
+
 </project>

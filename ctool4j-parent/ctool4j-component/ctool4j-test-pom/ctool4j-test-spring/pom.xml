@@ -8,13 +8,24 @@
         <version>0.0.7-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-test-util</artifactId>
+    <artifactId>ctool4j-test-spring</artifactId>
 
     <dependencies>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-test-definition</artifactId>
+            <artifactId>ctool4j-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-test-core</artifactId>
         </dependency>
 
     </dependencies>

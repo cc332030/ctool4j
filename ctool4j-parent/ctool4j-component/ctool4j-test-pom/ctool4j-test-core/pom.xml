@@ -4,17 +4,19 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-test-pom</artifactId>
         <version>0.0.7-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-test-pom</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>ctool4j-test-core</artifactId>
 
-    <modules>
-        <module>ctool4j-test-definition</module>
-        <module>ctool4j-test-core</module>
-        <module>ctool4j-test-spring</module>
-    </modules>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-test-definition</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>
