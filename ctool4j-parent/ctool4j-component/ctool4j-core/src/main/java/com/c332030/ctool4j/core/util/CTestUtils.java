@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
-import com.c332030.ctool4j.definition.constant.CToolTestConstants;
+import com.c332030.ctool4j.definition.constant.CTool4jTestConstants;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +20,7 @@ public class CTestUtils {
      * @return 结果
      */
     public boolean isTest() {
-        return CToolTestConstants.IS_TEST;
+        return CTool4jTestConstants.IS_TEST;
     }
 
     /**

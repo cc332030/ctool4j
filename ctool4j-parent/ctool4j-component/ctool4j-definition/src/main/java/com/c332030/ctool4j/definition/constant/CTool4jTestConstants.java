@@ -7,14 +7,14 @@ import java.util.function.Supplier;
 
 /**
  * <p>
- * Description: CToolTestConstants
+ * Description: CTool4jTestConstants
  * </p>
  *
  * @since 2025/11/21
  */
 @Slf4j
 @UtilityClass
-public class CToolTestConstants {
+public class CTool4jTestConstants {
 
     public static final String JUNIT_TEST_CLASS_NAME = "org.junit.jupiter.api.Test";
 

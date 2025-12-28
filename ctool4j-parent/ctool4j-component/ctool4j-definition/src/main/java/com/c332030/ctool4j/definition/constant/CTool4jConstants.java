@@ -4,13 +4,13 @@ import lombok.experimental.UtilityClass;
 
 /**
  * <p>
- * Description: CToolConstants
+ * Description: CTool4jConstants
  * </p>
  *
  * @since 2025/9/14
  */
 @UtilityClass
-public class CToolConstants {
+public class CTool4jConstants {
 
     public static final String BASE_PACKAGE = "com.c332030.ctool4j";
 

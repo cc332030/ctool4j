@@ -4,7 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
-import com.c332030.ctool4j.definition.constant.CToolConstants;
+import com.c332030.ctool4j.definition.constant.CTool4jConstants;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import lombok.CustomLog;
@@ -78,7 +78,7 @@ public class CAutowiredUtils {
     ) {
 
         val basePackages = CCollUtils.concat(
-            CToolConstants.BASE_PACKAGE,
+            CTool4jConstants.BASE_PACKAGE,
             CSpringUtils.getBasePackages()
         );
 

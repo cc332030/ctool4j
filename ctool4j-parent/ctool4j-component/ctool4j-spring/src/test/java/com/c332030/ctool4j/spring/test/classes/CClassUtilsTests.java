@@ -12,7 +12,7 @@ public class CClassUtilsTests {
 //    @Test
     public void listAnnotatedClass() {
 
-//        val classes = CClassUtils.listAnnotatedClass(CAutowired.class, CToolConstants.BASE_PACKAGE);
+//        val classes = CClassUtils.listAnnotatedClass(CAutowired.class, CTool4jConstants.BASE_PACKAGE);
 //        Assertions.assertTrue(classes.contains(CSpringConfigBeans.class));
 
     }
