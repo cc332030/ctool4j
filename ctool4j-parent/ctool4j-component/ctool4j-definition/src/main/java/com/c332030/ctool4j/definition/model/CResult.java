@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class CResult<DATA> implements ICResult<Integer, DATA>, ICIntMsgResult<DATA> {
+public class CResult<DATA> implements ICIntMsgResult<DATA> {
 
     Integer code;
 
