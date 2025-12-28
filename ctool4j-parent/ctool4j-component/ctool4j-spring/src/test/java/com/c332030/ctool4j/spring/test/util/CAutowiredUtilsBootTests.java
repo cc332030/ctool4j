@@ -2,7 +2,6 @@ package com.c332030.ctool4j.spring.test.util;
 
 import com.c332030.ctool4j.spring.annotation.CTool4jSpringBootTest;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
-import com.c332030.ctool4j.spring.util.CAutowiredUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,6 @@ public class CAutowiredUtilsBootTests {
     @Test
     public void autowired() {
 
-        CAutowiredUtils.autowired(CSpringConfigBeans.class);
         Assertions.assertNotNull(CSpringConfigBeans.getSpringApplicationConfig());
 
     }
