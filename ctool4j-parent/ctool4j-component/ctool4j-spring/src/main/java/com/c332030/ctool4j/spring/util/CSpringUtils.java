@@ -66,21 +66,8 @@ public class CSpringUtils {
      * 获取当前应用上下文
      * @return 当前应用上下文
      */
-    @Deprecated
     public ApplicationContext getApplicationContext() {
         return SpringUtil.getApplicationContext();
-    }
-
-    /**
-     * 获取指定名称的 bean
-     * @param name bean 名称
-     * @return bean
-     * @param <T> 泛型
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(String name) {
-        return SpringUtil.getBean(name);
     }
 
     /**
@@ -89,7 +76,6 @@ public class CSpringUtils {
      * @return bean
      * @param <T> 泛型
      */
-    @Deprecated
     public <T> T getBean(Class<T> tClass) {
         return SpringUtil.getBean(tClass);
     }
