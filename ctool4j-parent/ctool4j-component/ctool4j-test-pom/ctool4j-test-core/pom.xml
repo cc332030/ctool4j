@@ -14,6 +14,11 @@
 
         <dependency>
             <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
             <artifactId>ctool4j-test-definition</artifactId>
         </dependency>
 
