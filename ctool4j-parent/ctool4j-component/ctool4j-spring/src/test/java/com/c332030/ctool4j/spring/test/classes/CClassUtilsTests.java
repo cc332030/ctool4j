@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.spring.test.util.classes;
+package com.c332030.ctool4j.spring.test.classes;
 
 /**
  * <p>
