@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.web.exception;
 
-import com.c332030.ctool4j.definition.model.result.ICIntResult;
+import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.annotation.Primary;
@@ -32,10 +32,10 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
             ClientAbortException.class,
             HttpMessageNotWritableException.class,
     })
-    public ICIntResult<Object> handleIgnoreException(Throwable e) {
+    public CIntResult<Object> handleIgnoreException(Throwable e) {
 
         log.debug("handleIgnoreException", e);
-        return ICIntResult.error(e.getMessage());
+        return CIntResult.error(e.getMessage());
     }
 
 }
