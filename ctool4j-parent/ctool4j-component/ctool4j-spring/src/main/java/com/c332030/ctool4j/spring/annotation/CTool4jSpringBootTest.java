@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.spring.annotation;
 
 import com.c332030.ctool4j.spring.configuration.CSpringConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.lang.annotation.*;
@@ -17,6 +18,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
+@EnableAutoConfiguration
 @SpringBootTest(classes = {CSpringConfiguration.class})
 public @interface CTool4jSpringBootTest {
 
