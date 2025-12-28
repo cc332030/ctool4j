@@ -5,8 +5,10 @@ import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -157,11 +159,15 @@ public class CReflectUtils {
         return FIELD_MAP_CLASS_VALUE.get(type);
     }
 
+    public Map<String, Field> getFieldMap(Class<?> type, CPredicate<Field> predicate) {
+        return CMapUtils.filterValue(
+            getFieldAllMap(type),
+            predicate
+        );
+    }
+
     public Map<String, Field> getFieldMap(Class<?> type) {
-        return FIELD_MAP_CLASS_VALUE.get(type).entrySet()
-            .stream()
-            .filter(entry -> !isStatic(entry.getValue()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return getFieldMap(type, e -> !CReflectUtils.isStatic(e));
     }
 
     public Field getField(Class<?> type, String fieldName) {

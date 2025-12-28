@@ -14,8 +14,7 @@ import lombok.val;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * <p>
@@ -38,21 +37,17 @@ public class CAutowiredUtils {
 
     public void autowired(Class<?> type, Object object) {
 
-        CReflectUtils.getFieldAllMap(type)
-            .values()
-            .stream()
-            .filter(e -> CClassUtils.isAnnotationPresent(e, CAutowired.class))
-            .forEach(field -> {
+        listFieldMap(type).values().forEach(field -> {
 
-                if(null == object
-                    && !CReflectUtils.isStatic(field)
-                ) {
-                    return;
-                }
+            if(null == object
+                && !CReflectUtils.isStatic(field)
+            ) {
+                return;
+            }
 
-                autowired(type, object, field);
+            autowired(type, object, field);
 
-            });
+        });
 
     }
 
@@ -72,13 +67,9 @@ public class CAutowiredUtils {
 
     }
 
-    public List<Field> listAutowiredField(Class<?> clazz) {
-        return CReflectUtils.getFieldAllMap(clazz)
-            .values()
-            .stream()
-            .filter(CReflectUtils::isStatic)
-            .filter(e -> CClassUtils.isAnnotationPresent(e, CAutowired.class))
-            .collect(Collectors.toList());
+    public Map<String, Field> listFieldMap(Class<?> clazz) {
+        return CReflectUtils.getFieldMap(clazz,
+            e -> CClassUtils.isAnnotationPresent(e, CAutowired.class));
     }
 
     public <T extends Annotation> void listAnnotatedClassThenDo(
