@@ -14,11 +14,11 @@ import java.lang.annotation.*;
  *
  * @since 2025/9/21
  */
-
+@Documented
+@Inherited
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
+
 @Transactional
 public @interface CTransactional {
 

@@ -1,9 +1,6 @@
 package com.c332030.ctool4j.spring.exception.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * <p>
@@ -12,6 +9,8 @@ import java.lang.annotation.Target;
  *
  * @since 2025/12/21
  */
+@Documented
+@Inherited
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CCatchAndLogThrowable {

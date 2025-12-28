@@ -12,10 +12,11 @@ import java.lang.annotation.*;
  *
  * @since 2025/12/28
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+
 @SpringBootTest(classes = {CSpringConfiguration.class})
 public @interface CTool4jSpringBootTest {
 

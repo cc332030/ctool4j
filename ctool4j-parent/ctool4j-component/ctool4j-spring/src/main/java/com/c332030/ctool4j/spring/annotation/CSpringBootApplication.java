@@ -13,10 +13,10 @@ import java.lang.annotation.*;
  *
  * @since 2025/11/10
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
