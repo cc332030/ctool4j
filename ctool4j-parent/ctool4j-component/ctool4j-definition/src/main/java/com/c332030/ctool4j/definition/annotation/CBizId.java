@@ -10,7 +10,6 @@ import java.lang.annotation.*;
  * @since 2025/12/3
  */
 @Documented
-@Inherited
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CBizId {
