@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.spring.annotation;
+package com.c332030.ctool4j.spring.test.annotation;
 
 import com.c332030.ctool4j.spring.configuration.CSpringConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
