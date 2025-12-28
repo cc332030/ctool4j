@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
  *
  * @since 2025/5/13
  */
+@Deprecated
 @Data
 @SuperBuilder
 @NoArgsConstructor
