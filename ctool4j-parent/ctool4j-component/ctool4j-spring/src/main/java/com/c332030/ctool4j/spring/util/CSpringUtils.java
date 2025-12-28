@@ -6,7 +6,6 @@ import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
-import com.c332030.ctool4j.spring.bean.CSpringBeans;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -14,7 +13,6 @@ import lombok.val;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.core.ResolvableType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -56,14 +54,6 @@ public class CSpringUtils {
     }
 
     /**
-     * 获取当前应用上下文
-     * @return 当前应用上下文
-     */
-    public ApplicationContext getApplicationContext() {
-        return CSpringBeans.getApplicationContext();
-    }
-
-    /**
      * 判断 applicationContext 是否是当前上下文
      * @param applicationContext 应用上下文
      * @return 是否是当前上下文
@@ -73,14 +63,24 @@ public class CSpringUtils {
     }
 
     /**
+     * 获取当前应用上下文
+     * @return 当前应用上下文
+     */
+    @Deprecated
+    public ApplicationContext getApplicationContext() {
+        return SpringUtil.getApplicationContext();
+    }
+
+    /**
      * 获取指定名称的 bean
      * @param name bean 名称
      * @return bean
      * @param <T> 泛型
      */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public <T> T getBean(String name) {
-        return (T)getApplicationContext().getBean(name);
+        return SpringUtil.getBean(name);
     }
 
     /**
@@ -89,18 +89,9 @@ public class CSpringUtils {
      * @return bean
      * @param <T> 泛型
      */
+    @Deprecated
     public <T> T getBean(Class<T> tClass) {
-        return getApplicationContext().getBean(tClass);
-    }
-
-    /**
-     * 获取指定类型的所有 bean
-     * @param tClass bean 类型
-     * @return bean map
-     * @param <T> 泛型
-     */
-    public <T> Map<String, T> getBeansOfType(Class<T> tClass) {
-        return getApplicationContext().getBeansOfType(tClass);
+        return SpringUtil.getBean(tClass);
     }
 
     /**
@@ -110,25 +101,6 @@ public class CSpringUtils {
      */
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> tClass) {
         return getApplicationContext().getBeansWithAnnotation(tClass);
-    }
-
-    /**
-     * 获取类型指定泛型的 bean
-     * @param tClass bean 类型
-     * @param classes 泛型类型
-     * @return bean
-     * @param <T> 泛型
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T getBeanByResolvableType(Class<?> tClass, Class<?>... classes) {
-
-        val resolvableType = ResolvableType.forClassWithGenerics(
-                tClass, classes
-        );
-
-        return (T)getApplicationContext()
-                .getBeanProvider(resolvableType)
-                .getIfAvailable();
     }
 
     /**
@@ -150,6 +122,7 @@ public class CSpringUtils {
      * @param tClass bean 类型
      * @param classes 需要注入的类
      */
+    @Deprecated
     @SneakyThrows
     public void wireBean(Class<?> tClass, Class<?>... classes) {
 
