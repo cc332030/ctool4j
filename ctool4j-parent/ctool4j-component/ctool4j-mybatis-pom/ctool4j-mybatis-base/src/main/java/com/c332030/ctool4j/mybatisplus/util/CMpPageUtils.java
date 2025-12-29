@@ -3,6 +3,7 @@ package com.c332030.ctool4j.mybatisplus.util;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -18,6 +19,37 @@ import java.util.List;
  */
 @UtilityClass
 public class CMpPageUtils {
+
+    /**
+     * 创建 Page
+     * @param pageNum 当前页
+     * @return Page
+     * @param <T> 泛型
+     */
+    public <T> Page<T> getPageForQuery(Integer pageNum) {
+        return getPage(pageNum, CPageUtils.DEFAULT_LIST_PAGE_SIZE);
+    }
+
+    /**
+     * 创建 Page
+     * @param pageNum 当前页
+     * @return Page
+     * @param <T> 泛型
+     */
+    public <T> Page<T> getPageForTask(Integer pageNum) {
+        return getPage(pageNum, CPageUtils.DEFAULT_JOB_PAGE_SIZE);
+    }
+
+    /**
+     * 创建 Page
+     * @param pageNum 当前页
+     * @param pageSize 页大小
+     * @return Page
+     * @param <T> 泛型
+     */
+    public <T> Page<T> getPage(Integer pageNum, Integer pageSize) {
+        return new Page<>(pageNum, pageSize);
+    }
 
     /**
      * 通过 ICPage 创建 Page
