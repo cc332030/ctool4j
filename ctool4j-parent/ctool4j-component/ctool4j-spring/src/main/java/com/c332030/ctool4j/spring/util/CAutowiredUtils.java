@@ -77,7 +77,7 @@ public class CAutowiredUtils {
         CConsumer<Class<Object>> consumer
     ) {
 
-        val basePackages = CCollUtils.concat(
+        val basePackages = CCollUtils.concatOne(
             CTool4jConstants.BASE_PACKAGE,
             CSpringUtils.getBasePackages()
         );
