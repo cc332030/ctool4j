@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
+import com.c332030.ctool4j.mybatisplus.util.CMpPageUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.val;
 
 import java.util.List;
 
@@ -55,9 +55,7 @@ public interface ICPage {
 
     @JsonIgnore
     default <E> Page<E> getPage(List<OrderItem> orders) {
-        val page = new Page<E>(getPageNum(), getPageSize());
-        page.setOrders(orders);
-        return page;
+        return CMpPageUtils.getPage(this, orders);
     }
 
     @JsonIgnore
