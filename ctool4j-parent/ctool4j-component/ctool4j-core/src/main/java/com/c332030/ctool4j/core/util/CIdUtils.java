@@ -1,12 +1,16 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.annotation.CIdPrefix;
+import com.c332030.ctool4j.definition.function.StringFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>
@@ -54,6 +58,34 @@ public class CIdUtils {
 
     public String nextIdWithPrefix(Class<?> clazz, int length) {
         return nextIdWithPrefix(getPrefix(clazz, length));
+    }
+
+    public <T> T getPrefixFromId(String id, StringFunction<T> convert) {
+
+        val prefix = getPrefixFromId(id);
+        if(StringUtils.isEmpty(prefix)){
+            return null;
+        }
+
+        return convert.apply(prefix);
+    }
+
+    public String getPrefixFromId(String id) {
+
+        if(StringUtils.isEmpty(id)) {
+            return null;
+        }
+
+        var index = 0;
+        while (index < id.length() && !CharUtil.isNumber(id.charAt(index))) {
+            index++;
+        }
+
+        if(index == 0) {
+            return null;
+        }
+
+        return id.substring(0, index);
     }
 
 }
