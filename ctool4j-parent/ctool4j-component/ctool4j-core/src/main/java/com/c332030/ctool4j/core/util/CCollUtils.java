@@ -106,7 +106,7 @@ public class CCollUtils {
      * @return 新 list
      * @param <P> 泛型
      */
-    public <P> List<P> concat(P p, Collection<? extends P> collection) {
+    public <P> List<P> concatOne(P p, Collection<? extends P> collection) {
 
         val size1 = null == p ? 0 : 1;
         val size2 = size(collection);
@@ -129,7 +129,7 @@ public class CCollUtils {
      * @return 新 list
      * @param <P> 泛型
      */
-    public <P> List<P> concat(Collection<? extends P> collection, P p) {
+    public <P> List<P> concatOne(Collection<? extends P> collection, P p) {
 
         val size1 = null == p ? 0 : 1;
         val size2 = size(collection);
