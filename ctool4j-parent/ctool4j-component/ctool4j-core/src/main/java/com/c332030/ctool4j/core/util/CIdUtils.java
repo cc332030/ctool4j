@@ -12,6 +12,8 @@ import lombok.val;
 import lombok.var;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.UUID;
+
 /**
  * <p>
  * Description: CIdUtils
@@ -21,6 +23,17 @@ import org.apache.commons.lang3.StringUtils;
  */
 @UtilityClass
 public class CIdUtils {
+
+    public String stringUUID() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * 没有 '-' 的uuid
+     */
+    public String stringUUIDNoHyphen() {
+        return stringUUID().replaceAll("-", "");
+    }
 
     public Long nextId() {
         return IdUtil.getSnowflakeNextId();
