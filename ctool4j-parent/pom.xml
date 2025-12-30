@@ -16,8 +16,6 @@
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
 
-        <mybatis-plus.version>3.5.15</mybatis-plus.version>
-
     </properties>
 
 
@@ -60,13 +58,13 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
+                <version>3.5.15</version>
             </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-jsqlparser</artifactId>
-                <version>${mybatis-plus.version}</version>
+                <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
+                <version>3.5.15</version>
             </dependency>
 
             <dependency>
