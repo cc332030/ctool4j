@@ -11,7 +11,7 @@ import com.c332030.ctool4j.definition.annotation.CJsonLog;
  * @since 2025/12/9
  */
 @CJsonLog
-public interface ICCodeMessageDataResult<CODE, DATA> {
+public interface ICCodeMessageDataResult<CODE, DATA> extends ICMessage {
 
     CODE getCode();
 

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author c332030
  * @since 2025/12/9
  */
-public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA> {
+public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA>, ICMsg {
 
     CODE getCode();
 
@@ -18,7 +18,6 @@ public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA
 
     DATA getData();
 
-    @Override
     @JsonIgnore
     default String getMessage() {
         return getMsg();
