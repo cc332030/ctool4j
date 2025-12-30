@@ -1,9 +1,13 @@
 package com.c332030.ctool4j.mybatisplus.util;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CPageUtils;
+import com.c332030.ctool4j.definition.function.CConsumer;
+import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -73,6 +77,48 @@ public class CMpPageUtils {
      */
     public <T> Page<T> emptyPage(ICPage iCPage) {
         return new Page<>(iCPage.getPageNum(), iCPage.getPageSize(), 0);
+    }
+
+
+    /**
+     * 分页查询并执行逻辑
+     * @param queryFunction 分页查询
+     * @param doSth 执行逻辑
+     * @param <T> 数据类型
+     */
+    public <T> void pageThenDo(
+        CFunction<Integer, IPage<T>> queryFunction,
+        CConsumer<List<T>> doSth
+    ) {
+        CPageUtils.pageThenDo(
+            queryFunction,
+            page -> {
+
+                val records = page.getRecords();
+                if(CollUtil.isEmpty(records)) {
+                    return false;
+                }
+
+                doSth.accept(records);
+                return true;
+            }
+        );
+    }
+
+    /**
+     * 分页查询并执行逻辑
+     * @param queryFunction 分页查询
+     * @param doSth 执行逻辑
+     * @param <T> 数据类型
+     */
+    public <T> void pageThenEach(
+        CFunction<Integer, IPage<T>> queryFunction,
+        CConsumer<T> doSth
+    ) {
+        pageThenDo(
+            queryFunction,
+            list -> list.forEach(doSth)
+        );
     }
 
 }
