@@ -2,12 +2,12 @@ package com.c332030.ctool4j.definition.interfaces;
 
 /**
  * <p>
- * Description: IOperate
+ * Description: ICOperate
  * </p>
  *
  * @since 2025/11/10
  */
-public interface IOperate extends IEnumName {
+public interface ICOperate extends ICEnumName {
 
     default String getName() {
         return name();

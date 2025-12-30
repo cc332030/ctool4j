@@ -2,7 +2,7 @@ package com.c332030.ctool4j.redis.util;
 
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.function.CSupplier;
-import com.c332030.ctool4j.definition.interfaces.IOperate;
+import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import lombok.experimental.UtilityClass;
@@ -39,12 +39,12 @@ public class CLockUtils {
     /**
      * 获取锁 key
      * @param clazz 业务类
-     * @param iOperate 操作
+     * @param ICOperate 操作
      * @param key 业务 key
      * @return 锁 key
      */
-    public static String getLockKey(Class<?> clazz, IOperate iOperate, Object key) {
-        return getLockKey(CRedisUtils.getKey(clazz, iOperate, key));
+    public static String getLockKey(Class<?> clazz, ICOperate ICOperate, Object key) {
+        return getLockKey(CRedisUtils.getKey(clazz, ICOperate, key));
     }
 
     /**

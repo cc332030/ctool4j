@@ -7,7 +7,8 @@ package com.c332030.ctool4j.definition.interfaces;
  *
  * @since 2025/9/11
  */
-@Deprecated
-public interface IValue<T> extends ICValue<T> {
+public interface ICValue<T> {
+
+    T getValue();
 
 }

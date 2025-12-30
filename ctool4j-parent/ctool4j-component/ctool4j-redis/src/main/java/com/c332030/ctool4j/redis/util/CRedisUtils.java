@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.redis.util;
 
-import com.c332030.ctool4j.definition.interfaces.IOperate;
+import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
@@ -26,12 +26,12 @@ public class CRedisUtils {
     @CAutowired
     CObjectValueRedisService redisService;
 
-    public static String getKey(Class<?> clazz, IOperate iOperate, Object key) {
+    public static String getKey(Class<?> clazz, ICOperate ICOperate, Object key) {
         return CSpringUtils.getApplicationName()
                 + KEY_SEPARATOR
                 + clazz.getSimpleName()
                 + KEY_SEPARATOR
-                + iOperate.getName()
+                + ICOperate.getName()
                 + KEY_SEPARATOR
                 + key
                 ;
