@@ -68,6 +68,28 @@ public class CAssert {
     }
 
     /**
+     * 为空断言
+     * @param value 校验值
+     * @param messageSupplier 错误信息提供者
+     */
+    public void isNull(Object value, Supplier<String> messageSupplier) {
+        if(Objects.nonNull(value)) {
+            CExceptionUtils.throwBusinessException(messageSupplier);
+        }
+    }
+
+    /**
+     * 为空断言
+     * @param value 校验值
+     * @param message 错误信息
+     */
+    public void isNull(Object value, String message) {
+        if(Objects.nonNull(value)) {
+            CExceptionUtils.throwBusinessException(message);
+        }
+    }
+
+    /**
      * 不为空断言
      * @param value 校验值
      * @param messageSupplier 错误信息提供者
