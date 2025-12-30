@@ -1,12 +1,9 @@
 package com.c332030.ctool4j.mybatisplus.util;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CPageUtils;
-import com.c332030.ctool4j.definition.function.CConsumer;
-import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -76,22 +73,6 @@ public class CMpPageUtils {
      */
     public <T> Page<T> emptyPage(ICPage iCPage) {
         return new Page<>(iCPage.getPageNum(), iCPage.getPageSize(), 0);
-    }
-
-    /**
-     * 分页查询并执行逻辑
-     * @param queryFunction 分页查询
-     * @param doSth 执行逻辑
-     * @param <T> 数据类型
-     */
-    public <T> void queryThenDo(
-        CFunction<Integer, IPage<T>> queryFunction,
-        CConsumer<T> doSth
-    ) {
-        CPageUtils.queryThenDo(
-            pageNum -> queryFunction.apply(pageNum).getRecords(),
-            doSth
-        );
     }
 
 }

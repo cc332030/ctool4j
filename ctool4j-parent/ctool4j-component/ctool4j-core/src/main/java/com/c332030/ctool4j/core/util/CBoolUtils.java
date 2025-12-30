@@ -16,6 +16,22 @@ import lombok.val;
 @UtilityClass
 public class CBoolUtils {
 
+    public boolean isTrue(Boolean value) {
+        return BooleanUtil.isTrue(value);
+    }
+
+    public boolean isNotTrue(Boolean value) {
+        return !isTrue(value);
+    }
+
+    public boolean isFalse(Boolean value){
+        return BooleanUtil.isFalse(value);
+    }
+
+    public boolean isNotFalse(Boolean value){
+        return !isFalse(value);
+    }
+
     public <T> boolean isTrue(T t, CFunction<T, Boolean> function) {
         val value = CObjUtils.convert(t, function);
         return BooleanUtil.isTrue(value);

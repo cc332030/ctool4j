@@ -29,27 +29,59 @@ public class CPageUtils {
      * @param doSth 执行逻辑
      * @param <T> 数据类型
      */
-    public <T> void queryThenDo(
-            CFunction<Integer, List<T>> queryFunction,
-            CConsumer<T> doSth
+    public <T> void pageThenDo(
+            CFunction<Integer, T> queryFunction,
+            CFunction<T, Boolean> doSth
     ) {
 
         var start = 1;
         while (true) {
 
-            val list = queryFunction.apply(start);
-            if(CollUtil.isEmpty(list)) {
+            val result = queryFunction.apply(start);
+            if(null == result
+                || CBoolUtils.isNotTrue(doSth.apply(result))
+            ) {
                 break;
             }
-
-            for (T t : list) {
-                doSth.accept(t);
-            }
-
             start++;
-
         }
 
+    }
+
+    /**
+     * 分页查询并执行逻辑
+     * @param queryFunction 分页查询
+     * @param doSth 执行逻辑
+     * @param <T> 数据类型
+     */
+    public <T> void pageThenEach(
+        CFunction<Integer, List<T>> queryFunction,
+        CConsumer<T> doSth
+    ) {
+        pageThenDo(
+            queryFunction,
+            list -> {
+                if(CollUtil.isEmpty(list)) {
+                    return false;
+                }
+                list.forEach(doSth);
+                return true;
+            }
+        );
+    }
+
+    /**
+     * 分页查询并执行逻辑
+     * @param queryFunction 分页查询
+     * @param doSth 执行逻辑
+     * @param <T> 数据类型
+     */
+    @Deprecated
+    public <T> void queryThenDo(
+            CFunction<Integer, List<T>> queryFunction,
+            CConsumer<T> doSth
+    ) {
+        pageThenEach(queryFunction, doSth);
     }
 
 }
