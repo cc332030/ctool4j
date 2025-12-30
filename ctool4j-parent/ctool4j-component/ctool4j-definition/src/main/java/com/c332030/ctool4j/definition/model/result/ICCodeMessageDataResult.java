@@ -15,8 +15,6 @@ public interface ICCodeMessageDataResult<CODE, DATA> extends ICMessage {
 
     CODE getCode();
 
-    String getMessage();
-
     DATA getData();
 
 }

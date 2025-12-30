@@ -14,8 +14,6 @@ public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA
 
     CODE getCode();
 
-    String getMsg();
-
     DATA getData();
 
     @JsonIgnore
