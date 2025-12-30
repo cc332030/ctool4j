@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.db.enums.CSqlSeparatorEnum;
 import lombok.experimental.UtilityClass;
@@ -23,6 +24,19 @@ import java.util.stream.Collectors;
  */
 @UtilityClass
 public class CSqlUtils {
+
+    public String limitSql() {
+        return limitSql(CPageUtils.DEFAULT_LIST_PAGE_SIZE);
+    }
+
+    public String limitSql(Integer size) {
+        return "limit " + size;
+    }
+
+    public String forUpdate() {
+        return "for update";
+    }
+
 
     public static final String TABLE_ALIAS_T = "t";
 
