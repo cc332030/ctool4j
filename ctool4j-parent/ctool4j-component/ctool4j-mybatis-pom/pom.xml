@@ -15,7 +15,8 @@
         <module>ctool4j-mybatis-base</module>
         <module>ctool4j-mybatis-33</module>
         <module>ctool4j-mybatis-34</module>
-        <module>ctool4j-mybatis</module>
+        <!-- jdk11 -->
+        <!--<module>ctool4j-mybatis</module>-->
     </modules>
 
     <dependencies>

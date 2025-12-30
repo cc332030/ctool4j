@@ -17,7 +17,7 @@ public class MybatisPlusConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(PaginationInterceptor.class)
-    public PaginationInterceptor mybatisPlusInterceptor() {
+    public PaginationInterceptor cPaginationInterceptor() {
         return new PaginationInterceptor();
     }
 
