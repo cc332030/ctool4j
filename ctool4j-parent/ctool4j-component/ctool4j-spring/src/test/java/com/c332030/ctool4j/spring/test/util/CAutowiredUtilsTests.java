@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 public class CAutowiredUtilsTests {
 
     @Test
-    public void listFieldMap() {
+    public void getFieldMap() {
 
         val fieldMap = CAutowiredUtils.getFieldMap(CSpringConfigBeans.class);
         val fieldName = LambdaUtil.getFieldName(CSpringConfigBeans::getSpringApplicationConfig);
