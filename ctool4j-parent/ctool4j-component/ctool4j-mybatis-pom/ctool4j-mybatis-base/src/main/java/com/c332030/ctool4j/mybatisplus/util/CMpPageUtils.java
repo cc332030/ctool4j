@@ -31,7 +31,7 @@ public class CMpPageUtils {
      * @param <T> 泛型
      */
     public <T> Page<T> getPageForQuery(Integer pageNum) {
-        return getPage(pageNum, CPageUtils.DEFAULT_LIST_PAGE_SIZE);
+        return getPage(pageNum, CPageUtils.DEFAULT_PAGE_SIZE);
     }
 
     /**

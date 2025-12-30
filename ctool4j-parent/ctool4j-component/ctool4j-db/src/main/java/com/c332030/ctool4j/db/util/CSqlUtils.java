@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class CSqlUtils {
 
     public String limitSql() {
-        return limitSql(CPageUtils.DEFAULT_LIST_PAGE_SIZE);
+        return limitSql(CPageUtils.DEFAULT_PAGE_SIZE);
     }
 
     public String limitSql(Integer size) {

@@ -19,7 +19,7 @@ import java.util.List;
 @UtilityClass
 public class CPageUtils {
 
-    public static final Integer DEFAULT_LIST_PAGE_SIZE = 10;
+    public static final Integer DEFAULT_PAGE_SIZE = 10;
 
     public static final Integer DEFAULT_JOB_PAGE_SIZE = 1000;
 
