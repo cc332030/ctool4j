@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.definition.model.result;
+package com.c332030.ctool4j.definition.interfaces;
 
 /**
  * <p>
@@ -7,7 +7,7 @@ package com.c332030.ctool4j.definition.model.result;
  *
  * @since 2025/12/30
  */
-public interface ICMsg{
+public interface ICMsg {
 
     String getMsg();
 
