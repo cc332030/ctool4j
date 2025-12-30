@@ -19,7 +19,7 @@ public class CAutowiredUtilsTests {
     @Test
     public void listFieldMap() {
 
-        val fieldMap = CAutowiredUtils.listFieldMap(CSpringConfigBeans.class);
+        val fieldMap = CAutowiredUtils.getFieldMap(CSpringConfigBeans.class);
         val fieldName = LambdaUtil.getFieldName(CSpringConfigBeans::getSpringApplicationConfig);
 
         Assertions.assertNotNull(fieldMap.get(fieldName));
