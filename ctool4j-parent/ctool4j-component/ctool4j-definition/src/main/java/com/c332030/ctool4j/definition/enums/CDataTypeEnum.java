@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.enums;
 
-import com.c332030.ctool4j.definition.interfaces.IText;
+import com.c332030.ctool4j.definition.interfaces.ICText;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,7 +14,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CDataTypeEnum implements IText {
+public enum CDataTypeEnum implements ICText {
 
     INT("整形"),
 

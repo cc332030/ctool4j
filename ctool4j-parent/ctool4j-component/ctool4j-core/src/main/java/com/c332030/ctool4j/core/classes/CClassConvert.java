@@ -3,7 +3,7 @@ package com.c332030.ctool4j.core.classes;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CNumUtils;
-import com.c332030.ctool4j.definition.interfaces.IValue;
+import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -234,7 +234,7 @@ public class CClassConvert {
     }
 
     @Named("toEnumIntegerValue")
-    public Integer toEnumIntegerValue(IValue<Integer> value) {
+    public Integer toEnumIntegerValue(ICValue<Integer> value) {
         if(null == value) {
             return null;
         }
@@ -242,7 +242,7 @@ public class CClassConvert {
     }
 
     @Named("toEnumStringValue")
-    public String toEnumStringValue(IValue<String> value) {
+    public String toEnumStringValue(ICValue<String> value) {
         if(null == value) {
             return null;
         }

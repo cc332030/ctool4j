@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.definition.function.CConsumer;
-import com.c332030.ctool4j.definition.interfaces.IValue;
+import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -14,7 +14,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CValueUtils {
 
-    public <T> void setValue(IValue<T> iValue, CConsumer<T> consumer) {
+    public <T> void setValue(ICValue<T> iValue, CConsumer<T> consumer) {
         if(null != iValue) {
             consumer.accept(iValue.getValue());
         }

@@ -2,7 +2,7 @@ package com.c332030.ctool4j.definition.interfaces;
 
 /**
  * <p>
- * Description: ICMsg
+ * Description: ICMessage
  * </p>
  *
  * @since 2025/12/30

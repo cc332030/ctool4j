@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.enums;
 
-import com.c332030.ctool4j.definition.interfaces.IText;
+import com.c332030.ctool4j.definition.interfaces.ICText;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.MediaType;
@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
  */
 @Getter
 @AllArgsConstructor
-public enum CMimeTypeEnum implements IText {
+public enum CMimeTypeEnum implements ICText {
 
     JSON5("application/json5", "json5"),
 

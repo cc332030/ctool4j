@@ -2,7 +2,7 @@ package com.c332030.ctool4j.definition.interfaces;
 
 /**
  * <p>
- * Description: IText
+ * Description: ICDesc
  * </p>
  *
  * @author c332030
