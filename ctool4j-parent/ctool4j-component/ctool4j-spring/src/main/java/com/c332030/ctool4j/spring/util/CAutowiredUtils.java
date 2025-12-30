@@ -37,7 +37,7 @@ public class CAutowiredUtils {
 
     public void autowired(Class<?> type, Object object) {
 
-        listFieldMap(type).values().forEach(field -> {
+        getFieldMap(type).values().forEach(field -> {
 
             if(null == object
                 && !CReflectUtils.isStatic(field)
@@ -67,7 +67,7 @@ public class CAutowiredUtils {
 
     }
 
-    public Map<String, Field> listFieldMap(Class<?> clazz) {
+    public Map<String, Field> getFieldMap(Class<?> clazz) {
         return CReflectUtils.getFieldMap(clazz,
             e -> CClassUtils.isAnnotationPresent(e, CAutowired.class));
     }
