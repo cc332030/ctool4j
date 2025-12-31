@@ -29,7 +29,7 @@ public class CSpringFoxUtils {
                 .forCodeGeneration(true);
     }
 
-    public List<Parameter> globalParameterList(Collection<ICRequestHeader> headers) {
+    public List<Parameter> globalParameterList(Collection<? extends ICRequestHeader> headers) {
 
         headers = CCollUtils.filterNull(headers);
         return headers.stream()
