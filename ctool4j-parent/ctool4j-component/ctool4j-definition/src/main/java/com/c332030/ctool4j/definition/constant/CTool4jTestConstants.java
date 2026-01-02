@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 @UtilityClass
 public class CTool4jTestConstants {
 
-    public static final String JUNIT_TEST_CLASS_NAME = "org.junit.jupiter.api.Test";
+    public final String JUNIT_TEST_CLASS_NAME = "org.junit.jupiter.api.Test";
 
-    public static final boolean IS_TEST = ((Supplier<Boolean>) () -> {
+    public final boolean IS_TEST = ((Supplier<Boolean>) () -> {
         try {
 
             Class.forName(JUNIT_TEST_CLASS_NAME);
