@@ -23,6 +23,11 @@ public class CXxlJobAdminConfig {
     String addresses;
 
     /**
+     * 调度中心通讯TOKEN [选填]：非空时启用
+     */
+    String accessToken;
+
+    /**
      * 调度中心通讯超时时间[选填]，单位秒；默认3s；
      */
     Integer timeout;

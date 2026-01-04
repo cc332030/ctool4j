@@ -19,9 +19,4 @@ public class CXxlJobConfig {
      */
     Boolean enable;
 
-    /**
-     * 调度中心通讯TOKEN [选填]：非空时启用；
-     */
-    String accessToken;
-
 }
