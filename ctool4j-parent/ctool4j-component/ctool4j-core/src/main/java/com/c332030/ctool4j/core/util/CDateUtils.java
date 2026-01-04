@@ -175,6 +175,9 @@ public class CDateUtils {
         if (null == mills) {
             return null;
         }
+        if(mills <= MIN_MILLS) {
+            mills *= 1000;
+        }
         return new Date(mills);
     }
 
