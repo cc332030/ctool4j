@@ -1,10 +1,10 @@
 package com.c332030.ctool4j.job.util;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.function.StartEndTimeConsumer;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -38,7 +38,7 @@ public class CJobUtils {
     public void dayJobTime(String param, int days, StartEndTimeConsumer consumer) {
 
         Instant instant = null;
-        if(StringUtils.isNotBlank(param)){
+        if(StrUtil.isNotBlank(param)){
             instant = DateUtil.parse(param).toInstant();
         }
 

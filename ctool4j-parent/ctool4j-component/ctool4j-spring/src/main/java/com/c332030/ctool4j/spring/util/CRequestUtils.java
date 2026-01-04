@@ -12,7 +12,6 @@ import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -335,7 +334,7 @@ public class CRequestUtils {
     public String getIp(HttpServletRequest request) {
 
         String forwardIpBundle = getHeader(request, HttpHeaders.X_FORWARDED_FOR);
-        if (StringUtils.isNotEmpty(forwardIpBundle)) {
+        if (StrUtil.isNotEmpty(forwardIpBundle)) {
             String[] forwardIpParts = forwardIpBundle.split(",");
             return forwardIpParts[0];
         }

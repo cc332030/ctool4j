@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.jackson.deserializer;
 
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CEnumUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import lombok.Getter;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
@@ -36,8 +36,8 @@ public class CEnumDeserializer
     @Override
     public Enum<?> deserialize(JsonParser p, DeserializationContext context) throws IOException {
 
-        val value = StringUtils.trim(p.getText());
-        if(StringUtils.isBlank(value)) {
+        val value = StrUtil.trim(p.getText());
+        if(StrUtil.isBlank(value)) {
             return null;
         }
 

@@ -7,7 +7,6 @@ import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -52,7 +51,7 @@ public class CCorsHandler implements ICBaseResponseBodyAdvice<Object> {
     private void handle(HttpServletRequest request, HttpServletResponse response) {
 
         val origin = request.getHeader(HttpHeaders.ORIGIN);
-        if (StringUtils.isEmpty(origin)) {
+        if (StrUtil.isEmpty(origin)) {
             log.debug("Not cors");
             return;
         }

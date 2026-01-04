@@ -10,7 +10,6 @@ import com.c332030.ctool4j.definition.function.StringFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.UUID;
 
@@ -76,7 +75,7 @@ public class CIdUtils {
     public <T> T getPrefixFromId(String id, StringFunction<T> convert) {
 
         val prefix = getPrefixFromId(id);
-        if(StringUtils.isEmpty(prefix)){
+        if(StrUtil.isEmpty(prefix)){
             return null;
         }
 
@@ -85,7 +84,7 @@ public class CIdUtils {
 
     public String getPrefixFromId(String id) {
 
-        if(StringUtils.isEmpty(id)) {
+        if(StrUtil.isEmpty(id)) {
             return null;
         }
 

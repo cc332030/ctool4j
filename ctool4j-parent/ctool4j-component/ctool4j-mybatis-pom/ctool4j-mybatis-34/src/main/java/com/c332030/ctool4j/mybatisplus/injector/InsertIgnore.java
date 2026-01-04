@@ -1,9 +1,9 @@
 package com.c332030.ctool4j.mybatisplus.injector;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -45,7 +45,7 @@ public class InsertIgnore extends CAbstractMethod {
         String keyProperty = null;
         String keyColumn = null;
         // 表包含主键处理逻辑,如果不包含主键当普通字段处理
-        if (StringUtils.isNotBlank(tableInfo.getKeyProperty())) {
+        if (StrUtil.isNotBlank(tableInfo.getKeyProperty())) {
             if (tableInfo.getIdType() == IdType.AUTO) {
                 // 自增主键
                 keyGenerator = new Jdbc3KeyGenerator();
