@@ -73,6 +73,11 @@ public class CDateUtilsTests {
         Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(CDateUtils.toDate(MILLS)));
         Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(CDateUtils.toDate(INSTANT)));
 
+        Assertions.assertEquals("2026-01-04 10:02:50", DateUtil.formatDateTime(
+            CDateUtils.toDate(1767492170633L)));
+        Assertions.assertEquals("2286-11-21 01:46:39", DateUtil.formatDateTime(
+            CDateUtils.toDate(9999999999L)));
+
     }
 
     @Test
