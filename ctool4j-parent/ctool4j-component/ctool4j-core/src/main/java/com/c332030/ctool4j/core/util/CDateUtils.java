@@ -119,6 +119,11 @@ public class CDateUtils {
     }
 
     /**
+     * 最小的时间戳（毫秒），判断时间戳是秒还是毫秒
+     */
+    public final Long MIN_MILLS = 10000000000L;
+
+    /**
      * 日期时间字符串转Date，可能是字符串类型的时间戳
      *
      * @param text 日期时间字符串
@@ -137,7 +142,11 @@ public class CDateUtils {
         }
 
         try {
-            val mills = CNumUtils.parseLong(text);
+            var mills = CNumUtils.parseLong(text);
+            // 判断是否有将秒作为毫秒传过来
+            if(mills <= MIN_MILLS){
+                mills *= 1000;
+            }
             return CDateUtils.toDate(mills);
         } catch (Exception ex) {
             log.debug("parse long text error", ex);
