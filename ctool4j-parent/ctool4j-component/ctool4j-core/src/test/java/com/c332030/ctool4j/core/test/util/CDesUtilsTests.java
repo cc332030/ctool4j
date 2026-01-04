@@ -18,20 +18,38 @@ public class CDesUtilsTests {
 
     private static final String PLAIN_TEXT = "332030";
 
-    private static final String CIPHER_TEXT = "NIAMvCzxs+A=";
+    private static final String CIPHER_TEXT_64 = "NIAMvCzxs+A=";
+
+    private static final String CIPHER_TEXT_62 = "4VSLrykWrrM";
 
     @Test
-    public void encrypt() {
+    public void encryptStr64() {
 
-        val cipherText = CDesUtils.encrypt(KEY, PLAIN_TEXT);
-        Assertions.assertEquals(CIPHER_TEXT, cipherText);
+        val cipherText = CDesUtils.encryptStr64(KEY, PLAIN_TEXT);
+        Assertions.assertEquals(CIPHER_TEXT_64, cipherText);
 
     }
 
     @Test
-    public void decrypt() {
+    public void encryptStr62() {
 
-        val plainText = CDesUtils.decrypt(KEY, CIPHER_TEXT);
+        val cipherText = CDesUtils.encryptStr62(KEY, PLAIN_TEXT);
+        Assertions.assertEquals(CIPHER_TEXT_62, cipherText);
+
+    }
+
+    @Test
+    public void decryptStr64() {
+
+        val plainText = CDesUtils.decryptStr64(KEY, CIPHER_TEXT_64);
+        Assertions.assertEquals(PLAIN_TEXT, plainText);
+
+    }
+
+    @Test
+    public void decryptStr62() {
+
+        val plainText = CDesUtils.decryptStr62(KEY, CIPHER_TEXT_62);
         Assertions.assertEquals(PLAIN_TEXT, plainText);
 
     }
