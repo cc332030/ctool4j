@@ -32,7 +32,7 @@ public class CXxlJobConfiguration {
         CXxlJobExecutorConfig executorConfig
     ) {
 
-        log.info(">>>>>>>>>>> xxl-job config init.");
+        log.info("xxl-job config init");
 
         val executor = new XxlJobSpringExecutor();
         executor.setAccessToken(config.getAccessToken());
