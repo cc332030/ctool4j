@@ -1,12 +1,14 @@
 package com.c332030.ctool4j.job.xxljob.configuation;
 
 import com.c332030.ctool4j.job.xxljob.config.CXxlJobAdminConfig;
+import com.c332030.ctool4j.job.xxljob.config.CXxlJobConfig;
 import com.c332030.ctool4j.job.xxljob.config.CXxlJobExecutorConfig;
 import com.xxl.job.core.executor.XxlJobExecutor;
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,17 +21,22 @@ import org.springframework.context.annotation.Configuration;
  */
 @CustomLog
 @Configuration
+@ConditionalOnProperty(prefix = "xxl.job", name = "enable", havingValue = "true", matchIfMissing = true)
 public class CXxlJobConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(XxlJobExecutor.class)
-    public XxlJobExecutor cXxlJobExecutor(CXxlJobAdminConfig adminConfig, CXxlJobExecutorConfig executorConfig) {
+    public XxlJobExecutor cXxlJobExecutor(
+        CXxlJobConfig config,
+        CXxlJobAdminConfig adminConfig,
+        CXxlJobExecutorConfig executorConfig
+    ) {
 
         log.info(">>>>>>>>>>> xxl-job config init.");
 
         val executor = new XxlJobSpringExecutor();
+        executor.setAccessToken(config.getAccessToken());
         executor.setAdminAddresses(adminConfig.getAddresses());
-        executor.setAccessToken(adminConfig.getAccessToken());
 
         executor.setAppname(executorConfig.getAppname());
         executor.setAddress(executorConfig.getAddress());
