@@ -57,13 +57,10 @@ public class CFeignLogger extends Logger {
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) throws IOException {
         try {
             if(enableLog(response)) {
-                try {
-                    return dealLog(response);
-                } catch (Throwable e) {
-                    log.error("处理响应日志失败", e);
-                }
+                return dealLog(response);
             }
-            return response;
+        } catch (Throwable e) {
+            log.error("处理响应日志失败", e);
         } finally {
             if(BooleanUtil.isTrue(config.getEnableCost())) {
                 val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
@@ -73,7 +70,7 @@ public class CFeignLogger extends Logger {
                 }
             }
         }
-
+        return response;
     }
 
     @Override
