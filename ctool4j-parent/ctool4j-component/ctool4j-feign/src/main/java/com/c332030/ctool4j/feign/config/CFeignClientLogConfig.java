@@ -24,4 +24,9 @@ public class CFeignClientLogConfig {
      */
     Boolean enableHeader = false;
 
+    /**
+     * 耗时日志开关
+     */
+    Boolean enableCost = true;
+
 }

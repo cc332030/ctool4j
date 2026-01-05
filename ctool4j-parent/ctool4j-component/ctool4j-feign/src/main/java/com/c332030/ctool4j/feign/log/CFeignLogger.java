@@ -45,7 +45,7 @@ public class CFeignLogger extends Logger {
 
     @Override
     protected void logRequest(String configKey, Level logLevel, Request request) {
-        if(BooleanUtil.isTrue(feignLogConfig.getEnable())) {
+        if(BooleanUtil.isTrue(feignLogConfig.getEnableCost())) {
             START_MILLS.set(System.currentTimeMillis());
         }
         super.logRequest(configKey, logLevel, request);
@@ -53,14 +53,18 @@ public class CFeignLogger extends Logger {
 
     @Override
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) throws IOException {
-
-        if(BooleanUtil.isTrue(feignLogConfig.getEnable())) {
-            val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
-            try {
-                return dealLog(response);
-            } catch (Throwable e) {
-                log.error("处理响应日志失败", e);
-            } finally {
+        try {
+            if(BooleanUtil.isTrue(feignLogConfig.getEnable())) {
+                try {
+                    return dealLog(response);
+                } catch (Throwable e) {
+                    log.error("处理响应日志失败", e);
+                }
+            }
+            return response;
+        } finally {
+            if(BooleanUtil.isTrue(feignLogConfig.getEnableCost())) {
+                val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
                 if(null != startMills) {
                     val cost= System.currentTimeMillis() - startMills;
                     log.info("cost: {}", cost);
@@ -68,7 +72,6 @@ public class CFeignLogger extends Logger {
             }
         }
 
-        return response;
     }
 
     @Override
