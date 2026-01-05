@@ -55,21 +55,25 @@ public class CFeignLogger extends Logger {
 
     @Override
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) throws IOException {
-        try {
-            if(enableLog(response)) {
-                return dealLog(response);
-            }
-        } catch (Throwable e) {
-            log.error("处理响应日志失败", e);
-        } finally {
-            if(BooleanUtil.isTrue(config.getEnableCost())) {
-                val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
-                if(null != startMills) {
-                    val cost = System.currentTimeMillis() - startMills;
-                    log.info("cost: {}, elapsedTime: {}", cost, elapsedTime);
+
+        if(CBoolUtils.isTrue(config.getEnable())) {
+            try {
+                if(enableLog(response)) {
+                    return dealLog(response);
+                }
+            } catch (Throwable e) {
+                log.error("处理响应日志失败", e);
+            } finally {
+                if(BooleanUtil.isTrue(config.getEnableCost())) {
+                    val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
+                    if(null != startMills) {
+                        val cost = System.currentTimeMillis() - startMills;
+                        log.info("cost: {}, elapsedTime: {}", cost, elapsedTime);
+                    }
                 }
             }
         }
+
         return response;
     }
 
@@ -80,10 +84,6 @@ public class CFeignLogger extends Logger {
 
     @SneakyThrows
     private boolean enableLog(Response response) {
-
-        if(CBoolUtils.isNotTrue(config.getEnable())) {
-            return false;
-        }
 
         val request = response.request();
         val url = new URL(request.url());
