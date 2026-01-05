@@ -66,8 +66,8 @@ public class CFeignLogger extends Logger {
             if(BooleanUtil.isTrue(feignLogConfig.getEnableCost())) {
                 val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
                 if(null != startMills) {
-                    val cost= System.currentTimeMillis() - startMills;
-                    log.info("cost: {}", cost);
+                    val cost = System.currentTimeMillis() - startMills;
+                    log.info("cost: {}, elapsedTime: {}", cost, elapsedTime);
                 }
             }
         }
