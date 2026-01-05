@@ -55,10 +55,16 @@ public class CFeignLogger extends Logger {
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) throws IOException {
 
         if(BooleanUtil.isTrue(feignLogConfig.getEnable())) {
+            val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
             try {
                 return dealLog(response);
             } catch (Throwable e) {
                 log.error("处理响应日志失败", e);
+            } finally {
+                if(null != startMills) {
+                    val cost= System.currentTimeMillis() - startMills;
+                    log.info("cost: {}", cost);
+                }
             }
         }
 
@@ -72,8 +78,6 @@ public class CFeignLogger extends Logger {
 
     @SneakyThrows
     private Response dealLog(Response response) {
-
-        val startMills = CThreadLocalUtils.getThenRemove(START_MILLS);
 
         val request = response.request();
         val method = request.httpMethod();
@@ -96,12 +100,6 @@ public class CFeignLogger extends Logger {
         httpLog.append("\n");
         printHeaders(httpLog, responseHeaders);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
-        if(null != startMills) {
-            val cost= System.currentTimeMillis() - startMills;
-            httpLog.append("\ncost: ");
-            httpLog.append(cost);
-        }
-
         FEIGN_LOG.info("{}", httpLog);
 
         return CFeignUtils.newResponse(response, responseBodyBytes);
