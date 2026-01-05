@@ -47,7 +47,9 @@ public class CFeignLogger extends Logger {
 
     @Override
     protected void logRequest(String configKey, Level logLevel, Request request) {
-        if(BooleanUtil.isTrue(config.getEnableCost())) {
+        if(CBoolUtils.isTrue(config.getEnable())
+            && BooleanUtil.isTrue(config.getEnableCost())
+        ) {
             START_MILLS.set(System.currentTimeMillis());
         }
         super.logRequest(configKey, logLevel, request);
