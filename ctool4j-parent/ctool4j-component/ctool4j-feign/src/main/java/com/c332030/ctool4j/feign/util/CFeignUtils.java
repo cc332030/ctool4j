@@ -43,8 +43,12 @@ public class CFeignUtils {
 
     }
 
+    public Class<?> getApiType(RequestTemplate template) {
+        return template.feignTarget().type();
+    }
+
     public boolean intercept(RequestTemplate template) {
-        val type = template.feignTarget().type();
+        val type = getApiType(template);
         return intercept(type, template);
     }
 
