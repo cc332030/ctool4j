@@ -24,7 +24,7 @@ public class CBizIdUtils {
 
     final CClassValue<Field> FIELD_BIZ_ID_CLASS_VALUE = CClassValue.of(type -> {
 
-        val fields = CReflectUtils.getInstanceFieldMap(type);
+        val fields = CReflectUtils.getAllFieldMap(type);
         for (val field : fields.values()) {
             val annotation = field.getAnnotation(CBizId.class);
             if (null != annotation) {
