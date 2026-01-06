@@ -13,6 +13,7 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
+import org.springframework.stereotype.Component;
 
 /**
  * <p>
@@ -22,25 +23,20 @@ import org.apache.ibatis.mapping.SqlSource;
  * @author c332030
  * @since 2024/5/7
  */
-public class InsertIgnore extends CAbstractMethod {
+@Component
+public class InsertIgnoreMethod extends CAbstractMethod {
 
     private static final long serialVersionUID = 1L;
 
-    private final boolean ignoreAutoIncrementColumn;
-
-    public InsertIgnore() {
-        this(false);
-    }
-
-    public InsertIgnore(boolean ignoreAutoIncrementColumn) {
+    public InsertIgnoreMethod() {
         super(CSqlMethod.INSERT_IGNORE);
-        this.ignoreAutoIncrementColumn = ignoreAutoIncrementColumn;
     }
 
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
 
         KeyGenerator keyGenerator = NoKeyGenerator.INSTANCE;
+        boolean ignoreAutoIncrementColumn = false;
         String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(null, ignoreAutoIncrementColumn),
                 LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
         String valuesScript = LEFT_BRACKET + NEWLINE + SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlPropertyMaybeIf(null, ignoreAutoIncrementColumn),

@@ -12,6 +12,7 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
+import org.springframework.stereotype.Component;
 
 /**
  * <p>
@@ -21,13 +22,12 @@ import org.apache.ibatis.mapping.SqlSource;
  * @author c332030
  * @since 2024/5/7
  */
-public class InsertIgnore extends CAbstractMethod {
+@Component
+public class InsertIgnoreMethod extends CAbstractMethod {
 
-    public InsertIgnore() {
-        this(false);
-    }
+    private static final long serialVersionUID = 1L;
 
-    protected InsertIgnore(boolean ignoreAutoIncrementColumn) {
+    public InsertIgnoreMethod() {
         super(CSqlMethod.INSERT_IGNORE);
     }
 
@@ -35,10 +35,10 @@ public class InsertIgnore extends CAbstractMethod {
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
 
         KeyGenerator keyGenerator = new NoKeyGenerator();
-        String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(),
-                LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
+        String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(null),
+            LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
         String valuesScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlPropertyMaybeIf(null),
-                LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
+            LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
         String keyProperty = null;
         String keyColumn = null;
         // 表包含主键处理逻辑,如果不包含主键当普通字段处理
