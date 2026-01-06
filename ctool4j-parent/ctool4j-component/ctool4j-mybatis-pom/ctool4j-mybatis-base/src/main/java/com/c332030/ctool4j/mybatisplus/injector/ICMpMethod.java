@@ -9,4 +9,8 @@ package com.c332030.ctool4j.mybatisplus.injector;
  */
 public interface ICMpMethod {
 
+    default String getMethod(ISqlMethodEnum sqlMethod) {
+        return sqlMethod.getMethod();
+    }
+
 }

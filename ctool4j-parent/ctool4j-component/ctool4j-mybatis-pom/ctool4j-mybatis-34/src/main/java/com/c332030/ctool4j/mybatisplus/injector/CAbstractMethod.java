@@ -16,11 +16,8 @@ public abstract class CAbstractMethod extends AbstractMethod implements ICMpMeth
 
     protected final ISqlMethodEnum sqlMethod;
 
-    protected final String methodName;
-
     public CAbstractMethod(ISqlMethodEnum sqlMethodEnum) {
         sqlMethod = sqlMethodEnum;
-        methodName = sqlMethod.getMethod();
     }
 
 }
