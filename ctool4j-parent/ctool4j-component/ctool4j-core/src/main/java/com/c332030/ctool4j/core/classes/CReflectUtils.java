@@ -155,23 +155,47 @@ public class CReflectUtils {
         return field.getName();
     }
 
-    public Map<String, Field> getFieldAllMap(Class<?> type) {
+    public Map<String, Field> getAllFieldMap(Class<?> type) {
         return FIELD_MAP_CLASS_VALUE.get(type);
     }
 
     public Map<String, Field> getFieldMap(Class<?> type, CPredicate<Field> predicate) {
         return CMapUtils.filterValue(
-            getFieldAllMap(type),
+            getAllFieldMap(type),
             predicate
         );
     }
 
-    public Map<String, Field> getFieldMap(Class<?> type) {
+    /**
+     * 获取类的静态变量 map
+     * @param type 类
+     * @return 静态变量 map
+     */
+    public Map<String, Field> getStaticFieldMap(Class<?> type) {
+        return getFieldMap(type, CReflectUtils::isStatic);
+    }
+
+    /**
+     * 获取类的实例变量 map
+     * @param type 类
+     * @return 实例变量 map
+     */
+    public Map<String, Field> getInstanceFieldMap(Class<?> type) {
         return getFieldMap(type, e -> !CReflectUtils.isStatic(e));
     }
 
+    /**
+     * 获取类的实例变量 map
+     * @param type 类
+     * @return 实例变量 map
+     */
+    @Deprecated
+    public Map<String, Field> getFieldMap(Class<?> type) {
+        return getInstanceFieldMap(type);
+    }
+
     public Field getField(Class<?> type, String fieldName) {
-        return Optional.ofNullable(getFieldMap(type).get(fieldName))
+        return Optional.ofNullable(getAllFieldMap(type).get(fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(type + " no field with name: " + fieldName));
     }
 
@@ -192,7 +216,7 @@ public class CReflectUtils {
     }
 
     public <T> T getValue(Object object, String fieldName) {
-        return getValue(object, getFieldMap(object.getClass()).get(fieldName));
+        return getValue(object, getAllFieldMap(object.getClass()).get(fieldName));
     }
 
     public <T> T getValue(Object object, Field field) {
@@ -208,7 +232,7 @@ public class CReflectUtils {
     }
 
     public void setValue(Object object, String fieldName, Object value) {
-        setValue(object, getFieldMap(object.getClass()).get(fieldName), value, true);
+        setValue(object, getAllFieldMap(object.getClass()).get(fieldName), value, true);
     }
 
 
@@ -242,8 +266,7 @@ public class CReflectUtils {
             return;
         }
 
-        val fieldMap = getFieldMap(object.getClass());
-
+        val fieldMap = getInstanceFieldMap(object.getClass());
         for (val entry : fieldValueMap.entrySet()) {
 
             val fieldName = entry.getKey();

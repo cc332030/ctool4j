@@ -215,7 +215,7 @@ public class CClassUtils {
         for (val aClass : classes) {
             sb.append(aClass.getName()).append("\n");
 
-            val fieldMap = CReflectUtils.getFieldMap(aClass);
+            val fieldMap = CReflectUtils.getInstanceFieldMap(aClass);
             fieldMap.forEach((fieldName, field) ->
                     fieldClassMap.computeIfAbsent(fieldName, k -> new HashMap<>())
                             .put(aClass, field));
