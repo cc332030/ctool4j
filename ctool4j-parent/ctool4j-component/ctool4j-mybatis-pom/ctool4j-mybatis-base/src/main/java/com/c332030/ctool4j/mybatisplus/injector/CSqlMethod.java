@@ -21,8 +21,8 @@ public enum CSqlMethod implements ISqlMethodEnum {
             "<script>\nINSERT IGNORE INTO %s %s VALUES %s\n</script>"
     ),
 
-    UPDATE_BY_ID_INCLUDE_NULL_METHOD(
-        "updateByIdIncludeNullMethod",
+    UPDATE_BY_ID_INCLUDE_NULL(
+        "updateByIdIncludeNull",
         "根据ID 选择修改数据，数据为空则设置为空",
         "<script>\nUPDATE %s %s WHERE %s=#{%s} %s\n</script>"
     ),

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class UpdateByIdIncludeNullMethod extends CAbstractMethod {
 
     public UpdateByIdIncludeNullMethod() {
-        super(CSqlMethod.UPDATE_BY_ID_INCLUDE_NULL_METHOD);
+        super(CSqlMethod.UPDATE_BY_ID_INCLUDE_NULL);
     }
 
     @Override
