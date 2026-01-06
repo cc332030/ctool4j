@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.doc.openapi2.configuration;
 
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
@@ -31,10 +32,10 @@ public class COpenApi2Configuration {
 
     @Bean
     @ConditionalOnMissingBean(Docket.class)
-    public Docket cDocket() {
+    public Docket cDocket(CDocOpenApi2Config config) {
         return CSpringFoxUtils.getDocketBuilder()
             .groupName(null)
-            .pathMapping("/")
+            .pathMapping(config.getPathMapping())
             .globalOperationParameters(CSpringFoxUtils.globalParameterList(CList.of(
                 CRequestHeaderEnum.AUTHORIZATION
             )))
