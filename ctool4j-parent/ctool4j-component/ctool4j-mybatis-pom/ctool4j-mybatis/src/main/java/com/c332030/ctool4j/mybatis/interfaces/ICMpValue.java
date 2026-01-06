@@ -7,11 +7,11 @@ import java.io.Serializable;
 
 /**
  * <p>
- * Description: IMpValue
+ * Description: ICMpValue
  * </p>
  *
  * @since 2025/9/15
  */
-public interface IMpValue<T extends Serializable> extends ICValue<T>, IEnum<T> {
+public interface ICMpValue<T extends Serializable> extends ICValue<T>, IEnum<T> {
 
 }
