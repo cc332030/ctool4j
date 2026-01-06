@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.mybatisplus.injector;
 
+import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,13 +19,14 @@ public enum CSqlMethod implements ISqlMethodEnum {
     INSERT_IGNORE(
             "insertIgnore",
             "插入一条数据（如果存在则忽略）",
-            "<script>\nINSERT IGNORE INTO %s %s VALUES %s\n</script>"
+        SqlMethod.INSERT_ONE.getSql()
+            .replaceAll("INSERT", "INSERT IGNORE")
     ),
 
-    UPDATE_BY_ID_INCLUDE_NULL(
+    UPDATE_ALL_BY_ID(
         "updateByIdIncludeNull",
         "根据ID 选择修改数据，数据为空则设置为空",
-        "<script>\nUPDATE %s %s WHERE %s=#{%s} %s\n</script>"
+        SqlMethod.UPDATE_BY_ID.getSql()
     ),
 
     ;
