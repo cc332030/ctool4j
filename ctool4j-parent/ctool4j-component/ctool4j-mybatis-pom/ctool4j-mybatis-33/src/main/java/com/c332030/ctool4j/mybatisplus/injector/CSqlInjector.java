@@ -2,6 +2,7 @@ package com.c332030.ctool4j.mybatisplus.injector;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.c332030.ctool4j.mybatisplus.injector.methods.InsertIgnore;
 import lombok.val;
 import org.springframework.stereotype.Component;
 

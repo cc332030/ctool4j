@@ -1,10 +1,13 @@
-package com.c332030.ctool4j.mybatisplus.injector;
+package com.c332030.ctool4j.mybatisplus.injector.methods;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.core.toolkit.sql.SqlInjectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
+import com.c332030.ctool4j.mybatisplus.injector.CAbstractMethod;
+import com.c332030.ctool4j.mybatisplus.injector.CSqlMethod;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
@@ -25,11 +28,11 @@ public class InsertIgnore extends CAbstractMethod {
 
     private final boolean ignoreAutoIncrementColumn;
 
-    protected InsertIgnore() {
+    public InsertIgnore() {
         this(false);
     }
 
-    protected InsertIgnore(boolean ignoreAutoIncrementColumn) {
+    public InsertIgnore(boolean ignoreAutoIncrementColumn) {
         super(CSqlMethod.INSERT_IGNORE);
         this.ignoreAutoIncrementColumn = ignoreAutoIncrementColumn;
     }
@@ -37,30 +40,30 @@ public class InsertIgnore extends CAbstractMethod {
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
 
-        KeyGenerator keyGenerator = new NoKeyGenerator();
-        String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(null),
-            LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
-        String valuesScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlPropertyMaybeIf(null),
-            LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
+        KeyGenerator keyGenerator = NoKeyGenerator.INSTANCE;
+        String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(null, ignoreAutoIncrementColumn),
+                LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
+        String valuesScript = LEFT_BRACKET + NEWLINE + SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlPropertyMaybeIf(null, ignoreAutoIncrementColumn),
+                null, null, null, COMMA) + NEWLINE + RIGHT_BRACKET;
         String keyProperty = null;
         String keyColumn = null;
+
         // 表包含主键处理逻辑,如果不包含主键当普通字段处理
         if (StrUtil.isNotBlank(tableInfo.getKeyProperty())) {
             if (tableInfo.getIdType() == IdType.AUTO) {
-                // 自增主键
-                keyGenerator = new Jdbc3KeyGenerator();
+                /* 自增主键 */
+                keyGenerator = Jdbc3KeyGenerator.INSTANCE;
+                keyProperty = tableInfo.getKeyProperty();
+                // 去除转义符
+                keyColumn = SqlInjectionUtils.removeEscapeCharacter(tableInfo.getKeyColumn());
+            } else if (null != tableInfo.getKeySequence()) {
+                keyGenerator = TableInfoHelper.genKeyGenerator(methodName, tableInfo, builderAssistant);
                 keyProperty = tableInfo.getKeyProperty();
                 keyColumn = tableInfo.getKeyColumn();
-            } else {
-                if (null != tableInfo.getKeySequence()) {
-                    keyGenerator = TableInfoHelper.genKeyGenerator(methodName, tableInfo, builderAssistant);
-                    keyProperty = tableInfo.getKeyProperty();
-                    keyColumn = tableInfo.getKeyColumn();
-                }
             }
         }
         String sql = String.format(sqlMethod.getSql(), tableInfo.getTableName(), columnScript, valuesScript);
-        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, modelClass);
+        SqlSource sqlSource = super.createSqlSource(configuration, sql, modelClass);
         return this.addInsertMappedStatement(mapperClass, modelClass, methodName, sqlSource, keyGenerator, keyProperty, keyColumn);
     }
 

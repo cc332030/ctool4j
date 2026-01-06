@@ -3,6 +3,7 @@ package com.c332030.ctool4j.mybatisplus.injector;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.c332030.ctool4j.mybatisplus.injector.methods.InsertIgnore;
 import lombok.val;
 
 import java.util.List;
