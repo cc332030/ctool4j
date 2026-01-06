@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
-import com.c332030.ctool4j.mybatisplus.injector.CAbstractMethod;
+import com.c332030.ctool4j.mybatisplus.injector.CAbstractMpMethod;
 import com.c332030.ctool4j.mybatisplus.injector.CMpSqlMethod;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  * @since 2024/5/7
  */
 @Component
-public class CInsertIgnoreMethod extends CAbstractMethod {
+public class CInsertIgnoreMethod extends CAbstractMpMethod {
 
     private static final long serialVersionUID = 1L;
 
