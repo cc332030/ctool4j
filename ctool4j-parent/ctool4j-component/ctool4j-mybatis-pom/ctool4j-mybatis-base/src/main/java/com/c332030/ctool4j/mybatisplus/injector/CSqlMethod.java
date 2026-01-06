@@ -25,7 +25,7 @@ public enum CSqlMethod implements ISqlMethodEnum {
 
     UPDATE_ALL_BY_ID(
         "根据ID 选择修改数据，数据为空则设置为空",
-        SqlMethod.UPDATE_BY_ID.getSql()
+        null
     ),
 
     ;

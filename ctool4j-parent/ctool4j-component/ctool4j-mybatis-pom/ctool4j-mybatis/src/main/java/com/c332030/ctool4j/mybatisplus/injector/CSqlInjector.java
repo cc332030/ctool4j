@@ -3,6 +3,8 @@ package com.c332030.ctool4j.mybatisplus.injector;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+import com.c332030.ctool4j.mybatisplus.injector.methods.CInsertIgnoreMethod;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.apache.ibatis.session.Configuration;
@@ -30,6 +32,11 @@ public class CSqlInjector extends DefaultSqlInjector implements ICMpMethod {
         icMpMethods.stream()
             .map(e -> (AbstractMethod)e)
             .forEach(methods::add);
+
+        val dbConfig = GlobalConfigUtils.getDbConfig(configuration);
+        val insertIgnoreMethod = new CInsertIgnoreMethod(dbConfig.isInsertIgnoreAutoIncrementColumn());
+        methods.add(insertIgnoreMethod);
+
         return methods;
     }
 
