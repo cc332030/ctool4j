@@ -14,9 +14,9 @@ public abstract class CAbstractMethod extends AbstractMethod implements ICMpMeth
 
     private static final long serialVersionUID = 1L;
 
-    protected final ISqlMethodEnum sqlMethod;
+    protected final ICMpSqlMethod sqlMethod;
 
-    public CAbstractMethod(ISqlMethodEnum sqlMethodEnum) {
+    public CAbstractMethod(ICMpSqlMethod sqlMethodEnum) {
         super(sqlMethodEnum.getMethod());
         sqlMethod = sqlMethodEnum;
     }

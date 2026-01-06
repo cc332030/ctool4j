@@ -2,7 +2,7 @@ package com.c332030.ctool4j.mybatisplus.injector.methods;
 
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColumnById;
-import com.c332030.ctool4j.mybatisplus.injector.CSqlMethod;
+import com.c332030.ctool4j.mybatisplus.injector.CMpSqlMethod;
 import com.c332030.ctool4j.mybatisplus.injector.ICMpMethod;
 import com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements 
 
     @Override
     public String getMethod(SqlMethod sqlMethod) {
-        return CSqlMethod.UPDATE_ALL_BY_ID.getMethod();
+        return CMpSqlMethod.UPDATE_ALL_BY_ID.getMethod();
     }
 
 }

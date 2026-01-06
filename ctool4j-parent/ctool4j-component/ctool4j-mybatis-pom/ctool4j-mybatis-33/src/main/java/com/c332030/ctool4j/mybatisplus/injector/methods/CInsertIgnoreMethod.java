@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
 import com.c332030.ctool4j.mybatisplus.injector.CAbstractMethod;
-import com.c332030.ctool4j.mybatisplus.injector.CSqlMethod;
+import com.c332030.ctool4j.mybatisplus.injector.CMpSqlMethod;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 public class CInsertIgnoreMethod extends CAbstractMethod {
 
     public CInsertIgnoreMethod() {
-        super(CSqlMethod.INSERT_IGNORE);
+        super(CMpSqlMethod.INSERT_IGNORE);
     }
 
     @Override

@@ -12,9 +12,9 @@ import com.baomidou.mybatisplus.core.injector.AbstractMethod;
  */
 public abstract class CAbstractMethod extends AbstractMethod implements ICMpMethod {
 
-    protected final ISqlMethodEnum sqlMethod;
+    protected final ICMpSqlMethod sqlMethod;
 
-    public CAbstractMethod(ISqlMethodEnum sqlMethodEnum) {
+    public CAbstractMethod(ICMpSqlMethod sqlMethodEnum) {
         sqlMethod = sqlMethodEnum;
     }
 

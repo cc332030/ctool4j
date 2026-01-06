@@ -15,7 +15,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CSqlMethod implements ISqlMethodEnum {
+public enum CMpSqlMethod implements ICMpSqlMethod {
 
     INSERT_IGNORE(
             "插入一条数据（如果存在则忽略）",

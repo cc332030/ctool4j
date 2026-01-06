@@ -2,13 +2,13 @@ package com.c332030.ctool4j.mybatisplus.injector;
 
 /**
  * <p>
- * Description: ISqlMethodEnum
+ * Description: ICMpSqlMethod
  * </p>
  *
  * @author c332030
  * @since 2024/5/7
  */
-public interface ISqlMethodEnum {
+public interface ICMpSqlMethod {
 
     String getMethod();
 

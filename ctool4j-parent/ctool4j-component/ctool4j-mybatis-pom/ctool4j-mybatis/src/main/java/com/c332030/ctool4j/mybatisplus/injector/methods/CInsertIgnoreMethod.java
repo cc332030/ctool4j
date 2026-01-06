@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.injector.methods;
 
 import com.baomidou.mybatisplus.core.injector.methods.Insert;
-import com.c332030.ctool4j.mybatisplus.injector.CSqlMethod;
+import com.c332030.ctool4j.mybatisplus.injector.CMpSqlMethod;
 import com.c332030.ctool4j.mybatisplus.injector.ICMpMethod;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
@@ -20,7 +20,7 @@ public class CInsertIgnoreMethod extends Insert implements ICMpMethod {
 
     public CInsertIgnoreMethod(boolean ignoreAutoIncrementColumn) {
         super(
-            CSqlMethod.INSERT_IGNORE.getMethod(),
+            CMpSqlMethod.INSERT_IGNORE.getMethod(),
             ignoreAutoIncrementColumn
         );
     }
