@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.apache.ibatis.session.Configuration;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,8 +25,8 @@ public class CSqlInjector extends DefaultSqlInjector implements ICMpMethod {
     Collection<ICMpMethod> icMpMethods;
 
     @Override
-    public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
-        val methods = super.getMethodList(mapperClass, tableInfo);
+    public List<AbstractMethod> getMethodList(Configuration configuration, Class<?> mapperClass, TableInfo tableInfo) {
+        val methods = super.getMethodList(configuration, mapperClass, tableInfo);
         icMpMethods.stream()
             .map(e -> (AbstractMethod)e)
             .forEach(methods::add);
