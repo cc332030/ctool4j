@@ -15,6 +15,6 @@ public interface CBaseMapper<T> extends BaseMapper<T> {
 
     int insertIgnore(T entity);
 
-    int updateByIdIncludeNull(@Param(Constants.ENTITY) T entity);
+    int updateAllById(@Param(Constants.ENTITY) T entity);
 
 }

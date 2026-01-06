@@ -76,11 +76,11 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
             .sum();
     }
 
-    default boolean updateByIdIncludeNull(ENTITY entity) {
+    default boolean updateAllById(ENTITY entity) {
         if(null == entity) {
             return false;
         }
-        return SqlHelper.retBool(getBaseMapper().updateByIdIncludeNull(entity));
+        return SqlHelper.retBool(getBaseMapper().updateAllById(entity));
     }
 
     default Opt<ENTITY> getByIdOpt(Serializable id) {

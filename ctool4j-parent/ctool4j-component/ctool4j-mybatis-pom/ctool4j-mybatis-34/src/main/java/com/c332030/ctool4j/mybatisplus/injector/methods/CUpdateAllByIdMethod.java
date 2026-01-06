@@ -1,28 +1,31 @@
 package com.c332030.ctool4j.mybatisplus.injector.methods;
 
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
-import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColumnById;
 import com.c332030.ctool4j.mybatisplus.injector.CSqlMethod;
+import com.c332030.ctool4j.mybatisplus.injector.ICMpMethod;
+import com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils;
 import org.springframework.stereotype.Component;
 
 /**
  * <p>
- * Description: CUpdateByIdIncludeNullMethod
+ * Description: CUpdateAllByIdMethod
  * </p>
  *
  * @since 2026/1/6
  */
 @Component
-public class CUpdateByIdIncludeNullMethod extends AlwaysUpdateSomeColumnById {
+public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements ICMpMethod {
 
-    public CUpdateByIdIncludeNullMethod() {
-        super(TableFieldInfo::isWithUpdateFill);
+    private static final long serialVersionUID = 1L;
+
+    public CUpdateAllByIdMethod() {
+        super(CMpFieldUtils.UPDATE_NOT_NEVER);
     }
 
     @Override
     public String getMethod(SqlMethod sqlMethod) {
-        return CSqlMethod.UPDATE_BY_ID_INCLUDE_NULL.getMethod();
+        return CSqlMethod.UPDATE_ALL_BY_ID.getMethod();
     }
 
 }
