@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
- * Description: UpdateByIdIncludeNullMethod
+ * Description: CUpdateByIdIncludeNullMethod
  * </p>
  *
  * @since 2026/1/6
  */
 @Component
-public class UpdateByIdIncludeNullMethod extends CAbstractMethod {
+public class CUpdateByIdIncludeNullMethod extends CAbstractMethod {
 
-    public UpdateByIdIncludeNullMethod() {
+    public CUpdateByIdIncludeNullMethod() {
         super(CSqlMethod.UPDATE_BY_ID_INCLUDE_NULL);
     }
 
@@ -28,7 +28,7 @@ public class UpdateByIdIncludeNullMethod extends CAbstractMethod {
         val additional = optlockVersion(tableInfo) + tableInfo.getLogicDeleteSql(true, true);
         val sql = String.format(
             sqlMethod.getSql(), tableInfo.getTableName(),
-            sqlSet(logicDelete, false, tableInfo, false, ENTITY, ENTITY_DOT),
+            sqlSet(logicDelete, false, tableInfo, true, ENTITY, ENTITY_DOT),
             tableInfo.getKeyColumn(), ENTITY_DOT + tableInfo.getKeyProperty(), additional
         );
         val sqlSource = languageDriver.createSqlSource(configuration, sql, modelClass);

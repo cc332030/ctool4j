@@ -19,13 +19,13 @@ import java.util.LinkedHashSet;
 
 /**
  * <p>
- * Description: MybatisPlusConfiguration
+ * Description: CMybatisPlusConfiguration
  * </p>
  *
  * @since 2025/12/29
  */
 @Configuration
-public class MybatisPlusConfiguration {
+public class CMybatisPlusConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(MybatisPlusInterceptor.class)

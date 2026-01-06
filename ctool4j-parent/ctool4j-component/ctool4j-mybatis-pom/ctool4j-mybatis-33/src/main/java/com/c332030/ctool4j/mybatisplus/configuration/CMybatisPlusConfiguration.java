@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>
- * Description: MybatisPlusConfiguration
+ * Description: CMybatisPlusConfiguration
  * </p>
  *
  * @since 2025/12/29
  */
 @Configuration
-public class MybatisPlusConfiguration {
+public class CMybatisPlusConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(PaginationInterceptor.class)

@@ -23,9 +23,11 @@ import org.springframework.stereotype.Component;
  * @since 2024/5/7
  */
 @Component
-public class InsertIgnoreMethod extends CAbstractMethod {
+public class CInsertIgnoreMethod extends CAbstractMethod {
 
-    public InsertIgnoreMethod() {
+    private static final long serialVersionUID = 1L;
+
+    public CInsertIgnoreMethod() {
         super(CSqlMethod.INSERT_IGNORE);
     }
 
@@ -33,10 +35,10 @@ public class InsertIgnoreMethod extends CAbstractMethod {
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
 
         KeyGenerator keyGenerator = new NoKeyGenerator();
-        String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(),
-                LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
+        String columnScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlColumnMaybeIf(null),
+            LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
         String valuesScript = SqlScriptUtils.convertTrim(tableInfo.getAllInsertSqlPropertyMaybeIf(null),
-                LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
+            LEFT_BRACKET, RIGHT_BRACKET, null, COMMA);
         String keyProperty = null;
         String keyColumn = null;
         // 表包含主键处理逻辑,如果不包含主键当普通字段处理

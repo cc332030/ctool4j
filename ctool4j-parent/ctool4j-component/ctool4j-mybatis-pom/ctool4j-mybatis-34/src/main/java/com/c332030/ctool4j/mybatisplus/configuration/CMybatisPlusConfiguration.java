@@ -1,7 +1,10 @@
 package com.c332030.ctool4j.mybatisplus.configuration;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.*;
+import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +19,13 @@ import java.util.LinkedHashSet;
 
 /**
  * <p>
- * Description: MybatisPlusConfiguration
+ * Description: CMybatisPlusConfiguration
  * </p>
  *
  * @since 2025/12/29
  */
 @Configuration
-public class MybatisPlusConfiguration {
+public class CMybatisPlusConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(MybatisPlusInterceptor.class)

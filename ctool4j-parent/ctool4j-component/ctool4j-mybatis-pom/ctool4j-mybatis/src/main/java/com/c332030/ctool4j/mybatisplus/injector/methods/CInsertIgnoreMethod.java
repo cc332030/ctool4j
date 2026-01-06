@@ -24,11 +24,11 @@ import org.springframework.stereotype.Component;
  * @since 2024/5/7
  */
 @Component
-public class InsertIgnoreMethod extends CAbstractMethod {
+public class CInsertIgnoreMethod extends CAbstractMethod {
 
     private static final long serialVersionUID = 1L;
 
-    public InsertIgnoreMethod() {
+    public CInsertIgnoreMethod() {
         super(CSqlMethod.INSERT_IGNORE);
     }
 
