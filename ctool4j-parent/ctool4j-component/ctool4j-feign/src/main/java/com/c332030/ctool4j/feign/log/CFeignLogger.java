@@ -60,7 +60,6 @@ public class CFeignLogger extends Logger {
                 requestLog.setHttpLog(httpLog);
             }
         }
-        super.logRequest(configKey, logLevel, request);
     }
 
     @Override
