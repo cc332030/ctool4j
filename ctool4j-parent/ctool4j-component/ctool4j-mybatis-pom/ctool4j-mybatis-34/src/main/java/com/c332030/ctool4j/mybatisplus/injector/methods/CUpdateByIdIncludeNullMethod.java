@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CUpdateByIdIncludeNullMethod extends AlwaysUpdateSomeColumnById {
 
+    private static final long serialVersionUID = 1L;
+
     public CUpdateByIdIncludeNullMethod() {
         super(TableFieldInfo::isWithUpdateFill);
     }
