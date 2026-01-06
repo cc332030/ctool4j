@@ -16,7 +16,7 @@ public abstract class CAbstractMethod extends AbstractMethod {
 
     protected final String methodName;
 
-    protected CAbstractMethod(ISqlMethodEnum sqlMethodEnum) {
+    public CAbstractMethod(ISqlMethodEnum sqlMethodEnum) {
         sqlMethod = sqlMethodEnum;
         methodName = sqlMethod.getMethod();
     }
