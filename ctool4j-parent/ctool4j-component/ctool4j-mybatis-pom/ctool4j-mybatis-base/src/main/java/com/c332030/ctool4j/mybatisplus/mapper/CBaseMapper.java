@@ -13,4 +13,6 @@ public interface CBaseMapper<T> extends BaseMapper<T> {
 
     int insertIgnore(T entity);
 
+    int updateByIdIncludeNull(T entity);
+
 }
