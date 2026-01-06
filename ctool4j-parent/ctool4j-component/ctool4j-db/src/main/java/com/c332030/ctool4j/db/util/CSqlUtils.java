@@ -31,6 +31,10 @@ public class CSqlUtils {
         return "limit " + size;
     }
 
+    public String limit1() {
+        return limitSql(1);
+    }
+
     public String forUpdate() {
         return "for update";
     }
