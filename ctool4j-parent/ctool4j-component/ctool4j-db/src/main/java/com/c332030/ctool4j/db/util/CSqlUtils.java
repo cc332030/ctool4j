@@ -23,16 +23,14 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CSqlUtils {
 
+    public final String c = limitSql(1);
+
     public String limitSql() {
         return limitSql(CPageUtils.DEFAULT_PAGE_SIZE);
     }
 
     public String limitSql(Integer size) {
         return "limit " + size;
-    }
-
-    public String limitOne() {
-        return limitSql(1);
     }
 
     public String forUpdate() {
