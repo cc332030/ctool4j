@@ -31,7 +31,7 @@ public class CSqlUtils {
         return "limit " + size;
     }
 
-    public String limit1() {
+    public String limitOne() {
         return limitSql(1);
     }
 
