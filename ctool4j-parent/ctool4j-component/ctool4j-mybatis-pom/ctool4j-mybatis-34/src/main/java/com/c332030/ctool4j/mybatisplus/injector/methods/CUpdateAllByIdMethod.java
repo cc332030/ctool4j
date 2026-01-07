@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.injector.methods.AlwaysUpdateSomeColum
 import com.c332030.ctool4j.mybatisplus.injector.CMpSqlMethod;
 import com.c332030.ctool4j.mybatisplus.injector.ICMpMethod;
 import com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * <p>
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
  *
  * @since 2026/1/6
  */
-@Component
+//@Component
 public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements ICMpMethod {
 
     private static final long serialVersionUID = 1L;

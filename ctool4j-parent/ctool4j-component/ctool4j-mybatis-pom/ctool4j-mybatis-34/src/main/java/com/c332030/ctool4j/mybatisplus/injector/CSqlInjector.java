@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.List;
  * @author c332030
  * @since 2024/5/7
  */
-@Component
+//@Component
 @AllArgsConstructor
 public class CSqlInjector extends DefaultSqlInjector {
 
