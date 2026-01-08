@@ -12,7 +12,6 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
-import org.springframework.stereotype.Component;
 
 /**
  * <p>
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
  * @author c332030
  * @since 2024/5/7
  */
-@Component
 public class CInsertIgnoreMethod extends CAbstractMpMethod {
 
     public CInsertIgnoreMethod() {

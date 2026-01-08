@@ -21,7 +21,6 @@ import org.apache.ibatis.mapping.SqlSource;
  * @author c332030
  * @since 2024/5/7
  */
-//@Component
 public class CInsertIgnoreMethod extends CAbstractMpMethod {
 
     private static final long serialVersionUID = 1L;
