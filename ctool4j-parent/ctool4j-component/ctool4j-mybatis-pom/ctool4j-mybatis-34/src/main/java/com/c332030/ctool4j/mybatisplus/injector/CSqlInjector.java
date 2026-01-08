@@ -8,6 +8,7 @@ import com.c332030.ctool4j.mybatisplus.injector.methods.CUpdateAllByIdMethod;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ import java.util.List;
  * @since 2024/5/7
  */
 @CustomLog
-//@Component
+@Component
 @AllArgsConstructor
 public class CSqlInjector extends DefaultSqlInjector {
 
