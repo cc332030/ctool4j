@@ -7,8 +7,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * <p>
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @CustomLog
 @Primary
-@RestControllerAdvice
+@ControllerAdvice
 public class CGlobalExceptionHandler implements PriorityOrdered {
 
     @Override
@@ -27,15 +28,22 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
         return Integer.MIN_VALUE;
     }
 
+    @ResponseBody
     @ExceptionHandler({
-            HttpRequestMethodNotSupportedException.class,
-            ClientAbortException.class,
-            HttpMessageNotWritableException.class,
+        HttpRequestMethodNotSupportedException.class,
     })
     public CIntResult<Object> handleIgnoreException(Throwable e) {
 
         log.debug("handleIgnoreException", e);
         return CIntResult.error(e.getMessage());
+    }
+
+    @ExceptionHandler({
+        HttpMessageNotWritableException.class,
+        ClientAbortException.class,
+    })
+    public void handleNoResponseIgnoreException(Throwable e) {
+        log.debug("handleNoResponseIgnoreException", e);
     }
 
 }
