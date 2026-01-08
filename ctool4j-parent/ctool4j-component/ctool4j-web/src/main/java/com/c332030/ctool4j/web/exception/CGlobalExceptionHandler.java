@@ -32,9 +32,9 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
     @ExceptionHandler({
         HttpRequestMethodNotSupportedException.class,
     })
-    public CIntResult<Object> handleIgnoreException(Throwable e) {
+    public CIntResult<Object> cHandleReturnableIgnoreException(Throwable e) {
 
-        log.debug("handleIgnoreException", e);
+        log.debug("handleReturnableIgnoreException", e);
         return CIntResult.error(e.getMessage());
     }
 
@@ -42,8 +42,8 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
         HttpMessageNotWritableException.class,
         ClientAbortException.class,
     })
-    public void handleNoResponseIgnoreException(Throwable e) {
-        log.debug("handleNoResponseIgnoreException", e);
+    public void cHandleNonReturnableIgnoreException(Throwable e) {
+        log.debug("handleNonReturnableIgnoreException", e);
     }
 
 }
