@@ -47,8 +47,24 @@ public class CNumUtils {
         return null != value && value > 0;
     }
 
+    public boolean greaterThanZero(Long value) {
+        return null != value && value > 0;
+    }
+
+    public boolean greaterThanZero(BigDecimal value) {
+        return null != value && value.compareTo(BigDecimal.ZERO) > 0;
+    }
+
     public boolean lessThanZero(Integer value) {
         return null != value && value < 0;
+    }
+
+    public boolean lessThanZero(Long value) {
+        return null != value && value < 0;
+    }
+
+    public boolean lessThanZero(BigDecimal value) {
+        return null != value && value.compareTo(BigDecimal.ZERO) < 0;
     }
 
     public Integer sum(Integer... values) {
