@@ -347,4 +347,18 @@ public class CNumUtils {
         return result;
     }
 
+    public BigDecimal toBigDecimal(Integer value) {
+        if(null == value) {
+            return null;
+        }
+        return new BigDecimal(value);
+    }
+
+    public BigDecimal toBigDecimal(Long value) {
+        if(null == value) {
+            return null;
+        }
+        return new BigDecimal(value);
+    }
+
 }
