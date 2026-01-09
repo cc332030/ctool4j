@@ -6,7 +6,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.spring.event.listener.ICApplicationListener;
-import com.c332030.ctool4j.spring.exception.annotation.CCatchAndLogThrowable;
+import com.c332030.ctool4j.spring.exception.annotation.CLogAndIgnoreThrowable;
 import com.c332030.ctool4j.spring.service.ICProxyService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -47,7 +47,7 @@ public class CLogLevelListener implements ICApplicationListener<EnvironmentChang
 
     }
 
-    @CCatchAndLogThrowable
+    @CLogAndIgnoreThrowable
     public void updateLogLevel(String key) {
 
         val className = StrUtil.subSuf(key, CLogUtils.LOGGING_LEVEL_PREFIX.length());

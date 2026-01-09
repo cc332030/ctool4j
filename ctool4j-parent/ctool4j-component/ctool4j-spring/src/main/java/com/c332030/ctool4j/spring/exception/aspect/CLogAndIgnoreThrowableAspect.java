@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
- * Description: CCatchAndLogThrowableAspect
+ * Description: CLogAndIgnoreThrowableAspect
  * </p>
  *
  * @since 2025/12/21
@@ -22,9 +22,9 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @AllArgsConstructor
-public class CCatchAndLogThrowableAspect {
+public class CLogAndIgnoreThrowableAspect {
 
-    @Pointcut("@annotation(com.c332030.ctool4j.spring.exception.annotation.CCatchAndLogThrowable)")
+    @Pointcut("@annotation(com.c332030.ctool4j.spring.exception.annotation.CLogAndIgnoreThrowable)")
     public void annotationPointcut() {}
 
     @SneakyThrows

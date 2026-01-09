@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: CCatchAndLogThrowable
+ * Description: CLogAndIgnoreThrowable
  * </p>
  *
  * @since 2025/12/21
@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Inherited
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CCatchAndLogThrowable {
+public @interface CLogAndIgnoreThrowable {
 
 }
