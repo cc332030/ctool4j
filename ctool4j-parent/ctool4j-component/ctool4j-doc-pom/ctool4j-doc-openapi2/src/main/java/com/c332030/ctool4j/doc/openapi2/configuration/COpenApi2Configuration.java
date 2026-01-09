@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Import;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.configuration.SwaggerCommonConfiguration;
 
 /**
  * <p>
@@ -24,7 +23,6 @@ import springfox.documentation.swagger.configuration.SwaggerCommonConfiguration;
  */
 @Configuration
 @Import(value = {
-    SwaggerCommonConfiguration.class,
     BeanValidatorPluginsConfiguration.class
 })
 public class COpenApi2Configuration {
