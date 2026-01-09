@@ -2,7 +2,6 @@ package com.c332030.ctool4j.web.cors;
 
 import com.c332030.ctool4j.core.util.CSet;
 import lombok.Data;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Collections;
@@ -18,10 +17,11 @@ import java.util.Set;
  */
 @Data
 @ConfigurationProperties("cors")
-@ConditionalOnProperty(prefix = "cors", name = "allowed-origins")
 public class CCorsConfig {
 
     public static final String ALL = "*";
+
+    Boolean enabled = false;
 
     Set<String> allowedOrigins = Collections.emptySet();
 

@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.cors;
 
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
@@ -44,7 +45,13 @@ public class CCorsHandler implements ICBaseResponseBodyAdvice<Object> {
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response
     ) {
-        handle(request, response);
+        try {
+            if(CBoolUtils.isTrue(config.getEnabled())) {
+                handle(request, response);
+            }
+        } catch (Throwable e) {
+            log.error("Deal cors failure", e);
+        }
         return body;
     }
 
