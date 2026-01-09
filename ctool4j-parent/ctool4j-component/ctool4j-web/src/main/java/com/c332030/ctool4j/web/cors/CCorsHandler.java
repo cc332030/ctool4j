@@ -46,7 +46,7 @@ public class CCorsHandler implements ICBaseResponseBodyAdvice<Object> {
         @NonNull HttpServletResponse response
     ) {
         try {
-            if(CBoolUtils.isTrue(config.getEnabled())) {
+            if(CBoolUtils.isTrue(config.getEnable())) {
                 handle(request, response);
             }
         } catch (Throwable e) {
