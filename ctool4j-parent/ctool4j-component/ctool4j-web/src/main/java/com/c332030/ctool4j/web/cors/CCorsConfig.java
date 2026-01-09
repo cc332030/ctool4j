@@ -21,7 +21,7 @@ public class CCorsConfig {
 
     public static final String ALL = "*";
 
-    Boolean enabled = false;
+    Boolean enable = false;
 
     Set<String> allowedOrigins = Collections.emptySet();
 
