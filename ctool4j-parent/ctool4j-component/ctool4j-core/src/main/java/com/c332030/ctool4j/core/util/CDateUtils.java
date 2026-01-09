@@ -267,6 +267,51 @@ public class CDateUtils {
     }
 
     /**
+     * Date 转 LocalDate
+     *
+     * @param instant date
+     * @return LocalDate
+     */
+    public LocalDate toLocalDate(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return toZonedDateTime(instant)
+            .toLocalDate()
+            ;
+    }
+
+    /**
+     * Date 转 LocalTime
+     *
+     * @param instant date
+     * @return LocalTime
+     */
+    public LocalTime toLocalTime(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return toZonedDateTime(instant)
+            .toLocalTime()
+            ;
+    }
+
+    /**
+     * Date 转 LocalDateTime
+     *
+     * @param instant date
+     * @return LocalDateTime
+     */
+    public LocalDateTime toLocalDateTime(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return toZonedDateTime(instant)
+            .toLocalDateTime()
+            ;
+    }
+
+    /**
      * Date 转 ZonedDateTime
      *
      * @param date date
