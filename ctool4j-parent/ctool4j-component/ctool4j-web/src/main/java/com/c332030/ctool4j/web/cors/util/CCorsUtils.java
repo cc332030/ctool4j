@@ -1,20 +1,14 @@
-package com.c332030.ctool4j.web.cors;
+package com.c332030.ctool4j.web.cors.util;
 
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
-import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
-import lombok.AllArgsConstructor;
+import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.web.cors.CCorsConfig;
 import lombok.CustomLog;
+import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,39 +17,27 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: CCorsHandler
+ * Description: CCorsUtils
  * </p>
  *
- * @since 2025/11/12
+ * @since 2026/1/9
  */
 @CustomLog
-@Component
-@AllArgsConstructor
-@ConditionalOnBean(CCorsConfig.class)
-public class CCorsHandler implements ICBaseResponseBodyAdvice<Object> {
+@UtilityClass
+public class CCorsUtils {
 
+    @CAutowired
     CCorsConfig config;
 
-    @Override
-    public Object beforeBodyWrite(
-        Object body,
-        @NonNull MethodParameter returnType,
-        @NonNull MediaType selectedContentType,
-        @NonNull Class<? extends HttpMessageConverter<?>> selectedConverterType,
-        @NonNull HttpServletRequest request,
-        @NonNull HttpServletResponse response
-    ) {
+    public void handle(HttpServletRequest request, HttpServletResponse response) {
         try {
-            if(CBoolUtils.isTrue(config.getEnable())) {
-                handle(request, response);
-            }
+            handleDo(request, response);
         } catch (Throwable e) {
             log.error("Deal cors failure", e);
         }
-        return body;
     }
 
-    private void handle(HttpServletRequest request, HttpServletResponse response) {
+    public void handleDo(HttpServletRequest request, HttpServletResponse response) {
 
         val origin = request.getHeader(HttpHeaders.ORIGIN);
         if (StrUtil.isEmpty(origin)) {
@@ -83,10 +65,10 @@ public class CCorsHandler implements ICBaseResponseBodyAdvice<Object> {
 
         val allowedHeaders = config.getAllowedHeaders();
         val headers = allowedHeaders.contains(CCorsConfig.ALL)
-                ? CCorsConfig.ALL
-                : allowedHeaders.stream()
-                .filter(header -> StrUtil.isNotEmpty(request.getHeader(header)))
-                .collect(Collectors.joining(","));
+            ? CCorsConfig.ALL
+            : allowedHeaders.stream()
+            .filter(header -> StrUtil.isNotEmpty(request.getHeader(header)))
+            .collect(Collectors.joining(","));
 
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, headers);

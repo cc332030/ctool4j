@@ -4,7 +4,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
  * <p>
- * Description: ICHandlerInterceptor
+ * Description: CCorsInterceptor
  * </p>
  *
  * @since 2025/9/28
