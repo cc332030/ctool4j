@@ -54,13 +54,14 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
     ) {
         try {
 
-            val requestLog = CRequestLogUtils.getThenRemove();
-
-            val rt = requestLog.getRt();
-            if (BooleanUtil.isTrue(config.getSlowLogEnable())
-                && rt > config.getSlowLogMillis()) {
-                log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), rt);
-            }
+            val requestLogOpt = CRequestLogUtils.getOptThenRemove();
+            requestLogOpt.ifPresent(requestLog -> {
+                val rt = requestLog.getRt();
+                if (BooleanUtil.isTrue(config.getSlowLogEnable())
+                    && rt > config.getSlowLogMillis()) {
+                    log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), rt);
+                }
+            });
 
             CTraceUtils.removeTraceInfo();
         } catch (Throwable e) {

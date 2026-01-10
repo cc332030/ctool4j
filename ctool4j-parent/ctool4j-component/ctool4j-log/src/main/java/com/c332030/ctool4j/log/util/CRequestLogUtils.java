@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.log.util;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
@@ -69,22 +70,23 @@ public class CRequestLogUtils {
         return isEnable() && CRequestLogTypeEnum.INTERCEPTOR.equals(requestLogConfig.getType());
     }
 
-    public CRequestLog get() {
-        return REQUEST_LOG_THREAD_LOCAL.get();
+    public Opt<CRequestLog> getOpt() {
+        return Opt.ofNullable(REQUEST_LOG_THREAD_LOCAL.get());
     }
 
-    public CRequestLog getThenRemove() {
-        val requestLog = get();
-        remove();
-        return requestLog;
+    public Opt<CRequestLog> getOptThenRemove() {
+
+        val requestLogOpt = getOpt();
+        requestLogOpt.ifPresent(e -> remove());
+        return requestLogOpt;
     }
 
-    public void init() {
+    public CRequestLog genRequestLog() {
 
         val request = CRequestUtils.getRequest();
         val traceId = CTraceUtils.getTraceId();
 
-        val requestLog = CRequestLog.builder()
+        return CRequestLog.builder()
             .traceId(traceId)
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
@@ -92,7 +94,13 @@ public class CRequestLogUtils {
             .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
+    }
 
+    public void init() {
+
+        log.info("init requestLog");
+
+        val requestLog = genRequestLog();
         REQUEST_LOG_THREAD_LOCAL.set(requestLog);
 
     }
@@ -121,16 +129,19 @@ public class CRequestLogUtils {
     }
 
     public void setReqs(Map<String, Object> reqs) {
-        get().setReqs(reqs);
+        val requestLogOpt = getOpt();
+        requestLogOpt
+            .ifPresent(requestLog -> requestLog.setReqs(reqs));
     }
 
     public void write(Object rsp, Throwable throwable) {
 
-        val requestLog = get();
-        if (null == requestLog) {
+        val requestLogOpt = getOpt();
+        if (!requestLogOpt.isPresent()) {
             log.debug("write failure because requestLog is null");
             return;
         }
+        val requestLog = requestLogOpt.get();
 
         val endTimeMillis = System.currentTimeMillis();
 
