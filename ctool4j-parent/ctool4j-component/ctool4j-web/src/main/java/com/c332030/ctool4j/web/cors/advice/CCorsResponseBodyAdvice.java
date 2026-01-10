@@ -34,7 +34,11 @@ public class CCorsResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object>
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        CCorsUtils.handle(request, response);
+        try {
+            CCorsUtils.handle(request, response);
+        } catch (Exception e) {
+            log.error("deal cors failure", e);
+        }
         return body;
     }
 

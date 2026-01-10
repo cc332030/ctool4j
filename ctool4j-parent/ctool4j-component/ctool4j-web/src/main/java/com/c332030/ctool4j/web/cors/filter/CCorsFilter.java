@@ -45,7 +45,11 @@ public class CCorsFilter implements ICFilter, PriorityOrdered {
             log.error("deal cors failure", e);
         }
 
-        chain.doFilter(request, response);
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            CCorsUtils.clear();
+        }
 
     }
 
