@@ -4,7 +4,6 @@ import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.CustomLog;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 2025/9/28
  */
 @CustomLog
-@Component
+//@Component
 public class CCorsInterceptor implements ICHandlerInterceptor {
 
     @Override
@@ -27,14 +26,18 @@ public class CCorsInterceptor implements ICHandlerInterceptor {
         Object handler
     ) {
 
-        if(!HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
-            return true;
+        try {
+
+            CCorsUtils.handle(request, response);
+
+            if(HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
+                log.debug("deal OPTIONS request");
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                return false;
+            }
+        } catch (Throwable e) {
+            log.error("deal cors failure", e);
         }
-
-        log.debug("deal OPTIONS request");
-
-        CCorsUtils.handle(request, response);
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 
         return false;
     }

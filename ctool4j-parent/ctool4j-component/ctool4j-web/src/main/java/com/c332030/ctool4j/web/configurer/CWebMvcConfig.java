@@ -1,13 +1,8 @@
 package com.c332030.ctool4j.web.configurer;
 
-import com.c332030.ctool4j.core.util.CCollUtils;
-import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Collection;
 
 /**
  * <p>
@@ -19,14 +14,5 @@ import java.util.Collection;
 @Configuration
 @AllArgsConstructor
 public class CWebMvcConfig implements WebMvcConfigurer {
-
-    Collection<ICHandlerInterceptor> icHandlerInterceptors;
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-
-        CCollUtils.forEach(icHandlerInterceptors, registry::addInterceptor);
-
-    }
 
 }
