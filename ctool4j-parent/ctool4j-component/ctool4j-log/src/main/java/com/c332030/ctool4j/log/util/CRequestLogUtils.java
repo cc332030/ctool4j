@@ -98,8 +98,6 @@ public class CRequestLogUtils {
 
     public void init() {
 
-        log.info("init requestLog");
-
         val requestLog = genRequestLog();
         REQUEST_LOG_THREAD_LOCAL.set(requestLog);
 
