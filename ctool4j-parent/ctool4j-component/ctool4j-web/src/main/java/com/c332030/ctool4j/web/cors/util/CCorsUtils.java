@@ -10,6 +10,7 @@ import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +45,22 @@ public class CCorsUtils {
         CORS_THREAD_LOCAL.remove();
     }
 
+    public boolean handleOptions(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            if(CBoolUtils.isTrue(config.getEnable())) {
+                if(HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
+                    log.debug("deal OPTIONS request");
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    return true;
+                }
+            }
+        } catch (Throwable e) {
+            log.error("deal OPTIONS failure", e);
+        }
+
+        return false;
+    }
+
     public void handle(HttpServletRequest request, HttpServletResponse response) {
         try {
             if(CBoolUtils.isTrue(config.getEnable())) {
@@ -52,6 +69,7 @@ public class CCorsUtils {
         } catch (Throwable e) {
             log.error("cors handle failure", e);
         }
+
     }
 
     public void handleDo(HttpServletRequest request, HttpServletResponse response) {

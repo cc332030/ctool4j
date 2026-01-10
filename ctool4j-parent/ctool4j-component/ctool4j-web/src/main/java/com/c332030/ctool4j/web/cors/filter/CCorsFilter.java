@@ -4,7 +4,6 @@ import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import com.c332030.ctool4j.web.filter.ICFilter;
 import lombok.CustomLog;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
@@ -35,10 +34,7 @@ public class CCorsFilter implements ICFilter, PriorityOrdered {
         try {
 
             CCorsUtils.handle(request, response);
-
-            if(HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
-                log.debug("deal OPTIONS request");
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            if(CCorsUtils.handleOptions(request, response)) {
                 return;
             }
         } catch (Throwable e) {
