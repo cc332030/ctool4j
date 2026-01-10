@@ -31,14 +31,9 @@ public class CCorsFilter implements ICFilter, PriorityOrdered {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        try {
-
-            CCorsUtils.handle(request, response);
-            if(CCorsUtils.handleOptions(request, response)) {
-                return;
-            }
-        } catch (Throwable e) {
-            log.error("deal cors failure", e);
+        CCorsUtils.handle(request, response);
+        if(CCorsUtils.handleOptions(request, response)) {
+            return;
         }
 
         try {

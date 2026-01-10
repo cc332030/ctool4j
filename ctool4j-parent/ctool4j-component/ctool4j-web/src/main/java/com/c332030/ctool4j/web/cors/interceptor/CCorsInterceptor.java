@@ -25,18 +25,8 @@ public class CCorsInterceptor implements ICHandlerInterceptor {
         Object handler
     ) {
 
-        try {
-
-            CCorsUtils.handle(request, response);
-            if(CCorsUtils.handleOptions(request, response)) {
-                return false;
-            }
-
-        } catch (Throwable e) {
-            log.error("deal cors failure", e);
-        }
-
-        return false;
+        CCorsUtils.handle(request, response);
+        return !CCorsUtils.handleOptions(request, response);
     }
 
 }
