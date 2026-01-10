@@ -2,6 +2,7 @@ package com.c332030.ctool4j.log.advice;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.advice.ICBaseRequestBodyAdvice;
 import lombok.CustomLog;
 import org.springframework.core.MethodParameter;
@@ -36,7 +37,7 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
             try {
                 CRequestLogUtils.setRequestBodyReq(body);
             } catch (Throwable e) {
-                log.error("setReqs failure", e);
+                log.error("setReqs failure, url: {}", CRequestUtils.getRequestURIDefaultNull(), e);
             }
         }
 
