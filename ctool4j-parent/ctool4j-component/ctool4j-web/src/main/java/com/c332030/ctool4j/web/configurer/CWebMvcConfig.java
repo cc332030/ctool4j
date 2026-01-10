@@ -2,8 +2,7 @@ package com.c332030.ctool4j.web.configurer;
 
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -18,9 +17,9 @@ import java.util.Collection;
  * @since 2025/9/28
  */
 @Configuration
+@AllArgsConstructor
 public class CWebMvcConfig implements WebMvcConfigurer {
 
-    @Setter(onMethod_ = @Autowired(required = false))
     Collection<ICHandlerInterceptor> icHandlerInterceptors;
 
     @Override
