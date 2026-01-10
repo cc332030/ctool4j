@@ -18,7 +18,7 @@ import java.util.Collection;
  * @since 2025/9/28
  */
 @Configuration
-@AllArgsConstructor(onConstructor = @__(@Autowired(required = false)))
+@AllArgsConstructor(onConstructor_ = @Autowired(required = false))
 public class CWebMvcConfig implements WebMvcConfigurer {
 
     Collection<ICHandlerInterceptor> icHandlerInterceptors;
