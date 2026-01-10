@@ -36,11 +36,7 @@ public class CCorsFilter implements ICFilter, PriorityOrdered {
             return;
         }
 
-        try {
-            chain.doFilter(request, response);
-        } finally {
-            CCorsUtils.clear();
-        }
+        chain.doFilter(request, response);
 
     }
 
