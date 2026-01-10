@@ -46,7 +46,7 @@ public class CCorsUtils {
 
     public void handle(HttpServletRequest request, HttpServletResponse response) {
         try {
-            if(null != config && CBoolUtils.isTrue(config.getEnable())) {
+            if(CBoolUtils.isTrue(config.getEnable())) {
                 handleDo(request, response);
             }
         } catch (Throwable e) {
