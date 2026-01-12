@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.web.enums;
 
+import com.c332030.ctool4j.core.enums.CDataTypeEnum;
 import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
-import com.c332030.ctool4j.definition.enums.CDataTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

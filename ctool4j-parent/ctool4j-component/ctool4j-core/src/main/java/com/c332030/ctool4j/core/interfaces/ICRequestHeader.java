@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.interfaces;
 
+import com.c332030.ctool4j.core.enums.CDataTypeEnum;
 import com.c332030.ctool4j.core.util.CStrUtils;
-import com.c332030.ctool4j.definition.enums.CDataTypeEnum;
 import com.c332030.ctool4j.definition.interfaces.ICEnumName;
 import com.c332030.ctool4j.definition.interfaces.ICText;
 

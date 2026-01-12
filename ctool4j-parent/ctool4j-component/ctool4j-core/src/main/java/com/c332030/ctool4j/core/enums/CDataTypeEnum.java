@@ -1,8 +1,11 @@
-package com.c332030.ctool4j.definition.enums;
+package com.c332030.ctool4j.core.enums;
 
+import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.interfaces.ICText;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Set;
 
 /**
  * <p>
@@ -43,6 +46,13 @@ public enum CDataTypeEnum implements ICText {
     MULTI_OPTION("选项-多选"),
 
     ;
+
+    public static final Set<CDataTypeEnum> DATE_TYPES = CSet.of(
+        DATE,
+        TIME,
+        DATETIME,
+        TIMESTAMP
+    );
 
     /**
      * 描述
