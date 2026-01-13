@@ -62,8 +62,7 @@ public class CClassConvert {
     }
 
     public Integer toInt(long value) {
-        CNumUtils.assertOverflow(value);
-        return (int)value;
+        return CNumUtils.toInt(value);
     }
 
     public Integer toInt(Long value) {

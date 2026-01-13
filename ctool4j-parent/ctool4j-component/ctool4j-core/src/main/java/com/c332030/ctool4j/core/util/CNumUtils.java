@@ -273,12 +273,23 @@ public class CNumUtils {
      * @param value 值
      * @return Integer
      */
+    public Integer toInt(long value) {
+        if(value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+            return null;
+        }
+        return (int)value;
+    }
+
+    /**
+     * Long 转换为 Integer
+     * @param value 值
+     * @return Integer
+     */
     public Integer toInt(Long value) {
         if(null == value) {
             return null;
         }
-        assertOverflow(value);
-        return value.intValue();
+        return toInt(value.longValue());
     }
 
     /**
