@@ -275,6 +275,7 @@ public class CNumUtils {
      */
     public Integer toInt(long value) {
         if(value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+            log.debug("try to convert overflow long {} to int", value);
             return null;
         }
         return (int)value;
