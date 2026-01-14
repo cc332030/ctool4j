@@ -52,6 +52,14 @@
             </dependency>
 
             <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-dependencies</artifactId>
+                <version>0.0.8-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>3.5.15</version>
@@ -124,11 +132,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-dependencies</artifactId>
-                <version>0.0.8-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>4.0.3</version>
             </dependency>
 
         </dependencies>
