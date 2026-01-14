@@ -8,6 +8,7 @@ import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
+import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
  *
  * @since 2025/9/10
  */
+@CustomLog
 @UtilityClass
 public class CSpringUtils {
 
@@ -189,6 +191,19 @@ public class CSpringUtils {
 
     public CProfileEnum getActiveProfile() {
         return CProfileEnum.valueOf(SpringUtil.getActiveProfile());
+    }
+
+    public String getActiveProfileText() {
+        return getActiveProfile().getText();
+    }
+
+    public String getActiveProfileTextDefaultNull() {
+        try {
+            return getActiveProfileText();
+        } catch (Exception e) {
+            log.debug("get profile text error", e);
+            return null;
+        }
     }
 
 }
