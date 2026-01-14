@@ -3,6 +3,7 @@ package com.c332030.ctool4j.excel.util;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 
@@ -19,6 +20,7 @@ import java.util.List;
  *
  * @since 2026/1/14
  */
+@NoArgsConstructor
 public class CExcelBuilder<T> {
 
     InputStream inputStream;
@@ -27,8 +29,8 @@ public class CExcelBuilder<T> {
 
     Class<T> headClass;
 
-    public static <T> CExcelBuilder<T> builder() {
-        return new CExcelBuilder<>();
+    public CExcelBuilder(Class<T> headClass) {
+        this.headClass = headClass;
     }
 
     @SneakyThrows
