@@ -124,14 +124,6 @@ public class CClassConvert {
         return valueNullable;
     }
 
-    public float floatValue(Double value) {
-        if(null == value) {
-            return 0;
-        }
-        CNumUtils.assertOverflow(value);
-        return value.floatValue();
-    }
-
     public float floatValue(BigDecimal value) {
         if(null == value) {
             return 0;
