@@ -36,7 +36,7 @@ public enum CProfileEnum {
 
     public static final Map<String, CProfileEnum> PROFILE_MAP;
     static {
-        val map = new TreeMap<String, CProfileEnum>();
+        val map = new TreeMap<String, CProfileEnum>(String.CASE_INSENSITIVE_ORDER);
         for (val value : values()) {
             map.put(value.name(), value);
         }
@@ -50,7 +50,7 @@ public enum CProfileEnum {
 
     public static CProfileEnum of(String name) {
         return Opt.ofNullable(PROFILE_MAP.get(name))
-            .orElseThrow(() -> new IllegalArgumentException("unknown profile name: " + name));
+            .orElseThrow(() -> new IllegalArgumentException("unknown profile: " + name));
     }
 
 }
