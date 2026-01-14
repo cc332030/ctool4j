@@ -3,6 +3,7 @@ package com.c332030.ctool4j.spring.util;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.enums.CProfileEnum;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
@@ -184,6 +185,10 @@ public class CSpringUtils {
             .map(SpringUtil::getBean)
             .toArray();
         return CReflectUtils.newInstance(constructor, params);
+    }
+
+    public CProfileEnum getActiveProfile() {
+        return CProfileEnum.valueOf(SpringUtil.getActiveProfile());
     }
 
 }
