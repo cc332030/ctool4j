@@ -190,7 +190,7 @@ public class CSpringUtils {
     }
 
     public CProfileEnum getActiveProfile() {
-        return CProfileEnum.valueOf(SpringUtil.getActiveProfile());
+        return CProfileEnum.of(SpringUtil.getActiveProfile());
     }
 
     public String getActiveProfileText() {
