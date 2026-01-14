@@ -14,6 +14,46 @@ import org.junit.jupiter.api.Test;
 public class CNumUtilsTests {
 
     @Test
+    public void assertOverflowLong() {
+
+        CNumUtils.assertOverflow(Integer.MIN_VALUE);
+        CNumUtils.assertOverflow(Integer.MAX_VALUE);
+
+        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Integer.MIN_VALUE - 1L));
+        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Integer.MAX_VALUE + 1L));
+
+        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Long.MIN_VALUE));
+        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Long.MAX_VALUE));
+
+    }
+
+    @Test
+    public void assertOverflowDouble() {
+
+        CNumUtils.assertOverflow(Float.MIN_VALUE);
+        CNumUtils.assertOverflow(Float.MAX_VALUE);
+
+        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Double.MIN_VALUE));
+        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Double.MAX_VALUE));
+
+    }
+
+    @Test
+    public void toInt() {
+
+        Assertions.assertEquals(1, CNumUtils.toInt(1));
+        Assertions.assertEquals(Integer.MIN_VALUE, CNumUtils.toInt(Integer.MIN_VALUE));
+        Assertions.assertEquals(Integer.MAX_VALUE, CNumUtils.toInt(Integer.MAX_VALUE));
+
+        Assertions.assertNull(CNumUtils.toInt((long) Integer.MAX_VALUE + 1));
+        Assertions.assertNull(CNumUtils.toInt(Long.valueOf(Integer.MAX_VALUE + 1L)));
+
+        Assertions.assertNull(CNumUtils.toInt(Long.MIN_VALUE));
+        Assertions.assertNull(CNumUtils.toInt(Long.MAX_VALUE));
+
+    }
+
+    @Test
     public void to62() {
 
         Assertions.assertEquals("1", CNumUtils.to62(1));

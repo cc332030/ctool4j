@@ -230,22 +230,22 @@ public class CNumUtils {
         return null;
     }
 
-    public boolean checkOverflow(long value) {
-        return (int)value == value;
+    public boolean isOverflow(long value) {
+        return (int)value != value;
     }
 
     public void assertOverflow(long value) {
-        if(!checkOverflow(value)) {
+        if(isOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
     }
 
-    public boolean checkOverflow(double value) {
-        return value <= Float.MAX_VALUE && value >= Float.MIN_VALUE;
+    public boolean isOverflow(double value) {
+        return value > Float.MAX_VALUE || value < Float.MIN_VALUE;
     }
 
     public void assertOverflow(double value) {
-        if(!checkOverflow(value)) {
+        if(isOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
     }
@@ -274,7 +274,7 @@ public class CNumUtils {
      * @return Integer
      */
     public Integer toInt(long value) {
-        if(value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+        if(isOverflow(value)) {
             log.debug("try to convert overflow long {} to int", value);
             return null;
         }

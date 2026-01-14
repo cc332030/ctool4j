@@ -74,13 +74,11 @@ public class CClassConvert {
     }
 
     public int intValue(Long value) {
-
-        if(null == value) {
+        val intValue = CNumUtils.toInt(value);
+        if(null == intValue) {
             return 0;
         }
-
-        CNumUtils.assertOverflow(value);
-        return value.intValue();
+        return intValue;
     }
 
     public Long toLong(String str) {
