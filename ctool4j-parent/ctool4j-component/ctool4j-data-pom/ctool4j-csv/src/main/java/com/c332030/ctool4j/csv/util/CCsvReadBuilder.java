@@ -19,12 +19,12 @@ import java.util.stream.StreamSupport;
 
 /**
  * <p>
- * Description: CCsvBuilder
+ * Description: CCsvReadBuilder
  * </p>
  *
  * @since 2026/1/14
  */
-public class CCsvBuilder {
+public class CCsvReadBuilder {
 
     InputStream inputStream;
 
@@ -34,31 +34,31 @@ public class CCsvBuilder {
 
     boolean skipHeaderRecord = false;
 
-    public CCsvBuilder file(String filePath) {
+    public CCsvReadBuilder file(String filePath) {
         return file(new File(filePath));
     }
 
     @SneakyThrows
-    public CCsvBuilder file(File file) {
+    public CCsvReadBuilder file(File file) {
         return inputStream(Files.newInputStream(file.toPath()));
     }
 
-    public CCsvBuilder recordSeparator(String recordSeparator) {
+    public CCsvReadBuilder recordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
         return this;
     }
 
-    public CCsvBuilder delimiter(String delimiter) {
+    public CCsvReadBuilder delimiter(String delimiter) {
         this.delimiter = delimiter;
         return this;
     }
 
-    public CCsvBuilder skipHeaderRecord(boolean skipHeaderRecord) {
+    public CCsvReadBuilder skipHeaderRecord(boolean skipHeaderRecord) {
         this.skipHeaderRecord = skipHeaderRecord;
         return this;
     }
 
-    public CCsvBuilder inputStream(InputStream inputStream) {
+    public CCsvReadBuilder inputStream(InputStream inputStream) {
         if(!(inputStream instanceof BufferedInputStream)) {
             inputStream = new BufferedInputStream(inputStream);
         }
