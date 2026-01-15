@@ -15,10 +15,6 @@ import lombok.val;
 @UtilityClass
 public class CCsvUtils {
 
-    public static <T> CCsvBuilder<T> builder(Class<T> headClass) {
-        return new CCsvBuilder<>(headClass);
-    }
-
     public String trim(String str) {
 
         val strNew = CStrUtils.trim(str);

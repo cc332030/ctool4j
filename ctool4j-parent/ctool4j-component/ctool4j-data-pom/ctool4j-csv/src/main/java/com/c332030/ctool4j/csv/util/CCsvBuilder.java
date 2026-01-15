@@ -24,9 +24,7 @@ import java.util.stream.StreamSupport;
  *
  * @since 2026/1/14
  */
-public class CCsvBuilder<T> {
-
-    final Class<T> headClass;
+public class CCsvBuilder {
 
     InputStream inputStream;
 
@@ -36,36 +34,31 @@ public class CCsvBuilder<T> {
 
     boolean skipHeaderRecord = false;
 
-    public CCsvBuilder(Class<T> headClass) {
-        this.headClass = headClass;
-    }
-
-    @SneakyThrows
-    public CCsvBuilder<T> file(String filePath) {
+    public CCsvBuilder file(String filePath) {
         return file(new File(filePath));
     }
 
     @SneakyThrows
-    public CCsvBuilder<T> file(File file) {
+    public CCsvBuilder file(File file) {
         return inputStream(Files.newInputStream(file.toPath()));
     }
 
-    public CCsvBuilder<T> recordSeparator(String recordSeparator) {
+    public CCsvBuilder recordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
         return this;
     }
 
-    public CCsvBuilder<T> delimiter(String delimiter) {
+    public CCsvBuilder delimiter(String delimiter) {
         this.delimiter = delimiter;
         return this;
     }
 
-    public CCsvBuilder<T> skipHeaderRecord(boolean skipHeaderRecord) {
+    public CCsvBuilder skipHeaderRecord(boolean skipHeaderRecord) {
         this.skipHeaderRecord = skipHeaderRecord;
         return this;
     }
 
-    public CCsvBuilder<T> inputStream(InputStream inputStream) {
+    public CCsvBuilder inputStream(InputStream inputStream) {
         if(!(inputStream instanceof BufferedInputStream)) {
             inputStream = new BufferedInputStream(inputStream);
         }
@@ -75,7 +68,7 @@ public class CCsvBuilder<T> {
     }
 
     @SneakyThrows
-    public List<T> doRead() {
+    public List<Map<String, String>> doRead() {
 
         val csvFormat = CSVFormat.DEFAULT.builder()
             .setRecordSeparator(recordSeparator)
@@ -101,8 +94,13 @@ public class CCsvBuilder<T> {
                 .collect(Collectors.toList());
         }
 
-        return rowMapList.stream()
-            .map(rowMap -> CReflectUtils.fillValues(headClass, rowMap))
+        return rowMapList;
+    }
+
+    @SneakyThrows
+    public <T> List<T> doRead(Class<T> tClass) {
+        return doRead().stream()
+            .map(rowMap -> CReflectUtils.fillValues(tClass, rowMap))
             .collect(Collectors.toList());
     }
 
