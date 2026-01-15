@@ -248,7 +248,7 @@ public class CReflectUtils {
         field.set(object, value);
     }
 
-    public <T> T fillValues(Class<T> clazz, Map<String, Object> fields) {
+    public <T> T fillValues(Class<T> clazz, Map<String, ?> fields) {
 
         if (MapUtil.isEmpty(fields)) {
             return null;
@@ -260,7 +260,7 @@ public class CReflectUtils {
     }
 
     @SneakyThrows
-    public void fillValues(Object object, Map<String, Object> fieldValueMap) {
+    public void fillValues(Object object, Map<String, ?> fieldValueMap) {
 
         if (MapUtil.isEmpty(fieldValueMap)) {
             return;

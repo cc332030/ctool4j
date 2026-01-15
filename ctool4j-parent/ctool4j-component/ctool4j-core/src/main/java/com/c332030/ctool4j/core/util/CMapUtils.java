@@ -259,6 +259,14 @@ public class CMapUtils {
         );
     }
 
+    public Map<String, String> toAvailableStrMap(Map<String, String> map) {
+        return map(
+            map,
+            CStrUtils::toAvailable,
+            CStrUtils::toAvailable
+        );
+    }
+
     @SafeVarargs
     public <K, V> Map<K, V> merge(BinaryOperator<V> mergeFunction, Map<K, V>... maps) {
 
