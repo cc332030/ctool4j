@@ -1,18 +1,20 @@
 package com.c332030.ctool4j.csv.util;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
+import lombok.CustomLog;
+import lombok.Lombok;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +25,7 @@ import java.util.stream.StreamSupport;
  *
  * @since 2026/1/14
  */
+@CustomLog
 public class CCsvBuilder {
 
     String recordSeparator = "\n";
@@ -46,21 +49,24 @@ public class CCsvBuilder {
         return this;
     }
 
-    @SneakyThrows
-    public List<Map<String, String>> doRead(InputStreamReader reader) {
-
-        val csvFormat = CSVFormat.DEFAULT.builder()
+    private CSVFormat.Builder getCsvFormatBuilder() {
+        return CSVFormat.DEFAULT.builder()
             .setRecordSeparator(recordSeparator)
             .setDelimiter(delimiter)
             .setHeader()
             .setSkipHeaderRecord(skipHeaderRecord)
-            .get();
+            ;
+    }
 
-        List<Map<String, String>> rowMapList;
+    @SneakyThrows
+    public List<Map<String, String>> doRead(InputStreamReader reader) {
+
+        val csvFormat = getCsvFormatBuilder()
+            .get();
         try(val csvParser = csvFormat.parse(reader)) {
 
             val headerIndexeMap = CMapUtils.mapKey(csvParser.getHeaderMap(), CCsvUtils::trim);
-            rowMapList = StreamSupport.stream(csvParser.spliterator(), false)
+            return StreamSupport.stream(csvParser.spliterator(), false)
                 .map(record -> {
 
                     val map = new LinkedHashMap<String, String>();
@@ -73,7 +79,6 @@ public class CCsvBuilder {
                 .collect(Collectors.toList());
         }
 
-        return rowMapList;
     }
 
     public List<Map<String, String>> doRead(InputStream inputStream) {
@@ -98,6 +103,95 @@ public class CCsvBuilder {
 
     public <T> List<T> doRead(File file, Class<T> tClass) {
         return CCsvUtils.toObjects(doRead(file), tClass);
+    }
+
+    public <T> List<T> doRead(String filePath, Class<T> tClass) {
+        return CCsvUtils.toObjects(doRead(new File(filePath)), tClass);
+    }
+
+    @SneakyThrows
+    public void doWrite(
+        Collection<String> headers,
+        List<List<String>> rows,
+        Writer writer
+    ) {
+
+        headers = CCollUtils.filterString(headers);
+        rows = CCollUtils.filterNull(rows);
+        if(CollUtil.isEmpty(headers)
+            || CollUtil.isEmpty(rows)
+        ) {
+            log.debug("headers or rows is empty");
+            return;
+        }
+
+        val csvFormat = getCsvFormatBuilder()
+            .setHeader(headers.toArray(new String[0]))
+            .get();
+        try (val csvPrinter = new CSVPrinter(writer, csvFormat)) {
+            rows.forEach(record -> {
+                try {
+                    csvPrinter.printRecord(record);
+                } catch (Exception ex) {
+                    throw Lombok.sneakyThrow(ex);
+                }
+            });
+            csvPrinter.flush();
+        }
+
+    }
+
+    public void doWrite(
+        List<?> list,
+        Writer writer
+    ) {
+
+        list = CCollUtils.filterNull(list);
+        if(CollUtil.isEmpty(list)) {
+            log.debug("no data to write");
+            return;
+        }
+
+        val type = list.get(0).getClass();
+        val fieldMap = CReflectUtils.getInstanceFieldMap(type);
+
+        val rows = new ArrayList<List<String>>(fieldMap.size());
+        list.forEach(item -> {
+
+            val row = fieldMap.values().stream()
+                .map(field -> CReflectUtils.getValue(item, field))
+                .map(StrUtil::toStringOrNull)
+                .collect(Collectors.toList());
+            rows.add(row);
+        });
+
+        doWrite(fieldMap.keySet(), rows, writer);
+
+    }
+
+    public void doWrite(
+        List<?> list,
+        OutputStream outputStream
+    ) {
+        if(!(outputStream instanceof BufferedOutputStream)) {
+            outputStream = new BufferedOutputStream(outputStream);
+        }
+        doWrite(list, new OutputStreamWriter(outputStream));
+    }
+
+    @SneakyThrows
+    public void doWrite(
+        List<?> list,
+        File file
+    ) {
+        doWrite(list, Files.newOutputStream(file.toPath()));
+    }
+
+    public void doWrite(
+        List<?> list,
+        String filePath
+    ) {
+        doWrite(list, new File(filePath));
     }
 
 }

@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
@@ -51,6 +52,15 @@ public class CArrUtils {
      */
     public <T> List<T> filterNull(T[] array) {
         return filter(array, Objects::nonNull);
+    }
+
+    /**
+     * 获取非空的数组元素
+     * @param array 数组
+     * @return 非空的数组元素
+     */
+    public List<String> filterString(String[] array) {
+        return filter(array, StrUtil::isNotBlank);
     }
 
     /**
