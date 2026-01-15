@@ -5,14 +5,13 @@ import com.c332030.ctool4j.core.util.CMapUtils;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -88,26 +87,23 @@ public class CCsvBuilder<T> {
         List<Map<String, String>> rowMapList;
         try(val csvParser = csvFormat.parse(new InputStreamReader(inputStream))) {
 
+            val headerIndexeMap = CMapUtils.mapKey(csvParser.getHeaderMap(), CCsvUtils::trim);
             rowMapList = StreamSupport.stream(csvParser.spliterator(), false)
-                .map(CSVRecord::toMap)
+                .map(record -> {
+
+                    val map = new LinkedHashMap<String, String>();
+                    headerIndexeMap.forEach((key, keyIndex) -> {
+                        val value = record.get(keyIndex);
+                        map.put(key, CCsvUtils.trim(value));
+                    });
+                    return map;
+                })
                 .collect(Collectors.toList());
         }
 
-        val rows = new ArrayList<T>();
-        rowMapList.forEach(rowMap -> {
-
-            val map = CMapUtils.map(
-                rowMap,
-                CCsvUtils::trim,
-                CCsvUtils::trim
-            );
-
-            val row = CReflectUtils.fillValues(headClass, map);
-            rows.add(row);
-
-        });
-
-        return rows;
+        return rowMapList.stream()
+            .map(rowMap -> CReflectUtils.fillValues(headClass, rowMap))
+            .collect(Collectors.toList());
     }
 
 }
