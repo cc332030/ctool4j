@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.csv.util;
 
-import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -26,22 +25,11 @@ import java.util.stream.StreamSupport;
  */
 public class CCsvBuilder {
 
-    InputStream inputStream;
-
     String recordSeparator = "\n";
 
     String delimiter = ",";
 
     boolean skipHeaderRecord = false;
-
-    public CCsvBuilder file(String filePath) {
-        return file(new File(filePath));
-    }
-
-    @SneakyThrows
-    public CCsvBuilder file(File file) {
-        return inputStream(Files.newInputStream(file.toPath()));
-    }
 
     public CCsvBuilder recordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
@@ -58,17 +46,8 @@ public class CCsvBuilder {
         return this;
     }
 
-    public CCsvBuilder inputStream(InputStream inputStream) {
-        if(!(inputStream instanceof BufferedInputStream)) {
-            inputStream = new BufferedInputStream(inputStream);
-        }
-
-        this.inputStream = inputStream;
-        return this;
-    }
-
     @SneakyThrows
-    public List<Map<String, String>> doRead() {
+    public List<Map<String, String>> doRead(InputStreamReader reader) {
 
         val csvFormat = CSVFormat.DEFAULT.builder()
             .setRecordSeparator(recordSeparator)
@@ -78,7 +57,7 @@ public class CCsvBuilder {
             .get();
 
         List<Map<String, String>> rowMapList;
-        try(val csvParser = csvFormat.parse(new InputStreamReader(inputStream))) {
+        try(val csvParser = csvFormat.parse(reader)) {
 
             val headerIndexeMap = CMapUtils.mapKey(csvParser.getHeaderMap(), CCsvUtils::trim);
             rowMapList = StreamSupport.stream(csvParser.spliterator(), false)
@@ -97,11 +76,28 @@ public class CCsvBuilder {
         return rowMapList;
     }
 
+    public List<Map<String, String>> doRead(InputStream inputStream) {
+        if(!(inputStream instanceof BufferedInputStream)) {
+            inputStream = new BufferedInputStream(inputStream);
+        }
+        return doRead(new InputStreamReader(inputStream));
+    }
+
     @SneakyThrows
-    public <T> List<T> doRead(Class<T> tClass) {
-        return doRead().stream()
-            .map(rowMap -> CReflectUtils.fillValues(tClass, rowMap))
-            .collect(Collectors.toList());
+    public List<Map<String, String>> doRead(File file) {
+        return doRead(Files.newInputStream(file.toPath()));
+    }
+
+    public <T> List<T> doRead(InputStreamReader reader, Class<T> tClass) {
+        return CCsvUtils.toObjects(doRead(reader), tClass);
+    }
+
+    public <T> List<T> doRead(InputStream inputStream, Class<T> tClass) {
+        return CCsvUtils.toObjects(doRead(inputStream), tClass);
+    }
+
+    public <T> List<T> doRead(File file, Class<T> tClass) {
+        return CCsvUtils.toObjects(doRead(file), tClass);
     }
 
 }
