@@ -20,13 +20,13 @@ import java.util.stream.StreamSupport;
 
 /**
  * <p>
- * Description: CCsvBuilder
+ * Description: CCsvHelper
  * </p>
  *
  * @since 2026/1/14
  */
 @CustomLog
-public class CCsvBuilder {
+public class CCsvHelper {
 
     String recordSeparator = "\n";
 
@@ -34,17 +34,17 @@ public class CCsvBuilder {
 
     boolean skipHeaderRecord = false;
 
-    public CCsvBuilder recordSeparator(String recordSeparator) {
+    public CCsvHelper recordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
         return this;
     }
 
-    public CCsvBuilder delimiter(String delimiter) {
+    public CCsvHelper delimiter(String delimiter) {
         this.delimiter = delimiter;
         return this;
     }
 
-    public CCsvBuilder skipHeaderRecord(boolean skipHeaderRecord) {
+    public CCsvHelper skipHeaderRecord(boolean skipHeaderRecord) {
         this.skipHeaderRecord = skipHeaderRecord;
         return this;
     }
