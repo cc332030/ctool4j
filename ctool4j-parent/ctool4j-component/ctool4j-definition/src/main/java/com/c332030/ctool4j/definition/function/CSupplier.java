@@ -30,6 +30,9 @@ public interface CSupplier<T> extends Supplier<T> {
     }
 
     static <T> T get(CSupplier<T> supplier) {
+        if(supplier == null) {
+            return null;
+        }
         return supplier.get();
     }
 
