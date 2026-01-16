@@ -20,6 +20,9 @@ public interface CTriFunction<O1, O2, O3, R> {
     R applyThrowable(O1 o1, O2 o2, O3 o3) throws Throwable;
 
     static <O1, O2, O3, R> R apply(CTriFunction<O1, O2, O3, R> function, O1 o1, O2 o2, O3 o3) {
+        if(null == function) {
+            return null;
+        }
         return function.apply(o1, o2, o3);
     }
 

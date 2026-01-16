@@ -22,7 +22,10 @@ public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {
 
     R applyThrowable(O1 o1, O2 o2) throws Throwable;
 
-    static <O1, O2, R> R apply(CBiFunction<O1, O2, R> function, O1 o1, O2 o2) {
+    static <O1, O2, R> R apply(BiFunction<O1, O2, R> function, O1 o1, O2 o2) {
+        if(null == function) {
+            return null;
+        }
         return function.apply(o1, o2);
     }
 

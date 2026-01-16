@@ -36,7 +36,10 @@ public interface CBiPredicate<T, U> extends BiPredicate<T, U> {
         return (CBiPredicate<T, U>)FALSE;
     }
 
-    static <T, U> boolean test(CBiPredicate<T, U> predicate, T t, U u) {
+    static <T, U> boolean test(BiPredicate<T, U> predicate, T t, U u) {
+        if(null == predicate) {
+            return false;
+        }
         return predicate.test(t, u);
     }
 

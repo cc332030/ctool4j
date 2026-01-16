@@ -38,7 +38,10 @@ public interface CFunction<O, R> extends Function<O, R> {
         return (CFunction<O, R>)EMPTY;
     }
 
-    static <O, R> R apply(CFunction<O, R> function, O o) {
+    static <O, R> R apply(Function<O, R> function, O o) {
+        if(null == function) {
+            return null;
+        }
         return function.apply(o);
     }
 
