@@ -34,6 +34,10 @@ public class CCsvHelper {
 
     boolean skipHeaderRecord = false;
 
+    public static CCsvHelper builder() {
+        return new CCsvHelper();
+    }
+
     public CCsvHelper recordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
         return this;
