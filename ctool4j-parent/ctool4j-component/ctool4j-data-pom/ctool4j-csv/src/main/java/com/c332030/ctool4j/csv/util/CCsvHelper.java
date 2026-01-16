@@ -125,7 +125,7 @@ public class CCsvHelper {
         if(CollUtil.isEmpty(headers)
             || CollUtil.isEmpty(rows)
         ) {
-            log.debug("headers or rows is empty");
+            log.info("headers or rows is empty");
             return;
         }
 
@@ -152,7 +152,7 @@ public class CCsvHelper {
 
         list = CCollUtils.filterNull(list);
         if(CollUtil.isEmpty(list)) {
-            log.debug("no data to write");
+            log.info("no data to write");
             return;
         }
 
