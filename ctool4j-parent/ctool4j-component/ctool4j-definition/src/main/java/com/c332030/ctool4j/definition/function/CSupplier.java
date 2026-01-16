@@ -29,7 +29,7 @@ public interface CSupplier<T> extends Supplier<T> {
         return (CSupplier<T>)NULL;
     }
 
-    static <T> T get(CSupplier<T> supplier) {
+    static <T> T get(Supplier<T> supplier) {
         if(supplier == null) {
             return null;
         }
