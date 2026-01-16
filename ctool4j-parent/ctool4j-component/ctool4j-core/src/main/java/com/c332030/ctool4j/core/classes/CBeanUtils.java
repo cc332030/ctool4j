@@ -132,7 +132,7 @@ public class CBeanUtils {
      * @param <To> 目标对象泛型
      * @return 目标对象集合
      */
-    public <To> List<To> copyListFromMap(Collection<Map<String, ?>> fromCollection, CSupplier<To> toSupplier) {
+    public <To> List<To> copyListFromMap(Collection<? extends Map<String, ?>> fromCollection, CSupplier<To> toSupplier) {
         if(CollUtil.isEmpty(fromCollection)) {
             return CList.of();
         }
@@ -140,6 +140,19 @@ public class CBeanUtils {
                 .filter(Objects::nonNull)
                 .map(from -> copy(from, toSupplier))
                 .collect(Collectors.toList());
+    }
+
+
+
+    /**
+     * 集合对象属性复制
+     * @param fromCollection 源集合
+     * @param toClass 目标对象类
+     * @param <To> 目标对象泛型
+     * @return 目标对象集合
+     */
+    public <To> List<To> copyListFromMap(Collection<? extends Map<String, ?>> fromCollection, Class<To> toClass) {
+        return copyListFromMap(fromCollection, () -> CReflectUtils.newInstance(toClass));
     }
 
     /**

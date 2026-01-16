@@ -2,6 +2,7 @@ package com.c332030.ctool4j.csv.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
@@ -98,19 +99,19 @@ public class CCsvHelper {
     }
 
     public <T> List<T> doRead(InputStreamReader reader, Class<T> tClass) {
-        return CCsvUtils.toObjects(doRead(reader), tClass);
+        return CBeanUtils.copyListFromMap(doRead(reader), tClass);
     }
 
     public <T> List<T> doRead(InputStream inputStream, Class<T> tClass) {
-        return CCsvUtils.toObjects(doRead(inputStream), tClass);
+        return CBeanUtils.copyListFromMap(doRead(inputStream), tClass);
     }
 
     public <T> List<T> doRead(File file, Class<T> tClass) {
-        return CCsvUtils.toObjects(doRead(file), tClass);
+        return CBeanUtils.copyListFromMap(doRead(file), tClass);
     }
 
     public <T> List<T> doRead(String filePath, Class<T> tClass) {
-        return CCsvUtils.toObjects(doRead(new File(filePath)), tClass);
+        return CBeanUtils.copyListFromMap(doRead(new File(filePath)), tClass);
     }
 
     @SneakyThrows
