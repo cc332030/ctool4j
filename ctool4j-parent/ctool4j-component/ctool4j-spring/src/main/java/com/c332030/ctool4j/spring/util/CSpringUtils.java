@@ -206,4 +206,14 @@ public class CSpringUtils {
         }
     }
 
+    public String profileTextSuffix(String message) {
+
+        val profileText = getActiveProfileTextDefaultNull();
+        if(profileText == null) {
+            return message;
+        }
+
+        return message + "-" +  profileText;
+    }
+
 }
