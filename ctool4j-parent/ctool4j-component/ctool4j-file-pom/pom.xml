@@ -11,4 +11,9 @@
     <artifactId>ctool4j-file-pom</artifactId>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>ctool4j-csv</module>
+        <module>ctool4j-excel</module>
+    </modules>
+
 </project>
