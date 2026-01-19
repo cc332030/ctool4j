@@ -296,7 +296,7 @@ public class CMapUtils {
     ) {
         compare(
             objs,
-            Object::toString,
+            e -> String.valueOf(e.hashCode()),
             CFunction.self(),
             showFunction
         );
