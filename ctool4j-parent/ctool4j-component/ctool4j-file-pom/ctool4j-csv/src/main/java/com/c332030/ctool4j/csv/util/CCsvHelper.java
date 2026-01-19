@@ -98,6 +98,10 @@ public class CCsvHelper {
         return doRead(Files.newInputStream(file.toPath()));
     }
 
+    public List<Map<String, String>> doRead(String filePath) {
+        return doRead(new File(filePath));
+    }
+
     public <T> List<T> doRead(InputStreamReader reader, Class<T> tClass) {
         return CBeanUtils.copyListFromMap(doRead(reader), tClass);
     }
