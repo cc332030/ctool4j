@@ -12,12 +12,4 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CExcelUtils {
 
-    public static <T> CExcelBuilder<T> builder() {
-        return new CExcelBuilder<>();
-    }
-
-    public static <T> CExcelBuilder<T> builder(Class<T> headClass) {
-        return new CExcelBuilder<>(headClass);
-    }
-
 }
