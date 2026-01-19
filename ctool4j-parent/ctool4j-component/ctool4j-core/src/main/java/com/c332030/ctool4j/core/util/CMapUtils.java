@@ -290,6 +290,18 @@ public class CMapUtils {
             ));
     }
 
+    public <V> void compare(
+        List<Map<String, V>> objs,
+        ToStringFunction<V> showFunction
+    ) {
+        compare(
+            objs,
+            Object::toString,
+            CFunction.self(),
+            showFunction
+        );
+    }
+
     public <T, V> void compare(
         List<T> objs,
         ToStringFunction<T> getNameFunction,
