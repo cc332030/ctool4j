@@ -4,11 +4,11 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-data-pom</artifactId>
+        <artifactId>ctool4j-file-pom</artifactId>
         <version>0.0.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-excel</artifactId>
+    <artifactId>ctool4j-csv</artifactId>
 
     <dependencies>
 
@@ -18,8 +18,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>easyexcel</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
         </dependency>
 
     </dependencies>

@@ -8,12 +8,7 @@
         <version>0.0.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-data-pom</artifactId>
+    <artifactId>ctool4j-file-pom</artifactId>
     <packaging>pom</packaging>
-
-    <modules>
-        <module>ctool4j-csv</module>
-        <module>ctool4j-excel</module>
-    </modules>
 
 </project>
