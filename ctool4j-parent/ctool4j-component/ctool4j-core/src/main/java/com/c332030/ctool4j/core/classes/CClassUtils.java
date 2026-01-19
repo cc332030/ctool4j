@@ -1,11 +1,9 @@
 package com.c332030.ctool4j.core.classes;
 
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CCollectors;
+import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CSet;
-import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -209,80 +207,12 @@ public class CClassUtils {
 
     public void compareField(Class<?>... classes) {
 
-        val fieldClassMap = new LinkedHashMap<String, Map<Class<?>, Field>>();
-
-        val sb = new StringBuilder("\n");
-        for (val aClass : classes) {
-            sb.append(aClass.getName()).append("\n");
-
-            val fieldMap = CReflectUtils.getAllFieldMap(aClass);
-            fieldMap.forEach((fieldName, field) ->
-                    fieldClassMap.computeIfAbsent(fieldName, k -> new HashMap<>())
-                            .put(aClass, field));
-        }
-
-        val tables = new ArrayList<List<String>>(classes.length + 1);
-
-        val fieldNameColumn = new ArrayList<String>(fieldClassMap.size() + 1);
-        fieldNameColumn.add("");
-        tables.add(fieldNameColumn);
-
-        for (val clazz : classes) {
-            val list = new ArrayList<String>(fieldClassMap.size() + 1);
-            list.add(clazz.getSimpleName());
-            tables.add(list);
-        }
-
-        fieldClassMap.forEach((fieldName, map) -> {
-
-            fieldNameColumn.add(fieldName);
-            for (int i = 0; i < classes.length; i++) {
-
-                val className = classes[i];
-                val columnList = tables.get(i + 1);
-
-                val fieldType = Opt.ofNullable(map.get(className))
-                        .map(Field::getType)
-                        .map(Class::getSimpleName)
-                        .orElse("-");
-                columnList.add(fieldType);
-            }
-
-        });
-
-        val columnWidthList = new ArrayList<Integer>();
-        tables.forEach(columnList -> {
-
-            val maxWidth = columnList.stream()
-                    .mapToInt(String::length)
-                    .max()
-                    .orElse(0);
-            columnWidthList.add(maxWidth);
-
-        });
-
-        val lineSize = tables.get(0).size();
-        for (int i = 0; i < lineSize; i++) {
-            for (int i1 = 0; i1 < tables.size(); i1++) {
-
-                val columnList = tables.get(i1);
-                val column = columnList.get(i);
-
-                val width = columnWidthList.get(i1) + 2;
-
-                String columnReal;
-                if (i1 == 0) {
-                    columnReal = StrUtil.fillAfter(column, ' ', width);
-                } else {
-                    columnReal = CStrUtils.fillSide(column, ' ', width);
-                }
-
-                sb.append(columnReal);
-            }
-            sb.append("\n");
-        }
-
-        System.out.println(sb);
+        CMapUtils.compare(
+            Arrays.asList(classes),
+            Class::getSimpleName,
+            CReflectUtils::getInstanceFieldMap,
+            field -> field.getType().getSimpleName()
+        );
 
     }
 

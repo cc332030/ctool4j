@@ -1,11 +1,15 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CBiPredicate;
 import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CPredicate;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -284,6 +288,91 @@ public class CMapUtils {
                 Map.Entry::getValue,
                 mergeFunction
             ));
+    }
+
+    public <T, V> void compare(
+        List<T> objs,
+        ToStringFunction<T> getNameFunction,
+        CFunction<T, Map<String, V>> toMapFunction,
+        ToStringFunction<V> showFunction
+    ) {
+
+        if (CollUtil.isEmpty(objs)) {
+            return;
+        }
+
+        val mergedMap = new LinkedHashMap<String, Map<Object, V>>();
+
+        val sb = new StringBuilder("\n");
+        for (val obj : objs) {
+
+            val map = toMapFunction.apply(obj);
+            map.forEach((key, value) ->
+                mergedMap.computeIfAbsent(key, k -> new HashMap<>())
+                    .put(obj, value));
+        }
+
+        val tables = new ArrayList<List<String>>(objs.size() + 1);
+
+        val xColumn = new ArrayList<String>(mergedMap.size() + 1);
+        xColumn.add("");
+        tables.add(xColumn);
+
+        for (val obj : objs) {
+            val list = new ArrayList<String>(mergedMap.size() + 1);
+            list.add(getNameFunction.apply(obj));
+            tables.add(list);
+        }
+
+        mergedMap.forEach((key, map) -> {
+
+            xColumn.add(key);
+            for (int i = 0; i < objs.size(); i++) {
+
+                val obj = objs.get(i);
+                val columnList = tables.get(i + 1);
+                val showValue = Opt.ofNullable(map.get(obj))
+                    .map(showFunction)
+                    .orElse("-");
+                columnList.add(showValue);
+            }
+
+        });
+
+        val columnWidthList = new ArrayList<Integer>();
+        tables.forEach(columnList -> {
+
+            val maxWidth = columnList.stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+            columnWidthList.add(maxWidth);
+        });
+
+        val lineSize = tables.get(0).size();
+        for (int i = 0; i < lineSize; i++) {
+            for (int i1 = 0; i1 < tables.size(); i1++) {
+
+                val columnList = tables.get(i1);
+                val column = columnList.get(i);
+
+                val width = columnWidthList.get(i1) + 2;
+
+                String columnReal;
+                if (i1 == 0) {
+                    columnReal = StrUtil.fillAfter(column, ' ', width);
+                } else {
+                    columnReal = CStrUtils.fillSide(column, ' ', width);
+                }
+
+                sb.append(columnReal);
+            }
+            sb.append("\n");
+        }
+
+        System.out.println(sb);
+
+
     }
 
 }
