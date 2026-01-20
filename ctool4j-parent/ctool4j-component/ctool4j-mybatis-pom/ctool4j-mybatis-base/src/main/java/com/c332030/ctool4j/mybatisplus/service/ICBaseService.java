@@ -99,6 +99,10 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         CPageReq<?> pageReq,
         CFunction<IPage<ENTITY>, IPage<RET>> function
     ) {
+        val page = page(pageReq);
+        if(CollUtil.isEmpty(page.getRecords())) {
+            return page.convert(CFunction.empty());
+        }
         return function.apply(pageReq.getPage());
     }
 
