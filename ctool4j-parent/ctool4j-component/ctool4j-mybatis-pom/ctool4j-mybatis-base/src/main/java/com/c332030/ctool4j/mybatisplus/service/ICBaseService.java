@@ -66,7 +66,7 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         return entity;
     }
 
-    default IPage<ENTITY> page(CPageReq<ENTITY> pageReq) {
+    default IPage<ENTITY> page(CPageReq<?> pageReq) {
 
         val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
         if(CValidateUtils.isEmpty(reqMap)) {
