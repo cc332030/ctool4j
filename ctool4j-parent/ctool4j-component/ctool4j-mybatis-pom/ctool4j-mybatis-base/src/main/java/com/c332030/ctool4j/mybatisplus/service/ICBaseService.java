@@ -2,9 +2,9 @@ package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
@@ -73,7 +73,7 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
             return page(pageReq.getPage());
         }
 
-        val queryWrapper = new QueryWrapper<ENTITY>()
+        val queryWrapper = Wrappers.<ENTITY>query()
             .allEq(reqMap);
 
         return page(pageReq.getPage(), queryWrapper);
