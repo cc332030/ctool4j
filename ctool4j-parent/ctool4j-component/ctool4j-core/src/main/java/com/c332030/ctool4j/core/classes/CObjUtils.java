@@ -136,10 +136,18 @@ public class CObjUtils {
     }
 
     public <T> T merge(T v1, T v2, CBiFunction<T, T, T> merge) {
-        return merge(v1, v2, Objects::nonNull, merge);
+        return merge(null, v1, v2, Objects::nonNull, merge);
+    }
+
+    public <K, T> T merge(K key, T v1, T v2, CBiFunction<T, T, T> merge) {
+        return merge(key, v1, v2, Objects::nonNull, merge);
     }
 
     public <T> T merge(T v1, T v2, CPredicate<T> availablePredicate, CBiFunction<T, T, T> merge) {
+        return merge(null, v1, v2, availablePredicate, merge);
+    }
+
+    public <K, T> T merge(K key, T v1, T v2, CPredicate<T> availablePredicate, CBiFunction<T, T, T> merge) {
 
         if(!availablePredicate.test(v1)) {
             return v2;
@@ -150,7 +158,7 @@ public class CObjUtils {
         }
 
         if(null == merge) {
-            throw new IllegalStateException("Conflict key, v1: " + v1 + ", v2: " + v2);
+            throw new IllegalStateException("Conflict key: " + key + ", v1: " + v1 + ", v2: " + v2);
         }
 
         return merge.apply(v1, v2);

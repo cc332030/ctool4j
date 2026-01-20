@@ -491,7 +491,7 @@ public class CCollUtils {
             }
 
             map.compute(toKey.apply(t),
-                    (k, v) -> CObjUtils.merge(v, value, mergeFunction));
+                    (k, v) -> CObjUtils.merge(k, v, value, mergeFunction));
         });
         return Collections.unmodifiableMap(map);
     }
