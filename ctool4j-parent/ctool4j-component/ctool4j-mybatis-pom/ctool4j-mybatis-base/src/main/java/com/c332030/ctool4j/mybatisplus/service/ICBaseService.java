@@ -33,6 +33,10 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         OrderItem.desc("id")
     );
 
+    default String getEntitySimpleName() {
+        return getEntityClass().getSimpleName();
+    }
+
     CBaseMapper<ENTITY> getBaseMapper();
 
     default ENTITY getEntity() {
