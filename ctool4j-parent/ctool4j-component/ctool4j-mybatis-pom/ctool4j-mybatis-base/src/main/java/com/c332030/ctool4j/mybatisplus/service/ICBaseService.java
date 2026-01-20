@@ -88,7 +88,10 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         return function.apply(pageReq.getPage());
     }
 
-    default <RET> IPage<RET> page(CPageReq<?> pageReq, Function<ENTITY, RET> function) {
+    default <RET> IPage<RET> page(
+        CPageReq<?> pageReq,
+        Function<ENTITY, RET> function
+    ) {
 
         val page = page(pageReq);
         return page.convert(function);
