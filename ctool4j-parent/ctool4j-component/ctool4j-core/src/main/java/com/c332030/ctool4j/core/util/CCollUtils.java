@@ -441,7 +441,7 @@ public class CCollUtils {
             CFunction<T, K> toKey,
             CBiFunction<T, T, T> mergeFunction
     ) {
-        return toMap(collection, toKey, null, mergeFunction);
+        return toMap(collection, toKey, (CPredicate<K>) null, mergeFunction);
     }
 
     public static <T, K> Map<K, T> toMap(
@@ -459,6 +459,15 @@ public class CCollUtils {
             CFunction<T, V> toValue
     ) {
         return toMap(collection, toKey, toValue, null, null);
+    }
+
+    public static <T, K, V> Map<K, V> toMap(
+            Collection<T> collection,
+            CFunction<T, K> toKey,
+            CFunction<T, V> toValue,
+            CBiFunction<V, V, V> mergeFunction
+    ) {
+        return toMap(collection, toKey, toValue, null, mergeFunction);
     }
 
     public static <T, K, V> Map<K, V> toMap(
