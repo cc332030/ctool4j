@@ -1,16 +1,20 @@
 package com.c332030.ctool4j.mybatisplus.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.c332030.ctool4j.core.log.CLog;
+import com.c332030.ctool4j.definition.entity.base.CId;
 import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
 import com.c332030.ctool4j.mybatis.model.impl.CPage;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 import com.c332030.ctool4j.mybatisplus.service.impl.CBaseServiceImpl;
+import lombok.CustomLog;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -19,42 +23,46 @@ import java.io.Serializable;
  *
  * @since 2026/1/20
  */
+@CustomLog
 public abstract class CMpController<S extends CBaseServiceImpl<? extends CBaseMapper<T>, T>, T> {
 
     @Setter(onMethod_ = @Autowired)
     protected S service;
 
-    abstract CLog getLog();
-
+    @ResponseBody
     @PostMapping("/page")
-    public CIntResult<IPage<T>> page(CPage cPage) {
-        getLog().info("page: {}", cPage);
+    public CIntResult<IPage<T>> page(@Validated @NotNull @RequestBody CPage cPage) {
+        log.info("cPage: {}", cPage);
         return CIntResult.success(service.page(cPage.getPage()));
     }
 
+    @ResponseBody
     @PostMapping("/get-by-id")
-    public CIntResult<T> getById(Serializable id) {
-        getLog().info("get-by-id: {}", id);
-        return CIntResult.success(service.getById(id));
+    public CIntResult<T> getById(@Validated @NotNull @RequestBody CId<?> cId) {
+        log.info("get-by-id, cId: {}", cId);
+        return CIntResult.success(service.getById(cId.getId()));
     }
 
+    @ResponseBody
     @PostMapping("/add")
-    public CIntResult<Void> page(T entity) {
-        getLog().info("add entity: {}", entity);
+    public CIntResult<T> add(@Validated @NotNull @RequestBody T entity) {
+        log.info("add entity: {}", entity);
         service.save(entity);
-        return CIntResult.success();
+        return CIntResult.success(entity);
     }
 
+    @ResponseBody
     @PostMapping("/update-by-id")
-    public CIntResult<Boolean> updateById(T entity) {
-        getLog().info("update-by-id entity: {}", entity);
+    public CIntResult<Boolean> updateById(@Validated @NotNull @RequestBody T entity) {
+        log.info("update-by-id entity: {}", entity);
         return CIntResult.success(service.updateById(entity));
     }
 
+    @ResponseBody
     @PostMapping("/remove-by-id")
-    public CIntResult<Boolean> removeById(Serializable id) {
-        getLog().info("remove-by-id: {}", id);
-        return CIntResult.success(service.removeById(id));
+    public CIntResult<Boolean> removeById(@Validated @NotNull @RequestBody CId<?> cId) {
+        log.info("remove-by-id, cId: {}", cId);
+        return CIntResult.success(service.removeById(cId.getId()));
     }
 
 }

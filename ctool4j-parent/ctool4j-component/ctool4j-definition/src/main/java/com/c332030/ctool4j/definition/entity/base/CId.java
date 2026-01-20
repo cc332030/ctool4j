@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * Description: CId
@@ -17,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CId<T> implements ICId<T> {
+public class CId<T extends Serializable> implements ICId<T> {
 
     @TableId
     T id;
