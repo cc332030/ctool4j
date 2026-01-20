@@ -2,6 +2,7 @@ package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
@@ -11,6 +12,7 @@ import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CEntityUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 import lombok.val;
@@ -60,6 +62,11 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         val entity = getEntity(sources);
         CBizIdUtils.setBizId(entity, this);
         return entity;
+    }
+
+    default IPage<ENTITY> page(CPageReq<ENTITY> pageReq) {
+        return lambdaQuery(pageReq.getReq())
+            .page(pageReq.getPage());
     }
 
     default boolean saveIgnore(ENTITY entity) {
