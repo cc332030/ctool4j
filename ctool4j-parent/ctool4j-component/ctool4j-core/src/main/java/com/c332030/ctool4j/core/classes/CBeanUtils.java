@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.classes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
@@ -193,6 +194,18 @@ public class CBeanUtils {
             return CMap.of();
         }
         return toMap(object, JsonProperty.class, JsonProperty::value);
+    }
+
+    /**
+     * 对象转 map，使用 下划线 属性名
+     * @param object 源对象
+     * @return 值 map
+     */
+    public Map<String, Object> toMapUnderlineName(Object object) {
+        if(null == object) {
+            return CMap.of();
+        }
+        return toMap(object, field -> StrUtil.toUnderlineCase(field.getName()));
     }
 
     /**

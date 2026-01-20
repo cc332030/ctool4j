@@ -27,7 +27,7 @@ public interface ICService<ENTITY> extends ICBaseService<ENTITY> {
             return page(pageReq.getPage());
         }
 
-        val reqMap = CBeanUtils.toMap(pageReq.getReq());
+        val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
         val queryWrapper = new QueryWrapper<ENTITY>()
             .allEq(reqMap);
 
