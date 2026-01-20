@@ -12,13 +12,13 @@ import java.util.Objects;
 
 /**
  * <p>
- * Description: CCheckUtils
+ * Description: CValidateUtils
  * </p>
  *
  * @since 2026/1/20
  */
 @UtilityClass
-public class CCheckUtils {
+public class CValidateUtils {
 
     public boolean isNull(Object value) {
         return Objects.isNull(value);
