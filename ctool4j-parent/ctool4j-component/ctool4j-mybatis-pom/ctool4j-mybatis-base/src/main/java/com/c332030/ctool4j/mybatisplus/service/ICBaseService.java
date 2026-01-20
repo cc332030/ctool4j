@@ -2,12 +2,14 @@ package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.classes.CValidateUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CEntityUtils;
 import com.c332030.ctool4j.core.util.CList;
@@ -65,8 +67,16 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
     }
 
     default IPage<ENTITY> page(CPageReq<ENTITY> pageReq) {
-        return lambdaQuery(pageReq.getReq())
-            .page(pageReq.getPage());
+
+        val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
+        if(CValidateUtils.isEmpty(reqMap)) {
+            return page(pageReq.getPage());
+        }
+
+        val queryWrapper = new QueryWrapper<ENTITY>()
+            .allEq(reqMap);
+
+        return page(pageReq.getPage(), queryWrapper);
     }
 
     default boolean saveIgnore(ENTITY entity) {
