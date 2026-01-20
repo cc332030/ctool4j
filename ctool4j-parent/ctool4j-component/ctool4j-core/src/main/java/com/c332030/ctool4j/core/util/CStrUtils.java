@@ -892,4 +892,12 @@ public class CStrUtils {
         return 2;
     }
 
+    public String chineseOnly(String str) {
+        if(StrUtil.isEmpty(str)) {
+            return str;
+        }
+
+        return str.replaceAll("[^\\u4e00-\\u9fa5]", "");
+    }
+
 }
