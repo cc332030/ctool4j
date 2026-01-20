@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
+import com.c332030.ctool4j.core.classes.CValidateUtils;
 import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import lombok.val;
 
@@ -22,12 +23,11 @@ public interface ICService<ENTITY> extends ICBaseService<ENTITY> {
     @Override
     default IPage<ENTITY> page(CPageReq<ENTITY> pageReq) {
 
-        val req = pageReq.getReq();
-        if(null == req){
+        val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
+        if(CValidateUtils.isEmpty(reqMap)) {
             return page(pageReq.getPage());
         }
 
-        val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
         val queryWrapper = new QueryWrapper<ENTITY>()
             .allEq(reqMap);
 
