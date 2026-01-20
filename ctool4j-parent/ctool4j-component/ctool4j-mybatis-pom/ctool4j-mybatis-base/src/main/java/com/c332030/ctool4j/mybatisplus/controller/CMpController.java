@@ -46,7 +46,7 @@ public abstract class CMpController<S extends ICBaseService<T>, T> implements IC
     @ResponseBody
     @PostMapping("/get-by-id")
     public CIntResult<T> getById(@Validated @NotNull @RequestBody CId<?> cId) {
-        log.info("{} get-by-id, cId: {}", entityName, cId);
+        log.info("{} getById cId: {}", entityName, cId);
         return CIntResult.success(service.getById(cId.getId()));
     }
 
@@ -61,14 +61,14 @@ public abstract class CMpController<S extends ICBaseService<T>, T> implements IC
     @ResponseBody
     @PostMapping("/update-by-id")
     public CIntResult<Boolean> updateById(@Validated @NotNull @RequestBody T entity) {
-        log.info("{} update-by-id entity: {}", entityName, entity);
+        log.info("{} updateById entity: {}", entityName, entity);
         return CIntResult.success(service.updateById(entity));
     }
 
     @ResponseBody
     @PostMapping("/remove-by-id")
     public CIntResult<Boolean> removeById(@Validated @NotNull @RequestBody CId<?> cId) {
-        log.info("{} remove-by-id, cId: {}", entityName, cId);
+        log.info("{} removeById cId: {}", entityName, cId);
         return CIntResult.success(service.removeById(cId.getId()));
     }
 
