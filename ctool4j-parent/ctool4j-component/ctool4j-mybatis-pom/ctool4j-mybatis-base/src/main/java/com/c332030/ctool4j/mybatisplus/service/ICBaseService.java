@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * <p>
@@ -83,7 +82,7 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
 
     default <RET> IPage<RET> page(
         CPageReq<?> pageReq,
-        Function<ENTITY, RET> function
+        CFunction<ENTITY, RET> function
     ) {
         val page = page(pageReq);
         return page.convert(function);
