@@ -3,11 +3,12 @@ package com.c332030.ctool4j.mybatisplus.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.c332030.ctool4j.definition.entity.base.CId;
 import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
-import com.c332030.ctool4j.mybatis.model.impl.CPage;
+import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatisplus.service.ICBaseService;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
 import lombok.CustomLog;
 import lombok.Setter;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,9 +39,12 @@ public abstract class CMpController<S extends ICBaseService<T>, T> implements IC
 
     @ResponseBody
     @PostMapping("/page")
-    public CIntResult<IPage<T>> page(@Validated @NotNull @RequestBody CPage cPage) {
+    public CIntResult<IPage<T>> page(@Validated @NotNull @RequestBody CPageReq<T> cPage) {
         log.info("{} cPage: {}", entityName, cPage);
-        return CIntResult.success(service.page(cPage.getPage()));
+
+        val page = service.lambdaQuery(cPage.getReq())
+            .page(cPage.getPage());
+        return CIntResult.success(page);
     }
 
     @ResponseBody
