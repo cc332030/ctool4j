@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.c332030.ctool4j.definition.entity.base.CId;
 import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
 import com.c332030.ctool4j.mybatis.model.impl.CPage;
-import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
-import com.c332030.ctool4j.mybatisplus.service.impl.CBaseServiceImpl;
+import com.c332030.ctool4j.mybatisplus.service.ICBaseService;
 import lombok.CustomLog;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import javax.validation.constraints.NotNull;
  * @since 2026/1/20
  */
 @CustomLog
-public abstract class CMpController<S extends CBaseServiceImpl<? extends CBaseMapper<T>, T>, T> {
+public abstract class CMpController<S extends ICBaseService<T>, T> {
 
     @Setter(onMethod_ = @Autowired)
     protected S service;
