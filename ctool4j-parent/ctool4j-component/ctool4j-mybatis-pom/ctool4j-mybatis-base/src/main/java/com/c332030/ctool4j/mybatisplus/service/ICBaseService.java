@@ -83,18 +83,24 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
 
     default <RET> IPage<RET> page(
         CPageReq<?> pageReq,
-        CFunction<IPage<ENTITY>, IPage<RET>> function
+        Function<ENTITY, RET> function
     ) {
-        return function.apply(pageReq.getPage());
+        val page = page(pageReq);
+        return page.convert(function);
     }
 
     default <RET> IPage<RET> page(
         CPageReq<?> pageReq,
-        Function<ENTITY, RET> function
+        Class<RET> retClass
     ) {
+        return page(pageReq, e -> CBeanUtils.copy(e, retClass));
+    }
 
-        val page = page(pageReq);
-        return page.convert(function);
+    default <RET> IPage<RET> pageConvert(
+        CPageReq<?> pageReq,
+        CFunction<IPage<ENTITY>, IPage<RET>> function
+    ) {
+        return function.apply(pageReq.getPage());
     }
 
     default boolean saveIgnore(ENTITY entity) {
