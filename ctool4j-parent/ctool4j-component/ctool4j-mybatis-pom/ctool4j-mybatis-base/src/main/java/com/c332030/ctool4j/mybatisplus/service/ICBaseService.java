@@ -14,6 +14,7 @@ import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CEntityUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -77,6 +79,19 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
             .allEq(reqMap);
 
         return page(pageReq.getPage(), queryWrapper);
+    }
+
+    default <RET> IPage<RET> page(
+        CPageReq<?> pageReq,
+        CFunction<IPage<ENTITY>, IPage<RET>> function
+    ) {
+        return function.apply(pageReq.getPage());
+    }
+
+    default <RET> IPage<RET> page(CPageReq<?> pageReq, Function<ENTITY, RET> function) {
+
+        val page = page(pageReq);
+        return page.convert(function);
     }
 
     default boolean saveIgnore(ENTITY entity) {
