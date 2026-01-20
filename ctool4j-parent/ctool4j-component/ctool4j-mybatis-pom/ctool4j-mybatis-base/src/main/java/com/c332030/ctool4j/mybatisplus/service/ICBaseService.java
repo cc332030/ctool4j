@@ -103,7 +103,7 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         if(CollUtil.isEmpty(page.getRecords())) {
             return page.convert(CFunction.empty());
         }
-        return function.apply(pageReq.getPage());
+        return function.apply(page);
     }
 
     default boolean saveIgnore(ENTITY entity) {
