@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CBiPredicate;
 import com.c332030.ctool4j.definition.function.CFunction;
@@ -355,7 +354,7 @@ public class CMapUtils {
         tables.forEach(columnList -> {
 
             val maxWidth = columnList.stream()
-                .mapToInt(String::length)
+                .mapToInt(CStrUtils::getPrintWidth)
                 .max()
                 .orElse(0);
             columnWidthList.add(maxWidth);
@@ -372,7 +371,7 @@ public class CMapUtils {
 
                 String columnReal;
                 if (i1 == 0) {
-                    columnReal = StrUtil.fillAfter(column, ' ', width);
+                    columnReal = CStrUtils.fillAfter(column, ' ', width);
                 } else {
                     columnReal = CStrUtils.fillSide(column, ' ', width);
                 }
