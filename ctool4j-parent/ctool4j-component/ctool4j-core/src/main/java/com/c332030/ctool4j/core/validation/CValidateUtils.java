@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.classes;
+package com.c332030.ctool4j.core.validation;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
