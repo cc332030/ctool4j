@@ -23,7 +23,7 @@ public class CValidateUtils {
     public boolean isNull(Object value) {
         return Objects.isNull(value);
     }
-    public boolean nonNull(Object value) {
+    public boolean isNotNull(Object value) {
         return Objects.nonNull(value);
     }
 
