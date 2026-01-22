@@ -5,6 +5,7 @@ import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -20,6 +21,7 @@ import java.util.Collections;
  *
  * @since 2025/11/10
  */
+@CustomLog
 @UtilityClass
 public class CRedisUtils {
 
@@ -77,7 +79,13 @@ public class CRedisUtils {
     public boolean tryDoOnce(String key, Duration cacheDuration, CRunnable runnable) {
 
         if(setIfAbsent(key, cacheDuration)) {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                log.info("delete key because of exception: {}", key);
+                redisService.delete(key);
+                throw e;
+            }
             return true;
         }
 
