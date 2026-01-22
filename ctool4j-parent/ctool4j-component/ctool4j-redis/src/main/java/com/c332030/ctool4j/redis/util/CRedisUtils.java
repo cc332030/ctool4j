@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.util;
 
+import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
@@ -9,6 +10,7 @@ import lombok.val;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 
+import java.time.Duration;
 import java.util.Collections;
 
 /**
@@ -62,6 +64,24 @@ public class CRedisUtils {
             value
         );
         return result == 1;
+    }
+
+    public boolean setIfAbsent(String key) {
+        return redisService.setIfAbsent(key, 1);
+    }
+
+    public boolean setIfAbsent(String key, Duration timeout) {
+        return redisService.setIfAbsent(key, 1, timeout);
+    }
+
+    public boolean tryDoOnce(String key, Duration cacheDuration, CRunnable runnable) {
+
+        if(setIfAbsent(key, cacheDuration)) {
+            runnable.run();
+            return true;
+        }
+
+        return false;
     }
 
 }
