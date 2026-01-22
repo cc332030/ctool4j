@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.service;
 
+import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.val;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -48,6 +49,26 @@ public interface ICRedisService<K, V> {
      */
     default ValueOperations<K, V> opsForValue() {
         return getRedisTemplate().opsForValue();
+    }
+
+    default boolean hasKey(K key) {
+
+        val result = getRedisTemplate().hasKey(key);
+        return CBoolUtils.isTrue(result);
+    }
+
+    default boolean setIfAbsent(K key, V value) {
+
+        val result = opsForValue()
+            .setIfAbsent(key, value);
+        return CBoolUtils.isTrue(result);
+    }
+
+    default boolean setIfAbsent(K key, V value, Duration timeout) {
+
+        val result = opsForValue()
+            .setIfAbsent(key, value, timeout);
+        return CBoolUtils.isTrue(result);
     }
 
     /**
