@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -23,9 +24,11 @@ import java.util.List;
 @AllArgsConstructor
 public class CPageReq<T> implements ICPage {
 
-    Integer pageNum;
+    @Builder.Default
+    Integer pageNum = 1;
 
-    Integer pageSize;
+    @Builder.Default
+    Integer pageSize = 10;
 
     List<OrderItem> orders;
 
