@@ -76,6 +76,9 @@ public class CRedisUtils {
     private final String COMPARE_AND_SET =
         "if redis.call('get', KEYS[1]) == ARGV[1] then "
             + "    redis.call('set', KEYS[1], ARGV[2]) "
+            + "    if tonumber(ARGV[3]) > 0 then "
+            + "         redis.call('expire', KEYS[1], ARGV[3]) "
+            + "    end "
             + "    return 1 "
             + "else "
             + "    return 0 "
@@ -83,7 +86,7 @@ public class CRedisUtils {
 
     private final RedisScript<Long> COMPARE_AND_SETSCRIPT = new DefaultRedisScript<>(COMPARE_AND_SET, Long.class);
 
-    public boolean compareAndSet(String key, Object expectedValue, Object newValue) {
+    public boolean compareAndSet(String key, Object expectedValue, Object newValue, long ttl) {
 
         if(null == expectedValue
             || null == newValue
@@ -95,22 +98,30 @@ public class CRedisUtils {
             COMPARE_AND_SETSCRIPT,
             Collections.singletonList(key),
             expectedValue,
-            newValue
+            newValue,
+            ttl
         );
         return result == 1;
     }
 
+    public boolean compareAndSet(String key, Object expectedValue, Object newValue) {
+        return compareAndSet(key, expectedValue, newValue, 0L);
+    }
+
     private final String SET_IF_NOT_EQUALS =
-        "if redis.call('get', KEYS[1]) ~= ARGV[1] then " +
-            "    redis.call('set', KEYS[1], ARGV[2]) " +
-            "    return 1 " +
-            "else " +
-            "    return 0 " +
-            "end";
+        "if redis.call('get', KEYS[1]) ~= ARGV[1] then "
+            + "    redis.call('set', KEYS[1], ARGV[2]) "
+            + "    if tonumber(ARGV[2]) > 0 then "
+            + "         redis.call('expire', KEYS[1], ARGV[2]) "
+            + "    end "
+            + "    return 1 "
+            + "else "
+            + "    return 0 "
+            + "end";
 
     private final RedisScript<Long> SET_IF_NOT_EQUALS_SETSCRIPT = new DefaultRedisScript<>(SET_IF_NOT_EQUALS, Long.class);
 
-    public boolean setIfNotEquals(String key, Object newValue) {
+    public boolean setIfNotEquals(String key, Object newValue, long ttl) {
 
         if(null == newValue) {
             return false;
@@ -119,9 +130,14 @@ public class CRedisUtils {
         val result = getRedisTemplate().execute(
             SET_IF_NOT_EQUALS_SETSCRIPT,
             Collections.singletonList(key),
-            newValue
+            newValue,
+            ttl
         );
         return result == 1;
+    }
+
+    public boolean setIfNotEquals(String key, Object newValue) {
+        return setIfNotEquals(key, newValue, 0L);
     }
 
     public boolean setIfAbsent(String key) {
