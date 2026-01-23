@@ -31,7 +31,7 @@ public class CRedisUtils {
     @CAutowired
     CObjectValueRedisService redisService;
 
-    private RedisTemplate<? super String, Object> getRedisTemplate() {
+    public RedisTemplate<? super String, Object> getRedisTemplate() {
         return redisService.getRedisTemplate();
     }
 
