@@ -8,6 +8,7 @@ import com.c332030.ctool4j.spring.util.CSpringUtils;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 
@@ -30,7 +31,11 @@ public class CRedisUtils {
     @CAutowired
     CObjectValueRedisService redisService;
 
-    public static String getKey(Class<?> clazz, ICOperate ICOperate, Object key) {
+    private RedisTemplate<? super String, Object> getRedisTemplate() {
+        return redisService.getRedisTemplate();
+    }
+
+    public String getKey(Class<?> clazz, ICOperate ICOperate, Object key) {
         return CSpringUtils.getApplicationName()
                 + KEY_SEPARATOR
                 + clazz.getSimpleName()
@@ -41,7 +46,7 @@ public class CRedisUtils {
                 ;
     }
 
-    private static final String SET_IF_LAGER = "local current = redis.call('GET',  KEYS[1])\n" +
+    private final String SET_IF_LAGER = "local current = redis.call('GET',  KEYS[1])\n" +
         "local currentNum = 0  -- 默认值\n" +
         "if current ~= false then  -- 判断非空 [3]()\n" +
         "    currentNum = tonumber(current)  -- 显式转换 [2]()\n" +
@@ -52,7 +57,7 @@ public class CRedisUtils {
         "end\n" +
         "return 0";
 
-    private static final RedisScript<Long> SET_IF_LAGER_SCRIPT = new DefaultRedisScript<>(SET_IF_LAGER, Long.class);
+    private final RedisScript<Long> SET_IF_LAGER_SCRIPT = new DefaultRedisScript<>(SET_IF_LAGER, Long.class);
 
     public boolean setIfLager(String key, Number value) {
 
@@ -60,10 +65,61 @@ public class CRedisUtils {
             return false;
         }
 
-        val result = redisService.getRedisTemplate().execute(
+        val result = getRedisTemplate().execute(
             SET_IF_LAGER_SCRIPT,
             Collections.singletonList(key),
             value
+        );
+        return result == 1;
+    }
+
+    private final String COMPARE_AND_SET =
+        "if redis.call('get', KEYS[1]) == ARGV[1] then "
+            + "    redis.call('set', KEYS[1], ARGV[2]) "
+            + "    return 1 "
+            + "else "
+            + "    return 0 "
+            + "end";
+
+    private final RedisScript<Long> COMPARE_AND_SETSCRIPT = new DefaultRedisScript<>(COMPARE_AND_SET, Long.class);
+
+    public boolean compareAndSet(String key, Object expectedValue, Object newValue) {
+
+        if(null == expectedValue
+            || null == newValue
+        ) {
+            return false;
+        }
+
+        val result = getRedisTemplate().execute(
+            COMPARE_AND_SETSCRIPT,
+            Collections.singletonList(key),
+            expectedValue,
+            newValue
+        );
+        return result == 1;
+    }
+
+    private final String SET_IF_NOT_EQUALS =
+        "if redis.call('get', KEYS[1]) ~= ARGV[1] then " +
+            "    redis.call('set', KEYS[1], ARGV[2]) " +
+            "    return 1 " +
+            "else " +
+            "    return 0 " +
+            "end";
+
+    private final RedisScript<Long> SET_IF_NOT_EQUALS_SETSCRIPT = new DefaultRedisScript<>(SET_IF_NOT_EQUALS, Long.class);
+
+    public boolean setIfNotEquals(String key, Object newValue) {
+
+        if(null == newValue) {
+            return false;
+        }
+
+        val result = getRedisTemplate().execute(
+            SET_IF_NOT_EQUALS_SETSCRIPT,
+            Collections.singletonList(key),
+            newValue
         );
         return result == 1;
     }
