@@ -26,6 +26,10 @@ public class CSpringSecurityUtils {
         return getContext().getAuthentication();
     }
 
+    public void setAuthentication(Authentication authentication) {
+        getContext().setAuthentication(authentication);
+    }
+
     public <T extends UserDetails> T getUserDetails() {
 
         val authentication = getAuthentication();
