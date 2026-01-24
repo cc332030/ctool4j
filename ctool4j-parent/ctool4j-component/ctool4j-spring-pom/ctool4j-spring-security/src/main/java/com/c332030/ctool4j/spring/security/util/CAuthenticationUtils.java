@@ -2,6 +2,7 @@ package com.c332030.ctool4j.spring.security.util;
 
 import com.c332030.ctool4j.definition.interfaces.ICUsernameAndPassword;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.spring.security.model.CSecurityUser;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,15 @@ public class CAuthenticationUtils {
         val authentication = authenticate(authenticationToken);
         CSpringSecurityUtils.setAuthentication(authentication);
 
+    }
+
+    public <T extends ICUsernameAndPassword> CSecurityUser<T> getSecurityUser() {
+        return CSpringSecurityUtils.getUserDetails();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends ICUsernameAndPassword> T getUser() {
+        return (T)getSecurityUser().getUser();
     }
 
 }

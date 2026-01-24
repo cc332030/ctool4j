@@ -3,12 +3,14 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.validation.CValidateUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -127,6 +129,16 @@ public class CArrUtils {
     @SafeVarargs
     public <T> T[] getArr(T... arr) {
         return arr;
+    }
+
+    public String[] toStrArr(Collection<String> collection) {
+
+        if(CValidateUtils.isEmpty(collection)) {
+            return emptyArray();
+        }
+
+        return collection
+            .toArray(new String[0]);
     }
 
 }

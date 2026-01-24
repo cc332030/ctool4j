@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.spring.security.configuration;
 
+import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
-import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -56,11 +56,11 @@ public class CSecurityConfiguration {
             .authorizeHttpRequests(authorize -> authorize
 
                 // 不需要认证的地址有哪些
-                .requestMatchers(CSpringSecurityUtils.toPathRequestMatchers(requestMatchersPathConfig.getPermits()))
+                .antMatchers(CArrUtils.toStrArr(requestMatchersPathConfig.getPermits()))
                 .permitAll()
 
                 // 禁止的地址有哪些
-                .requestMatchers(CSpringSecurityUtils.toPathRequestMatchers(requestMatchersPathConfig.getDenies()))
+                .antMatchers(CArrUtils.toStrArr(requestMatchersPathConfig.getDenies()))
                 .denyAll()
 
                 // 对所有请求开启授权保护
