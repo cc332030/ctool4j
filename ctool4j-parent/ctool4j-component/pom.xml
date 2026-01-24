@@ -16,14 +16,13 @@
         <module>ctool4j-core</module>
         <module>ctool4j-log</module>
         <module>ctool4j-web</module>
-        <module>ctool4j-spring</module>
-        <module>ctool4j-spring-cloud</module>
         <module>ctool4j-feign</module>
         <module>ctool4j-redis</module>
         <module>ctool4j-cache</module>
         <module>ctool4j-transaction</module>
         <module>ctool4j-db</module>
 
+        <module>ctool4j-spring-pom</module>
         <module>ctool4j-mybatis-pom</module>
         <module>ctool4j-nacos-pom</module>
         <module>ctool4j-job-pom</module>
