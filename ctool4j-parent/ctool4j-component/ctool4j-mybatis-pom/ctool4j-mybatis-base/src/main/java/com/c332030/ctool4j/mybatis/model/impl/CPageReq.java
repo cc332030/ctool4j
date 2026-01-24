@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.mybatis.model.impl;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -28,9 +30,10 @@ public class CPageReq<T> implements ICPage {
     Integer pageNum = 1;
 
     @Builder.Default
-    Integer pageSize = 10;
+    Integer pageSize = CPageUtils.DEFAULT_PAGE_SIZE;
 
-    List<OrderItem> orders;
+    @Builder.Default
+    List<OrderItem> orders = CList.of();
 
     @ApiModelProperty(value = "查询参数")
     T req;

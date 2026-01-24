@@ -3,6 +3,7 @@ package com.c332030.ctool4j.mybatis.model;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
 import com.c332030.ctool4j.mybatisplus.util.CMpPageUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,14 +26,18 @@ public interface ICPage {
      * @return 当前页
      */
     @ApiModelProperty(value = "当前页", required = true)
-    Integer getPageNum();
+    default Integer getPageNum() {
+        return 1;
+    }
 
     /**
      * 页大小
      * @return 页大小
      */
     @ApiModelProperty(value = "页大小", required = true)
-    Integer getPageSize();
+    default Integer getPageSize() {
+        return CPageUtils.DEFAULT_PAGE_SIZE;
+    }
 
     /**
      * 排序
