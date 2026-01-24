@@ -4,26 +4,23 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-spring-pom</artifactId>
         <version>0.0.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-spring-pom</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>ctool4j-spring</module>
-        <module>ctool4j-spring-security</module>
-        <module>ctool4j-spring-cloud</module>
-    </modules>
+    <artifactId>ctool4j-spring-security</artifactId>
 
     <dependencies>
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-security</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring</artifactId>
         </dependency>
 
     </dependencies>

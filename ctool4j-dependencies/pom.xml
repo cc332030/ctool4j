@@ -46,6 +46,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-security</artifactId>
+                <version>0.0.8-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-spring-cloud</artifactId>
                 <version>0.0.8-SNAPSHOT</version>
             </dependency>

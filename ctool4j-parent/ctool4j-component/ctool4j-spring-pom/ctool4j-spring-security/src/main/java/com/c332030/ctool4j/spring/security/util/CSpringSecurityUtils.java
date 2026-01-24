@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.spring.util;
+package com.c332030.ctool4j.spring.security.util;
 
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import lombok.experimental.UtilityClass;
