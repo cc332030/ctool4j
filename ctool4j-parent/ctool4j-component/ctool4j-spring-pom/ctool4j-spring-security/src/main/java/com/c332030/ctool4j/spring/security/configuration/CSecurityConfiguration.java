@@ -5,13 +5,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 /**
  * <p>
- * Description: SecurityConfiguration
+ * Description: CSecurityConfiguration
  * </p>
  *
  * @since 2026/1/22
  */
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration {
+public class CSecurityConfiguration {
 
 }
