@@ -26,6 +26,11 @@ public class CArrUtils {
 
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
+    @SuppressWarnings("unchecked")
+    public <T> T[] emptyArray() {
+        return (T[]) EMPTY_OBJECT_ARRAY;
+    }
+
     /**
      * 过滤
      * @param array 数组

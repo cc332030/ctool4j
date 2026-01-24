@@ -1,12 +1,18 @@
 package com.c332030.ctool4j.spring.security.util;
 
+import cn.hutool.core.collection.CollUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.util.CArrUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.util.Collection;
 
 /**
  * <p>
@@ -40,6 +46,17 @@ public class CSpringSecurityUtils {
         }
 
         return CObjUtils.anyType(authentication.getPrincipal());
+    }
+
+    public RequestMatcher[] toPathRequestMatchers(Collection<String> patterns) {
+
+        if(CollUtil.isEmpty(patterns)) {
+            return CArrUtils.emptyArray();
+        }
+
+        return patterns.stream()
+            .map(AntPathRequestMatcher::new)
+            .toArray(RequestMatcher[]::new);
     }
 
 }
