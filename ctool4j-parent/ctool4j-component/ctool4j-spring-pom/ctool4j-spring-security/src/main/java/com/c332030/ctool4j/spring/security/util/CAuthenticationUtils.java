@@ -8,6 +8,7 @@ import lombok.val;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * <p>
@@ -20,7 +21,18 @@ import org.springframework.security.core.Authentication;
 public class CAuthenticationUtils {
 
     @CAutowired
+    PasswordEncoder passwordEncoder;
+
+    @CAutowired
     AuthenticationManager authenticationManager;
+
+    public String encode(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
 
     public Authentication authenticate(Authentication authentication) {
         return authenticationManager.authenticate(authentication);
