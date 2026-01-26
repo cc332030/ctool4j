@@ -28,10 +28,7 @@ public class CArrUtils {
 
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
-    @SuppressWarnings("unchecked")
-    public <T> T[] emptyArray() {
-        return (T[]) EMPTY_OBJECT_ARRAY;
-    }
+    public final String[] EMPAY_STR_ARR = new String[0];
 
     /**
      * 过滤
@@ -134,11 +131,10 @@ public class CArrUtils {
     public String[] toStrArr(Collection<String> collection) {
 
         if(CValidateUtils.isEmpty(collection)) {
-            return emptyArray();
+            return EMPAY_STR_ARR;
         }
-
         return collection
-            .toArray(new String[0]);
+            .toArray(EMPAY_STR_ARR);
     }
 
 }
