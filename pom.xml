@@ -35,11 +35,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
 
+        <spring-boot.version>2.7.18</spring-boot.version>
+        <spring-cloud.version>2021.0.9</spring-cloud.version>
+
     </properties>
 
     <modules>
-        <module>ctool4j-parent</module>
         <module>ctool4j-dependencies</module>
+        <module>ctool4j-bom</module>
+        <module>ctool4j-parent</module>
     </modules>
 
     <build>
