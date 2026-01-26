@@ -63,6 +63,12 @@ public class CSecurityConfiguration {
             // 禁用自带的表单登录 /login
             .formLogin().disable()
             .csrf(AbstractHttpConfigurer::disable)
+            // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
+            .rememberMe(Customizer.withDefaults())
+            // 认证失败处理
+            .exceptionHandling( ex ->
+                ex.authenticationEntryPoint(authenticationEntryPoint)
+            )
             // 开启授权保护
             .authorizeHttpRequests(authorize -> authorize
 
@@ -78,14 +84,6 @@ public class CSecurityConfiguration {
                 .anyRequest()
                 // 已认证的请求会被自动授权
                 .authenticated()
-            )
-            // 使用默认的登陆登出页面进行授权登陆
-            .formLogin(Customizer.withDefaults())
-            // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
-            .rememberMe(Customizer.withDefaults())
-            // 认证失败处理
-            .exceptionHandling( ex ->
-                ex.authenticationEntryPoint(authenticationEntryPoint)
             )
             .build();
     }
