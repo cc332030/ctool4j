@@ -51,6 +51,8 @@ public class CSecurityConfiguration {
     ) throws Exception {
 
         return http
+            // 禁用自带的表单登录 /login
+            .formLogin().disable()
             .csrf(AbstractHttpConfigurer::disable)
             // 开启授权保护
             .authorizeHttpRequests(authorize -> authorize
