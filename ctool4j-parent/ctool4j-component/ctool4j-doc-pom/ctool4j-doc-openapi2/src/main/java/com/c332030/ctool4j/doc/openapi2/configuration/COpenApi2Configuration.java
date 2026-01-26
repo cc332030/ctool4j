@@ -6,7 +6,9 @@ import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotati
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import io.swagger.annotations.Api;
+import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,7 +23,6 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  *
  * @since 2025/12/16
  */
+@CustomLog
 @Configuration
 @Import(value = {
     BeanValidatorPluginsConfiguration.class
@@ -69,13 +71,17 @@ public class COpenApi2Configuration {
             @Override
             public Object postProcessAfterInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
                 if (bean instanceof WebMvcRequestHandlerProvider) {
-                    customizeSpringfoxHandlerMappings(getHandlerMappings(bean));
+                    try {
+                        customizeSpringfoxHandlerMappings(getHandlerMappings(bean));
+                    } catch (Throwable ex) {
+                        log.debug("could not customize springfox handler mappings", ex);
+                    }
                 }
                 return bean;
             }
 
             private <T extends RequestMappingInfoHandlerMapping> void customizeSpringfoxHandlerMappings(List<T> mappings) {
-                List<T> copy = mappings.stream()
+                val copy = mappings.stream()
                     .filter(mapping -> mapping.getPatternParser() == null)
                     .collect(Collectors.toList());
                 mappings.clear();
@@ -85,7 +91,7 @@ public class COpenApi2Configuration {
             @SuppressWarnings("unchecked")
             @SneakyThrows
             private List<RequestMappingInfoHandlerMapping> getHandlerMappings(Object bean) {
-                Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
+                val field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
                 if (null == field) {
                     return Collections.emptyList();
                 }
