@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.spring.security.core;
 
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
-import com.c332030.ctool4j.web.util.CWebUtils;
+import com.c332030.ctool4j.web.util.CServletUtils;
 import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -34,7 +34,7 @@ public class CAuthenticationEntryPoint implements AuthenticationEntryPoint {
             "未授权：" + requestUrl
         );
 
-        CWebUtils.writeJson(response, forbidden, forbiddenResult);
+        CServletUtils.writeJson(response, forbidden, forbiddenResult);
 
     }
 
