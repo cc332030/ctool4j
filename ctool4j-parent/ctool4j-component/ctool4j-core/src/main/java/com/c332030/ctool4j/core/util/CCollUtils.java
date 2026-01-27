@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
@@ -503,6 +504,10 @@ public class CCollUtils {
                     (k, v) -> CObjUtils.merge(k, v, value, mergeFunction));
         });
         return Collections.unmodifiableMap(map);
+    }
+
+    public <K, V> Map<K, V> toMap(List<Pair<K, V>> pairs) {
+        return toMap(pairs, Pair::getKey, (CFunction<Pair<K,V>, V>) Pair::getValue);
     }
 
     @SafeVarargs
