@@ -373,4 +373,67 @@ public class CNumUtils {
         return new BigDecimal(value);
     }
 
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @return 占比
+     */
+    public BigDecimal percent(Integer value, Integer total) {
+        return percent(value, total, 0);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @param scale 百分比小数位数
+     * @return 占比
+     */
+    public BigDecimal percent(Integer value, Integer total, int scale) {
+        return percent(new BigDecimal(value), new BigDecimal(total), scale);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @return 占比
+     */
+    public BigDecimal percent(Long value, Long total) {
+        return percent(value, total, 0);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @param scale 百分比小数位数
+     * @return 占比
+     */
+    public BigDecimal percent(Long value, Long total, int scale) {
+        return percent(new BigDecimal(value), new BigDecimal(total), scale);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @return 占比
+     */
+    public BigDecimal percent(BigDecimal value, BigDecimal total) {
+        return percent(value, total, 0);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @param scale 百分比小数位数
+     * @return 占比
+     */
+    public BigDecimal percent(BigDecimal value, BigDecimal total, int scale) {
+        return divide(value.multiply(ONE_HUNDRED), total, scale);
+    }
+
 }

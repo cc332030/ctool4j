@@ -4,6 +4,8 @@ import com.c332030.ctool4j.core.util.CNumUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 /**
  * <p>
  * Description: CNumUtilsTests
@@ -98,6 +100,19 @@ public class CNumUtilsTests {
         Assertions.assertEquals(-9, CNumUtils.min(
             -1, -3, -9
         ));
+
+    }
+
+    @Test
+    public void percent() {
+
+        Assertions.assertEquals("25", CNumUtils.percent(1, 4).toString());
+        Assertions.assertEquals("25", CNumUtils.percent(1L, 4L).toString());
+        Assertions.assertEquals("25", CNumUtils.percent(new BigDecimal(1), new BigDecimal(4)).toString());
+
+        Assertions.assertEquals("18.75", CNumUtils.percent(3, 16, 2).toString());
+        Assertions.assertEquals("18.75", CNumUtils.percent(3L, 16L, 2).toString());
+        Assertions.assertEquals("18.75", CNumUtils.percent(new BigDecimal(3), new BigDecimal(16), 2).toString());
 
     }
 
