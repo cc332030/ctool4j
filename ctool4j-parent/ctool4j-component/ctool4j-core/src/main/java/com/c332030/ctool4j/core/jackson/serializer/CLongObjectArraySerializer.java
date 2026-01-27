@@ -18,6 +18,7 @@ import java.io.IOException;
  * @author c332030
  * @since 2024/3/27
  */
+@Deprecated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CLongObjectArraySerializer extends JsonSerializer<Long[]> {
 

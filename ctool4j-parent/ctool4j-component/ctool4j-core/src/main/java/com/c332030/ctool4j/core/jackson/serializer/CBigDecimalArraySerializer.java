@@ -19,6 +19,7 @@ import java.math.BigDecimal;
  * @author c332030
  * @since 2024/3/27
  */
+@Deprecated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CBigDecimalArraySerializer extends JsonSerializer<BigDecimal[]> {
 
