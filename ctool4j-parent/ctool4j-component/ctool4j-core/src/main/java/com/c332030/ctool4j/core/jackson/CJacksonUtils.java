@@ -5,7 +5,6 @@ import com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer;
 import com.c332030.ctool4j.core.jackson.deserializer.CInstantDeserializer;
 import com.c332030.ctool4j.core.jackson.serializer.CDateSerializer;
 import com.c332030.ctool4j.core.jackson.serializer.CInstantSerializer;
-import com.c332030.ctool4j.core.jackson.serializer.CLongArraySerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -18,6 +17,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 
@@ -49,7 +49,8 @@ public class CJacksonUtils {
         // Long to String，避免前端溢出
         module.addSerializer(Long.class, ToStringSerializer.instance);
         module.addSerializer(long.class, ToStringSerializer.instance);
-        module.addSerializer(long[].class, CLongArraySerializer.INSTANCE);
+
+        module.addSerializer(BigDecimal.class, ToStringSerializer.instance);
 
         module.addSerializer(Date.class, CDateSerializer.INSTANCE);
         module.addDeserializer(Date.class, CDateDeserializer.INSTANCE);
