@@ -7,12 +7,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import lombok.val;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -252,28 +250,6 @@ public class CJsonUtils {
      */
     public Map<String, String> fromJsonStringValue(String json) {
         return fromJson(json, CMapUtils.MAP_STRING_STRING_TYPE_REFERENCE);
-    }
-
-    /**
-     * 配置消息转换器
-     * @param messageConverters 消息转换器
-     * @param objectMapper 映射器
-     */
-    public void configureMessageConverters(Collection<HttpMessageConverter<?>> messageConverters, ObjectMapper objectMapper) {
-        messageConverters.stream()
-                .filter(e -> e instanceof MappingJackson2HttpMessageConverter)
-                .forEach(e -> {
-
-                    val messageConverter = (MappingJackson2HttpMessageConverter) e;
-                    if(null != objectMapper) {
-                        messageConverter.setObjectMapper(objectMapper);
-                    }
-
-                    val mediaTypes = new LinkedHashSet<>(messageConverter.getSupportedMediaTypes());
-                    mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
-                    messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
-
-                });
     }
 
 }
