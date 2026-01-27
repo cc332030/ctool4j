@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -262,12 +263,16 @@ public class CJsonUtils {
         messageConverters.stream()
                 .filter(e -> e instanceof MappingJackson2HttpMessageConverter)
                 .forEach(e -> {
-                    MappingJackson2HttpMessageConverter messageConverter = (MappingJackson2HttpMessageConverter) e;
-                    messageConverter.setObjectMapper(objectMapper);
 
-                    Set<MediaType> mediaTypes = new HashSet<>(messageConverter.getSupportedMediaTypes());
+                    val messageConverter = (MappingJackson2HttpMessageConverter) e;
+                    if(null != objectMapper) {
+                        messageConverter.setObjectMapper(objectMapper);
+                    }
+
+                    val mediaTypes = new HashSet<>(messageConverter.getSupportedMediaTypes());
                     mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
                     messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
+
                 });
     }
 
