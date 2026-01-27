@@ -42,7 +42,7 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-dependencies</artifactId>
-                <version>0.0.8-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
