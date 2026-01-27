@@ -40,11 +40,11 @@ public class CJacksonUtils {
      * 驼峰会转成下划线
      */
     public static final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
+
+    public static final SimpleModule SIMPLE_MODULE ;
     static {
 
-        OBJECT_MAPPER = configure(new ObjectMapper());
-
-        val module = new SimpleModule();
+        val module = SIMPLE_MODULE = new SimpleModule();
 
         // Long to String，避免前端溢出
         module.addSerializer(Long.class, ToStringSerializer.instance);
@@ -59,8 +59,11 @@ public class CJacksonUtils {
         module.addDeserializer(Instant.class, CInstantDeserializer.INSTANCE);
 
         module.addDeserializer(Enum.class, CEnumDeserializer.EMPTY_INSTANCE);
+    }
 
-        OBJECT_MAPPER.registerModule(module);
+    static {
+
+        OBJECT_MAPPER = configure(new ObjectMapper());
 
         // 不打印 null
         // 不序列化 null 值，兼容飞书消息报错
@@ -77,6 +80,8 @@ public class CJacksonUtils {
     }
 
     public <T extends ObjectMapper> T configure(T objectMapper) {
+
+        objectMapper.registerModule(SIMPLE_MODULE);
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
