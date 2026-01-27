@@ -269,7 +269,7 @@ public class CJsonUtils {
                         messageConverter.setObjectMapper(objectMapper);
                     }
 
-                    val mediaTypes = new HashSet<>(messageConverter.getSupportedMediaTypes());
+                    val mediaTypes = new LinkedHashSet<>(messageConverter.getSupportedMediaTypes());
                     mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
                     messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
 
