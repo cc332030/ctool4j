@@ -4,7 +4,7 @@ import com.c332030.ctool4j.web.constant.ResourceUrlConstants;
 import com.c332030.ctool4j.web.filter.ICFilter;
 import lombok.CustomLog;
 import lombok.val;
-import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
@@ -22,7 +22,7 @@ import java.io.IOException;
  */
 @CustomLog
 @Component
-public class ResourceFilter implements ICFilter, Ordered {
+public class ResourceFilter implements ICFilter, PriorityOrdered {
 
     @Override
     public int getOrder() {
