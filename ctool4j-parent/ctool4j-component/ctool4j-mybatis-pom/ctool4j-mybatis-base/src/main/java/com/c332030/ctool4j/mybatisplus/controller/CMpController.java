@@ -2,7 +2,7 @@ package com.c332030.ctool4j.mybatisplus.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.c332030.ctool4j.definition.entity.base.CId;
-import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
+import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatisplus.service.ICBaseService;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
@@ -38,39 +38,39 @@ public abstract class CMpController<S extends ICBaseService<T>, T> implements IC
 
     @ResponseBody
     @PostMapping("/page")
-    public CIntResult<IPage<T>> page(@Validated @NotNull @RequestBody CPageReq<T> cPage) {
+    public CStrResult<IPage<T>> page(@Validated @NotNull @RequestBody CPageReq<T> cPage) {
 
         log.info("{} cPage: {}", entityName, cPage);
-        return CIntResult.success(service.page(cPage));
+        return CStrResult.success(service.page(cPage));
     }
 
     @ResponseBody
     @PostMapping("/get-by-id")
-    public CIntResult<T> getById(@Validated @NotNull @RequestBody CId<?> cId) {
+    public CStrResult<T> getById(@Validated @NotNull @RequestBody CId<?> cId) {
         log.info("{} getById cId: {}", entityName, cId);
-        return CIntResult.success(service.getById(cId.getId()));
+        return CStrResult.success(service.getById(cId.getId()));
     }
 
     @ResponseBody
     @PostMapping("/add")
-    public CIntResult<T> add(@Validated @NotNull @RequestBody T entity) {
+    public CStrResult<T> add(@Validated @NotNull @RequestBody T entity) {
         log.info("{} add entity: {}", entityName, entity);
         service.save(entity);
-        return CIntResult.success(entity);
+        return CStrResult.success(entity);
     }
 
     @ResponseBody
     @PostMapping("/update-by-id")
-    public CIntResult<Boolean> updateById(@Validated @NotNull @RequestBody T entity) {
+    public CStrResult<Boolean> updateById(@Validated @NotNull @RequestBody T entity) {
         log.info("{} updateById entity: {}", entityName, entity);
-        return CIntResult.success(service.updateById(entity));
+        return CStrResult.success(service.updateById(entity));
     }
 
     @ResponseBody
     @PostMapping("/remove-by-id")
-    public CIntResult<Boolean> removeById(@Validated @NotNull @RequestBody CId<?> cId) {
+    public CStrResult<Boolean> removeById(@Validated @NotNull @RequestBody CId<?> cId) {
         log.info("{} removeById cId: {}", entityName, cId);
-        return CIntResult.success(service.removeById(cId.getId()));
+        return CStrResult.success(service.removeById(cId.getId()));
     }
 
 }
