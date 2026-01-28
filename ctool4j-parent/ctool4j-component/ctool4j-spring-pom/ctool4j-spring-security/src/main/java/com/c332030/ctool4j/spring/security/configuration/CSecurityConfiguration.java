@@ -5,13 +5,12 @@ import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
 import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
 import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
+import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrategy;
 import lombok.AllArgsConstructor;
-import lombok.Lombok;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,6 +21,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 /**
  * <p>
@@ -57,9 +58,15 @@ public class CSecurityConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(CAccessDeniedHandler.class)
-    public CAccessDeniedHandler cCAccessDeniedHandler() {
+    @ConditionalOnMissingBean(AccessDeniedHandler.class)
+    public AccessDeniedHandler cAccessDeniedHandler() {
         return new CAccessDeniedHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(SessionInformationExpiredStrategy.class)
+    public SessionInformationExpiredStrategy cSessionInformationExpiredStrategy() {
+        return new CSessionInformationExpiredStrategy();
     }
 
     @Bean
@@ -67,7 +74,8 @@ public class CSecurityConfiguration {
     public SecurityFilterChain filterChain(
         HttpSecurity http,
         AuthenticationEntryPoint authenticationEntryPoint,
-        CAccessDeniedHandler accessDeniedHandler,
+        AccessDeniedHandler accessDeniedHandler,
+        SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
         CSpringSecurityRequestMatchersPathConfig requestMatchersPathConfig
     ) throws Exception {
 
@@ -84,11 +92,10 @@ public class CSecurityConfiguration {
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
             )
+            // 登录过期处理
             .sessionManagement(session -> session
-                .maximumSessions(10) // 单账号登录
-                .expiredSessionStrategy(event -> {
-                    throw Lombok.sneakyThrow(new AccountExpiredException("会话已过期"));
-                })
+                .maximumSessions(Integer.MAX_VALUE)
+                .expiredSessionStrategy(sessionInformationExpiredStrategy)
             )
             // 开启授权保护
             .authorizeHttpRequests(authorize -> authorize
