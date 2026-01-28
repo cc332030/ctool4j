@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.web.advice;
 
-import com.c332030.ctool4j.definition.model.result.impl.CIntResult;
+import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.annotation.Primary;
@@ -32,10 +32,10 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
     @ExceptionHandler({
         HttpRequestMethodNotSupportedException.class,
     })
-    public CIntResult<Object> cHandleReturnableIgnoreException(Throwable e) {
+    public CStrResult<Object> cHandleReturnableIgnoreException(Throwable e) {
 
         log.debug("handle ReturnableIgnoreException", e);
-        return CIntResult.error(e.getMessage());
+        return CStrResult.error(e.getMessage());
     }
 
     @ExceptionHandler({
