@@ -3,7 +3,6 @@ package com.c332030.ctool4j.spring.security.configuration;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
-import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -46,16 +44,9 @@ public class CSecurityConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(AuthenticationEntryPoint.class)
-    public AuthenticationEntryPoint cAuthenticationEntryPoint() {
-        return new CAuthenticationEntryPoint();
-    }
-
-    @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain filterChain(
         HttpSecurity http,
-        AuthenticationEntryPoint authenticationEntryPoint,
         CSpringSecurityRequestMatchersPathConfig requestMatchersPathConfig
     ) throws Exception {
 
@@ -65,10 +56,8 @@ public class CSecurityConfiguration {
             .csrf(AbstractHttpConfigurer::disable)
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
             .rememberMe(Customizer.withDefaults())
-            // 认证失败处理
-            .exceptionHandling( ex ->
-                ex.authenticationEntryPoint(authenticationEntryPoint)
-            )
+            // 禁用 ExceptionTranslationFilter，未登录、过期、无权限 抛出异常，而不是返回 401、403
+            .exceptionHandling(AbstractHttpConfigurer::disable)
             // 开启授权保护
             .authorizeHttpRequests(authorize -> authorize
 
