@@ -80,9 +80,9 @@ public class CSecurityConfiguration {
     ) throws Exception {
 
         return http
+            .csrf(AbstractHttpConfigurer::disable)
             // 禁用自带的表单登录 /login
             .formLogin().disable()
-            .csrf(AbstractHttpConfigurer::disable)
             // 禁止 anonymous
             .anonymous().disable()
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
