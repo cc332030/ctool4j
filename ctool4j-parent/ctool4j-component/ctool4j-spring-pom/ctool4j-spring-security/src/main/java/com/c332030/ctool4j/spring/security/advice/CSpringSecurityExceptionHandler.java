@@ -7,7 +7,6 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @CustomLog
 @Primary
-@ControllerAdvice
+//@ControllerAdvice
 public class CSpringSecurityExceptionHandler implements PriorityOrdered {
 
     @Override

@@ -3,8 +3,11 @@ package com.c332030.ctool4j.spring.security.configuration;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
+import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
+import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
 import lombok.AllArgsConstructor;
 import lombok.Lombok;
+import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -40,15 +44,30 @@ public class CSecurityConfiguration {
     }
 
     @Bean
+    @SneakyThrows
     @ConditionalOnMissingBean(AuthenticationManager.class)
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) {
         return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(AuthenticationEntryPoint.class)
+    public AuthenticationEntryPoint cAuthenticationEntryPoint() {
+        return new CAuthenticationEntryPoint();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CAccessDeniedHandler.class)
+    public CAccessDeniedHandler cCAccessDeniedHandler() {
+        return new CAccessDeniedHandler();
     }
 
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain filterChain(
         HttpSecurity http,
+        AuthenticationEntryPoint authenticationEntryPoint,
+        CAccessDeniedHandler accessDeniedHandler,
         CSpringSecurityRequestMatchersPathConfig requestMatchersPathConfig
     ) throws Exception {
 
@@ -61,15 +80,9 @@ public class CSecurityConfiguration {
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
             .rememberMe(Customizer.withDefaults())
             // 关键：关闭默认的 401/403 页面跳转，交由全局异常处理器处理
-            .exceptionHandling(ex -> ex
-                // 自定义 401 未认证处理器（可选，也可仅用全局异常处理器）
-                .authenticationEntryPoint((request, response, authException) -> {
-                    throw Lombok.sneakyThrow(authException);
-                })
-                // 自定义 403 无权限处理器（可选）
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    throw Lombok.sneakyThrow(accessDeniedException);
-                })
+            .exceptionHandling( ex -> ex
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
             )
             .sessionManagement(session -> session
                 .maximumSessions(10) // 单账号登录
