@@ -26,7 +26,7 @@ public class CAccessDeniedHandler implements AccessDeniedHandler {
         AccessDeniedException accessDeniedException
     ) {
 
-        log.info("CAccessDeniedHandler", accessDeniedException);
+        log.debug("CAccessDeniedHandler", accessDeniedException);
 
         CSpringSecurityUtils.writeJsonError(
             HttpStatus.FORBIDDEN,

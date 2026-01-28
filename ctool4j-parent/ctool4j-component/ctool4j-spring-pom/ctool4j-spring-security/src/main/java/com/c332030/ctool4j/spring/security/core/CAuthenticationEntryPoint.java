@@ -26,7 +26,7 @@ public class CAuthenticationEntryPoint implements AuthenticationEntryPoint {
         AuthenticationException authenticationException
     ) {
 
-        log.info("CAuthenticationEntryPoint", authenticationException);
+        log.debug("CAuthenticationEntryPoint", authenticationException);
 
         CSpringSecurityUtils.writeJsonError(
             HttpStatus.UNAUTHORIZED,
