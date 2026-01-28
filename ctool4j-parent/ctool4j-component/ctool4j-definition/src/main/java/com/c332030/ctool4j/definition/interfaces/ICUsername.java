@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.definition.interfaces;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * <p>
  * Description: ICUsername
@@ -9,6 +11,7 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICUsername {
 
+    @ApiModelProperty("用户名")
     String getUsername();
 
     void setUsername(String username);

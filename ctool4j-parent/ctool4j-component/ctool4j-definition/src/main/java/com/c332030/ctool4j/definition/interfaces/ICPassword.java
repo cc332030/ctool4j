@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.definition.interfaces;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * <p>
  * Description: ICPassword
@@ -9,6 +11,7 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICPassword {
 
+    @ApiModelProperty("用户名")
     String getPassword();
 
     void setPassword(String password);
