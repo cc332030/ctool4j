@@ -56,6 +56,8 @@ public class CSecurityConfiguration {
             // 禁用自带的表单登录 /login
             .formLogin().disable()
             .csrf(AbstractHttpConfigurer::disable)
+            // 禁止 anonymous
+            .anonymous().disable()
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
             .rememberMe(Customizer.withDefaults())
             // 关键：关闭默认的 401/403 页面跳转，交由全局异常处理器处理
