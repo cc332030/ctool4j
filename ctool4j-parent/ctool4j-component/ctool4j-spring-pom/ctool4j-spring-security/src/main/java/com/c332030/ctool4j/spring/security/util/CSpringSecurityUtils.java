@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.security.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.web.util.CServletUtils;
@@ -50,6 +51,14 @@ public class CSpringSecurityUtils {
 
     public void writeJsonError(
         HttpStatus httpStatus,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        writeJsonError(httpStatus, null, request, response);
+    }
+
+    public void writeJsonError(
+        HttpStatus httpStatus,
         String message,
         HttpServletRequest request,
         HttpServletResponse response
@@ -57,6 +66,7 @@ public class CSpringSecurityUtils {
 
         val requestUrl = request.getRequestURI();
 
+        message = StrUtil.nullToDefault(message, httpStatus.getReasonPhrase());
         val forbiddenResult = CStrResult.error(
             String.valueOf(httpStatus.value()),
             message + "：" + requestUrl

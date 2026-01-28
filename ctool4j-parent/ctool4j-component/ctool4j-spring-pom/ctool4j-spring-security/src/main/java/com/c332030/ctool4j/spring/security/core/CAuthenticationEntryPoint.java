@@ -30,7 +30,6 @@ public class CAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         CSpringSecurityUtils.writeJsonError(
             HttpStatus.UNAUTHORIZED,
-            "请登录",
             request, response
         );
 
