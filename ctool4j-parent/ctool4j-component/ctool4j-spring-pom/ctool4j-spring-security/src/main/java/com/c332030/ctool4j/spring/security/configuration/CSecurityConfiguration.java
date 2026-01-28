@@ -4,9 +4,11 @@ import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
 import lombok.AllArgsConstructor;
+import lombok.Lombok;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -16,7 +18,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 /**
  * <p>
@@ -44,9 +45,6 @@ public class CSecurityConfiguration {
         return authConfig.getAuthenticationManager();
     }
 
-    /**
-     * @see ExceptionTranslationFilter
-     */
     @Bean
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain filterChain(
@@ -60,8 +58,23 @@ public class CSecurityConfiguration {
             .csrf(AbstractHttpConfigurer::disable)
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
             .rememberMe(Customizer.withDefaults())
-            // 禁用 ExceptionTranslationFilter，未登录、过期、无权限 抛出异常，而不是返回 401、403
-            .exceptionHandling(AbstractHttpConfigurer::disable)
+            // 关键：关闭默认的 401/403 页面跳转，交由全局异常处理器处理
+            .exceptionHandling(ex -> ex
+                // 自定义 401 未认证处理器（可选，也可仅用全局异常处理器）
+                .authenticationEntryPoint((request, response, authException) -> {
+                    throw Lombok.sneakyThrow(authException);
+                })
+                // 自定义 403 无权限处理器（可选）
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    throw Lombok.sneakyThrow(accessDeniedException);
+                })
+            )
+            .sessionManagement(session -> session
+                .maximumSessions(10) // 单账号登录
+                .expiredSessionStrategy(event -> {
+                    throw Lombok.sneakyThrow(new AccountExpiredException("会话已过期"));
+                })
+            )
             // 开启授权保护
             .authorizeHttpRequests(authorize -> authorize
 
