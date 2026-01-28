@@ -34,7 +34,7 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
     })
     public CIntResult<Object> cHandleReturnableIgnoreException(Throwable e) {
 
-        log.debug("handleReturnableIgnoreException", e);
+        log.debug("handle ReturnableIgnoreException", e);
         return CIntResult.error(e.getMessage());
     }
 
@@ -43,7 +43,7 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
         ClientAbortException.class,
     })
     public void cHandleNonReturnableIgnoreException(Throwable e) {
-        log.debug("handleNonReturnableIgnoreException", e);
+        log.debug("handle NonReturnableIgnoreException", e);
     }
 
 }
