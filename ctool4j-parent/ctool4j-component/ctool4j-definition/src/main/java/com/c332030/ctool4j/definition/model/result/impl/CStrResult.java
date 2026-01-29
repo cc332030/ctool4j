@@ -29,10 +29,10 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
 
     public static <DATA> CStrResult<DATA> newInstance(String code, String message, DATA data) {
         return CStrResult.<DATA>builder()
-                .code(code)
-                .message(message)
-                .data(data)
-                .build();
+            .code(code)
+            .message(message)
+            .data(data)
+            .build();
     }
 
     public static <DATA> CStrResult<DATA> success() {
