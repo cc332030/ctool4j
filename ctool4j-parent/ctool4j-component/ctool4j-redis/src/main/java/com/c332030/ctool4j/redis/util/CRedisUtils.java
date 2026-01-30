@@ -100,8 +100,8 @@ public class CRedisUtils {
         val result = getRedisTemplate().execute(
             COMPARE_AND_SETSCRIPT,
             Collections.singletonList(key),
-            String.valueOf(expectedValue),
-            String.valueOf(newValue),
+            expectedValue,
+            newValue,
             String.valueOf(ttl)
         );
         return result == 1;
@@ -136,7 +136,7 @@ public class CRedisUtils {
         val result = getRedisTemplate().execute(
             SET_IF_NOT_EQUALS_SETSCRIPT,
             Collections.singletonList(key),
-            String.valueOf(newValue),
+            newValue,
             String.valueOf(ttl)
         );
         return result == 1;
