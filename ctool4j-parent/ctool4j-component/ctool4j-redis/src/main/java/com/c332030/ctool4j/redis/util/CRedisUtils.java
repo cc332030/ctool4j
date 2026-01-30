@@ -75,11 +75,12 @@ public class CRedisUtils {
 
     private final String COMPARE_AND_SET =
         "local current = redis.call('get', KEYS[1])"
-            + "if current == false or current == ARGV[1] then"
-            + "    redis.call('set', KEYS[1], ARGV[2]) "
+            + "if current ~= false and current == ARGV[1] then "
             + "    local ttl = tonumber(ARGV[3])"
             + "    if ttl and ttl > 0 then "
-            + "         redis.call('expire', KEYS[1], ARGV[3]) "
+            + "         redis.call('set', KEYS[1], ARGV[2], 'EX', ttl)"
+            + "    else "
+            + "         redis.call('set', KEYS[1], ARGV[2])"
             + "    end "
             + "    return 1 "
             + "else "
@@ -99,9 +100,9 @@ public class CRedisUtils {
         val result = getRedisTemplate().execute(
             COMPARE_AND_SETSCRIPT,
             Collections.singletonList(key),
-            expectedValue,
-            newValue,
-            ttl
+            String.valueOf(expectedValue),
+            String.valueOf(newValue),
+            String.valueOf(ttl)
         );
         return result == 1;
     }
@@ -113,10 +114,11 @@ public class CRedisUtils {
     private final String SET_IF_NOT_EQUALS =
         "local current = redis.call('get', KEYS[1])"
             + "if current == false or current ~= ARGV[1] then "
-            + "    redis.call('set', KEYS[1], ARGV[2]) "
             + "    local ttl = tonumber(ARGV[3])"
             + "    if ttl and ttl > 0 then "
-            + "         redis.call('expire', KEYS[1], ARGV[2]) "
+            + "         redis.call('set', KEYS[1], ARGV[2], 'EX', ttl) "
+            + "    else "
+            + "         redis.call('set', KEYS[1], ARGV[2]) "
             + "    end "
             + "    return 1 "
             + "else "
@@ -134,8 +136,8 @@ public class CRedisUtils {
         val result = getRedisTemplate().execute(
             SET_IF_NOT_EQUALS_SETSCRIPT,
             Collections.singletonList(key),
-            newValue,
-            ttl
+            String.valueOf(newValue),
+            String.valueOf(ttl)
         );
         return result == 1;
     }
