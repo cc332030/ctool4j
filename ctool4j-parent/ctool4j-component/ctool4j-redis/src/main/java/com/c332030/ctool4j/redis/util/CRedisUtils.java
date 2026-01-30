@@ -74,7 +74,8 @@ public class CRedisUtils {
     }
 
     private final String COMPARE_AND_SET =
-        "if redis.call('get', KEYS[1]) == ARGV[1] then "
+        "local current = redis.call('get', KEYS[1])"
+            + "if current == false or current == ARGV[1] then"
             + "    redis.call('set', KEYS[1], ARGV[2]) "
             + "    if tonumber(ARGV[3]) > 0 then "
             + "         redis.call('expire', KEYS[1], ARGV[3]) "
@@ -109,7 +110,8 @@ public class CRedisUtils {
     }
 
     private final String SET_IF_NOT_EQUALS =
-        "if redis.call('get', KEYS[1]) ~= ARGV[1] then "
+        "local current = redis.call('get', KEYS[1])"
+            + "if current == false or current ~= ARGV[1] then "
             + "    redis.call('set', KEYS[1], ARGV[2]) "
             + "    if tonumber(ARGV[2]) > 0 then "
             + "         redis.call('expire', KEYS[1], ARGV[2]) "
