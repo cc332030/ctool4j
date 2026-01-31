@@ -66,7 +66,7 @@ public class CSpringSecurityUtils {
 
         val requestUrl = request.getRequestURI();
 
-        message = StrUtil.nullToDefault(message, httpStatus.getReasonPhrase());
+        message = StrUtil.blankToDefault(message, httpStatus.getReasonPhrase());
         val forbiddenResult = CStrResult.error(
             String.valueOf(httpStatus.value()),
             message + "：" + requestUrl
