@@ -26,7 +26,7 @@ public class CCorsConfig {
 
     Set<String> allowedOrigins = Collections.emptySet();
 
-    Set<String> allowedMethods = CSet.of();
+    Set<String> allowedMethods = CSet.of(ALL);
 
     /**
      * 跨域额外允许的请求报文头
