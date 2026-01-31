@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.cors.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -15,7 +16,6 @@ import org.springframework.http.HttpMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -87,9 +87,7 @@ public class CCorsUtils {
         val allowedHeaders = config.getAllowedHeaders();
         val headers = allowedHeaders.contains(CCorsConfig.ALL)
             ? CCorsConfig.ALL
-            : allowedHeaders.stream()
-            .filter(header -> StrUtil.isNotEmpty(request.getHeader(header)))
-            .collect(Collectors.joining(","));
+            : CollUtil.join(allowedHeaders, ",");
 
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, headers);
