@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.spring.security.configuration;
 
-import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
 import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
@@ -101,11 +100,11 @@ public class CSecurityConfiguration {
             .authorizeHttpRequests(authorize -> authorize
 
                 // 不需要认证的地址有哪些
-                .antMatchers(CArrUtils.toStrArr(requestMatchersPathConfig.getPermits()))
+                .antMatchers(requestMatchersPathConfig.getPermits())
                 .permitAll()
 
                 // 禁止的地址有哪些
-                .antMatchers(CArrUtils.toStrArr(requestMatchersPathConfig.getDenies()))
+                .antMatchers(requestMatchersPathConfig.getDenies())
                 .denyAll()
 
                 // 对所有请求开启授权保护

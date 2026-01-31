@@ -1,10 +1,8 @@
 package com.c332030.ctool4j.spring.security.config;
 
-import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CArrUtils;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.util.List;
 
 /**
  * <p>
@@ -21,11 +19,11 @@ public class CSpringSecurityRequestMatchersPathConfig implements IRequestMatcher
     /**
      * 允许的地址
      */
-    List<String> permits = CList.of();
+    String[] permits = CArrUtils.EMPAY_STR_ARR;
 
     /**
      * 禁止的地址
      */
-    List<String> denies = CList.of();
+    String[] denies = CArrUtils.EMPAY_STR_ARR;
 
 }
