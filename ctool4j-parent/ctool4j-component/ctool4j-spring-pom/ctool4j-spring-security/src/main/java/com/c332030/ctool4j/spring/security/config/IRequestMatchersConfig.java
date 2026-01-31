@@ -1,7 +1,5 @@
 package com.c332030.ctool4j.spring.security.config;
 
-import java.util.List;
-
 /**
  * <p>
  * Description: IRequestMatchersConfig
@@ -11,8 +9,8 @@ import java.util.List;
  */
 public interface IRequestMatchersConfig {
 
-    List<String> getPermits();
+    String[] getPermits();
 
-    List<String> getDenies();
+    String[] getDenies();
 
 }
