@@ -2,12 +2,12 @@ package com.c332030.ctool4j.spring.security.config;
 
 /**
  * <p>
- * Description: IRequestMatchersConfig
+ * Description: ICRequestMatchersConfig
  * </p>
  *
  * @since 2026/1/24
  */
-public interface IRequestMatchersConfig {
+public interface ICRequestMatchersConfig {
 
     String[] getPermits();
 

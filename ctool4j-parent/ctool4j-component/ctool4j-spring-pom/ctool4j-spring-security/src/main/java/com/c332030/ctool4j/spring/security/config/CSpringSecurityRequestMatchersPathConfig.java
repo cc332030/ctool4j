@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties("spring.security.request-matchers.path")
-public class CSpringSecurityRequestMatchersPathConfig implements IRequestMatchersConfig {
+public class CSpringSecurityRequestMatchersPathConfig implements ICRequestMatchersConfig {
 
     /**
      * 允许的地址
