@@ -8,6 +8,7 @@ import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrate
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -69,6 +70,7 @@ public class CSecurityConfiguration {
     }
 
     @Bean
+    @RefreshScope
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain filterChain(
         HttpSecurity http,
