@@ -19,6 +19,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-web</artifactId>
         </dependency>
