@@ -1,4 +1,5 @@
 
 spring:
   session:
-    store-type: redis
+    store-type: redis # 必须指定Redis存储，该配置才生效
+    timeout: 12h    # 缓存1小时，支持s(秒)、m(分)、h(时)、d(天)
