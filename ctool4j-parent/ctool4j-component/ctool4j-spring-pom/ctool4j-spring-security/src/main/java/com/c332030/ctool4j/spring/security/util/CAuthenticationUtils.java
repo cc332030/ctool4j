@@ -50,12 +50,12 @@ public class CAuthenticationUtils {
 
     }
 
-    public <T extends ICUsernameAndPassword> CSecurityUser<T> getSecurityUser() {
+    public <T> CSecurityUser<T> getSecurityUser() {
         return CSpringSecurityUtils.getUserDetails();
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends ICUsernameAndPassword> T getUser() {
+    public <T> T getUser() {
         return (T)getSecurityUser().getUser();
     }
 
