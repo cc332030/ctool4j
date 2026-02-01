@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.spring.security.model;
 
-import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.definition.interfaces.ICUsernameAndPassword;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -22,18 +22,11 @@ public class CSecurityUser<T> extends User {
     final T user;
 
     public CSecurityUser(
-        String username, String password,
-        T user
-    ) {
-        this(username, password, user, CList.of());
-    }
-
-    public CSecurityUser(
-        String username, String password,
+        ICUsernameAndPassword usernameAndPassword,
         T user,
         Collection<? extends GrantedAuthority> authorities
     ) {
-        super(username, password, authorities);
+        super(usernameAndPassword.getUsername(), usernameAndPassword.getPassword(), authorities);
         this.user = user;
     }
 
