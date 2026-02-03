@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.spring.util;
 
-import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.experimental.UtilityClass;
@@ -11,7 +10,9 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * <p>
@@ -65,9 +66,9 @@ public class CSpringHttpUtils {
 
     public void configureJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter messageConverter) {
 
-        val mediaTypes = new LinkedHashSet<>(messageConverter.getSupportedMediaTypes());
-        mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
-        messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
+//        val mediaTypes = new LinkedHashSet<>(messageConverter.getSupportedMediaTypes());
+//        mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
+//        messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
 
     }
 
