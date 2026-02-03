@@ -32,7 +32,7 @@ public class CWebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        CSpringHttpUtils.configureMessageConverters(converters, null);
+        CSpringHttpUtils.configureMessageConverters(converters);
     }
 
 }
