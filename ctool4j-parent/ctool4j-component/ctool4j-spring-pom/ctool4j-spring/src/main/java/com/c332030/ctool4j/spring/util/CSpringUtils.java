@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -103,36 +102,6 @@ public class CSpringUtils {
         val bean = getBean(tClass);
         for (val consumer : consumers) {
             consumer.accept(bean);
-        }
-    }
-
-    /**
-     * 获取指定类型并注入属性
-     * @param tClass bean 类型
-     * @param classes 需要注入的类
-     */
-    @Deprecated
-    @SneakyThrows
-    public void wireBean(Class<?> tClass, Class<?>... classes) {
-
-        val setMethods = Arrays.stream(classes)
-            .map(clazz -> {
-                val methods = CReflectUtils.getMethods(clazz)
-                    .stream()
-                    .filter(CReflectUtils::isStatic)
-                    .filter(e -> e.getName().startsWith("set"))
-                    .filter(e -> e.getParameterCount() == 1 && e.getParameterTypes()[0] == tClass)
-                    .collect(Collectors.toList());
-
-                CAssert.notEmpty(methods, () -> clazz + " 中没有 " + tClass + " 的 set 方法");
-                return methods;
-            })
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
-
-        val bean = getBean(tClass);
-        for (val setMethod : setMethods) {
-            setMethod.invoke(null, bean);
         }
     }
 

@@ -184,16 +184,6 @@ public class CReflectUtils {
         return getFieldMap(type, e -> !CReflectUtils.isStatic(e));
     }
 
-    /**
-     * 获取类的实例变量 map
-     * @param type 类
-     * @return 实例变量 map
-     */
-    @Deprecated
-    public Map<String, Field> getFieldMap(Class<?> type) {
-        return getInstanceFieldMap(type);
-    }
-
     public Field getField(Class<?> type, String fieldName) {
         return Optional.ofNullable(getAllFieldMap(type).get(fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(type + " no field with name: " + fieldName));

@@ -70,18 +70,4 @@ public class CPageUtils {
         );
     }
 
-    /**
-     * 分页查询并执行逻辑
-     * @param queryFunction 分页查询
-     * @param doSth 执行逻辑
-     * @param <T> 数据类型
-     */
-    @Deprecated
-    public <T> void queryThenDo(
-            CFunction<Integer, List<T>> queryFunction,
-            CConsumer<T> doSth
-    ) {
-        pageThenEach(queryFunction, doSth);
-    }
-
 }
