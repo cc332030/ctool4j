@@ -11,7 +11,6 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -61,7 +60,7 @@ public class CSpringHttpUtils {
     );
 
     public void configureStringHttpMessageConverter(StringHttpMessageConverter messageConverter) {
-        messageConverter.setDefaultCharset(StandardCharsets.UTF_8);
+//        messageConverter.setDefaultCharset(StandardCharsets.UTF_8);
     }
 
     public void configureJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter messageConverter) {
