@@ -3,6 +3,7 @@ package com.c332030.ctool4j.spring.configuration;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
 import com.c332030.ctool4j.spring.util.CAutowiredUtils;
+import com.c332030.ctool4j.spring.util.CSpringHttpUtils;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ public class CSpringInit implements ICSpringInit {
     public void onInit() {
 
         CAutowiredUtils.autowired(CSpringConfigBeans.class);
+        CAutowiredUtils.autowired(CSpringHttpUtils.class);
 
     }
 
