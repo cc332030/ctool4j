@@ -1,18 +1,23 @@
 package com.c332030.ctool4j.spring.util;
 
-import com.c332030.ctool4j.core.util.CJsonUtils;
+import com.c332030.ctool4j.core.util.CBoolUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMap;
+import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.c332030.ctool4j.definition.function.CConsumer;
+import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * <p>
@@ -21,8 +26,12 @@ import java.util.*;
  *
  * @since 2026/1/27
  */
+@CustomLog
 @UtilityClass
 public class CSpringHttpUtils {
+
+    @CAutowired
+    CSpringJacksonConfig jacksonConfig;
 
     public HttpHeaders getPostHeaders() {
         val headers = new HttpHeaders();
@@ -45,13 +54,14 @@ public class CSpringHttpUtils {
     public void configureMessageConverters(Collection<HttpMessageConverter<?>> messageConverters) {
         messageConverters.forEach(messageConverter -> {
 
-            if(messageConverter instanceof AbstractHttpMessageConverter) {
-                configureAbstractHttpMessageConverter((AbstractHttpMessageConverter<?>) messageConverter);
-            }
+            try {
 
-            val configurer = MESSAGE_CONVERTER_CONFIGURER.get(messageConverter.getClass());
-            if (configurer != null) {
-                configurer.accept(messageConverter);
+                val configurer = MESSAGE_CONVERTER_CONFIGURER.get(messageConverter.getClass());
+                if (configurer != null) {
+                    configurer.accept(messageConverter);
+                }
+            } catch (Exception e) {
+                log.error("", e);
             }
 
         });
@@ -62,17 +72,18 @@ public class CSpringHttpUtils {
         e -> configureJackson2HttpMessageConverter((MappingJackson2HttpMessageConverter)e)
     );
 
-    public void configureAbstractHttpMessageConverter(AbstractHttpMessageConverter<?> messageConverter) {
-
-        messageConverter.setDefaultCharset(StandardCharsets.UTF_8);
-
-    }
-
     public void configureJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter messageConverter) {
 
-        val mediaTypes = new LinkedHashSet<>(messageConverter.getSupportedMediaTypes());
-        mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
-        messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
+        if(CBoolUtils.isNotTrue(jacksonConfig.getJson5())) {
+            return;
+        }
+        log.info("enable json5");
+
+        val mediaTypes = CCollUtils.concatOne(
+            messageConverter.getSupportedMediaTypes(),
+            CMimeTypeEnum.JSON5.getMimeType()
+        );
+        messageConverter.setSupportedMediaTypes(mediaTypes);
 
     }
 
