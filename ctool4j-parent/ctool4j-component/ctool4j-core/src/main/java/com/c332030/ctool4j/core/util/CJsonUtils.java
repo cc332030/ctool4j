@@ -2,12 +2,10 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
-import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import org.springframework.http.MediaType;
 
 import java.util.List;
 import java.util.Map;
@@ -23,13 +21,12 @@ import java.util.Map;
 @UtilityClass
 public class CJsonUtils {
 
-    public static final List<MediaType> SUPPORT_MEDIA_TYPES = CList.of(
-            MediaType.TEXT_HTML,
-            MediaType.TEXT_PLAIN,
-            MediaType.APPLICATION_JSON,
-            CMimeTypeEnum.JSON5.getMimeType()
-    );
-
+//    public static final List<MediaType> SUPPORT_MEDIA_TYPES = CList.of(
+//            MediaType.TEXT_HTML,
+//            MediaType.TEXT_PLAIN,
+//            MediaType.APPLICATION_JSON,
+//            CMimeTypeEnum.JSON5.getMimeType()
+//    );
 
     /**
      * 转 json
