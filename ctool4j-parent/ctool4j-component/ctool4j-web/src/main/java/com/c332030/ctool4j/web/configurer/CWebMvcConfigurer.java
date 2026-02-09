@@ -11,14 +11,14 @@ import java.util.Collection;
 
 /**
  * <p>
- * Description: CWebMvcConfig
+ * Description: CWebMvcConfigurer
  * </p>
  *
  * @since 2025/9/28
  */
 @Configuration
 @AllArgsConstructor
-public class CWebMvcConfig implements WebMvcConfigurer {
+public class CWebMvcConfigurer implements WebMvcConfigurer {
 
     Collection<ICHandlerInterceptor> icHandlerInterceptors;
 
