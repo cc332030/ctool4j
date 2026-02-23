@@ -3,4 +3,4 @@
 
 == develop
 
-* [ ] Instant 格式化
+* [x] Instant 格式化
