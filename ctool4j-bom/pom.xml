@@ -55,14 +55,14 @@
 
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-                <version>${dynamic-datasource.version}</version>
+                <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
-                <version>${mybatis-plus.version}</version>
+                <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+                <version>${dynamic-datasource.version}</version>
             </dependency>
 
             <dependency>
