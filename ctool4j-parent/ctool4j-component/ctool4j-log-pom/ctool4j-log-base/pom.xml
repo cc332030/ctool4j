@@ -37,11 +37,6 @@
             <artifactId>ctool4j-web</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-logback</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>
