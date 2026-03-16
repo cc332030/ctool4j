@@ -8,6 +8,7 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
 import lombok.CustomLog;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +31,7 @@ import java.util.Map;
 @UtilityClass
 public class CSpringHttpUtils {
 
+    @Setter
     @CAutowired
     CSpringJacksonConfig jacksonConfig;
 

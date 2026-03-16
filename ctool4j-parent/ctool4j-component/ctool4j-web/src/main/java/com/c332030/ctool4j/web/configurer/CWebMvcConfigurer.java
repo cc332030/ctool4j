@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.configurer;
 
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
 import com.c332030.ctool4j.spring.util.CSpringHttpUtils;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,8 @@ public class CWebMvcConfigurer implements WebMvcConfigurer {
 
     Collection<ICHandlerInterceptor> icHandlerInterceptors;
 
+    CSpringJacksonConfig jacksonConfig;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         CCollUtils.forEach(icHandlerInterceptors, registry::addInterceptor);
@@ -32,6 +35,7 @@ public class CWebMvcConfigurer implements WebMvcConfigurer {
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        CSpringHttpUtils.setJacksonConfig(jacksonConfig);
         CSpringHttpUtils.configureMessageConverters(converters);
     }
 
