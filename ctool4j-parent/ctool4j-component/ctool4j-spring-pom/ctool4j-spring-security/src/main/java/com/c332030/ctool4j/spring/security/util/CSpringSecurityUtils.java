@@ -37,16 +37,18 @@ public class CSpringSecurityUtils {
         getContext().setAuthentication(authentication);
     }
 
-    public <T extends UserDetails> T getUserDetails() {
+    public <T> T getPrincipal() {
 
         val authentication = getAuthentication();
-        if(authentication == null
-            || !authentication.isAuthenticated()
-        ) {
+        if(authentication == null) {
             return null;
         }
 
         return CObjUtils.anyType(authentication.getPrincipal());
+    }
+
+    public <T extends UserDetails> T getUserDetails() {
+        return CObjUtils.anyType(getPrincipal());
     }
 
     public void writeJsonError(
