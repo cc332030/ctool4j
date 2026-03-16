@@ -6,6 +6,8 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * <p>
  * Description: CAuthUtils
@@ -23,8 +25,11 @@ public class CAuthUtils {
     }
 
     public String getToken(String prefix) {
+        return getToken(CRequestUtils.getRequest(), prefix);
+    }
 
-        val request = CRequestUtils.getRequest();
+    public String getToken(HttpServletRequest request, String prefix) {
+
         val authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(StrUtil.isEmpty(authorization)
             || !authorization.startsWith(prefix)
