@@ -46,8 +46,20 @@ public class CAuthUtils {
 
     }
 
+    public void setToken(String token) {
+        setToken(token, TOKEN_PREFIX);
+    }
+
+    public void setToken(String token, String prefix) {
+        setToken(token, prefix, CRequestUtils.getResponse());
+    }
+
     public void setToken(String token, HttpServletResponse response) {
-        response.setHeader(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + " " + token);
+        setToken(token, TOKEN_PREFIX, response);
+    }
+
+    public void setToken(String token, String prefix, HttpServletResponse response) {
+        response.setHeader(HttpHeaders.AUTHORIZATION, prefix + " " + token);
     }
 
 }
