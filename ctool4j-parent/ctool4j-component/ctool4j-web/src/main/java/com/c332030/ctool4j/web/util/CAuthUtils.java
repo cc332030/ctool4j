@@ -7,6 +7,7 @@ import lombok.val;
 import org.springframework.http.HttpHeaders;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -43,6 +44,10 @@ public class CAuthUtils {
 
         return authorization.substring(prefix.length() + 1);
 
+    }
+
+    public void setToken(String token, HttpServletResponse response) {
+        response.setHeader(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + " " + token);
     }
 
 }
