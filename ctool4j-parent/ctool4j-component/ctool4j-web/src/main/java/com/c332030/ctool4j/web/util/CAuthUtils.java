@@ -28,6 +28,10 @@ public class CAuthUtils {
         return getToken(CRequestUtils.getRequest(), prefix);
     }
 
+    public String getToken(HttpServletRequest request) {
+        return getToken(request, TOKEN_PREFIX);
+    }
+
     public String getToken(HttpServletRequest request, String prefix) {
 
         val authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
