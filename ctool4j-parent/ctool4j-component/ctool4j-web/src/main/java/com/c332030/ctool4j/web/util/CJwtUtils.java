@@ -3,6 +3,8 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.jwt.JWTUtil;
+import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import lombok.experimental.UtilityClass;
@@ -17,6 +19,14 @@ import lombok.val;
  */
 @UtilityClass
 public class CJwtUtils {
+
+    public String create(Object header, Object body, String secret) {
+        return JWTUtil.createToken(
+            CBeanUtils.toMap(header),
+            CBeanUtils.toMap(body),
+            secret.getBytes()
+        );
+    }
 
     public String[] parseJwt(String jwt) {
 
