@@ -10,6 +10,8 @@ import com.c332030.ctool4j.core.util.CJsonUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.util.Map;
+
 /**
  * <p>
  * Description: CJwtUtils
@@ -20,10 +22,16 @@ import lombok.val;
 @UtilityClass
 public class CJwtUtils {
 
-    public String create(Object header, Object body, String secret) {
-        return JWTUtil.createToken(
-            CBeanUtils.toMap(header),
+    public String create(Object body, String secret) {
+        return create(
             CBeanUtils.toMap(body),
+            secret
+        );
+    }
+
+    public String create(Map<String, Object> body, String secret) {
+        return JWTUtil.createToken(
+            body,
             secret.getBytes()
         );
     }
