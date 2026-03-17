@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.definition.constant.business;
+package com.c332030.ctool4j.definition.enums.business;
 
 import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.AllArgsConstructor;
