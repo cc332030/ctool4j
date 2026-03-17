@@ -30,8 +30,6 @@
         <module>ctool4j-doc-pom</module>
         <module>ctool4j-test-pom</module>
 
-        <module>ctool4j-wechat-pom</module>
-
     </modules>
 
     <dependencies>
