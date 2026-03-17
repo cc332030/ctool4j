@@ -15,7 +15,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CCountryCodeEnum implements ICValue<Integer> {
 
-    CHINA(86, "中国"),
+    CHN(86, "中国"),
 
     ;
 
