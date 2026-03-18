@@ -22,6 +22,12 @@ import java.util.Map;
 @UtilityClass
 public class CJwtUtils {
 
+    /**
+     * 创建 jwt
+     * @param body body
+     * @param secret 密钥
+     * @return jwt
+     */
     public String create(Object body, String secret) {
         return create(
             CBeanUtils.toMap(body),
@@ -29,11 +35,27 @@ public class CJwtUtils {
         );
     }
 
+    /**
+     * 创建 jwt
+     * @param body body
+     * @param secret 密钥
+     * @return jwt
+     */
     public String create(Map<String, Object> body, String secret) {
         return JWTUtil.createToken(
             body,
             secret.getBytes()
         );
+    }
+
+    /**
+     * 验证
+     * @param jwt jwt
+     * @param secret 密钥
+     * @return 验证结果
+     */
+    public boolean verify(String jwt, String secret) {
+        return JWTUtil.verify(jwt, secret.getBytes());
     }
 
     public String[] parseJwt(String jwt) {
