@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -47,6 +48,15 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
             return;
         }
         setValue(key, CJsonUtils.toJson(value));
+    }
+
+    public void setValue(String key, Object value, Duration duration) {
+        if(isInvalidKey(key)
+            || Objects.isNull(value)
+        ) {
+            return;
+        }
+        setValue(key, CJsonUtils.toJson(value), duration);
     }
 
     public <T> T getValue(String key, Class<T> valueClass) {
