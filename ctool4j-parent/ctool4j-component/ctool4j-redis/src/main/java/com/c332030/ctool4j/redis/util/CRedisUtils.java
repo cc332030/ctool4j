@@ -36,7 +36,7 @@ public class CRedisUtils {
     }
 
     public String getKey(Class<?> clazz, ICOperate icOperate, Object key) {
-        return getKey(clazz, icOperate.name(), key);
+        return getKey(clazz, icOperate.getName(), key);
     }
 
     public String getKey(Class<?> clazz, String operate, Object key) {
