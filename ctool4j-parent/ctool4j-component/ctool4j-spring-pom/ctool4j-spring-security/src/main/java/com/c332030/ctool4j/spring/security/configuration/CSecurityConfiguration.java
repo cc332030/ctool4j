@@ -5,6 +5,7 @@ import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchers
 import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
 import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
 import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrategy;
+import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 /**
@@ -77,7 +79,8 @@ public class CSecurityConfiguration {
         AuthenticationEntryPoint authenticationEntryPoint,
         AccessDeniedHandler accessDeniedHandler,
         SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
-        CSpringSecurityRequestMatchersPathConfig requestMatchersPathConfig
+        CSpringSecurityRequestMatchersPathConfig requestMatchersPathConfig,
+        CAbstractJwtFilter jwtFilter
     ) throws Exception {
 
         return http
@@ -88,6 +91,8 @@ public class CSecurityConfiguration {
             .anonymous().disable()
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
             .rememberMe(Customizer.withDefaults())
+            // 验证
+            .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             // 关键：关闭默认的 401/403 页面跳转，交由全局异常处理器处理
             .exceptionHandling( ex -> ex
                 .authenticationEntryPoint(authenticationEntryPoint)
