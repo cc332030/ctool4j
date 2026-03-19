@@ -39,12 +39,12 @@ public class CLockUtils {
     /**
      * 获取锁 key
      * @param clazz 业务类
-     * @param ICOperate 操作
+     * @param icOperate 操作
      * @param key 业务 key
      * @return 锁 key
      */
-    public static String getLockKey(Class<?> clazz, ICOperate ICOperate, Object key) {
-        return getLockKey(CRedisUtils.getKey(clazz, ICOperate, key));
+    public static String getLockKey(Class<?> clazz, ICOperate icOperate, Object key) {
+        return getLockKey(CRedisUtils.getKey(clazz, icOperate, key));
     }
 
     /**
