@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -31,6 +32,18 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         return StrUtil.isBlank(key);
     }
 
+    private String getValueStr(Object value) {
+        return CJsonUtils.toJson(value);
+    }
+
+    private <T> T getValueObj(String value, Class<T> valueClass) {
+        return CJsonUtils.fromJson(value, valueClass);
+    }
+
+    private <T> T getValueObj(String value, TypeReference<T> typeReference) {
+        return CJsonUtils.fromJson(value, typeReference);
+    }
+
     /**
      * 判断 value 是否无效，重写 String 值的判断
      * @param value 值
@@ -47,7 +60,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         ) {
             return;
         }
-        setValue(key, CJsonUtils.toJson(value));
+        setValue(key, getValueStr(value));
     }
 
     public void setValue(String key, Object value, Duration duration) {
@@ -56,21 +69,40 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         ) {
             return;
         }
-        setValue(key, CJsonUtils.toJson(value), duration);
+        setValue(key, getValueStr(value), duration);
+    }
+
+    /**
+     * 设置值
+     * @param key key
+     * @param value 值
+     * @param timeout 超时时间
+     * @param unit 时间单位
+     */
+    public void setValue(String key, Object value, long timeout, TimeUnit unit) {
+
+        if(isInvalidKey(key)
+            || Objects.isNull(value)
+            || timeout <= 0
+        ) {
+            return;
+        }
+
+        opsForValue().set(key, getValueStr(value), timeout, unit);
     }
 
     public <T> T getValue(String key, Class<T> valueClass) {
         if(isInvalidKey(key)) {
             return null;
         }
-        return getValue(key, value -> CJsonUtils.fromJson(value, valueClass));
+        return getValue(key, value -> getValueObj(value, valueClass));
     }
 
     public <T> T getValue(String key, TypeReference<T> typeReference) {
         if(isInvalidKey(key)) {
             return null;
         }
-        return getValue(key, value -> CJsonUtils.fromJson(value, typeReference));
+        return getValue(key, value -> getValueObj(value, typeReference));
     }
 
 }
