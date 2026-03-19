@@ -35,12 +35,16 @@ public class CRedisUtils {
         return redisService.getRedisTemplate();
     }
 
-    public String getKey(Class<?> clazz, ICOperate ICOperate, Object key) {
+    public String getKey(Class<?> clazz, ICOperate icOperate, Object key) {
+        return getKey(clazz, icOperate.name(), key);
+    }
+
+    public String getKey(Class<?> clazz, String operate, Object key) {
         return CSpringUtils.getApplicationName()
                 + KEY_SEPARATOR
                 + clazz.getSimpleName()
                 + KEY_SEPARATOR
-                + ICOperate.getName()
+                + operate
                 + KEY_SEPARATOR
                 + key
                 ;
