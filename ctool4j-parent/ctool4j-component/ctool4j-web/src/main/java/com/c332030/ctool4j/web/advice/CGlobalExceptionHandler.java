@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.web.advice;
 
+import com.c332030.ctool4j.core.exception.CBusinessException;
+import com.c332030.ctool4j.core.exception.CException;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
@@ -32,7 +34,7 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
     @ExceptionHandler({
         HttpRequestMethodNotSupportedException.class,
     })
-    public CStrResult<Object> cHandleReturnableIgnoreException(Throwable e) {
+    public CStrResult<Void> cHandleReturnableIgnoreException(Throwable e) {
 
         log.debug("handle ReturnableIgnoreException", e);
         return CStrResult.error(e.getMessage());
@@ -44,6 +46,15 @@ public class CGlobalExceptionHandler implements PriorityOrdered {
     })
     public void cHandleNonReturnableIgnoreException(Throwable e) {
         log.debug("handle NonReturnableIgnoreException", e);
+    }
+
+    @ResponseBody
+    @ExceptionHandler({
+        CBusinessException.class,
+    })
+    public CStrResult<Void> cHandleCException(CException e) {
+        log.debug("handle CException", e);
+        return CStrResult.error(e.getMessage());
     }
 
 }
