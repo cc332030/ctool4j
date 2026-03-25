@@ -185,6 +185,7 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
                         <developmentVersion>${main.version}.${current.date}-SNAPSHOT</developmentVersion>
+                        <releaseVersion>@{project.version}</releaseVersion>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
