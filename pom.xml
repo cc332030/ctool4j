@@ -159,24 +159,6 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>${build-helper-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>timestamp-property</id>
-                            <goals>
-                                <goal>timestamp-property</goal>
-                            </goals>
-                            <phase>validate</phase>
-                            <configuration>
-                                <name>current.date</name>
-                                <timestampFormat>yyyy.MM.dd</timestampFormat>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -184,7 +166,6 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <developmentVersion>${main.version}.${current.date}-SNAPSHOT</developmentVersion>
                         <releaseVersion>@{project.version}</releaseVersion>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
