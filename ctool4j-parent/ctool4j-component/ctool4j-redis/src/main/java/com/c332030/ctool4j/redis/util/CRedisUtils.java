@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
@@ -13,6 +14,8 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -39,15 +42,17 @@ public class CRedisUtils {
         return getKey(clazz, icOperate.getName(), key);
     }
 
-    public String getKey(Class<?> clazz, String operate, Object key) {
-        return CSpringUtils.getApplicationName()
-                + KEY_SEPARATOR
-                + clazz.getSimpleName()
-                + KEY_SEPARATOR
-                + operate
-                + KEY_SEPARATOR
-                + key
-                ;
+    public String getKey(Class<?> clazz, Object... keys) {
+
+        val keyList = new ArrayList<>();
+        keyList.add(CSpringUtils.getApplicationName());
+        keyList.add(clazz.getSimpleName());
+        keyList.addAll(Arrays.asList(keys));
+
+        return StrUtil.join(
+            KEY_SEPARATOR,
+            keyList
+        );
     }
 
     private final String SET_IF_LAGER = "local current = redis.call('GET',  KEYS[1])\n" +
