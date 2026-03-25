@@ -4,7 +4,7 @@
 
     <groupId>com.c332030</groupId>
     <artifactId>ctool4j</artifactId>
-    <version>1.${current.date}-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
