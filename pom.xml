@@ -39,6 +39,7 @@
 
         <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
         <maven.build.timestamp.timezone>Asia/Shanghai</maven.build.timestamp.timezone>
+        <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
@@ -169,8 +170,8 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <releaseVersion>${maven.build.timestamp}</releaseVersion>
-                        <tagNameFormat>${maven.build.timestampn}</tagNameFormat>
+                        <releaseVersion>${buildTimestamp}</releaseVersion>
+                        <tagNameFormat>${buildTimestamp}</tagNameFormat>
                     </configuration>
                 </plugin>
 
