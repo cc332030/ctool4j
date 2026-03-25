@@ -37,7 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
 
-        <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyy.MM.dd</maven.build.timestamp.format>
         <maven.build.timestamp.timezone>Asia/Shanghai</maven.build.timestamp.timezone>
         <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 
@@ -170,8 +170,8 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <releaseVersion>${buildTimestamp}</releaseVersion>
-                        <tagNameFormat>${buildTimestamp}</tagNameFormat>
+                        <developmentVersion>${main.version}.${buildTimestamp}</developmentVersion>
+                        <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
 
