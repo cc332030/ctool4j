@@ -171,6 +171,7 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
                         <developmentVersion>${main.version}.${buildTimestamp}</developmentVersion>
+                        <releaseVersion>${main.version}.${buildTimestamp}</releaseVersion>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
