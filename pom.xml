@@ -190,7 +190,7 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
                         <developmentVersion>${main.version}.${buildTimestamp}</developmentVersion>
-                        <releaseVersion>@{custom.build.time}</releaseVersion>
+                        <releaseVersion>@{project.version}</releaseVersion>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
