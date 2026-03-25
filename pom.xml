@@ -169,8 +169,8 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <releaseVersion>@{maven.build.timestamp}</releaseVersion>
-                        <tagNameFormat>@{maven.build.timestampn}</tagNameFormat>
+                        <releaseVersion>${maven.build.timestamp}</releaseVersion>
+                        <tagNameFormat>${maven.build.timestampn}</tagNameFormat>
                     </configuration>
                 </plugin>
 
