@@ -1,10 +1,15 @@
 package com.c332030.ctool4j.redis.service;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.util.CBoolUtils;
+import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.redis.model.CValueWithTtl;
 import lombok.val;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -160,6 +165,52 @@ public interface ICRedisService<K, V> {
             return;
         }
         getRedisTemplate().delete(key);
+    }
+
+    default CValueWithTtl<V> getValueWithTtl(K key) {
+        return getValueWithTtl(key, CFunction.self());
+    }
+
+    default <T> CValueWithTtl<T> getValueWithTtl(K key, CFunction<V, T> convert) {
+
+        val redisTemplate = getRedisTemplate();
+        return redisTemplate.execute((RedisCallback<CValueWithTtl<T>>) connection -> {
+
+            CAssert.notNull(key, "key is null");
+
+            // 序列化 key
+            @SuppressWarnings("unchecked")
+            val keySerializer = (RedisSerializer<K>)redisTemplate.getKeySerializer();
+            val keyBytes = keySerializer.serialize(key);
+            CAssert.notEmpty(keyBytes, "keyBytes is null");
+
+            // 开启管道
+            connection.openPipeline();
+
+            // 发送 GET 命令
+            connection.get(keyBytes);
+            // 发送 TTL 命令（秒）
+            connection.ttl(keyBytes);
+
+            // 关闭管道，获取所有结果（顺序与命令发送顺序一致）
+            val results = connection.closePipeline();
+
+            // 解析结果
+            val valueBytes = (byte[]) results.get(0);
+            val ttl = (Long) results.get(1);
+
+            T value = null;
+            if (ArrayUtil.isNotEmpty(valueBytes)) {
+
+                @SuppressWarnings("unchecked")
+                val valueSerializer = (RedisSerializer<V>)redisTemplate.getValueSerializer();
+                val valueInRedis = valueSerializer.deserialize(valueBytes);
+                value = convert.apply(valueInRedis);
+            }
+
+            return new CValueWithTtl<>(value, ttl);
+        });
+
     }
 
 }

@@ -2,6 +2,7 @@ package com.c332030.ctool4j.redis.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CJsonUtils;
+import com.c332030.ctool4j.redis.model.CValueWithTtl;
 import com.c332030.ctool4j.redis.service.CAbstractRedisService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
@@ -103,6 +104,14 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
             return null;
         }
         return getValue(key, value -> getValueObj(value, typeReference));
+    }
+
+    public <T> CValueWithTtl<T> getValueWithTtl(String key, Class<T> valueClass) {
+        return getValueWithTtl(key, value -> getValueObj(value, valueClass));
+    }
+
+    public <T> CValueWithTtl<T> getValueWithTtl(String key, TypeReference<T> typeReference) {
+        return getValueWithTtl(key, value -> getValueObj(value, typeReference));
     }
 
 }
