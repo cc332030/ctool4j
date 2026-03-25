@@ -64,6 +64,9 @@
 
     <!--<logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error"/>-->
 
+    <!-- 忽略-received push data -->
+    <logger name="com.alibaba.nacos.client.naming" level="warn"/>
+
     <!-- 忽略-文档接口路径冲突（无影响） -->
     <logger name="springfox.documentation.spring.web.readers.operation.CachingOperationNameGenerator" level="warn"/>
 
