@@ -37,9 +37,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
 
-        <maven.build.timestamp.format>yyyy.MM.dd</maven.build.timestamp.format>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.build.timestamp.timezone>Asia/Shanghai</maven.build.timestamp.timezone>
-        <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
+        <snapshot.next.version>${main.version}.${maven.build.timestamp}-SNAPSHOT</snapshot.next.version>
 
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
@@ -189,7 +189,7 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <developmentVersion>${main.version}.${buildTimestamp}</developmentVersion>
+                        <developmentVersion>${snapshot.next.version}</developmentVersion>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
