@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.util;
 
+import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMap;
@@ -7,6 +8,7 @@ import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
@@ -30,6 +32,10 @@ import java.util.Map;
 @CustomLog
 @UtilityClass
 public class CSpringHttpUtils {
+
+    @Setter
+    @CAutowired
+    ObjectMapper objectMapper;
 
     @Setter
     @CAutowired
@@ -86,6 +92,8 @@ public class CSpringHttpUtils {
             CMimeTypeEnum.JSON5.getMimeType()
         );
         messageConverter.setSupportedMediaTypes(mediaTypes);
+
+        CJacksonUtils.configure(objectMapper);
 
     }
 
