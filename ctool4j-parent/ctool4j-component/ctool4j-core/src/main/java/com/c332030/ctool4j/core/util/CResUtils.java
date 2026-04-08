@@ -26,10 +26,10 @@ public class CResUtils {
         }
 
         val sb = new StringBuilder();
-        sb.append(response.getResCode());
         sb.append("[");
+        sb.append(response.getResCode());
+        sb.append("] ");
         sb.append(response.getResMsg());
-        sb.append("]");
 
         if(StrUtil.isNotBlank(msgExtend)) {
             sb.append(": ");
