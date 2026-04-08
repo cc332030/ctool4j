@@ -4,7 +4,7 @@
 
     <groupId>com.c332030</groupId>
     <artifactId>ctool4j</artifactId>
-    <version>1.0.20260326-SNAPSHOT</version>
+    <version>1.0.20260326</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -27,7 +27,7 @@
     <scm>
         <url>https://github.com/cc332030/ctool4j</url>
         <connection>scm:git:git@github.com:cc332030/ctool4j.git</connection>
-        <tag>HEAD</tag>
+        <tag>1.0.20260326</tag>
     </scm>
 
     <properties>
