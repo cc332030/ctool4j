@@ -189,8 +189,10 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <developmentVersion>${snapshot.next.version}</developmentVersion>
+                        <releaseVersion>@{project.version}</releaseVersion>
                         <tagNameFormat>@{project.version}</tagNameFormat>
+
+                        <developmentVersion>${snapshot.next.version}</developmentVersion>
                     </configuration>
                 </plugin>
 
