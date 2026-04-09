@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.exception.handler;
 
+import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import lombok.CustomLog;
 import org.springframework.context.annotation.Conditional;
@@ -15,19 +16,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @CustomLog
 @RestControllerAdvice
-@Conditional(CExceptionHandler.Condition.class)
-public class CExceptionHandler {
+@Conditional(CCBusinessExceptionHandler.Condition.class)
+public class CCBusinessExceptionHandler {
 
     public static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
-            super(Throwable.class);
+            super(CBusinessException.class);
         }
     }
 
-    @ExceptionHandler(Throwable.class)
-    public CStrResult<Void> handle(Throwable e) {
+    @ExceptionHandler(CBusinessException.class)
+    public CStrResult<Void> handle(CBusinessException e) {
 
-        log.debug("handle Throwable", e);
+        log.debug("handle CBusinessException", e);
         return CStrResult.error("未知异常");
     }
 

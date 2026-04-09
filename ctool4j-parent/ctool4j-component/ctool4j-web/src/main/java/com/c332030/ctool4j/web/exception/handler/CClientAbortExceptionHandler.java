@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.web.exception.handler;
 
-import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import lombok.CustomLog;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,20 +15,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @CustomLog
 @RestControllerAdvice
-@Conditional(CExceptionHandler.Condition.class)
-public class CExceptionHandler {
+@Conditional(CClientAbortExceptionHandler.Condition.class)
+public class CClientAbortExceptionHandler {
 
     public static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
-            super(Throwable.class);
+            super(ClientAbortException.class);
         }
     }
 
-    @ExceptionHandler(Throwable.class)
-    public CStrResult<Void> handle(Throwable e) {
-
-        log.debug("handle Throwable", e);
-        return CStrResult.error("未知异常");
+    @ExceptionHandler(ClientAbortException.class)
+    public void handle(ClientAbortException e) {
+        log.debug("handle ClientAbortException", e);
     }
 
 }
