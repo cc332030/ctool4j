@@ -120,8 +120,23 @@ public class CReflectUtils {
         return constructor.newInstance(args);
     }
 
-    public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(
-            type -> CClassUtils.getMap(type, Class::getDeclaredMethods));
+    /**
+     * 获取当前类的方法
+     * @param type 类
+     * @return 方法列表
+     */
+    public List<Method> getCurrentMethods(Class<?> type) {
+        return Arrays.stream(type.getDeclaredMethods())
+            .peek(method -> method.setAccessible(true))
+            .collect(Collectors.toList());
+    }
+
+    public List<Method> getMethodsNoCache(Class<?> type) {
+        return CClassUtils.getMap(type, Class::getDeclaredMethods);
+    }
+
+    public static final CClassValue<List<Method>> METHODS_CLASS_VALUE =
+        CClassValue.of(CReflectUtils::getMethodsNoCache);
 
     public List<Method> getMethods(Class<?> type) {
         return METHODS_CLASS_VALUE.get(type);
