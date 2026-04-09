@@ -34,7 +34,7 @@ public abstract class CAbstractMissingExceptionHandlerCondition implements Condi
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
         val throwableClassName = throwableClass.getSimpleName();
-        log.debug("CAbstractMissingExceptionHandlerCondition matches {}", throwableClassName);
+        log.debug("ExceptionHandlerCondition matches {}", throwableClassName);
 
         val beanFactory = context.getBeanFactory();
         Assert.notNull(beanFactory, "beanFactory must not be null");
