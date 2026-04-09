@@ -40,7 +40,7 @@ public abstract class CAbstractMissingExceptionHandlerCondition implements Condi
         Assert.notNull(beanFactory, "beanFactory must not be null");
         val beanMap = beanFactory.getBeansWithAnnotation(ControllerAdvice.class);
         if(MapUtil.isEmpty(beanMap)) {
-            log.info("enable default @ExceptionHandler for {} because no ControllerAdvice defined", throwableClassName);
+            log.debug("enable default @ExceptionHandler for {} because no ControllerAdvice defined", throwableClassName);
             return true;
         }
 
@@ -66,7 +66,7 @@ public abstract class CAbstractMissingExceptionHandlerCondition implements Condi
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
                 if(annotationValues.contains(throwableClass)) {
-                    log.info("disable default @ExceptionHandler for {} because {}.{} defined",
+                    log.debug("disable default @ExceptionHandler for {} because {}.{} defined",
                         throwableClassName, beanClass.getSimpleName(), method.getName());
                     return false;
                 }
@@ -75,7 +75,7 @@ public abstract class CAbstractMissingExceptionHandlerCondition implements Condi
 
         }
 
-        log.info("enable default @ExceptionHandler for {} because no existed defined", throwableClassName);
+        log.debug("enable default @ExceptionHandler for {} because no existed defined", throwableClassName);
         return true;
     }
 
