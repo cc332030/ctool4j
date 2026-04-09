@@ -152,7 +152,7 @@ public class CReflectUtils {
         return METHOD_MAP_CLASS_VALUE.get(type);
     }
 
-    public List<Method> getMethodsByName(Class<?> type, String methodName) {
+    public List<Method> getAllMethodsByName(Class<?> type, String methodName) {
         return getAllMethodsMap(type).get(methodName);
     }
 
@@ -307,7 +307,7 @@ public class CReflectUtils {
 
         Class<?> clazz = value.getClass();
 
-        val methods = getMethodsByName(clazz, methodName);
+        val methods = getAllMethodsByName(clazz, methodName);
         val method = CCollUtils.onlyOne(methods);
         if (null == method) {
             if (ignoreNoMethod) {
