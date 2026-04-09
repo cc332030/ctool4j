@@ -6,6 +6,7 @@ import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
 import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
 import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrategy;
 import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
+import com.c332030.ctool4j.spring.security.service.impl.CEmptyUserDetailService;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -69,6 +71,12 @@ public class CSecurityConfiguration {
     @ConditionalOnMissingBean(SessionInformationExpiredStrategy.class)
     public SessionInformationExpiredStrategy cSessionInformationExpiredStrategy() {
         return new CSessionInformationExpiredStrategy();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(UserDetailsService.class)
+    public UserDetailsService cUserDetailsService() {
+        return new CEmptyUserDetailService();
     }
 
     @Bean
