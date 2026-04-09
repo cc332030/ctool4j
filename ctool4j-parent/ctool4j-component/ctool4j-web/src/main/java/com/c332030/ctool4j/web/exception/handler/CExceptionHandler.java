@@ -15,8 +15,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @CustomLog
 @RestControllerAdvice
-@Conditional(CExceptionHandlerCondition.class)
+@Conditional(CExceptionHandler.Condition.class)
 public class CExceptionHandler {
+
+    public static class Condition extends CAbstractMissingExceptionHandlerCondition {
+        public Condition() {
+            super(Exception.class);
+        }
+    }
 
     @ExceptionHandler({
         Exception.class,

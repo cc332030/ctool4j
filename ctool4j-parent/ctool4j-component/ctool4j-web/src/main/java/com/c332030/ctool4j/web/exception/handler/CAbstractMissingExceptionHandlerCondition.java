@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
  */
 @CustomLog
 @AllArgsConstructor
-public abstract class CAbstractMissingExceptionHandlerCondition<T extends Throwable> implements Condition {
+public abstract class CAbstractMissingExceptionHandlerCondition implements Condition {
 
-    Class<T> throwableClass;
+    Class<? extends Throwable> throwableClass;
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
