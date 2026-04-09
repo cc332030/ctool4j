@@ -24,9 +24,7 @@ public class CExceptionHandler {
         }
     }
 
-    @ExceptionHandler({
-        Exception.class,
-    })
+    @ExceptionHandler(Exception.class)
     public CStrResult<Void> cHandleException(Exception e) {
 
         log.debug("handle Exception", e);
