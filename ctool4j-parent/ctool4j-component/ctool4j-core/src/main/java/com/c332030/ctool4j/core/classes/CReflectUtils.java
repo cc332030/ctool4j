@@ -125,7 +125,7 @@ public class CReflectUtils {
      * @param type 类
      * @return 方法列表
      */
-    public List<Method> getCurrentMethods(Class<?> type) {
+    public List<Method> getMethods(Class<?> type) {
         return Arrays.stream(type.getDeclaredMethods())
             .peek(method -> method.setAccessible(true))
             .collect(Collectors.toList());
