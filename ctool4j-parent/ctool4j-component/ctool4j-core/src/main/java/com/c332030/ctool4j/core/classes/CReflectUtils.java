@@ -131,29 +131,29 @@ public class CReflectUtils {
             .collect(Collectors.toList());
     }
 
-    public List<Method> getMethodsNoCache(Class<?> type) {
+    public List<Method> getAllMethods(Class<?> type) {
         return CClassUtils.getMap(type, Class::getDeclaredMethods);
     }
 
-    public static final CClassValue<List<Method>> METHODS_CLASS_VALUE =
-        CClassValue.of(CReflectUtils::getMethodsNoCache);
+    public static final CClassValue<List<Method>> ALL_METHODS_CLASS_VALUE =
+        CClassValue.of(CReflectUtils::getAllMethods);
 
     public List<Method> getAllMethodsCached(Class<?> type) {
-        return METHODS_CLASS_VALUE.get(type);
+        return ALL_METHODS_CLASS_VALUE.get(type);
     }
 
     public static final CClassValue<Map<String, List<Method>>> METHOD_MAP_CLASS_VALUE =
-            CClassValue.of(type -> METHODS_CLASS_VALUE.get(type)
+            CClassValue.of(type -> ALL_METHODS_CLASS_VALUE.get(type)
                     .stream()
                     .collect(Collectors.groupingBy(Method::getName))
             );
 
-    public Map<String, List<Method>> getMethodsMap(Class<?> type) {
+    public Map<String, List<Method>> getAllMethodsMap(Class<?> type) {
         return METHOD_MAP_CLASS_VALUE.get(type);
     }
 
     public List<Method> getMethodsByName(Class<?> type, String methodName) {
-        return getMethodsMap(type).get(methodName);
+        return getAllMethodsMap(type).get(methodName);
     }
 
     public <T extends Annotation> String getFieldName(
