@@ -79,7 +79,7 @@ public class CSpringHttpUtils {
         if(CBoolUtils.isNotTrue(jacksonConfig.getJson5())) {
             return;
         }
-        log.info("enable json5");
+        log.debug("enable json5");
 
         val mediaTypes = CCollUtils.concatOne(
             messageConverter.getSupportedMediaTypes(),
