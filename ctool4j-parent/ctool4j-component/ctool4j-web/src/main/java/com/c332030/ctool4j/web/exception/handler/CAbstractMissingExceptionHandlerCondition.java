@@ -33,13 +33,14 @@ public abstract class CAbstractMissingExceptionHandlerCondition<T extends Throwa
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
-        log.debug("CAbstractMissingExceptionHandlerCondition matches {}", throwableClass);
+        val throwableClassName = throwableClass.getSimpleName();
+        log.debug("CAbstractMissingExceptionHandlerCondition matches {}", throwableClassName);
 
         val beanFactory = context.getBeanFactory();
         Assert.notNull(beanFactory, "beanFactory must not be null");
         val beanMap = beanFactory.getBeansWithAnnotation(ControllerAdvice.class);
         if(MapUtil.isEmpty(beanMap)) {
-            log.info("enable default @ExceptionHandler for {} because no ControllerAdvice defined", throwableClass);
+            log.info("enable default @ExceptionHandler for {} because no ControllerAdvice defined", throwableClassName);
             return true;
         }
 
@@ -66,7 +67,7 @@ public abstract class CAbstractMissingExceptionHandlerCondition<T extends Throwa
                     .collect(Collectors.toSet());
                 if(annotationValues.contains(throwableClass)) {
                     log.info("disable default @ExceptionHandler for {} because {}.{} defined",
-                        throwableClass, beanClass.getSimpleName(), method.getName());
+                        throwableClassName, beanClass.getSimpleName(), method.getName());
                     return false;
                 }
 
@@ -74,7 +75,7 @@ public abstract class CAbstractMissingExceptionHandlerCondition<T extends Throwa
 
         }
 
-        log.info("enable default @ExceptionHandler for {} because no existed defined", throwableClass);
+        log.info("enable default @ExceptionHandler for {} because no existed defined", throwableClassName);
         return true;
     }
 
