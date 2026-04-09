@@ -3,13 +3,13 @@ package com.c332030.ctool4j.web.exception.handler;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
-import com.c332030.ctool4j.spring.util.CSpringUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -35,7 +35,9 @@ public abstract class CAbstractMissingExceptionHandlerCondition<T extends Throwa
 
         log.debug("CAbstractMissingExceptionHandlerCondition matches {}", throwableClass);
 
-        val beanMap = CSpringUtils.getBeansWithAnnotation(ControllerAdvice.class);
+        val beanFactory = context.getBeanFactory();
+        Assert.notNull(beanFactory, "beanFactory must not be null");
+        val beanMap = beanFactory.getBeansWithAnnotation(ControllerAdvice.class);
         if(MapUtil.isEmpty(beanMap)) {
             log.info("enable default @ExceptionHandler for {} because no ControllerAdvice defined", throwableClass);
             return true;
