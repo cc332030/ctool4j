@@ -138,7 +138,7 @@ public class CReflectUtils {
     public static final CClassValue<List<Method>> METHODS_CLASS_VALUE =
         CClassValue.of(CReflectUtils::getMethodsNoCache);
 
-    public List<Method> getMethodsCached(Class<?> type) {
+    public List<Method> getAllMethodsCached(Class<?> type) {
         return METHODS_CLASS_VALUE.get(type);
     }
 
