@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * <p>
- * Description: CExceptionHandler
+ * Description: CThrowableHandler
  * </p>
  *
  * @since 2026/4/9
  */
 @CustomLog
 @RestControllerAdvice
-@Conditional(CExceptionHandler.Condition.class)
-public class CExceptionHandler {
+@Conditional(CThrowableHandler.Condition.class)
+public class CThrowableHandler {
 
     public static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {

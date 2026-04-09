@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * <p>
- * Description: CExceptionHandler
+ * Description: CClientAbortExceptionHandler
  * </p>
  *
  * @since 2026/4/9

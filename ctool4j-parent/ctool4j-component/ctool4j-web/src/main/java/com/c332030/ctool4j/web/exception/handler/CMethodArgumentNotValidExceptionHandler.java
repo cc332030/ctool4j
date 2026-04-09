@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: CExceptionHandler
+ * Description: CMethodArgumentNotValidExceptionHandler
  * </p>
  *
  * @since 2026/4/9
