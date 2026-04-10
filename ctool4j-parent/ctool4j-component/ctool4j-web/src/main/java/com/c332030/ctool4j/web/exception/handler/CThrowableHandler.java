@@ -27,7 +27,7 @@ public class CThrowableHandler {
     @ExceptionHandler(Throwable.class)
     public CStrResult<Void> handle(Throwable e) {
 
-        log.debug("handle Throwable", e);
+        log.error("handle Throwable", e);
         return CStrResult.error("未知异常");
     }
 
