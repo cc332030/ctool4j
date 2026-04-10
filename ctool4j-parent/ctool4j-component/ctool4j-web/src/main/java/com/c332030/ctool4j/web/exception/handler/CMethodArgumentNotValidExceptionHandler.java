@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Conditional(CMethodArgumentNotValidExceptionHandler.Condition.class)
 public class CMethodArgumentNotValidExceptionHandler {
 
-    public static class Condition extends CAbstractMissingExceptionHandlerCondition {
+    static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
             super(MethodArgumentNotValidException.class);
         }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Conditional(CThrowableHandler.Condition.class)
 public class CThrowableHandler {
 
-    public static class Condition extends CAbstractMissingExceptionHandlerCondition {
+    static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
             super(Throwable.class);
         }

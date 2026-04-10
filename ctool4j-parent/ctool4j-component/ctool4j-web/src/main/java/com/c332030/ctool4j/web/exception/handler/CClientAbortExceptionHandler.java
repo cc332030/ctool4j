@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Conditional(CClientAbortExceptionHandler.Condition.class)
 public class CClientAbortExceptionHandler {
 
-    public static class Condition extends CAbstractMissingExceptionHandlerCondition {
+    static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
             super(ClientAbortException.class);
         }

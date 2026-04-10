@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Conditional(CIllegalArgumentExceptionHandler.Condition.class)
 public class CIllegalArgumentExceptionHandler {
 
-    public static class Condition extends CAbstractMissingExceptionHandlerCondition {
+    static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
             super(IllegalArgumentException.class);
         }

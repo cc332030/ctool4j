@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Conditional(CHttpMessageNotWritableExceptionHandler.Condition.class)
 public class CHttpMessageNotWritableExceptionHandler {
 
-    public static class Condition extends CAbstractMissingExceptionHandlerCondition {
+    static class Condition extends CAbstractMissingExceptionHandlerCondition {
         public Condition() {
             super(HttpMessageNotWritableException.class);
         }
