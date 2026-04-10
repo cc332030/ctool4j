@@ -6,3 +6,4 @@
 * [x] Instant 格式化
 * [] log with level
 * [] 兼容 log4j2
+* [] BeanUtils.copy 深拷贝
