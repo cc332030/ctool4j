@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -42,7 +41,7 @@ public class CBeanUtils {
      */
     public <To> To copy(Map<String, ?> fromMap, To to) {
 
-        if(MapUtil.isEmpty(fromMap) || null == to) {
+        if(null == fromMap || null == to) {
             return to;
         }
 
@@ -84,7 +83,7 @@ public class CBeanUtils {
      * @return 目标对象
      */
     public <To> To copy(Map<String, ?> fromMap, Class<To> toClass) {
-        if(MapUtil.isEmpty(fromMap)) {
+        if(null == fromMap) {
             return null;
         }
         return copy(fromMap, CReflectUtils.newInstance(toClass));
@@ -109,7 +108,7 @@ public class CBeanUtils {
      * @return 目标对象
      */
     public <To> To copy(Map<String, ?> fromMap, CSupplier<To> toSupplier) {
-        if(MapUtil.isEmpty(fromMap)) {
+        if(null == fromMap) {
             return null;
         }
         return copy(fromMap, toSupplier.get());
