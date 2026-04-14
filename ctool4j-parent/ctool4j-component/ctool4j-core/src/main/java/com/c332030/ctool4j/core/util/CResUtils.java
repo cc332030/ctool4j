@@ -15,11 +15,11 @@ import lombok.val;
 @UtilityClass
 public class CResUtils {
 
-    public String formatMessage(ICRes<?> response) {
-        return formatMessage(response, null);
+    public String formatResMessage(ICRes<?> response) {
+        return formatResMessage(response, null);
     }
 
-    public String formatMessage(ICRes<?> response, String msgExtend) {
+    public String formatResMessage(ICRes<?> response, String msgExtend) {
 
         if(response == null) {
             return msgExtend;

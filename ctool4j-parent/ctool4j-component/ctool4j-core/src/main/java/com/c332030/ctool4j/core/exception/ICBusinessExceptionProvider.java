@@ -18,7 +18,7 @@ public interface ICBusinessExceptionProvider<T extends Throwable> {
     default CTriFunction<ICRes<?>, String, Throwable, T> getExceptionFunction() {
         return (error, errorExtend, cause) -> {
 
-            val message = CResUtils.formatMessage(error, errorExtend);
+            val message = CResUtils.formatResMessage(error, errorExtend);
             return getMessageExceptionFunction().apply(message, cause);
         };
     }

@@ -25,7 +25,7 @@ public class CBusinessException extends CException {
     }
 
     public CBusinessException(ICRes<?> error, String msgExtend, Throwable cause) {
-        super(CResUtils.formatMessage(error, msgExtend), cause);
+        super(CResUtils.formatResMessage(error, msgExtend), cause);
         this.error = error;
         this.msgExtend = msgExtend;
     }
