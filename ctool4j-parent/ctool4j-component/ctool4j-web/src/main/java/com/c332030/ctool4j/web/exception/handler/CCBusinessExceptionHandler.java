@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.exception.handler;
 
 import com.c332030.ctool4j.core.exception.CBusinessException;
+import com.c332030.ctool4j.core.util.CResUtils;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import lombok.CustomLog;
 import lombok.val;
@@ -30,13 +31,14 @@ public class CCBusinessExceptionHandler {
     public CStrResult<Void> handle(CBusinessException e) {
 
         log.debug("handle CBusinessException", e);
+
         val error = e.getError();
         val msgExtend = e.getMsgExtend();
 
         if(error != null) {
             return CStrResult.error(
                 String.valueOf(error.getResCode()),
-                error.getResMsg()
+                CResUtils.formatMessage(error, msgExtend)
             );
         }
 
