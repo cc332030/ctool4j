@@ -3,6 +3,7 @@ package com.c332030.ctool4j.web.exception.handler;
 import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,7 +30,17 @@ public class CCBusinessExceptionHandler {
     public CStrResult<Void> handle(CBusinessException e) {
 
         log.debug("handle CBusinessException", e);
-        return CStrResult.error("未知异常");
+        val error = e.getError();
+        val msgExtend = e.getMsgExtend();
+
+        if(error != null) {
+            return CStrResult.error(
+                String.valueOf(error.getResCode()),
+                error.getResMsg()
+            );
+        }
+
+        return CStrResult.error(e.getMessage());
     }
 
 }
