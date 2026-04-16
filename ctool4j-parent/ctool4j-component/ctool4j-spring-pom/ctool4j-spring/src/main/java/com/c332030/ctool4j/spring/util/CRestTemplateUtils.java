@@ -24,13 +24,16 @@ public class CRestTemplateUtils {
 
         val restTemplate = new RestTemplate(CHttpClientUtils.REQUEST_FACTORY);
         val messageConverters = restTemplate.getMessageConverters();
-        CSpringHttpUtils.configureMessageConverters(messageConverters);
 
-        messageConverters.forEach(messageConverter -> {
-            if (messageConverter instanceof MappingJackson2HttpMessageConverter) {
-                ((MappingJackson2HttpMessageConverter) messageConverter).setObjectMapper(objectMapper);
-            }
-        });
+        messageConverters
+            .stream()
+            .filter(messageConverter -> messageConverter instanceof MappingJackson2HttpMessageConverter)
+            .map(messageConverter -> (MappingJackson2HttpMessageConverter) messageConverter)
+            .forEach(messageConverter -> {
+
+                messageConverter.setObjectMapper(objectMapper);
+                CSpringHttpUtils.configureJson5(messageConverter);
+            });
 
         return restTemplate;
     }

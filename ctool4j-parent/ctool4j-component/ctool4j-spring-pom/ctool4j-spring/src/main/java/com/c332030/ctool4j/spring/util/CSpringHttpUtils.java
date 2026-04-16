@@ -13,6 +13,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
@@ -76,9 +77,14 @@ public class CSpringHttpUtils {
 
     public void configureJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter messageConverter) {
 
-        if(CBoolUtils.isNotTrue(jacksonConfig.getJson5())) {
-            return;
+        if(CBoolUtils.isTrue(jacksonConfig.getJson5())) {
+            configureJson5(messageConverter);
         }
+
+    }
+
+    public void configureJson5(AbstractHttpMessageConverter<?> messageConverter) {
+
         log.debug("enable json5");
 
         val mediaTypes = CCollUtils.concatOne(
