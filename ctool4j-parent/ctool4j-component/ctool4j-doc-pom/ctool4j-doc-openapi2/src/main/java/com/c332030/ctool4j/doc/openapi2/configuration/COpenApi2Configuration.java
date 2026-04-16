@@ -65,7 +65,7 @@ public class COpenApi2Configuration {
      * 避免 springfox 报空指针
      */
     @Bean
-    public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
+    public static BeanPostProcessor cSpringfoxHandlerProviderBeanPostProcessor() {
         return new BeanPostProcessor() {
 
             @Override

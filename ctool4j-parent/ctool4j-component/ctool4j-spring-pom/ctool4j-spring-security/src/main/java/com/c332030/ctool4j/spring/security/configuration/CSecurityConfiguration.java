@@ -44,14 +44,14 @@ public class CSecurityConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(PasswordEncoder.class)
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder cPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     @SneakyThrows
     @ConditionalOnMissingBean(AuthenticationManager.class)
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) {
+    public AuthenticationManager cAuthenticationManager(AuthenticationConfiguration authConfig) {
         return authConfig.getAuthenticationManager();
     }
 
@@ -82,7 +82,7 @@ public class CSecurityConfiguration {
     @Bean
     @RefreshScope
     @ConditionalOnMissingBean(SecurityFilterChain.class)
-    public SecurityFilterChain filterChain(
+    public SecurityFilterChain cFilterChain(
         HttpSecurity http,
         AuthenticationEntryPoint authenticationEntryPoint,
         AccessDeniedHandler accessDeniedHandler,
