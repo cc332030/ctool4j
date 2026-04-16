@@ -1,0 +1,5 @@
+
+spring:
+  main:
+    # @Configuration 中方法名重复时报错，默认静默覆盖
+    allow-bean-definition-overriding: false
