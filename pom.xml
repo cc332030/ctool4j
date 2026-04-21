@@ -193,6 +193,10 @@
                         <tagNameFormat>@{project.version}</tagNameFormat>
 
                         <developmentVersion>${snapshot.next.version}</developmentVersion>
+
+                        <!-- 非交互模式 -->
+                        <arguments>-B</arguments>
+
                     </configuration>
                 </plugin>
 
