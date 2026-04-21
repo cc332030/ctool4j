@@ -189,7 +189,7 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
 
-                        <releaseVersion>@{project.version}</releaseVersion>
+                        <!--<releaseVersion>@{project.version}</releaseVersion>-->
                         <tagNameFormat>@{project.version}</tagNameFormat>
 
                         <developmentVersion>${snapshot.next.version}</developmentVersion>
