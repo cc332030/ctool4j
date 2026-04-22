@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.exception.handler;
 
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -28,7 +29,7 @@ public class CHttpRequestMethodNotSupportedExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public CStrResult<Void> handle(HttpRequestMethodNotSupportedException e) {
 
-        log.debug("handle HttpRequestMethodNotSupportedException", e);
+        log.debug("handle HttpRequestMethodNotSupportedException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
         return CStrResult.error(e.getMessage());
     }
 

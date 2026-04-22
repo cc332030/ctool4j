@@ -3,6 +3,7 @@ package com.c332030.ctool4j.web.exception.handler;
 import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.core.util.CResUtils;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.context.annotation.Conditional;
@@ -30,7 +31,7 @@ public class CCBusinessExceptionHandler {
     @ExceptionHandler(CBusinessException.class)
     public CStrResult<Void> handle(CBusinessException e) {
 
-        log.debug("handle CBusinessException", e);
+        log.debug("handle CBusinessException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
 
         val error = e.getError();
         if(null == error) {

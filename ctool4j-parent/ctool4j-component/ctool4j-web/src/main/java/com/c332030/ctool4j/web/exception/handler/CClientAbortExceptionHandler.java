@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.exception.handler;
 
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.annotation.Conditional;
@@ -26,7 +27,7 @@ public class CClientAbortExceptionHandler {
 
     @ExceptionHandler(ClientAbortException.class)
     public void handle(ClientAbortException e) {
-        log.debug("handle ClientAbortException", e);
+        log.debug("handle ClientAbortException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
     }
 
 }

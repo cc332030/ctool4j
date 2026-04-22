@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.exception.handler;
 
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,7 +28,7 @@ public class CIllegalArgumentExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public CStrResult<Void> handle(IllegalArgumentException e) {
 
-        log.debug("handle IllegalArgumentException", e);
+        log.debug("handle IllegalArgumentException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
         return CStrResult.error(e.getMessage());
     }
 

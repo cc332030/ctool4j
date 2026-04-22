@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.exception.handler;
 
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -26,7 +27,7 @@ public class CHttpMessageNotWritableExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotWritableException.class)
     public void handle(HttpMessageNotWritableException e) {
-        log.debug("handle HttpMessageNotWritableException", e);
+        log.debug("handle HttpMessageNotWritableException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
     }
 
 }
