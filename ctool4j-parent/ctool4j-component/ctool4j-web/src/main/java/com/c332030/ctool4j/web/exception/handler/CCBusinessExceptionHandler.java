@@ -33,6 +33,10 @@ public class CCBusinessExceptionHandler {
         log.debug("handle CBusinessException", e);
 
         val error = e.getError();
+        if(null == error) {
+            return CStrResult.error(e.getMessage());
+        }
+
         val msgExtend = e.getMsgExtend();
 
         return CStrResult.error(
