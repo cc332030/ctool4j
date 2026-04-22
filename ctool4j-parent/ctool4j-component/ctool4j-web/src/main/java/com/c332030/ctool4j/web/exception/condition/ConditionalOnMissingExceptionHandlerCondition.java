@@ -1,8 +1,11 @@
-package com.c332030.ctool4j.web.exception.handler;
+package com.c332030.ctool4j.web.exception.condition;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CEnumUtils;
+import com.c332030.ctool4j.spring.util.CAnnotationUtils;
+import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
@@ -19,19 +22,25 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: CAbstractMissingExceptionHandlerCondition
+ * Description: ConditionalOnMissingExceptionHandlerCondition
  * </p>
  *
  * @since 2026/4/9
  */
 @CustomLog
 @AllArgsConstructor
-public abstract class CAbstractMissingExceptionHandlerCondition implements Condition {
-
-    Class<? extends Throwable> throwableClass;
+public class ConditionalOnMissingExceptionHandlerCondition implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+
+        val annotationType = ConditionalOnMissingExceptionHandler.class;
+        Class<Throwable> throwableClass = CAnnotationUtils.getAnnotationAttributeValue(
+            metadata,
+            annotationType,
+            CEnumUtils.VALUE
+        );
+        Assert.notNull(throwableClass, () -> "注解不存在：" + annotationType.getName());
 
         val throwableClassName = throwableClass.getSimpleName();
         log.debug("ExceptionHandlerCondition matches {}", throwableClassName);

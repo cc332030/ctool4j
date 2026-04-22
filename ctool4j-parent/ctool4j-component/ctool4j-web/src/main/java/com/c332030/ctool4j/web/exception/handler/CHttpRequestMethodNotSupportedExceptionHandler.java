@@ -2,8 +2,8 @@ package com.c332030.ctool4j.web.exception.handler;
 
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,14 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @CustomLog
 @RestControllerAdvice
-@Conditional(CHttpRequestMethodNotSupportedExceptionHandler.Condition.class)
+@ConditionalOnMissingExceptionHandler(HttpRequestMethodNotSupportedException.class)
 public class CHttpRequestMethodNotSupportedExceptionHandler {
-
-    static class Condition extends CAbstractMissingExceptionHandlerCondition {
-        public Condition() {
-            super(HttpRequestMethodNotSupportedException.class);
-        }
-    }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public CStrResult<Void> handle(HttpRequestMethodNotSupportedException e) {
