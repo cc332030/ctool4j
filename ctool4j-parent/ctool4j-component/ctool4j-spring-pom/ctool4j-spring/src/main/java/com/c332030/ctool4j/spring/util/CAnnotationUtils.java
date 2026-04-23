@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.map.MapUtil;
+import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -17,6 +18,13 @@ import java.lang.annotation.Annotation;
  */
 @UtilityClass
 public class CAnnotationUtils {
+
+    public <ANNO extends Annotation, VALUE> VALUE getAnnotationAttributeValue(
+        AnnotatedTypeMetadata metadata,
+        Class<ANNO> annotationType
+    ) {
+        return getAnnotationAttributeValue(metadata, annotationType, ICValue.VALUE);
+    }
 
     @SneakyThrows
     public <ANNO extends Annotation, VALUE> VALUE getAnnotationAttributeValue(

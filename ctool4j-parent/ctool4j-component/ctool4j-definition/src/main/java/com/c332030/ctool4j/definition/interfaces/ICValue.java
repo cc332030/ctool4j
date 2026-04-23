@@ -9,6 +9,8 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICValue<T> {
 
+    String VALUE = "value";
+
     T getValue();
 
 }

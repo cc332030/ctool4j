@@ -3,7 +3,6 @@ package com.c332030.ctool4j.web.exception.condition;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
-import com.c332030.ctool4j.core.util.CEnumUtils;
 import com.c332030.ctool4j.spring.util.CAnnotationUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.AllArgsConstructor;
@@ -37,8 +36,7 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
         val annotationType = ConditionalOnMissingExceptionHandler.class;
         Class<Throwable> throwableClass = CAnnotationUtils.getAnnotationAttributeValue(
             metadata,
-            annotationType,
-            CEnumUtils.VALUE
+            annotationType
         );
         Assert.notNull(throwableClass, () -> "注解不存在：" + annotationType.getName());
 
