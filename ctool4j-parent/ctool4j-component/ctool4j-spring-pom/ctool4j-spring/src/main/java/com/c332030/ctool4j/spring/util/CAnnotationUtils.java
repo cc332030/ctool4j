@@ -19,7 +19,7 @@ import java.lang.annotation.Annotation;
 @UtilityClass
 public class CAnnotationUtils {
 
-    public <ANNO extends Annotation, VALUE> VALUE getAnnotationAttributeValue(
+    public <ANNO extends Annotation, VALUE> VALUE getAnnotationValue(
         AnnotatedTypeMetadata metadata,
         Class<ANNO> annotationType
     ) {

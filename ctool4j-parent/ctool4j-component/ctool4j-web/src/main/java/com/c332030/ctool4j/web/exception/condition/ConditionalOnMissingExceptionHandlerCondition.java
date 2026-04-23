@@ -34,7 +34,7 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
         val annotationType = ConditionalOnMissingExceptionHandler.class;
-        Class<Throwable> throwableClass = CAnnotationUtils.getAnnotationAttributeValue(
+        Class<Throwable> throwableClass = CAnnotationUtils.getAnnotationValue(
             metadata,
             annotationType
         );
