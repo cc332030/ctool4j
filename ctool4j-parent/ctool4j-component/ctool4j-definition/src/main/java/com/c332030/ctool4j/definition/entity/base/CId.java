@@ -19,9 +19,9 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CId<T extends Serializable> implements ICId<T> {
+public class CId<ID extends Serializable> implements ICId<ID> {
 
     @TableId
-    T id;
+    ID id;
 
 }
