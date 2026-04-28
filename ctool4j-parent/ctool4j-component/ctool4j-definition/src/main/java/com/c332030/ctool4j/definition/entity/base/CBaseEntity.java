@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * Description: CBaseEntity
@@ -18,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CBaseEntity extends CBaseTimeEntity implements ICCreateUpdateByAndTime {
+public class CBaseEntity<ID extends Serializable> extends CBaseTimeEntity<ID> implements ICCreateUpdateByAndTime {
 
     @TableField(updateStrategy = FieldStrategy.NEVER)
     Long createById;
