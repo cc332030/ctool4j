@@ -9,6 +9,7 @@ import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
+import com.c332030.ctool4j.core.util.CPatternUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
 import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
 import com.c332030.ctool4j.log.model.CRequestLog;
@@ -81,18 +82,21 @@ public class CRequestLogUtils {
     }
 
     private boolean matchUri(String uri, String pattern) {
-        if (StrUtil.isEmpty(pattern)) {
+
+        if (StrUtil.isEmpty(uri) || StrUtil.isEmpty(pattern)) {
             return false;
         }
-        if (pattern.contains("*")) {
-            String regex = pattern
-                .replace(".", "\\.")
-                .replace("**/", "[\\s\\S]*/")
-                .replace("**", "[\\s\\S]*")
-                .replace("*", "[^/]*");
-            return uri.matches(regex);
+
+        // 1. 如果 pattern 不含通配符，直接等值比较（最快路径）
+        if (!pattern.contains("*")) {
+            return uri.equals(pattern);
         }
-        return uri.equals(pattern);
+
+        // 2. 从缓存获取编译好的 Pattern
+        val regexPattern = CPatternUtils.getUrlCache(pattern);
+
+        // 3. 使用预编译的 Pattern 进行匹配
+        return regexPattern.matcher(uri).matches();
     }
 
     public Opt<CRequestLog> getOpt() {
