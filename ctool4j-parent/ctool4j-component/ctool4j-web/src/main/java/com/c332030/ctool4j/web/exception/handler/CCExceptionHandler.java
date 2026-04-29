@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.web.exception.handler;
 
-import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.core.exception.CException;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
@@ -22,7 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CCExceptionHandler {
 
     @ExceptionHandler(CException.class)
-    public CStrResult<Void> handle(CBusinessException e) {
+    public CStrResult<Void> handle(CException e) {
 
         log.debug("handle CException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
 
