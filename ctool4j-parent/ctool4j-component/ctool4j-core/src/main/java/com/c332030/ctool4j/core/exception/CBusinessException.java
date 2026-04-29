@@ -20,6 +20,10 @@ public class CBusinessException extends CException {
 
     private final String msgExtend;
 
+    public CBusinessException(ICRes<?> error) {
+        this(error, null);
+    }
+
     public CBusinessException(ICRes<?> error, Throwable cause) {
         this(error, null, cause);
     }
