@@ -35,7 +35,7 @@ public class CCBusinessExceptionHandler {
         val msgExtend = e.getMsgExtend();
 
         return CStrResult.error(
-            String.valueOf(error.getResCode()),
+            String.valueOf(error.getCode()),
             CResUtils.formatMessage(error, msgExtend)
         );
     }
