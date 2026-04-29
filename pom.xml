@@ -164,26 +164,6 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>${build-helper-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>timestamp-property</id>
-                            <goals>
-                                <goal>timestamp-property</goal>
-                            </goals>
-                            <configuration>
-                                <name>custom.build.time</name>       <!-- 自定义属性名 -->
-                                <pattern>yyyy-MM-dd HH:mm:ss</pattern> <!-- 时间格式 -->
-                                <timeZone>Asia/Shanghai</timeZone>   <!-- 时区，可选 -->
-                                <locale>zh_CN</locale>               <!-- 语言环境，可选 -->
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <configuration>
