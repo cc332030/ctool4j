@@ -1,7 +1,9 @@
 package com.c332030.ctool4j.log.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
@@ -70,6 +72,29 @@ public class CRequestLogUtils {
         return isEnable() && CRequestLogTypeEnum.INTERCEPTOR.equals(requestLogConfig.getType());
     }
 
+    public boolean isExcludeUri(String uri) {
+        val excludeUriPatterns = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getExcludeUriPatterns);
+        if (CollUtil.isEmpty(excludeUriPatterns)) {
+            return false;
+        }
+        return excludeUriPatterns.stream().anyMatch(pattern -> matchUri(uri, pattern));
+    }
+
+    private boolean matchUri(String uri, String pattern) {
+        if (StrUtil.isEmpty(pattern)) {
+            return false;
+        }
+        if (pattern.contains("*")) {
+            String regex = pattern
+                .replace(".", "\\.")
+                .replace("**/", "[\\s\\S]*/")
+                .replace("**", "[\\s\\S]*")
+                .replace("*", "[^/]*");
+            return uri.matches(regex);
+        }
+        return uri.equals(pattern);
+    }
+
     public Opt<CRequestLog> getOpt() {
         return Opt.ofNullable(REQUEST_LOG_THREAD_LOCAL.get());
     }
@@ -84,6 +109,11 @@ public class CRequestLogUtils {
     public CRequestLog genRequestLog() {
 
         val request = CRequestUtils.getRequest();
+        val uri = request.getRequestURI();
+        if (isExcludeUri(uri)) {
+            log.debug("genRequestLog skip because uri is exclude, uri: {}", uri);
+            return null;
+        }
         val traceId = CTraceUtils.getTraceId();
 
         return CRequestLog.builder()
@@ -99,7 +129,9 @@ public class CRequestLogUtils {
     public void init() {
 
         val requestLog = genRequestLog();
-        REQUEST_LOG_THREAD_LOCAL.set(requestLog);
+        if (null != requestLog) {
+            REQUEST_LOG_THREAD_LOCAL.set(requestLog);
+        }
 
     }
 

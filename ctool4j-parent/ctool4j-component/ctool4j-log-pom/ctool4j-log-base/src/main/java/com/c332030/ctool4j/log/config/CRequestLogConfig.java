@@ -4,6 +4,8 @@ import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Set;
+
 /**
  * <p>
  * Description: CRequestLogConfig
@@ -34,5 +36,10 @@ public class CRequestLogConfig {
      * 慢请求日志-毫秒数
      */
     Integer slowLogMillis = 10000;
+
+    /**
+     * 排除的URI列表（支持通配符 *）
+     */
+    Set<String> excludeUriPatterns;
 
 }
