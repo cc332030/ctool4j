@@ -78,7 +78,8 @@ public class CRequestLogUtils {
         if (CollUtil.isEmpty(excludeUriPatterns)) {
             return false;
         }
-        return excludeUriPatterns.stream().anyMatch(pattern -> matchUri(uri, pattern));
+        return excludeUriPatterns.stream()
+            .anyMatch(pattern -> matchUri(uri, pattern));
     }
 
     private boolean matchUri(String uri, String pattern) {
