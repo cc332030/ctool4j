@@ -30,7 +30,7 @@ public class CRequestLogConfig {
     /**
      * 慢请求日志-开关
      */
-    Boolean slowLogEnable = false;
+    Boolean slowLogEnable = true;
 
     /**
      * 慢请求日志-毫秒数
