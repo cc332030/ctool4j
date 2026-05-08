@@ -12,7 +12,7 @@ import java.util.Date;
 
 /**
  * <p>
- * Description: CBaseTimeEntity
+ * Description: CBaseCreateTimeEntity
  * </p>
  *
  * @since 2025/5/26
@@ -21,12 +21,12 @@ import java.util.Date;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CBaseTimeEntity<ID extends Serializable> extends CBaseCreateTimeEntity<ID> implements ICCreateUpdateTime {
+public class CBaseCreateTimeEntity<ID extends Serializable> extends CId<ID> implements ICCreateTime {
 
     @TableField(
             insertStrategy = FieldStrategy.NEVER,
             updateStrategy = FieldStrategy.NEVER
     )
-    Date updateTime;
+    Date createTime;
 
 }
