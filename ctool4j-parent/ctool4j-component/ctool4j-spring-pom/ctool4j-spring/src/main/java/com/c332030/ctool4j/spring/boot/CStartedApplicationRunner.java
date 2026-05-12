@@ -18,7 +18,7 @@ public interface CStartedApplicationRunner extends ApplicationRunner {
     @Override
     default void run(ApplicationArguments args) {
 
-        val log = CLogUtils.getLog(this.getClass());
+        val log = CLogUtils.getLog(CStartedApplicationRunner.class);
         log.info("(♥◠‿◠)ﾉﾞ  {} 启动成功  ლ(´ڡ`ლ)ﾞ", SpringUtil.getApplicationName());
 
     }
