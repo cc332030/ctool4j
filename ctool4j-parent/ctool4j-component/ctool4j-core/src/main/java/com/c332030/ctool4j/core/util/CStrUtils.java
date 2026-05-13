@@ -203,7 +203,7 @@ public class CStrUtils {
     }
 
     /**
-     * 大写下划线 转 报文头：TRACE_ID - Trace-CId
+     * 大写下划线 转 报文头：TRACE_ID - Trace-Id
      * @param value 待转换值
      * @return 转换结果
      */
