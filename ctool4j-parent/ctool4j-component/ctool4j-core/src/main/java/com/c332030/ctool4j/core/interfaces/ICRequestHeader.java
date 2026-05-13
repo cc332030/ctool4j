@@ -18,7 +18,9 @@ public interface ICRequestHeader extends ICText, ICEnumName {
     /**
      * 数据类型
      */
-    CDataTypeEnum getDataType();
+    default CDataTypeEnum getDataType() {
+        return CDataTypeEnum.STRING;
+    }
 
     /**
      * 是否必输
