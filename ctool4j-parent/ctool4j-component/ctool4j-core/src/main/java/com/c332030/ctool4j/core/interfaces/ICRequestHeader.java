@@ -23,7 +23,9 @@ public interface ICRequestHeader extends ICText, ICEnumName {
     /**
      * 是否必输
      */
-    boolean isRequired();
+    default boolean isRequired() {
+        return false;
+    }
 
     /**
      * 报文头名
