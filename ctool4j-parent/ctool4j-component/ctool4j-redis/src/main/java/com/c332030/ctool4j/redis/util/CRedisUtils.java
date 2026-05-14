@@ -7,6 +7,7 @@ import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
+import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
 import lombok.CustomLog;
@@ -38,8 +39,15 @@ public class CRedisUtils {
     @CAutowired
     CObjectValueRedisService redisService;
 
+    @CAutowired
+    CStringStringRedisService stringStringRedisService;
+
     public RedisTemplate<? super String, Object> getRedisTemplate() {
         return redisService.getRedisTemplate();
+    }
+
+    public RedisTemplate<String, String> getStringStringRedisTemplate() {
+        return stringStringRedisService.getRedisTemplate();
     }
 
     public String getKey(Class<?> clazz, ICOperate icOperate, Object key) {
@@ -209,11 +217,11 @@ public class CRedisUtils {
      * @return 自增值
      */
     public Long incrExpire(String key, long delta, Duration duration) {
-        return getRedisTemplate().execute(
+        return getStringStringRedisTemplate().execute(
             INCR_EXPIRE_SCRIPT,
             Collections.singletonList(key),
-            String.valueOf(delta),
-            String.valueOf(duration.getSeconds())
+            delta,
+            duration.getSeconds()
         );
     }
 
