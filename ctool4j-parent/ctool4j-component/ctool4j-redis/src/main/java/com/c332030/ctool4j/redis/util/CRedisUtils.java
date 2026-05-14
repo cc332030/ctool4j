@@ -179,4 +179,12 @@ public class CRedisUtils {
         return false;
     }
 
+    public Long increment(String key) {
+        return redisService.increment(key);
+    }
+
+    public Long increment(String key, long delta) {
+        return redisService.increment(key, delta);
+    }
+
 }
