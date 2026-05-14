@@ -220,8 +220,8 @@ public class CRedisUtils {
         return getStringStringRedisTemplate().execute(
             INCR_EXPIRE_SCRIPT,
             Collections.singletonList(key),
-            delta,
-            duration.getSeconds()
+            String.valueOf(delta),
+            String.valueOf(duration.getSeconds())
         );
     }
 
