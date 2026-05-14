@@ -1,6 +1,9 @@
 package com.c332030.ctool4j.redis.util;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.c332030.ctool4j.core.util.CDateUtils;
+import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
@@ -14,6 +17,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -185,6 +189,57 @@ public class CRedisUtils {
 
     public Long increment(String key, long delta) {
         return redisService.increment(key, delta);
+    }
+
+    public final String BIZ_ID_INCR_KEY = "{}:biz_id:incr:{}";
+
+    /**
+     * 获取自增的业务id
+     * @param keyBefore 前缀
+     * @param incrLength 自增id长度
+     * @return 业务id
+     */
+    public String getIncrBizId(String keyBefore, int incrLength) {
+
+        val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, SpringUtil.getApplicationName(), keyBefore);
+        val incrValue = increment(incrKey);
+
+        val keyAfter = StrUtil.fillBefore(String.valueOf(incrValue), '0', incrLength);
+        return keyBefore + keyAfter;
+    }
+
+    /**
+     * 获取日期+自增的业务id
+     * @param entityClass 实体类
+     * @param incrLength 自增id长度
+     * @return 业务id
+     */
+    public String getDateIncrBizId(Class<?> entityClass, int incrLength) {
+
+        val keyBefore = CIdUtils.getPrefix(entityClass)
+            + CDateUtils.formatPureDate(Instant.now())
+            ;
+        return getIncrBizId(
+            keyBefore,
+            incrLength
+        );
+    }
+
+    /**
+     * 获取日期时间+自增的业务id
+     * @param entityClass 实体类
+     * @param incrLength 自增id长度
+     * @return 业务id
+     */
+    public String getDateTimeIncrBizId(Class<?> entityClass, int incrLength) {
+
+        val keyBefore = CIdUtils.getPrefix(entityClass)
+            + CDateUtils.formatPureDateTime(Instant.now())
+            ;
+        return getIncrBizId(
+            keyBefore,
+            incrLength
+        );
     }
 
 }
