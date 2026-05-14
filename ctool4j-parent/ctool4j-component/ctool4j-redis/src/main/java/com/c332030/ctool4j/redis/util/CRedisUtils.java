@@ -74,7 +74,7 @@ public class CRedisUtils {
 
     public boolean setIfLager(String key, Number value) {
 
-        if(null == value) {
+        if (null == value) {
             return false;
         }
 
@@ -104,7 +104,7 @@ public class CRedisUtils {
 
     public boolean compareAndSet(String key, Object expectedValue, Object newValue, long ttl) {
 
-        if(null == expectedValue
+        if (null == expectedValue
             || null == newValue
         ) {
             return false;
@@ -142,7 +142,7 @@ public class CRedisUtils {
 
     public boolean setIfNotEquals(String key, Object newValue, long ttl) {
 
-        if(null == newValue) {
+        if (null == newValue) {
             return false;
         }
 
@@ -169,7 +169,7 @@ public class CRedisUtils {
 
     public boolean tryDoOnce(String key, Duration cacheDuration, CRunnable runnable) {
 
-        if(setIfAbsent(key, cacheDuration)) {
+        if (setIfAbsent(key, cacheDuration)) {
             try {
                 runnable.run();
             } catch (Throwable e) {
@@ -183,61 +183,120 @@ public class CRedisUtils {
         return false;
     }
 
-    public Long increment(String key) {
-        return redisService.increment(key);
+    public Long incr(String key) {
+        return redisService.incr(key);
     }
 
-    public Long increment(String key, long delta) {
-        return redisService.increment(key, delta);
+    public Long incr(String key, long delta) {
+        return redisService.incr(key, delta);
+    }
+
+    public final String INCR_EXPIRE =
+        "local current = redis.call('incrby', KEYS[1], ARGV[1]) "
+            + "if current == tonumber(ARGV[1]) then "
+            + "    redis.call('expire', KEYS[1], ARGV[2]) "
+            + "end "
+            + "return current"
+        ;
+
+    private final RedisScript<Long> INCR_EXPIRE_SCRIPT = new DefaultRedisScript<>(INCR_EXPIRE, Long.class);
+
+    /**
+     * 自增带超时时间
+     * @param key key
+     * @param delta 步长
+     * @param duration 超时时间
+     * @return 自增值
+     */
+    public Long incrExpire(String key, long delta, Duration duration) {
+        return getRedisTemplate().execute(
+            INCR_EXPIRE_SCRIPT,
+            Collections.singletonList(key),
+            String.valueOf(delta),
+            String.valueOf(duration.getSeconds())
+        );
+    }
+
+    /**
+     * 自增带超时时间
+     * @param key key
+     * @param duration 超时时间
+     * @return 自增值
+     */
+    public Long incrExpire(String key, Duration duration) {
+        return incrExpire(key, 1, duration);
     }
 
     public final String BIZ_ID_INCR_KEY = "{}:biz_id:incr:{}";
 
     /**
      * 获取自增的业务id
-     * @param keyBefore 前缀
+     *
+     * @param keyBefore  前缀
      * @param incrLength 自增id长度
      * @return 业务id
      */
     public String getIncrBizId(String keyBefore, int incrLength) {
 
         val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, SpringUtil.getApplicationName(), keyBefore);
-        val incrValue = increment(incrKey);
+        val incrValue = incr(incrKey);
 
         val keyAfter = StrUtil.fillBefore(String.valueOf(incrValue), '0', incrLength);
         return keyBefore + keyAfter;
     }
 
     /**
-     * 获取日期+自增的业务id
-     * @param entityClass 实体类
+     * 获取自增的业务id
+     *
+     * @param keyBefore  前缀
      * @param incrLength 自增id长度
+     * @return 业务id
+     */
+    public String getIncrExpireBizId(String keyBefore, Duration duration, int incrLength) {
+
+        val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, SpringUtil.getApplicationName(), keyBefore);
+        val incrValue = incrExpire(incrKey, duration);
+
+        val keyAfter = StrUtil.fillBefore(String.valueOf(incrValue), '0', incrLength);
+        return keyBefore + keyAfter;
+    }
+
+    private static final Duration DATE_INCR_EXPIRE_DURATION = Duration.ofDays(3);
+
+    /**
+     * 获取日期+自增的业务id
+     *
+     * @param entityClass 实体类
+     * @param incrLength  自增id长度
      * @return 业务id
      */
     public String getDateIncrBizId(Class<?> entityClass, int incrLength) {
 
         val keyBefore = CIdUtils.getPrefix(entityClass)
-            + CDateUtils.formatPureDate(Instant.now())
-            ;
-        return getIncrBizId(
+            + CDateUtils.formatPureDate(Instant.now());
+        return getIncrExpireBizId(
             keyBefore,
+            DATE_INCR_EXPIRE_DURATION,
             incrLength
         );
     }
 
+    private static final Duration DATETIME_INCR_EXPIRE_DURATION = Duration.ofSeconds(3);
+
     /**
      * 获取日期时间+自增的业务id
+     *
      * @param entityClass 实体类
-     * @param incrLength 自增id长度
+     * @param incrLength  自增id长度
      * @return 业务id
      */
     public String getDateTimeIncrBizId(Class<?> entityClass, int incrLength) {
 
         val keyBefore = CIdUtils.getPrefix(entityClass)
-            + CDateUtils.formatPureDateTime(Instant.now())
-            ;
-        return getIncrBizId(
+            + CDateUtils.formatPureDateTime(Instant.now());
+        return getIncrExpireBizId(
             keyBefore,
+            DATETIME_INCR_EXPIRE_DURATION,
             incrLength
         );
     }

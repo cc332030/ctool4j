@@ -213,12 +213,12 @@ public interface ICRedisService<K, V> {
 
     }
 
-    default Long increment(K key) {
+    default Long incr(K key) {
         return opsForValue()
             .increment(key);
     }
 
-    default Long increment(K key, long delta) {
+    default Long incr(K key, long delta) {
         return opsForValue()
             .increment(key, delta);
     }
