@@ -278,7 +278,7 @@ public class CRedisUtils {
         return keyBefore + keyAfter;
     }
 
-    private static final Duration DATE_INCR_EXPIRE_DURATION = Duration.ofDays(3);
+    private static final Duration DATE_INCR_EXPIRE_DURATION = Duration.ofHours(25);
 
     /**
      * 获取日期+自增的业务id
@@ -298,7 +298,7 @@ public class CRedisUtils {
         );
     }
 
-    private static final Duration DATETIME_INCR_EXPIRE_DURATION = Duration.ofSeconds(3);
+    private static final Duration DATETIME_INCR_EXPIRE_DURATION = Duration.ofMinutes(1);
 
     /**
      * 获取日期时间+自增的业务id
