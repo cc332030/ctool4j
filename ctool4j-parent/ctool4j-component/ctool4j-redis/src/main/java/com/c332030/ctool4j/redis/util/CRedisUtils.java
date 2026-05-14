@@ -9,7 +9,7 @@ import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
-import com.c332030.ctool4j.spring.util.CSpringUtils;
+import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -37,6 +37,9 @@ public class CRedisUtils {
     public final String KEY_SEPARATOR = ":";
 
     @CAutowired
+    CSpringApplicationConfig springApplicationConfig;
+
+    @CAutowired
     CObjectValueRedisService redisService;
 
     @CAutowired
@@ -50,6 +53,13 @@ public class CRedisUtils {
         return stringStringRedisService.getRedisTemplate();
     }
 
+    public String getApplicationPrefix() {
+        return StrUtil.emptyToDefault(
+            springApplicationConfig.getGroup(),
+            springApplicationConfig.getName()
+        );
+    }
+
     public String getKey(Class<?> clazz, ICOperate icOperate, Object key) {
         return getKey(clazz, icOperate.getName(), key);
     }
@@ -57,7 +67,7 @@ public class CRedisUtils {
     public String getKey(Class<?> clazz, Object... keys) {
 
         val keyList = new ArrayList<>();
-        keyList.add(CSpringUtils.getApplicationName());
+        keyList.add(getApplicationPrefix());
         keyList.add(clazz.getSimpleName());
         keyList.addAll(Arrays.asList(keys));
 

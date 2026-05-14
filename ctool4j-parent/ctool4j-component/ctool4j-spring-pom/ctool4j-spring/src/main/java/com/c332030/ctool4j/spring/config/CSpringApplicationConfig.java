@@ -14,6 +14,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("spring.application")
 public class CSpringApplicationConfig {
 
+    /**
+     * 分组-自定义属性
+     */
+    String group;
+
+    /**
+     * 应用名称
+     */
     String name;
 
 }
