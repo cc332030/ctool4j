@@ -5,7 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CObjUtils;
-import com.c332030.ctool4j.definition.annotation.CIdPrefix;
+import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -40,8 +40,8 @@ public class CIdUtils {
 
     private final CClassValue<String> CLASS_PREFIX = CClassValue.of(type -> {
 
-        val idPrefixAnno = type.getAnnotation(CIdPrefix.class);
-        val idPrefix = CObjUtils.convert(idPrefixAnno, CIdPrefix::value);
+        val idPrefixAnno = type.getAnnotation(CBizId.class);
+        val idPrefix = CObjUtils.convert(idPrefixAnno, CBizId::value);
         if(StrUtil.isNotBlank(idPrefix)) {
             return idPrefix;
         }
