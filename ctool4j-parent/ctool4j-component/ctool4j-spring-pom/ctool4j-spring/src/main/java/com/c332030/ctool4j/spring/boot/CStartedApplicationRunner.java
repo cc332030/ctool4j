@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.spring.boot;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.spring.util.CSpringUtils;
 import lombok.val;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,7 +19,7 @@ public interface CStartedApplicationRunner extends ApplicationRunner {
     default void run(ApplicationArguments args) {
 
         val log = CLogUtils.getLog(CStartedApplicationRunner.class);
-        log.info("(♥◠‿◠)ﾉﾞ  {} 启动成功  ლ(´ڡ`ლ)ﾞ", SpringUtil.getApplicationName());
+        log.info("(♥◠‿◠)ﾉﾞ  {} 启动成功  ლ(´ڡ`ლ)ﾞ", CSpringUtils.getApplicationName());
 
     }
 

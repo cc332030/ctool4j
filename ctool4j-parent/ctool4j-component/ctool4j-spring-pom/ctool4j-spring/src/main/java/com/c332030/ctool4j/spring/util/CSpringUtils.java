@@ -33,6 +33,14 @@ import java.util.function.Consumer;
 public class CSpringUtils {
 
     /**
+     * 获取当前应用分组
+     * @return 应用分组
+     */
+    public String getApplicationGroup() {
+        return CSpringConfigBeans.getSpringApplicationConfig().getGroup();
+    }
+
+    /**
      * 获取当前应用名称
      * @return 应用名称
      */
