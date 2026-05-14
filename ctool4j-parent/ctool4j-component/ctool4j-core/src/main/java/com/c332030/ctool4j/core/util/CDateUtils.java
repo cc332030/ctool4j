@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
@@ -77,6 +78,38 @@ public class CDateUtils {
     public String formatDateTime(Instant instant) {
         return DateUtil.formatDateTime(toDate(instant));
     }
+
+    /**
+     * 格式化纯日期字符串
+     *
+     * @param instant Instant
+     * @return 纯日期字符串
+     */
+    public String formatPureDate(Instant instant) {
+        return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_DATE_PATTERN);
+    }
+
+    /**
+     * 格式化纯时间字符串
+     *
+     * @param instant Instant
+     * @return 纯时间字符串
+     */
+    public String formatPureTime(Instant instant) {
+        return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_TIME_PATTERN);
+    }
+
+    /**
+     * 格式化纯日期时间字符串
+     *
+     * @param instant Instant
+     * @return 纯日期时间字符串
+     */
+    public String formatPureDateTime(Instant instant) {
+        return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_DATETIME_PATTERN);
+    }
+
+
 
     /**
      * 日期时间字符串转Instant
