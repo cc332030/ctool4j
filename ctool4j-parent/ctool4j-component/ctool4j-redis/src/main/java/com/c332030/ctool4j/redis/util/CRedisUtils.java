@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.redis.util;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.util.CDateUtils;
 import com.c332030.ctool4j.core.util.CIdUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
@@ -256,7 +255,7 @@ public class CRedisUtils {
      */
     public String getIncrBizId(String keyBefore, int incrLength) {
 
-        val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, SpringUtil.getApplicationName(), keyBefore);
+        val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, getApplicationPrefix(), keyBefore);
         val incrValue = incr(incrKey);
 
         val keyAfter = StrUtil.fillBefore(String.valueOf(incrValue), '0', incrLength);
@@ -272,7 +271,7 @@ public class CRedisUtils {
      */
     public String getIncrExpireBizId(String keyBefore, Duration duration, int incrLength) {
 
-        val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, SpringUtil.getApplicationName(), keyBefore);
+        val incrKey = StrUtil.format(BIZ_ID_INCR_KEY, getApplicationPrefix(), keyBefore);
         val incrValue = incrExpire(incrKey, duration);
 
         val keyAfter = StrUtil.fillBefore(String.valueOf(incrValue), '0', incrLength);
