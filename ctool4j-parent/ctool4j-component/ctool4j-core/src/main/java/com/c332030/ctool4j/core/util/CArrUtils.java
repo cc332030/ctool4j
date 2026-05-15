@@ -137,4 +137,13 @@ public class CArrUtils {
             .toArray(EMPAY_STR_ARR);
     }
 
+    public <T> T first(T[] arr) {
+
+        if(ArrayUtil.isEmpty(arr)){
+            return null;
+        }
+
+        return arr[0];
+    }
+
 }

@@ -4,6 +4,8 @@ import com.c332030.ctool4j.feign.client.CFeignClient;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.interceptor.CFeignInterceptor;
 import com.c332030.ctool4j.feign.log.CFeignLogger;
+import com.c332030.ctool4j.feign.util.CFeignUtils;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import feign.Client;
 import feign.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -18,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2025/9/21
  */
 @Configuration
+@CAutowiredScan(CFeignUtils.class)
 public class CFeignConfiguration {
 
     @Bean

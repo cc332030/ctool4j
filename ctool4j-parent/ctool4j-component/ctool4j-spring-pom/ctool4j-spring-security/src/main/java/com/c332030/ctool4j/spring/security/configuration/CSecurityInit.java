@@ -17,7 +17,7 @@ public class CSecurityInit implements ICSpringInit {
 
     @Override
     public void onInit() {
-        CAutowiredUtils.autowired(CAuthenticationUtils.class);
+
     }
 
 }

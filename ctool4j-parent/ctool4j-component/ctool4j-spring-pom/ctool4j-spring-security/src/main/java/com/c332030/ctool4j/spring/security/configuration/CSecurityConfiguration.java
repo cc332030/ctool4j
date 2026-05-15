@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.security.configuration;
 
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig;
 import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchersPathConfig;
 import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
@@ -7,6 +8,7 @@ import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
 import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrategy;
 import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.service.impl.CEmptyUserDetailService;
+import com.c332030.ctool4j.spring.security.util.CAuthenticationUtils;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -38,6 +40,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
+@CAutowiredScan(CAuthenticationUtils.class)
 public class CSecurityConfiguration {
 
     CSpringSecurityConfig config;

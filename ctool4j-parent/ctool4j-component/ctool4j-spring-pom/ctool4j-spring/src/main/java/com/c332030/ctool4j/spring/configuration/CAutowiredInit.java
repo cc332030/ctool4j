@@ -1,6 +1,11 @@
 package com.c332030.ctool4j.spring.configuration;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CArrUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
 import com.c332030.ctool4j.spring.util.CAutowiredUtils;
@@ -9,7 +14,9 @@ import lombok.CustomLog;
 import lombok.val;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -28,21 +35,31 @@ public class CAutowiredInit implements ICSpringInit {
     public void onInit() {
 
         val start = System.currentTimeMillis();
-        log.info("CAutowiredScan start");
+        log.debug("CAutowiredScan start");
 
         val beans = CSpringUtils.getBeansWithAnnotation(CAutowiredScan.class);
-        beans.values()
+        val fields = beans.values()
                 .stream()
                 .map(bean -> bean.getClass().getAnnotation(CAutowiredScan.class))
                 .map(CAutowiredScan::value)
                 .flatMap(Arrays::stream)
-                .forEach(type -> {
-                    log.info("CAutowiredScan type: {}", type);
-                    CAutowiredUtils.autowired(type);
-                });
+                .map(Class::getDeclaredFields)
+                .flatMap(Arrays::stream)
+                .filter(CReflectUtils::isStatic)
+                .filter(field -> field.isAnnotationPresent(CAutowired.class))
+                .collect(Collectors.toList());
+
+        val typeGroupMap = CCollUtils.groupingBy(fields, Field::getType);
+
+        typeGroupMap.forEach((argType, list) -> {
+
+            val bean = SpringUtil.getBean(argType);
+            list.forEach(field -> CReflectUtils.setValue(null, field, bean));
+
+        });
 
         val cost = System.currentTimeMillis() - start;
-        log.info("CAutowiredScan end, cost: {}ms", cost);
+        log.info("CAutowired {} fields cost: {}ms", fields.size(), cost);
 
     }
 
