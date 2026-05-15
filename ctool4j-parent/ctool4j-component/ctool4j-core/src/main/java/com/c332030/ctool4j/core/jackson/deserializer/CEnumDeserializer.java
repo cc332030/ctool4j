@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.jackson.deserializer;
 
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.core.util.CEnumUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.fasterxml.jackson.core.JsonParser;
@@ -10,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 
 import java.io.IOException;
 
@@ -49,14 +49,8 @@ public class CEnumDeserializer
     @SuppressWarnings("unchecked")
     public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) {
 
-        val type = property.getType();
-        var rawClass = type.getRawClass();
-        if(type.isCollectionLikeType()) {
-            rawClass = type.getContentType().getRawClass();
-        }
-
-        val finalRawClass = rawClass;
-        CAssert.isTrue(rawClass.isEnum(), () -> "rawClass is not enum: " + finalRawClass);
+        val rawClass = CJacksonUtils.getRawClass(property);
+        CAssert.isTrue(rawClass.isEnum(), () -> "rawClass is not enum: " + rawClass);
         return new CEnumDeserializer((Class<Enum<?>>) rawClass);
     }
 

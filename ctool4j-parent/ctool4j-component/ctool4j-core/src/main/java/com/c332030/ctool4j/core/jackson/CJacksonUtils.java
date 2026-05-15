@@ -8,10 +8,7 @@ import com.c332030.ctool4j.core.jackson.serializer.CInstantSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.experimental.UtilityClass;
@@ -108,6 +105,21 @@ public class CJacksonUtils {
         objectMapper.findAndRegisterModules();
 
         return objectMapper;
+    }
+
+    /**
+     * 反序列化获取字段类型
+     * @param property 字段属性
+     * @return 字段类型
+     */
+    public Class<?> getRawClass(BeanProperty property) {
+
+        val type = property.getType();
+        if(!type.isCollectionLikeType()) {
+            return type.getRawClass();
+        }
+
+        return type.getContentType().getRawClass();
     }
 
 }
