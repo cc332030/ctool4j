@@ -5,11 +5,11 @@ import com.c332030.ctool4j.core.util.CEnumUtils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import lombok.Getter;
 import lombok.val;
+import lombok.var;
 
 import java.io.IOException;
 
@@ -48,8 +48,13 @@ public class CEnumDeserializer
     @SuppressWarnings("unchecked")
     public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) {
 
-        JavaType type = property.getType();
-        return new CEnumDeserializer((Class<Enum<?>>) type.getRawClass());
+        val type = property.getType();
+        var rawClass = type.getRawClass();
+        if(type.isCollectionLikeType()) {
+            rawClass = type.getContentType().getRawClass();
+        }
+
+        return new CEnumDeserializer((Class<Enum<?>>) rawClass);
     }
 
 }
