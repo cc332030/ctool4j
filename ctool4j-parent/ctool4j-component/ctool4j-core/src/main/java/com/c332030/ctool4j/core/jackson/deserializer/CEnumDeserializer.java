@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.jackson.deserializer;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CEnumUtils;
+import com.c332030.ctool4j.core.validation.CAssert;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -54,6 +55,8 @@ public class CEnumDeserializer
             rawClass = type.getContentType().getRawClass();
         }
 
+        val finalRawClass = rawClass;
+        CAssert.isTrue(rawClass.isEnum(), () -> "rawClass is not enum: " + finalRawClass);
         return new CEnumDeserializer((Class<Enum<?>>) rawClass);
     }
 
