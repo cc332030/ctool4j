@@ -19,6 +19,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-definition</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <scope>provided</scope>
