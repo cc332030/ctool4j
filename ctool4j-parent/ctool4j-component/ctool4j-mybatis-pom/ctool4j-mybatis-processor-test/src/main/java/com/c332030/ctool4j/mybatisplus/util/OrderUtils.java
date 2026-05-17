@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.util;
 
+import com.c332030.ctool4j.mybatisplus.service.IOrderService;
+
 /**
  * <p>
  * Description: OrderUtils
@@ -10,9 +12,11 @@ package com.c332030.ctool4j.mybatisplus.util;
  */
 public class OrderUtils {
 
+    IOrderService orderService;
+
     public void test(){
 
-//        orderService.getByOrderNo("123");
+        orderService.getByOrderNo("123");
 
     }
 
