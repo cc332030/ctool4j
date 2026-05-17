@@ -12,7 +12,7 @@ import com.c332030.ctool4j.redis.util.CLockUtils;
  *
  * @since 2025/12/8
  */
-public interface ICMpLockService<ENTITY> extends ICBaseService<ENTITY> {
+public interface ICMpLockService<ENTITY> extends ICService<ENTITY> {
 
     /**
      * 获取插入锁 key

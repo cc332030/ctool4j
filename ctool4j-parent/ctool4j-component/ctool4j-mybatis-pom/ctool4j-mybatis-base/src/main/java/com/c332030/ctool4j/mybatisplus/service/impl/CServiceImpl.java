@@ -1,7 +1,8 @@
 package com.c332030.ctool4j.mybatisplus.service.impl;
 
-import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
+import com.c332030.ctool4j.mybatisplus.service.ICService;
 
 /**
  * <p>
@@ -11,11 +12,7 @@ import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
  * @since 2025/11/27
  */
 public abstract class CServiceImpl<M extends CBaseMapper<T>, T>
-        extends CBaseServiceImpl<M, T> {
-
-    @Override
-    public Class<T> getEntityClass() {
-        return CObjUtils.anyType(entityClass);
-    }
+        extends ServiceImpl<M, T>
+        implements ICService<T> {
 
 }

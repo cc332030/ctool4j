@@ -17,13 +17,13 @@ import java.util.Objects;
 
 /**
  * <p>
- * Description: ICBizBaseService
+ * Description: ICBizService
  * </p>
  *
  * @since 2025/12/6
  */
-public interface ICBizBaseService<ENTITY extends BIZ, BIZ>
-        extends ICBaseService<ENTITY>{
+public interface ICBizService<ENTITY extends BIZ, BIZ>
+        extends ICService<ENTITY> {
 
     String getBizId(BIZ biz);
 
@@ -141,6 +141,36 @@ public interface ICBizBaseService<ENTITY extends BIZ, BIZ>
         }
         return listByBizIdsThenConvert(bizIds, list ->
                 CCollUtils.groupingBy(list, this::getBizId));
+    }
+
+    default Long countByBizId(String bizId){
+        if(StrUtil.isBlank(bizId)) {
+            return 0L;
+        }
+        return countByValue(getBizIdColumn(), bizId);
+    }
+
+    default Long countByBizId(BIZ biz){
+        if(biz == null) {
+            return 0L;
+        }
+        return countByBizId(getBizId(biz));
+    }
+
+    default Long countByBizIds(Collection<String> bizIds){
+        if(CollUtil.isEmpty(bizIds)) {
+            return 0L;
+        }
+        return countByValues(getBizIdColumn(), bizIds);
+    }
+
+    default Long countByBizIds(List<? extends BIZ> bizList){
+
+        if(CollUtil.isEmpty(bizList)) {
+            return 0L;
+        }
+        val bizIds = convertValues(bizList, this::getBizId);
+        return countByBizIds(bizIds);
     }
 
     default boolean removeByBizIds(Collection<String> bizIds){

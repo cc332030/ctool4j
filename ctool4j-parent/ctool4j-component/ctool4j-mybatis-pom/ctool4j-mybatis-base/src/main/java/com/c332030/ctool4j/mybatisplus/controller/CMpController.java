@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.c332030.ctool4j.definition.entity.base.CId;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
-import com.c332030.ctool4j.mybatisplus.service.ICBaseService;
+import com.c332030.ctool4j.mybatisplus.service.ICService;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
 import lombok.CustomLog;
 import lombok.Setter;
@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
  * @since 2026/1/20
  */
 @CustomLog
-public abstract class CMpController<S extends ICBaseService<T>, T> implements ICSpringInit {
+public abstract class CMpController<S extends ICService<T>, T> implements ICSpringInit {
 
     @Setter(onMethod_ = @Autowired)
     protected S service;

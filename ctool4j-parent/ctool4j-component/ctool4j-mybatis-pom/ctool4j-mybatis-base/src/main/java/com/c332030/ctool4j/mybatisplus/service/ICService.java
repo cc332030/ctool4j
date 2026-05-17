@@ -27,12 +27,12 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: ICBaseService
+ * Description: ICService
  * </p>
  *
  * @since 2025/11/27
  */
-public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
+public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
 
     List<OrderItem> ID_ORDER_ITEMS = CList.of(
         OrderItem.desc("id")
@@ -182,6 +182,45 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
                 .eq(column, value)
                 .list();
     }
+
+
+    default Long countByValue(ENTITY entity, SFunction<ENTITY, ?> column){
+        if(null == entity) {
+            return 0L;
+        }
+        return countByValue(column, convertValue(entity, column));
+    }
+    default Long countByValue(SFunction<ENTITY, ?> column, Object value){
+        if(null == value) {
+            return 0L;
+        }
+        return lambdaQuery()
+                .eq(column, value)
+                .count()
+                .longValue();
+    }
+
+    default Long countByValues(Collection<ENTITY> collection, SFunction<ENTITY, ?> column){
+
+        if(CollUtil.isEmpty(collection)) {
+            return 0L;
+        }
+
+        val values = convertValues(collection, column);
+        return countByValues(column, values);
+    }
+
+    default Long countByValues(SFunction<ENTITY, ?> column, Collection<?> values){
+
+        if(CollUtil.isEmpty(values)) {
+            return 0L;
+        }
+        return lambdaQuery()
+                .in(column, values)
+                .count()
+                .longValue();
+    }
+
 
     default boolean updateByValue(ENTITY entity, SFunction<ENTITY, ?> column){
         if(null == entity) {
