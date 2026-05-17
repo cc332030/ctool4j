@@ -22,6 +22,11 @@
             <artifactId>ctool4j-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-autowired-processor</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
