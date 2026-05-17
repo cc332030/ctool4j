@@ -25,7 +25,7 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        this.template = loadTemplate("/templates/service.ftl");
+        this.template = loadTemplate("/templates/biz-service.ftl");
     }
 
     @Override
