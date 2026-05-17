@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
-import com.c332030.ctool4j.mybatisplus.entity.IOrderNo;
 import com.c332030.ctool4j.mybatisplus.entity.OrderDO;
 import com.c332030.ctool4j.mybatisplus.mapper.OrderMapper;
 import com.c332030.ctool4j.mybatisplus.service.impl.CServiceImpl;
