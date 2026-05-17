@@ -13,6 +13,7 @@
 
     <modules>
         <module>ctool4j-boot-parent</module>
+        <module>ctool4j-mybatis-parent</module>
     </modules>
 
 </project>
