@@ -96,6 +96,10 @@
                                 <groupId>com.c332030</groupId>
                                 <artifactId>ctool4j-autowired-processor</artifactId>
                             </path>
+                            <path>
+                                <groupId>com.c332030</groupId>
+                                <artifactId>ctool4j-mybatis-processor</artifactId>
+                            </path>
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>

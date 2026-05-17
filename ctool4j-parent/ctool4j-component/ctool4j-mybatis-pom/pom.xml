@@ -16,8 +16,6 @@
         <module>ctool4j-mybatis-33</module>
         <module>ctool4j-mybatis-34</module>
         <module>ctool4j-mybatis</module>
-        <module>ctool4j-mybatis-processor</module>
-        <module>ctool4j-mybatis-processor-test</module>
     </modules>
 
     <dependencies>

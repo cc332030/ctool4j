@@ -13,6 +13,8 @@
 
     <modules>
         <module>ctool4j-autowired-processor</module>
+        <module>ctool4j-mybatis-processor</module>
+        <module>ctool4j-mybatis-processor-test</module>
     </modules>
 
     <dependencies>
