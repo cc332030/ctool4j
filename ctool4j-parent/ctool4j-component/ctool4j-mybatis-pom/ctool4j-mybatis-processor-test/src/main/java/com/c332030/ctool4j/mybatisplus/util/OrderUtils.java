@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.mybatisplus.entity;
+package com.c332030.ctool4j.mybatisplus.util;
 
 /**
  * <p>
@@ -10,10 +10,10 @@ package com.c332030.ctool4j.mybatisplus.entity;
  */
 public class OrderUtils {
 
-//    public void s(){
-//
+    public void test(){
+
 //        orderService.getByOrderNo("123");
-//
-//    }
+
+    }
 
 }
