@@ -14,13 +14,13 @@ import java.util.*;
 
 /**
  * <p>
- * Description: AutoBizService 注解处理器
+ * Description: CAutoBizService 注解处理器
  * </p>
  *
  * @since 2025/05/16
  */
-@SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.processor.AutoBizService")
-public class AutoBizServiceProcessor extends AbstractProcessor {
+@SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.processor.CAutoBizService")
+public class CAutoBizServiceProcessor extends AbstractProcessor {
 
     private String template;
 

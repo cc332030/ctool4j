@@ -2,7 +2,7 @@ package com.c332030.ctool4j.mybatisplus.entity;
 
 import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
-import com.c332030.ctool4j.mybatisplus.processor.AutoBizService;
+import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@AutoBizService
+@CAutoBizService
 public class Order extends CBaseEntity<Long> {
 
     @CBizId
