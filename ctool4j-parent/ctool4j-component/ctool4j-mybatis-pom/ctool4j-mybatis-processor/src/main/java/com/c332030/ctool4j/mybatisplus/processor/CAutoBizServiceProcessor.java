@@ -1,13 +1,11 @@
 package com.c332030.ctool4j.mybatisplus.processor;
 
-import com.c332030.ctool4j.definition.annotation.CBizId;
-import lombok.val;
-import lombok.var;
-
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -40,34 +38,34 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
         if (template == null) {
             return true;
         }
-        for (val annotation : annotations) {
-            for (val element : roundEnv.getElementsAnnotatedWith(annotation)) {
-                if (element.getKind() == ElementKind.CLASS) {
-                    val classElement = (TypeElement) element;
-                    generateServiceInterface(classElement);
+        for (TypeElement annotation : annotations) {
+            for (Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
+                if (element.getKind() == ElementKind.INTERFACE) {
+                    TypeElement interfaceElement = (TypeElement) element;
+                    generateServiceInterface(interfaceElement);
                 }
             }
         }
         return true;
     }
 
-    private void generateServiceInterface(TypeElement entityElement) {
-        val bizIdField = findBizIdField(entityElement);
+    private void generateServiceInterface(TypeElement interfaceElement) {
+        String bizIdField = findBizIdField(interfaceElement);
         if (bizIdField == null) {
             return;
         }
 
-        val entityName = entityElement.getSimpleName().toString();
-        val entityPackage = getPackageName(entityElement);
-        val entityFullName = entityElement.getQualifiedName().toString();
+        String entityName = interfaceElement.getSimpleName().toString();
+        String entityPackage = getPackageName(interfaceElement);
+        String entityFullName = interfaceElement.getQualifiedName().toString();
 
-        val bizIdCapital = capitalize(bizIdField);
+        String bizIdCapital = capitalize(bizIdField);
 
-        val serviceName = "I" + entityName + "Service";
-        val servicePackage = getSiblingPackage(entityPackage, "service");
-        val serviceFullName = servicePackage + "." + serviceName;
+        String serviceName = "I" + entityName.replaceFirst("^I", "") + "Service";
+        String servicePackage = getSiblingPackage(entityPackage, "service");
+        String serviceFullName = servicePackage + "." + serviceName;
 
-        val code = render(template,
+        String code = render(template,
                 "packageName", servicePackage,
                 "serviceName", serviceName,
                 "entityName", entityName,
@@ -77,9 +75,9 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
         );
 
         try {
-            val sourceFile = processingEnv.getFiler()
-                    .createSourceFile(serviceFullName, entityElement);
-            try (val writer = sourceFile.openWriter()) {
+            JavaFileObject sourceFile = processingEnv.getFiler()
+                    .createSourceFile(serviceFullName, interfaceElement);
+            try (Writer writer = sourceFile.openWriter()) {
                 writer.write(code);
             }
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
@@ -90,38 +88,47 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
         }
     }
 
-    private String findBizIdField(TypeElement classElement) {
+    private String findBizIdField(TypeElement interfaceElement) {
+        List<String> bizIdMethods = new ArrayList<>();
 
-        val bizIdFields = new ArrayList<String>();
-        for (val enclosed : classElement.getEnclosedElements()) {
-            if (enclosed.getKind() == ElementKind.FIELD) {
-                val bizIdAnno = enclosed.getAnnotation(CBizId.class);
-                if (bizIdAnno != null) {
-                    bizIdFields.add(enclosed.getSimpleName().toString());
+        for (Element enclosed : interfaceElement.getEnclosedElements()) {
+            if (enclosed.getKind() == ElementKind.METHOD) {
+                ExecutableElement method = (ExecutableElement) enclosed;
+                String methodName = method.getSimpleName().toString();
+
+                if (methodName.startsWith("get")
+                        && method.getParameters().isEmpty()
+                        && method.getReturnType().getKind() == TypeKind.DECLARED) {
+
+                    String returnType = method.getReturnType().toString();
+                    if (returnType.equals("java.lang.String")) {
+                        String fieldName = uncapitalize(methodName.substring(3));
+                        bizIdMethods.add(fieldName);
+                    }
                 }
             }
         }
 
-        if (bizIdFields.isEmpty()) {
+        if (bizIdMethods.isEmpty()) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                    "No @CBizId field found in " + classElement.getQualifiedName());
+                    "No getter method returning String found in " + interfaceElement.getQualifiedName());
             return null;
         }
 
-        if (bizIdFields.size() > 1) {
+        if (bizIdMethods.size() > 1) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                    "Multiple @CBizId fields found in " + classElement.getQualifiedName() +
-                            ": " + bizIdFields + ", only one is allowed");
+                    "Multiple getter methods returning String found in " + interfaceElement.getQualifiedName() +
+                            ": " + bizIdMethods + ", only one is allowed");
             return null;
         }
 
-        return bizIdFields.get(0);
+        return bizIdMethods.get(0);
     }
 
     private String loadTemplate(String path) {
-        try (val is = getClass().getResourceAsStream(path);
-             val reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            val sb = new StringBuilder();
+        try (InputStream is = getClass().getResourceAsStream(path);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append('\n');
@@ -133,7 +140,7 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
     }
 
     private String getPackageName(TypeElement element) {
-        val enclosing = element.getEnclosingElement();
+        Element enclosing = element.getEnclosingElement();
         if (enclosing.getKind() == ElementKind.PACKAGE) {
             return ((PackageElement) enclosing).getQualifiedName().toString();
         }
@@ -141,7 +148,7 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
     }
 
     private String getSiblingPackage(String entityPackage, String sibling) {
-        val lastDot = entityPackage.lastIndexOf('.');
+        int lastDot = entityPackage.lastIndexOf('.');
         if (lastDot > 0) {
             return entityPackage.substring(0, lastDot) + "." + sibling;
         }
@@ -153,11 +160,16 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
+    private String uncapitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+    }
+
     private String render(String template, String... kv) {
-        var result = template;
+        String result = template;
         for (int i = 0; i < kv.length; i += 2) {
-            val key = kv[i];
-            val value = kv[i + 1];
+            String key = kv[i];
+            String value = kv[i + 1];
             result = result.replace("${" + key + "}", value);
         }
         return result;
