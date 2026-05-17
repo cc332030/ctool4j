@@ -160,8 +160,8 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(${bizIdField}s)) {
             return CMap.of();
         }
-        return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(Collectors.toMap(ENTITY::get${BizIdCapital}, e -> e, (e1, e2) -> e1));
+        val entities = listBy${BizIdCapital}s(${bizIdField}s);
+        return CCollUtils.toMap(entities, ENTITY::get${BizIdCapital});
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
