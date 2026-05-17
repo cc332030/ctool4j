@@ -92,7 +92,7 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
 
     private String findBizIdField(TypeElement classElement) {
 
-        val bizIdFields = new ArrayList<>();
+        val bizIdFields = new ArrayList<String>();
         for (val enclosed : classElement.getEnclosedElements()) {
             if (enclosed.getKind() == ElementKind.FIELD) {
                 val bizIdAnno = enclosed.getAnnotation(CBizId.class);
