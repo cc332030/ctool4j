@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * <p>Description: ${serviceName}</p>
@@ -26,7 +27,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default ENTITY getBy${BizIdCapital}(String ${bizIdField}) {
         if(StrUtil.isBlank(${bizIdField})) { return null; }
-        return lambdaQuery().eq(get${BizIdCapital}Column(), ${bizIdField}).one();
+        return lambdaQuery()
+            .eq(get${BizIdCapital}Column(), ${bizIdField})
+            .one();
     }
 
     default ENTITY getBy${BizIdCapital}(ENTITY entity) {
@@ -44,7 +47,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default List<ENTITY> listBy${BizIdCapital}(String ${bizIdField}) {
         if(StrUtil.isBlank(${bizIdField})) { return CList.of(); }
-        return lambdaQuery().eq(get${BizIdCapital}Column(), ${bizIdField}).list();
+        return lambdaQuery()
+            .eq(get${BizIdCapital}Column(), ${bizIdField})
+            .list();
     }
 
     default List<ENTITY> listBy${BizIdCapital}(ENTITY entity) {
@@ -54,7 +59,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default Long countBy${BizIdCapital}(String ${bizIdField}) {
         if(StrUtil.isBlank(${bizIdField})) { return 0L; }
-        return lambdaQuery().eq(get${BizIdCapital}Column(), ${bizIdField}).count();
+        return lambdaQuery()
+            .eq(get${BizIdCapital}Column(), ${bizIdField})
+            .count();
     }
 
     default Long countBy${BizIdCapital}(ENTITY entity) {
@@ -69,7 +76,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default boolean removeBy${BizIdCapital}(String ${bizIdField}) {
         if(StrUtil.isBlank(${bizIdField})) { return false; }
-        return lambdaUpdate().eq(get${BizIdCapital}Column(), ${bizIdField}).remove();
+        return lambdaUpdate()
+            .eq(get${BizIdCapital}Column(), ${bizIdField})
+            .remove();
     }
 
     default boolean removeBy${BizIdCapital}(ENTITY entity) {
@@ -79,7 +88,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default List<ENTITY> listBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
         if(CollUtil.isEmpty(${bizIdField}s)) { return CList.of(); }
-        return lambdaQuery().in(get${BizIdCapital}Column(), ${bizIdField}s).list();
+        return lambdaQuery()
+                .in(get${BizIdCapital}Column(), ${bizIdField}s)
+                .list();
     }
 
     default List<ENTITY> listBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
@@ -90,7 +101,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default Long countBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
         if(CollUtil.isEmpty(${bizIdField}s)) { return 0L; }
-        return lambdaQuery().in(get${BizIdCapital}Column(), ${bizIdField}s).count();
+        return lambdaQuery()
+            .in(get${BizIdCapital}Column(), ${bizIdField}s)
+            .count();
     }
 
     default Long countBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
@@ -101,7 +114,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
 
     default boolean removeBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
         if(CollUtil.isEmpty(${bizIdField}s)) { return false; }
-        return lambdaUpdate().in(get${BizIdCapital}Column(), ${bizIdField}s).remove();
+        return lambdaUpdate()
+            .in(get${BizIdCapital}Column(), ${bizIdField}s)
+            .remove();
     }
 
     default boolean removeBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
@@ -114,7 +129,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(${bizIdField}s)) { return CMap.of(); }
         SFunction<ENTITY, String> column = get${BizIdCapital}Column();
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(java.util.stream.Collectors.toMap(column, e -> e, (a, b) -> a));
+            .collect(Collectors.toMap(column, e -> e, (a, b) -> a));
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
@@ -127,7 +142,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(${bizIdField}s)) { return CMap.of(); }
         SFunction<ENTITY, String> column = get${BizIdCapital}Column();
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(java.util.stream.Collectors.groupingBy(column));
+            .collect(Collectors.groupingBy(column));
     }
 
 }
