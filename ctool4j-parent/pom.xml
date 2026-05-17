@@ -12,8 +12,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>ctool4j-component</module>
         <module>ctool4j-pom</module>
+        <module>ctool4j-component</module>
     </modules>
 
     <dependencyManagement>

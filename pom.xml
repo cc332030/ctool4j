@@ -81,6 +81,7 @@
     <modules>
         <module>ctool4j-dependencies</module>
         <module>ctool4j-bom</module>
+        <module>ctool4j-processor-pom</module>
         <module>ctool4j-parent</module>
     </modules>
 
