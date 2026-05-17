@@ -5,11 +5,10 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.db.enums.CSqlSeparatorEnum;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -24,6 +23,21 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CSqlUtils {
 
+    public final String LIMIT_ONE = limitSql(1);
+
+    public String limitSql() {
+        return limitSql(CPageUtils.DEFAULT_PAGE_SIZE);
+    }
+
+    public String limitSql(Integer size) {
+        return "limit " + size;
+    }
+
+    public String forUpdate() {
+        return "for update";
+    }
+
+
     public static final String TABLE_ALIAS_T = "t";
 
     public static final String TABLE_ALIAS_T1 = "t1";
@@ -36,9 +50,10 @@ public class CSqlUtils {
 
     /**
      * 获取数据库字段名，驼峰转下划线
+     *
      * @param func 属性 lambda
+     * @param <T>  泛型
      * @return 数据库字段名
-     * @param <T> 泛型
      */
     public <T> String toColumnName(Func1<T, ?> func) {
         return toColumnName(LambdaUtil.getFieldName(func));
@@ -46,6 +61,7 @@ public class CSqlUtils {
 
     /**
      * 获取数据库字段名，驼峰转下划线
+     *
      * @param fieldName 属性名
      * @return 数据库字段名
      */
@@ -63,10 +79,10 @@ public class CSqlUtils {
 
     private String getAliasName(String column, String alias) {
 
-        if(StrUtil.isBlank(alias)
-                || BooleanUtils.TRUE.equalsIgnoreCase(column)
-                || BooleanUtils.FALSE.equalsIgnoreCase(column)
-        ){
+        if (StrUtil.isBlank(alias)
+            || Boolean.TRUE.toString().equalsIgnoreCase(column)
+            || Boolean.FALSE.toString().equalsIgnoreCase(column)
+        ) {
             return column;
         }
 
@@ -75,30 +91,32 @@ public class CSqlUtils {
 
     /**
      * 获取字段 sql
+     *
      * @param funcList 属性 lambda 列表
-     * @param alias 别名
+     * @param alias    别名
+     * @param <T>      泛型
      * @return sql
-     * @param <T> 泛型
      */
     public <T> String getColumnsSql(Collection<Func1<T, ?>> funcList, String alias) {
 
         if (CollUtil.isEmpty(funcList)) {
-            return StringUtils.EMPTY;
+            return StrUtil.EMPTY;
         }
 
         return funcList.stream()
-                .map(LambdaUtil::getFieldName)
-                .map(CSqlUtils::toColumnName)
-                .map(column -> getAliasName(column, alias))
-                .collect(Collectors.joining(","));
+            .map(LambdaUtil::getFieldName)
+            .map(CSqlUtils::toColumnName)
+            .map(column -> getAliasName(column, alias))
+            .collect(Collectors.joining(","));
     }
 
     /**
      * 大于 sql
-     * @param func 属性 lambda
+     *
+     * @param func   属性 lambda
      * @param number 数值
+     * @param <T>    泛型
      * @return sql
-     * @param <T> 泛型
      */
     public <T> String getGreaterSql(Func1<T, ?> func, Number number) {
         return getGreaterSql(func, number, null);
@@ -106,17 +124,18 @@ public class CSqlUtils {
 
     /**
      * 大于 sql
-     * @param func 属性 lambda
+     *
+     * @param func   属性 lambda
      * @param number 数值
-     * @param alias 别名
+     * @param alias  别名
+     * @param <T>    泛型
      * @return sql
-     * @param <T> 泛型
      */
     public <T> String getGreaterSql(Func1<T, ?> func, Number number, String alias) {
         return CStrUtils.format(
-                "{} > {}",
-                getColumnAliasName(func, alias),
-                number
+            "{} > {}",
+            getColumnAliasName(func, alias),
+            number
         );
     }
 
@@ -125,50 +144,52 @@ public class CSqlUtils {
     }
 
     public <T1, T2> String getEqualsSql(
-            Func1<T1, ?> leftFunc, String leftAlias,
-            Func1<T2, ?> rightFunc, String rightAlias
+        Func1<T1, ?> leftFunc, String leftAlias,
+        Func1<T2, ?> rightFunc, String rightAlias
     ) {
         return CStrUtils.format(
-                "{} = {}",
-                getColumnAliasName(leftFunc, leftAlias),
-                getColumnAliasName(rightFunc, rightAlias)
+            "{} = {}",
+            getColumnAliasName(leftFunc, leftAlias),
+            getColumnAliasName(rightFunc, rightAlias)
         );
     }
 
 
     /**
      * 获取等于 sql
-     * @param pairs 属性 lambda 列表
+     *
+     * @param pairs         属性 lambda 列表
      * @param separatorEnum 分隔符枚举
+     * @param <T1>          左 泛型
+     * @param <T2>          右 泛型
      * @return sql
-     * @param <T1> 左 泛型
-     * @param <T2> 右 泛型
      */
     public <T1, T2> String getEqualsSql(
-            Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
-            CSqlSeparatorEnum separatorEnum
+        Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
+        CSqlSeparatorEnum separatorEnum
     ) {
         return getEqualsSql(pairs, null, null, separatorEnum);
     }
 
     /**
      * 获取等于 sql
-     * @param pairs 属性 lambda 列表
-     * @param leftAlias 左 别名
-     * @param rightAlias 右 别名
+     *
+     * @param pairs         属性 lambda 列表
+     * @param leftAlias     左 别名
+     * @param rightAlias    右 别名
      * @param separatorEnum 分隔符枚举
+     * @param <T1>          左 泛型
+     * @param <T2>          右 泛型
      * @return sql
-     * @param <T1> 左 泛型
-     * @param <T2> 右 泛型
      */
     public <T1, T2> String getEqualsSql(
-            Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
-            String leftAlias, String rightAlias,
-            CSqlSeparatorEnum separatorEnum
+        Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
+        String leftAlias, String rightAlias,
+        CSqlSeparatorEnum separatorEnum
     ) {
         return pairs.stream()
-                .map(pair -> getEqualsSql(pair.getKey(), leftAlias, pair.getValue(), rightAlias))
-                .collect(separatorEnum.getJoiningCollector());
+            .map(pair -> getEqualsSql(pair.getKey(), leftAlias, pair.getValue(), rightAlias))
+            .collect(separatorEnum.getJoiningCollector());
     }
 
 }

@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.mybatisplus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
@@ -12,5 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface CBaseMapper<T> extends BaseMapper<T> {
 
     int insertIgnore(T entity);
+
+    int updateAllById(@Param(Constants.ENTITY) T entity);
 
 }

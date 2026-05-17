@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
@@ -79,6 +80,38 @@ public class CDateUtils {
     }
 
     /**
+     * 格式化纯日期字符串
+     *
+     * @param instant Instant
+     * @return 纯日期字符串
+     */
+    public String formatPureDate(Instant instant) {
+        return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_DATE_PATTERN);
+    }
+
+    /**
+     * 格式化纯时间字符串
+     *
+     * @param instant Instant
+     * @return 纯时间字符串
+     */
+    public String formatPureTime(Instant instant) {
+        return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_TIME_PATTERN);
+    }
+
+    /**
+     * 格式化纯日期时间字符串
+     *
+     * @param instant Instant
+     * @return 纯日期时间字符串
+     */
+    public String formatPureDateTime(Instant instant) {
+        return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_DATETIME_PATTERN);
+    }
+
+
+
+    /**
      * 日期时间字符串转Instant
      *
      * @param dateStr 日期时间字符串
@@ -119,6 +152,11 @@ public class CDateUtils {
     }
 
     /**
+     * 最小的时间戳（毫秒），判断时间戳是秒还是毫秒
+     */
+    public final Long MIN_MILLS = 10000000000L;
+
+    /**
      * 日期时间字符串转Date，可能是字符串类型的时间戳
      *
      * @param text 日期时间字符串
@@ -137,7 +175,11 @@ public class CDateUtils {
         }
 
         try {
-            val mills = CNumUtils.parseLong(text);
+            var mills = CNumUtils.parseLong(text);
+            // 判断是否有将秒作为毫秒传过来
+            if(mills <= MIN_MILLS){
+                mills *= 1000;
+            }
             return CDateUtils.toDate(mills);
         } catch (Exception ex) {
             log.debug("parse long text error", ex);
@@ -165,6 +207,9 @@ public class CDateUtils {
     public Date toDate(Long mills) {
         if (null == mills) {
             return null;
+        }
+        if(mills <= MIN_MILLS) {
+            mills *= 1000;
         }
         return new Date(mills);
     }
@@ -252,6 +297,51 @@ public class CDateUtils {
             return null;
         }
         return toInstant(localDate.atStartOfDay());
+    }
+
+    /**
+     * Date 转 LocalDate
+     *
+     * @param instant date
+     * @return LocalDate
+     */
+    public LocalDate toLocalDate(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return toZonedDateTime(instant)
+            .toLocalDate()
+            ;
+    }
+
+    /**
+     * Date 转 LocalTime
+     *
+     * @param instant date
+     * @return LocalTime
+     */
+    public LocalTime toLocalTime(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return toZonedDateTime(instant)
+            .toLocalTime()
+            ;
+    }
+
+    /**
+     * Date 转 LocalDateTime
+     *
+     * @param instant date
+     * @return LocalDateTime
+     */
+    public LocalDateTime toLocalDateTime(Instant instant) {
+        if (null == instant) {
+            return null;
+        }
+        return toZonedDateTime(instant)
+            .toLocalDateTime()
+            ;
     }
 
     /**

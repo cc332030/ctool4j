@@ -23,7 +23,7 @@ public class CEntityUtils {
     /**
      * 清除方法
      */
-    private static final List<Method> CLEAR_METHODS = CReflectUtils.getMethodsByName(
+    private static final List<Method> CLEAR_METHODS = CReflectUtils.getAllMethodsByName(
             CEntityUtils.class, "clear"
     );
 
@@ -126,7 +126,7 @@ public class CEntityUtils {
      * 清空实体
      * @param entity 实体
      */
-    public void clear(CBaseTimeEntity entity) {
+    public void clear(CBaseTimeEntity<?> entity) {
         clear((ICId<?>) entity);
         clear((ICCreateUpdateTime)entity);
     }
@@ -135,7 +135,7 @@ public class CEntityUtils {
      * 清空实体
      * @param entity 实体
      */
-    public void clear(CBaseEntity entity) {
+    public void clear(CBaseEntity<?> entity) {
         clear((ICId<?>) entity);
         clear((ICCreateUpdateByAndTime)entity);
     }

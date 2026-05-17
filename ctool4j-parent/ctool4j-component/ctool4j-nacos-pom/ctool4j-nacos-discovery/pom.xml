@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-nacos-pom</artifactId>
-        <version>0.0.7-SNAPSHOT</version>
+        <version>1.0.20260429-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-nacos-discovery</artifactId>
@@ -20,7 +20,6 @@
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>

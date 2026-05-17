@@ -22,7 +22,10 @@ public interface CRunnable extends Runnable {
 
     CRunnable EMPTY = () -> {};
 
-    static void run(CRunnable runnable) {
+    static void run(Runnable runnable) {
+        if(null == runnable) {
+            return;
+        }
         runnable.run();
     }
 

@@ -1,15 +1,16 @@
 package com.c332030.ctool4j.core.jackson.deserializer;
 
+import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.core.util.CEnumUtils;
+import com.c332030.ctool4j.core.validation.CAssert;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import lombok.Getter;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
@@ -36,8 +37,8 @@ public class CEnumDeserializer
     @Override
     public Enum<?> deserialize(JsonParser p, DeserializationContext context) throws IOException {
 
-        val value = StringUtils.trim(p.getText());
-        if(StringUtils.isBlank(value)) {
+        val value = StrUtil.trim(p.getText());
+        if(StrUtil.isBlank(value)) {
             return null;
         }
 
@@ -48,8 +49,9 @@ public class CEnumDeserializer
     @SuppressWarnings("unchecked")
     public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) {
 
-        JavaType type = property.getType();
-        return new CEnumDeserializer((Class<Enum<?>>) type.getRawClass());
+        val rawClass = CJacksonUtils.getRawClass(property);
+        CAssert.isTrue(rawClass.isEnum(), () -> "rawClass is not enum: " + rawClass);
+        return new CEnumDeserializer((Class<Enum<?>>) rawClass);
     }
 
 }

@@ -47,8 +47,24 @@ public class CNumUtils {
         return null != value && value > 0;
     }
 
+    public boolean greaterThanZero(Long value) {
+        return null != value && value > 0;
+    }
+
+    public boolean greaterThanZero(BigDecimal value) {
+        return null != value && value.compareTo(BigDecimal.ZERO) > 0;
+    }
+
     public boolean lessThanZero(Integer value) {
         return null != value && value < 0;
+    }
+
+    public boolean lessThanZero(Long value) {
+        return null != value && value < 0;
+    }
+
+    public boolean lessThanZero(BigDecimal value) {
+        return null != value && value.compareTo(BigDecimal.ZERO) < 0;
     }
 
     public Integer sum(Integer... values) {
@@ -214,22 +230,22 @@ public class CNumUtils {
         return null;
     }
 
-    public boolean checkOverflow(long value) {
-        return (int)value == value;
+    public boolean isOverflow(long value) {
+        return (int)value != value;
     }
 
     public void assertOverflow(long value) {
-        if(!checkOverflow(value)) {
+        if(isOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
     }
 
-    public boolean checkOverflow(double value) {
-        return value <= Float.MAX_VALUE && value >= Float.MIN_VALUE;
+    public boolean isOverflow(double value) {
+        return value > Float.MAX_VALUE || value < Float.MIN_VALUE;
     }
 
     public void assertOverflow(double value) {
-        if(!checkOverflow(value)) {
+        if(isOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
     }
@@ -257,12 +273,24 @@ public class CNumUtils {
      * @param value 值
      * @return Integer
      */
+    public Integer toInt(long value) {
+        if(isOverflow(value)) {
+            log.debug("try to convert overflow long {} to int", value);
+            return null;
+        }
+        return (int)value;
+    }
+
+    /**
+     * Long 转换为 Integer
+     * @param value 值
+     * @return Integer
+     */
     public Integer toInt(Long value) {
         if(null == value) {
             return null;
         }
-        assertOverflow(value);
-        return value.intValue();
+        return toInt(value.longValue());
     }
 
     /**
@@ -329,6 +357,83 @@ public class CNumUtils {
         }
 
         return result;
+    }
+
+    public BigDecimal toBigDecimal(Integer value) {
+        if(null == value) {
+            return null;
+        }
+        return new BigDecimal(value);
+    }
+
+    public BigDecimal toBigDecimal(Long value) {
+        if(null == value) {
+            return null;
+        }
+        return new BigDecimal(value);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @return 占比
+     */
+    public BigDecimal percent(Integer value, Integer total) {
+        return percent(value, total, 0);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @param scale 百分比小数位数
+     * @return 占比
+     */
+    public BigDecimal percent(Integer value, Integer total, int scale) {
+        return percent(new BigDecimal(value), new BigDecimal(total), scale);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @return 占比
+     */
+    public BigDecimal percent(Long value, Long total) {
+        return percent(value, total, 0);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @param scale 百分比小数位数
+     * @return 占比
+     */
+    public BigDecimal percent(Long value, Long total, int scale) {
+        return percent(new BigDecimal(value), new BigDecimal(total), scale);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @return 占比
+     */
+    public BigDecimal percent(BigDecimal value, BigDecimal total) {
+        return percent(value, total, 0);
+    }
+
+    /**
+     * 计算占比
+     * @param value 值
+     * @param total 总数
+     * @param scale 百分比小数位数
+     * @return 占比
+     */
+    public BigDecimal percent(BigDecimal value, BigDecimal total, int scale) {
+        return divide(value.multiply(ONE_HUNDRED), total, scale);
     }
 
 }

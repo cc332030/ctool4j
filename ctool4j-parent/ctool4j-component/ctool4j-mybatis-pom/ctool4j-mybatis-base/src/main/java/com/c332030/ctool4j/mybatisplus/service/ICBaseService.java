@@ -2,7 +2,9 @@ package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
@@ -11,6 +13,9 @@ import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CEntityUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.core.validation.CValidateUtils;
+import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 import lombok.val;
@@ -32,6 +37,10 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
     List<OrderItem> ID_ORDER_ITEMS = CList.of(
         OrderItem.desc("id")
     );
+
+    default String getEntitySimpleName() {
+        return getEntityClass().getSimpleName();
+    }
 
     CBaseMapper<ENTITY> getBaseMapper();
 
@@ -58,6 +67,45 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
         return entity;
     }
 
+    default IPage<ENTITY> page(CPageReq<?> pageReq) {
+
+        val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
+        if(CValidateUtils.isEmpty(reqMap)) {
+            return page(pageReq.getPage());
+        }
+
+        val queryWrapper = Wrappers.<ENTITY>query()
+            .allEq(reqMap);
+
+        return page(pageReq.getPage(), queryWrapper);
+    }
+
+    default <RET> IPage<RET> page(
+        CPageReq<?> pageReq,
+        CFunction<ENTITY, RET> function
+    ) {
+        val page = page(pageReq);
+        return page.convert(function);
+    }
+
+    default <RET> IPage<RET> page(
+        CPageReq<?> pageReq,
+        Class<RET> retClass
+    ) {
+        return page(pageReq, e -> CBeanUtils.copy(e, retClass));
+    }
+
+    default <RET> IPage<RET> pageConvert(
+        CPageReq<?> pageReq,
+        CFunction<IPage<ENTITY>, IPage<RET>> function
+    ) {
+        val page = page(pageReq);
+        if(CollUtil.isEmpty(page.getRecords())) {
+            return page.convert(CFunction.empty());
+        }
+        return function.apply(page);
+    }
+
     default boolean saveIgnore(ENTITY entity) {
 
         if(null == entity) {
@@ -74,6 +122,13 @@ public interface ICBaseService<ENTITY> extends ICBizIdService<ENTITY> {
             .map(this::saveIgnore)
             .mapToInt(e -> e ? 1 : 0)
             .sum();
+    }
+
+    default boolean updateAllById(ENTITY entity) {
+        if(null == entity) {
+            return false;
+        }
+        return SqlHelper.retBool(getBaseMapper().updateAllById(entity));
     }
 
     default Opt<ENTITY> getByIdOpt(Serializable id) {

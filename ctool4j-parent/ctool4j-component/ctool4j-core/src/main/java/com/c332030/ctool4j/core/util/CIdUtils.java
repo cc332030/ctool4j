@@ -1,12 +1,17 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CObjUtils;
-import com.c332030.ctool4j.definition.annotation.CIdPrefix;
+import com.c332030.ctool4j.definition.annotation.CBizId;
+import com.c332030.ctool4j.definition.function.StringFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
+
+import java.util.UUID;
 
 /**
  * <p>
@@ -18,14 +23,25 @@ import lombok.val;
 @UtilityClass
 public class CIdUtils {
 
+    public String stringUUID() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
+     * 没有 '-' 的uuid
+     */
+    public String stringUUIDNoHyphen() {
+        return stringUUID().replaceAll("-", "");
+    }
+
     public Long nextId() {
         return IdUtil.getSnowflakeNextId();
     }
 
     private final CClassValue<String> CLASS_PREFIX = CClassValue.of(type -> {
 
-        val idPrefixAnno = type.getAnnotation(CIdPrefix.class);
-        val idPrefix = CObjUtils.convert(idPrefixAnno, CIdPrefix::value);
+        val idPrefixAnno = type.getAnnotation(CBizId.class);
+        val idPrefix = CObjUtils.convert(idPrefixAnno, CBizId::value);
         if(StrUtil.isNotBlank(idPrefix)) {
             return idPrefix;
         }
@@ -54,6 +70,34 @@ public class CIdUtils {
 
     public String nextIdWithPrefix(Class<?> clazz, int length) {
         return nextIdWithPrefix(getPrefix(clazz, length));
+    }
+
+    public <T> T getPrefixFromId(String id, StringFunction<T> convert) {
+
+        val prefix = getPrefixFromId(id);
+        if(StrUtil.isEmpty(prefix)){
+            return null;
+        }
+
+        return convert.apply(prefix);
+    }
+
+    public String getPrefixFromId(String id) {
+
+        if(StrUtil.isEmpty(id)) {
+            return null;
+        }
+
+        var index = 0;
+        while (index < id.length() && !CharUtil.isNumber(id.charAt(index))) {
+            index++;
+        }
+
+        if(index == 0) {
+            return null;
+        }
+
+        return id.substring(0, index);
     }
 
 }

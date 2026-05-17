@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import com.c332030.ctool4j.core.util.CDateUtils;
 import com.c332030.ctool4j.core.util.CList;
+import lombok.CustomLog;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import java.util.Date;
  *
  * @since 2025/12/7
  */
+@CustomLog
 public class CDateUtilsTests {
 
     private static final String DATE_STR = "2025-03-03";
@@ -70,6 +72,11 @@ public class CDateUtilsTests {
         Assertions.assertNull(CDateUtils.toDate((Instant) null));
         Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(CDateUtils.toDate(MILLS)));
         Assertions.assertEquals(DATE_TIME_STR, DateUtil.formatDateTime(CDateUtils.toDate(INSTANT)));
+
+        Assertions.assertEquals("2026-01-04 10:02:50", DateUtil.formatDateTime(
+            CDateUtils.toDate(1767492170633L)));
+        Assertions.assertEquals("2286-11-21 01:46:39", DateUtil.formatDateTime(
+            CDateUtils.toDate(9999999999L)));
 
     }
 
@@ -371,6 +378,22 @@ public class CDateUtilsTests {
                 Pair.of(1L, ChronoUnit.YEARS)
             ))
         ));
+
+    }
+
+    @Test
+    public void parseMaybeMills() {
+
+        val date = CDateUtils.parseMaybeMills("1767492170633");
+        Assertions.assertEquals("2026-01-04 10:02:50", DateUtil.formatDateTime(date));
+
+    }
+
+    @Test
+    public void parseMaybeMillsForSecondMills() {
+
+        val date = CDateUtils.parseMaybeMills("9999999999");
+        Assertions.assertEquals("2286-11-21 01:46:39", DateUtil.formatDateTime(date));
 
     }
 

@@ -1,13 +1,16 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.validation.CValidateUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 public class CArrUtils {
 
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+
+    public final String[] EMPAY_STR_ARR = new String[0];
 
     /**
      * 过滤
@@ -51,6 +56,15 @@ public class CArrUtils {
      */
     public <T> List<T> filterNull(T[] array) {
         return filter(array, Objects::nonNull);
+    }
+
+    /**
+     * 获取非空的数组元素
+     * @param array 数组
+     * @return 非空的数组元素
+     */
+    public List<String> filterString(String[] array) {
+        return filter(array, StrUtil::isNotBlank);
     }
 
     /**
@@ -112,6 +126,24 @@ public class CArrUtils {
     @SafeVarargs
     public <T> T[] getArr(T... arr) {
         return arr;
+    }
+
+    public String[] toStrArr(Collection<String> collection) {
+
+        if(CValidateUtils.isEmpty(collection)) {
+            return EMPAY_STR_ARR;
+        }
+        return collection
+            .toArray(EMPAY_STR_ARR);
+    }
+
+    public <T> T first(T[] arr) {
+
+        if(ArrayUtil.isEmpty(arr)){
+            return null;
+        }
+
+        return arr[0];
     }
 
 }

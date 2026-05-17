@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @CustomLog
 @UtilityClass
-@CAutowired
 public class CFeignUtils {
 
     public final ThreadLocal<StringBuilder> HTTP_LOG_THREAD_LOCAL = ThreadLocal.withInitial(StringBuilder::new);
@@ -38,11 +37,18 @@ public class CFeignUtils {
     CFeignClientHeaderConfig headerConfig;
 
     public void addInterceptor(Class<?> clazz, CConsumer<RequestTemplate> consumer) {
+
+        log.debug("addInterceptor to: {}, consumer: {}", clazz, consumer);
         INTERCEPTOR_MAP.put(clazz, consumer);
+
+    }
+
+    public Class<?> getApiType(RequestTemplate template) {
+        return template.feignTarget().type();
     }
 
     public boolean intercept(RequestTemplate template) {
-        val type = template.feignTarget().type();
+        val type = getApiType(template);
         return intercept(type, template);
     }
 

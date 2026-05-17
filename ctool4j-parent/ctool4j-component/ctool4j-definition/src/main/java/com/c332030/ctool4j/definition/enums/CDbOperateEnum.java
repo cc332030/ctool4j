@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.enums;
 
-import com.c332030.ctool4j.definition.interfaces.IOperate;
+import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +13,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CDbOperateEnum implements IOperate {
+public enum CDbOperateEnum implements ICOperate {
 
     INSERT("插入"),
 

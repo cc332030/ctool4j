@@ -4,7 +4,6 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -45,7 +44,7 @@ public class CCommUtils {
 
         val headerStr = getFullHeaderStr(headers);
         return method + " " + url
-                + (StringUtils.isEmpty(headerStr) ? "" : "\n" + headerStr)
+                + (StrUtil.isEmpty(headerStr) ? "" : "\n" + headerStr)
                 + (Objects.isNull(requestBody) ? "" : "\n\n" + requestBody)
                 + (Objects.isNull(responseBody) ? "" : "\n\n" + responseBody)
                 ;

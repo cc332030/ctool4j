@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -20,13 +21,7 @@ import java.util.Date;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CBaseTimeEntity extends CLongId implements ICCreateUpdateTime {
-
-    @TableField(
-            insertStrategy = FieldStrategy.NEVER,
-            updateStrategy = FieldStrategy.NEVER
-    )
-    Date createTime;
+public class CBaseTimeEntity<ID extends Serializable> extends CBaseCreateTimeEntity<ID> implements ICCreateUpdateTime {
 
     @TableField(
             insertStrategy = FieldStrategy.NEVER,

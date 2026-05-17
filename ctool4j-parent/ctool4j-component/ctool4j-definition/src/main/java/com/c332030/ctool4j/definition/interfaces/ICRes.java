@@ -9,19 +9,7 @@ import org.slf4j.event.Level;
  *
  * @since 2025/10/24
  */
-public interface ICRes<T> {
-
-    /**
-     * 获取响应码
-     * @return 响应码
-     */
-    T getResCode();
-
-    /**
-     * 获取响应信息
-     * @return 响应信息
-     */
-    String getResMsg();
+public interface ICRes<T> extends ICCode<T>, ICMsg {
 
     /**
      * 获取日志级别

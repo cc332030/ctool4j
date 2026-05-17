@@ -19,12 +19,12 @@ public class CAmountUtils {
      * @param value 分
      * @return 元
      */
-    public BigDecimal toCent(Integer value) {
+    public BigDecimal toYuan(Integer value) {
 
         if(null == value) {
             return null;
         }
-        return toCent(new BigDecimal(value));
+        return toYuan(new BigDecimal(value));
     }
 
     /**
@@ -32,12 +32,12 @@ public class CAmountUtils {
      * @param value 分
      * @return 元
      */
-    public BigDecimal toCent(Long value) {
+    public BigDecimal toYuan(Long value) {
 
         if(null == value) {
             return null;
         }
-        return toCent(new BigDecimal(value));
+        return toYuan(new BigDecimal(value));
     }
 
     /**
@@ -45,7 +45,7 @@ public class CAmountUtils {
      * @param value 分
      * @return 元
      */
-    public BigDecimal toCent(BigDecimal value) {
+    public BigDecimal toYuan(BigDecimal value) {
 
         if(null == value) {
             return null;

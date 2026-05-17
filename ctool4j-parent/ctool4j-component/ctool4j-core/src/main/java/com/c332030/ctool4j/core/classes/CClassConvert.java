@@ -3,7 +3,7 @@ package com.c332030.ctool4j.core.classes;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CNumUtils;
-import com.c332030.ctool4j.definition.interfaces.IValue;
+import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -62,8 +62,7 @@ public class CClassConvert {
     }
 
     public Integer toInt(long value) {
-        CNumUtils.assertOverflow(value);
-        return (int)value;
+        return CNumUtils.toInt(value);
     }
 
     public Integer toInt(Long value) {
@@ -75,13 +74,11 @@ public class CClassConvert {
     }
 
     public int intValue(Long value) {
-
-        if(null == value) {
+        val intValue = CNumUtils.toInt(value);
+        if(null == intValue) {
             return 0;
         }
-
-        CNumUtils.assertOverflow(value);
-        return value.intValue();
+        return intValue;
     }
 
     public Long toLong(String str) {
@@ -125,14 +122,6 @@ public class CClassConvert {
             return 0;
         }
         return valueNullable;
-    }
-
-    public float floatValue(Double value) {
-        if(null == value) {
-            return 0;
-        }
-        CNumUtils.assertOverflow(value);
-        return value.floatValue();
     }
 
     public float floatValue(BigDecimal value) {
@@ -234,7 +223,7 @@ public class CClassConvert {
     }
 
     @Named("toEnumIntegerValue")
-    public Integer toEnumIntegerValue(IValue<Integer> value) {
+    public Integer toEnumIntegerValue(ICValue<Integer> value) {
         if(null == value) {
             return null;
         }
@@ -242,7 +231,7 @@ public class CClassConvert {
     }
 
     @Named("toEnumStringValue")
-    public String toEnumStringValue(IValue<String> value) {
+    public String toEnumStringValue(ICValue<String> value) {
         if(null == value) {
             return null;
         }

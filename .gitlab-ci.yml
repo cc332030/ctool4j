@@ -14,7 +14,7 @@ maven-build:
     # 同时满足：目标GitLab实例 + (main分支推送 或 合并请求)
     - if: >
         $CI_SERVER_URL != "https://gitlab.com" && $CI_COMMIT_BRANCH == "main"
-      when: always
+      when: never
     # 其他所有情况不运行
     - when: never
 

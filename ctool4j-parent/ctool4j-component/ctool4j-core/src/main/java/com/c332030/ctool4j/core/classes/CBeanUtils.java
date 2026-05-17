@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
@@ -41,11 +41,11 @@ public class CBeanUtils {
      */
     public <To> To copy(Map<String, ?> fromMap, To to) {
 
-        if(MapUtil.isEmpty(fromMap) || null == to) {
+        if(null == fromMap || null == to) {
             return to;
         }
 
-        val toFieldMap = CReflectUtils.getFieldMap(to.getClass());
+        val toFieldMap = CReflectUtils.getInstanceFieldMap(to.getClass());
         toFieldMap.forEach((CBiConsumer<String, Field>)(toFieldName, toField) -> {
 
             val fromFieldValue = fromMap.get(toFieldName);
@@ -83,7 +83,7 @@ public class CBeanUtils {
      * @return 目标对象
      */
     public <To> To copy(Map<String, ?> fromMap, Class<To> toClass) {
-        if(MapUtil.isEmpty(fromMap)) {
+        if(null == fromMap) {
             return null;
         }
         return copy(fromMap, CReflectUtils.newInstance(toClass));
@@ -108,7 +108,7 @@ public class CBeanUtils {
      * @return 目标对象
      */
     public <To> To copy(Map<String, ?> fromMap, CSupplier<To> toSupplier) {
-        if(MapUtil.isEmpty(fromMap)) {
+        if(null == fromMap) {
             return null;
         }
         return copy(fromMap, toSupplier.get());
@@ -132,7 +132,7 @@ public class CBeanUtils {
      * @param <To> 目标对象泛型
      * @return 目标对象集合
      */
-    public <To> List<To> copyListFromMap(Collection<Map<String, ?>> fromCollection, CSupplier<To> toSupplier) {
+    public <To> List<To> copyListFromMap(Collection<? extends Map<String, ?>> fromCollection, CSupplier<To> toSupplier) {
         if(CollUtil.isEmpty(fromCollection)) {
             return CList.of();
         }
@@ -140,6 +140,19 @@ public class CBeanUtils {
                 .filter(Objects::nonNull)
                 .map(from -> copy(from, toSupplier))
                 .collect(Collectors.toList());
+    }
+
+
+
+    /**
+     * 集合对象属性复制
+     * @param fromCollection 源集合
+     * @param toClass 目标对象类
+     * @param <To> 目标对象泛型
+     * @return 目标对象集合
+     */
+    public <To> List<To> copyListFromMap(Collection<? extends Map<String, ?>> fromCollection, Class<To> toClass) {
+        return copyListFromMap(fromCollection, () -> CReflectUtils.newInstance(toClass));
     }
 
     /**
@@ -180,6 +193,18 @@ public class CBeanUtils {
             return CMap.of();
         }
         return toMap(object, JsonProperty.class, JsonProperty::value);
+    }
+
+    /**
+     * 对象转 map，使用 下划线 属性名
+     * @param object 源对象
+     * @return 值 map
+     */
+    public Map<String, Object> toMapUnderlineName(Object object) {
+        if(null == object) {
+            return CMap.of();
+        }
+        return toMap(object, field -> StrUtil.toUnderlineCase(field.getName()));
     }
 
     /**
@@ -228,7 +253,7 @@ public class CBeanUtils {
             return CMap.of();
         }
 
-        val fieldMap = CReflectUtils.getFieldMap(objClass);
+        val fieldMap = CReflectUtils.getInstanceFieldMap(objClass);
         return CCollUtils.toMap(
                 fieldMap.values(),
                 getFieldNameFunction,

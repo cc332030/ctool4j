@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 @UtilityClass
 public class CResultUtils {
 
-    private static final String EXCEPTION_MESSAGE_TEMPLATE = "错误码：{}，错误信息：{}";
+    private static final String EXCEPTION_MESSAGE_TEMPLATE = "[{}] {}";
 
     public Set<String> SUCCESS_CODES = Stream.of(
             0,

@@ -9,10 +9,10 @@ import java.lang.annotation.*;
  *
  * @since 2025/9/14
  */
+@Documented
+@Inherited
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
 public @interface CJsonLog {
 
 }

@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.model.result;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.c332030.ctool4j.definition.interfaces.ICMsgAdapter;
 
 /**
  * <p>
@@ -10,18 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author c332030
  * @since 2025/12/9
  */
-public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA> {
-
-    CODE getCode();
-
-    String getMsg();
-
-    DATA getData();
-
-    @Override
-    @JsonIgnore
-    default String getMessage() {
-        return getMsg();
-    }
+public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA>, ICMsgAdapter {
 
 }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-component</artifactId>
-        <version>0.0.7-SNAPSHOT</version>
+        <version>1.0.20260429-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-core</artifactId>
@@ -23,14 +23,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-definition</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-definition</artifactId>
         </dependency>
 
         <dependency>

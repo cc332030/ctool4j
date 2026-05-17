@@ -5,9 +5,18 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-test-pom</artifactId>
-        <version>0.0.7-SNAPSHOT</version>
+        <version>1.0.20260429-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-test-definition</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-definition</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

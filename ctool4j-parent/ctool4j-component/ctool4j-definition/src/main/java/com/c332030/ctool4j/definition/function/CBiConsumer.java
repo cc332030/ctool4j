@@ -31,7 +31,10 @@ public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
         return (CBiConsumer<T, U>)EMPTY;
     }
 
-    static <T, U> void accept(CBiConsumer<T, U> consumer, T t, U u) {
+    static <T, U> void accept(BiConsumer<T, U> consumer, T t, U u) {
+        if(null == consumer) {
+            return;
+        }
         consumer.accept(t, u);
     }
 

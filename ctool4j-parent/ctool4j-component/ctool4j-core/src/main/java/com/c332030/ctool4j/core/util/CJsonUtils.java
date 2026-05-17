@@ -2,16 +2,13 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
-import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -24,13 +21,12 @@ import java.util.*;
 @UtilityClass
 public class CJsonUtils {
 
-    public static final List<MediaType> SUPPORT_MEDIA_TYPES = CList.of(
-            MediaType.TEXT_HTML,
-            MediaType.TEXT_PLAIN,
-            MediaType.APPLICATION_JSON,
-            CMimeTypeEnum.JSON5.getMimeType()
-    );
-
+//    public static final List<MediaType> SUPPORT_MEDIA_TYPES = CList.of(
+//            MediaType.TEXT_HTML,
+//            MediaType.TEXT_PLAIN,
+//            MediaType.APPLICATION_JSON,
+//            CMimeTypeEnum.JSON5.getMimeType()
+//    );
 
     /**
      * 转 json
@@ -251,24 +247,6 @@ public class CJsonUtils {
      */
     public Map<String, String> fromJsonStringValue(String json) {
         return fromJson(json, CMapUtils.MAP_STRING_STRING_TYPE_REFERENCE);
-    }
-
-    /**
-     * 配置消息转换器
-     * @param messageConverters 消息转换器
-     * @param objectMapper 映射器
-     */
-    public void configureMessageConverters(Collection<HttpMessageConverter<?>> messageConverters, ObjectMapper objectMapper) {
-        messageConverters.stream()
-                .filter(e -> e instanceof MappingJackson2HttpMessageConverter)
-                .forEach(e -> {
-                    MappingJackson2HttpMessageConverter messageConverter = (MappingJackson2HttpMessageConverter) e;
-                    messageConverter.setObjectMapper(objectMapper);
-
-                    Set<MediaType> mediaTypes = new HashSet<>(messageConverter.getSupportedMediaTypes());
-                    mediaTypes.addAll(CJsonUtils.SUPPORT_MEDIA_TYPES);
-                    messageConverter.setSupportedMediaTypes(new ArrayList<>(mediaTypes));
-                });
     }
 
 }

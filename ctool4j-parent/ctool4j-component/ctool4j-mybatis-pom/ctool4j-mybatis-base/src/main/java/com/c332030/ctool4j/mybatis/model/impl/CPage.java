@@ -1,8 +1,11 @@
 package com.c332030.ctool4j.mybatis.model.impl;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -22,10 +25,13 @@ import java.util.List;
 @AllArgsConstructor
 public class CPage implements ICPage {
 
-    Integer pageNum;
+    @Builder.Default
+    Integer pageNum = 1;
 
-    Integer pageSize;
+    @Builder.Default
+    Integer pageSize = CPageUtils.DEFAULT_PAGE_SIZE;
 
-    List<OrderItem> orders;
+    @Builder.Default
+    List<OrderItem> orders = CList.of();
 
 }

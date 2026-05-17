@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.mybatis.util;
 
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CIdUtils;
@@ -24,7 +23,7 @@ public class CBizIdUtils {
 
     final CClassValue<Field> FIELD_BIZ_ID_CLASS_VALUE = CClassValue.of(type -> {
 
-        val fields = CReflectUtils.getFieldMap(type);
+        val fields = CReflectUtils.getAllFieldMap(type);
         for (val field : fields.values()) {
             val annotation = field.getAnnotation(CBizId.class);
             if (null != annotation) {
@@ -36,20 +35,6 @@ public class CBizIdUtils {
 
         return null;
     });
-
-    /**
-     * 获取 CBizId 注解
-     * @param entityClass 实体类
-     * @return CBizId
-     */
-    public CBizId getCBizId(Class<?> entityClass) {
-
-        val field = FIELD_BIZ_ID_CLASS_VALUE.get(entityClass);
-        if (null == field) {
-            return null;
-        }
-        return field.getAnnotation(CBizId.class);
-    }
 
     /**
      * 获取业务ID
@@ -67,15 +52,6 @@ public class CBizIdUtils {
      * @return 业务ID
      */
     public String getBizId(Class<?> entityClass, int length) {
-
-        val cBizId = getCBizId(entityClass);
-        if(null != cBizId) {
-            val value = cBizId.value();
-            if(StrUtil.isNotBlank(value)) {
-                return CIdUtils.nextIdWithPrefix(value);
-            }
-        }
-
         return CIdUtils.nextIdWithPrefix(entityClass, length);
     }
 

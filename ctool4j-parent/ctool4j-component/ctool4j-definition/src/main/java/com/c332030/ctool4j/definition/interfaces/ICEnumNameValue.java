@@ -7,7 +7,7 @@ package com.c332030.ctool4j.definition.interfaces;
  *
  * @since 2025/12/23
  */
-public interface ICEnumNameValue extends IEnumName, IValue<String> {
+public interface ICEnumNameValue extends ICEnumName, ICValue<String> {
 
     @Override
     default String getValue() {

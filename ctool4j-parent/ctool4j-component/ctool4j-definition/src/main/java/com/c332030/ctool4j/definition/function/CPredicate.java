@@ -36,7 +36,10 @@ public interface CPredicate<T> extends Predicate<T> {
         return (CPredicate<T>)FALSE;
     }
 
-    static <T> boolean test(CPredicate<T> predicate, T t) {
+    static <T> boolean test(Predicate<T> predicate, T t) {
+        if(null == predicate) {
+            return false;
+        }
         return predicate.test(t);
     }
 

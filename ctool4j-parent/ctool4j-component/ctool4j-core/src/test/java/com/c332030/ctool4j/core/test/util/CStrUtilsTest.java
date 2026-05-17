@@ -41,4 +41,18 @@ public class CStrUtilsTest {
 
     }
 
+    @Test
+    public void chineseOnly() {
+
+        Assertions.assertEquals("张三", CStrUtils.chineseOnly("c张三Zhang123"));
+        Assertions.assertEquals("李四", CStrUtils.chineseOnly(".李四Li456"));
+        Assertions.assertEquals("王五", CStrUtils.chineseOnly("-王五Wang_789"));
+        Assertions.assertEquals("测试", CStrUtils.chineseOnly("\\测试test123@example.com"));
+        Assertions.assertEquals("只有中文", CStrUtils.chineseOnly("只有中文"));
+        Assertions.assertEquals("", CStrUtils.chineseOnly("123456"));
+        Assertions.assertEquals("", CStrUtils.chineseOnly("ABCdef"));
+        Assertions.assertEquals("混合中文", CStrUtils.chineseOnly("a混合123ABC中文test"));
+
+    }
+
 }

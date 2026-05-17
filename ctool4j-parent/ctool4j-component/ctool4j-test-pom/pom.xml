@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-component</artifactId>
-        <version>0.0.7-SNAPSHOT</version>
+        <version>1.0.20260429-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-test-pom</artifactId>
@@ -13,17 +13,8 @@
 
     <modules>
         <module>ctool4j-test-definition</module>
-        <module>ctool4j-test-util</module>
+        <module>ctool4j-test-core</module>
+        <module>ctool4j-test-spring</module>
     </modules>
-
-    <dependencies>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-    </dependencies>
 
 </project>

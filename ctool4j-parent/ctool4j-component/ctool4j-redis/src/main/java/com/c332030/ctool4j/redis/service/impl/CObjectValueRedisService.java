@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- * Description: CStringStringRedisService
+ * Description: CObjectValueRedisService
  * </p>
  *
  * @since 2025/11/4

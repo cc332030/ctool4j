@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.util;
 
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -9,6 +10,7 @@ import lombok.experimental.UtilityClass;
  *
  * @since 2025/9/28
  */
+@CustomLog
 @UtilityClass
 public class CWebUtils {
 

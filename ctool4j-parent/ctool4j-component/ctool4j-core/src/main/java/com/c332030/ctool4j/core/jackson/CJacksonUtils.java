@@ -5,19 +5,16 @@ import com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer;
 import com.c332030.ctool4j.core.jackson.deserializer.CInstantDeserializer;
 import com.c332030.ctool4j.core.jackson.serializer.CDateSerializer;
 import com.c332030.ctool4j.core.jackson.serializer.CInstantSerializer;
-import com.c332030.ctool4j.core.jackson.serializer.CLongArraySerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 
@@ -40,16 +37,17 @@ public class CJacksonUtils {
      * 驼峰会转成下划线
      */
     public static final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
+
+    public static final SimpleModule SIMPLE_MODULE ;
     static {
 
-        OBJECT_MAPPER = configure(new ObjectMapper());
-
-        val module = new SimpleModule();
+        val module = SIMPLE_MODULE = new SimpleModule();
 
         // Long to String，避免前端溢出
         module.addSerializer(Long.class, ToStringSerializer.instance);
         module.addSerializer(long.class, ToStringSerializer.instance);
-        module.addSerializer(long[].class, CLongArraySerializer.INSTANCE);
+
+        module.addSerializer(BigDecimal.class, ToStringSerializer.instance);
 
         module.addSerializer(Date.class, CDateSerializer.INSTANCE);
         module.addDeserializer(Date.class, CDateDeserializer.INSTANCE);
@@ -58,8 +56,11 @@ public class CJacksonUtils {
         module.addDeserializer(Instant.class, CInstantDeserializer.INSTANCE);
 
         module.addDeserializer(Enum.class, CEnumDeserializer.EMPTY_INSTANCE);
+    }
 
-        OBJECT_MAPPER.registerModule(module);
+    static {
+
+        OBJECT_MAPPER = configure(new ObjectMapper());
 
         // 不打印 null
         // 不序列化 null 值，兼容飞书消息报错
@@ -77,10 +78,11 @@ public class CJacksonUtils {
 
     public <T extends ObjectMapper> T configure(T objectMapper) {
 
+        objectMapper.registerModule(SIMPLE_MODULE);
+
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // json5
@@ -103,6 +105,21 @@ public class CJacksonUtils {
         objectMapper.findAndRegisterModules();
 
         return objectMapper;
+    }
+
+    /**
+     * 反序列化获取字段类型
+     * @param property 字段属性
+     * @return 字段类型
+     */
+    public Class<?> getRawClass(BeanProperty property) {
+
+        val type = property.getType();
+        if(!type.isCollectionLikeType()) {
+            return type.getRawClass();
+        }
+
+        return type.getContentType().getRawClass();
     }
 
 }

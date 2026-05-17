@@ -281,9 +281,10 @@ public class CLogUtils {
     }
 
     /**
-     * 转 json 的父类
+     * 可以打印的父类
      */
     final Set<Class<?>> PRINT_ABLE_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
+        CharSequence.class,
         Number.class,
         Date.class
     ));

@@ -2,7 +2,8 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
-import com.c332030.ctool4j.definition.interfaces.IValue;
+import com.c332030.ctool4j.definition.interfaces.ICName;
+import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -24,10 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @UtilityClass
 public class CEnumUtils {
 
-    public static final String VALUE = "value";
-
-    public static final String NAME = "name";
-
     private static final ClassValue<List<?>> ENUM_VALUES = new ClassValue<List<?>>() {
         @Override
         protected List<?> computeValue(Class<?> type) {
@@ -43,11 +40,11 @@ public class CEnumUtils {
     };
 
     public static <E> Map<String, E> getNameMap(Class<E> enumClass) {
-        return getMap(enumClass, NAME);
+        return getMap(enumClass, ICName.NAME);
     }
 
-    public static <T extends Serializable, E extends IValue<T>> Map<T, E> getMap(Class<E> enumClass) {
-        return getMap(enumClass, VALUE);
+    public static <T extends Serializable, E extends ICValue<T>> Map<T, E> getMap(Class<E> enumClass) {
+        return getMap(enumClass, ICValue.VALUE);
     }
 
     public static <T, E> Map<T, E> getMap(Class<E> enumClass, Func1<T, ?> func) {
@@ -71,7 +68,7 @@ public class CEnumUtils {
                     val values = (List<E>) ENUM_VALUES.get(enumClass);
 
                     val map = new LinkedHashMap<>(values.size());
-                    if (NAME.equals(fieldName)) {
+                    if (ICName.NAME.equals(fieldName)) {
                         values.forEach(value -> map.put(((Enum<?>) value).name(), value));
                     } else {
 
@@ -102,8 +99,8 @@ public class CEnumUtils {
         return valueOf(getNameMap(cClass), value);
     }
 
-    public static <T extends Serializable, C extends IValue<T>> C valueOf(Class<C> cClass, T value) {
-        return valueOf(getMap(cClass, VALUE), value);
+    public static <T extends Serializable, C extends ICValue<T>> C valueOf(Class<C> cClass, T value) {
+        return valueOf(getMap(cClass, ICValue.VALUE), value);
     }
 
     public static <T extends Serializable, C extends Enum<C>> C valueOf(Class<C> cClass, Func1<C, T> func, T value) {

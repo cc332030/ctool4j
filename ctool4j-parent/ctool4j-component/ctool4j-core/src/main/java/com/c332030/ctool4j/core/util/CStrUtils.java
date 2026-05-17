@@ -203,7 +203,7 @@ public class CStrUtils {
     }
 
     /**
-     * 大写下划线 转 报文头：TRACE_ID - Trace-CId
+     * 大写下划线 转 报文头：TRACE_ID - Trace-Id
      * @param value 待转换值
      * @return 转换结果
      */
@@ -834,13 +834,26 @@ public class CStrUtils {
         return String.join(separator, Collections.nCopies(count, str));
     }
 
+    public String fillAfter(String str, char fillChar, int length) {
+        if(StrUtil.isEmpty(str)) {
+            return repeat(String.valueOf(fillChar), length);
+        }
+
+        val restWidth = length - getPrintWidth(str);
+        if(restWidth <= 0) {
+            return str;
+        }
+
+        return str + repeat(String.valueOf(fillChar), restWidth);
+    }
+
     public String fillSide(String str, char fillChar, int length) {
 
         if(StrUtil.isEmpty(str)) {
             return repeat(String.valueOf(fillChar), length);
         }
 
-        val restWidth = length - str.length();
+        val restWidth = length - getPrintWidth(str);
         if(restWidth <= 0) {
             return str;
         }
@@ -862,6 +875,29 @@ public class CStrUtils {
             sb.append(characters.charAt(index));
         }
         return sb.toString();
+    }
+
+    public int getPrintWidth(String str) {
+        var width = 0;
+        for (var i = 0; i < str.length(); i++) {
+            width += getPrintWidth(str.charAt(i));
+        }
+        return width;
+    }
+
+    public int getPrintWidth(char ch) {
+        if(ch <= 255) {
+            return 1;
+        }
+        return 2;
+    }
+
+    public String chineseOnly(String str) {
+        if(StrUtil.isEmpty(str)) {
+            return str;
+        }
+
+        return str.replaceAll("[^\\u4e00-\\u9fa5]", "");
     }
 
 }

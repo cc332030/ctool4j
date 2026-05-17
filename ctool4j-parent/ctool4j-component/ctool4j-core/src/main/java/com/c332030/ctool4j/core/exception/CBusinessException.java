@@ -20,12 +20,20 @@ public class CBusinessException extends CException {
 
     private final String msgExtend;
 
+    public CBusinessException(ICRes<?> error) {
+        this(error, (Throwable) null);
+    }
+
     public CBusinessException(ICRes<?> error, Throwable cause) {
         this(error, null, cause);
     }
 
+    public CBusinessException(ICRes<?> error, String msgExtend) {
+        this(error, msgExtend, null);
+    }
+
     public CBusinessException(ICRes<?> error, String msgExtend, Throwable cause) {
-        super(CResUtils.formatMessage(error, msgExtend), cause);
+        super(CResUtils.formatResMessage(error, msgExtend), cause);
         this.error = error;
         this.msgExtend = msgExtend;
     }

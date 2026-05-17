@@ -1,11 +1,14 @@
 
 .idea
+*.iml
 
 .gradle
 
-target
+target*
 
 release.properties
 *.releaseBackup
 
 *.versionsBackup
+
+logs*

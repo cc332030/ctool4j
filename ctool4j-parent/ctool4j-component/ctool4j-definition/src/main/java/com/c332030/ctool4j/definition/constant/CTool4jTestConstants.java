@@ -1,0 +1,32 @@
+package com.c332030.ctool4j.definition.constant;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.function.Supplier;
+
+/**
+ * <p>
+ * Description: CTool4jTestConstants
+ * </p>
+ *
+ * @since 2025/11/21
+ */
+@Slf4j
+@UtilityClass
+public class CTool4jTestConstants {
+
+    public final String JUNIT_TEST_CLASS_NAME = "org.junit.jupiter.api.Test";
+
+    public final boolean IS_TEST = ((Supplier<Boolean>) () -> {
+        try {
+
+            Class.forName(JUNIT_TEST_CLASS_NAME);
+            return true;
+        } catch (Throwable e) {
+            log.debug("check junit result exception", e);
+        }
+        return false;
+    }).get();
+
+}

@@ -1,0 +1,49 @@
+package com.c332030.ctool4j.doc.openapi2.util;
+
+import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
+import com.c332030.ctool4j.core.util.CCollUtils;
+import lombok.experimental.UtilityClass;
+import springfox.documentation.builders.ParameterBuilder;
+import springfox.documentation.schema.ModelRef;
+import springfox.documentation.service.Parameter;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * <p>
+ * Description: CSpringFoxUtils
+ * </p>
+ *
+ * @author c332030
+ * @since 2024/8/27
+ */
+@UtilityClass
+public class CSpringFoxUtils {
+
+    public Docket getDocketBuilder() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .forCodeGeneration(true);
+    }
+
+    public List<Parameter> globalParameterList(Collection<? extends ICRequestHeader> headers) {
+
+        headers = CCollUtils.filterNull(headers);
+        return headers.stream()
+                .map(CSpringFoxUtils::getHeaderParameter)
+                .collect(Collectors.toList());
+    }
+
+    public Parameter getHeaderParameter(ICRequestHeader requestHeader) {
+        return new ParameterBuilder().name(requestHeader.getHeaderName())
+                .modelRef(new ModelRef(requestHeader.getDataType().getLowerCase()))
+                .required(requestHeader.isRequired())
+                .parameterType("header")
+                .description(requestHeader.getText())
+                .build();
+    }
+
+}

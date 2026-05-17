@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
@@ -97,6 +98,52 @@ public class CCollUtils {
         if(null != collection2) {
             collection1.addAll(collection2);
         }
+    }
+
+    /**
+     * 链接集合和元素，与 addFirst 的区别：此方法返回一个新集合
+     * @param p 元素
+     * @param collection 集合
+     * @return 新 list
+     * @param <P> 泛型
+     */
+    public <P> List<P> concatOne(P p, Collection<? extends P> collection) {
+
+        val size1 = null == p ? 0 : 1;
+        val size2 = size(collection);
+
+        val list = new ArrayList<P>(size1 + size2);
+        if(null != p) {
+            list.add(p);
+        }
+        if(CollUtil.isNotEmpty(collection)) {
+            list.addAll(collection);
+        }
+
+        return list;
+    }
+
+    /**
+     * 链接集合和元素，与 addFirst 的区别：此方法返回一个新集合
+     * @param collection 集合
+     * @param p 元素
+     * @return 新 list
+     * @param <P> 泛型
+     */
+    public <P> List<P> concatOne(Collection<? extends P> collection, P p) {
+
+        val size1 = null == p ? 0 : 1;
+        val size2 = size(collection);
+
+        val list = new ArrayList<P>(size1 + size2);
+        if(CollUtil.isNotEmpty(collection)) {
+            list.addAll(collection);
+        }
+        if(null != p) {
+            list.add(p);
+        }
+
+        return list;
     }
 
     @SafeVarargs
@@ -395,7 +442,7 @@ public class CCollUtils {
             CFunction<T, K> toKey,
             CBiFunction<T, T, T> mergeFunction
     ) {
-        return toMap(collection, toKey, null, mergeFunction);
+        return toMap(collection, toKey, (CPredicate<K>) null, mergeFunction);
     }
 
     public static <T, K> Map<K, T> toMap(
@@ -413,6 +460,15 @@ public class CCollUtils {
             CFunction<T, V> toValue
     ) {
         return toMap(collection, toKey, toValue, null, null);
+    }
+
+    public static <T, K, V> Map<K, V> toMap(
+            Collection<T> collection,
+            CFunction<T, K> toKey,
+            CFunction<T, V> toValue,
+            CBiFunction<V, V, V> mergeFunction
+    ) {
+        return toMap(collection, toKey, toValue, null, mergeFunction);
     }
 
     public static <T, K, V> Map<K, V> toMap(
@@ -445,9 +501,13 @@ public class CCollUtils {
             }
 
             map.compute(toKey.apply(t),
-                    (k, v) -> CObjUtils.merge(v, value, mergeFunction));
+                    (k, v) -> CObjUtils.merge(k, v, value, mergeFunction));
         });
         return Collections.unmodifiableMap(map);
+    }
+
+    public <K, V> Map<K, V> toMap(List<Pair<K, V>> pairs) {
+        return toMap(pairs, Pair::getKey, (CFunction<Pair<K,V>, V>) Pair::getValue);
     }
 
     @SafeVarargs

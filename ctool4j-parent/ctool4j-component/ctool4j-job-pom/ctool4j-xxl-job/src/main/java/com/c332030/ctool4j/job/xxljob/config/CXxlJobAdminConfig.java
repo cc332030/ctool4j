@@ -23,7 +23,7 @@ public class CXxlJobAdminConfig {
     String addresses;
 
     /**
-     * 调度中心通讯TOKEN [选填]：非空时启用；
+     * 调度中心通讯TOKEN [选填]：非空时启用
      */
     String accessToken;
 

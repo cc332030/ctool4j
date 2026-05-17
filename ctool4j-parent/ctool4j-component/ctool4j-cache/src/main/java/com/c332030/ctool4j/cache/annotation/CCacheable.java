@@ -12,10 +12,10 @@ import java.lang.annotation.*;
  *
  * @since 2025/9/27
  */
+@Documented
+@Inherited
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
 public @interface CCacheable {
 
     boolean local() default true;

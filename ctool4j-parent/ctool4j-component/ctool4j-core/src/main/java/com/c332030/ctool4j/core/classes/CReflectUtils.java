@@ -5,8 +5,10 @@ import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -51,6 +53,10 @@ public class CReflectUtils {
                 return Arrays.stream(constructors)
                         .collect(Collectors.groupingBy(Constructor::getParameterCount));
             });
+
+    public Map<Integer, List<Constructor<?>>> getAllConstructors(Class<?> tClass) {
+        return CONSTRUCTOR_MAP_CLASS_VALUE.get(tClass);
+    }
 
     public List<Constructor<?>> getConstructors(Class<?> tClass, Object... args) {
 
@@ -109,25 +115,45 @@ public class CReflectUtils {
         return CObjUtils.anyType(noArgConstructor.newInstance());
     }
 
-    public static final CClassValue<List<Method>> METHODS_CLASS_VALUE = CClassValue.of(
-            type -> CClassUtils.getMap(type, Class::getDeclaredMethods));
+    @SneakyThrows
+    public <T> T newInstance(Constructor<T> constructor, Object... args) {
+        return constructor.newInstance(args);
+    }
 
+    /**
+     * 获取当前类的方法
+     * @param type 类
+     * @return 方法列表
+     */
     public List<Method> getMethods(Class<?> type) {
-        return METHODS_CLASS_VALUE.get(type);
+        return Arrays.stream(type.getDeclaredMethods())
+            .peek(method -> method.setAccessible(true))
+            .collect(Collectors.toList());
+    }
+
+    public List<Method> getAllMethods(Class<?> type) {
+        return CClassUtils.getMap(type, Class::getDeclaredMethods);
+    }
+
+    public static final CClassValue<List<Method>> ALL_METHODS_CLASS_VALUE =
+        CClassValue.of(CReflectUtils::getAllMethods);
+
+    public List<Method> getAllMethodsCached(Class<?> type) {
+        return ALL_METHODS_CLASS_VALUE.get(type);
     }
 
     public static final CClassValue<Map<String, List<Method>>> METHOD_MAP_CLASS_VALUE =
-            CClassValue.of(type -> METHODS_CLASS_VALUE.get(type)
+            CClassValue.of(type -> ALL_METHODS_CLASS_VALUE.get(type)
                     .stream()
                     .collect(Collectors.groupingBy(Method::getName))
             );
 
-    public Map<String, List<Method>> getMethodsMap(Class<?> type) {
+    public Map<String, List<Method>> getAllMethodsMap(Class<?> type) {
         return METHOD_MAP_CLASS_VALUE.get(type);
     }
 
-    public List<Method> getMethodsByName(Class<?> type, String methodName) {
-        return getMethodsMap(type).get(methodName);
+    public List<Method> getAllMethodsByName(Class<?> type, String methodName) {
+        return getAllMethodsMap(type).get(methodName);
     }
 
     public <T extends Annotation> String getFieldName(
@@ -144,19 +170,37 @@ public class CReflectUtils {
         return field.getName();
     }
 
-    public Map<String, Field> getFieldAllMap(Class<?> type) {
+    public Map<String, Field> getAllFieldMap(Class<?> type) {
         return FIELD_MAP_CLASS_VALUE.get(type);
     }
 
-    public Map<String, Field> getFieldMap(Class<?> type) {
-        return FIELD_MAP_CLASS_VALUE.get(type).entrySet()
-            .stream()
-            .filter(entry -> !isStatic(entry.getValue()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public Map<String, Field> getFieldMap(Class<?> type, CPredicate<Field> predicate) {
+        return CMapUtils.filterValue(
+            getAllFieldMap(type),
+            predicate
+        );
+    }
+
+    /**
+     * 获取类的静态变量 map
+     * @param type 类
+     * @return 静态变量 map
+     */
+    public Map<String, Field> getStaticFieldMap(Class<?> type) {
+        return getFieldMap(type, CReflectUtils::isStatic);
+    }
+
+    /**
+     * 获取类的实例变量 map
+     * @param type 类
+     * @return 实例变量 map
+     */
+    public Map<String, Field> getInstanceFieldMap(Class<?> type) {
+        return getFieldMap(type, e -> !CReflectUtils.isStatic(e));
     }
 
     public Field getField(Class<?> type, String fieldName) {
-        return Optional.ofNullable(getFieldMap(type).get(fieldName))
+        return Optional.ofNullable(getAllFieldMap(type).get(fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(type + " no field with name: " + fieldName));
     }
 
@@ -177,7 +221,7 @@ public class CReflectUtils {
     }
 
     public <T> T getValue(Object object, String fieldName) {
-        return getValue(object, getFieldMap(object.getClass()).get(fieldName));
+        return getValue(object, getAllFieldMap(object.getClass()).get(fieldName));
     }
 
     public <T> T getValue(Object object, Field field) {
@@ -193,7 +237,7 @@ public class CReflectUtils {
     }
 
     public void setValue(Object object, String fieldName, Object value) {
-        setValue(object, getFieldMap(object.getClass()).get(fieldName), value, true);
+        setValue(object, getAllFieldMap(object.getClass()).get(fieldName), value, true);
     }
 
 
@@ -209,7 +253,7 @@ public class CReflectUtils {
         field.set(object, value);
     }
 
-    public <T> T fillValues(Class<T> clazz, Map<String, Object> fields) {
+    public <T> T fillValues(Class<T> clazz, Map<String, ?> fields) {
 
         if (MapUtil.isEmpty(fields)) {
             return null;
@@ -221,14 +265,13 @@ public class CReflectUtils {
     }
 
     @SneakyThrows
-    public void fillValues(Object object, Map<String, Object> fieldValueMap) {
+    public void fillValues(Object object, Map<String, ?> fieldValueMap) {
 
         if (MapUtil.isEmpty(fieldValueMap)) {
             return;
         }
 
-        val fieldMap = getFieldMap(object.getClass());
-
+        val fieldMap = getInstanceFieldMap(object.getClass());
         for (val entry : fieldValueMap.entrySet()) {
 
             val fieldName = entry.getKey();
@@ -264,7 +307,7 @@ public class CReflectUtils {
 
         Class<?> clazz = value.getClass();
 
-        val methods = getMethodsByName(clazz, methodName);
+        val methods = getAllMethodsByName(clazz, methodName);
         val method = CCollUtils.onlyOne(methods);
         if (null == method) {
             if (ignoreNoMethod) {

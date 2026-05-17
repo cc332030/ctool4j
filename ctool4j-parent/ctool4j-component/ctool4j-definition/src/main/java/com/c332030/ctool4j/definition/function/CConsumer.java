@@ -29,7 +29,10 @@ public interface CConsumer<T> extends Consumer<T> {
         return (CConsumer<T>)EMPTY;
     }
 
-    static <T> void accept(CConsumer<T> consumer, T t) {
+    static <T> void accept(Consumer<T> consumer, T t) {
+        if(null == consumer) {
+            return;
+        }
         consumer.accept(t);
     }
 

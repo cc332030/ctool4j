@@ -1,0 +1,27 @@
+package com.c332030.ctool4j.log.configuration;
+
+import com.c332030.ctool4j.log.util.CRequestLogUtils;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
+import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
+import com.c332030.ctool4j.spring.util.CAutowiredUtils;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * <p>
+ * Description: CLogInit
+ * </p>
+ *
+ * @since 2025/9/29
+ */
+@Configuration
+@AllArgsConstructor
+@CAutowiredScan(CRequestLogUtils.class)
+public class CLogInit implements ICSpringInit {
+
+    @Override
+    public void onInit() {
+
+    }
+
+}
