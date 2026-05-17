@@ -3,6 +3,7 @@
 
 ## 编码
 
+- 禁止移除 lombok 的使用
 - 使用 lombok val、var
 - 实体类使用 @Data、@SuperBuilder、@NoArgsConstructor、@AllArgsConstructor
 
