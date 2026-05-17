@@ -60,7 +60,7 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
         String bizIdCapital = capitalize(bizIdField);
         
         String serviceName = "I" + entityName + anno.serviceSuffix();
-        String servicePackage = entityPackage + ".service";
+        String servicePackage = getSiblingPackage(entityPackage, "service");
         String serviceFullName = servicePackage + "." + serviceName;
         
         String code = render(template,
@@ -106,6 +106,14 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
             return ((PackageElement) enclosing).getQualifiedName().toString();
         }
         return "";
+    }
+
+    private String getSiblingPackage(String entityPackage, String sibling) {
+        int lastDot = entityPackage.lastIndexOf('.');
+        if (lastDot > 0) {
+            return entityPackage.substring(0, lastDot) + "." + sibling;
+        }
+        return sibling;
     }
 
     private String capitalize(String str) {

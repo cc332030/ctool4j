@@ -20,6 +20,10 @@ import java.util.Objects;
  */
 public interface ${serviceName} extends ICService<${entityName}> {
 
+    default SFunction<${entityName}, String> get${BizIdCapital}Column() {
+        return ${entityName}::get${BizIdCapital};
+    }
+
     default ${entityName} getBy${BizIdCapital}(String ${bizIdField}) {
         if(StrUtil.isBlank(${bizIdField})) { return null; }
         return lambdaQuery().eq(get${BizIdCapital}Column(), ${bizIdField}).one();

@@ -26,4 +26,5 @@ public class Order extends CBaseEntity<Long> {
     private String productName;
 
     private Integer quantity;
+
 }
