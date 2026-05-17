@@ -8,6 +8,6 @@
         <version>1.0.20260517-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-spring-autowired</artifactId>
+    <artifactId>ctool4j-autowired-processor</artifactId>
 
 </project>

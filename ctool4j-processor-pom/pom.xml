@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>ctool4j-spring-autowired</module>
+        <module>ctool4j-autowired-processor</module>
     </modules>
 
     <dependencies>
