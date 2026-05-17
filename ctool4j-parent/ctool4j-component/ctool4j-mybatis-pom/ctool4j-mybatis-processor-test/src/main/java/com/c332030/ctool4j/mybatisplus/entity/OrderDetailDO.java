@@ -2,7 +2,6 @@ package com.c332030.ctool4j.mybatisplus.entity;
 
 import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
-import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,23 +9,18 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * Description: Order 测试实体
+ * Description: OrderDetailDO
  * </p>
  *
- * @since 2025/05/16
+ * @since 2026/5/17
  */
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@CAutoBizService
-public class Order extends CBaseEntity<Long> {
+public class OrderDetailDO extends CBaseEntity<Long> implements IOrderNo {
 
     @CBizId
     String orderNo;
-
-    String productName;
-
-    Integer quantity;
 
 }
