@@ -1,10 +1,13 @@
 package com.c332030.ctool4j.mybatisplus.processor;
 
+import com.c332030.ctool4j.definition.annotation.CBizId;
+import lombok.val;
+import lombok.var;
+
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -37,45 +40,46 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
         if (template == null) {
             return true;
         }
-        for (TypeElement annotation : annotations) {
-            for (Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
+        for (val annotation : annotations) {
+            for (val element : roundEnv.getElementsAnnotatedWith(annotation)) {
                 if (element.getKind() == ElementKind.CLASS) {
-                    TypeElement classElement = (TypeElement) element;
-                    AutoBizService anno = classElement.getAnnotation(AutoBizService.class);
-                    if (anno != null) {
-                        generateServiceInterface(classElement, anno);
-                    }
+                    val classElement = (TypeElement) element;
+                    generateServiceInterface(classElement);
                 }
             }
         }
         return true;
     }
 
-    private void generateServiceInterface(TypeElement entityElement, AutoBizService anno) {
-        String entityName = entityElement.getSimpleName().toString();
-        String entityPackage = getPackageName(entityElement);
-        String entityFullName = entityElement.getQualifiedName().toString();
-        
-        String bizIdField = anno.bizIdField();
-        String bizIdCapital = capitalize(bizIdField);
-        
-        String serviceName = "I" + entityName + anno.serviceSuffix();
-        String servicePackage = getSiblingPackage(entityPackage, "service");
-        String serviceFullName = servicePackage + "." + serviceName;
-        
-        String code = render(template,
-            "packageName", servicePackage,
-            "serviceName", serviceName,
-            "entityName", entityName,
-            "entityFullName", entityFullName,
-            "bizIdField", bizIdField,
-            "BizIdCapital", bizIdCapital
+    private void generateServiceInterface(TypeElement entityElement) {
+        val bizIdField = findBizIdField(entityElement);
+        if (bizIdField == null) {
+            return;
+        }
+
+        val entityName = entityElement.getSimpleName().toString();
+        val entityPackage = getPackageName(entityElement);
+        val entityFullName = entityElement.getQualifiedName().toString();
+
+        val bizIdCapital = capitalize(bizIdField);
+
+        val serviceName = "I" + entityName + "Service";
+        val servicePackage = getSiblingPackage(entityPackage, "service");
+        val serviceFullName = servicePackage + "." + serviceName;
+
+        val code = render(template,
+                "packageName", servicePackage,
+                "serviceName", serviceName,
+                "entityName", entityName,
+                "entityFullName", entityFullName,
+                "bizIdField", bizIdField,
+                "BizIdCapital", bizIdCapital
         );
-        
+
         try {
-            JavaFileObject sourceFile = processingEnv.getFiler()
+            val sourceFile = processingEnv.getFiler()
                     .createSourceFile(serviceFullName, entityElement);
-            try (Writer writer = sourceFile.openWriter()) {
+            try (val writer = sourceFile.openWriter()) {
                 writer.write(code);
             }
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE,
@@ -86,10 +90,38 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
         }
     }
 
+    private String findBizIdField(TypeElement classElement) {
+
+        val bizIdFields = new ArrayList<>();
+        for (val enclosed : classElement.getEnclosedElements()) {
+            if (enclosed.getKind() == ElementKind.FIELD) {
+                val bizIdAnno = enclosed.getAnnotation(CBizId.class);
+                if (bizIdAnno != null) {
+                    bizIdFields.add(enclosed.getSimpleName().toString());
+                }
+            }
+        }
+
+        if (bizIdFields.isEmpty()) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    "No @CBizId field found in " + classElement.getQualifiedName());
+            return null;
+        }
+
+        if (bizIdFields.size() > 1) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    "Multiple @CBizId fields found in " + classElement.getQualifiedName() +
+                            ": " + bizIdFields + ", only one is allowed");
+            return null;
+        }
+
+        return bizIdFields.get(0);
+    }
+
     private String loadTemplate(String path) {
-        try (InputStream is = getClass().getResourceAsStream(path);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            StringBuilder sb = new StringBuilder();
+        try (val is = getClass().getResourceAsStream(path);
+             val reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            val sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append('\n');
@@ -101,7 +133,7 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
     }
 
     private String getPackageName(TypeElement element) {
-        Element enclosing = element.getEnclosingElement();
+        val enclosing = element.getEnclosingElement();
         if (enclosing.getKind() == ElementKind.PACKAGE) {
             return ((PackageElement) enclosing).getQualifiedName().toString();
         }
@@ -109,7 +141,7 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
     }
 
     private String getSiblingPackage(String entityPackage, String sibling) {
-        int lastDot = entityPackage.lastIndexOf('.');
+        val lastDot = entityPackage.lastIndexOf('.');
         if (lastDot > 0) {
             return entityPackage.substring(0, lastDot) + "." + sibling;
         }
@@ -122,10 +154,10 @@ public class AutoBizServiceProcessor extends AbstractProcessor {
     }
 
     private String render(String template, String... kv) {
-        String result = template;
+        var result = template;
         for (int i = 0; i < kv.length; i += 2) {
-            String key = kv[i];
-            String value = kv[i + 1];
+            val key = kv[i];
+            val value = kv[i + 1];
             result = result.replace("${" + key + "}", value);
         }
         return result;

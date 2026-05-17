@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@AutoBizService(bizIdField = "orderNo", bizIdColumn = "order_no")
+@AutoBizService
 public class Order extends CBaseEntity<Long> {
 
     @CBizId

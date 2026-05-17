@@ -31,7 +31,8 @@
 ### 2. 在实体类上添加注解
 
 ```java
-import com.c332030.ctool4j.mybatisplus.processor.AutoBizService;
+import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
+import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
 import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,11 +41,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @AutoBizService(bizIdField = "orderNo", bizIdColumn = "order_no")
 public class Order extends CBaseEntity<Long> {
-    
+
     private String orderNo;
-    
+
     private String productName;
-    
+
     private Integer quantity;
 }
 ```
@@ -57,23 +58,23 @@ public class Order extends CBaseEntity<Long> {
 public interface IOrderService<ENTITY extends Order> extends ICBizService<ENTITY, Order> {
 
     String getOrderNo(Order entity);
-    
+
     SFunction<ENTITY, String> getOrderNoColumn();
-    
+
     default ENTITY getByOrderNo(String orderNo) { ... }
-    
+
     default List<ENTITY> listByOrderNo(String orderNo) { ... }
-    
+
     default Long countByOrderNo(String orderNo) { ... }
-    
+
     default boolean updateByOrderNo(ENTITY entity) { ... }
-    
+
     default boolean removeByOrderNo(String orderNo) { ... }
-    
+
     default List<ENTITY> listByOrderNos(Collection<String> orderNos) { ... }
-    
+
     default Map<String, ENTITY> listMapByOrderNos(Collection<String> orderNos) { ... }
-    
+
     // ... 更多方法
 }
 ```
@@ -141,9 +142,9 @@ public class Order extends CBaseEntity<Long> {
 @Data
 @AutoBizService(bizIdField = "voucherNo", bizIdColumn = "voucher_no")
 public class Voucher extends CBaseEntity<Long> {
-    
+
     private String voucherNo;
-    
+
     private String voucherName;
 }
 ```
