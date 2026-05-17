@@ -117,7 +117,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return CList.of();
         }
-        List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
+        val ${bizIdField}s = entityList.stream()
+            .map(get${BizIdCapital}Column())
+            .collect(Collectors.toList();
         return listBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -134,7 +136,9 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return 0L;
         }
-        List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
+        val ${bizIdField}s = entityList.stream()
+            .map(get${BizIdCapital}Column())
+            .collect(Collectors.toList();
         return countBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -151,22 +155,27 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return false;
         }
-        List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
+        val ${bizIdField}s = entityList.stream()
+            .map(get${BizIdCapital}Column())
+            .collect(Collectors.toList();
         return removeBy${BizIdCapital}s(${bizIdField}s);
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
-        if(CollUtil.isEmpty(${bizIdField}s)) { return CMap.of(); }
-        SFunction<ENTITY, String> column = get${BizIdCapital}Column();
+        if(CollUtil.isEmpty(${bizIdField}s)) {
+            return CMap.of();
+        }
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(Collectors.toMap(column, e -> e, (a, b) -> a));
+            .collect(Collectors.toMap(get${BizIdCapital}Column(), CFunction::self, CBiFunction::first);
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
         if(CollUtil.isEmpty(entityList)) {
             return CMap.of();
         }
-        List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
+        val ${bizIdField}s = entityList.stream()
+            .map(get${BizIdCapital}Column())
+            .collect(Collectors.toList();
         return listMapBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -174,9 +183,8 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(${bizIdField}s)) {
             return CMap.of();
         }
-        SFunction<ENTITY, String> column = get${BizIdCapital}Column();
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(Collectors.groupingBy(column));
+            .collect(Collectors.groupingBy(get${BizIdCapital}Column()));
     }
 
 }
