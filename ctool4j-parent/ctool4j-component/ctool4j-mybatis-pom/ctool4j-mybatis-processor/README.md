@@ -2,6 +2,16 @@
 
 基于 Java 注解处理器，编译时自动生成业务 Service 接口。
 
+## 重要说明
+
+本处理器使用 **Lombok 风格的 AST 修改**，不生成源文件。
+
+### IDE 支持
+
+- **IntelliJ IDEA**: 需要安装 Lombok 插件（已内置）
+- **Eclipse**: 需要安装 Lombok
+- **Maven 编译**: 完全支持
+
 ## 功能说明
 
 参照 `ICBizService` 的 `biz_id` 方法模式，自动生成如 `IOrderService`、`IVoucherService` 等业务 Service 接口。

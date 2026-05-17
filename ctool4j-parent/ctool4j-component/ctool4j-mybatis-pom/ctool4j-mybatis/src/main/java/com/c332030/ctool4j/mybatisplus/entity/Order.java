@@ -1,8 +1,11 @@
-package com.c332030.ctool4j.mybatisplus.processor;
+package com.c332030.ctool4j.mybatisplus.entity;
 
 import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
+import com.c332030.ctool4j.mybatisplus.processor.AutoBizService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
@@ -12,7 +15,9 @@ import lombok.EqualsAndHashCode;
  * @since 2025/05/16
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @AutoBizService(bizIdField = "orderNo", bizIdColumn = "order_no")
 public class Order extends CBaseEntity<Long> {
 
