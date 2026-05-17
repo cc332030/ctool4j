@@ -5,7 +5,7 @@ mvn -B release:clean release:prepare release:perform
 
 git push
 
-mvn clean deploy
+mvn deploy
 
 echo.
 pause
