@@ -72,7 +72,8 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         }
         return lambdaQuery()
             .eq(ENTITY::get${BizIdCapital}, ${bizIdField})
-            .count();
+            .count()
+            .longValue();
     }
 
     default Long countBy${BizIdCapital}(ENTITY entity) {
@@ -128,7 +129,8 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         }
         return lambdaQuery()
             .in(ENTITY::get${BizIdCapital}, ${bizIdField}s)
-            .count();
+            .count()
+            .longValue();
     }
 
     default Long countBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
