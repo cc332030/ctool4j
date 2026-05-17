@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>ctool4j-spring-autowired</module>
         <module>ctool4j-spring</module>
         <module>ctool4j-spring-security</module>
         <module>ctool4j-spring-cloud</module>

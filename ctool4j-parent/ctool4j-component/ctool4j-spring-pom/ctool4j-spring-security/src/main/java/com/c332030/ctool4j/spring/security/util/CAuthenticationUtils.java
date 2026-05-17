@@ -2,6 +2,7 @@ package com.c332030.ctool4j.spring.security.util;
 
 import com.c332030.ctool4j.definition.interfaces.ICUsernameAndPassword;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.security.model.CSecurityUser;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @since 2026/1/24
  */
 @UtilityClass
+@CAutowiredScan
 public class CAuthenticationUtils {
 
     @CAutowired

@@ -6,6 +6,7 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.feign.config.CFeignClientHeaderConfig;
 import com.c332030.ctool4j.feign.enums.CFeignClientHeaderPropagationModeEnum;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import feign.RequestTemplate;
 import feign.Response;
@@ -27,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @CustomLog
 @UtilityClass
+@CAutowiredScan
 public class CFeignUtils {
 
     public final ThreadLocal<StringBuilder> HTTP_LOG_THREAD_LOCAL = ThreadLocal.withInitial(StringBuilder::new);

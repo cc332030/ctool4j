@@ -6,6 +6,7 @@ import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
 import lombok.CustomLog;
 import lombok.Setter;
@@ -30,6 +31,7 @@ import java.util.Map;
  */
 @CustomLog
 @UtilityClass
+@CAutowiredScan
 public class CSpringHttpUtils {
 
     @Setter

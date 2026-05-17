@@ -46,13 +46,13 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-spring</artifactId>
+                <artifactId>ctool4j-spring-autowired</artifactId>
                 <version>1.0.20260517-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-web</artifactId>
+                <artifactId>ctool4j-spring</artifactId>
                 <version>1.0.20260517-SNAPSHOT</version>
             </dependency>
 
@@ -65,6 +65,12 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-spring-cloud</artifactId>
+                <version>1.0.20260517-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-web</artifactId>
                 <version>1.0.20260517-SNAPSHOT</version>
             </dependency>
 

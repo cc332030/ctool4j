@@ -9,15 +9,8 @@ import java.lang.annotation.*;
  *
  * @since 2025/12/23
  */
-@Documented
-@Inherited
-@Target({ElementType.TYPE, ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
 public @interface CAutowiredScan {
-
-    /**
-     * 需要扫描的类
-     */
-    Class<?>[] value() default {};
 
 }

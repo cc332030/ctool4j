@@ -6,6 +6,7 @@ import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -26,6 +27,7 @@ import java.util.Objects;
  */
 @CustomLog
 @UtilityClass
+@CAutowiredScan
 public class CCorsUtils {
 
     @CAutowired
