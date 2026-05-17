@@ -15,11 +15,13 @@
         <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-mybatis</artifactId>
+            <version>1.0.20260517-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-mybatis-processor</artifactId>
+            <version>1.0.20260517-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
