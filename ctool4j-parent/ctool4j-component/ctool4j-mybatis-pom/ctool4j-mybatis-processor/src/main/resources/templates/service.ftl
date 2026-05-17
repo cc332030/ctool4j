@@ -26,14 +26,18 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
     }
 
     default ENTITY getBy${BizIdCapital}(String ${bizIdField}) {
-        if(StrUtil.isBlank(${bizIdField})) { return null; }
+        if(StrUtil.isBlank(${bizIdField})) {
+            return null;
+        }
         return lambdaQuery()
             .eq(get${BizIdCapital}Column(), ${bizIdField})
             .one();
     }
 
     default ENTITY getBy${BizIdCapital}(ENTITY entity) {
-        if(Objects.isNull(entity)) { return null; }
+        if(Objects.isNull(entity)) {
+            return null;
+        }
         return getBy${BizIdCapital}(entity.get${BizIdCapital}());
     }
 
@@ -46,81 +50,107 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
     }
 
     default List<ENTITY> listBy${BizIdCapital}(String ${bizIdField}) {
-        if(StrUtil.isBlank(${bizIdField})) { return CList.of(); }
+        if(StrUtil.isBlank(${bizIdField})) {
+            return CList.of();
+        }
         return lambdaQuery()
             .eq(get${BizIdCapital}Column(), ${bizIdField})
             .list();
     }
 
     default List<ENTITY> listBy${BizIdCapital}(ENTITY entity) {
-        if(null == entity) { return CList.of(); }
+        if(null == entity) {
+            return CList.of();
+        }
         return listBy${BizIdCapital}(entity.get${BizIdCapital}());
     }
 
     default Long countBy${BizIdCapital}(String ${bizIdField}) {
-        if(StrUtil.isBlank(${bizIdField})) { return 0L; }
+        if(StrUtil.isBlank(${bizIdField})) {
+            return 0L;
+        }
         return lambdaQuery()
             .eq(get${BizIdCapital}Column(), ${bizIdField})
             .count();
     }
 
     default Long countBy${BizIdCapital}(ENTITY entity) {
-        if(entity == null) { return 0L; }
+        if(entity == null) {
+            return 0L;
+        }
         return countBy${BizIdCapital}(entity.get${BizIdCapital}());
     }
 
     default boolean updateBy${BizIdCapital}(ENTITY entity) {
-        if(Objects.isNull(entity)) { return false; }
+        if(Objects.isNull(entity)) {
+            return false;
+        }
         return updateById(entity);
     }
 
     default boolean removeBy${BizIdCapital}(String ${bizIdField}) {
-        if(StrUtil.isBlank(${bizIdField})) { return false; }
+        if(StrUtil.isBlank(${bizIdField})) {
+            return false;
+        }
         return lambdaUpdate()
             .eq(get${BizIdCapital}Column(), ${bizIdField})
             .remove();
     }
 
     default boolean removeBy${BizIdCapital}(ENTITY entity) {
-        if(null == entity) { return false; }
+        if(null == entity) {
+            return false;
+        }
         return removeBy${BizIdCapital}(entity.get${BizIdCapital}());
     }
 
     default List<ENTITY> listBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
-        if(CollUtil.isEmpty(${bizIdField}s)) { return CList.of(); }
+        if(CollUtil.isEmpty(${bizIdField}s)) {
+            return CList.of();
+        }
         return lambdaQuery()
                 .in(get${BizIdCapital}Column(), ${bizIdField}s)
                 .list();
     }
 
     default List<ENTITY> listBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
-        if(CollUtil.isEmpty(entityList)) { return CList.of(); }
+        if(CollUtil.isEmpty(entityList)) {
+            return CList.of();
+        }
         List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
         return listBy${BizIdCapital}s(${bizIdField}s);
     }
 
     default Long countBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
-        if(CollUtil.isEmpty(${bizIdField}s)) { return 0L; }
+        if(CollUtil.isEmpty(${bizIdField}s)) {
+            return 0L;
+        }
         return lambdaQuery()
             .in(get${BizIdCapital}Column(), ${bizIdField}s)
             .count();
     }
 
     default Long countBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
-        if(CollUtil.isEmpty(entityList)) { return 0L; }
+        if(CollUtil.isEmpty(entityList)) {
+            return 0L;
+        }
         List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
         return countBy${BizIdCapital}s(${bizIdField}s);
     }
 
     default boolean removeBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
-        if(CollUtil.isEmpty(${bizIdField}s)) { return false; }
+        if(CollUtil.isEmpty(${bizIdField}s)) {
+            return false;
+        }
         return lambdaUpdate()
             .in(get${BizIdCapital}Column(), ${bizIdField}s)
             .remove();
     }
 
     default boolean removeBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
-        if(CollUtil.isEmpty(entityList)) { return false; }
+        if(CollUtil.isEmpty(entityList)) {
+            return false;
+        }
         List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
         return removeBy${BizIdCapital}s(${bizIdField}s);
     }
@@ -133,13 +163,17 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
-        if(CollUtil.isEmpty(entityList)) { return CMap.of(); }
+        if(CollUtil.isEmpty(entityList)) {
+            return CMap.of();
+        }
         List<String> ${bizIdField}s = CList.of(entityList.stream().map(e -> e.get${BizIdCapital}()).toArray(String[]::new));
         return listMapBy${BizIdCapital}s(${bizIdField}s);
     }
 
     default Map<String, List<ENTITY>> listGroupMapBy${BizIdCapital}s(Collection<String> ${bizIdField}s) {
-        if(CollUtil.isEmpty(${bizIdField}s)) { return CMap.of(); }
+        if(CollUtil.isEmpty(${bizIdField}s)) {
+            return CMap.of();
+        }
         SFunction<ENTITY, String> column = get${BizIdCapital}Column();
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
             .collect(Collectors.groupingBy(column));
