@@ -42,6 +42,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring-autowired</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -86,7 +91,10 @@
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
-                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>com.c332030</groupId>
+                                <artifactId>ctool4j-spring-autowired</artifactId>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>

@@ -34,7 +34,10 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </path>
-
+                        <path>
+                            <groupId>com.c332030</groupId>
+                            <artifactId>ctool4j-spring-autowired</artifactId>
+                        </path>
                         <path>
                             <groupId>com.c332030</groupId>
                             <artifactId>ctool4j-mybatis-processor</artifactId>

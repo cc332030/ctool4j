@@ -22,11 +22,6 @@
             <artifactId>ctool4j-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-spring-autowired</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>
