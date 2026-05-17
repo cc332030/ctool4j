@@ -8,5 +8,5 @@
 
 ## lambda
 
-- e -> e 换成 CFunction.SELF
-- (a, b) -> a 换成 CBiFunction.FIRST
+- e -> e 换成 CFunction.self
+- (a, b) -> a 换成 CBiFunction.first()
