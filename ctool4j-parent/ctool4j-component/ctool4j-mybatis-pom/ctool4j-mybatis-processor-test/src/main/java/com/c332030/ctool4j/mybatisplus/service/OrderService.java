@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
  * @since 2026/5/17
  */
 @Service
-public class OrderService extends CServiceImpl<OrderMapper, OrderDO> implements IOrderService<IOrderNo> {
+public class OrderService
+        extends CServiceImpl<OrderMapper, OrderDO>
+        implements IOrderNoService<OrderDO> {
 
 }
