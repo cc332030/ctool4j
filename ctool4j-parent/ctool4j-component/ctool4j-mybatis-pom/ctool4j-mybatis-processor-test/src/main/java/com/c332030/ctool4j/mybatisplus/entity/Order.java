@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.mybatisplus.entity;
 
+import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
 import com.c332030.ctool4j.mybatisplus.processor.AutoBizService;
 import lombok.AllArgsConstructor;
@@ -21,10 +22,11 @@ import lombok.experimental.SuperBuilder;
 @AutoBizService(bizIdField = "orderNo", bizIdColumn = "order_no")
 public class Order extends CBaseEntity<Long> {
 
-    private String orderNo;
+    @CBizId
+    String orderNo;
 
-    private String productName;
+    String productName;
 
-    private Integer quantity;
+    Integer quantity;
 
 }
