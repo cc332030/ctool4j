@@ -7,7 +7,11 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.mybatisplus.service.ICService;
+import com.c332030.ctool4j.definition.function.CBiFunction;
+import com.c332030.ctool4j.definition.function.CFunction;
 import ${entityFullName};
+import lombok.val;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -119,7 +123,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         }
         val ${bizIdField}s = entityList.stream()
             .map(get${BizIdCapital}Column())
-            .collect(Collectors.toList();
+            .collect(Collectors.toList());
         return listBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -138,7 +142,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         }
         val ${bizIdField}s = entityList.stream()
             .map(get${BizIdCapital}Column())
-            .collect(Collectors.toList();
+            .collect(Collectors.toList());
         return countBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -157,7 +161,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         }
         val ${bizIdField}s = entityList.stream()
             .map(get${BizIdCapital}Column())
-            .collect(Collectors.toList();
+            .collect(Collectors.toList());
         return removeBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -166,7 +170,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CMap.of();
         }
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(Collectors.toMap(get${BizIdCapital}Column(), CFunction::self, CBiFunction::first);
+            .collect(Collectors.toMap(get${BizIdCapital}Column(), e -> e, (e1, e2) -> e1));
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
@@ -175,7 +179,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         }
         val ${bizIdField}s = entityList.stream()
             .map(get${BizIdCapital}Column())
-            .collect(Collectors.toList();
+            .collect(Collectors.toList());
         return listMapBy${BizIdCapital}s(${bizIdField}s);
     }
 
