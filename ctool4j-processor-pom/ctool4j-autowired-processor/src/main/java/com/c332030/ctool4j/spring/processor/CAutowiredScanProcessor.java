@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.processor;
 
+import com.c332030.ctool4j.spring.annotation.CAutowired;
 import lombok.val;
 import lombok.var;
 
@@ -117,7 +118,7 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
                 val field = (VariableElement) enclosed;
                 val hasAutowired = field.getAnnotationMirrors().stream()
                         .anyMatch(am -> am.getAnnotationType().toString()
-                                .equals("com.c332030.ctool4j.spring.annotation.CAutowired"));
+                                .equals(CAutowired.class.getCanonicalName()));
                 if (hasAutowired) {
                     val fieldName = field.getSimpleName().toString();
                     val fieldType = field.asType().toString();
