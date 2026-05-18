@@ -9,7 +9,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -114,13 +113,12 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
         val fields = new ArrayList<FieldInfo>();
         for (val enclosed : classElement.getEnclosedElements()) {
             if (enclosed.getKind() == ElementKind.FIELD) {
+
                 val field = (VariableElement) enclosed;
-                val isStatic = field.getModifiers().contains(Modifier.STATIC);
                 val hasAutowired = field.getAnnotationMirrors().stream()
                         .anyMatch(am -> am.getAnnotationType().toString()
                                 .equals("com.c332030.ctool4j.spring.annotation.CAutowired"));
-                
-                if (isStatic && hasAutowired) {
+                if (hasAutowired) {
                     val fieldName = field.getSimpleName().toString();
                     val fieldType = field.asType().toString();
                     fields.add(new FieldInfo(fieldName, fieldType));
