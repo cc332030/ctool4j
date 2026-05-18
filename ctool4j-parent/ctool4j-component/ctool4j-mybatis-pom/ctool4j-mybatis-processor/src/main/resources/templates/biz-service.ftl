@@ -26,12 +26,14 @@ import java.util.stream.Collectors;
  */
 public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<ENTITY> {
 
+    SFunction<${entityName}, String> ${bizIdField}Column = ${entityName}::get${BizIdCapital};
+
     default ENTITY getBy${BizIdCapital}(String ${bizIdField}) {
         if(StrUtil.isBlank(${bizIdField})) {
             return null;
         }
         return lambdaQuery()
-            .eq(${entityName}::get${BizIdCapital}, ${bizIdField})
+            .eq(${bizIdField}Column, ${bizIdField})
             .one();
     }
 
@@ -55,7 +57,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CList.of();
         }
         return lambdaQuery()
-            .eq(${entityName}::get${BizIdCapital}, ${bizIdField})
+            .eq(${bizIdField}Column, ${bizIdField})
             .list();
     }
 
@@ -71,7 +73,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return 0L;
         }
         return lambdaQuery()
-            .eq(${entityName}::get${BizIdCapital}, ${bizIdField})
+            .eq(${bizIdField}Column, ${bizIdField})
             .count()
             .longValue();
     }
@@ -83,11 +85,13 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         return countBy${BizIdCapital}(entity.get${BizIdCapital}());
     }
 
-    default boolean updateBy${BizIdCapital}(${entityName} entity) {
+    default boolean updateBy${BizIdCapital}(ENTITY entity) {
         if(Objects.isNull(entity)) {
             return false;
         }
-        return updateById(entity);
+        return lambdaUpdate()
+            .eq(${bizIdField}Column, entity.get${BizIdCapital}())
+            .update(entity);
     }
 
     default boolean removeBy${BizIdCapital}(String ${bizIdField}) {
@@ -95,7 +99,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return false;
         }
         return lambdaUpdate()
-            .eq(${entityName}get${BizIdCapital}, ${bizIdField})
+            .eq(${bizIdField}Column, ${bizIdField})
             .remove();
     }
 
@@ -111,7 +115,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CList.of();
         }
         return lambdaQuery()
-                .in(${entityName}::get${BizIdCapital}, ${bizIdField}s)
+                .in(${bizIdField}Column, ${bizIdField}s)
                 .list();
     }
 
@@ -119,7 +123,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return CList.of();
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${bizIdField}Column);
         return listBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -128,7 +132,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return 0L;
         }
         return lambdaQuery()
-            .in(${entityName}::get${BizIdCapital}, ${bizIdField}s)
+            .in(${bizIdField}Column, ${bizIdField}s)
             .count()
             .longValue();
     }
@@ -137,7 +141,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return 0L;
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${bizIdField}Column);
         return countBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -146,7 +150,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return false;
         }
         return lambdaUpdate()
-            .in(${entityName}get${BizIdCapital}, ${bizIdField}s)
+            .in(${bizIdField}Column, ${bizIdField}s)
             .remove();
     }
 
@@ -154,7 +158,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return false;
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${bizIdField}Column);
         return removeBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -163,14 +167,14 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CMap.of();
         }
         val entities = listBy${BizIdCapital}s(${bizIdField}s);
-        return CCollUtils.toMap(entities, ${entityName}get${BizIdCapital});
+        return CCollUtils.toMap(entities, ${bizIdField}Column);
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ${entityName}> entityList) {
         if(CollUtil.isEmpty(entityList)) {
             return CMap.of();
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${bizIdField}Column);
         return listMapBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -179,7 +183,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CMap.of();
         }
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(Collectors.groupingBy(${entityName}get${BizIdCapital}));
+            .collect(Collectors.groupingBy(${bizIdField}Column));
     }
 
 }
