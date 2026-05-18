@@ -76,7 +76,7 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
                 .collect(Collectors.joining(", "));
 
         val constructorAssignments = autowiredFields.stream()
-                .map(f -> className + "." + f.fieldName + " = " + f.fieldName + ";")
+                .map(f -> className + ".set" + capitalize(f.fieldName) + "(" + f.fieldName + ");")
                 .collect(Collectors.joining("\n        "));
 
         val imports = new StringBuilder();
@@ -159,6 +159,13 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
             result = result.replace("${" + key + "}", value);
         }
         return result;
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     private static class FieldInfo {
