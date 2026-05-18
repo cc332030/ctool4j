@@ -115,11 +115,11 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
                 .list();
     }
 
-    default List<ENTITY> listBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
+    default List<ENTITY> listBy${BizIdCapital}s(List<? extends ${entityName}> entityList) {
         if(CollUtil.isEmpty(entityList)) {
             return CList.of();
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ENTITY::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
         return listBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -133,11 +133,11 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             .longValue();
     }
 
-    default Long countBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
+    default Long countBy${BizIdCapital}s(List<? extends ${entityName}> entityList) {
         if(CollUtil.isEmpty(entityList)) {
             return 0L;
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ENTITY::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
         return countBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -150,11 +150,11 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             .remove();
     }
 
-    default boolean removeBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
+    default boolean removeBy${BizIdCapital}s(List<? extends ${entityName}> entityList) {
         if(CollUtil.isEmpty(entityList)) {
             return false;
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ENTITY::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
         return removeBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -166,11 +166,11 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         return CCollUtils.toMap(entities, ENTITY::get${BizIdCapital});
     }
 
-    default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ENTITY> entityList) {
+    default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ${entityName}> entityList) {
         if(CollUtil.isEmpty(entityList)) {
             return CMap.of();
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ENTITY::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
         return listMapBy${BizIdCapital}s(${bizIdField}s);
     }
 
