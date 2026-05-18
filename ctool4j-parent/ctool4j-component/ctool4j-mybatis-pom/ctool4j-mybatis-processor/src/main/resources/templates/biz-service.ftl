@@ -128,7 +128,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return 0L;
         }
         return lambdaQuery()
-            .in(ENTITY::get${BizIdCapital}, ${bizIdField}s)
+            .in(${entityName}get${BizIdCapital}, ${bizIdField}s)
             .count()
             .longValue();
     }
@@ -146,7 +146,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return false;
         }
         return lambdaUpdate()
-            .in(ENTITY::get${BizIdCapital}, ${bizIdField}s)
+            .in(${entityName}get${BizIdCapital}, ${bizIdField}s)
             .remove();
     }
 
@@ -163,7 +163,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CMap.of();
         }
         val entities = listBy${BizIdCapital}s(${bizIdField}s);
-        return CCollUtils.toMap(entities, ENTITY::get${BizIdCapital});
+        return CCollUtils.toMap(entities, ${entityName}get${BizIdCapital});
     }
 
     default Map<String, ENTITY> listMapBy${BizIdCapital}s(List<? extends ${entityName}> entityList) {
@@ -179,7 +179,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CMap.of();
         }
         return listBy${BizIdCapital}s(${bizIdField}s).stream()
-            .collect(Collectors.groupingBy(ENTITY::get${BizIdCapital}));
+            .collect(Collectors.groupingBy(${entityName}get${BizIdCapital}));
     }
 
 }
