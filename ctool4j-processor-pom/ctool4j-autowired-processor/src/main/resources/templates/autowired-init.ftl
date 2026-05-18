@@ -11,7 +11,9 @@ ${imports}
 @Component
 public class ${initClassName} {
 
-    public ${initClassName}(${constructorParams}) {
+    public ${initClassName}(
+        ${constructorParams}
+    ) {
         ${constructorAssignments}
     }
 
