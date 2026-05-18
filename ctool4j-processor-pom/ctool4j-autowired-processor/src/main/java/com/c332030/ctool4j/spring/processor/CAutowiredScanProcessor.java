@@ -71,9 +71,11 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
         val initClassPackage = classPackage;
         val initClassFullName = initClassPackage + "." + initClassName;
 
-        val constructorParams = autowiredFields.stream()
+        val constructorParams = "\n" + autowiredFields.stream()
                 .map(f -> f.fieldType + " " + f.fieldName)
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining(", "))
+                + "    \n"
+                ;
 
         val constructorAssignments = autowiredFields.stream()
                 .map(f -> className + ".set" + capitalize(f.fieldName) + "(" + f.fieldName + ");")
