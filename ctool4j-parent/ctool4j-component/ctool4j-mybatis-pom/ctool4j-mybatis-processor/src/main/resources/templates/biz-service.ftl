@@ -31,7 +31,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return null;
         }
         return lambdaQuery()
-            .eq(${entityName}get${BizIdCapital}, ${bizIdField})
+            .eq(${entityName}::get${BizIdCapital}, ${bizIdField})
             .one();
     }
 
@@ -55,7 +55,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CList.of();
         }
         return lambdaQuery()
-            .eq(${entityName}get${BizIdCapital}, ${bizIdField})
+            .eq(${entityName}::get${BizIdCapital}, ${bizIdField})
             .list();
     }
 
@@ -71,7 +71,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return 0L;
         }
         return lambdaQuery()
-            .eq(${entityName}get${BizIdCapital}, ${bizIdField})
+            .eq(${entityName}::get${BizIdCapital}, ${bizIdField})
             .count()
             .longValue();
     }
@@ -111,7 +111,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return CList.of();
         }
         return lambdaQuery()
-                .in(${entityName}get${BizIdCapital}, ${bizIdField}s)
+                .in(${entityName}::get${BizIdCapital}, ${bizIdField}s)
                 .list();
     }
 
@@ -128,7 +128,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
             return 0L;
         }
         return lambdaQuery()
-            .in(${entityName}get${BizIdCapital}, ${bizIdField}s)
+            .in(${entityName}::get${BizIdCapital}, ${bizIdField}s)
             .count()
             .longValue();
     }
