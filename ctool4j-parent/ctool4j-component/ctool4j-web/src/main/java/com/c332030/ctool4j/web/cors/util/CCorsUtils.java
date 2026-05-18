@@ -9,6 +9,7 @@ import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
 import lombok.CustomLog;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +31,7 @@ import java.util.Objects;
 @CAutowiredScan
 public class CCorsUtils {
 
+    @Setter
     @CAutowired
     CCorsConfig config;
 

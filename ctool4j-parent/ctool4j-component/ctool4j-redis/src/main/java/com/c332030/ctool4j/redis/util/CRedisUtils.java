@@ -11,6 +11,7 @@ import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.config.CSpringApplicationConfig;
 import lombok.CustomLog;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,12 +38,15 @@ public class CRedisUtils {
 
     public final String KEY_SEPARATOR = ":";
 
+    @Setter
     @CAutowired
     CSpringApplicationConfig springApplicationConfig;
 
+    @Setter
     @CAutowired
     CObjectValueRedisService redisService;
 
+    @Setter
     @CAutowired
     CStringStringRedisService stringStringRedisService;
 

@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.interfaces.ICUsernameAndPassword;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.security.model.CSecurityUser;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,9 +23,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @CAutowiredScan
 public class CAuthenticationUtils {
 
+    @Setter
     @CAutowired
     PasswordEncoder passwordEncoder;
 
+    @Setter
     @CAutowired
     AuthenticationManager authenticationManager;
 
