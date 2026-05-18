@@ -14,7 +14,11 @@ import java.util.Map;
  * @since 2025/9/21
  */
 @Data
-@ConfigurationProperties("feign")
+@ConfigurationProperties(
+    value = "feign",
+    // 忽略格式不一样的字段
+    ignoreInvalidFields = true
+)
 public class CFeignConfig {
 
     /**
