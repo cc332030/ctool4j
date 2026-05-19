@@ -143,31 +143,6 @@
                     </executions>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <configuration>
-                        <autoVersionSubmodules>true</autoVersionSubmodules>
-
-                        <!--<releaseVersion>@{project.version}</releaseVersion>-->
-                        <tagNameFormat>@{project.version}</tagNameFormat>
-
-                        <developmentVersion>${snapshot.next.version}</developmentVersion>
-
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>versions-maven-plugin</artifactId>
-                    <version>${versions-maven-plugin.version}</version>
-                </plugin>
-
                 <!--<plugin>-->
                 <!--    <groupId>org.sonatype.central</groupId>-->
                 <!--    <artifactId>central-publishing-maven-plugin</artifactId>-->
