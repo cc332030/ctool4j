@@ -314,8 +314,19 @@ public class CRedisUtils {
      * @return 业务id
      */
     public String getDateTimeIncrBizId(Class<?> entityClass, int incrLength) {
+        return getDateTimeIncrBizId(CIdUtils.getPrefix(entityClass), incrLength);
+    }
 
-        val keyBefore = CIdUtils.getPrefix(entityClass)
+    /**
+     * 获取日期时间+自增的业务id
+     *
+     * @param prefix 前缀
+     * @param incrLength  自增id长度
+     * @return 业务id
+     */
+    public String getDateTimeIncrBizId(String prefix, int incrLength) {
+
+        val keyBefore = prefix
             + CDateUtils.formatPureDateTime(Instant.now());
         return getIncrExpireBizId(
             keyBefore,
