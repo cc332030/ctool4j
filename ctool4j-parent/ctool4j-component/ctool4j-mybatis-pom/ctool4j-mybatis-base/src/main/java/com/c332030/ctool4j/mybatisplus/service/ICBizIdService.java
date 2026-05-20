@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
 
 /**
@@ -10,7 +9,7 @@ import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
  *
  * @since 2025/12/17
  */
-public interface ICBizIdService<ENTITY> extends IService<ENTITY> {
+public interface ICBizIdService<ENTITY> extends ICCheckService<ENTITY> {
 
     Class<ENTITY> getEntityClass();
 
