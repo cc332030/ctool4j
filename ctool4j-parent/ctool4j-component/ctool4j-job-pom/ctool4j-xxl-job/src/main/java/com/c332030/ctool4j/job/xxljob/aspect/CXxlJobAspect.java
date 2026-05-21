@@ -8,10 +8,7 @@ import com.c332030.ctool4j.job.xxljob.config.CXxlJobExecutorLogConfig;
 import com.c332030.ctool4j.job.xxljob.util.CXxlJobUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import com.xxl.job.core.handler.annotation.XxlJob;
-import lombok.AllArgsConstructor;
-import lombok.CustomLog;
-import lombok.SneakyThrows;
-import lombok.val;
+import lombok.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -69,6 +66,12 @@ public class CXxlJobAspect {
             }
         }
 
+        var start = 0L;
+        if(BooleanUtil.isTrue(executorConfig.getLogCost())) {
+            start = System.currentTimeMillis();
+            log.info("jobName start: {} ");
+        }
+
         try {
             return CAspectUtils.process(joinPoint);
         } catch (Throwable e) {
@@ -76,6 +79,11 @@ public class CXxlJobAspect {
                 log.error("jobName: {} failure", jobName, e);
             }
             throw e;
+        } finally {
+            if(BooleanUtil.isTrue(executorConfig.getLogCost())) {
+                val cost = System.currentTimeMillis() - start;
+                log.info("jobName end: {}, cost: {}ms", jobName, cost);
+            }
         }
     }
 

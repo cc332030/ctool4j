@@ -15,6 +15,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CXxlJobExecutorLogConfig {
 
     /**
+     * 打印执行耗时
+     */
+    Boolean logCost = true;
+
+    /**
      * 打印捕获的错误信息
      */
     Boolean logCatchError = true;
