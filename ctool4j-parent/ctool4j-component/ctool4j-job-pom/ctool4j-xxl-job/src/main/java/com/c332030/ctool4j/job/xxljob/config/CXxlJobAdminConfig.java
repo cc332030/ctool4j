@@ -30,6 +30,6 @@ public class CXxlJobAdminConfig {
     /**
      * 调度中心通讯超时时间[选填]，单位秒；默认3s；
      */
-    Integer timeout;
+    Integer timeout = 3;
 
 }
