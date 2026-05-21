@@ -25,7 +25,7 @@ import java.util.List;
 public class CMpPageUtils {
 
     /**
-     * 创建 Page
+     * 查询创建 Page，单次 10
      * @param pageNum 当前页
      * @return Page
      * @param <T> 泛型
@@ -35,13 +35,23 @@ public class CMpPageUtils {
     }
 
     /**
-     * 创建 Page
+     * 定时任务创建 Page，单次 100
      * @param pageNum 当前页
      * @return Page
      * @param <T> 泛型
      */
-    public <T> Page<T> getPageForTask(Integer pageNum) {
+    public <T> Page<T> getPageForJob(Integer pageNum) {
         return getPage(pageNum, CPageUtils.DEFAULT_JOB_PAGE_SIZE);
+    }
+
+    /**
+     * 导出创建 Page，单次 1000
+     * @param pageNum 当前页
+     * @return Page
+     * @param <T> 泛型
+     */
+    public <T> Page<T> getPageForExport(Integer pageNum) {
+        return getPage(pageNum, CPageUtils.DEFAULT_EXPORT_PAGE_SIZE);
     }
 
     /**

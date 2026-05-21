@@ -19,9 +19,20 @@ import java.util.List;
 @UtilityClass
 public class CPageUtils {
 
+    /**
+     * 默认分页大小
+     */
     public static final Integer DEFAULT_PAGE_SIZE = 10;
 
-    public static final Integer DEFAULT_JOB_PAGE_SIZE = 1000;
+    /**
+     * 定时任务分页大小
+     */
+    public static final Integer DEFAULT_JOB_PAGE_SIZE = 100;
+
+    /**
+     * 导出分页大小
+     */
+    public static final Integer DEFAULT_EXPORT_PAGE_SIZE = 1000;
 
     /**
      * 分页查询并执行逻辑
