@@ -69,7 +69,7 @@ public class CXxlJobAspect {
         var start = 0L;
         if(BooleanUtil.isTrue(executorConfig.getLogCost())) {
             start = System.currentTimeMillis();
-            log.info("jobName start: {} ");
+            log.info("jobName start: {}", jobName);
         }
 
         try {
