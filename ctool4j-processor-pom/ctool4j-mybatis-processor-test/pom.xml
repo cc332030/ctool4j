@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-processor-pom</artifactId>
-        <version>1.0.20260522-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>ctool4j-mybatis-processor-test</artifactId>
@@ -15,13 +15,13 @@
         <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-mybatis</artifactId>
-            <version>1.0.20260522-SNAPSHOT</version>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-mybatis-processor</artifactId>
-            <version>1.0.20260522-SNAPSHOT</version>
+            <version>${revision}</version>
         </dependency>
 
     </dependencies>
@@ -42,12 +42,12 @@
                         <path>
                             <groupId>com.c332030</groupId>
                             <artifactId>ctool4j-autowired-processor</artifactId>
-                            <version>${ctool4j.version}</version>
+                            <version>${revision}</version>
                         </path>
                         <path>
                             <groupId>com.c332030</groupId>
                             <artifactId>ctool4j-mybatis-processor</artifactId>
-                            <version>${ctool4j.version}</version>
+                            <version>${revision}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

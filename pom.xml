@@ -4,7 +4,7 @@
 
     <groupId>com.c332030</groupId>
     <artifactId>ctool4j</artifactId>
-    <version>1.0.20260522-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -33,7 +33,7 @@
     <properties>
 
         <main.version>1.0</main.version>
-        <ctool4j.version>${project.version}</ctool4j.version>
+        <revision>1.0.20260522-SNAPSHOT</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
@@ -248,12 +248,8 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-
-                    <!--<releaseVersion>@{project.version}</releaseVersion>-->
                     <tagNameFormat>@{project.version}</tagNameFormat>
-
                     <developmentVersion>${snapshot.next.version}</developmentVersion>
-
                 </configuration>
             </plugin>
 
