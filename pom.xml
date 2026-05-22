@@ -67,6 +67,7 @@
         <xxl-job.version>2.5.0</xxl-job.version>
         <knife4j.version>4.5.0</knife4j.version>
 
+        <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
@@ -164,7 +165,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.7.3</version>
+                <version>${flatten-maven-plugin.version}</version>
                 <configuration>
                     <updatePomFile>false</updatePomFile>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>
