@@ -1,6 +1,5 @@
-package com.c332030.ctool4j.mybatisplus.util;
+package com.c332030.ctool4j.mybatisplus.service;
 
-import com.c332030.ctool4j.mybatisplus.service.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
