@@ -120,16 +120,6 @@
                             <artifactId>ctool4j-autowired-processor</artifactId>
                             <version>${revision}</version>
                         </path>
-                        <path>
-                            <groupId>com.c332030</groupId>
-                            <artifactId>ctool4j-mybatis-processor</artifactId>
-                            <version>${revision}</version>
-                        </path>
-                        <path>
-                            <groupId>com.c332030</groupId>
-                            <artifactId>ctool4j-mq-processor</artifactId>
-                            <version>${revision}</version>
-                        </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
