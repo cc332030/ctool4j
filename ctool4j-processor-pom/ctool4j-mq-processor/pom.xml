@@ -15,6 +15,7 @@
         <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-mq-base</artifactId>
+            <version>${revision}</version>
         </dependency>
 
     </dependencies>
