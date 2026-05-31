@@ -12,18 +12,6 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-rabbitmq</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-rocketmq</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
     </dependencies>
 
 </project>
