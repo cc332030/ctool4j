@@ -17,6 +17,11 @@
             <artifactId>ctool4j-processor-base</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-rocketmq</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
