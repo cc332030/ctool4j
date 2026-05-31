@@ -8,14 +8,9 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>ctool4j-mq-processor</artifactId>
+    <artifactId>ctool4j-processor-base</artifactId>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-processor-base</artifactId>
-        </dependency>
 
     </dependencies>
 
