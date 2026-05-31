@@ -20,6 +20,12 @@
                 <version>${revision}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-mq-processor</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
 
 
             <dependency>
