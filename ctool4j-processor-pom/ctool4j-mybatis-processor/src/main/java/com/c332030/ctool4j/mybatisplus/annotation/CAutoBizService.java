@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.mybatisplus.processor;
+package com.c332030.ctool4j.mybatisplus.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

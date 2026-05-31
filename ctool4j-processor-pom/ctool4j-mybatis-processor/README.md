@@ -31,8 +31,7 @@
 ### 2. 在实体类上添加注解
 
 ```java
-import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
-import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
+
 import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

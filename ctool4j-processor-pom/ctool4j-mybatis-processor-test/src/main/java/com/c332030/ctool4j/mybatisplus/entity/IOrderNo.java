@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.mybatisplus.entity;
 
-import com.c332030.ctool4j.definition.annotation.CBizId;
-import com.c332030.ctool4j.mybatisplus.processor.CAutoBizService;
+import com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService;
 
 /**
  * <p>

@@ -28,7 +28,7 @@ import java.util.Set;
  *
  * @since 2025/05/16
  */
-@SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.processor.CAutoBizService")
+@SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService")
 public class CAutoBizServiceProcessor extends AbstractProcessor {
 
     private String template;
