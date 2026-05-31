@@ -14,8 +14,12 @@
 
         <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-mq-base</artifactId>
-            <version>${revision}</version>
+            <artifactId>ctool4j-rabbitmq</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-rocketmq</artifactId>
         </dependency>
 
     </dependencies>
