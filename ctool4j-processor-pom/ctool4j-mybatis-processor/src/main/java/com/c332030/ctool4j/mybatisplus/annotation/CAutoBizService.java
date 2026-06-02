@@ -14,9 +14,8 @@ import java.lang.annotation.Target;
  * <pre>
  * {@code
  * @AutoBizService
- * public class Order {
- *     @CBizId
- *     String orderNo;
+ * public interface IOrderNo {
+ *     String getOrderNo();
  * }
  * </pre>
  *
