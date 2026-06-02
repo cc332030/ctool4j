@@ -6,8 +6,6 @@
 
 target*
 
-.flattened-pom.xml
-
 release.properties
 *.releaseBackup
 
