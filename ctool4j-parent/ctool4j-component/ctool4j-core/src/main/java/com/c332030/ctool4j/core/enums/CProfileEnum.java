@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.val;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * <p>
@@ -33,6 +31,8 @@ public enum CProfileEnum {
     PROD("生产"),
 
     ;
+
+    public static final Set<CProfileEnum> PROD_PROFILES = Collections.unmodifiableSet(EnumSet.of(PROD));
 
     public static final Map<String, CProfileEnum> PROFILE_MAP;
     static {
