@@ -34,11 +34,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-mybatis-processor</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

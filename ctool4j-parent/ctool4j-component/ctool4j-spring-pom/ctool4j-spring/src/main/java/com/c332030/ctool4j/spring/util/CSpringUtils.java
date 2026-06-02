@@ -2,6 +2,7 @@ package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.enums.CProfileEnum;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -170,17 +171,21 @@ public class CSpringUtils {
         return CProfileEnum.of(SpringUtil.getActiveProfile());
     }
 
+    public CProfileEnum getActiveProfileDefaultNull() {
+        try {
+            return getActiveProfile();
+        } catch (Exception e) {
+            log.debug("get profile error", e);
+            return null;
+        }
+    }
+
     public String getActiveProfileText() {
         return getActiveProfile().getText();
     }
 
     public String getActiveProfileTextDefaultNull() {
-        try {
-            return getActiveProfileText();
-        } catch (Exception e) {
-            log.debug("get profile text error", e);
-            return null;
-        }
+        return CObjUtils.convert(getActiveProfileDefaultNull(), CProfileEnum::getText);
     }
 
     public String profileTextSuffix(String message) {
@@ -191,6 +196,41 @@ public class CSpringUtils {
         }
 
         return message + "-" +  profileText;
+    }
+
+    /**
+     * 配置前缀，特定配置不加前缀
+     * @param text 文本
+     * @param excludeProfiles 不加前缀的配置
+     * @return 带配置前缀的文本
+     */
+    public String profilePrefixExclude(String text, Set<CProfileEnum> excludeProfiles) {
+
+        val profile = getActiveProfileDefaultNull();
+        if(profile == null
+            || excludeProfiles.contains(profile)
+        ) {
+            return text;
+        }
+        return profile.name() + text;
+    }
+
+    /**
+     * 配置前缀
+     * @param text 文本
+     * @return 带配置前缀的文本
+     */
+    public String profilePrefix(String text) {
+        return profilePrefixExclude(text, Collections.emptySet());
+    }
+
+    /**
+     * 配置前缀，PROD 不加前缀
+     * @param text 文本
+     * @return 带配置前缀的文本
+     */
+    public String profilePrefixExcludeProd(String text) {
+        return profilePrefixExclude(text, CProfileEnum.PROD_PROFILES);
     }
 
 }
