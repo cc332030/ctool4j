@@ -33,7 +33,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         return StrUtil.isBlank(key);
     }
 
-    private String getValueStr(Object value) {
+    private String toValueStr(Object value) {
         return CJsonUtils.toJson(value);
     }
 
@@ -61,7 +61,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         ) {
             return;
         }
-        setValue(key, getValueStr(value));
+        setValue(key, toValueStr(value));
     }
 
     public void setValue(String key, Object value, Duration duration) {
@@ -70,7 +70,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         ) {
             return;
         }
-        setValue(key, getValueStr(value), duration);
+        setValue(key, toValueStr(value), duration);
     }
 
     /**
@@ -89,7 +89,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
             return;
         }
 
-        opsForValue().set(key, getValueStr(value), timeout, unit);
+        opsForValue().set(key, toValueStr(value), timeout, unit);
     }
 
     public <T> T getValue(String key, Class<T> valueClass) {
