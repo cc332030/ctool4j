@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.service.impl;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.redis.model.CValueWithTtl;
@@ -35,6 +36,10 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
 
     private String toValueStr(Object value) {
         return CJsonUtils.toJson(value);
+    }
+
+    public Opt<String> getValueOpt(String key){
+        return Opt.ofBlankAble(getValue(key));
     }
 
     private <T> T getValueObj(String value, Class<T> valueClass) {

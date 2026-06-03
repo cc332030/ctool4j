@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.redis.service;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ArrayUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.function.CFunction;
@@ -138,6 +140,10 @@ public interface ICRedisService<K, V> {
         return opsForValue().get(key);
     }
 
+    default Opt<V> getValueOpt(K key){
+        return Opt.ofNullable(getValue(key));
+    }
+
     /**
      * 获取值
      * @param key key
@@ -151,8 +157,23 @@ public interface ICRedisService<K, V> {
         if(isInvalidValue(value)) {
             return null;
         }
-
         return convert.apply(value);
+    }
+
+    default Integer getValueInt(K key){
+        return CObjUtils.convert(getValue(key), Integer.class);
+    }
+
+    default Opt<Integer> getValueIntOpt(K key){
+        return Opt.ofNullable(getValueInt(key));
+    }
+
+    default Long getValueLong(K key){
+        return CObjUtils.convert(getValue(key), Long.class);
+    }
+
+    default Opt<Long> getValueLongOpt(K key){
+        return Opt.ofNullable(getValueLong(key));
     }
 
     /**
