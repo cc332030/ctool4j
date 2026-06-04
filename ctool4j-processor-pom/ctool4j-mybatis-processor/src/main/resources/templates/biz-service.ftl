@@ -121,7 +121,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return CList.of();
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convertSet(entityList, ${entityName}::get${BizIdCapital});
         return listBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -139,7 +139,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return 0L;
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convertSet(entityList, ${entityName}::get${BizIdCapital});
         return countBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -156,7 +156,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return false;
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convertSet(entityList, ${entityName}::get${BizIdCapital});
         return removeBy${BizIdCapital}s(${bizIdField}s);
     }
 
@@ -172,7 +172,7 @@ public interface ${serviceName}<ENTITY extends ${entityName}> extends ICService<
         if(CollUtil.isEmpty(entityList)) {
             return CMap.of();
         }
-        val ${bizIdField}s = CCollUtils.convert(entityList, ${entityName}::get${BizIdCapital});
+        val ${bizIdField}s = CCollUtils.convertSet(entityList, ${entityName}::get${BizIdCapital});
         return listMapBy${BizIdCapital}s(${bizIdField}s);
     }
 
