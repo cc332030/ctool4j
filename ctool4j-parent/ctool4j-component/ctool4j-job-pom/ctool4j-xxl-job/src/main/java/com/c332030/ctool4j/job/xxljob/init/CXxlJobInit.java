@@ -39,7 +39,7 @@ public class CXxlJobInit implements ICSpringInit {
                 return;
             }
 
-            log.info("创建日志文件夹，logPath: {}，结果：{}", logPath, file.mkdirs());
+            log.info("创建日志文件夹，absolutePath: {}，结果：{}", file.getAbsolutePath(), file.mkdirs());
 
         } catch (Exception e) {
             log.error("CXxlJobInit error", e);
