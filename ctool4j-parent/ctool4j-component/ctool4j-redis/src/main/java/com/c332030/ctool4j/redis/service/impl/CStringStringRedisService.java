@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.service.impl;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.redis.model.CValueWithTtl;
@@ -33,8 +34,12 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         return StrUtil.isBlank(key);
     }
 
-    private String getValueStr(Object value) {
+    private String toValueStr(Object value) {
         return CJsonUtils.toJson(value);
+    }
+
+    public Opt<String> getValueOpt(String key){
+        return Opt.ofBlankAble(getValue(key));
     }
 
     private <T> T getValueObj(String value, Class<T> valueClass) {
@@ -61,7 +66,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         ) {
             return;
         }
-        setValue(key, getValueStr(value));
+        setValue(key, toValueStr(value));
     }
 
     public void setValue(String key, Object value, Duration duration) {
@@ -70,7 +75,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         ) {
             return;
         }
-        setValue(key, getValueStr(value), duration);
+        setValue(key, toValueStr(value), duration);
     }
 
     /**
@@ -89,7 +94,7 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
             return;
         }
 
-        opsForValue().set(key, getValueStr(value), timeout, unit);
+        opsForValue().set(key, toValueStr(value), timeout, unit);
     }
 
     public <T> T getValue(String key, Class<T> valueClass) {

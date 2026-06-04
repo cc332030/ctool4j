@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @UtilityClass
 public class CConvertUtils {
 
-    private static final List<ClassConverter<?, ?>> CLASS_CONVERTERS = new CopyOnWriteArrayList<>();
+    private static final List<CClassConverter<?, ?>> CLASS_CONVERTERS = new CopyOnWriteArrayList<>();
     static {
 
         log.info("初始化默认类型转换");
@@ -50,7 +50,7 @@ public class CConvertUtils {
 
         log.debug("添加映射，fromClass: {}, toClass: {}, converter: {}", fromClass, toClass, converter);
 
-        val classConverter = ClassConverter.<From, To>builder()
+        val classConverter = CClassConverter.<From, To>builder()
                 .fromClass(fromClass)
                 .toClass(toClass)
                 .converter(converter)

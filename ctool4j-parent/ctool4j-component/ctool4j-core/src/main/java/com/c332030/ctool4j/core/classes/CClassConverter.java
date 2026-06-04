@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * Description: ClassConverter
+ * Description: CClassConverter
  * </p>
  *
  * @since 2025/11/20
@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClassConverter<From, To> {
+public class CClassConverter<From, To> {
 
     /**
      * 源类

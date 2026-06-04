@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CDateUtils;
 import com.c332030.ctool4j.core.util.CNumUtils;
 import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.CustomLog;
@@ -10,6 +11,7 @@ import lombok.val;
 import org.mapstruct.Named;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -43,6 +45,14 @@ public class CClassConvert {
             return null;
         }
         return new Date(mills);
+    }
+
+    public Date toDate(Instant instant) {
+        return CDateUtils.toDate(instant);
+    }
+
+    public Instant toInstant(Date date) {
+        return CDateUtils.toInstant(date);
     }
 
     public Boolean toBoolean(String str) {
