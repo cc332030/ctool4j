@@ -8,11 +8,13 @@ import com.c332030.ctool4j.core.enums.CProfileEnum;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
@@ -199,20 +201,60 @@ public class CSpringUtils {
     }
 
     /**
+     * 根据配置进行处理
+     * @param dealFunction 根据配置的处理
+     * @param excludeProfiles 不加前缀的配置
+     * @return 带配置的文本
+     */
+    public String dealByProfileExclude(
+        ToStringFunction<CProfileEnum> dealFunction,
+        Set<CProfileEnum> excludeProfiles
+    ) {
+
+        var profile = getActiveProfileDefaultNull();
+        if(profile == null
+            || excludeProfiles.contains(profile)
+        ) {
+            return dealFunction.apply(null);
+        }
+
+        return dealFunction.apply(profile);
+    }
+
+    /**
      * 配置前缀，特定配置不加前缀
      * @param text 文本
      * @param excludeProfiles 不加前缀的配置
      * @return 带配置前缀的文本
      */
     public String profilePrefixExclude(String text, Set<CProfileEnum> excludeProfiles) {
+        return dealByProfileExclude(
+            profile -> {
+                if(null == profile) {
+                    return text;
+                }
+                return profile.name() + text;
+            },
+            excludeProfiles
+        );
+    }
 
-        val profile = getActiveProfileDefaultNull();
-        if(profile == null
-            || excludeProfiles.contains(profile)
-        ) {
-            return text;
-        }
-        return profile.name() + text;
+    /**
+     * 配置后缀，特定配置不加前缀
+     * @param text 文本
+     * @param excludeProfiles 不加前缀的配置
+     * @return 带配置前缀的文本
+     */
+    public String profileSuffixExclude(String text, Set<CProfileEnum> excludeProfiles) {
+        return dealByProfileExclude(
+            profile -> {
+                if(null == profile) {
+                    return text;
+                }
+                return text + profile.name();
+            },
+            excludeProfiles
+        );
     }
 
     /**
@@ -231,6 +273,24 @@ public class CSpringUtils {
      */
     public String profilePrefixExcludeProd(String text) {
         return profilePrefixExclude(text, CProfileEnum.PROD_PROFILES);
+    }
+
+    /**
+     * 配置后缀
+     * @param text 文本
+     * @return 带配置前缀的文本
+     */
+    public String profileSuffix(String text) {
+        return profileSuffixExclude(text, Collections.emptySet());
+    }
+
+    /**
+     * 配置后缀，PROD 不加前缀
+     * @param text 文本
+     * @return 带配置前缀的文本
+     */
+    public String profileSuffixExcludeProd(String text) {
+        return profileSuffixExclude(text, CProfileEnum.PROD_PROFILES);
     }
 
 }

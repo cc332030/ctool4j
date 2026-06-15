@@ -50,6 +50,20 @@ public class CSpringUtilsTests {
     }
 
     @Test
+    public void profileSuffix() {
+
+        val profile = CSpringUtils.profileSuffix(CLASS_NAME);
+        Assertions.assertEquals(CLASS_NAME + PROFILE.name(), profile);
+    }
+
+    @Test
+    public void profileSuffixExcludeProd() {
+
+        val profile = CSpringUtils.profileSuffixExcludeProd(CLASS_NAME);
+        Assertions.assertEquals(CLASS_NAME + PROFILE.name(), profile);
+    }
+
+    @Test
     public void profileTextSuffix() {
 
         val profile = CSpringUtils.profileTextSuffix(CLASS_NAME);
