@@ -33,6 +33,7 @@
     <properties>
 
         <main.version>1.0</main.version>
+        <ctool4j.version>1.0.20260612-SNAPSHOT</ctool4j.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
