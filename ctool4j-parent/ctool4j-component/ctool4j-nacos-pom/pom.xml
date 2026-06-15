@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-component</artifactId>
-        <version>${revision}</version>
+        <version>1.0.20260612-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-nacos-pom</artifactId>
