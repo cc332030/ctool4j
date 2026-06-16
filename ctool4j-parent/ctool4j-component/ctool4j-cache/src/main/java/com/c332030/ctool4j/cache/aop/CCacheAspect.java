@@ -26,7 +26,7 @@ public class CCacheAspect {
         .of(e -> new ConcurrentHashMap<>());
 
     @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheable)")
-    public Object cacheableInterceptor(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object cacheAspect(ProceedingJoinPoint joinPoint) throws Throwable {
 
         val method = CAspectUtils.getMethod(joinPoint);
         val cCacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
