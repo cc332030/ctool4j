@@ -9,11 +9,22 @@ import cn.hutool.core.util.StrUtil;
  *
  * @since 2025/9/27
  */
-public class CDefaultCacheIdConvert implements ICCacheIdConvert<Object>{
+public class CDefaultCacheIdConvert implements ICCacheIdConvert<Object, Object>{
 
     @Override
-    public String applyThrowable(Object o) {
-        return StrUtil.toStringOrNull(o);
+    public String applyThrowable(Object key, Object object) throws Throwable {
+
+        if(null == key
+            && null == object
+        ) {
+            return null;
+        }
+
+        if(null == key) {
+            return StrUtil.toStringOrNull(object);
+        }
+
+        return StrUtil.toStringOrNull(key);
     }
 
 }

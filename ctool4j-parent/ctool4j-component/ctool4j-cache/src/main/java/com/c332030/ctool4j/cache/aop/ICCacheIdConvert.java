@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.cache.aop;
 
-import com.c332030.ctool4j.definition.function.ToStringFunction;
+import com.c332030.ctool4j.definition.function.CBiFunction;
 
 /**
  * <p>
@@ -9,6 +9,9 @@ import com.c332030.ctool4j.definition.function.ToStringFunction;
  *
  * @since 2025/9/27
  */
-public interface ICCacheIdConvert<T> extends ToStringFunction<T> {
+public interface ICCacheIdConvert<KEY, CLASS> extends CBiFunction<KEY, CLASS, String> {
+
+    @Override
+    String applyThrowable(KEY key, CLASS object) throws Throwable;
 
 }

@@ -18,8 +18,28 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CCacheable {
 
+    /**
+     * 是否本地缓存
+     * @return true 本地缓存，false redis 缓存
+     */
     boolean local() default true;
 
-    Class<? extends ICCacheIdConvert<?>> idConverter() default CDefaultCacheIdConvert.class;
+    /**
+     * 缓存 id 生成类
+     * @return 缓存 id 生成类
+     */
+    Class<? extends ICCacheIdConvert<?, ?>> idConverter() default CDefaultCacheIdConvert.class;
+
+    /**
+     * 缓存命名空间类
+     * @return 缓存命名空间类
+     */
+    Class<?> namespace() default Object.class;
+
+    /**
+     * 缓存过期时间，单位秒，为 0 则为永久
+     * @return 缓存过期时间
+     */
+    long expire() default 0;
 
 }
