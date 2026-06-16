@@ -142,6 +142,7 @@ public class CCacheAspect {
             cacheValue = CCacheValue.builder()
                 .value(valueNew)
                 .createMills(currentMills)
+                .cacheable(cacheable)
                 .build();
 
             log.info("新值 cacheValue： {}", cacheValue);

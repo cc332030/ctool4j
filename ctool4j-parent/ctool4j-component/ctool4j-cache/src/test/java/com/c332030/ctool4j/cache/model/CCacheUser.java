@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.cache.model;
 
-import com.c332030.ctool4j.cache.annotation.CCacheable;
+import com.c332030.ctool4j.cache.annotation.CCacheId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * Description: CCacheValue
+ * Description: CCacheUser
  * </p>
  *
  * @since 2026/6/16
@@ -19,12 +19,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CCacheValue<T> {
+public class CCacheUser {
 
-    T value;
-
-    Long createMills;
-
-    CCacheable cacheable;
+    @CCacheId
+    Long id;
 
 }
