@@ -2,6 +2,7 @@ package com.c332030.ctool4j.cache.aop;
 
 import com.c332030.ctool4j.cache.annotation.CCacheId;
 import com.c332030.ctool4j.cache.annotation.CCacheable;
+import com.c332030.ctool4j.cache.service.CCacheService;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
@@ -10,6 +11,7 @@ import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -32,7 +34,10 @@ import java.util.concurrent.TimeUnit;
 @CustomLog
 @Aspect
 @Component
+@AllArgsConstructor
 public class CCacheAspect {
+
+    CCacheService cacheService;
 
     /**
      * 每个 namespace 下允许的最大不同过期时间 Cache 实例数，防止无界增长
@@ -74,8 +79,15 @@ public class CCacheAspect {
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
         try {
             if (cacheable.local()) {
-                log.debug("启用本地缓存");
+                if (log.isDebugEnabled()) {
+                    log.debug("启用本地缓存");
+                }
                 return getLocalCache(joinPoint, cacheable);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("启用 Redis 缓存");
+                }
+                return getRedisCache(joinPoint, cacheable);
             }
         } catch (Exception e) {
             log.error("获取缓存失败，cacheable: {}", cacheable, e);
@@ -203,6 +215,47 @@ public class CCacheAspect {
 
         if (log.isDebugEnabled()) {
             log.debug("方法无参数，跳过缓存");
+        }
+        return CAspectUtils.process(joinPoint);
+    }
+
+    /**
+     * 获取 Redis 缓存
+     * <p>
+     * 缓存 key 格式：namespace:cacheKey（由 getCacheKey 生成）
+     * @param joinPoint 切入点
+     * @param cacheable 缓存注解
+     * @return Redis 缓存或执行结果
+     */
+    private Object getRedisCache(
+        ProceedingJoinPoint joinPoint,
+        CCacheable cacheable
+    ) {
+
+        val namespace = cacheable.namespace();
+        if (log.isDebugEnabled()) {
+            log.debug("Redis namespace: {}", namespace.getSimpleName());
+        }
+
+        val expire = cacheable.expire();
+
+        val args = joinPoint.getArgs();
+        val argOne = CArrUtils.get(args, 0);
+
+        if (null != argOne) {
+
+            val cacheKey = getCacheKey(argOne, cacheable);
+            val redisKey = namespace.getSimpleName() + ":" + cacheKey;
+            if (log.isDebugEnabled()) {
+                log.debug("Redis cacheKey: {}, expire: {}", redisKey, expire);
+            }
+
+            return cacheService.getCache(redisKey, expire,
+                () -> CAspectUtils.process(joinPoint));
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("方法无参数，跳过 Redis 缓存");
         }
         return CAspectUtils.process(joinPoint);
     }
