@@ -104,14 +104,14 @@ public class CCacheAspect {
     ) {
 
         val namespace = cacheable.namespace();
-        log.info("namespace: {}", namespace);
+        log.debug("namespace: {}", namespace);
 
         val cacheMap = CLASS_CACHE_VALUE.get(namespace);
-        log.info("cacheMap: {}", cacheMap);
+        log.debug("cacheMap: {}", cacheMap);
 
         val args = joinPoint.getArgs();
         val argOne = CArrUtils.get(args, 0);
-        log.info("argOne: {}", argOne);
+        log.debug("argOne: {}", argOne);
 
         // TODO 无方法参数缓存
         if (null != argOne) {
@@ -119,24 +119,24 @@ public class CCacheAspect {
             val currentMills = System.currentTimeMillis();
 
             val cacheKey = getCacheKey(argOne, cacheable);
-            log.info("cacheKey: {}", cacheKey);
+            log.debug("cacheKey: {}", cacheKey);
 
             var cacheValue = cacheMap.get(cacheKey);
 
             val expire = cacheable.expire();
-            log.info("expire: {}", expire);
+            log.debug("expire: {}", expire);
             if(null != cacheValue) {
 
                 val passMills = currentMills - cacheValue.getCreateMills();
-                log.info("passMills: {}", passMills);
+                log.debug("passMills: {}", passMills);
                 if(passMills <= expire * 1000L) {
 
                     val value = cacheValue.getValue();
-                    log.info("未过期，取缓存值：{}", value);
+                    log.debug("未过期，取缓存值：{}", value);
                     return value;
                 }
             }
-            log.info("没有缓存或已过期");
+            log.info("没有缓存或已过期，cacheKey: {}", cacheKey);
 
             val valueNew = CAspectUtils.process(joinPoint);
             cacheValue = CCacheValue.builder()
@@ -150,7 +150,7 @@ public class CCacheAspect {
             return valueNew;
         }
 
-        log.info("方法无参数，跳过缓存");
+        log.debug("方法无参数，跳过缓存");
         return CAspectUtils.process(joinPoint);
     }
 
