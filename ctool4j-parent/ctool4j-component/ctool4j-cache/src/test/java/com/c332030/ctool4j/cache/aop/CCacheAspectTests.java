@@ -1,12 +1,11 @@
 package com.c332030.ctool4j.cache.aop;
 
-import com.c332030.ctool4j.cache.service.CTimeService;
+import com.c332030.ctool4j.cache.service.CTimeTestService;
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.redisson.spring.starter.RedissonAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeUnit;
@@ -18,15 +17,11 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2026/6/16
  */
-@CTool4jSpringBootTest(
-    exclude = {
-        RedissonAutoConfiguration.class
-    }
-)
+@CTool4jSpringBootTest
 public class CCacheAspectTests {
 
     @Autowired
-    CTimeService timeService;
+    CTimeTestService timeService;
 
     @Test
     @SneakyThrows

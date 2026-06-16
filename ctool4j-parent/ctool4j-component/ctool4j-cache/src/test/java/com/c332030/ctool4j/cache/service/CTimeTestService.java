@@ -6,13 +6,13 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- * Description: CTimeService
+ * Description: CTimeTestService
  * </p>
  *
  * @since 2026/6/16
  */
 @Service
-public class CTimeService {
+public class CTimeTestService {
 
     @CCacheable(
         namespace = CCacheAspectTests.class,

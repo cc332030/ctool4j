@@ -3,13 +3,13 @@ package com.c332030.ctool4j.redis.service.impl;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.function.CSupplier;
-import com.c332030.ctool4j.spring.annotation.CLazyService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.TimeoutUtils;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * @since 2025/11/3
  */
 @CustomLog
-@CLazyService
+@Service
 @AllArgsConstructor
 public class CLockService {
 
