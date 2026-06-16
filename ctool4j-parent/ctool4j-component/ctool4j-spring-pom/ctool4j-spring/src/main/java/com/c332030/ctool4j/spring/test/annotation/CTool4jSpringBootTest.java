@@ -3,6 +3,7 @@ package com.c332030.ctool4j.spring.test.annotation;
 import com.c332030.ctool4j.spring.configuration.CSpringConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.*;
 
@@ -21,5 +22,8 @@ import java.lang.annotation.*;
 @EnableAutoConfiguration
 @SpringBootTest(classes = {CSpringConfiguration.class})
 public @interface CTool4jSpringBootTest {
+
+    @AliasFor(annotation = EnableAutoConfiguration.class)
+    Class<?>[] exclude() default {};
 
 }

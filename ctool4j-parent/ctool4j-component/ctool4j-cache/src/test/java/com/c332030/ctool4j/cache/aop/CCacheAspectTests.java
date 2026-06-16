@@ -1,7 +1,15 @@
 package com.c332030.ctool4j.cache.aop;
 
-import com.c332030.ctool4j.cache.annotation.CCacheable;
-import org.springframework.boot.test.context.SpringBootTest;
+import com.c332030.ctool4j.cache.service.CTimeService;
+import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.redisson.spring.starter.RedissonAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -10,14 +18,36 @@ import org.springframework.boot.test.context.SpringBootTest;
  *
  * @since 2026/6/16
  */
-@SpringBootTest
+@CTool4jSpringBootTest(
+    exclude = {
+        RedissonAutoConfiguration.class
+    }
+)
 public class CCacheAspectTests {
 
-    @CCacheable(
-        namespace = CCacheAspectTests.class
-    )
-    public Long time(Integer id) {
-        return System.currentTimeMillis();
+    @Autowired
+    CTimeService timeService;
+
+    @Test
+    @SneakyThrows
+    public void cacheAspect() {
+
+        val idA = 1;
+        val idB = 2;
+
+        val a1 = timeService.time(idA);
+        val b1 = timeService.time(idB);
+        TimeUnit.MILLISECONDS.sleep(10);
+        val a2 = timeService.time(idA);
+
+        TimeUnit.SECONDS.sleep(1);
+        val a3 = timeService.time(idA);
+
+        Assertions.assertEquals(a1, a2);
+        Assertions.assertNotEquals(a1, b1);
+
+        Assertions.assertNotEquals(a1, a3);
+
     }
 
 }
