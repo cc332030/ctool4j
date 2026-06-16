@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.cache.annotation;
 
-import com.c332030.ctool4j.cache.aop.CDefaultCacheIdConvert;
-import com.c332030.ctool4j.cache.aop.ICCacheIdConvert;
+import com.c332030.ctool4j.cache.aop.CDefaultCacheIdConverter;
+import com.c332030.ctool4j.cache.aop.ICCacheIdConverter;
 
 import java.lang.annotation.*;
 
@@ -28,7 +28,7 @@ public @interface CCacheable {
      * 缓存 id 生成类
      * @return 缓存 id 生成类
      */
-    Class<? extends ICCacheIdConvert<?, ?>> idConverter() default CDefaultCacheIdConvert.class;
+    Class<? extends ICCacheIdConverter<?, ?>> idConverter() default CDefaultCacheIdConverter.class;
 
     /**
      * 缓存命名空间类

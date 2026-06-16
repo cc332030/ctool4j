@@ -4,12 +4,12 @@ import cn.hutool.core.util.StrUtil;
 
 /**
  * <p>
- * Description: CDefaultCacheIdConvert
+ * Description: CDefaultCacheIdConverter
  * </p>
  *
  * @since 2025/9/27
  */
-public class CDefaultCacheIdConvert implements ICCacheIdConvert<Object, Object>{
+public class CDefaultCacheIdConverter implements ICCacheIdConverter<Object, Object> {
 
     @Override
     public String applyThrowable(Object key, Object object) throws Throwable {
