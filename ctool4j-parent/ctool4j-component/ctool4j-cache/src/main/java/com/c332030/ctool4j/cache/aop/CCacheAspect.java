@@ -47,18 +47,15 @@ public class CCacheAspect {
     /**
      * 缓存 @CCacheId 字段的 MethodHandle，替代反射 Field.get，性能提升约 3-5 倍
      */
-    private static final CClassValue<MethodHandle> CACHE_ID_HANDLE_CLASS_VALUE = CClassValue.of(type -> {
-        val cacheIdField = CReflectUtils.getAllFieldMap(type)
+    private static final CClassValue<MethodHandle> CACHE_ID_HANDLE_CLASS_VALUE = CClassValue
+        .of(type -> CReflectUtils.getAllFieldMap(type)
             .values()
             .stream()
             .filter(field -> field.isAnnotationPresent(CCacheId.class))
             .findFirst()
-            .orElse(null);
-        if (null == cacheIdField) {
-            return null;
-        }
-        return CReflectUtils.getMethodHandle(cacheIdField);
-    });
+            .map(CReflectUtils::getMethodHandle)
+            .orElse(null)
+        );
 
     /**
      * 缓存切面
@@ -76,7 +73,7 @@ public class CCacheAspect {
                 return getLocalCache(joinPoint, cacheable);
             }
         } catch (Exception e) {
-            log.error("获取缓存失败，cacheable: {}", cacheable);
+            log.error("获取缓存失败，cacheable: {}", cacheable, e);
         }
 
         return CAspectUtils.process(joinPoint);
@@ -142,7 +139,7 @@ public class CCacheAspect {
     ) {
 
         val namespace = cacheable.namespace();
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("namespace: {}", namespace);
         }
 
@@ -156,13 +153,13 @@ public class CCacheAspect {
         if (null != argOne) {
 
             val cacheKey = getCacheKey(argOne, cacheable);
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("cacheKey: {}, expire: {}", cacheKey, expire);
             }
 
             val cacheValue = cache.getIfPresent(cacheKey);
-            if(null != cacheValue) {
-                if(log.isDebugEnabled()) {
+            if (null != cacheValue) {
+                if (log.isDebugEnabled()) {
                     log.debug("命中缓存，cacheValue：{}", cacheValue);
                 }
                 return cacheValue;
@@ -171,7 +168,7 @@ public class CCacheAspect {
             log.info("没有缓存或已过期，cacheKey: {}", cacheKey);
 
             val valueNew = CAspectUtils.process(joinPoint);
-            if(null != valueNew) {
+            if (null != valueNew) {
                 cache.put(cacheKey, valueNew);
                 log.info("新值 cacheValue： {}", valueNew);
             }
@@ -179,7 +176,7 @@ public class CCacheAspect {
             return valueNew;
         }
 
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("方法无参数，跳过缓存");
         }
         return CAspectUtils.process(joinPoint);
