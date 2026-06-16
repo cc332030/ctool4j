@@ -35,6 +35,11 @@ import java.util.concurrent.TimeUnit;
 public class CCacheAspect {
 
     /**
+     * 每个 namespace 下允许的最大不同过期时间 Cache 实例数，防止无界增长
+     */
+    private static final int MAX_EXPIRE_CACHES_PER_NAMESPACE = 16;
+
+    /**
      * 缓存 key: namespace Class, value: (expire -> Cache)
      * 每个 namespace 下按不同过期时间分别维护一个 Guava Cache
      */
@@ -115,9 +120,29 @@ public class CCacheAspect {
 
     /**
      * 获取或创建 namespace 下指定过期时间的 Guava Cache
+     * <p>
+     * 防御：每个 namespace 最多创建 {@value #MAX_EXPIRE_CACHES_PER_NAMESPACE} 个不同 expire 的 Cache 实例，
+     * 超过阈值时复用已有的最长过期时间 Cache，防止无界增长。
      */
     private Cache<String, Object> getCache(Class<?> namespace, int expire) {
+
         val expireCaches = NAMESPACE_CACHES.computeIfAbsent(namespace, k -> new ConcurrentHashMap<>());
+
+        // 已存在直接返回
+        val existing = expireCaches.get(expire);
+        if (null != existing) {
+            return existing;
+        }
+
+        // 防御：超过上限时复用已有 cache，避免无界增长
+        if (expireCaches.size() >= MAX_EXPIRE_CACHES_PER_NAMESPACE) {
+            if (log.isWarnEnabled()) {
+                log.warn("namespace [{}] 下 expire cache 数量已达上限 {}，复用已有 cache",
+                    namespace.getSimpleName(), MAX_EXPIRE_CACHES_PER_NAMESPACE);
+            }
+            return expireCaches.values().iterator().next();
+        }
+
         return expireCaches.computeIfAbsent(expire, e -> {
             val builder = CacheBuilder.newBuilder();
             if (e > 0) {
