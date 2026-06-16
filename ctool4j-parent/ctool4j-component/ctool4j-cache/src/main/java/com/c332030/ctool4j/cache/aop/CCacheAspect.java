@@ -130,8 +130,10 @@ public class CCacheAspect {
                 val passMills = currentMills - cacheValue.getCreateMills();
                 log.info("passMills: {}", passMills);
                 if(passMills <= expire * 1000L) {
-                    log.info("未过期，取缓存");
-                    return cacheValue.getValue();
+
+                    val value = cacheValue.getValue();
+                    log.info("未过期，取缓存值：{}", value);
+                    return value;
                 }
             }
             log.info("没有缓存或已过期");
