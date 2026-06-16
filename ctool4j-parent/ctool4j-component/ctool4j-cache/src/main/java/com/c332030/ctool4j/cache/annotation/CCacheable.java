@@ -40,6 +40,6 @@ public @interface CCacheable {
      * 缓存过期时间，单位秒，为 0 则为永久
      * @return 缓存过期时间
      */
-    long expire() default 0;
+    int expire() default 0;
 
 }

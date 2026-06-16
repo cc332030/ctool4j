@@ -60,6 +60,7 @@ public class CCacheAspect {
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
         try {
             if (cacheable.local()) {
+                log.info("启用本地缓存");
                 return getLocalCache(joinPoint, cacheable);
             }
         } catch (Throwable e) {
@@ -103,10 +104,14 @@ public class CCacheAspect {
     ) {
 
         val namespace = cacheable.namespace();
+        log.info("namespace: {}", namespace);
+
         val cacheMap = CLASS_CACHE_VALUE.get(namespace);
+        log.info("cacheMap: {}", cacheMap);
 
         val args = joinPoint.getArgs();
         val argOne = CArrUtils.get(args, 0);
+        log.info("argOne: {}", argOne);
 
         // TODO 无方法参数缓存
         if (null != argOne) {
@@ -114,23 +119,36 @@ public class CCacheAspect {
             val currentMills = System.currentTimeMillis();
 
             val cacheKey = getCacheKey(argOne, cacheable);
+            log.info("cacheKey: {}", cacheKey);
+
             var cacheValue = cacheMap.get(cacheKey);
-            if(null != cacheValue
-                && currentMills - cacheValue.getCreateMills() < cacheable.expire() * 1000
-            ) {
-                return cacheValue.getValue();
+
+            val expire = cacheable.expire();
+            log.info("expire: {}", expire);
+            if(null != cacheValue) {
+
+                val passMills = currentMills - cacheValue.getCreateMills();
+                log.info("passMills: {}", passMills);
+                if(passMills <= expire * 1000L) {
+                    log.info("未过期，取缓存");
+                    return cacheValue.getValue();
+                }
             }
+            log.info("没有缓存或已过期");
 
             val valueNew = CAspectUtils.process(joinPoint);
             cacheValue = CCacheValue.builder()
                 .value(null)
                 .createMills(currentMills)
                 .build();
+
+            log.info("新值 cacheValue： {}", cacheValue);
             cacheMap.put(cacheKey, cacheValue);
 
             return valueNew;
         }
 
+        log.info("方法无参数，跳过缓存");
         return CAspectUtils.process(joinPoint);
     }
 
