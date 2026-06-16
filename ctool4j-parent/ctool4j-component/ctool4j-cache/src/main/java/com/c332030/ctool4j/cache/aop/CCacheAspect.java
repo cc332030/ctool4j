@@ -8,6 +8,7 @@ import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
+import lombok.CustomLog;
 import lombok.val;
 import lombok.var;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -25,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 2025/9/27
  */
+@CustomLog
 @Aspect
 public class CCacheAspect {
 
@@ -53,8 +55,12 @@ public class CCacheAspect {
 
         val method = CAspectUtils.getMethod(joinPoint);
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
-        if (cacheable.local()) {
-            return getLocalCache(joinPoint, cacheable);
+        try {
+            if (cacheable.local()) {
+                return getLocalCache(joinPoint, cacheable);
+            }
+        } catch (Throwable e) {
+            log.error("获取缓存失败，cacheable: {}", cacheable);
         }
 
         return CAspectUtils.process(joinPoint);
