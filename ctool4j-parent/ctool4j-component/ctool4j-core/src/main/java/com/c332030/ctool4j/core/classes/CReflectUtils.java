@@ -16,6 +16,8 @@ import lombok.val;
 import lombok.var;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -477,6 +479,12 @@ public class CReflectUtils {
             return valueFunction.apply(annotation);
         }
         return null;
+    }
+
+    @SneakyThrows
+    public MethodHandle getMethodHandle(Field field) {
+        field.setAccessible(true);
+        return MethodHandles.lookup().unreflectGetter(field);
     }
 
 }

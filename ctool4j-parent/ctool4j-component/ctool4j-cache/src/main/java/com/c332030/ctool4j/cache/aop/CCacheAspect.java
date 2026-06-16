@@ -19,8 +19,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -59,14 +57,8 @@ public class CCacheAspect {
         if (null == cacheIdField) {
             return null;
         }
-        return unreflectGetter(cacheIdField);
+        return CReflectUtils.getMethodHandle(cacheIdField);
     });
-
-    @SneakyThrows
-    private static MethodHandle unreflectGetter(Field field) {
-        field.setAccessible(true);
-        return MethodHandles.lookup().unreflectGetter(field);
-    }
 
     /**
      * 缓存切面
@@ -80,9 +72,7 @@ public class CCacheAspect {
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
         try {
             if (cacheable.local()) {
-                if(log.isDebugEnabled()) {
-                    log.debug("启用本地缓存");
-                }
+                log.debug("启用本地缓存");
                 return getLocalCache(joinPoint, cacheable);
             }
         } catch (Exception e) {
@@ -157,10 +147,6 @@ public class CCacheAspect {
         }
 
         val expire = cacheable.expire();
-        if(log.isDebugEnabled()) {
-            log.debug("expire: {}", expire);
-        }
-
         val cache = getCache(namespace, expire);
 
         val args = joinPoint.getArgs();
@@ -171,7 +157,7 @@ public class CCacheAspect {
 
             val cacheKey = getCacheKey(argOne, cacheable);
             if(log.isDebugEnabled()) {
-                log.debug("cacheKey: {}", cacheKey);
+                log.debug("cacheKey: {}, expire: {}", cacheKey, expire);
             }
 
             val cacheValue = cache.getIfPresent(cacheKey);
@@ -182,17 +168,12 @@ public class CCacheAspect {
                 return cacheValue;
             }
 
-            if(log.isInfoEnabled()) {
-                log.info("没有缓存或已过期，cacheKey: {}", cacheKey);
-            }
+            log.info("没有缓存或已过期，cacheKey: {}", cacheKey);
 
             val valueNew = CAspectUtils.process(joinPoint);
             if(null != valueNew) {
                 cache.put(cacheKey, valueNew);
-
-                if(log.isInfoEnabled()) {
-                    log.info("新值 cacheValue： {}", valueNew);
-                }
+                log.info("新值 cacheValue： {}", valueNew);
             }
 
             return valueNew;
