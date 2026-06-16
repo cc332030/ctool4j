@@ -138,7 +138,7 @@ public class CCacheAspect {
 
             val valueNew = CAspectUtils.process(joinPoint);
             cacheValue = CCacheValue.builder()
-                .value(null)
+                .value(valueNew)
                 .createMills(currentMills)
                 .build();
 
