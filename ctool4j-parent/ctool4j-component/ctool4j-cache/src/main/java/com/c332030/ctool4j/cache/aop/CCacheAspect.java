@@ -211,7 +211,7 @@ public class CCacheAspect {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("方法无参数，跳过缓存");
+            log.debug("方法无参数，跳过本地缓存");
         }
         return CAspectUtils.process(joinPoint);
     }
