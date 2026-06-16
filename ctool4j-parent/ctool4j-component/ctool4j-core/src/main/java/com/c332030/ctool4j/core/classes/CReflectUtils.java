@@ -18,6 +18,7 @@ import lombok.var;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -320,25 +321,161 @@ public class CReflectUtils {
     }
 
     /**
-     * 获取注解值
-     * @param executable Class/Method/Field
+     * 方法/字段/类 注解缓存
+     */
+    final Map<Object, Map<Class<? extends Annotation>, Object>> ELEMENT_ANNOTATION_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 获取方法/字段/类 注解
+     * @param element 元素
+     * @param annotationClass 注解类
+     * @return 注解
+     * @param <T> 注解类泛型
+     */
+    public <ELEMENT, T extends Annotation> T getAnnotationCached(
+        ELEMENT element,
+        Function<Class<T>, Annotation> getAnnoFunction,
+        Class<T> annotationClass
+    ) {
+
+        var annotationMap = ELEMENT_ANNOTATION_MAP.get(element);
+        if(null == annotationMap) {
+            synchronized (ELEMENT_ANNOTATION_MAP) {
+                annotationMap = ELEMENT_ANNOTATION_MAP
+                    .computeIfAbsent(element, k -> new ConcurrentHashMap<>());
+            }
+        }
+
+        var annotation = annotationMap.get(annotationClass);
+        if(null == annotation) {
+            synchronized (annotationMap) {
+                annotation = annotationMap
+                    .computeIfAbsent(annotationClass, k -> {
+
+                        val anno = getAnnoFunction.apply(annotationClass);
+                        if(null != anno) {
+                            return anno;
+                        }
+                        return CObjUtils.OBJECT;
+                    });
+            }
+        }
+
+        if(CObjUtils.OBJECT == annotation) {
+            return null;
+        }
+
+        return CObjUtils.anyType(annotation);
+    }
+
+    /**
+     * 获取类 注解
+     * @param clazz 类
+     * @param annotationClass 注解类
+     * @return 注解
+     * @param <T> 注解类泛型
+     */
+    public <T extends Annotation> T getAnnotationCached(Class<?> clazz, Class<T> annotationClass) {
+        return getAnnotationCached(
+            clazz,
+            clazz::getAnnotation,
+            annotationClass
+        );
+    }
+
+    /**
+     * 获取方法 注解
+     * @param executable 方法
+     * @param annotationClass 注解类
+     * @return 注解
+     * @param <T> 注解类泛型
+     */
+    public <T extends Annotation> T getAnnotationCached(Executable executable, Class<T> annotationClass) {
+        return getAnnotationCached(
+            executable,
+            executable::getAnnotation,
+            annotationClass
+        );
+    }
+
+    /**
+     * 获取字段 注解
+     * @param field 字段
+     * @param annotationClass 注解类
+     * @return 注解
+     * @param <T> 注解类泛型
+     */
+    public <T extends Annotation> T getAnnotationCached(Field field, Class<T> annotationClass) {
+        return getAnnotationCached(
+            field,
+            field::getAnnotation,
+            annotationClass
+        );
+    }
+
+    /**
+     * 获取类注解值
+     * @param clazz 类
      * @param annotationClass 注解类
      * @param valueFunction 获取注解值的方法
      * @return 注解值
      * @param <A> 注解类泛型
      * @param <T> 返回值泛型
      */
-    public <A extends Annotation, T> T getAnnotationValue(
-            Executable executable,
-            Class<A> annotationClass,
-            Function<A, T> valueFunction
+    public <A extends Annotation, T> T getAnnotationValueCached(
+        Class<?> clazz,
+        Class<A> annotationClass,
+        Function<A, T> valueFunction
     ) {
 
-        val annotation = executable.getAnnotation(annotationClass);
+        val annotation = getAnnotationCached(clazz, annotationClass);
         if(null != annotation) {
             return valueFunction.apply(annotation);
         }
+        return null;
+    }
 
+    /**
+     * 获取方法注解值
+     * @param method 方法
+     * @param annotationClass 注解类
+     * @param valueFunction 获取注解值的方法
+     * @return 注解值
+     * @param <A> 注解类泛型
+     * @param <T> 返回值泛型
+     */
+    public <A extends Annotation, T> T getAnnotationValueCached(
+        Method method,
+        Class<A> annotationClass,
+        Function<A, T> valueFunction
+    ) {
+
+        val annotation = getAnnotationCached(method, annotationClass);
+        if(null != annotation) {
+            return valueFunction.apply(annotation);
+        }
+        return null;
+    }
+
+    /**
+     * 获取字段注解值
+     * @param field 字段
+     * @param annotationClass 注解类
+     * @param valueFunction 获取注解值的方法
+     * @return 注解值
+     * @param <A> 注解类泛型
+     * @param <T> 返回值泛型
+     */
+    public <A extends Annotation, T> T getAnnotationValueCached(
+        Field field,
+        Class<A> annotationClass,
+        Function<A, T> valueFunction
+    ) {
+
+        val annotation = getAnnotationCached(field, annotationClass);
+        if(null != annotation) {
+            return valueFunction.apply(annotation);
+        }
         return null;
     }
 
