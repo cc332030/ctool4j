@@ -1,12 +1,16 @@
 package com.c332030.ctool4j.cache.aop;
 
 import com.c332030.ctool4j.cache.annotation.CCacheable;
+import com.c332030.ctool4j.core.cache.impl.CClassValue;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
 import lombok.val;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -18,16 +22,23 @@ import org.aspectj.lang.reflect.MethodSignature;
 @Aspect
 public class CCacheAspect {
 
-    @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheable)")
-    public Object serviceCacheableInterceptor(ProceedingJoinPoint joinPoint) throws Throwable {
+    private static final CClassValue<Map<String, Object>> CLASS_CACHE_VALUE = CClassValue
+        .of(e -> new ConcurrentHashMap<>());
 
-        val signature = joinPoint.getSignature();
-        // 方法注解
-        if (signature instanceof MethodSignature) {
-            val methodSignature = (MethodSignature) signature;
-            val targetMethod = methodSignature.getMethod();
-            val cacheable = targetMethod.getAnnotation(CCacheable.class);
+    @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheable)")
+    public Object cacheableInterceptor(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        val method = CAspectUtils.getMethod(joinPoint);
+        val cCacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
+        if(null != cCacheable) {
+
+            val namespace = cCacheable.namespace();
+            if(cCacheable.local()) {
+                val cacheMap = CLASS_CACHE_VALUE.get(namespace);
+            }
+
         }
+
         return CAspectUtils.process(joinPoint);
     }
 

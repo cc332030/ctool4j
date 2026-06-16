@@ -34,7 +34,7 @@ public @interface CCacheable {
      * 缓存命名空间类
      * @return 缓存命名空间类
      */
-    Class<?> namespace() default Object.class;
+    Class<?> namespace();
 
     /**
      * 缓存过期时间，单位秒，为 0 则为永久
