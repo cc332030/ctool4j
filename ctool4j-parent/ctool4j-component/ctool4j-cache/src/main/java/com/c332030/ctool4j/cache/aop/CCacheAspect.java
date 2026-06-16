@@ -163,7 +163,7 @@ public class CCacheAspect {
             val cacheValue = cache.getIfPresent(cacheKey);
             if(null != cacheValue) {
                 if(log.isDebugEnabled()) {
-                    log.debug("命中缓存：{}", cacheValue);
+                    log.debug("命中缓存，cacheValue：{}", cacheValue);
                 }
                 return cacheValue;
             }

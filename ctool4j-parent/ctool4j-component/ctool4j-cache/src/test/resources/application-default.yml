@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.c332030.ctool4j.cache.aop.CCacheAspect: debug
