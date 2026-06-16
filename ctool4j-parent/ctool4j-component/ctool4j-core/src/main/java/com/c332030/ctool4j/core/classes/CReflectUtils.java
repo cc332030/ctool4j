@@ -437,7 +437,7 @@ public class CReflectUtils {
 
     /**
      * 获取方法注解值
-     * @param method 方法
+     * @param executable 方法
      * @param annotationClass 注解类
      * @param valueFunction 获取注解值的方法
      * @return 注解值
@@ -445,12 +445,12 @@ public class CReflectUtils {
      * @param <T> 返回值泛型
      */
     public <A extends Annotation, T> T getAnnotationValueCached(
-        Method method,
+        Executable executable,
         Class<A> annotationClass,
         Function<A, T> valueFunction
     ) {
 
-        val annotation = getAnnotationCached(method, annotationClass);
+        val annotation = getAnnotationCached(executable, annotationClass);
         if(null != annotation) {
             return valueFunction.apply(annotation);
         }
