@@ -63,7 +63,7 @@ public class CCacheAspect {
                 log.debug("启用本地缓存");
                 return getLocalCache(joinPoint, cacheable);
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("获取缓存失败，cacheable: {}", cacheable);
         }
 
@@ -104,14 +104,14 @@ public class CCacheAspect {
     ) {
 
         val namespace = cacheable.namespace();
-        log.debug("namespace: {}", namespace);
+        if(log.isDebugEnabled()) {
+            log.debug("namespace: {}", namespace);
+        }
 
         val cacheMap = CLASS_CACHE_VALUE.get(namespace);
-        log.debug("cacheMap: {}", cacheMap);
 
         val args = joinPoint.getArgs();
         val argOne = CArrUtils.get(args, 0);
-        log.debug("argOne: {}", argOne);
 
         // TODO 无方法参数缓存
         if (null != argOne) {
@@ -119,20 +119,28 @@ public class CCacheAspect {
             val currentMills = System.currentTimeMillis();
 
             val cacheKey = getCacheKey(argOne, cacheable);
-            log.debug("cacheKey: {}", cacheKey);
+            if(log.isDebugEnabled()) {
+                log.debug("cacheKey: {}", cacheKey);
+            }
 
             var cacheValue = cacheMap.get(cacheKey);
 
             val expire = cacheable.expire();
-            log.debug("expire: {}", expire);
+            if(log.isDebugEnabled()) {
+                log.debug("expire: {}", expire);
+            }
             if(null != cacheValue) {
 
                 val passMills = currentMills - cacheValue.getCreateMills();
-                log.debug("passMills: {}", passMills);
+                if(log.isDebugEnabled()) {
+                    log.debug("passMills: {}", passMills);
+                }
                 if(passMills <= expire * 1000L) {
 
                     val value = cacheValue.getValue();
-                    log.debug("未过期，取缓存值：{}", value);
+                    if(log.isDebugEnabled()) {
+                        log.debug("未过期，取缓存值：{}", value);
+                    }
                     return value;
                 }
             }
