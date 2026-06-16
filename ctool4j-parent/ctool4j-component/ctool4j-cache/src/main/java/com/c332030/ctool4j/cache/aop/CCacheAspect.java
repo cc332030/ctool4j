@@ -4,6 +4,7 @@ import com.c332030.ctool4j.cache.annotation.CCacheId;
 import com.c332030.ctool4j.cache.annotation.CCacheable;
 import com.c332030.ctool4j.cache.model.CCacheValue;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
+import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
@@ -79,8 +80,11 @@ public class CCacheAspect {
 
         val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
 
-        val cacheIdField = CACHE_ID_FIELD_CLASS_VALUE.get(object.getClass());
-        val cacheId = CObjUtils.convert(cacheIdField, f -> f.get(object));
+        val objClass = object.getClass();
+        val cacheIdField = CClassUtils.isJdkClass(objClass)
+            ? null
+            : CACHE_ID_FIELD_CLASS_VALUE.get(objClass);
+        val cacheId = CObjUtils.convert(cacheIdField, f -> ((Field)f).get(object));
 
         return idConverter.apply(cacheId, object);
     }
