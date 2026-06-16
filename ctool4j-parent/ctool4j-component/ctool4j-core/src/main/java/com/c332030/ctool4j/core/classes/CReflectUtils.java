@@ -487,4 +487,10 @@ public class CReflectUtils {
         return MethodHandles.lookup().unreflectGetter(field);
     }
 
+    @SneakyThrows
+    public MethodHandle getMethodHandle(Method method) {
+        method.setAccessible(true);
+        return MethodHandles.lookup().unreflect(method);
+    }
+
 }
