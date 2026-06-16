@@ -60,7 +60,7 @@ public class CCacheAspect {
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
         try {
             if (cacheable.local()) {
-                log.info("启用本地缓存");
+                log.debug("启用本地缓存");
                 return getLocalCache(joinPoint, cacheable);
             }
         } catch (Throwable e) {
