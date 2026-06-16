@@ -80,14 +80,10 @@ public class CCacheAspect {
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
         try {
             if (cacheable.local()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("启用本地缓存");
-                }
+                log.debug("启用本地缓存");
                 return getLocalCache(joinPoint, cacheable);
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("启用 Redis 缓存");
-                }
+                log.debug("启用 Redis 缓存");
                 return getRedisCache(joinPoint, method, cacheable);
             }
         } catch (Exception e) {
