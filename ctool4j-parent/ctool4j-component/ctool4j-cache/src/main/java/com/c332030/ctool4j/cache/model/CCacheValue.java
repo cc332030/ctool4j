@@ -1,11 +1,10 @@
 package com.c332030.ctool4j.cache.model;
 
-import com.c332030.ctool4j.cache.annotation.CCacheable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
@@ -16,15 +15,11 @@ import lombok.experimental.SuperBuilder;
  */
 @Data
 @Accessors(chain = true)
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CCacheValue<T> {
 
     T value;
-
-    Long createMills;
-
-    CCacheable cacheable;
 
 }
