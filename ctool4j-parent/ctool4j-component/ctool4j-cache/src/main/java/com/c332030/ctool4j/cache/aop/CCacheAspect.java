@@ -21,6 +21,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -87,7 +88,7 @@ public class CCacheAspect {
                 if (log.isDebugEnabled()) {
                     log.debug("启用 Redis 缓存");
                 }
-                return getRedisCache(joinPoint, cacheable);
+                return getRedisCache(joinPoint, method, cacheable);
             }
         } catch (Exception e) {
             log.error("获取缓存失败，cacheable: {}", cacheable, e);
@@ -225,10 +226,12 @@ public class CCacheAspect {
      * 缓存 key 格式：namespace:cacheKey（由 getCacheKey 生成）
      * @param joinPoint 切入点
      * @param cacheable 缓存注解
+     * @param method 目标方法（用于获取返回类型做反序列化）
      * @return Redis 缓存或执行结果
      */
     private Object getRedisCache(
         ProceedingJoinPoint joinPoint,
+        Method method,
         CCacheable cacheable
     ) {
 
@@ -250,8 +253,12 @@ public class CCacheAspect {
                 log.debug("Redis cacheKey: {}, expire: {}", redisKey, expire);
             }
 
-            return cacheService.getCache(redisKey, expire,
-                () -> CAspectUtils.process(joinPoint));
+            val returnType = method.getReturnType();
+            return cacheService.getCache(
+                redisKey, CObjUtils.anyType(returnType),
+                expire,
+                () -> CAspectUtils.process(joinPoint)
+            );
         }
 
         if (log.isDebugEnabled()) {

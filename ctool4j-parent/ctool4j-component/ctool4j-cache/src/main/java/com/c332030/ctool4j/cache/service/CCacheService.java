@@ -77,7 +77,7 @@ public class CCacheService {
      * @param value 值（将被序列化为 JSON String 存储）
      * @param expireSeconds 过期时间（秒），<=0 则永不过期
      */
-    public void setValue(String key, Object value, long expireSeconds) {
+    public void setValue(String key, Object value, int expireSeconds) {
         if (expireSeconds > 0) {
             redisService.setValue(key, value, Duration.ofSeconds(expireSeconds));
         } else {
@@ -93,7 +93,7 @@ public class CCacheService {
      * @return 值
      * @param <T> 值泛型
      */
-    public <T> T getCache(String key, Class<T> tClass,long expireSeconds, Supplier<T> valueSupplier) {
+    public <T> T getCache(String key, Class<T> tClass, int expireSeconds, Supplier<T> valueSupplier) {
 
         val value = redisService.getValue(key, tClass);
         if (null != value) {
