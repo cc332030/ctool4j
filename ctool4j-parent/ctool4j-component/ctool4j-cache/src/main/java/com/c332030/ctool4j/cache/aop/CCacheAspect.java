@@ -5,6 +5,7 @@ import com.c332030.ctool4j.cache.annotation.CCacheable;
 import com.c332030.ctool4j.cache.service.CCacheService;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CClassUtils;
+import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
@@ -64,7 +65,7 @@ public class CCacheAspect {
             .stream()
             .filter(field -> field.isAnnotationPresent(CCacheId.class))
             .findFirst()
-            .map(CReflectUtils::getMethodHandle)
+            .map(CMethodHandleUtils::toGetterHandle)
             .orElse(null)
         );
 
