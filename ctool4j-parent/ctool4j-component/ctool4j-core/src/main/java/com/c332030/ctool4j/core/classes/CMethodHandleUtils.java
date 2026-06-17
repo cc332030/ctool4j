@@ -10,7 +10,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -30,7 +29,7 @@ public class CMethodHandleUtils {
 
     final Cache<Field, MethodHandle> GETTER_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
-    @SneakyThrows(ExecutionException.class)
+    @SneakyThrows
     public MethodHandle getGetterHandle(Field field) {
         return GETTER_HANDLE_CACHE.get(field, CMethodHandleUtils::toGetterHandle);
     }
@@ -43,7 +42,7 @@ public class CMethodHandleUtils {
 
     final Cache<Field, MethodHandle> SETTER_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
-    @SneakyThrows(ExecutionException.class)
+    @SneakyThrows
     public MethodHandle getSetterHandle(Field field) {
         return SETTER_HANDLE_CACHE.get(field, CMethodHandleUtils::toSetterHandle);
     }
@@ -56,7 +55,7 @@ public class CMethodHandleUtils {
 
     final Cache<Method, MethodHandle> METHOD_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
-    @SneakyThrows(ExecutionException.class)
+    @SneakyThrows
     public MethodHandle getHandle(Method method) {
         return METHOD_HANDLE_CACHE.get(method, CMethodHandleUtils::toHandle);
     }
@@ -75,7 +74,7 @@ public class CMethodHandleUtils {
 
     final Cache<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
-    @SneakyThrows(ExecutionException.class)
+    @SneakyThrows
     public MethodHandle getHandle(Constructor<?> constructor) {
         return CONSTRUCTOR_HANDLE_CACHE.get(constructor, CMethodHandleUtils::toHandle);
     }
