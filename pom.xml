@@ -33,7 +33,7 @@
     <properties>
 
         <main.version>1.0</main.version>
-        <ctool4j.version ></ctool4j.version >
+        <ctool4j.version>1.0.20260617-SNAPSHOT</ctool4j.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
@@ -234,9 +234,9 @@
                     <developmentVersion>${snapshot.next.version}</developmentVersion>
 
                     <!-- 目标是在版本切换为 release 版本后更新 ctool4j.version -->
-                    <preparationGoals>clean versions:set-property -Dproperty=ctool4j.version -DnewVersion=${releaseVersion} verify</preparationGoals>
+                    <preparationGoals>clean versions:set-property -Dproperty=ctool4j.version -DnewVersion=${project.version} verify</preparationGoals>
                     <!-- 目标是在版本切换回下一个 snapshot 版本后再次更新 ctool4j.version -->
-                    <completionGoals>versions:set-property -Dproperty=ctool4j.version -DnewVersion=${developmentVersion}</completionGoals>
+                    <completionGoals>versions:set-property -Dproperty=ctool4j.version -DnewVersion=${project.version}</completionGoals>
 
                 </configuration>
             </plugin>
