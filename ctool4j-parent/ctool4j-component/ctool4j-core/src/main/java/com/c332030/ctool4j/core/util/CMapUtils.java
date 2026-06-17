@@ -5,10 +5,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
-import com.c332030.ctool4j.definition.function.CBiPredicate;
-import com.c332030.ctool4j.definition.function.CFunction;
-import com.c332030.ctool4j.definition.function.CPredicate;
-import com.c332030.ctool4j.definition.function.ToStringFunction;
+import com.c332030.ctool4j.definition.function.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -384,6 +381,19 @@ public class CMapUtils {
         System.out.println(sb);
 
 
+    }
+
+    public <K, V> V computeIfAbsent(Map<K, V> map, K key, CSupplier<V> valueSupplier) {
+        return computeIfAbsent(map, key, k -> valueSupplier.get());
+    }
+
+    public <K, V> V computeIfAbsent(Map<K, V> map, K key, CFunction<K, V> mappingFunction) {
+
+        val handle = map.get(key);
+        if (null != handle) {
+            return handle;
+        }
+        return map.computeIfAbsent(key, mappingFunction);
     }
 
 }

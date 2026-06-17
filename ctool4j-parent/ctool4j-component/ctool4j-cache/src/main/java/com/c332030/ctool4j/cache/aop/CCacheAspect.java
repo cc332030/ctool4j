@@ -65,7 +65,7 @@ public class CCacheAspect {
             .stream()
             .filter(field -> field.isAnnotationPresent(CCacheId.class))
             .findFirst()
-            .map(CMethodHandleUtils::toGetterHandle)
+            .map(CMethodHandleUtils::getGetterHandle)
             .orElse(null)
         );
 
