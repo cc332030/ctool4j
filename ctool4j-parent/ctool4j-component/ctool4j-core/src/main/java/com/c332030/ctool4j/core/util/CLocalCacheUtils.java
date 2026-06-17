@@ -17,7 +17,6 @@ public class CLocalCacheUtils {
     @SuppressWarnings("unchecked")
     public <K, V> Caffeine<K, V> cacheBuilder() {
         return (Caffeine<K, V>)Caffeine.newBuilder()
-            .weakKeys()
             .softValues()
             ;
     }
