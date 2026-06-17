@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.core.classes;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.c332030.ctool4j.core.util.CLocalCacheUtils;
+import com.github.benmanes.caffeine.cache.Cache;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -22,32 +22,17 @@ import java.util.concurrent.ExecutionException;
 @UtilityClass
 public class CMethodHandleUtils {
 
-    /**
-     * 默认缓存最大容量
-     */
-    private static final int DEFAULT_MAX_CACHE_SIZE = 4096;
-
-    /**
-     * 创建 Cache
-     */
-    private <K, V> Cache<K, V> buildCache() {
-        return CacheBuilder.newBuilder()
-            .maximumSize(DEFAULT_MAX_CACHE_SIZE)
-            .softValues()
-            .build();
-    }
-
     @SneakyThrows
     public MethodHandle toGetterHandle(Field field) {
         field.setAccessible(true);
         return MethodHandles.lookup().unreflectGetter(field);
     }
 
-    final Cache<Field, MethodHandle> GETTER_HANDLE_CACHE = buildCache();
+    final Cache<Field, MethodHandle> GETTER_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
     @SneakyThrows(ExecutionException.class)
     public MethodHandle getGetterHandle(Field field) {
-        return GETTER_HANDLE_CACHE.get(field, () -> toGetterHandle(field));
+        return GETTER_HANDLE_CACHE.get(field, CMethodHandleUtils::toGetterHandle);
     }
 
     @SneakyThrows
@@ -56,11 +41,11 @@ public class CMethodHandleUtils {
         return MethodHandles.lookup().unreflectSetter(field);
     }
 
-    final Cache<Field, MethodHandle> SETTER_HANDLE_CACHE = buildCache();
+    final Cache<Field, MethodHandle> SETTER_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
     @SneakyThrows(ExecutionException.class)
     public MethodHandle getSetterHandle(Field field) {
-        return SETTER_HANDLE_CACHE.get(field, () -> toSetterHandle(field));
+        return SETTER_HANDLE_CACHE.get(field, CMethodHandleUtils::toSetterHandle);
     }
 
     @SneakyThrows
@@ -69,11 +54,11 @@ public class CMethodHandleUtils {
         return MethodHandles.lookup().unreflect(method);
     }
 
-    final Cache<Method, MethodHandle> METHOD_HANDLE_CACHE = buildCache();
+    final Cache<Method, MethodHandle> METHOD_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
     @SneakyThrows(ExecutionException.class)
     public MethodHandle getHandle(Method method) {
-        return METHOD_HANDLE_CACHE.get(method, () -> toHandle(method));
+        return METHOD_HANDLE_CACHE.get(method, CMethodHandleUtils::toHandle);
     }
 
     @SneakyThrows
@@ -88,11 +73,11 @@ public class CMethodHandleUtils {
         return MethodHandles.lookup().unreflectConstructor(constructor);
     }
 
-    final Cache<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE = buildCache();
+    final Cache<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE = CLocalCacheUtils.buildCache();
 
     @SneakyThrows(ExecutionException.class)
     public MethodHandle getHandle(Constructor<?> constructor) {
-        return CONSTRUCTOR_HANDLE_CACHE.get(constructor, () -> toHandle(constructor));
+        return CONSTRUCTOR_HANDLE_CACHE.get(constructor, CMethodHandleUtils::toHandle);
     }
 
 }
