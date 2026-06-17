@@ -181,23 +181,12 @@ public class CCacheAspect {
             if (log.isDebugEnabled()) {
                 log.debug("cacheKey: {}, expire: {}", cacheKey, expire);
             }
+            return cache.get(cacheKey, k -> {
 
-            val cacheValue = cache.getIfPresent(cacheKey);
-            if (null != cacheValue) {
-                if (log.isDebugEnabled()) {
-                    log.debug("命中缓存，cacheValue：{}", cacheValue);
-                }
-                return cacheValue;
-            }
-
-            log.info("没有缓存或已过期，cacheKey: {}", cacheKey);
-
-            val valueNew = CAspectUtils.process(joinPoint);
-            if (null != valueNew) {
-                cache.put(cacheKey, valueNew);
-                log.info("新值 cacheValue： {}", valueNew);
-            }
-            return valueNew;
+                val valueNew = CAspectUtils.process(joinPoint);
+                log.info("新值 cacheKey: {}, cacheValue: {}", k, valueNew);
+                return valueNew;
+            });
         }
 
         if (log.isDebugEnabled()) {
