@@ -17,6 +17,7 @@ public class CLocalCacheUtils {
     @SuppressWarnings("unchecked")
     public <K, V> Caffeine<K, V> cacheBuilder() {
         return (Caffeine<K, V>)Caffeine.newBuilder()
+            // 内存不足释放缓存
             .softValues()
             ;
     }
