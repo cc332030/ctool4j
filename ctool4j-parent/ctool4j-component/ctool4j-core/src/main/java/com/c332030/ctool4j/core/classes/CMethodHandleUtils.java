@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.classes;
 
-import com.c332030.ctool4j.core.util.CMapUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -9,7 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -21,20 +22,32 @@ import java.util.concurrent.ConcurrentHashMap;
 @UtilityClass
 public class CMethodHandleUtils {
 
+    /**
+     * 默认缓存最大容量
+     */
+    private static final int DEFAULT_MAX_CACHE_SIZE = 4096;
+
+    /**
+     * 创建 Cache
+     */
+    private <K, V> Cache<K, V> buildCache() {
+        return CacheBuilder.newBuilder()
+            .maximumSize(DEFAULT_MAX_CACHE_SIZE)
+            .softValues()
+            .build();
+    }
+
     @SneakyThrows
     public MethodHandle toGetterHandle(Field field) {
         field.setAccessible(true);
         return MethodHandles.lookup().unreflectGetter(field);
     }
 
-    final ConcurrentHashMap<Field, MethodHandle> GETTER_HANDLE_CACHE = new ConcurrentHashMap<>();
+    final Cache<Field, MethodHandle> GETTER_HANDLE_CACHE = buildCache();
 
+    @SneakyThrows(ExecutionException.class)
     public MethodHandle getGetterHandle(Field field) {
-        return CMapUtils.computeIfAbsent(
-            GETTER_HANDLE_CACHE,
-            field,
-            CMethodHandleUtils::toGetterHandle
-        );
+        return GETTER_HANDLE_CACHE.get(field, () -> toGetterHandle(field));
     }
 
     @SneakyThrows
@@ -43,14 +56,11 @@ public class CMethodHandleUtils {
         return MethodHandles.lookup().unreflectSetter(field);
     }
 
-    final ConcurrentHashMap<Field, MethodHandle> SETTER_HANDLE_CACHE = new ConcurrentHashMap<>();
+    final Cache<Field, MethodHandle> SETTER_HANDLE_CACHE = buildCache();
 
+    @SneakyThrows(ExecutionException.class)
     public MethodHandle getSetterHandle(Field field) {
-        return CMapUtils.computeIfAbsent(
-            SETTER_HANDLE_CACHE,
-            field,
-            CMethodHandleUtils::toSetterHandle
-        );
+        return SETTER_HANDLE_CACHE.get(field, () -> toSetterHandle(field));
     }
 
     @SneakyThrows
@@ -59,15 +69,11 @@ public class CMethodHandleUtils {
         return MethodHandles.lookup().unreflect(method);
     }
 
+    final Cache<Method, MethodHandle> METHOD_HANDLE_CACHE = buildCache();
 
-    final ConcurrentHashMap<Method, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentHashMap<>();
-
+    @SneakyThrows(ExecutionException.class)
     public MethodHandle getHandle(Method method) {
-        return CMapUtils.computeIfAbsent(
-            METHOD_HANDLE_CACHE,
-            method,
-            CMethodHandleUtils::toHandle
-        );
+        return METHOD_HANDLE_CACHE.get(method, () -> toHandle(method));
     }
 
     @SneakyThrows
@@ -82,14 +88,11 @@ public class CMethodHandleUtils {
         return MethodHandles.lookup().unreflectConstructor(constructor);
     }
 
-    final ConcurrentHashMap<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE = new ConcurrentHashMap<>();
+    final Cache<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE = buildCache();
 
+    @SneakyThrows(ExecutionException.class)
     public MethodHandle getHandle(Constructor<?> constructor) {
-        return CMapUtils.computeIfAbsent(
-            CONSTRUCTOR_HANDLE_CACHE,
-            constructor,
-            CMethodHandleUtils::toHandle
-        );
+        return CONSTRUCTOR_HANDLE_CACHE.get(constructor, () -> toHandle(constructor));
     }
 
 }

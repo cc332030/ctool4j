@@ -29,6 +29,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-definition</artifactId>
         </dependency>
