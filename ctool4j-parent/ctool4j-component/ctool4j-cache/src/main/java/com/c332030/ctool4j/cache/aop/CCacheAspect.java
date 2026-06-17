@@ -9,9 +9,9 @@ import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
+import com.c332030.ctool4j.core.util.CLocalCacheUtils;
 import com.c332030.ctool4j.spring.util.CAspectUtils;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,8 +49,8 @@ public class CCacheAspect {
      * 缓存 key: namespace Class, value: (expire -> Cache)
      * 每个 namespace 下按不同过期时间分别维护一个 Guava Cache
      */
-    private static final ConcurrentHashMap<Class<?>, ConcurrentHashMap<Integer, Cache<String, Object>>> NAMESPACE_CACHES
-        = new ConcurrentHashMap<>();
+    private static final Cache<Class<?>, Cache<Integer, Cache<String, Object>>>
+        NAMESPACE_CACHES = CLocalCacheUtils.buildCache();
 
     private static final CClassValue<ICCacheIdConverter<Object, Object>> CLASS_ID_CONVERTER = CClassValue
         .of(e -> CObjUtils.anyType(CReflectUtils.newInstance(e)));
@@ -136,25 +135,16 @@ public class CCacheAspect {
      */
     private Cache<String, Object> getCache(Class<?> namespace, int expire) {
 
-        val expireCaches = NAMESPACE_CACHES.computeIfAbsent(namespace, k -> new ConcurrentHashMap<>());
+        val expireCaches = NAMESPACE_CACHES.get(namespace, k -> CLocalCacheUtils.buildCache());
 
         // 已存在直接返回
-        val existing = expireCaches.get(expire);
+        val existing = expireCaches.getIfPresent(expire);
         if (null != existing) {
             return existing;
         }
 
-        // 防御：超过上限时复用已有 cache，避免无界增长
-        if (expireCaches.size() >= MAX_EXPIRE_CACHES_PER_NAMESPACE) {
-            if (log.isWarnEnabled()) {
-                log.warn("namespace [{}] 下 expire cache 数量已达上限 {}，复用已有 cache",
-                    namespace.getSimpleName(), MAX_EXPIRE_CACHES_PER_NAMESPACE);
-            }
-            return expireCaches.values().iterator().next();
-        }
-
-        return expireCaches.computeIfAbsent(expire, e -> {
-            val builder = CacheBuilder.newBuilder();
+        return expireCaches.get(expire, e -> {
+            val builder = CLocalCacheUtils.cacheBuilder();
             if (e > 0) {
                 builder.expireAfterWrite(e, TimeUnit.SECONDS);
             }
@@ -207,7 +197,6 @@ public class CCacheAspect {
                 cache.put(cacheKey, valueNew);
                 log.info("新值 cacheValue： {}", valueNew);
             }
-
             return valueNew;
         }
 
