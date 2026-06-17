@@ -52,7 +52,6 @@
         <redisson.version>3.18.0</redisson.version>
         <jetcache.version>2.7.3</jetcache.version>
         <guava.version>33.4.8-jre</guava.version>
-        <caffeine.version>3.2.4</caffeine.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok.version>1.18.38</lombok.version>
 
