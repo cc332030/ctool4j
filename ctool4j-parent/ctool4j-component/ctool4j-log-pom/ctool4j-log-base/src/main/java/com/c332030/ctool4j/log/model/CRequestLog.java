@@ -30,6 +30,7 @@ public class CRequestLog {
 
     String ip;
 
+    Map<String, String[]> params;
     Map<String, Object> reqs;
     Object rsp;
 

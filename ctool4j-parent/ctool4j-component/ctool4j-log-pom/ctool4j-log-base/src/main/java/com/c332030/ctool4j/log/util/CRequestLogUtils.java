@@ -129,6 +129,7 @@ public class CRequestLogUtils {
             .traceId(traceId)
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
+            .params(request.getParameterMap())
             .reqs(EMPTY_REQS)
             .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
