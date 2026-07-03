@@ -86,6 +86,18 @@ public class CCommUtils {
     }
 
     /**
+     * 拼接请求行：METHOD path[?params]，仅 GET 请求拼接查询参数，
+     * POST/PUT 等请求的参数在 body 中，不拼到 URL
+     */
+    public void appendRequestUrl(StringBuilder sb, String method, String path, Map<String, String[]> params) {
+        sb.append("\n");
+        sb.append(method);
+        sb.append(" ");
+        appendUrl(sb, path,
+            "GET".equalsIgnoreCase(method) ? params : null);
+    }
+
+    /**
      * 拼接请求行：METHOD URL
      */
     public void appendRequestLine(StringBuilder sb, String method, String url) {

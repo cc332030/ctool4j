@@ -231,11 +231,8 @@ public class CRequestLogUtils {
 
         val sb = new StringBuilder();
 
-        // 请求行：METHOD path?params（GET 请求参数在 URL 后）
-        sb.append("\n");
-        sb.append(requestLog.getMethod());
-        sb.append(" ");
-        CCommUtils.appendUrl(sb, requestLog.getPath(), requestLog.getParams());
+        // 请求行：METHOD path[?params]（仅 GET 拼接查询参数）
+        CCommUtils.appendRequestUrl(sb, requestLog.getMethod(), requestLog.getPath(), requestLog.getParams());
 
         // 请求头
         CCommUtils.appendHeaderLine(sb, HttpHeaders.AUTHORIZATION, requestLog.getToken());
@@ -253,17 +250,17 @@ public class CRequestLogUtils {
             CCommUtils.appendBody(sb, CLogUtils.getPrintAble(rsp), "response");
         }
 
+        val throwableMessage = requestLog.getThrowableMessage();
+        if (StrUtil.isNotEmpty(throwableMessage)) {
+            sb.append("\n\nerror: ");
+            sb.append(throwableMessage);
+        }
+
         // 耗时与异常
         sb.append("\n\n");
         sb.append("rt: ");
         sb.append(requestLog.getRt());
         sb.append("ms");
-
-        val throwableMessage = requestLog.getThrowableMessage();
-        if (StrUtil.isNotEmpty(throwableMessage)) {
-            sb.append("\nerror: ");
-            sb.append(throwableMessage);
-        }
 
         REQUEST_LOG.info("{}", sb);
     }
