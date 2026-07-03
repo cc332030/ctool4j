@@ -140,15 +140,16 @@ public class CFeignLogger extends Logger {
                 log.error("处理响应日志失败", e);
             } finally {
                 val startMills = requestLog.getStartMills();
-                if(null != startMills) {
+                if(null != startMills && null != httpLog) {
                     val cost = System.currentTimeMillis() - startMills;
-                    if(null != httpLog) {
-                        httpLog.append("\n\n");
-                        httpLog.append("cost: ");
-                        httpLog.append(cost);
-                        httpLog.append(", elapsedTime: ");
-                        httpLog.append(elapsedTime);
-                    }
+                    httpLog.append("\n\n");
+                    httpLog.append("cost: ");
+                    httpLog.append(cost);
+                    httpLog.append(", elapsedTime: ");
+                    httpLog.append(elapsedTime);
+                }
+                if(null != httpLog) {
+                    FEIGN_LOG.info("{}", httpLog);
                 }
             }
         }
@@ -163,7 +164,6 @@ public class CFeignLogger extends Logger {
 
         printHeaders(httpLog, responseHeaders, false);
         printBody(httpLog, responseHeaders, responseBodyBytes, "response");
-        FEIGN_LOG.info("{}", httpLog);
 
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
@@ -172,7 +172,6 @@ public class CFeignLogger extends Logger {
 
         httpLog.append("\n\n");
         httpLog.append(ioException.getMessage());
-        FEIGN_LOG.info("{}", httpLog);
 
         return ioException;
     }
