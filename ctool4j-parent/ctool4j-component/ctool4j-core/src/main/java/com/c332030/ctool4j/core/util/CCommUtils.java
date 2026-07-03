@@ -116,9 +116,11 @@ public class CCommUtils {
 
         sb.append(info.getPath());
         val params = info.getParams();
-        if (MapUtil.isEmpty(params)) {
+        if (!HttpMethod.GET.name().equalsIgnoreCase(info.getMethod())
+            || MapUtil.isEmpty(params)) {
             return;
         }
+
         sb.append("?");
         boolean first = true;
         for (val entry : params.entrySet()) {
