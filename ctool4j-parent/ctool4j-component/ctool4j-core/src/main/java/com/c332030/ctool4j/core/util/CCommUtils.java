@@ -4,6 +4,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
+import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -89,12 +90,13 @@ public class CCommUtils {
      * 拼接请求行：METHOD path[?params]，仅 GET 请求拼接查询参数，
      * POST/PUT 等请求的参数在 body 中，不拼到 URL
      */
-    public void appendRequestUrl(StringBuilder sb, String method, String path, Map<String, String[]> params) {
+    public void appendRequestUrl(StringBuilder sb, IHttpLogInfo info) {
+
+        val method = info.getMethod();
         sb.append("\n");
         sb.append(method);
         sb.append(" ");
-        appendUrl(sb, path,
-            "GET".equalsIgnoreCase(method) ? params : null);
+        appendUrl(sb, info);
     }
 
     /**
@@ -110,9 +112,11 @@ public class CCommUtils {
     /**
      * 拼接 URL 路径 + Query 参数
      */
-    public void appendUrl(StringBuilder sb, String path, Map<String, String[]> params) {
-        sb.append(path);
-        if (null == params || params.isEmpty()) {
+    public void appendUrl(StringBuilder sb, IHttpLogInfo info) {
+
+        sb.append(info.getPath());
+        val params = info.getParams();
+        if (MapUtil.isEmpty(params)) {
             return;
         }
         sb.append("?");
@@ -194,6 +198,46 @@ public class CCommUtils {
             sb.append(" body]");
         } else {
             sb.append(body);
+        }
+    }
+
+    /**
+     * 统一拼接完整 HTTP 请求+响应日志（请求行、请求头、请求体、响应体、耗时、异常）
+     */
+    public void appendHttpLog(StringBuilder sb, IHttpLogInfo info) {
+
+        // 请求行
+        appendRequestUrl(sb, info);
+
+        // 请求头
+        val headers = info.getHeaders();
+        if (MapUtil.isNotEmpty(headers)) {
+            headers.forEach((key, value) -> appendHeaderLine(sb, key, value));
+        }
+
+        appendBody(sb, info.getRequestBody(), "request");
+        appendBody(sb, info.getResponseBody(), "response");
+
+        appendError(sb, info.getErrorMessage());
+
+        // 耗时
+        val rt = info.getRt();
+        if (null != rt) {
+            sb.append("\n\n");
+            sb.append("rt: ");
+            sb.append(rt);
+            sb.append("ms");
+        }
+    }
+
+    /**
+     * 统一拼接异常信息：\n\nerror: message
+     */
+    public void appendError(StringBuilder sb, String errorMessage) {
+        if (StrUtil.isNotEmpty(errorMessage)) {
+            sb.append("\n\n");
+            sb.append("error: ");
+            sb.append(errorMessage);
         }
     }
 

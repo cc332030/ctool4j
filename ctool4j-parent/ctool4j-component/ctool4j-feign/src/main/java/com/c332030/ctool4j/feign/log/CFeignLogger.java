@@ -166,8 +166,7 @@ public class CFeignLogger extends Logger {
 
     private IOException dealErrorLog(IOException ioException, StringBuilder httpLog) {
 
-        httpLog.append("\n\n");
-        httpLog.append(ioException.getMessage());
+        CCommUtils.appendError(httpLog, ioException.getMessage());
 
         return ioException;
     }

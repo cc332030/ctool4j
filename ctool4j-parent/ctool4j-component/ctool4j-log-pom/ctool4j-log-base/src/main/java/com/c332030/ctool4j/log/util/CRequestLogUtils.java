@@ -17,7 +17,6 @@ import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
-import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
@@ -230,37 +229,7 @@ public class CRequestLogUtils {
     void logWriteText(CRequestLog requestLog) {
 
         val sb = new StringBuilder();
-
-        // 请求行：METHOD path[?params]（仅 GET 拼接查询参数）
-        CCommUtils.appendRequestUrl(sb, requestLog.getMethod(), requestLog.getPath(), requestLog.getParams());
-
-        // 请求头
-        CCommUtils.appendHeaderLine(sb, HttpHeaders.AUTHORIZATION, requestLog.getToken());
-        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_REAL_IP, requestLog.getIp());
-        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_TRACE_ID, requestLog.getTraceId());
-        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_TENANT_ID, requestLog.getTenantId());
-        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_USER_ID, requestLog.getUserId());
-
-        // 请求体
-        CCommUtils.appendBody(sb, requestLog.getReqs(), "request");
-
-        // 响应体
-        val rsp = requestLog.getRsp();
-        if (null != rsp) {
-            CCommUtils.appendBody(sb, CLogUtils.getPrintAble(rsp), "response");
-        }
-
-        val throwableMessage = requestLog.getThrowableMessage();
-        if (StrUtil.isNotEmpty(throwableMessage)) {
-            sb.append("\n\nerror: ");
-            sb.append(throwableMessage);
-        }
-
-        // 耗时与异常
-        sb.append("\n\n");
-        sb.append("rt: ");
-        sb.append(requestLog.getRt());
-        sb.append("ms");
+        CCommUtils.appendHttpLog(sb, requestLog);
 
         REQUEST_LOG.info("{}", sb);
     }
