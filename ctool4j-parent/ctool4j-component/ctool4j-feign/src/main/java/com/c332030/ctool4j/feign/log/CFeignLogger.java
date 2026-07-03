@@ -1,8 +1,6 @@
 package com.c332030.ctool4j.feign.log;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
@@ -24,9 +22,6 @@ import lombok.val;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * <p>
@@ -113,14 +108,13 @@ public class CFeignLogger extends Logger {
 
         val httpLog = new StringBuilder();
 
-        httpLog.append("\n");
-        httpLog.append(method);
-        httpLog.append(" ");
-        httpLog.append(url);
+        CCommUtils.appendRequestLine(httpLog, method.name(), url);
 
         val requestHeaders = request.headers();
-        printHeaders(httpLog, requestHeaders, true);
-        printBody(httpLog, requestHeaders, request.body(), "request");
+        if(BooleanUtil.isTrue(config.getEnableHeader())) {
+            CCommUtils.appendHeaderBlock(httpLog, requestHeaders);
+        }
+        CCommUtils.appendBody(httpLog, request.body(), requestHeaders, "request");
 
         return httpLog;
     }
@@ -162,8 +156,10 @@ public class CFeignLogger extends Logger {
         val responseHeaders = response.headers();
         val responseBodyBytes = getBodyBytes(response);
 
-        printHeaders(httpLog, responseHeaders, false);
-        printBody(httpLog, responseHeaders, responseBodyBytes, "response");
+        if(BooleanUtil.isTrue(config.getEnableHeader())) {
+            CCommUtils.appendHeaderBlock(httpLog, responseHeaders);
+        }
+        CCommUtils.appendBody(httpLog, responseBodyBytes, responseHeaders, "response");
 
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
@@ -184,55 +180,6 @@ public class CFeignLogger extends Logger {
             log.debug("获取响应体失败", e);
             return null;
         }
-    }
-
-    private void printHeaders(
-        StringBuilder httpLog,
-        Map<String, Collection<String>> headers,
-        boolean isRequest
-    ) {
-
-        if(BooleanUtil.isTrue(config.getEnableHeader())) {
-
-            val headerStr = CCommUtils.getFullHeaderStr(headers);
-            if(StrUtil.isNotEmpty(headerStr)) {
-                if(!isRequest) {
-                    httpLog.append("\n");
-                }
-                httpLog.append("\n");
-                httpLog.append(CCommUtils.getFullHeaderStr(headers));
-            }
-        }
-
-    }
-
-    private void printBody(
-        StringBuilder httpLog,
-        Map<String, Collection<String>> headers,
-        byte[] bodyBytes,
-        String type
-    ) {
-
-        httpLog.append("\n\n");
-        if(ArrayUtil.isEmpty(bodyBytes)) {
-
-            httpLog.append("[no ");
-            httpLog.append(type);
-            httpLog.append(" body]");
-        } else {
-
-            if(CCommUtils.isTextBody(headers)) {
-
-                val responseBody = new String(bodyBytes, StandardCharsets.UTF_8);
-                httpLog.append(responseBody);
-            } else {
-                httpLog.append("[not ");
-                httpLog.append(type);
-                httpLog.append(" text body]");
-            }
-
-        }
-
     }
 
 }

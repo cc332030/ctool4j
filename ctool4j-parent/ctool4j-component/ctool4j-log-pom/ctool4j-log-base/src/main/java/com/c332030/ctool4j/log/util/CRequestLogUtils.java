@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CPatternUtils;
@@ -205,12 +206,62 @@ public class CRequestLogUtils {
             try {
 
                 val requestLog = REQUEST_LOG_QUEUE.take();
-                REQUEST_LOG.infoNonNull("{}", requestLog);
+                logWriteText(requestLog);
             } catch (Throwable e) {
                 log.error("logWrite error", e);
             }
         }
 
+    }
+
+    /**
+     * 原 JSON 格式输出
+     */
+    void logWriteJson(CRequestLog requestLog) {
+        REQUEST_LOG.infoNonNull("{}", requestLog);
+    }
+
+    /**
+     * 文本格式输出，参考 CFeignLogger 的 StringBuilder 拼接方式，
+     * 输出类似 HTTP 请求+响应的完整 dump，方便调试和回放
+     */
+    void logWriteText(CRequestLog requestLog) {
+
+        val sb = new StringBuilder();
+
+        // 请求行：path + query 参数
+        sb.append("\n");
+        CCommUtils.appendUrl(sb, requestLog.getPath(), requestLog.getParams());
+
+        // 请求头
+        CCommUtils.appendHeaderLine(sb, HttpHeaders.AUTHORIZATION, requestLog.getToken());
+        CCommUtils.appendHeaderLine(sb, "X-Real-IP", requestLog.getIp());
+        CCommUtils.appendHeaderLine(sb, "X-Trace-Id", requestLog.getTraceId());
+        CCommUtils.appendHeaderLine(sb, "X-Tenant-Id", requestLog.getTenantId());
+        CCommUtils.appendHeaderLine(sb, "X-User-Id", requestLog.getUserId());
+
+        // 请求体
+        CCommUtils.appendBody(sb, requestLog.getReqs(), "request");
+
+        // 响应体
+        val rsp = requestLog.getRsp();
+        if (null != rsp) {
+            CCommUtils.appendBody(sb, CLogUtils.getPrintAble(rsp), "response");
+        }
+
+        // 耗时与异常
+        sb.append("\n\n");
+        sb.append("rt: ");
+        sb.append(requestLog.getRt());
+        sb.append("ms");
+
+        val throwableMessage = requestLog.getThrowableMessage();
+        if (StrUtil.isNotEmpty(throwableMessage)) {
+            sb.append("\nerror: ");
+            sb.append(throwableMessage);
+        }
+
+        REQUEST_LOG.info("{}", sb);
     }
 
 }
