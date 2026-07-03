@@ -1,9 +1,9 @@
 package com.c332030.ctool4j.log.model;
 
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.enums.CCommHeaderEnum;
 import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,16 +54,16 @@ public class CRequestLog implements IHttpLogInfo {
             headers.put("Authorization", token);
         }
         if (StrUtil.isNotEmpty(ip)) {
-            headers.put(CCommHeaderEnum.X_REAL_IP.getHeaderName(), ip);
+            headers.put(CRequestHeaderEnum.X_REAL_IP.getHeaderName(), ip);
         }
         if (StrUtil.isNotEmpty(traceId)) {
-            headers.put(CCommHeaderEnum.X_TRACE_ID.getHeaderName(), traceId);
+            headers.put(CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), traceId);
         }
         if (StrUtil.isNotEmpty(tenantId)) {
-            headers.put(CCommHeaderEnum.X_TENANT_ID.getHeaderName(), tenantId);
+            headers.put(CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), tenantId);
         }
         if (StrUtil.isNotEmpty(userId)) {
-            headers.put(CCommHeaderEnum.X_USER_ID.getHeaderName(), userId);
+            headers.put(CRequestHeaderEnum.X_USER_ID.getHeaderName(), userId);
         }
         return headers;
     }
