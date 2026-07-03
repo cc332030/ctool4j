@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.val;
+import org.springframework.http.HttpHeaders;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class CRequestLog implements IHttpLogInfo {
     public Map<String, String> getHeaders() {
         val headers = new LinkedHashMap<String, String>();
         if (StrUtil.isNotEmpty(token)) {
-            headers.put("Authorization", token);
+            headers.put(HttpHeaders.AUTHORIZATION, token);
         }
         if (StrUtil.isNotEmpty(ip)) {
             headers.put(CRequestHeaderEnum.X_REAL_IP.getHeaderName(), ip);
