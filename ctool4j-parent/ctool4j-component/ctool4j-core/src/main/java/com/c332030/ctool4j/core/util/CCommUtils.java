@@ -167,40 +167,33 @@ public class CCommUtils {
     }
 
     /**
-     * 拼接 body（byte[]，根据 Content-Type 判断是否文本）
+     * 拼接 body（byte[]，根据 Content-Type 判断是否文本），无 body 时不打印
      */
     public void appendBody(
             StringBuilder sb,
             byte[] bodyBytes,
-            Map<String, Collection<String>> headers,
-            String type
+            Map<String, Collection<String>> headers
     ) {
-        sb.append("\n\n");
         if (ArrayUtil.isEmpty(bodyBytes)) {
-            sb.append("[no ");
-            sb.append(type);
-            sb.append(" body]");
-        } else if (isTextBody(headers)) {
+            return;
+        }
+        sb.append("\n\n");
+        if (isTextBody(headers)) {
             sb.append(new String(bodyBytes, StandardCharsets.UTF_8));
         } else {
-            sb.append("[not ");
-            sb.append(type);
-            sb.append(" text body]");
+            sb.append("[not text body]");
         }
     }
 
     /**
-     * 拼接 body（Object，直接 toString）
+     * 拼接 body（Object，直接 toString），无 body 时不打印
      */
-    public void appendBody(StringBuilder sb, Object body, String type) {
-        sb.append("\n\n");
+    private void appendBodyObject(StringBuilder sb, Object body) {
         if (null == body) {
-            sb.append("[no ");
-            sb.append(type);
-            sb.append(" body]");
-        } else {
-            sb.append(body);
+            return;
         }
+        sb.append("\n\n");
+        sb.append(body);
     }
 
     /**
@@ -217,8 +210,16 @@ public class CCommUtils {
             headers.forEach((key, value) -> appendHeaderLine(sb, key, value));
         }
 
-        appendBody(sb, info.getRequestBody(), "request");
-        appendBody(sb, info.getResponseBody(), "response");
+        // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
+        appendRequestBody(sb, info);
+
+        // 响应体
+        val rspBody = info.getResponseBody();
+        if (null == rspBody) {
+            sb.append("\n\n[no response body]");
+        } else {
+            appendBodyObject(sb, rspBody);
+        }
 
         appendError(sb, info.getErrorMessage());
 
@@ -230,6 +231,51 @@ public class CCommUtils {
             sb.append(rt);
             sb.append("ms");
         }
+    }
+
+    /**
+     * 拼接请求体：POST 且 body 为空、params 有值时，用 params 生成 form-urlencoded 格式 body
+     */
+    private void appendRequestBody(StringBuilder sb, IHttpLogInfo info) {
+        val reqBody = info.getRequestBody();
+        if (null == reqBody && isFormBodyMethod(info.getMethod())) {
+            val params = info.getParams();
+            if (MapUtil.isNotEmpty(params)) {
+                sb.append("\n\n");
+                appendFormBody(sb, params);
+                return;
+            }
+        }
+        appendBodyObject(sb, reqBody);
+    }
+
+    /**
+     * 拼接 form-urlencoded body
+     */
+    private void appendFormBody(StringBuilder sb, Map<String, String[]> params) {
+        boolean first = true;
+        for (val entry : params.entrySet()) {
+            for (val value : entry.getValue()) {
+                if (!first) {
+                    sb.append("&");
+                }
+                sb.append(entry.getKey());
+                sb.append("=");
+                sb.append(value);
+                first = false;
+            }
+        }
+    }
+
+    /**
+     * 是否为 form body 类型方法（POST/PUT/PATCH，参数在 body 中）
+     */
+    private boolean isFormBodyMethod(String method) {
+        if (StrUtil.isEmpty(method)) {
+            return false;
+        }
+        return !"GET".equalsIgnoreCase(method)
+            && !"DELETE".equalsIgnoreCase(method);
     }
 
     /**

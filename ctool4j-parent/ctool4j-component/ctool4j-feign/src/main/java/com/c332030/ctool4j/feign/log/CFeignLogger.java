@@ -114,7 +114,7 @@ public class CFeignLogger extends Logger {
         if(BooleanUtil.isTrue(config.getEnableHeader())) {
             CCommUtils.appendHeaderBlock(httpLog, requestHeaders);
         }
-        CCommUtils.appendBody(httpLog, request.body(), requestHeaders, "request");
+        CCommUtils.appendBody(httpLog, request.body(), requestHeaders);
 
         return httpLog;
     }
@@ -159,7 +159,7 @@ public class CFeignLogger extends Logger {
         if(BooleanUtil.isTrue(config.getEnableHeader())) {
             CCommUtils.appendHeaderBlock(httpLog, responseHeaders);
         }
-        CCommUtils.appendBody(httpLog, responseBodyBytes, responseHeaders, "response");
+        CCommUtils.appendBody(httpLog, responseBodyBytes, responseHeaders);
 
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
