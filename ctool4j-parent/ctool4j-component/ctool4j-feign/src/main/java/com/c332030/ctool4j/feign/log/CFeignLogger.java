@@ -129,8 +129,10 @@ public class CFeignLogger extends Logger {
 
         if(CBoolUtils.isTrue(config.getEnable())) {
             val requestLog = CThreadLocalUtils.getThenRemove(REQUEST_LOG_THREAD_LOCAL);
+
+            StringBuilder httpLog = null;
             try {
-                val httpLog = requestLog.getHttpLog();
+                httpLog = requestLog.getHttpLog();
                 if(null != httpLog) {
                     return function.apply(t, httpLog);
                 }
@@ -140,7 +142,13 @@ public class CFeignLogger extends Logger {
                 val startMills = requestLog.getStartMills();
                 if(null != startMills) {
                     val cost = System.currentTimeMillis() - startMills;
-                    log.info("cost: {}, elapsedTime: {}", cost, elapsedTime);
+                    if(null != httpLog) {
+                        httpLog.append("\n\n");
+                        httpLog.append("cost: ");
+                        httpLog.append(cost);
+                        httpLog.append(", elapsedTime: ");
+                        httpLog.append(elapsedTime);
+                    }
                 }
             }
         }
