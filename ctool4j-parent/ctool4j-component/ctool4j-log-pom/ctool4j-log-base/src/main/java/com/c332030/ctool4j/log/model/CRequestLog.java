@@ -21,6 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class CRequestLog {
 
+    String method;
     String path;
     String token;
 

@@ -17,6 +17,7 @@ import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
@@ -128,6 +129,7 @@ public class CRequestLogUtils {
 
         return CRequestLog.builder()
             .traceId(traceId)
+            .method(request.getMethod())
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
             .params(request.getParameterMap())
@@ -229,16 +231,18 @@ public class CRequestLogUtils {
 
         val sb = new StringBuilder();
 
-        // 请求行：path + query 参数
+        // 请求行：METHOD path?params（GET 请求参数在 URL 后）
         sb.append("\n");
+        sb.append(requestLog.getMethod());
+        sb.append(" ");
         CCommUtils.appendUrl(sb, requestLog.getPath(), requestLog.getParams());
 
         // 请求头
         CCommUtils.appendHeaderLine(sb, HttpHeaders.AUTHORIZATION, requestLog.getToken());
-        CCommUtils.appendHeaderLine(sb, "X-Real-IP", requestLog.getIp());
-        CCommUtils.appendHeaderLine(sb, "X-Trace-Id", requestLog.getTraceId());
-        CCommUtils.appendHeaderLine(sb, "X-Tenant-Id", requestLog.getTenantId());
-        CCommUtils.appendHeaderLine(sb, "X-User-Id", requestLog.getUserId());
+        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_REAL_IP, requestLog.getIp());
+        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_TRACE_ID, requestLog.getTraceId());
+        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_TENANT_ID, requestLog.getTenantId());
+        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.X_USER_ID, requestLog.getUserId());
 
         // 请求体
         CCommUtils.appendBody(sb, requestLog.getReqs(), "request");

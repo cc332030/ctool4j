@@ -17,10 +17,13 @@ import lombok.Getter;
 public enum CRequestHeaderEnum implements ICRequestHeader {
 
     AUTHORIZATION("鉴权"),
-
     ACCEPT_LANGUAGE("语言"),
-
     ACCEPT("内容格式"),
+
+    X_REAL_IP("真实IP"),
+    X_TRACE_ID("链路追踪ID"),
+    X_TENANT_ID("租户ID"),
+    X_USER_ID("用户ID"),
 
     ;
 

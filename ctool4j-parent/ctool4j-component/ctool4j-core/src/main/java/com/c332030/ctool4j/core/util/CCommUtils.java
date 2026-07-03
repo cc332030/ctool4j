@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -115,6 +116,13 @@ public class CCommUtils {
                 first = false;
             }
         }
+    }
+
+    /**
+     * 拼接单个 header 行：Key: Value
+     */
+    public void appendHeaderLine(StringBuilder sb, ICRequestHeader requestHeader, String value) {
+        appendHeaderLine(sb, requestHeader.getHeaderName(), value);
     }
 
     /**
