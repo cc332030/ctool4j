@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j</artifactId>
-        <version>1.0.20260617-SNAPSHOT</version>
+        <version>1.0.20260703-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-processor-pom</artifactId>
@@ -26,7 +26,7 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-bom</artifactId>
-                <version>1.0.20260617-SNAPSHOT</version>
+                <version>1.0.20260703-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
