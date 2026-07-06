@@ -224,24 +224,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
-                <configuration>
-
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <developmentVersion>${snapshot.next.version}</developmentVersion>
-
-                    <!-- 目标是在版本切换为 release 版本后更新 ctool4j.version -->
-                    <preparationGoals>clean versions:set-property -Dproperty=ctool4j.version -DnewVersion=${project.version} verify</preparationGoals>
-                    <!-- 目标是在版本切换回下一个 snapshot 版本后再次更新 ctool4j.version -->
-                    <completionGoals>versions:set-property -Dproperty=ctool4j.version -DnewVersion=${project.version}</completionGoals>
-
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
                 <version>${versions-maven-plugin.version}</version>
