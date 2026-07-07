@@ -14,6 +14,7 @@ import lombok.val;
 import lombok.var;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Collection;
@@ -641,6 +642,23 @@ public class CDateUtils {
      */
     public Date minus(Date value, Duration... durations) {
         return calc(value, durations, ZonedDateTime::minus);
+    }
+
+    /**
+     * 获取指定日期这一天的开始
+     * @param instant 指定日期
+     * @return 指定日期这一天的开始
+     */
+    public Instant getDayBegin(Instant instant) {
+
+        if(null == instant) {
+            return null;
+        }
+
+        return instant
+            .atZone(ZoneId.systemDefault())
+            .truncatedTo(ChronoUnit.DAYS)
+            .toInstant();
     }
 
 }
