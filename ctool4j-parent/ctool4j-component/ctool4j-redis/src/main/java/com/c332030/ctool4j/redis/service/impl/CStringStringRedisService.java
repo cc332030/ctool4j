@@ -98,17 +98,25 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
     }
 
     public <T> T getValue(String key, Class<T> valueClass) {
+        return getValue(key, valueClass, null);
+    }
+
+    public <T> T getValue(String key, Class<T> valueClass, T defaultValue) {
         if(isInvalidKey(key)) {
-            return null;
+            return defaultValue;
         }
-        return getValue(key, value -> getValueObj(value, valueClass));
+        return getValue(key, value -> getValueObj(value, valueClass), defaultValue);
     }
 
     public <T> T getValue(String key, TypeReference<T> typeReference) {
+        return getValue(key, typeReference, null);
+    }
+
+    public <T> T getValue(String key, TypeReference<T> typeReference, T defaultValue) {
         if(isInvalidKey(key)) {
             return null;
         }
-        return getValue(key, value -> getValueObj(value, typeReference));
+        return getValue(key, value -> getValueObj(value, typeReference), defaultValue);
     }
 
     public <T> CValueWithTtl<T> getValueWithTtl(String key, Class<T> valueClass) {

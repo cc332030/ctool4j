@@ -2,6 +2,7 @@ package com.c332030.ctool4j.redis.service;
 
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
@@ -152,12 +153,23 @@ public interface ICRedisService<K, V> {
      * @param <T> 转换类型
      */
     default <T> T getValue(K key, CFunction<V, T> convert) {
+        return getValue(key, convert, null);
+    }
+
+    /**
+     * 获取值
+     * @param key key
+     * @param convert 转换函数
+     * @return 值
+     * @param <T> 转换类型
+     */
+    default <T> T getValue(K key, CFunction<V, T> convert, T defaultValue) {
 
         val value = getValue(key);
         if(isInvalidValue(value)) {
-            return null;
+            return defaultValue;
         }
-        return convert.apply(value);
+        return ObjUtil.defaultIfNull(convert.apply(value), defaultValue);
     }
 
     default Integer getValueInt(K key){
