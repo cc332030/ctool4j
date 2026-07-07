@@ -78,6 +78,9 @@ public class CJacksonUtils {
 
     public <T extends ObjectMapper> T configure(T objectMapper) {
 
+        // 避免 LocalDateTime、LocalDate、LocalTime 反序列化失败
+        // 需要在 SIMPLE_MODULE 之前注册，否则 JavaTimeModule 的序列化器会覆盖自定义的序列化器
+        objectMapper.findAndRegisterModules();
         objectMapper.registerModule(SIMPLE_MODULE);
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -100,9 +103,6 @@ public class CJacksonUtils {
         objectMapper.configure(JsonReadFeature.ALLOW_YAML_COMMENTS.mappedFeature(), true);
         // TODO 点开头的小数，低版本不支持
 //        objectMapper.configure(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature(), true);
-
-        // 避免 LocalDateTime、LocalDate、LocalTime 反序列化失败
-        objectMapper.findAndRegisterModules();
 
         return objectMapper;
     }
