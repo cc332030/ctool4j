@@ -47,8 +47,7 @@ public class CMinioService {
      * @param object 对象名称
      * @return 文件内容的输入流
      */
-    @SneakyThrows
-    public GetObjectResponse getObject(String bucket, String object) {
+    public GetObjectResponse getObject(String bucket, String object) throws MinioException {
         val args = GetObjectArgs.builder()
             .bucket(bucket)
             .object(object)
