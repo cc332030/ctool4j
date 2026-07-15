@@ -4,17 +4,24 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-file-pom</artifactId>
         <version>1.0.20260715-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-file-pom</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>ctool4j-minio</artifactId>
 
-    <modules>
-        <module>ctool4j-csv</module>
-        <module>ctool4j-excel</module>
-        <module>ctool4j-minio</module>
-    </modules>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

@@ -204,6 +204,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-minio</artifactId>
+                <version>1.0.20260715-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-doc-openapi2</artifactId>
                 <version>1.0.20260715-SNAPSHOT</version>
             </dependency>
