@@ -50,7 +50,7 @@ public class CWebUtils {
         }
 
         if(null != contentLength) {
-            response.setContentLength(contentLength.intValue());
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
         }
         IoUtil.copy(inputStream, response.getOutputStream());
 
