@@ -4,7 +4,7 @@
 
     <groupId>com.c332030</groupId>
     <artifactId>ctool4j</artifactId>
-    <version>1.0.20260703-SNAPSHOT</version>
+    <version>1.0.20260715-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -33,14 +33,10 @@
     <properties>
 
         <main.version>1.0</main.version>
-        <ctool4j.version>1.0.20260703-SNAPSHOT</ctool4j.version>
+        <ctool4j.version>1.0.20260715-SNAPSHOT</ctool4j.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
-
-        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
-        <maven.build.timestamp.timezone>Asia/Shanghai</maven.build.timestamp.timezone>
-        <snapshot.next.version>${main.version}.${maven.build.timestamp}-SNAPSHOT</snapshot.next.version>
 
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
@@ -66,6 +62,8 @@
         <hutool.version>5.8.40</hutool.version>
         <xxl-job.version>2.5.0</xxl-job.version>
         <knife4j.version>4.5.0</knife4j.version>
+
+        <minio.version>9.0.3</minio.version>
 
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
