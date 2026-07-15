@@ -42,7 +42,6 @@ public class CMinioService {
 
     /**
      * 下载对象，返回输入流。
-     * 调用方使用完毕后需自行关闭流。获取文件大小请使用 {@link #statObject(String, String)}。
      *
      * @param bucket 存储桶名称
      * @param object 对象名称
