@@ -26,14 +26,13 @@ public class CMinioService {
 
     /**
      * 获取对象元数据（HEAD 请求，不下载文件内容）。
-     * 可用于获取文件大小（{@link ObjectStat#length()}）、ETag 等信息。
      *
      * @param bucket 存储桶名称
      * @param object 对象名称
      * @return 对象元数据，包含长度、ETag、修改时间等
      */
     @SneakyThrows
-    public ObjectStat statObject(String bucket, String object) {
+    public StatObjectResponse statObject(String bucket, String object) {
         val args = StatObjectArgs.builder()
             .bucket(bucket)
             .object(object)
@@ -50,7 +49,7 @@ public class CMinioService {
      * @return 文件内容的输入流
      */
     @SneakyThrows
-    public InputStream getObject(String bucket, String object) {
+    public GetObjectResponse getObject(String bucket, String object) {
         val args = GetObjectArgs.builder()
             .bucket(bucket)
             .object(object)
@@ -100,7 +99,7 @@ public class CMinioService {
         val args = PutObjectArgs.builder()
             .bucket(bucket)
             .object(object)
-            .stream(inputStream, -1, 5 * 1024 * 1024)
+            .stream(inputStream, -1L, 5L * 1024 * 1024)
             .build();
         return client.putObject(args);
     }

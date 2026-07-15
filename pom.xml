@@ -63,7 +63,7 @@
         <xxl-job.version>2.5.0</xxl-job.version>
         <knife4j.version>4.5.0</knife4j.version>
 
-        <minio.version>7.1.4</minio.version>
+        <minio.version>9.0.3</minio.version>
 
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
