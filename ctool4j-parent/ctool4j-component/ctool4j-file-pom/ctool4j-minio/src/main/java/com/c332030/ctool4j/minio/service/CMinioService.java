@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.minio.service;
 
 import io.minio.*;
+import io.minio.errors.MinioException;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -31,8 +32,7 @@ public class CMinioService {
      * @param object 对象名称
      * @return 对象元数据，包含长度、ETag、修改时间等
      */
-    @SneakyThrows
-    public StatObjectResponse statObject(String bucket, String object) {
+    public StatObjectResponse statObject(String bucket, String object) throws MinioException {
         val args = StatObjectArgs.builder()
             .bucket(bucket)
             .object(object)
@@ -79,8 +79,7 @@ public class CMinioService {
      * @param bytes  文件字节数组
      * @return 上传结果响应
      */
-    @SneakyThrows
-    public ObjectWriteResponse write(String bucket, String object, byte[] bytes) {
+    public ObjectWriteResponse write(String bucket, String object, byte[] bytes) throws MinioException {
         return write(bucket, object, new ByteArrayInputStream(bytes));
     }
 
@@ -93,8 +92,7 @@ public class CMinioService {
      * @param inputStream  文件输入流
      * @return 上传结果响应
      */
-    @SneakyThrows
-    public ObjectWriteResponse write(String bucket, String object, InputStream inputStream) {
+    public ObjectWriteResponse write(String bucket, String object, InputStream inputStream) throws MinioException {
 
         val args = PutObjectArgs.builder()
             .bucket(bucket)
