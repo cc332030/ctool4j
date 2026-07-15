@@ -8,7 +8,6 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpHeaders;
 
 import java.io.InputStream;
@@ -30,11 +29,11 @@ public class CWebUtils {
 
     @SneakyThrows
     public void writeResponse(InputStream inputStream, String filePath) {
+        writeResponse(inputStream, null, filePath);
+    }
 
-        val bytes = IoUtil.readBytes(inputStream);
-        if (ArrayUtils.isEmpty(bytes)) {
-            return;
-        }
+    @SneakyThrows
+    public void writeResponse(InputStream inputStream, Integer len, String filePath) {
 
         val response = CRequestUtils.getResponse();
 
@@ -50,8 +49,10 @@ public class CWebUtils {
             response.setContentType(mineType);
         }
 
-        response.setContentLength(bytes.length);
-        response.getOutputStream().write(bytes);
+        if(null != len) {
+            response.setContentLength(len);
+        }
+        IoUtil.copy(inputStream, response.getOutputStream());
 
     }
 
