@@ -11,7 +11,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * <p>
- * Description: CThrowableHandler
+ * Description: CUndeclaredThrowableExceptionHandler
  * </p>
  *
  * @since 2026/4/9
