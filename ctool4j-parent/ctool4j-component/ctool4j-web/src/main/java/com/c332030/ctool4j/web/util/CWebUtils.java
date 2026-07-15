@@ -33,7 +33,7 @@ public class CWebUtils {
     }
 
     @SneakyThrows
-    public void writeResponse(InputStream inputStream, Integer len, String filePath) {
+    public void writeResponse(InputStream inputStream, Number contentLength, String filePath) {
 
         val response = CRequestUtils.getResponse();
 
@@ -49,8 +49,8 @@ public class CWebUtils {
             response.setContentType(mineType);
         }
 
-        if(null != len) {
-            response.setContentLength(len);
+        if(null != contentLength) {
+            response.setContentLength(contentLength.intValue());
         }
         IoUtil.copy(inputStream, response.getOutputStream());
 
