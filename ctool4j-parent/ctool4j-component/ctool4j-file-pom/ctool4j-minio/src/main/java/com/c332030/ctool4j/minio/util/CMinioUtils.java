@@ -15,11 +15,11 @@ import org.springframework.http.HttpHeaders;
 @UtilityClass
 public class CMinioUtils {
 
-    public Integer getContentLength(GetObjectResponse response) {
+    public Long getSize(GetObjectResponse response) {
         return Opt.ofNullable(response)
             .map(GetObjectResponse::headers)
             .map(e -> e.get(HttpHeaders.CONTENT_LENGTH))
-            .map(Integer::valueOf)
+            .map(Long::valueOf)
             .orElse(null);
     }
 
