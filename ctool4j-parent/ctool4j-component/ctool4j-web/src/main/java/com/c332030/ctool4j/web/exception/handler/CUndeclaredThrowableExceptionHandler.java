@@ -19,7 +19,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 @CustomLog
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(UndeclaredThrowableException.class)
-public class CCUndeclaredThrowableExceptionHandler {
+public class CUndeclaredThrowableExceptionHandler {
 
     @ExceptionHandler(UndeclaredThrowableException.class)
     public CStrResult<Void> handle(UndeclaredThrowableException e) {
