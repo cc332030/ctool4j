@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.http.HttpHeaders;
 
 import java.io.InputStream;
 
@@ -36,6 +37,11 @@ public class CWebUtils {
         }
 
         val response = CRequestUtils.getResponse();
+
+        val fileName = CFileUtils.getFileName(filePath);
+        if(StrUtil.isNotEmpty(fileName)){
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, getContentDispositionValue(fileName));
+        }
 
         val mineType = CFileUtils.getMimeType(filePath);
         if (StrUtil.isEmpty(mineType)) {
