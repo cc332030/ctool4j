@@ -6,7 +6,10 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
-import com.c332030.ctool4j.definition.function.*;
+import com.c332030.ctool4j.definition.function.CConsumer;
+import com.c332030.ctool4j.definition.function.CFunction;
+import com.c332030.ctool4j.definition.function.CSupplier;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -46,17 +49,18 @@ public class CBeanUtils {
         }
 
         val toFieldMap = CReflectUtils.getInstanceFieldMap(to.getClass());
-        toFieldMap.forEach((CBiConsumer<String, Field>)(toFieldName, toField) -> {
+        fromMap.forEach((fromKey, fromValue) -> {
 
-            val fromFieldValue = fromMap.get(toFieldName);
-            if(null == fromFieldValue
+            val toField = toFieldMap.get(fromKey);
+            if(null == toField
+                    || null == fromValue
                     || CReflectUtils.isStatic(toField)
                     || CReflectUtils.isFinal(toField)
             ) {
                 return;
             }
 
-            CConvertUtils.convertOpt(fromFieldValue, toField.getType())
+            CConvertUtils.convertOpt(fromValue, toField.getType())
                     .ifPresent((CConsumer<Object>) toValue -> toField.set(to, toValue));
 
         });
