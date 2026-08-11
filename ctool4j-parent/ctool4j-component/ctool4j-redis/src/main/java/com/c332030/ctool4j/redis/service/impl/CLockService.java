@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.redis.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.function.CSupplier;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -34,19 +36,143 @@ public class CLockService {
         return redissonClient.getLock(key);
     }
 
-    public void lock(String key) {
-        lock(getLock(key));
-    }
-    public void lock(RLock lock) {
-        lock.lock();
-    }
-
-    public void unlock(String key) {
-        unlock(getLock(key));
+    /**
+     * 创建锁构建器
+     *
+     * @param lockKey 锁 key
+     */
+    public CLockBuilder lock(String lockKey) {
+        return new CLockBuilder(lockKey);
     }
 
-    public void unlock(RLock lock) {
-        lock.unlock();
+    /**
+     * 创建锁构建器，支持 StrUtil.format 格式化 lockKey
+     *
+     * @param format 格式串，如 "sign:report:{}:{}"
+     * @param args   格式化参数
+     */
+    public CLockBuilder lock(String format, Object... args) {
+        return lock(StrUtil.format(format, args));
+    }
+
+    public class CLockBuilder {
+
+        final String lockKey;
+
+        long waitTime = 0;
+        TimeUnit waitTimeUnit = TimeUnit.SECONDS;
+
+        long leaseTime = -1;
+        TimeUnit leaseTimeUnit = TimeUnit.SECONDS;
+
+        Consumer<RLock> onLockFail = lock -> {};
+
+        CLockBuilder(String lockKey) {
+            this.lockKey = lockKey;
+        }
+
+        /**
+         * 等待获取锁的超时时间（秒），默认 0 不等待
+         */
+        public CLockBuilder waitTime(long waitTime) {
+            return waitTime(waitTime, TimeUnit.SECONDS);
+        }
+
+        /**
+         * 等待获取锁的超时时间
+         */
+        public CLockBuilder waitTime(long waitTime, TimeUnit timeUnit) {
+            this.waitTime = waitTime;
+            this.waitTimeUnit = timeUnit;
+            return this;
+        }
+
+        /**
+         * 持锁时间（秒），默认 -1 启用 watchdog 自动续期
+         */
+        public CLockBuilder leaseTime(long leaseTime) {
+            return leaseTime(leaseTime, TimeUnit.SECONDS);
+        }
+
+        /**
+         * 持锁时间
+         */
+        public CLockBuilder leaseTime(long leaseTime, TimeUnit timeUnit) {
+            this.leaseTime = leaseTime;
+            this.leaseTimeUnit = timeUnit;
+            return this;
+        }
+
+        /**
+         * 获取锁失败时的回调
+         */
+        public CLockBuilder onLockFail(Consumer<RLock> onLockFail) {
+            this.onLockFail = onLockFail;
+            return this;
+        }
+
+        /**
+         * 执行无返回值业务
+         */
+        public void execute(Runnable runnable) {
+            doExecute(() -> {
+                runnable.run();
+                return null;
+            });
+        }
+
+        /**
+         * 执行有返回值业务
+         */
+        public <T> T execute(Supplier<T> callable) {
+            return doExecute(callable);
+        }
+
+        /**
+         * 加锁-执行-解锁统一模板
+         */
+        private <T> T doExecute(Supplier<T> supplier) {
+            RLock lock = getLock(lockKey);
+            if (!tryAcquire(lock)) {
+                onLockFail.accept(lock);
+                return null;
+            }
+            try {
+                return supplier.get();
+            } finally {
+                unlockSafely(lock);
+            }
+        }
+
+        private boolean tryAcquire(RLock lock) {
+            try {
+                boolean acquired;
+                if (leaseTime > 0) {
+                    acquired = lock.tryLock(waitTime, leaseTime, leaseTimeUnit);
+                } else {
+                    acquired = lock.tryLock(waitTime, waitTimeUnit);
+                }
+                if (acquired) {
+                    log.info("加锁成功: {}", lockKey);
+                }
+                return acquired;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.info("加锁被中断: {}", lockKey, e);
+                return false;
+            }
+        }
+
+        private void unlockSafely(RLock lock) {
+            if (lock.isHeldByCurrentThread()) {
+                try {
+                    lock.unlock();
+                    log.info("释放锁成功: {}", lockKey);
+                } catch (Exception e) {
+                    log.info("释放锁异常: {}", lockKey, e);
+                }
+            }
+        }
     }
 
     public boolean tryLock(String key) {
@@ -79,24 +205,30 @@ public class CLockService {
         return tryLock(lock, timeout, timeUnit);
     }
 
+    @Deprecated
     public boolean tryLockThenRun(String key, CRunnable runnable) {
         return null != tryLockThenRun(key, CObjUtils.toSupplier(runnable), null);
     }
 
+    @Deprecated
     public <T> T tryLockThenRun(String key, Supplier<T> valueSupplier) {
         return tryLockThenRun(key, valueSupplier, null);
     }
 
+    @Deprecated
     public boolean tryLockThenRun(String key, CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, 0, null, CObjUtils.toSupplier(runnable), failureRunnable);
     }
+    @Deprecated
     public <T> T tryLockThenRun(String key, Supplier<T> valueSupplier, CRunnable failureRunnable) {
         return tryLockThenRun(key, 0, null, valueSupplier, failureRunnable);
     }
 
+    @Deprecated
     public boolean tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), null);
     }
+    @Deprecated
     public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier) {
         return tryLockThenRun(key, waitDuration, valueSupplier, null);
     }
@@ -109,11 +241,13 @@ public class CLockService {
      * @param failureRunnable 锁失败操作
      * @return 操作结果
      */
+    @Deprecated
     public boolean tryLockThenRun(String key, Duration waitDuration,
                                   CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), failureRunnable);
     }
 
+    @Deprecated
     public <T> T tryLockThenRun(String key, Duration waitDuration,
                                 CSupplier<T> valueSupplier, CRunnable failureRunnable) {
 
@@ -133,20 +267,24 @@ public class CLockService {
         return tryLockThenRun(key, timeout, timeUnit, valueSupplier, failureRunnable);
     }
 
+    @Deprecated
     public boolean tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                   CRunnable runnable) {
         return null != tryLockThenRun(key, waitTime, timeUnit, CObjUtils.toSupplier(runnable), null);
     }
+    @Deprecated
     public <T> T tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                 Supplier<T> valueSupplier) {
         return tryLockThenRun(key, waitTime, timeUnit, valueSupplier, null);
     }
 
+    @Deprecated
     public boolean tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                   CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, waitTime, timeUnit, CObjUtils.toSupplier(runnable), failureRunnable);
     }
 
+    @Deprecated
     public <T> T tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                 Supplier<T> valueSupplier, CRunnable failureRunnable) {
 
@@ -160,7 +298,7 @@ public class CLockService {
             try {
                 return valueSupplier.get();
             } finally {
-                unlock(lock);
+                lock.unlock();
                 log.info("tryLockThenRun unlock success, key: {}", key);
             }
         } else {
