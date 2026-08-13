@@ -174,7 +174,6 @@ public class CRequestLogUtils {
         val endTimeMillis = System.currentTimeMillis();
 
         requestLog.setEndTimeMillis(endTimeMillis);
-        requestLog.setRt(endTimeMillis - requestLog.getBeginTimeMillis());
         requestLog.setRsp(rsp);
         if (null != throwable) {
             requestLog.setThrowableMessage(throwable.getMessage());

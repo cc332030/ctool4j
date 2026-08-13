@@ -49,7 +49,6 @@ public class CRequestLog implements IHttpLogInfo {
 
     long beginTimeMillis;
     long endTimeMillis;
-    long rt;
 
     /**
      * 完整请求头（headerName → 一个或多个 headerValue），非空时优先返回，
@@ -111,16 +110,13 @@ public class CRequestLog implements IHttpLogInfo {
     }
 
     /**
-     * 耗时（毫秒）：显式设置的 rt 优先；未设置时由起止时间兜底计算；
-     * 两者都不可用时返回 null，拼接层不输出耗时，避免展示 rt: 0ms 误导
+     * 耗时（毫秒）：由起止时间计算；未设置或不可用（end 早于 begin）时返回 null，
+     * 拼接层不输出耗时，避免展示 rt: 0ms 误导
      *
      * @return 耗时（毫秒），无法计算时返回 null
      */
     @Override
     public Long getRt() {
-        if (rt > 0) {
-            return rt;
-        }
         if (beginTimeMillis > 0 && endTimeMillis >= beginTimeMillis) {
             return endTimeMillis - beginTimeMillis;
         }

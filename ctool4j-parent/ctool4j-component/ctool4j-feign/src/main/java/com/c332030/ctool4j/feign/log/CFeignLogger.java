@@ -265,11 +265,10 @@ public class CFeignLogger extends Logger {
                 log.error("处理响应日志失败", e);
                 return t;
             } finally {
-                // 设置属性：耗时（记录起止时间，elapsedTime 为 0 的快速请求也正常输出耗时；未设置时不输出）
+                // 设置属性：耗时由 getRt() 按起止时间计算（elapsedTime 为 0 的快速请求也正常输出耗时；未设置时不输出）
                 val now = System.currentTimeMillis();
                 requestLog.setBeginTimeMillis(now - elapsedTime);
                 requestLog.setEndTimeMillis(now);
-                requestLog.setRt(elapsedTime);
                 // 统一出口同步打印，与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
                 // 日志打印失败不影响业务结果（避免 finally 抛异常覆盖返回值导致请求失败）
                 try {
