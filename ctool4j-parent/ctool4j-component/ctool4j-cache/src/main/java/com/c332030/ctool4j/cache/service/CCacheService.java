@@ -160,6 +160,11 @@ public class CCacheService {
 
         CConsumer<RLock> onLockFail = lock -> {};
 
+        /**
+         * 缓存默认过期时长，默认 1 天：未配置 expireDuration(Function) 动态计算时生效
+         */
+        Duration expireDuration = Duration.ofDays(1);
+
         private Function<T, Duration> expireDurationFunction;
 
         private CCacheBuilder(String key, Class<T> tClass) {
@@ -193,7 +198,18 @@ public class CCacheService {
         }
 
         /**
-         * 缓存过期时长
+         * 缓存过期时长，直接传值（与 Function 二选一）
+         * <p>同时配置 Function 时方法优先，此值不生效；均未配置时默认缓存 1 天</p>
+         * @param expireDuration 过期时长
+         * @return this
+         */
+        public CCacheBuilder<T> expireDuration(Duration expireDuration) {
+            this.expireDuration = expireDuration;
+            return this;
+        }
+
+        /**
+         * 缓存过期时长，按值动态计算（与直接传值二选一，方法优先）
          * @param expireDurationFunction 根据值计算过期时长
          * @return this
          */
@@ -269,15 +285,12 @@ public class CCacheService {
                 tNew = valueSupplier.get();
                 Assert.notNull(tNew, "valueSupplier got null");
 
-                if (null == expireDurationFunction) {
-                    redisService.setValue(key, tNew);
-                    log.debug("cacheBuilder computeIfAbsent setValue successfully, key: {}", key);
-                } else {
-                    val expireDuration = expireDurationFunction.apply(tNew);
-                    redisService.setValue(key, tNew, expireDuration);
-                    log.debug("cacheBuilder computeIfAbsent setValue successfully, key: {}, expireDuration: {}",
-                        key, expireDuration);
-                }
+                val cacheDuration = null == expireDurationFunction
+                    ? expireDuration
+                    : expireDurationFunction.apply(tNew);
+                redisService.setValue(key, tNew, cacheDuration);
+                log.debug("cacheBuilder computeIfAbsent setValue successfully, key: {}, cacheDuration: {}",
+                    key, cacheDuration);
 
                 return tNew;
             });
@@ -310,12 +323,12 @@ public class CCacheService {
                             return null;
                         }
 
-                        if (null == expireDurationFunction) {
-                            redisService.setValue(key, tNew);
-                        } else {
-                            redisService.setValue(key, tNew, expireDurationFunction.apply(tNew));
-                        }
-                        log.debug("cacheBuilder refreshAsync refresh successfully, key: {}", key);
+                        val cacheDuration = null == expireDurationFunction
+                            ? expireDuration
+                            : expireDurationFunction.apply(tNew);
+                        redisService.setValue(key, tNew, cacheDuration);
+                        log.debug("cacheBuilder refreshAsync refresh successfully, key: {}, cacheDuration: {}",
+                            key, cacheDuration);
 
                         return null;
                     })
