@@ -134,9 +134,6 @@ public class CCacheService {
      * @param expireSeconds 过期时间（秒），0 则永不过期，负值视为配置错误抛异常
      */
     public void setValue(String key, Object value, int expireSeconds) {
-        if (expireSeconds < 0) {
-            throw new IllegalArgumentException("expireSeconds must be >= 0, actual: " + expireSeconds);
-        }
         if (expireSeconds > 0) {
             redisService.setValue(key, value, Duration.ofSeconds(expireSeconds));
         } else {
