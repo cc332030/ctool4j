@@ -36,7 +36,7 @@ public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> 
             HttpServletResponse response
     ) {
 
-        if(BooleanUtil.isTrue(CRequestLogUtils.isAdviceEnable())) {
+        if(BooleanUtil.isTrue(CRequestLogUtils.isEnable())) {
             try {
                 CRequestLogUtils.write(body, null);
             } catch (Throwable e) {

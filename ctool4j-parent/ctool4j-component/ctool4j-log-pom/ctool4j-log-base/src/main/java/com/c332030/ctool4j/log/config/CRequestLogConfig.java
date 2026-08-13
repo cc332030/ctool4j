@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.log.config;
 
-import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -21,11 +20,6 @@ public class CRequestLogConfig {
      * 请求日志开关
      */
     Boolean enable = false;
-
-    /**
-     * 请求日志开关
-     */
-    CRequestLogTypeEnum type = CRequestLogTypeEnum.ADVICE;
 
     /**
      * 慢请求日志-开关

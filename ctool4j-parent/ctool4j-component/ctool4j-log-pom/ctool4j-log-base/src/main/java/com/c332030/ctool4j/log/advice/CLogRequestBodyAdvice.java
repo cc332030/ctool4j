@@ -33,7 +33,7 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
             Class<? extends HttpMessageConverter<?>> converterType
     ) {
 
-        if(BooleanUtil.isTrue(CRequestLogUtils.isAdviceEnable())) {
+        if(BooleanUtil.isTrue(CRequestLogUtils.isEnable())) {
             try {
                 CRequestLogUtils.setRequestBodyReq(body);
             } catch (Throwable e) {

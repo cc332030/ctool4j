@@ -12,7 +12,6 @@ import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CPatternUtils;
 import com.c332030.ctool4j.log.config.CRequestLogConfig;
-import com.c332030.ctool4j.log.enums.CRequestLogTypeEnum;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
@@ -64,18 +63,6 @@ public class CRequestLogUtils {
     public boolean isEnable() {
         val enable = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getEnable);
         return BooleanUtil.isTrue(enable);
-    }
-
-    public boolean isAopEnable() {
-        return isEnable() && CRequestLogTypeEnum.AOP.equals(requestLogConfig.getType());
-    }
-
-    public boolean isAdviceEnable() {
-        return isEnable() && CRequestLogTypeEnum.ADVICE.equals(requestLogConfig.getType());
-    }
-
-    public boolean isInterceptorEnable() {
-        return isEnable() && CRequestLogTypeEnum.INTERCEPTOR.equals(requestLogConfig.getType());
     }
 
     public boolean isExcludeUri(String uri) {
