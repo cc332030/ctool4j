@@ -116,7 +116,7 @@ public class CCommUtils {
 
         sb.append(info.getPath());
         val params = info.getParams();
-        if (!HttpMethod.GET.name().equalsIgnoreCase(info.getMethod())
+        if (!isQueryMethod(info.getMethod())
             || MapUtil.isEmpty(params)) {
             return;
         }
@@ -204,10 +204,15 @@ public class CCommUtils {
         // 请求行
         appendRequestUrl(sb, info);
 
-        // 请求头
+        // 请求头：同一 header 多个值时逐行输出
         val headers = info.getHeaders();
         if (MapUtil.isNotEmpty(headers)) {
-            headers.forEach((key, value) -> appendHeaderLine(sb, key, value));
+            headers.forEach((key, values) -> {
+                if (null == values) {
+                    return;
+                }
+                values.forEach(value -> appendHeaderLine(sb, key, value));
+            });
         }
 
         // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
@@ -234,16 +239,16 @@ public class CCommUtils {
     }
 
     /**
-     * 拼接请求体：POST 且 body 为空、params 有值时，用 params 生成 form-urlencoded 格式 body
+     * 拼接请求体：form 方法（POST/PUT/PATCH）时，params 有值先输出 form-urlencoded 段，
+     * 再输出请求体（feign 的 @RequestParam 放 params 对象后，即使有 body 也不会丢失）
      */
     private void appendRequestBody(StringBuilder sb, IHttpLogInfo info) {
         val reqBody = info.getRequestBody();
-        if (null == reqBody && isFormBodyMethod(info.getMethod())) {
+        if (isFormBodyMethod(info.getMethod())) {
             val params = info.getParams();
             if (MapUtil.isNotEmpty(params)) {
                 sb.append("\n\n");
                 appendFormBody(sb, params);
-                return;
             }
         }
         appendBodyObject(sb, reqBody);
@@ -276,6 +281,17 @@ public class CCommUtils {
         }
         return !"GET".equalsIgnoreCase(method)
             && !"DELETE".equalsIgnoreCase(method);
+    }
+
+    /**
+     * 是否为 query 参数类型方法（GET/DELETE，参数拼到 URL 的 query string）
+     */
+    private boolean isQueryMethod(String method) {
+        if (StrUtil.isEmpty(method)) {
+            return false;
+        }
+        return "GET".equalsIgnoreCase(method)
+            || "DELETE".equalsIgnoreCase(method);
     }
 
     /**

@@ -17,7 +17,17 @@
 注释需满足发布私服 / Maven 中央仓库的 javadoc 检查（doclint）要求：
 
 - 所有 public / protected 的类、方法、字段必须编写 javadoc 注释
-- javadoc 使用完整块：`/** 功能描述 ... */`，包含 `@param`、`@return`、`@throws`、`@since`
+- 多行注释永远写多行：`/**` 单独一行、注释内容逐行书写、`*/` 单独一行，禁止单行写法 `/** xxx */`
+- javadoc 使用完整多行块，包含 `@param`、`@return`、`@throws`、`@since`：
+
+```java
+/**
+ * 功能描述
+ *
+ * @param xxx 参数说明
+ * @return 返回值说明
+ */
+```
 - `@param` 须与参数一一对应且名称一致；泛型参数使用 `@param <T> 泛型描述`
 - 非 void 方法必须标注 `@return`；抛出受检异常时标注 `@throws`
 - 特殊字符必须转义：`< > &` 使用 `&lt; &gt; &amp;`，或使用 `{@code ...}` 包裹（如 `{@code <=0}`、`{@code <T>}`）

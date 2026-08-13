@@ -51,7 +51,7 @@ public class CRequestLogUtils {
 
     final Map<String, Object> EMPTY_REQS = getRequestBodyMap("[no request body]");
 
-    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::logWrite, REQUEST_LOG_STR + "-thread");
+    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::logWriteLoop, REQUEST_LOG_STR + "-thread");
     static {
         REQUEST_LOG_THREAD.start();
     }
@@ -188,13 +188,13 @@ public class CRequestLogUtils {
 
     }
 
-    public void logWrite() {
+    private void logWriteLoop() {
 
         while (true) {
             try {
 
                 val requestLog = REQUEST_LOG_QUEUE.take();
-                logWriteText(requestLog);
+                logWrite(requestLog);
             } catch (Throwable e) {
                 log.error("logWrite error", e);
             }
@@ -203,17 +203,14 @@ public class CRequestLogUtils {
     }
 
     /**
-     * 原 JSON 格式输出
+     * 记录请求日志、设置属性、打印日志的统一出口，默认打印 http 格式
+     * <p>输出类似 HTTP 请求+响应的完整 dump，方便调试和回放</p>
+     * <p>所有请求方式（服务端 MVC、feign、resttemplate、httpclient 等）构造 {@link CRequestLog} 后
+     * 均可调用本方法统一打印，后续新增请求方式无需各自实现拼接逻辑</p>
+     *
+     * @param requestLog 请求日志
      */
-    void logWriteJson(CRequestLog requestLog) {
-        REQUEST_LOG.infoNonNull("{}", requestLog);
-    }
-
-    /**
-     * 文本格式输出，参考 CFeignLogger 的 StringBuilder 拼接方式，
-     * 输出类似 HTTP 请求+响应的完整 dump，方便调试和回放
-     */
-    void logWriteText(CRequestLog requestLog) {
+    public void logWrite(CRequestLog requestLog) {
 
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, requestLog);
