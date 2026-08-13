@@ -44,7 +44,7 @@ public class CCacheService {
     );
 
     /**
-     * 异步刷新最小间隔（毫秒）：10 秒内最多发起一次刷新，失败也算
+     * 异步刷新最小间隔（毫秒）：间隔内最多发起一次刷新，失败也算
      */
     private static final long REFRESH_INTERVAL_MILLIS = 10_000L;
 
@@ -168,12 +168,12 @@ public class CCacheService {
         private final Class<T> tClass;
 
         /**
-         * 等待获取锁的超时时间，默认 0 不等待
+         * 等待获取锁的超时时间，默认不等待
          */
         Duration waitTime = Duration.ZERO;
 
         /**
-         * 快到期刷新窗口，默认 5 分钟：剩余存活时间小于等于该窗口时触发异步刷新
+         * 快到期刷新窗口：剩余存活时间小于等于该窗口时触发异步刷新
          */
         Duration refreshWindow = Duration.ofMinutes(5);
 
@@ -188,12 +188,12 @@ public class CCacheService {
         final AtomicBoolean refreshing = new AtomicBoolean();
 
         /**
-         * 最近一次发起刷新的时间戳（毫秒）：10 秒节流，无论成功失败，间隔内不再发起
+         * 最近一次发起刷新的时间戳（毫秒）：刷新间隔节流，无论成功失败，间隔内不再发起
          */
         final AtomicLong lastRefreshMillis = new AtomicLong();
 
         /**
-         * 缓存默认过期时长，默认 1 天：未配置 expireDuration(Function) 动态计算时生效
+         * 缓存默认过期时长：未配置 expireDuration(Function) 动态计算时生效
          */
         Duration expireDuration = Duration.ofDays(1);
 
@@ -205,7 +205,7 @@ public class CCacheService {
         }
 
         /**
-         * 等待获取锁的超时时间（秒），默认 0 不等待
+         * 等待获取锁的超时时间（秒），默认不等待
          * @param waitTime 等待秒数
          * @return this
          */
@@ -235,7 +235,7 @@ public class CCacheService {
 
         /**
          * 缓存过期时长，直接传值（与 Function 二选一）
-         * <p>同时配置 Function 时方法优先，此值不生效；均未配置时默认缓存 1 天</p>
+         * <p>同时配置 Function 时方法优先，此值不生效；均未配置时使用字段默认值</p>
          * @param expireDuration 过期时长
          * @return this
          */
@@ -256,7 +256,7 @@ public class CCacheService {
 
         /**
          * 快到期刷新窗口，剩余存活时间小于等于该窗口时，加锁快速失败并异步刷新
-         * @param refreshWindow 刷新窗口，默认 5 分钟
+         * @param refreshWindow 刷新窗口，未配置时使用字段默认值
          * @return this
          */
         public CCacheBuilder<T> refreshWindow(Duration refreshWindow) {

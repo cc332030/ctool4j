@@ -75,7 +75,7 @@ public class CLockService {
         final String lockKey;
 
         /**
-         * 等待获取锁的超时时间，默认 0 不等待
+         * 等待获取锁的超时时间，默认不等待
          */
         Duration waitTime = Duration.ZERO;
 
@@ -105,7 +105,7 @@ public class CLockService {
         }
 
         /**
-         * 等待获取锁的超时时间（秒），默认 0 不等待
+         * 等待获取锁的超时时间（秒），默认不等待
          * @param waitTime 等待秒数
          * @return this
          */
