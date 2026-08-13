@@ -2,6 +2,7 @@ package com.c332030.ctool4j.redis.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.definition.function.CRunnable;
 import com.c332030.ctool4j.definition.function.CSupplier;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -64,7 +64,7 @@ public class CLockService {
         long leaseTime = -1;
         TimeUnit leaseTimeUnit = TimeUnit.SECONDS;
 
-        Consumer<RLock> onLockFail = lock -> {};
+        CConsumer<RLock> onLockFail = lock -> {};
 
         CLockBuilder(String lockKey) {
             this.lockKey = lockKey;
@@ -104,7 +104,7 @@ public class CLockService {
         /**
          * 获取锁失败时的回调
          */
-        public CLockBuilder onLockFail(Consumer<RLock> onLockFail) {
+        public CLockBuilder onLockFail(CConsumer<RLock> onLockFail) {
             this.onLockFail = onLockFail;
             return this;
         }

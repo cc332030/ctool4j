@@ -1,11 +1,13 @@
 package com.c332030.ctool4j.cache.service;
 
+import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CLockUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
+import org.redisson.api.RLock;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -39,6 +41,7 @@ public class CCacheService {
      * @return 值
      * @param <T> 值泛型
      */
+    @Deprecated
     public <T> T computeIfAbsent(
         String key, Class<T> tClass,
         Duration waitDuration,
@@ -135,6 +138,8 @@ public class CCacheService {
 
         Duration waitTime = Duration.ZERO;
 
+        CConsumer<RLock> onLockFail = lock -> {};
+
         private Function<T, Duration> expireDurationFunction;
 
         private CCacheBuilder(String key, Class<T> tClass) {
@@ -154,6 +159,16 @@ public class CCacheService {
          */
         public CCacheBuilder<T> waitTime(Duration waitDuration) {
             this.waitTime = waitDuration;
+            return this;
+        }
+
+        /**
+         * 获取锁失败回调
+         * @param onLockFail 获取锁失败时执行的回调，参数为锁对象
+         * @return this
+         */
+        public CCacheBuilder<T> onLockFail(CConsumer<RLock> onLockFail) {
+            this.onLockFail = onLockFail;
             return this;
         }
 
@@ -180,7 +195,8 @@ public class CCacheService {
             }
 
             val lockBuilder = lockService.lock(CLockUtils.getLockKey(key))
-                .waitTime(waitTime);
+                .waitTime(waitTime)
+                .onLockFail(onLockFail);
 
             return lockBuilder.execute(() -> {
 
