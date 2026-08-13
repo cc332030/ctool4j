@@ -32,6 +32,11 @@ public class CLockService {
 
     RedissonClient redissonClient;
 
+    /**
+     * 获取指定 key 的分布式锁
+     * @param key 锁 key
+     * @return 分布式锁
+     */
     public RLock getLock(String key) {
         return redissonClient.getLock(key);
     }
@@ -40,6 +45,7 @@ public class CLockService {
      * 创建锁构建器
      *
      * @param lockKey 锁 key
+     * @return 锁构建器
      */
     public CLockBuilder lock(String lockKey) {
         return new CLockBuilder(lockKey);
@@ -50,6 +56,7 @@ public class CLockService {
      *
      * @param format 格式串，如 "sign:report:{}:{}"
      * @param args   格式化参数
+     * @return 锁构建器
      */
     public CLockBuilder lock(String format, Object... args) {
         return lock(StrUtil.format(format, args));
@@ -62,6 +69,9 @@ public class CLockService {
      */
     public class CLockBuilder {
 
+        /**
+         * 锁 key
+         */
         final String lockKey;
 
         /**
@@ -69,7 +79,14 @@ public class CLockService {
          */
         Duration waitTime = Duration.ZERO;
 
+        /**
+         * 持锁时间，默认 -1 启用 watchdog 自动续期
+         */
         long leaseTime = -1;
+
+        /**
+         * 持锁时间单位，默认秒
+         */
         TimeUnit leaseTimeUnit = TimeUnit.SECONDS;
 
         /**
@@ -77,6 +94,9 @@ public class CLockService {
          */
         Duration unlockDelay = Duration.ZERO;
 
+        /**
+         * 获取锁失败回调，默认空操作
+         */
         CConsumer<RLock> onLockFail = lock -> {};
 
         CLockBuilder(String lockKey) {
@@ -85,6 +105,8 @@ public class CLockService {
 
         /**
          * 等待获取锁的超时时间（秒），默认 0 不等待
+         * @param waitTime 等待秒数
+         * @return this
          */
         public CLockBuilder waitTime(long waitTime) {
             return waitTime(Duration.ofSeconds(waitTime));
@@ -92,6 +114,8 @@ public class CLockService {
 
         /**
          * 等待获取锁的超时时间
+         * @param waitDuration 等待时长
+         * @return this
          */
         public CLockBuilder waitTime(Duration waitDuration) {
             this.waitTime = waitDuration;
@@ -100,6 +124,8 @@ public class CLockService {
 
         /**
          * 持锁时间（秒），默认 -1 启用 watchdog 自动续期
+         * @param leaseTime 持锁秒数
+         * @return this
          */
         public CLockBuilder leaseTime(long leaseTime) {
             return leaseTime(leaseTime, TimeUnit.SECONDS);
@@ -107,6 +133,9 @@ public class CLockService {
 
         /**
          * 持锁时间
+         * @param leaseTime 持锁时长
+         * @param timeUnit 时间单位
+         * @return this
          */
         public CLockBuilder leaseTime(long leaseTime, TimeUnit timeUnit) {
             this.leaseTime = leaseTime;
@@ -116,6 +145,8 @@ public class CLockService {
 
         /**
          * 获取锁失败时的回调
+         * @param onLockFail 获取锁失败时执行的回调，参数为锁对象
+         * @return this
          */
         public CLockBuilder onLockFail(CConsumer<RLock> onLockFail) {
             this.onLockFail = onLockFail;
@@ -125,6 +156,8 @@ public class CLockService {
         /**
          * 释放锁前延迟时间，默认不延迟
          * <p>用于写缓存后延迟释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据</p>
+         * @param unlockDelay 释放锁前延迟时长
+         * @return this
          */
         public CLockBuilder unlockDelay(Duration unlockDelay) {
             this.unlockDelay = unlockDelay;
@@ -133,6 +166,7 @@ public class CLockService {
 
         /**
          * 执行无返回值业务
+         * @param runnable 锁内执行的业务
          */
         public void execute(Runnable runnable) {
             doExecute(() -> {
@@ -143,6 +177,9 @@ public class CLockService {
 
         /**
          * 执行有返回值业务
+         * @param callable 锁内执行的业务
+         * @return 业务返回值，获取锁失败时返回 null
+         * @param <T> 返回值泛型
          */
         public <T> T execute(Supplier<T> callable) {
             return doExecute(callable);
@@ -216,23 +253,53 @@ public class CLockService {
         }
     }
 
+    /**
+     * 尝试加锁，不等待
+     * @param key 锁 key
+     * @return true 加锁成功
+     */
     public boolean tryLock(String key) {
         return tryLock(getLock(key));
     }
 
+    /**
+     * 尝试加锁，不等待
+     * @param lock 分布式锁
+     * @return true 加锁成功
+     */
     public boolean tryLock(RLock lock) {
         return lock.tryLock();
     }
 
+    /**
+     * 尝试加锁，等待指定时长
+     * @param key 锁 key
+     * @param waitTime 等待时长
+     * @param timeUnit 时间单位
+     * @return true 加锁成功
+     */
     public boolean tryLock(String key, long waitTime, TimeUnit timeUnit) {
         return tryLock(getLock(key), waitTime, timeUnit);
     }
 
+    /**
+     * 尝试加锁，等待指定时长
+     * @param lock 分布式锁
+     * @param waitTime 等待时长
+     * @param timeUnit 时间单位
+     * @return true 加锁成功
+     */
     @SneakyThrows
     public boolean tryLock(RLock lock, long waitTime, TimeUnit timeUnit) {
         return lock.tryLock(waitTime, timeUnit);
     }
 
+    /**
+     * 尝试加锁，等待指定时长
+     * @param lock 分布式锁
+     * @param waitDuration 等待时长
+     * @return true 加锁成功
+     */
     public boolean tryLock(RLock lock, Duration waitDuration) {
         long timeout;
         TimeUnit timeUnit;

@@ -11,3 +11,16 @@
 
 - e -> e 换成 CFunction.self
 - (a, b) -> a 换成 CBiFunction.first()
+
+## javadoc
+
+注释需满足发布私服 / Maven 中央仓库的 javadoc 检查（doclint）要求：
+
+- 所有 public / protected 的类、方法、字段必须编写 javadoc 注释
+- javadoc 使用完整块：`/** 功能描述 ... */`，包含 `@param`、`@return`、`@throws`、`@since`
+- `@param` 须与参数一一对应且名称一致；泛型参数使用 `@param <T> 泛型描述`
+- 非 void 方法必须标注 `@return`；抛出受检异常时标注 `@throws`
+- 特殊字符必须转义：`< > &` 使用 `&lt; &gt; &amp;`，或使用 `{@code ...}` 包裹（如 `{@code <=0}`、`{@code <T>}`）
+- HTML 标签必须闭合：`<p>` 换行、`<ul><li>` 列表正确嵌套闭合
+- 字段注释须说明含义、默认值及配置方式
+- 构建器 setter 方法注释须标注 `@param`、`@return this`

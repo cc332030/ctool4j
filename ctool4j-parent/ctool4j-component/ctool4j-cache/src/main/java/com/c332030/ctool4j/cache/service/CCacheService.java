@@ -34,10 +34,10 @@ public class CCacheService {
 
     /**
      * 分布式同步获取值，如果不存在则计算
-     * @param key 分布式锁
+     * @param key 缓存 key
      * @param tClass 返回值类型
      * @param waitDuration 获取锁等待时长
-     * @param expireDurationFunction 缓存过期时长
+     * @param expireDurationFunction 根据值计算缓存过期时长
      * @param valueSupplier 值提供者
      * @return 值
      * @param <T> 值泛型
@@ -79,7 +79,7 @@ public class CCacheService {
      * 设置 Redis 缓存值
      * @param key 缓存 key
      * @param value 值（将被序列化为 JSON String 存储）
-     * @param expireSeconds 过期时间（秒），<=0 则永不过期
+     * @param expireSeconds 过期时间（秒），{@code <=0} 则永不过期
      */
     public void setValue(String key, Object value, int expireSeconds) {
         if (expireSeconds > 0) {
@@ -92,6 +92,7 @@ public class CCacheService {
     /**
      * 获取 Redis 缓存值，带过期时间
      * @param key 缓存 key
+     * @param tClass 返回值类型
      * @param expireSeconds 过期时间（秒）
      * @param valueSupplier 值提供者
      * @return 值
@@ -158,6 +159,9 @@ public class CCacheService {
          */
         Duration unlockDelay = Duration.ofSeconds(3);
 
+        /**
+         * 获取锁失败回调，默认空操作
+         */
         CConsumer<RLock> onLockFail = lock -> {};
 
         /**
@@ -174,6 +178,8 @@ public class CCacheService {
 
         /**
          * 等待获取锁的超时时间（秒），默认 0 不等待
+         * @param waitTime 等待秒数
+         * @return this
          */
         public CCacheBuilder<T> waitTime(long waitTime) {
             return waitTime(Duration.ofSeconds(waitTime));
@@ -181,6 +187,8 @@ public class CCacheService {
 
         /**
          * 等待获取锁的超时时间
+         * @param waitDuration 等待时长
+         * @return this
          */
         public CCacheBuilder<T> waitTime(Duration waitDuration) {
             this.waitTime = waitDuration;
