@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.jackson;
 
-import com.c332030.ctool4j.core.cache.impl.CRefClassValue;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.annotation.CLogBlob;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -27,20 +26,24 @@ import java.util.stream.Collectors;
 public class CLogBlobSerializerModifier extends BeanSerializerModifier {
 
     /**
-     * 标注了 {@link CLogBlob} 的字段名缓存（按类缓存，避免反射扫描）
-     * <p>复用 {@link CReflectUtils#FIELD_MAP_CLASS_VALUE}：递归父类扫描，
-     * 基类字段上的注解对子类序列化同样生效；子类同名字段遮蔽父类字段，按字段名命中</p>
+     * 获取标注了 {@link CLogBlob} 的字段名集合
+     * <p>复用 {@link CReflectUtils#FIELD_MAP_CLASS_VALUE}（内部按类缓存，避免反射扫描）：
+     * 递归父类字段，基类字段上的注解对子类序列化同样生效；
+     * 子类同名字段覆盖父类字段，仅父类标注且被子类同名遮蔽时该字段不生效（已知取舍）</p>
+     *
+     * @param type 目标类
+     * @return 标注了 {@link CLogBlob} 的字段名集合（不可变）
      */
-    private static final CRefClassValue<Set<String>> CLOG_BLOB_FIELD_NAMES = CRefClassValue.of(type ->
-        Collections.unmodifiableSet(
+    private static Set<String> getBlobFieldNames(Class<?> type) {
+        return Collections.unmodifiableSet(
             CReflectUtils.FIELD_MAP_CLASS_VALUE.get(type)
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isAnnotationPresent(CLogBlob.class))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet())
-        )
-    );
+        );
+    }
 
     @Override
     public List<BeanPropertyWriter> changeProperties(
@@ -49,7 +52,7 @@ public class CLogBlobSerializerModifier extends BeanSerializerModifier {
             List<BeanPropertyWriter> beanProperties
     ) {
         // 兼容 getter 上的注解（BeanPropertyWriter 的 primary member 为 getter 时）
-        val blobFields = CLOG_BLOB_FIELD_NAMES.get(beanDesc.getBeanClass());
+        val blobFields = getBlobFieldNames(beanDesc.getBeanClass());
         if (blobFields.isEmpty()) {
             return beanProperties;
         }

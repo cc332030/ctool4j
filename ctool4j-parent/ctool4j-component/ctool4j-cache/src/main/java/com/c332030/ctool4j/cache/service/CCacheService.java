@@ -57,7 +57,8 @@ public class CCacheService {
 
     /**
      * 按 key 的异步刷新状态：独立于 builder 实例（builder 每次 new，实例字段无法跨调用持久），
-     * 保证节流与防并发跨调用生效；Caffeine 空闲淘汰，key 停用后自动释放，避免内存泄露
+     * 保证节流与防并发跨调用生效；Caffeine 空闲淘汰，key 停用后自动释放，避免内存泄露。
+     * <p>已知取舍：刷新任务运行超过空闲淘汰时长而被淘汰时，节流状态丢失属极端情况，由使用者自行处理</p>
      */
     private static final Cache<String, RefreshState> REFRESH_STATES = Caffeine.newBuilder()
         .expireAfterAccess(REFRESH_STATE_IDLE_DURATION)
