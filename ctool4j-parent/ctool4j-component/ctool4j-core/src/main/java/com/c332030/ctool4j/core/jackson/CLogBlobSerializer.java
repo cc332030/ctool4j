@@ -18,13 +18,13 @@ public class CLogBlobSerializer extends JsonSerializer<Object> {
     /**
      * 长文本字段打印时的固定占位符
      */
-    public static final String CLOG_BLOB = "<BLOB>";
+    public static final String BLOB_PLACEHOLDER = "<BLOB>";
 
     public static final CLogBlobSerializer INSTANCE = new CLogBlobSerializer();
 
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(CLOG_BLOB);
+        gen.writeString(BLOB_PLACEHOLDER);
     }
 
 }

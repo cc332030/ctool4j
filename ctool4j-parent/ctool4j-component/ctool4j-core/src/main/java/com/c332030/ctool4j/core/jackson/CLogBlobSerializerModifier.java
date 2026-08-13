@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.jackson;
 
 import com.c332030.ctool4j.core.cache.impl.CRefClassValue;
+import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.annotation.CLogBlob;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -9,9 +10,10 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import lombok.val;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -26,16 +28,19 @@ public class CLogBlobSerializerModifier extends BeanSerializerModifier {
 
     /**
      * 标注了 {@link CLogBlob} 的字段名缓存（按类缓存，避免反射扫描）
+     * <p>复用 {@link CReflectUtils#FIELD_MAP_CLASS_VALUE}：递归父类扫描，
+     * 基类字段上的注解对子类序列化同样生效；子类同名字段遮蔽父类字段，按字段名命中</p>
      */
-    private static final CRefClassValue<Set<String>> CLOG_BLOB_FIELD_NAMES = CRefClassValue.of(type -> {
-        val blobFields = new HashSet<String>();
-        for (val field : type.getDeclaredFields()) {
-            if (field.isAnnotationPresent(CLogBlob.class)) {
-                blobFields.add(field.getName());
-            }
-        }
-        return Collections.unmodifiableSet(blobFields);
-    });
+    private static final CRefClassValue<Set<String>> CLOG_BLOB_FIELD_NAMES = CRefClassValue.of(type ->
+        Collections.unmodifiableSet(
+            CReflectUtils.FIELD_MAP_CLASS_VALUE.get(type)
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().isAnnotationPresent(CLogBlob.class))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet())
+        )
+    );
 
     @Override
     public List<BeanPropertyWriter> changeProperties(

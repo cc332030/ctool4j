@@ -4,6 +4,8 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CLockUtils;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
@@ -47,6 +49,35 @@ public class CCacheService {
      * 异步刷新最小间隔（毫秒）：间隔内最多发起一次刷新，失败也算
      */
     private static final long REFRESH_INTERVAL_MILLIS = 10_000L;
+
+    /**
+     * 刷新状态空闲淘汰时长：key 停止被访问后自动回收，避免动态 key 场景内存泄露
+     */
+    private static final Duration REFRESH_STATE_IDLE_DURATION = Duration.ofMinutes(5);
+
+    /**
+     * 按 key 的异步刷新状态：独立于 builder 实例（builder 每次 new，实例字段无法跨调用持久），
+     * 保证节流与防并发跨调用生效；Caffeine 空闲淘汰，key 停用后自动释放，避免内存泄露
+     */
+    private static final Cache<String, RefreshState> REFRESH_STATES = Caffeine.newBuilder()
+        .expireAfterAccess(REFRESH_STATE_IDLE_DURATION)
+        .build();
+
+    /**
+     * 单个 key 的异步刷新状态
+     */
+    private static final class RefreshState {
+
+        /**
+         * 刷新进行中标记：同一 key 同时只允许一个异步刷新任务，避免并发重复计算
+         */
+        final AtomicBoolean refreshing = new AtomicBoolean();
+
+        /**
+         * 最近一次发起刷新的时间戳（毫秒）：刷新间隔节流，无论成功失败，间隔内不再发起
+         */
+        final AtomicLong lastRefreshMillis = new AtomicLong();
+    }
 
     CLockService lockService;
 
@@ -183,16 +214,6 @@ public class CCacheService {
         CConsumer<RLock> onLockFail = lock -> {};
 
         /**
-         * 刷新进行中标记：同一 key 同时只允许一个异步刷新任务，避免并发重复计算
-         */
-        final AtomicBoolean refreshing = new AtomicBoolean();
-
-        /**
-         * 最近一次发起刷新的时间戳（毫秒）：刷新间隔节流，无论成功失败，间隔内不再发起
-         */
-        final AtomicLong lastRefreshMillis = new AtomicLong();
-
-        /**
          * 缓存默认过期时长：未配置 expireDuration(Function) 动态计算时生效
          */
         Duration expireDuration = Duration.ofDays(1);
@@ -323,7 +344,7 @@ public class CCacheService {
 
         /**
          * 快到期异步刷新：加锁快速失败（不等待锁），锁内双重检查后取数写缓存
-         * <p>两层抑制：
+         * <p>两层抑制（状态按 key 静态持久，跨 builder 实例生效）：
          * <ol>
          *     <li>refreshing 标记防并发：同一 key 同时只允许一个刷新任务</li>
          *     <li>lastRefreshMillis 节流：刷新最小间隔内最多发起一次刷新，失败也算，避免失败后高频重试</li>
@@ -332,19 +353,21 @@ public class CCacheService {
          */
         private void refreshAsync(Supplier<T> valueSupplier) {
 
+            val refreshState = REFRESH_STATES.get(key, k -> new RefreshState());
+
             val now = System.currentTimeMillis();
             // 间隔节流：无论上次刷新成功与否，间隔内不再发起
-            if (now - lastRefreshMillis.get() < REFRESH_INTERVAL_MILLIS) {
+            if (now - refreshState.lastRefreshMillis.get() < REFRESH_INTERVAL_MILLIS) {
                 log.debug("cacheBuilder refreshAsync skip because within refresh interval, key: {}", key);
                 return;
             }
 
-            if (!refreshing.compareAndSet(false, true)) {
+            if (!refreshState.refreshing.compareAndSet(false, true)) {
                 log.debug("cacheBuilder refreshAsync skip because refreshing, key: {}", key);
                 return;
             }
             // 发起时即记录时间：刷新失败也算一次，间隔内不再重试
-            lastRefreshMillis.set(now);
+            refreshState.lastRefreshMillis.set(now);
 
             REFRESH_EXECUTOR.execute(() -> {
                 try {
@@ -381,7 +404,7 @@ public class CCacheService {
                 } catch (Throwable e) {
                     log.error("cacheBuilder refreshAsync error, key: {}", key, e);
                 } finally {
-                    refreshing.set(false);
+                    refreshState.refreshing.set(false);
                 }
             });
         }
