@@ -114,4 +114,99 @@ public class CCacheService {
         return valueNew;
     }
 
+    /**
+     * 创建缓存构建器，链式配置后调用 computeIfAbsent 获取缓存
+     * @param key 缓存 key
+     * @param tClass 返回值类型
+     * @return 缓存构建器
+     * @param <T> 值泛型
+     */
+    public <T> CCacheBuilder<T> cacheBuilder(String key, Class<T> tClass) {
+        return new CCacheBuilder<>(key, tClass);
+    }
+
+    /**
+     * 缓存构建器
+     */
+    public class CCacheBuilder<T> {
+
+        private final String key;
+        private final Class<T> tClass;
+
+        Duration waitTime = Duration.ZERO;
+
+        private Function<T, Duration> expireDurationFunction;
+
+        private CCacheBuilder(String key, Class<T> tClass) {
+            this.key = key;
+            this.tClass = tClass;
+        }
+
+        /**
+         * 等待获取锁的超时时间（秒），默认 0 不等待
+         */
+        public CCacheBuilder<T> waitTime(long waitTime) {
+            return waitTime(Duration.ofSeconds(waitTime));
+        }
+
+        /**
+         * 等待获取锁的超时时间
+         */
+        public CCacheBuilder<T> waitTime(Duration waitDuration) {
+            this.waitTime = waitDuration;
+            return this;
+        }
+
+        /**
+         * 缓存过期时长
+         * @param expireDurationFunction 根据值计算过期时长
+         * @return this
+         */
+        public CCacheBuilder<T> expireDuration(Function<T, Duration> expireDurationFunction) {
+            this.expireDurationFunction = expireDurationFunction;
+            return this;
+        }
+
+        /**
+         * 获取缓存，未命中时加锁计算并写缓存
+         * @param valueSupplier 值提供者
+         * @return 值
+         */
+        public T computeIfAbsent(Supplier<T> valueSupplier) {
+
+            T t = redisService.getValue(key, tClass);
+            if (null != t) {
+                return t;
+            }
+
+            val lockBuilder = lockService.lock(CLockUtils.getLockKey(key))
+                .waitTime(waitTime);
+
+            return lockBuilder.execute(() -> {
+
+                T tNew = redisService.getValue(key, tClass);
+                if (null != tNew) {
+                    log.debug("cacheBuilder computeIfAbsent skip because exists value of key: {}", key);
+                    return tNew;
+                }
+
+                tNew = valueSupplier.get();
+                Assert.notNull(tNew, "valueSupplier got null");
+
+                if (null == expireDurationFunction) {
+                    redisService.setValue(key, tNew);
+                    log.debug("cacheBuilder computeIfAbsent setValue successfully, key: {}", key);
+                } else {
+                    val expireDuration = expireDurationFunction.apply(tNew);
+                    redisService.setValue(key, tNew, expireDuration);
+                    log.debug("cacheBuilder computeIfAbsent setValue successfully, key: {}, expireDuration: {}",
+                        key, expireDuration);
+                }
+
+                return tNew;
+            });
+        }
+    }
+
+
 }

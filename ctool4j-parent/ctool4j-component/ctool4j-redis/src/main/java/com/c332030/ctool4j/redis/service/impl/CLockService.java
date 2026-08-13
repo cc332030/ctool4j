@@ -59,8 +59,7 @@ public class CLockService {
 
         final String lockKey;
 
-        long waitTime = 0;
-        TimeUnit waitTimeUnit = TimeUnit.SECONDS;
+        Duration waitTime = Duration.ZERO;
 
         long leaseTime = -1;
         TimeUnit leaseTimeUnit = TimeUnit.SECONDS;
@@ -75,15 +74,14 @@ public class CLockService {
          * 等待获取锁的超时时间（秒），默认 0 不等待
          */
         public CLockBuilder waitTime(long waitTime) {
-            return waitTime(waitTime, TimeUnit.SECONDS);
+            return waitTime(Duration.ofSeconds(waitTime));
         }
 
         /**
          * 等待获取锁的超时时间
          */
-        public CLockBuilder waitTime(long waitTime, TimeUnit timeUnit) {
-            this.waitTime = waitTime;
-            this.waitTimeUnit = timeUnit;
+        public CLockBuilder waitTime(Duration waitDuration) {
+            this.waitTime = waitDuration;
             return this;
         }
 
@@ -148,9 +146,9 @@ public class CLockService {
             try {
                 boolean acquired;
                 if (leaseTime > 0) {
-                    acquired = lock.tryLock(waitTime, leaseTime, leaseTimeUnit);
+                    acquired = tryLockWithLeaseTime(lock, waitTime, leaseTime, leaseTimeUnit);
                 } else {
-                    acquired = lock.tryLock(waitTime, waitTimeUnit);
+                    acquired = CLockService.this.tryLock(lock, waitTime);
                 }
                 if (acquired) {
                     log.info("加锁成功: {}", lockKey);
@@ -161,6 +159,13 @@ public class CLockService {
                 log.info("加锁被中断: {}", lockKey, e);
                 return false;
             }
+        }
+
+        private boolean tryLockWithLeaseTime(RLock lock, Duration waitDuration, long leaseTime, TimeUnit leaseTimeUnit) throws InterruptedException {
+            if (TimeoutUtils.hasMillis(waitDuration)) {
+                return lock.tryLock(waitDuration.toMillis(), leaseTime, leaseTimeUnit);
+            }
+            return lock.tryLock(waitDuration.getSeconds(), leaseTime, leaseTimeUnit);
         }
 
         private void unlockSafely(RLock lock) {
