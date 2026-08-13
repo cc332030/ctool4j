@@ -72,9 +72,6 @@ public class CRequestLog implements IHttpLogInfo {
         if (StrUtil.isNotEmpty(token)) {
             headerMap.put(HttpHeaders.AUTHORIZATION, Collections.singletonList(token));
         }
-        if (StrUtil.isNotEmpty(ip)) {
-            headerMap.put(CRequestHeaderEnum.X_REAL_IP.getHeaderName(), Collections.singletonList(ip));
-        }
         if (StrUtil.isNotEmpty(traceId)) {
             headerMap.put(CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), Collections.singletonList(traceId));
         }
@@ -85,6 +82,11 @@ public class CRequestLog implements IHttpLogInfo {
             headerMap.put(CRequestHeaderEnum.X_USER_ID.getHeaderName(), Collections.singletonList(userId));
         }
         return headerMap;
+    }
+
+    @Override
+    public String getIp() {
+        return ip;
     }
 
     @Override
@@ -100,9 +102,21 @@ public class CRequestLog implements IHttpLogInfo {
         return CLogUtils.getPrintAble(rsp);
     }
 
+    /**
+     * 耗时（毫秒）：显式设置的 rt 优先；未设置时由起止时间兜底计算；
+     * 两者都不可用时返回 null，拼接层不输出耗时，避免展示 rt: 0ms 误导
+     *
+     * @return 耗时（毫秒），无法计算时返回 null
+     */
     @Override
     public Long getRt() {
-        return rt;
+        if (rt > 0) {
+            return rt;
+        }
+        if (beginTimeMillis > 0 && endTimeMillis >= beginTimeMillis) {
+            return endTimeMillis - beginTimeMillis;
+        }
+        return null;
     }
 
     @Override

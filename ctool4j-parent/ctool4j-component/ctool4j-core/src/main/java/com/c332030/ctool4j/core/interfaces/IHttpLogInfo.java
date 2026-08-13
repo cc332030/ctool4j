@@ -25,6 +25,13 @@ public interface IHttpLogInfo {
     String getPath();
 
     /**
+     * 请求来源 IP（仅用于日志展示的元信息，非 HTTP 请求头）
+     */
+    default String getIp() {
+        return null;
+    }
+
+    /**
      * query 参数（仅 GET 时拼接到 URL）
      */
     default Map<String, Collection<String>> getParams() {

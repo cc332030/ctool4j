@@ -22,6 +22,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -38,17 +39,20 @@ import java.util.*;
 public class CFeignLogger extends Logger {
 
     /**
-     * 进行中的 feign 请求日志，以 Request 引用为 key。
+     * 进行中的 feign 请求日志，以 Request 引用为 key（identity 语义 + 弱引用）。
      * <p>同一线程内嵌套、并发/异步等多个 feign 请求互不串扰：
      * logAndRebufferResponse 通过 response.request() 精确取回对应请求</p>
+     * <p>feign 对非 IOException 异常（如响应解码失败）不回调 logIOException/logAndRebufferResponse，
+     * entry 无法按正常路径移除；弱引用保证无外部强引用时自动回收，避免内存泄漏</p>
      */
-    final Map<Request, CRequestLog> REQUEST_LOG_MAP = Collections.synchronizedMap(new IdentityHashMap<>());
+    final Map<Request, CRequestLog> REQUEST_LOG_MAP = Collections.synchronizedMap(new WeakIdentityMap<>());
 
     /**
      * 兜底记录本线程进行中的 feign 请求（按栈维护，支持同一线程嵌套 feign），
-     * 供 logIOException（feign API 不提供 request 参数）取回日志
+     * 供 logIOException（feign API 不提供 request 参数）取回日志；
+     * 元素为弱引用，防止异常路径无回调时请求被长期持有
      */
-    final ThreadLocal<Deque<Request>> REQUEST_DEQUE_THREAD_LOCAL = ThreadLocal.withInitial(ArrayDeque::new);
+    final ThreadLocal<Deque<WeakReference<Request>>> REQUEST_DEQUE_THREAD_LOCAL = ThreadLocal.withInitial(ArrayDeque::new);
 
     CFeignClientLogConfig config;
 
@@ -74,10 +78,11 @@ public class CFeignLogger extends Logger {
     protected IOException logIOException(String configKey, Level logLevel, IOException ioe, long elapsedTime) {
         // feign 异常回调不提供 request 参数，只能通过线程栈兜底取回最近一次未完成的请求
         val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        val request = deque.pollLast();
+        val ref = deque.pollLast();
         if (deque.isEmpty()) {
             REQUEST_DEQUE_THREAD_LOCAL.remove();
         }
+        val request = null == ref ? null : ref.get();
         val requestLog = null == request ? null : REQUEST_LOG_MAP.remove(request);
         return dealResponse(ioe, requestLog, elapsedTime, this::dealErrorLog);
     }
@@ -91,10 +96,15 @@ public class CFeignLogger extends Logger {
      */
     private void pushRequest(Request request) {
         val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        while (!deque.isEmpty() && !REQUEST_LOG_MAP.containsKey(deque.peekLast())) {
-            deque.pollLast();
+        while (!deque.isEmpty()) {
+            val ref = deque.peekLast();
+            if (null == ref || null == ref.get() || !REQUEST_LOG_MAP.containsKey(ref.get())) {
+                deque.pollLast();
+            } else {
+                break;
+            }
         }
-        deque.addLast(request);
+        deque.addLast(new WeakReference<>(request));
     }
 
     /**
@@ -107,7 +117,8 @@ public class CFeignLogger extends Logger {
         if (deque.isEmpty()) {
             return;
         }
-        if (deque.peekLast() == request) {
+        val ref = deque.peekLast();
+        if (null != ref && ref.get() == request) {
             deque.pollLast();
         }
         if (deque.isEmpty()) {
@@ -120,6 +131,14 @@ public class CFeignLogger extends Logger {
         log.warn("Don't call this log method");
     }
 
+    /**
+     * 是否记录该请求日志。
+     * <p>优先级：白名单（host/path/api 任一命中）优先放行；未命中白名单时黑名单拦截；
+     * 均未命中时按 logAll 开关决定。白名单命中即返回，黑名单不参与判断</p>
+     *
+     * @param request feign 请求
+     * @return 是否记录
+     */
     @SneakyThrows
     private boolean enableLog(Request request) {
 
@@ -182,7 +201,7 @@ public class CFeignLogger extends Logger {
     }
 
     /**
-     * feign 的 query 参数（Map&lt;String, Collection&lt;String&gt;&gt;）转换为日志模型需要的 Map&lt;String, List&lt;String&gt;&gt;
+     * feign 的 query 参数转换为日志模型参数（均为 Map&lt;String, Collection&lt;String&gt;&gt;）
      *
      * @param queries feign 展开后的 query 参数
      * @return 日志模型参数，无参数返回 null
@@ -238,7 +257,12 @@ public class CFeignLogger extends Logger {
                 // 设置属性：耗时
                 requestLog.setRt(elapsedTime);
                 // 统一出口同步打印，与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
-                CRequestLogUtils.logWrite(requestLog);
+                // 日志打印失败不影响业务结果（避免 finally 抛异常覆盖返回值导致请求失败）
+                try {
+                    CRequestLogUtils.logWrite(requestLog);
+                } catch (Throwable e) {
+                    log.error("日志写入失败", e);
+                }
             }
         }
 
@@ -277,6 +301,82 @@ public class CFeignLogger extends Logger {
         } catch (Exception e) {
             log.debug("获取响应体失败", e);
             return null;
+        }
+    }
+
+    /**
+     * 以引用（identity）比较 key 的弱引用 Map。
+     * <p>key 按引用精确匹配（避免同内容请求串扰），且无外部强引用时可被自动回收，
+     * 防止 feign 在非 IOException 异常路径不提供回调钩子导致的 entry 无法移除</p>
+     *
+     * @param <K> key 类型
+     * @param <V> value 类型
+     */
+    static final class WeakIdentityMap<K, V> extends AbstractMap<K, V> {
+
+        private final Map<IdentityWeakReference, V> map = new WeakHashMap<>();
+
+        @Override
+        public V get(Object key) {
+            return map.get(new IdentityWeakReference(key));
+        }
+
+        @Override
+        public V put(K key, V value) {
+            return map.put(new IdentityWeakReference(key), value);
+        }
+
+        @Override
+        public V remove(Object key) {
+            return map.remove(new IdentityWeakReference(key));
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return map.containsKey(new IdentityWeakReference(key));
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Set<Entry<K, V>> entrySet() {
+            val entrySet = new HashSet<Entry<K, V>>();
+            map.forEach((ref, value) -> {
+                val key = (K)ref.get();
+                if (null != key) {
+                    entrySet.add(new SimpleEntry<>(key, value));
+                }
+            });
+            return entrySet;
+        }
+
+        /**
+         * 按引用比较的弱引用包装
+         */
+        static final class IdentityWeakReference extends WeakReference<Object> {
+
+            private final int hash;
+
+            IdentityWeakReference(Object referent) {
+                super(referent);
+                this.hash = System.identityHashCode(referent);
+            }
+
+            @Override
+            public int hashCode() {
+                return hash;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof IdentityWeakReference)) {
+                    return false;
+                }
+                val other = (IdentityWeakReference)obj;
+                return null != this.get() && this.get() == other.get();
+            }
         }
     }
 
