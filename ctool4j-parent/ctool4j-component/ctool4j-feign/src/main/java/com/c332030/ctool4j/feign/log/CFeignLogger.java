@@ -12,6 +12,7 @@ import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import feign.Logger;
 import feign.Request;
 import feign.Response;
@@ -22,10 +23,11 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * <p>
@@ -39,20 +41,36 @@ import java.util.*;
 public class CFeignLogger extends Logger {
 
     /**
-     * 进行中的 feign 请求日志，以 Request 引用为 key（identity 语义 + 弱引用）。
-     * <p>同一线程内嵌套、并发/异步等多个 feign 请求互不串扰：
+     * 进行中的 feign 请求日志，以 Request 引用为 key（Caffeine 的 ConcurrentMap 视图）。
+     * <p>feign.Request 未重写 equals，按引用精确匹配，同一线程嵌套/并发/异步的多个请求互不串扰，
      * logAndRebufferResponse 通过 response.request() 精确取回对应请求</p>
-     * <p>feign 对非 IOException 异常（如响应解码失败）不回调 logIOException/logAndRebufferResponse，
-     * entry 无法按正常路径移除；弱引用保证无外部强引用时自动回收，避免内存泄漏</p>
+     * <p>key 使用强引用 + 确定性超时淘汰：正常请求（时长远小于 {@link #REQUEST_LOG_EXPIRE_DURATION}）
+     * 必定存活不丢日志；feign 对非 IOException 异常（如响应解码失败）不回调
+     * logIOException/logAndRebufferResponse，entry 无法按正常路径移除，超时后由 Caffeine 清理，
+     * 避免内存泄漏。不可用弱引用 key：依赖 GC 时机，正常请求可能提前失效导致日志丢失</p>
      */
-    final Map<Request, CRequestLog> REQUEST_LOG_MAP = Collections.synchronizedMap(new WeakIdentityMap<>());
+    final ConcurrentMap<Request, CRequestLog> REQUEST_LOG_MAP = Caffeine.newBuilder()
+        .expireAfterWrite(REQUEST_LOG_EXPIRE_DURATION)
+        .maximumSize(MAXIMUM_REQUEST_LOG_SIZE)
+        .<Request, CRequestLog>build()
+        .asMap();
+
+    /**
+     * 请求日志超时淘汰时长：超过该时长仍未完成的请求视为泄漏，由 Caffeine 清理
+     */
+    static final Duration REQUEST_LOG_EXPIRE_DURATION = Duration.ofMinutes(5);
+
+    /**
+     * 请求日志缓存容量上限（条）：超时淘汰外的极端情况兜底
+     */
+    static final long MAXIMUM_REQUEST_LOG_SIZE = 500;
 
     /**
      * 兜底记录本线程进行中的 feign 请求（按栈维护，支持同一线程嵌套 feign），
      * 供 logIOException（feign API 不提供 request 参数）取回日志；
-     * 元素为弱引用，防止异常路径无回调时请求被长期持有
+     * 已完成/泄漏的残留由 pushRequest 入栈前按 REQUEST_LOG_MAP 清理
      */
-    final ThreadLocal<Deque<WeakReference<Request>>> REQUEST_DEQUE_THREAD_LOCAL = ThreadLocal.withInitial(ArrayDeque::new);
+    final ThreadLocal<Deque<Request>> REQUEST_DEQUE_THREAD_LOCAL = ThreadLocal.withInitial(ArrayDeque::new);
 
     CFeignClientLogConfig config;
 
@@ -78,11 +96,10 @@ public class CFeignLogger extends Logger {
     protected IOException logIOException(String configKey, Level logLevel, IOException ioe, long elapsedTime) {
         // feign 异常回调不提供 request 参数，只能通过线程栈兜底取回最近一次未完成的请求
         val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        val ref = deque.pollLast();
+        val request = deque.pollLast();
         if (deque.isEmpty()) {
             REQUEST_DEQUE_THREAD_LOCAL.remove();
         }
-        val request = null == ref ? null : ref.get();
         val requestLog = null == request ? null : REQUEST_LOG_MAP.remove(request);
         return dealResponse(ioe, requestLog, elapsedTime, this::dealErrorLog);
     }
@@ -96,15 +113,10 @@ public class CFeignLogger extends Logger {
      */
     private void pushRequest(Request request) {
         val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        while (!deque.isEmpty()) {
-            val ref = deque.peekLast();
-            if (null == ref || null == ref.get() || !REQUEST_LOG_MAP.containsKey(ref.get())) {
-                deque.pollLast();
-            } else {
-                break;
-            }
+        while (!deque.isEmpty() && !REQUEST_LOG_MAP.containsKey(deque.peekLast())) {
+            deque.pollLast();
         }
-        deque.addLast(new WeakReference<>(request));
+        deque.addLast(request);
     }
 
     /**
@@ -117,8 +129,7 @@ public class CFeignLogger extends Logger {
         if (deque.isEmpty()) {
             return;
         }
-        val ref = deque.peekLast();
-        if (null != ref && ref.get() == request) {
+        if (deque.peekLast() == request) {
             deque.pollLast();
         }
         if (deque.isEmpty()) {
@@ -254,7 +265,10 @@ public class CFeignLogger extends Logger {
                 log.error("处理响应日志失败", e);
                 return t;
             } finally {
-                // 设置属性：耗时
+                // 设置属性：耗时（记录起止时间，elapsedTime 为 0 的快速请求也正常输出耗时；未设置时不输出）
+                val now = System.currentTimeMillis();
+                requestLog.setBeginTimeMillis(now - elapsedTime);
+                requestLog.setEndTimeMillis(now);
                 requestLog.setRt(elapsedTime);
                 // 统一出口同步打印，与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
                 // 日志打印失败不影响业务结果（避免 finally 抛异常覆盖返回值导致请求失败）
@@ -301,82 +315,6 @@ public class CFeignLogger extends Logger {
         } catch (Exception e) {
             log.debug("获取响应体失败", e);
             return null;
-        }
-    }
-
-    /**
-     * 以引用（identity）比较 key 的弱引用 Map。
-     * <p>key 按引用精确匹配（避免同内容请求串扰），且无外部强引用时可被自动回收，
-     * 防止 feign 在非 IOException 异常路径不提供回调钩子导致的 entry 无法移除</p>
-     *
-     * @param <K> key 类型
-     * @param <V> value 类型
-     */
-    static final class WeakIdentityMap<K, V> extends AbstractMap<K, V> {
-
-        private final Map<IdentityWeakReference, V> map = new WeakHashMap<>();
-
-        @Override
-        public V get(Object key) {
-            return map.get(new IdentityWeakReference(key));
-        }
-
-        @Override
-        public V put(K key, V value) {
-            return map.put(new IdentityWeakReference(key), value);
-        }
-
-        @Override
-        public V remove(Object key) {
-            return map.remove(new IdentityWeakReference(key));
-        }
-
-        @Override
-        public boolean containsKey(Object key) {
-            return map.containsKey(new IdentityWeakReference(key));
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Set<Entry<K, V>> entrySet() {
-            val entrySet = new HashSet<Entry<K, V>>();
-            map.forEach((ref, value) -> {
-                val key = (K)ref.get();
-                if (null != key) {
-                    entrySet.add(new SimpleEntry<>(key, value));
-                }
-            });
-            return entrySet;
-        }
-
-        /**
-         * 按引用比较的弱引用包装
-         */
-        static final class IdentityWeakReference extends WeakReference<Object> {
-
-            private final int hash;
-
-            IdentityWeakReference(Object referent) {
-                super(referent);
-                this.hash = System.identityHashCode(referent);
-            }
-
-            @Override
-            public int hashCode() {
-                return hash;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (this == obj) {
-                    return true;
-                }
-                if (!(obj instanceof IdentityWeakReference)) {
-                    return false;
-                }
-                val other = (IdentityWeakReference)obj;
-                return null != this.get() && this.get() == other.get();
-            }
         }
     }
 

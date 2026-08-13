@@ -231,23 +231,21 @@ public class CCommUtils {
 
         appendError(sb, info.getErrorMessage());
 
-        sb.append("\n");
-
-        // 请求来源 IP：日志元信息，置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）
+        // 元信息区（IP、耗时）：统一以空行与正文分隔，IP 与 rt 相邻行，均无时不追加
         val hasIp = StrUtil.isNotEmpty(info.getIp());
-        if (hasIp) {
-            sb.append("\n");
-            sb.append("IP: ");
-            sb.append(info.getIp());
-        }
-
-        // 耗时
         val rt = info.getRt();
-        if (null != rt) {
-            sb.append("\n");
-            sb.append("rt: ");
-            sb.append(rt);
-            sb.append("ms");
+        if (hasIp || null != rt) {
+            sb.append("\n\n");
+            if (hasIp) {
+                sb.append("IP: ");
+                sb.append(info.getIp());
+                sb.append("\n");
+            }
+            if (null != rt) {
+                sb.append("rt: ");
+                sb.append(rt);
+                sb.append("ms");
+            }
         }
     }
 

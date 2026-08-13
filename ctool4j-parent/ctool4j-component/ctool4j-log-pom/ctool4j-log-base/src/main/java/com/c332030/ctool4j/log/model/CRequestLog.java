@@ -97,8 +97,16 @@ public class CRequestLog implements IHttpLogInfo {
         return reqs;
     }
 
+    /**
+     * 响应体（已可打印处理）：未设置时返回 null，由拼接层输出无响应体占位符
+     *
+     * @return 响应体，未设置时返回 null
+     */
     @Override
     public Object getResponseBody() {
+        if (null == rsp) {
+            return null;
+        }
         return CLogUtils.getPrintAble(rsp);
     }
 
