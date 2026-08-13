@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -41,6 +42,11 @@ public class CCacheService {
             return thread;
         }
     );
+
+    /**
+     * 异步刷新最小间隔（毫秒）：10 秒内最多发起一次刷新，失败也算
+     */
+    private static final long REFRESH_INTERVAL_MILLIS = 10_000L;
 
     CLockService lockService;
 
@@ -182,6 +188,11 @@ public class CCacheService {
         final AtomicBoolean refreshing = new AtomicBoolean();
 
         /**
+         * 最近一次发起刷新的时间戳（毫秒）：10 秒节流，无论成功失败，间隔内不再发起
+         */
+        final AtomicLong lastRefreshMillis = new AtomicLong();
+
+        /**
          * 缓存默认过期时长，默认 1 天：未配置 expireDuration(Function) 动态计算时生效
          */
         Duration expireDuration = Duration.ofDays(1);
@@ -312,15 +323,28 @@ public class CCacheService {
 
         /**
          * 快到期异步刷新：加锁快速失败（不等待锁），锁内双重检查后取数写缓存
-         * <p>通过 refreshing 标记抑制并发刷新，同一 key 同时只允许一个刷新任务；
+         * <p>两层抑制：
+         * <ol>
+         *     <li>refreshing 标记防并发：同一 key 同时只允许一个刷新任务</li>
+         *     <li>lastRefreshMillis 节流：刷新最小间隔内最多发起一次刷新，失败也算，避免失败后高频重试</li>
+         * </ol>
          * 使用独立 daemon 线程池，不占用 commonPool；异常记录日志不静默丢弃</p>
          */
         private void refreshAsync(Supplier<T> valueSupplier) {
+
+            val now = System.currentTimeMillis();
+            // 间隔节流：无论上次刷新成功与否，间隔内不再发起
+            if (now - lastRefreshMillis.get() < REFRESH_INTERVAL_MILLIS) {
+                log.debug("cacheBuilder refreshAsync skip because within refresh interval, key: {}", key);
+                return;
+            }
 
             if (!refreshing.compareAndSet(false, true)) {
                 log.debug("cacheBuilder refreshAsync skip because refreshing, key: {}", key);
                 return;
             }
+            // 发起时即记录时间：刷新失败也算一次，间隔内不再重试
+            lastRefreshMillis.set(now);
 
             REFRESH_EXECUTOR.execute(() -> {
                 try {

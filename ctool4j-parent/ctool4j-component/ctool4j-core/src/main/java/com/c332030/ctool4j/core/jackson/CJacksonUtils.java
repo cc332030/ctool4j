@@ -88,6 +88,12 @@ public class CJacksonUtils {
 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+        // 注册长文本字段检测：标注 @CLogBlob 的字段序列化时输出固定占位符 <BLOB>
+        // copy 出的 NON_NULL / SNAKE_CASE mapper 会继承该 serializerFactory
+        objectMapper.setSerializerFactory(
+            objectMapper.getSerializerFactory().withSerializerModifier(new CLogBlobSerializerModifier())
+        );
+
         // json5
         // 字段名不加引号
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
