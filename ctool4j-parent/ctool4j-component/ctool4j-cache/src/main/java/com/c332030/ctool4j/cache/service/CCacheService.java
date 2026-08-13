@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.cache.service;
 
+import com.c332030.ctool4j.core.util.CCompletableFuture;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
@@ -130,13 +131,32 @@ public class CCacheService {
 
     /**
      * 缓存构建器
+     * <p>缓存读取策略（按剩余存活时间 TTL 判断）：</p>
+     * <ul>
+     *     <li>TTL 大于刷新窗口：缓存未到期，直接返回缓存值</li>
+     *     <li>TTL 大于 0 且小于等于刷新窗口（快到期）：加锁快速失败异步刷新，主线程不阻塞直接返回原值</li>
+     *     <li>TTL 小于等于 0 或缓存不存在（已过期）：阻塞加锁，锁内双重检查后计算并写缓存，写后立即释放锁</li>
+     * </ul>
      */
     public class CCacheBuilder<T> {
 
         private final String key;
         private final Class<T> tClass;
 
+        /**
+         * 等待获取锁的超时时间，默认 0 不等待
+         */
         Duration waitTime = Duration.ZERO;
+
+        /**
+         * 快到期刷新窗口，默认 5 分钟：剩余存活时间小于等于该窗口时触发异步刷新
+         */
+        Duration refreshWindow = Duration.ofMinutes(5);
+
+        /**
+         * 异步刷新写缓存后延迟释放锁时长，默认 3 秒；正常加锁写值不延迟，直接释放
+         */
+        Duration unlockDelay = Duration.ofSeconds(3);
 
         CConsumer<RLock> onLockFail = lock -> {};
 
@@ -183,17 +203,57 @@ public class CCacheService {
         }
 
         /**
-         * 获取缓存，未命中时加锁计算并写缓存
+         * 快到期刷新窗口，剩余存活时间小于等于该窗口时，加锁快速失败并异步刷新
+         * @param refreshWindow 刷新窗口，默认 5 分钟
+         * @return this
+         */
+        public CCacheBuilder<T> refreshWindow(Duration refreshWindow) {
+            this.refreshWindow = refreshWindow;
+            return this;
+        }
+
+        /**
+         * 异步刷新写缓存后延迟释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据
+         * <p>仅异步刷新路径生效，正常加锁写值直接释放锁</p>
+         * @param unlockDelay 释放锁前延迟时间，默认 3 秒
+         * @return this
+         */
+        public CCacheBuilder<T> unlockDelay(Duration unlockDelay) {
+            this.unlockDelay = unlockDelay;
+            return this;
+        }
+
+        /**
+         * 获取缓存，按剩余存活时间分流：
+         * <ul>
+         *     <li>未到期且剩余存活时间大于刷新窗口：直接返回缓存值</li>
+         *     <li>快到期（剩余存活时间小于等于刷新窗口）：异步刷新并立即返回原值，主线程不阻塞</li>
+         *     <li>已到期或缓存不存在：阻塞加锁，锁内双重检查后计算写缓存，写后立即释放锁</li>
+         * </ul>
          * @param valueSupplier 值提供者
          * @return 值
          */
         public T computeIfAbsent(Supplier<T> valueSupplier) {
 
-            T t = redisService.getValue(key, tClass);
-            if (null != t) {
-                return t;
+            val valueWithTtl = redisService.getValueWithTtl(key, tClass);
+
+            if (null != valueWithTtl
+                && null != valueWithTtl.getValue()
+                && null != valueWithTtl.getTtl()
+            ) {
+                val ttlMillis = valueWithTtl.getTtl() * 1000;
+                if (ttlMillis > refreshWindow.toMillis()) {
+                    // 未到期且未进入刷新窗口，直接返回原值
+                    return valueWithTtl.getValue();
+                }
+                if (ttlMillis > 0) {
+                    // 快到期：加锁快速失败异步刷新，主线程不阻塞，返回原值
+                    refreshAsync(valueSupplier);
+                    return valueWithTtl.getValue();
+                }
             }
 
+            // 已到期或缓存不存在：阻塞加锁获取
             val lockBuilder = lockService.lock(CLockUtils.getLockKey(key))
                 .waitTime(waitTime)
                 .onLockFail(onLockFail);
@@ -221,6 +281,45 @@ public class CCacheService {
 
                 return tNew;
             });
+        }
+
+        /**
+         * 快到期异步刷新：加锁快速失败（不等待锁），锁内双重检查后取数写缓存
+         * <p>刷新写缓存成功后延迟 unlockDelay（默认 3 秒）再释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据</p>
+         */
+        private void refreshAsync(Supplier<T> valueSupplier) {
+
+            CCompletableFuture.runAsync(() ->
+                lockService.lock(CLockUtils.getLockKey(key))
+                    .waitTime(Duration.ZERO)
+                    .unlockDelay(unlockDelay)
+                    .execute(() -> {
+
+                        // 双重检查：锁内可能已被其他线程刷新
+                        val currentWithTtl = redisService.getValueWithTtl(key, tClass);
+                        if (null != currentWithTtl
+                            && null != currentWithTtl.getTtl()
+                            && currentWithTtl.getTtl() * 1000 > refreshWindow.toMillis()
+                        ) {
+                            log.debug("cacheBuilder refreshAsync skip because refreshed by other thread, key: {}", key);
+                            return null;
+                        }
+
+                        T tNew = valueSupplier.get();
+                        if (null == tNew) {
+                            return null;
+                        }
+
+                        if (null == expireDurationFunction) {
+                            redisService.setValue(key, tNew);
+                        } else {
+                            redisService.setValue(key, tNew, expireDurationFunction.apply(tNew));
+                        }
+                        log.debug("cacheBuilder refreshAsync refresh successfully, key: {}", key);
+
+                        return null;
+                    })
+            );
         }
     }
 

@@ -55,14 +55,27 @@ public class CLockService {
         return lock(StrUtil.format(format, args));
     }
 
+    /**
+     * 锁构建器：加锁-执行-解锁统一模板
+     * <p>默认解锁时立即释放锁；可通过 unlockDelay 配置释放锁前延迟，
+     * 用于写缓存后延迟释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据</p>
+     */
     public class CLockBuilder {
 
         final String lockKey;
 
+        /**
+         * 等待获取锁的超时时间，默认 0 不等待
+         */
         Duration waitTime = Duration.ZERO;
 
         long leaseTime = -1;
         TimeUnit leaseTimeUnit = TimeUnit.SECONDS;
+
+        /**
+         * 释放锁前延迟时间，默认不延迟（立即释放）
+         */
+        Duration unlockDelay = Duration.ZERO;
 
         CConsumer<RLock> onLockFail = lock -> {};
 
@@ -110,6 +123,15 @@ public class CLockService {
         }
 
         /**
+         * 释放锁前延迟时间，默认不延迟
+         * <p>用于写缓存后延迟释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据</p>
+         */
+        public CLockBuilder unlockDelay(Duration unlockDelay) {
+            this.unlockDelay = unlockDelay;
+            return this;
+        }
+
+        /**
          * 执行无返回值业务
          */
         public void execute(Runnable runnable) {
@@ -128,6 +150,7 @@ public class CLockService {
 
         /**
          * 加锁-执行-解锁统一模板
+         * <p>解锁走 unlockSafely：若配置了 unlockDelay 则延迟对应时长再释放锁，否则立即释放</p>
          */
         private <T> T doExecute(Supplier<T> supplier) {
             RLock lock = getLock(lockKey);
@@ -168,8 +191,21 @@ public class CLockService {
             return lock.tryLock(waitDuration.getSeconds(), leaseTime, leaseTimeUnit);
         }
 
+        /**
+         * 安全释放锁
+         * <p>仅当前线程持有锁时才释放；若配置了 unlockDelay（大于 0），
+         * 先延迟对应时长再释放锁，否则立即释放。释放异常仅记录日志不抛出。</p>
+         */
         private void unlockSafely(RLock lock) {
             if (lock.isHeldByCurrentThread()) {
+                if (!unlockDelay.isZero() && !unlockDelay.isNegative()) {
+                    try {
+                        Thread.sleep(unlockDelay.toMillis());
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.info("延迟释放锁被中断: {}", lockKey, e);
+                    }
+                }
                 try {
                     lock.unlock();
                     log.info("释放锁成功: {}", lockKey);
