@@ -41,7 +41,7 @@ public class CRequestLog implements IHttpLogInfo {
 
     String ip;
 
-    Map<String, String[]> params;
+    Map<String, Collection<String>> params;
     Map<String, Object> reqs;
     Object rsp;
 

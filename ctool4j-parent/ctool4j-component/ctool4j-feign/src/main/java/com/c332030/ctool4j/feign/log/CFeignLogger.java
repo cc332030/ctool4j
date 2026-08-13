@@ -182,17 +182,17 @@ public class CFeignLogger extends Logger {
     }
 
     /**
-     * feign 的 query 参数（Map&lt;String, Collection&lt;String&gt;&gt;）转换为日志模型需要的 Map&lt;String, String[]&gt;
+     * feign 的 query 参数（Map&lt;String, Collection&lt;String&gt;&gt;）转换为日志模型需要的 Map&lt;String, List&lt;String&gt;&gt;
      *
      * @param queries feign 展开后的 query 参数
      * @return 日志模型参数，无参数返回 null
      */
-    private Map<String, String[]> getParamsMap(Map<String, Collection<String>> queries) {
+    private Map<String, Collection<String>> getParamsMap(Map<String, Collection<String>> queries) {
         if (MapUtil.isEmpty(queries)) {
             return null;
         }
-        val paramMap = new LinkedHashMap<String, String[]>();
-        queries.forEach((key, values) -> paramMap.put(key, values.toArray(new String[0])));
+        val paramMap = new LinkedHashMap<String, Collection<String>>();
+        queries.forEach((key, values) -> paramMap.put(key, new ArrayList<>(values)));
         return paramMap;
     }
 
@@ -237,7 +237,7 @@ public class CFeignLogger extends Logger {
             } finally {
                 // 设置属性：耗时
                 requestLog.setRt(elapsedTime);
-                // 统一出口打印 http 格式
+                // 统一出口同步打印，与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
                 CRequestLogUtils.logWrite(requestLog);
             }
         }

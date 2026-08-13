@@ -27,7 +27,7 @@ public interface IHttpLogInfo {
     /**
      * query 参数（仅 GET 时拼接到 URL）
      */
-    default Map<String, String[]> getParams() {
+    default Map<String, Collection<String>> getParams() {
         return CMap.of();
     }
 

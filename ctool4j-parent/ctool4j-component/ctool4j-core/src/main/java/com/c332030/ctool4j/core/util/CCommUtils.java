@@ -257,7 +257,7 @@ public class CCommUtils {
     /**
      * 拼接 form-urlencoded body
      */
-    private void appendFormBody(StringBuilder sb, Map<String, String[]> params) {
+    private void appendFormBody(StringBuilder sb, Map<String, Collection<String>> params) {
         boolean first = true;
         for (val entry : params.entrySet()) {
             for (val value : entry.getValue()) {

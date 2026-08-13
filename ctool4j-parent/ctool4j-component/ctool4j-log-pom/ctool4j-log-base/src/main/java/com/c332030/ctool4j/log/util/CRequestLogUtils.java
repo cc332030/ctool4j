@@ -22,9 +22,10 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -47,14 +48,10 @@ public class CRequestLogUtils {
 
     final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
-    final BlockingQueue<CRequestLog> REQUEST_LOG_QUEUE = new LinkedBlockingQueue<>();
-
-    final Map<String, Object> EMPTY_REQS = getRequestBodyMap("[no request body]");
-
-    final Thread REQUEST_LOG_THREAD = new Thread(CRequestLogUtils::logWriteLoop, REQUEST_LOG_STR + "-thread");
-    static {
-        REQUEST_LOG_THREAD.start();
-    }
+    /**
+     * 无请求体时的占位 map，所有请求共享；只读不可修改（unmodifiable 保护）
+     */
+    final Map<String, Object> EMPTY_REQS = Collections.unmodifiableMap(getRequestBodyMap("[no request body]"));
 
     @Setter
     @CAutowired
@@ -118,7 +115,9 @@ public class CRequestLogUtils {
             .method(request.getMethod())
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
-            .params(request.getParameterMap())
+            // Servlet 的 getParameterMap 返回 Map<String, String[]>，统一转换为集合类型
+            .params(request.getParameterMap().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> Arrays.asList(entry.getValue()))))
             .reqs(EMPTY_REQS)
             .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
@@ -181,24 +180,7 @@ public class CRequestLogUtils {
             requestLog.setThrowableMessage(throwable.getMessage());
         }
 
-        val offerResult = REQUEST_LOG_QUEUE.offer(requestLog);
-        if (!offerResult) {
-            log.error("REQUEST_LOG_QUEUE offer error, requestLog: {}", requestLog);
-        }
-
-    }
-
-    private void logWriteLoop() {
-
-        while (true) {
-            try {
-
-                val requestLog = REQUEST_LOG_QUEUE.take();
-                logWrite(requestLog);
-            } catch (Throwable e) {
-                log.error("logWrite error", e);
-            }
-        }
+        logWrite(requestLog);
 
     }
 

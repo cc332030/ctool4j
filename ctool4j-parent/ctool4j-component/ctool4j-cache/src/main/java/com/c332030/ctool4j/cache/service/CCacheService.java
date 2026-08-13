@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.cache.service;
 
-import com.c332030.ctool4j.core.util.CCompletableFuture;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
@@ -13,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,6 +29,18 @@ import java.util.function.Supplier;
 @Service
 @AllArgsConstructor
 public class CCacheService {
+
+    /**
+     * 异步刷新专用线程池：daemon 线程不阻塞 JVM 退出；独立于 commonPool，避免与业务并行流抢占
+     */
+    static final ExecutorService REFRESH_EXECUTOR = Executors.newFixedThreadPool(
+        Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
+        r -> {
+            val thread = new Thread(r, "cache-refresh");
+            thread.setDaemon(true);
+            return thread;
+        }
+    );
 
     CLockService lockService;
 
@@ -79,9 +93,12 @@ public class CCacheService {
      * 设置 Redis 缓存值
      * @param key 缓存 key
      * @param value 值（将被序列化为 JSON String 存储）
-     * @param expireSeconds 过期时间（秒），{@code <=0} 则永不过期
+     * @param expireSeconds 过期时间（秒），0 则永不过期，负值视为配置错误抛异常
      */
     public void setValue(String key, Object value, int expireSeconds) {
+        if (expireSeconds < 0) {
+            throw new IllegalArgumentException("expireSeconds must be >= 0, actual: " + expireSeconds);
+        }
         if (expireSeconds > 0) {
             redisService.setValue(key, value, Duration.ofSeconds(expireSeconds));
         } else {
@@ -155,14 +172,14 @@ public class CCacheService {
         Duration refreshWindow = Duration.ofMinutes(5);
 
         /**
-         * 异步刷新写缓存后延迟释放锁时长，默认 3 秒；正常加锁写值不延迟，直接释放
-         */
-        Duration unlockDelay = Duration.ofSeconds(3);
-
-        /**
          * 获取锁失败回调，默认空操作
          */
         CConsumer<RLock> onLockFail = lock -> {};
+
+        /**
+         * 刷新进行中标记：同一 key 同时只允许一个异步刷新任务，避免并发重复计算
+         */
+        final AtomicBoolean refreshing = new AtomicBoolean();
 
         /**
          * 缓存默认过期时长，默认 1 天：未配置 expireDuration(Function) 动态计算时生效
@@ -237,17 +254,6 @@ public class CCacheService {
         }
 
         /**
-         * 异步刷新写缓存后延迟释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据
-         * <p>仅异步刷新路径生效，正常加锁写值直接释放锁</p>
-         * @param unlockDelay 释放锁前延迟时间，默认 3 秒
-         * @return this
-         */
-        public CCacheBuilder<T> unlockDelay(Duration unlockDelay) {
-            this.unlockDelay = unlockDelay;
-            return this;
-        }
-
-        /**
          * 获取缓存，按剩余存活时间分流：
          * <ul>
          *     <li>未到期且剩余存活时间大于刷新窗口：直接返回缓存值</li>
@@ -306,41 +312,54 @@ public class CCacheService {
 
         /**
          * 快到期异步刷新：加锁快速失败（不等待锁），锁内双重检查后取数写缓存
-         * <p>刷新写缓存成功后延迟 unlockDelay（默认 3 秒）再释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据</p>
+         * <p>通过 refreshing 标记抑制并发刷新，同一 key 同时只允许一个刷新任务；
+         * 使用独立 daemon 线程池，不占用 commonPool；异常记录日志不静默丢弃</p>
          */
         private void refreshAsync(Supplier<T> valueSupplier) {
 
-            CCompletableFuture.runAsync(() ->
-                lockService.lock(CLockUtils.getLockKey(key))
-                    .waitTime(Duration.ZERO)
-                    .unlockDelay(unlockDelay)
-                    .execute(() -> {
+            if (!refreshing.compareAndSet(false, true)) {
+                log.debug("cacheBuilder refreshAsync skip because refreshing, key: {}", key);
+                return;
+            }
 
-                        // 双重检查：锁内可能已被其他线程刷新
-                        val currentWithTtl = redisService.getValueWithTtl(key, tClass);
-                        if (null != currentWithTtl
-                            && null != currentWithTtl.getTtl()
-                            && currentWithTtl.getTtl() * 1000 > refreshWindow.toMillis()
-                        ) {
-                            log.debug("cacheBuilder refreshAsync skip because refreshed by other thread, key: {}", key);
+            REFRESH_EXECUTOR.execute(() -> {
+                try {
+                    lockService.lock(CLockUtils.getLockKey(key))
+                        .waitTime(Duration.ZERO)
+                        // 抢锁失败是正常竞争（其他线程/实例正在刷新），打 debug 跳过，不抛异常
+                        .onLockFail(lock -> log.debug("cacheBuilder refreshAsync skip because lock fail, key: {}", key))
+                        .executeQuietly(() -> {
+
+                            // 双重检查：锁内可能已被其他线程刷新
+                            val currentWithTtl = redisService.getValueWithTtl(key, tClass);
+                            if (null != currentWithTtl
+                                && null != currentWithTtl.getTtl()
+                                && currentWithTtl.getTtl() * 1000 > refreshWindow.toMillis()
+                            ) {
+                                log.debug("cacheBuilder refreshAsync skip because refreshed by other thread, key: {}", key);
+                                return null;
+                            }
+
+                            T tNew = valueSupplier.get();
+                            if (null == tNew) {
+                                return null;
+                            }
+
+                            val cacheDuration = null == expireDurationFunction
+                                ? expireDuration
+                                : expireDurationFunction.apply(tNew);
+                            redisService.setValue(key, tNew, cacheDuration);
+                            log.debug("cacheBuilder refreshAsync refresh successfully, key: {}, cacheDuration: {}",
+                                key, cacheDuration);
+
                             return null;
-                        }
-
-                        T tNew = valueSupplier.get();
-                        if (null == tNew) {
-                            return null;
-                        }
-
-                        val cacheDuration = null == expireDurationFunction
-                            ? expireDuration
-                            : expireDurationFunction.apply(tNew);
-                        redisService.setValue(key, tNew, cacheDuration);
-                        log.debug("cacheBuilder refreshAsync refresh successfully, key: {}, cacheDuration: {}",
-                            key, cacheDuration);
-
-                        return null;
-                    })
-            );
+                        });
+                } catch (Throwable e) {
+                    log.error("cacheBuilder refreshAsync error, key: {}", key, e);
+                } finally {
+                    refreshing.set(false);
+                }
+            });
         }
     }
 

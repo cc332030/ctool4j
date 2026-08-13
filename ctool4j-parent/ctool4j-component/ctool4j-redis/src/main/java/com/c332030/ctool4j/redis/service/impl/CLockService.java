@@ -90,7 +90,8 @@ public class CLockService {
         TimeUnit leaseTimeUnit = TimeUnit.SECONDS;
 
         /**
-         * 释放锁前延迟时间，默认不延迟（立即释放）
+         * 释放锁前延迟时间，默认不延迟（立即释放）。
+         * <p>注意：延迟期间锁仍被当前线程持有，期间其他线程获取锁将失败/等待，仅在确有需要时配置</p>
          */
         Duration unlockDelay = Duration.ZERO;
 
@@ -155,7 +156,7 @@ public class CLockService {
 
         /**
          * 释放锁前延迟时间，默认不延迟
-         * <p>用于写缓存后延迟释放锁，避免其他线程在刷新生效的瞬间窗口内读到旧数据</p>
+         * <p>延迟期间锁仍被当前线程持有，期间其他线程获取锁将失败/等待，仅在确有需要时配置</p>
          * @param unlockDelay 释放锁前延迟时长
          * @return this
          */
@@ -166,7 +167,10 @@ public class CLockService {
 
         /**
          * 执行无返回值业务
+         * <p>获取锁失败时执行 {@link #onLockFail} 回调后抛 {@link IllegalStateException}，
+         * 避免"锁失败"与"业务值为 null"混淆</p>
          * @param runnable 锁内执行的业务
+         * @throws IllegalStateException 获取锁失败
          */
         public void execute(Runnable runnable) {
             doExecute(() -> {
@@ -177,12 +181,36 @@ public class CLockService {
 
         /**
          * 执行有返回值业务
+         * <p>获取锁失败时执行 {@link #onLockFail} 回调后抛 {@link IllegalStateException}，
+         * 避免"锁失败"与"业务值为 null"混淆</p>
+         * @param callable 锁内执行的业务
+         * @return 业务返回值
+         * @param <T> 返回值泛型
+         * @throws IllegalStateException 获取锁失败
+         */
+        public <T> T execute(Supplier<T> callable) {
+            return doExecute(callable);
+        }
+
+        /**
+         * 执行有返回值业务，获取锁失败时不抛异常
+         * <p>与 {@link #execute(Supplier)} 的区别：锁失败仅执行 {@link #onLockFail} 回调并返回 null，
+         * 不抛 {@link IllegalStateException}；适合"抢不到锁就跳过"的尽力而为场景（如缓存异步刷新）</p>
          * @param callable 锁内执行的业务
          * @return 业务返回值，获取锁失败时返回 null
          * @param <T> 返回值泛型
          */
-        public <T> T execute(Supplier<T> callable) {
-            return doExecute(callable);
+        public <T> T executeQuietly(Supplier<T> callable) {
+            RLock lock = getLock(lockKey);
+            if (!tryAcquire(lock)) {
+                onLockFail.accept(lock);
+                return null;
+            }
+            try {
+                return callable.get();
+            } finally {
+                unlockSafely(lock);
+            }
         }
 
         /**
@@ -193,7 +221,7 @@ public class CLockService {
             RLock lock = getLock(lockKey);
             if (!tryAcquire(lock)) {
                 onLockFail.accept(lock);
-                return null;
+                throw new IllegalStateException("获取分布式锁失败, lockKey: " + lockKey);
             }
             try {
                 return supplier.get();
