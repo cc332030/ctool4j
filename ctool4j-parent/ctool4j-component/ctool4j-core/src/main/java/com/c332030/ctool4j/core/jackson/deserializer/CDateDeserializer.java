@@ -20,6 +20,9 @@ import java.util.Date;
 @CustomLog
 public class CDateDeserializer extends JsonDeserializer<Date> {
 
+    /**
+     * 单例实例
+     */
     public static final CDateDeserializer INSTANCE = new CDateDeserializer();
 
     @Override

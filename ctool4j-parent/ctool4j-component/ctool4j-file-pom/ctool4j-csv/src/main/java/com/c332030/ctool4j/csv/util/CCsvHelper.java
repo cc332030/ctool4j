@@ -35,20 +35,43 @@ public class CCsvHelper {
 
     boolean skipHeaderRecord = false;
 
+    /**
+     * 创建 CCsvHelper 实例
+     *
+     * @return CCsvHelper 实例
+     */
     public static CCsvHelper builder() {
         return new CCsvHelper();
     }
 
+    /**
+     * 设置记录分隔符
+     *
+     * @param recordSeparator 记录分隔符
+     * @return 当前 CCsvHelper 实例
+     */
     public CCsvHelper recordSeparator(String recordSeparator) {
         this.recordSeparator = recordSeparator;
         return this;
     }
 
+    /**
+     * 设置字段分隔符
+     *
+     * @param delimiter 字段分隔符
+     * @return 当前 CCsvHelper 实例
+     */
     public CCsvHelper delimiter(String delimiter) {
         this.delimiter = delimiter;
         return this;
     }
 
+    /**
+     * 设置是否跳过表头记录
+     *
+     * @param skipHeaderRecord 是否跳过表头记录
+     * @return 当前 CCsvHelper 实例
+     */
     public CCsvHelper skipHeaderRecord(boolean skipHeaderRecord) {
         this.skipHeaderRecord = skipHeaderRecord;
         return this;
@@ -63,6 +86,12 @@ public class CCsvHelper {
             ;
     }
 
+    /**
+     * 从字符流读取 CSV 数据为 Map 列表
+     *
+     * @param reader 字符流
+     * @return 表头与值的映射列表
+     */
     @SneakyThrows
     public List<Map<String, String>> doRead(InputStreamReader reader) {
 
@@ -86,6 +115,12 @@ public class CCsvHelper {
 
     }
 
+    /**
+     * 从字节流读取 CSV 数据为 Map 列表
+     *
+     * @param inputStream 字节流
+     * @return 表头与值的映射列表
+     */
     public List<Map<String, String>> doRead(InputStream inputStream) {
         if(!(inputStream instanceof BufferedInputStream)) {
             inputStream = new BufferedInputStream(inputStream);
@@ -93,31 +128,82 @@ public class CCsvHelper {
         return doRead(new InputStreamReader(inputStream));
     }
 
+    /**
+     * 从文件读取 CSV 数据为 Map 列表
+     *
+     * @param file CSV 文件
+     * @return 表头与值的映射列表
+     */
     @SneakyThrows
     public List<Map<String, String>> doRead(File file) {
         return doRead(Files.newInputStream(file.toPath()));
     }
 
+    /**
+     * 从文件路径读取 CSV 数据为 Map 列表
+     *
+     * @param filePath CSV 文件路径
+     * @return 表头与值的映射列表
+     */
     public List<Map<String, String>> doRead(String filePath) {
         return doRead(new File(filePath));
     }
 
+    /**
+     * 从字符流读取 CSV 数据并转换为指定类型列表
+     *
+     * @param reader  字符流
+     * @param tClass  目标类型
+     * @param <T>     目标类型
+     * @return 目标类型列表
+     */
     public <T> List<T> doRead(InputStreamReader reader, Class<T> tClass) {
         return CBeanUtils.copyListFromMap(doRead(reader), tClass);
     }
 
+    /**
+     * 从字节流读取 CSV 数据并转换为指定类型列表
+     *
+     * @param inputStream 字节流
+     * @param tClass      目标类型
+     * @param <T>         目标类型
+     * @return 目标类型列表
+     */
     public <T> List<T> doRead(InputStream inputStream, Class<T> tClass) {
         return CBeanUtils.copyListFromMap(doRead(inputStream), tClass);
     }
 
+    /**
+     * 从文件读取 CSV 数据并转换为指定类型列表
+     *
+     * @param file   CSV 文件
+     * @param tClass 目标类型
+     * @param <T>    目标类型
+     * @return 目标类型列表
+     */
     public <T> List<T> doRead(File file, Class<T> tClass) {
         return CBeanUtils.copyListFromMap(doRead(file), tClass);
     }
 
+    /**
+     * 从文件路径读取 CSV 数据并转换为指定类型列表
+     *
+     * @param filePath CSV 文件路径
+     * @param tClass   目标类型
+     * @param <T>      目标类型
+     * @return 目标类型列表
+     */
     public <T> List<T> doRead(String filePath, Class<T> tClass) {
         return CBeanUtils.copyListFromMap(doRead(new File(filePath)), tClass);
     }
 
+    /**
+     * 将表头与行数据写入字符流
+     *
+     * @param headers 表头列表
+     * @param rows    行数据列表
+     * @param writer  字符流
+     */
     @SneakyThrows
     public void doWrite(
         Collection<String> headers,
@@ -150,6 +236,12 @@ public class CCsvHelper {
 
     }
 
+    /**
+     * 将对象列表按字段写入字符流
+     *
+     * @param list   对象列表
+     * @param writer 字符流
+     */
     public void doWrite(
         List<?> list,
         Writer writer
@@ -178,6 +270,12 @@ public class CCsvHelper {
 
     }
 
+    /**
+     * 将对象列表写入字节流
+     *
+     * @param list         对象列表
+     * @param outputStream 字节流
+     */
     public void doWrite(
         List<?> list,
         OutputStream outputStream
@@ -188,6 +286,12 @@ public class CCsvHelper {
         doWrite(list, new OutputStreamWriter(outputStream));
     }
 
+    /**
+     * 将对象列表写入文件
+     *
+     * @param list 对象列表
+     * @param file 目标文件
+     */
     @SneakyThrows
     public void doWrite(
         List<?> list,
@@ -196,6 +300,12 @@ public class CCsvHelper {
         doWrite(list, Files.newOutputStream(file.toPath()));
     }
 
+    /**
+     * 将对象列表写入文件路径
+     *
+     * @param list     对象列表
+     * @param filePath 目标文件路径
+     */
     public void doWrite(
         List<?> list,
         String filePath

@@ -25,6 +25,9 @@ import java.time.Duration;
 @CAutowiredScan
 public class CLockUtils {
 
+    /**
+     * 锁 key 的后缀标识
+     */
     public static final String LOCK_STR = "lock";
 
     @Setter

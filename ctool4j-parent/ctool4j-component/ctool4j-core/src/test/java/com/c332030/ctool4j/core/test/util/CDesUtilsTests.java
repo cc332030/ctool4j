@@ -22,6 +22,9 @@ public class CDesUtilsTests {
 
     private static final String CIPHER_TEXT_62 = "4VSLrykWrrM";
 
+    /**
+     * 测试 DES 加密为 Base64 字符串
+     */
     @Test
     public void encryptStr64() {
 
@@ -30,6 +33,9 @@ public class CDesUtilsTests {
 
     }
 
+    /**
+     * 测试 DES 加密为 Base62 字符串
+     */
     @Test
     public void encryptStr62() {
 
@@ -38,6 +44,9 @@ public class CDesUtilsTests {
 
     }
 
+    /**
+     * 测试 DES 解密 Base64 字符串
+     */
     @Test
     public void decryptStr64() {
 
@@ -46,6 +55,9 @@ public class CDesUtilsTests {
 
     }
 
+    /**
+     * 测试 DES 解密 Base62 字符串
+     */
     @Test
     public void decryptStr62() {
 

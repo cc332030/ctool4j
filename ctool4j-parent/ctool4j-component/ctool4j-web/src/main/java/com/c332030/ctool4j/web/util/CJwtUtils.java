@@ -58,6 +58,12 @@ public class CJwtUtils {
         return JWTUtil.verify(jwt, secret.getBytes());
     }
 
+    /**
+     * 按点拆分 jwt 为头部、载荷、签名三段
+     *
+     * @param jwt jwt
+     * @return 拆分后的三段数组；jwt 为空时返回 null
+     */
     public String[] parseJwt(String jwt) {
 
         if(StrUtil.isEmpty(jwt)) {
@@ -67,6 +73,13 @@ public class CJwtUtils {
         return jwt.split("\\.");
     }
 
+    /**
+     * 解码指定索引段的 Base64 内容
+     *
+     * @param arr   拆分后的 jwt 段数组
+     * @param index 段索引
+     * @return 解码后的 JSON 字符串；无对应段时返回 null
+     */
     public String getJson(String[] arr, int index) {
 
         if(ArrayUtil.isEmpty(arr)) {
@@ -81,10 +94,24 @@ public class CJwtUtils {
         return Base64.decodeStr(str);
     }
 
+    /**
+     * 获取 jwt 头部 JSON
+     *
+     * @param jwt jwt
+     * @return 头部 JSON 字符串
+     */
     public String getHeaderJson(String jwt) {
         return getHeaderJson(parseJwt(jwt));
     }
 
+    /**
+     * 解析 jwt 头部为指定类型
+     *
+     * @param jwt   jwt
+     * @param clazz 目标类型
+     * @param <T>   目标类型
+     * @return 解析结果；头部为空时返回 null
+     */
     public <T> T parseHeader(String jwt, Class<T> clazz) {
 
         val json = getHeaderJson(jwt);
@@ -94,18 +121,44 @@ public class CJwtUtils {
         return CJsonUtils.fromJson(json, clazz);
     }
 
+    /**
+     * 获取 jwt 头部 JSON
+     *
+     * @param arr 拆分后的 jwt 段数组
+     * @return 头部 JSON 字符串
+     */
     public String getHeaderJson(String[] arr) {
         return getJson(arr, 0);
     }
 
+    /**
+     * 获取 jwt 载荷 JSON
+     *
+     * @param jwt jwt
+     * @return 载荷 JSON 字符串
+     */
     public String getBodyJson(String jwt) {
         return getBodyJson(parseJwt(jwt));
     }
 
+    /**
+     * 获取 jwt 载荷 JSON
+     *
+     * @param arr 拆分后的 jwt 段数组
+     * @return 载荷 JSON 字符串
+     */
     public String getBodyJson(String[] arr) {
         return getJson(arr, 1);
     }
 
+    /**
+     * 解析 jwt 载荷为指定类型
+     *
+     * @param jwt   jwt
+     * @param clazz 目标类型
+     * @param <T>   目标类型
+     * @return 解析结果；载荷为空时返回 null
+     */
     public <T> T parseBody(String jwt, Class<T> clazz) {
 
         val json = getBodyJson(jwt);

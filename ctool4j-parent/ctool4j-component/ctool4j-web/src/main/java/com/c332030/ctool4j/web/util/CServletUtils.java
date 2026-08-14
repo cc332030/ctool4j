@@ -20,6 +20,13 @@ import java.nio.charset.StandardCharsets;
 @UtilityClass
 public class CServletUtils {
 
+    /**
+     * 以 JSON 形式写出响应，对象序列化为 JSON
+     *
+     * @param response   响应
+     * @param httpStatus HTTP 状态码
+     * @param body       响应体对象
+     */
     @SneakyThrows
     public void writeJson(
         HttpServletResponse response,
@@ -29,6 +36,13 @@ public class CServletUtils {
         writeJson(response, httpStatus, CJsonUtils.toJson(body));
     }
 
+    /**
+     * 以 JSON 形式写出响应
+     *
+     * @param response   响应
+     * @param httpStatus HTTP 状态码
+     * @param jsonBody   JSON 字符串响应体
+     */
     @SneakyThrows
     public void writeJson(
         HttpServletResponse response,

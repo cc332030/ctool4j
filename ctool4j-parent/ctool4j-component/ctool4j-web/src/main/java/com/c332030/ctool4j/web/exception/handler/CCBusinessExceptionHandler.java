@@ -22,6 +22,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @ConditionalOnMissingExceptionHandler(CBusinessException.class)
 public class CCBusinessExceptionHandler {
 
+    /**
+     * 处理业务异常
+     *
+     * @param e 业务异常
+     * @return 错误结果
+     */
     @ExceptionHandler(CBusinessException.class)
     public CStrResult<Void> handle(CBusinessException e) {
 

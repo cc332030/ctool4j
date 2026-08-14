@@ -16,6 +16,9 @@ import javax.sql.DataSource;
  */
 public class CLogUtilsTest {
 
+    /**
+     * 测试判断类型是否以 JSON 格式记录日志
+     */
     @Test
     public void isJsonLog() {
 

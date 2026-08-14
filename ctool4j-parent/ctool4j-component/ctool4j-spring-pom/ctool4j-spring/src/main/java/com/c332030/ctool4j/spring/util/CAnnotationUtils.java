@@ -19,6 +19,15 @@ import java.lang.annotation.Annotation;
 @UtilityClass
 public class CAnnotationUtils {
 
+    /**
+     * 获取注解的 value 属性值
+     *
+     * @param metadata       注解元数据
+     * @param annotationType 注解类型
+     * @param <ANNO>         注解类型
+     * @param <VALUE>        属性值类型
+     * @return value 属性值；无该注解时返回 null
+     */
     public <ANNO extends Annotation, VALUE> VALUE getAnnotationValue(
         AnnotatedTypeMetadata metadata,
         Class<ANNO> annotationType
@@ -26,6 +35,16 @@ public class CAnnotationUtils {
         return getAnnotationAttributeValue(metadata, annotationType, ICValue.VALUE);
     }
 
+    /**
+     * 获取注解的指定属性值
+     *
+     * @param metadata       注解元数据
+     * @param annotationType 注解类型
+     * @param attributeName  属性名
+     * @param <ANNO>         注解类型
+     * @param <VALUE>        属性值类型
+     * @return 指定属性值；无该注解或属性时返回 null
+     */
     @SneakyThrows
     public <ANNO extends Annotation, VALUE> VALUE getAnnotationAttributeValue(
         AnnotatedTypeMetadata metadata,

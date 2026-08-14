@@ -26,10 +26,18 @@ public class CEnumDeserializer
         extends JsonDeserializer<Enum<?>>
         implements ContextualDeserializer {
 
+    /**
+     * 空实例（未绑定枚举类型）
+     */
     public static final CEnumDeserializer EMPTY_INSTANCE = new CEnumDeserializer(null);
 
     private final Class<Enum<?>> enumClass;
 
+    /**
+     * 构造枚举反序列化器
+     *
+     * @param enumClass 枚举类型
+     */
     public CEnumDeserializer(Class<Enum<?>> enumClass) {
         this.enumClass = enumClass;
     }

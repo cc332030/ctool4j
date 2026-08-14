@@ -182,6 +182,14 @@ public class CJsonUtils {
     public <T> T convert(Object object, Class<T> tClass) {
         return fromJson(toJson(object), tClass);
     }
+
+    /**
+     * 对象转换，驼峰转下划线
+     * @param object 源对象
+     * @param tClass 目标类型
+     * @param <T> 目标泛型
+     * @return 目标对象
+     */
     public <T> T convertSnakeCase(Object object, Class<T> tClass) {
         return fromJsonSnakeCase(toJsonSnakeCase(object), tClass);
     }

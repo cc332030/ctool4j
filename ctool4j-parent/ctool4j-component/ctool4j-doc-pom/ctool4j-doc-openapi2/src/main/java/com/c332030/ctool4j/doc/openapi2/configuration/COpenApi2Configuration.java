@@ -41,11 +41,22 @@ import java.util.stream.Collectors;
 })
 public class COpenApi2Configuration {
 
+    /**
+     * 非空注解插件
+     *
+     * @return 插件
+     */
     @Bean
     public CNotEmptyAnnotationPlugin cExpanderNotEmpty() {
         return new CNotEmptyAnnotationPlugin();
     }
 
+    /**
+     * Swagger Docket（收集标注 Api 注解的接口）
+     *
+     * @param config 配置
+     * @return Docket
+     */
     @Bean
     @ConditionalOnMissingBean(Docket.class)
     public Docket cDocket(CDocOpenApi2Config config) {

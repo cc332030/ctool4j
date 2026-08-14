@@ -31,10 +31,21 @@ import java.util.Date;
 @UtilityClass
 public class CDateUtils {
 
+    /**
+     * 初始 Instant（epoch 0）
+     */
     public static final Instant INITIAL_INSTANT = Instant.ofEpochMilli(0);
 
+    /**
+     * 默认时区（系统时区）
+     */
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
+    /**
+     * 获取初始日期（epoch 0）
+     *
+     * @return 初始日期
+     */
     public Date initialDate() {
         return new Date(0);
     }

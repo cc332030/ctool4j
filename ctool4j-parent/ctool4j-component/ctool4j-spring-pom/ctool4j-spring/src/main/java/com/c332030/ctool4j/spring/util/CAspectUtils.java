@@ -32,6 +32,12 @@ public class CAspectUtils {
         return signature.getMethod();
     }
 
+    /**
+     * 执行切点方法并解包未声明异常
+     *
+     * @param joinPoint 切点
+     * @return 切点方法的返回值
+     */
     @SneakyThrows
     public Object process(ProceedingJoinPoint joinPoint) {
         try {

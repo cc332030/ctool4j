@@ -24,33 +24,85 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CUrlUtils {
 
+    /**
+     * 字符串转 URI
+     *
+     * @param uri URI 字符串
+     * @return URI
+     * @throws java.net.URISyntaxException 字符串格式不正确时抛出
+     */
     @SneakyThrows
     public URI getURI(String uri) {
         return new URI(uri);
     }
 
+    /**
+     * 获取 URI 字符串的协议
+     *
+     * @param uri URI 字符串
+     * @return 协议
+     */
     public String getScheme(String uri) {
         return getScheme(getURI(uri));
     }
+
+    /**
+     * 获取 URI 的协议
+     *
+     * @param uri URI
+     * @return 协议
+     */
     public String getScheme(URI uri) {
         return uri.getScheme();
     }
 
+    /**
+     * 获取 URI 字符串的主机
+     *
+     * @param uri URI 字符串
+     * @return 主机
+     */
     public String getHost(String uri) {
         return getHost(getURI(uri));
     }
+
+    /**
+     * 获取 URI 的主机
+     *
+     * @param uri URI
+     * @return 主机
+     */
     public String getHost(URI uri) {
         return uri.getHost();
     }
 
+    /**
+     * 获取 URI 字符串的端口
+     *
+     * @param uri URI 字符串
+     * @return 端口，未指定时返回 null
+     */
     public Integer getPort(String uri) {
         return getPort(getURI(uri));
     }
+
+    /**
+     * 获取 URI 的端口
+     *
+     * @param uri URI
+     * @return 端口，未指定时返回 null
+     */
     public Integer getPort(URI uri) {
         val port = uri.getPort();
         return port == -1 ? null : port;
     }
 
+    /**
+     * 获取主机及端口
+     *
+     * @param uriStr URI 字符串
+     * @return 主机:端口，无端口时仅返回主机
+     */
     public String getHostWithPort(String uriStr) {
 
         val uri = getURI(uriStr);
@@ -60,18 +112,46 @@ public class CUrlUtils {
         return port == null ? host : host + ":" + port;
     }
 
+    /**
+     * 从 URL 中获取指定参数值
+     *
+     * @param url       URL
+     * @param paramName 参数名
+     * @return 参数值，不存在时返回 null
+     */
     public String getParam(String url, String paramName) {
         return getParam(getParamMap(url), paramName);
     }
 
+    /**
+     * 从参数 Map 中获取参数值
+     *
+     * @param paramMap  参数 Map
+     * @param paramName 参数名
+     * @return 参数值，不存在时返回 null
+     */
     public String getParam(Map<String, String> paramMap, String paramName) {
         return paramMap.getOrDefault(paramName, null);
     }
 
+    /**
+     * 从 URL 中获取多个参数值
+     *
+     * @param url        URL
+     * @param paramNames 参数名集合
+     * @return 参数名到参数值的 Map
+     */
     public Map<String, String> getParams(String url, Collection<String> paramNames) {
         return getParams(getParamMap(url), paramNames);
     }
 
+    /**
+     * 从参数 Map 中获取多个参数值（过滤空白值）
+     *
+     * @param paramMap   参数 Map
+     * @param paramNames 参数名集合
+     * @return 参数名到参数值的 Map，参数 Map 为空时返回空 Map
+     */
     public Map<String, String> getParams(Map<String, String> paramMap, Collection<String> paramNames) {
 
         if(MapUtil.isEmpty(paramMap)
@@ -92,6 +172,12 @@ public class CUrlUtils {
         return newMap;
     }
 
+    /**
+     * 解析 URL 的查询参数为 Map
+     *
+     * @param url URL
+     * @return 参数名到参数值的不可变 Map，URL 为空或无法解析时返回空 Map
+     */
     public Map<String, String> getParamMap(String url) {
 
         if(StrUtil.isEmpty(url)) {
@@ -117,6 +203,12 @@ public class CUrlUtils {
         return map;
     }
 
+    /**
+     * URL 解码
+     *
+     * @param value 编码后的字符串
+     * @return 解码后的字符串，为空时返回 null
+     */
     @SneakyThrows
     public String decode(String value) {
         if(StrUtil.isEmpty(value)) {
@@ -125,6 +217,12 @@ public class CUrlUtils {
         return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
     }
 
+    /**
+     * 提取 URL 中 http 开始的部分
+     *
+     * @param url URL
+     * @return http 开始的 URL，为空时返回 null
+     */
     public String getUrl(String url) {
         if(StrUtil.isEmpty(url)) {
             return null;
@@ -132,6 +230,12 @@ public class CUrlUtils {
         return url.substring(url.indexOf("http"));
     }
 
+    /**
+     * 获取 URL 路径
+     *
+     * @param url URL
+     * @return 路径，无法解析时返回 null
+     */
     @SneakyThrows
     public String getPath(String url) {
         url = getUrl(url);
@@ -141,6 +245,12 @@ public class CUrlUtils {
         return new URL(url).getPath();
     }
 
+    /**
+     * 将 URL 路径按斜杠拆分为路径片段
+     *
+     * @param urlStr URL
+     * @return 路径片段 List，无路径时返回空 List
+     */
     public List<String> splitToPath(String urlStr) {
 
         val path = getPath(urlStr);
@@ -157,14 +267,33 @@ public class CUrlUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取 URL 路径第一个片段
+     *
+     * @param url URL
+     * @return 第一个路径片段，无路径时返回 null
+     */
     public String firstPath(String url) {
         return CCollUtils.first(splitToPath(url));
     }
 
+    /**
+     * 获取 URL 路径最后一个片段
+     *
+     * @param url URL
+     * @return 最后一个路径片段，无路径时返回 null
+     */
     public String lastPath(String url) {
         return CCollUtils.last(splitToPath(url));
     }
 
+    /**
+     * 替换 URL 域名
+     *
+     * @param url       URL
+     * @param newDomain 新域名
+     * @return 替换后的 URL，URL 为空时返回 null，新域名为空时原样返回
+     */
     public String replaceDomain(String url, String newDomain) {
 
         if(StrUtil.isEmpty(url)) {

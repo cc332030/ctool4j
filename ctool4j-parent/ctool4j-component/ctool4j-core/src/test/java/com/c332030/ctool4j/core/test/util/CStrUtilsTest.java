@@ -18,6 +18,9 @@ import org.junit.jupiter.api.Test;
 @CustomLog
 public class CStrUtilsTest {
 
+    /**
+     * 测试模板中缺失参数格式化为空字符串
+     */
     @Test
     public void formatNullToEmpty() {
 
@@ -31,6 +34,9 @@ public class CStrUtilsTest {
 
     }
 
+    /**
+     * 测试字符串末尾数字自增
+     */
     @Test
     public void incrLastNum() {
 
@@ -41,6 +47,9 @@ public class CStrUtilsTest {
 
     }
 
+    /**
+     * 测试提取字符串中的中文
+     */
     @Test
     public void chineseOnly() {
 

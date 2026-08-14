@@ -16,6 +16,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 public class CReflectUtilsTests {
 
+    /**
+     * 测试缓存的注解获取
+     */
     @Test
     public void getAnnotationCached() {
 

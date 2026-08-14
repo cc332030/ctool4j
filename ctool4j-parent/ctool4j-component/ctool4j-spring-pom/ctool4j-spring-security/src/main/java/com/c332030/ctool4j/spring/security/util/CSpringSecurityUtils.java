@@ -25,18 +25,39 @@ import javax.servlet.http.HttpServletResponse;
 @UtilityClass
 public class CSpringSecurityUtils {
 
+    /**
+     * 获取安全上下文
+     *
+     * @return 安全上下文
+     */
     public SecurityContext getContext() {
         return SecurityContextHolder.getContext();
     }
 
+    /**
+     * 获取当前认证信息
+     *
+     * @return 当前认证信息
+     */
     public Authentication getAuthentication() {
         return getContext().getAuthentication();
     }
 
+    /**
+     * 设置当前认证信息
+     *
+     * @param authentication 认证信息
+     */
     public void setAuthentication(Authentication authentication) {
         getContext().setAuthentication(authentication);
     }
 
+    /**
+     * 获取当前主体
+     *
+     * @param <T> 主体类型
+     * @return 当前主体；未认证时返回 null
+     */
     public <T> T getPrincipal() {
 
         val authentication = getAuthentication();
@@ -47,10 +68,23 @@ public class CSpringSecurityUtils {
         return CObjUtils.anyType(authentication.getPrincipal());
     }
 
+    /**
+     * 获取当前用户详情
+     *
+     * @param <T> 用户详情类型
+     * @return 当前用户详情
+     */
     public <T extends UserDetails> T getUserDetails() {
         return CObjUtils.anyType(getPrincipal());
     }
 
+    /**
+     * 以 JSON 形式输出认证错误
+     *
+     * @param httpStatus HTTP 状态码
+     * @param request    请求
+     * @param response   响应
+     */
     public void writeJsonError(
         HttpStatus httpStatus,
         HttpServletRequest request,
@@ -59,6 +93,14 @@ public class CSpringSecurityUtils {
         writeJsonError(httpStatus, null, request, response);
     }
 
+    /**
+     * 以 JSON 形式输出认证错误，可指定错误信息
+     *
+     * @param httpStatus HTTP 状态码
+     * @param message    错误信息，为空时取状态码默认文案
+     * @param request    请求
+     * @param response   响应
+     */
     public void writeJsonError(
         HttpStatus httpStatus,
         String message,

@@ -34,8 +34,14 @@ import java.util.function.Supplier;
 @UtilityClass
 public class CLogUtils {
 
+    /**
+     * 日志级别配置前缀
+     */
     public final String LOGGING_LEVEL = "logging.level";
 
+    /**
+     * 日志级别配置完整前缀
+     */
     public final String LOGGING_LEVEL_PREFIX = LOGGING_LEVEL + ".";
 
     /**

@@ -37,10 +37,21 @@ public class CRequestUtils {
      */
     private static final Set<BiConsumer<HttpServletRequest, HttpServletResponse>> PREPARE_CONSUMERS = new CopyOnWriteArraySet<>();
 
+    /**
+     * 注册请求前初始化回调
+     *
+     * @param consumer 请求前初始化回调
+     */
     public void addPrepare(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
         PREPARE_CONSUMERS.add(Objects.requireNonNull(consumer));
     }
 
+    /**
+     * 执行全部请求前初始化回调
+     *
+     * @param request  请求
+     * @param response 响应
+     */
     public void prepare(HttpServletRequest request, HttpServletResponse response) {
         PREPARE_CONSUMERS.forEach(consumer -> {
             try {
@@ -57,10 +68,21 @@ public class CRequestUtils {
     private static final Set<BiConsumer<HttpServletRequest, HttpServletResponse>> CLEAR_CONSUMERS =
             new CopyOnWriteArraySet<>();
 
+    /**
+     * 注册请求结束清理回调
+     *
+     * @param consumer 请求结束清理回调
+     */
     public void addClear(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
         CLEAR_CONSUMERS.add(Objects.requireNonNull(consumer));
     }
 
+    /**
+     * 执行全部请求结束清理回调
+     *
+     * @param request  请求
+     * @param response 响应
+     */
     public void clear(HttpServletRequest request, HttpServletResponse response) {
         CLEAR_CONSUMERS.forEach(consumer -> {
             try {
@@ -71,6 +93,11 @@ public class CRequestUtils {
         });
     }
 
+    /**
+     * 获取当前请求的属性
+     *
+     * @return 当前请求的属性
+     */
     public static ServletRequestAttributes getServletRequestAttributes() {
         return (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     }

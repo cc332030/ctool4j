@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 @CustomLog
 public class CTraceUtilsTest {
 
+    /**
+     * 测试获取默认追踪信息
+     */
     @Test
     public void getTraceInfo() {
 

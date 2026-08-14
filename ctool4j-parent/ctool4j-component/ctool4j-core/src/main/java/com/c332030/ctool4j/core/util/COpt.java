@@ -29,6 +29,9 @@ import java.util.Objects;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class COpt<T> {
 
+    /**
+     * 空 COpt
+     */
     public static final COpt<?> EMPTY = new COpt<>(null);
 
     private final T value;

@@ -32,8 +32,14 @@ public enum CProfileEnum {
 
     ;
 
+    /**
+     * 生产环境集合
+     */
     public static final Set<CProfileEnum> PROD_PROFILES = Collections.unmodifiableSet(EnumSet.of(PROD));
 
+    /**
+     * 环境名到枚举的 Map（忽略大小写）
+     */
     public static final Map<String, CProfileEnum> PROFILE_MAP;
     static {
         val map = new TreeMap<String, CProfileEnum>(String.CASE_INSENSITIVE_ORDER);
@@ -48,6 +54,13 @@ public enum CProfileEnum {
      */
     final String text;
 
+    /**
+     * 根据环境名获取枚举
+     *
+     * @param name 环境名
+     * @return 环境枚举
+     * @throws IllegalArgumentException 环境名未知时抛出
+     */
     public static CProfileEnum of(String name) {
         return Opt.ofNullable(PROFILE_MAP.get(name))
             .orElseThrow(() -> new IllegalArgumentException("unknown profile: " + name));

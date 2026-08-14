@@ -32,6 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @CAutowiredScan
 public class CFeignUtils {
 
+    /**
+     * HTTP 日志线程局部变量
+     */
     public final ThreadLocal<StringBuilder> HTTP_LOG_THREAD_LOCAL = ThreadLocal.withInitial(StringBuilder::new);
 
     private static final Map<Class<?>, CConsumer<RequestTemplate>> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
@@ -40,6 +43,12 @@ public class CFeignUtils {
     @CAutowired
     CFeignClientHeaderConfig headerConfig;
 
+    /**
+     * 注册指定类的请求拦截器
+     *
+     * @param clazz    类
+     * @param consumer 拦截处理
+     */
     public void addInterceptor(Class<?> clazz, CConsumer<RequestTemplate> consumer) {
 
         log.debug("addInterceptor to: {}, consumer: {}", clazz, consumer);
@@ -47,15 +56,34 @@ public class CFeignUtils {
 
     }
 
+    /**
+     * 获取请求对应的 Feign 接口类型
+     *
+     * @param template 请求模板
+     * @return Feign 接口类型
+     */
     public Class<?> getApiType(RequestTemplate template) {
         return template.feignTarget().type();
     }
 
+    /**
+     * 对请求模板执行拦截（按接口类型匹配）
+     *
+     * @param template 请求模板
+     * @return 是否命中拦截器
+     */
     public boolean intercept(RequestTemplate template) {
         val type = getApiType(template);
         return intercept(type, template);
     }
 
+    /**
+     * 对请求模板执行拦截
+     *
+     * @param type     接口类型
+     * @param template 请求模板
+     * @return 是否命中拦截器
+     */
     public boolean intercept(Class<?> type, RequestTemplate template) {
 
         for (val entry : INTERCEPTOR_MAP.entrySet()) {
@@ -89,6 +117,11 @@ public class CFeignUtils {
             .build();
     }
 
+    /**
+     * 按配置将请求头转移到 Feign 请求模板
+     *
+     * @param template 请求模板
+     */
     public void transferHeaders(RequestTemplate template) {
 
         if(null == headerConfig) {

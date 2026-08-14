@@ -22,6 +22,9 @@ import javax.sql.DataSource;
  */
 public class CClassUtilsTests {
 
+    /**
+     * 测试类字段对比
+     */
     @Test
     public void compareField(){
 
@@ -29,6 +32,9 @@ public class CClassUtilsTests {
 
     }
 
+    /**
+     * 测试获取类所在包的首段名称
+     */
     @Test
     public void getFirstPackage() {
 
@@ -39,6 +45,9 @@ public class CClassUtilsTests {
 
     }
 
+    /**
+     * 测试是否为 JDK 类
+     */
     @Test
     public void isJdkClass() {
 

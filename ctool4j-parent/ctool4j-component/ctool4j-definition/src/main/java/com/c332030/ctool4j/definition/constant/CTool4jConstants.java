@@ -12,6 +12,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CTool4jConstants {
 
+    /**
+     * 基础包名
+     */
     public final String BASE_PACKAGE = "com.c332030.ctool4j";
 
 }

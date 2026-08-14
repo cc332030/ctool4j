@@ -19,6 +19,12 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class CMinioConfiguration {
 
+    /**
+     * 创建 Minio 使用的 OkHttpClient
+     *
+     * @param config OkHttp 配置
+     * @return 配置了连接、读写超时的 OkHttpClient
+     */
     @Bean
     public OkHttpClient cMinioOkHttpClient(CMinioOkHttpConfig config) {
         return new OkHttpClient()
@@ -29,6 +35,13 @@ public class CMinioConfiguration {
             .build();
     }
 
+    /**
+     * 创建 MinioClient
+     *
+     * @param config     Minio 配置
+     * @param httpClient OkHttpClient
+     * @return 按配置构建的 MinioClient
+     */
     @Bean
     public MinioClient cMinioClient(CMinioConfig config, OkHttpClient httpClient) {
         return MinioClient.builder()

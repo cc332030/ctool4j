@@ -25,48 +25,117 @@ import java.math.RoundingMode;
 @UtilityClass
 public class CNumUtils {
 
+    /**
+     * 62 进制字符集
+     */
     public final String CHARTSET_62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    /**
+     * 62 进制字符集数组
+     */
     public final char[] CHARTSET_62_ARR = CHARTSET_62.toCharArray();
 
+    /**
+     * 常量 100
+     */
     public final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
+    /**
+     * 值为 null 时返回 0
+     *
+     * @param value 值
+     * @return 值或 0
+     */
     public Integer defaultZero(Integer value) {
         return ObjUtil.defaultIfNull(value, 0);
     }
 
+    /**
+     * 值为 null 时返回 0
+     *
+     * @param value 值
+     * @return 值或 0
+     */
     public Long defaultZero(Long value) {
         return ObjUtil.defaultIfNull(value, 0L);
     }
 
+    /**
+     * 值为 null 时返回 0
+     *
+     * @param value 值
+     * @return 值或 0
+     */
     public BigDecimal defaultZero(BigDecimal value) {
         return ObjUtil.defaultIfNull(value, BigDecimal.ZERO);
     }
 
+    /**
+     * 判断值是否大于 0
+     *
+     * @param value 值
+     * @return 是否大于 0，null 返回 false
+     */
     public boolean greaterThanZero(Integer value) {
         return null != value && value > 0;
     }
 
+    /**
+     * 判断值是否大于 0
+     *
+     * @param value 值
+     * @return 是否大于 0，null 返回 false
+     */
     public boolean greaterThanZero(Long value) {
         return null != value && value > 0;
     }
 
+    /**
+     * 判断值是否大于 0
+     *
+     * @param value 值
+     * @return 是否大于 0，null 返回 false
+     */
     public boolean greaterThanZero(BigDecimal value) {
         return null != value && value.compareTo(BigDecimal.ZERO) > 0;
     }
 
+    /**
+     * 判断值是否小于 0
+     *
+     * @param value 值
+     * @return 是否小于 0，null 返回 false
+     */
     public boolean lessThanZero(Integer value) {
         return null != value && value < 0;
     }
 
+    /**
+     * 判断值是否小于 0
+     *
+     * @param value 值
+     * @return 是否小于 0，null 返回 false
+     */
     public boolean lessThanZero(Long value) {
         return null != value && value < 0;
     }
 
+    /**
+     * 判断值是否小于 0
+     *
+     * @param value 值
+     * @return 是否小于 0，null 返回 false
+     */
     public boolean lessThanZero(BigDecimal value) {
         return null != value && value.compareTo(BigDecimal.ZERO) < 0;
     }
 
+    /**
+     * 求和（跳过 null 值）
+     *
+     * @param values 值数组
+     * @return 和，全为 null 时返回 null
+     */
     public Integer sum(Integer... values) {
 
         Integer result = null;
@@ -79,6 +148,12 @@ public class CNumUtils {
         return result;
     }
 
+    /**
+     * 求和（跳过 null 值）
+     *
+     * @param values 值数组
+     * @return 和，全为 null 时返回 null
+     */
     public Long sum(Long... values) {
 
         Long result = null;
@@ -91,6 +166,12 @@ public class CNumUtils {
         return result;
     }
 
+    /**
+     * 求和（跳过 null 值）
+     *
+     * @param values 值数组
+     * @return 和，全为 null 时返回 null
+     */
     public BigDecimal sum(BigDecimal... values) {
 
         BigDecimal result = null;
@@ -103,6 +184,15 @@ public class CNumUtils {
         return result;
     }
 
+    /**
+     * 除法（四舍五入保留指定小数位）
+     *
+     * @param value1 被除数
+     * @param value2 除数
+     * @param scale  小数位数
+     * @return 商，任一值为 null 时返回 null
+     * @throws IllegalArgumentException 除数为 0 时抛出
+     */
     public BigDecimal divide(BigDecimal value1, BigDecimal value2, int scale) {
 
         if(null == value1 || null == value2 ) {
@@ -139,6 +229,13 @@ public class CNumUtils {
         return value.setScale(2, RoundingMode.HALF_UP);
     }
 
+    /**
+     * 比较两个值（null 视为最大）
+     *
+     * @param v1 第一个值
+     * @param v2 第二个值
+     * @return 比较结果，v1 大于 v2 返回正数，相等返回 0，否则返回负数
+     */
     public int compare(Integer v1, Integer v2) {
         if(null == v2) {
             return -1;
@@ -149,6 +246,13 @@ public class CNumUtils {
         return Integer.compare(v1, v2);
     }
 
+    /**
+     * 比较两个值（null 视为最大）
+     *
+     * @param v1 第一个值
+     * @param v2 第二个值
+     * @return 比较结果，v1 大于 v2 返回正数，相等返回 0，否则返回负数
+     */
     public int compare(Long v1, Long v2) {
         if(null == v2) {
             return -1;
@@ -159,6 +263,13 @@ public class CNumUtils {
         return Long.compare(v1, v2);
     }
 
+    /**
+     * 比较两个值（null 视为最大）
+     *
+     * @param v1 第一个值
+     * @param v2 第二个值
+     * @return 比较结果，v1 大于 v2 返回正数，相等返回 0，否则返回负数
+     */
     public int compare(BigDecimal v1, BigDecimal v2) {
         if(null == v2) {
             return -1;
@@ -169,50 +280,133 @@ public class CNumUtils {
         return v1.compareTo(v2);
     }
 
+    /**
+     * 对象转字符串后解析为 Integer
+     *
+     * @param object 对象
+     * @return Integer，解析失败时返回 null
+     */
     public Integer toStringThenParseInt(Object object) {
         return parseInt(StrUtil.toStringOrNull(object));
     }
 
+    /**
+     * 对象经函数转字符串后解析为 Integer
+     *
+     * @param t        对象
+     * @param function 转字符串函数
+     * @param <T>      对象类型
+     * @return Integer，解析失败时返回 null
+     */
     public <T> Integer toStringThenParseInt(T t, ToStringFunction<T> function) {
         return parseInt(CStrUtils.toString(t, function));
     }
 
+    /**
+     * 字符串解析为 Integer，解析失败时抛出异常
+     *
+     * @param value 字符串
+     * @return Integer
+     */
     public Integer parseInt(String value) {
         return parse(value, Integer::parseInt, null);
     }
 
+    /**
+     * 字符串解析为 Integer，解析失败时返回 null
+     *
+     * @param value 字符串
+     * @return Integer，解析失败时返回 null
+     */
     public Integer parseIntDefaultNull(String value) {
         return parse(value, Integer::parseInt, CBiConsumer.empty());
     }
 
+    /**
+     * 字符串解析为 Integer，解析失败时执行回退
+     *
+     * @param value    字符串
+     * @param fallback 失败回退
+     * @return Integer，解析失败时返回 null
+     */
     public Integer parseInt(String value, CBiConsumer<String, Throwable> fallback) {
         return parse(value, Integer::parseInt, fallback);
     }
 
+    /**
+     * 对象转字符串后解析为 Long
+     *
+     * @param object 对象
+     * @return Long，解析失败时返回 null
+     */
     public Long toStringThenParseLong(Object object) {
         return parseLong(CStrUtils.toString(object));
     }
 
+    /**
+     * 对象经函数转字符串后解析为 Long
+     *
+     * @param t        对象
+     * @param function 转字符串函数
+     * @param <T>      对象类型
+     * @return Long，解析失败时返回 null
+     */
     public <T> Long toStringThenParseLong(T t, ToStringFunction<T> function) {
         return parseLong(CStrUtils.toString(t, function));
     }
 
+    /**
+     * 字符串解析为 Long，解析失败时抛出异常
+     *
+     * @param value 字符串
+     * @return Long
+     */
     public Long parseLong(String value) {
         return parseLong(value, null);
     }
 
+    /**
+     * 字符串解析为 Long，解析失败时返回 null
+     *
+     * @param value 字符串
+     * @return Long，解析失败时返回 null
+     */
     public Long parseLongDefaultNull(String value) {
         return parseLong(value, CBiConsumer.empty());
     }
 
+    /**
+     * 字符串解析为 Long，解析失败时执行回退
+     *
+     * @param value    字符串
+     * @param fallback 失败回退
+     * @return Long，解析失败时返回 null
+     */
     public Long parseLong(String value, CBiConsumer<String, Throwable> fallback) {
         return parse(value, Long::parseLong, fallback);
     }
 
+    /**
+     * 字符串解析，解析失败时抛出异常
+     *
+     * @param value    字符串
+     * @param function 解析函数
+     * @param <T>      结果类型
+     * @return 解析结果
+     */
     public <T> T parse(String value, StringFunction<T> function) {
         return parse(value, function, null);
     }
 
+    /**
+     * 字符串解析，解析失败时执行回退
+     *
+     * @param value    字符串
+     * @param function 解析函数
+     * @param fallback 失败回退
+     * @param <T>      结果类型
+     * @return 解析结果，失败时返回 null
+     */
     public <T> T parse(String value, StringFunction<T> function, CBiConsumer<String, Throwable> fallback) {
 
         try {
@@ -230,20 +424,44 @@ public class CNumUtils {
         return null;
     }
 
+    /**
+     * 判断 long 值是否超出 int 范围
+     *
+     * @param value long 值
+     * @return 是否溢出
+     */
     public boolean isOverflow(long value) {
         return (int)value != value;
     }
 
+    /**
+     * 断言 long 值未超出 int 范围
+     *
+     * @param value long 值
+     * @throws ArithmeticException 值溢出时抛出
+     */
     public void assertOverflow(long value) {
         if(isOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
         }
     }
 
+    /**
+     * 判断 double 值是否超出 float 范围
+     *
+     * @param value double 值
+     * @return 是否溢出
+     */
     public boolean isOverflow(double value) {
         return value > Float.MAX_VALUE || value < Float.MIN_VALUE;
     }
 
+    /**
+     * 断言 double 值未超出 float 范围
+     *
+     * @param value double 值
+     * @throws ArithmeticException 值溢出时抛出
+     */
     public void assertOverflow(double value) {
         if(isOverflow(value)) {
             throw new ArithmeticException("值溢出：" + value);
@@ -302,6 +520,12 @@ public class CNumUtils {
         return CObjUtils.convert(value, Integer::longValue);
     }
 
+    /**
+     * long 值转 62 进制字符串
+     *
+     * @param value long 值
+     * @return 62 进制字符串
+     */
     public String to62(long value) {
 
         val sb = new StringBuilder();
@@ -315,6 +539,12 @@ public class CNumUtils {
         return sb.reverse().toString();
     }
 
+    /**
+     * 取最大值（跳过 null 值）
+     *
+     * @param values 值数组
+     * @return 最大值，数组为空或全为 null 时返回 null
+     */
     public Integer max(Integer... values) {
 
         if(ArrayUtil.isEmpty(values)) {
@@ -337,6 +567,12 @@ public class CNumUtils {
         return result;
     }
 
+    /**
+     * 取最小值（跳过 null 值）
+     *
+     * @param values 值数组
+     * @return 最小值，数组为空或全为 null 时返回 null
+     */
     public Integer min(Integer... values) {
 
         if(ArrayUtil.isEmpty(values)) {
@@ -359,6 +595,12 @@ public class CNumUtils {
         return result;
     }
 
+    /**
+     * Integer 转 BigDecimal
+     *
+     * @param value Integer 值
+     * @return BigDecimal，值为 null 时返回 null
+     */
     public BigDecimal toBigDecimal(Integer value) {
         if(null == value) {
             return null;
@@ -366,6 +608,12 @@ public class CNumUtils {
         return new BigDecimal(value);
     }
 
+    /**
+     * Long 转 BigDecimal
+     *
+     * @param value Long 值
+     * @return BigDecimal，值为 null 时返回 null
+     */
     public BigDecimal toBigDecimal(Long value) {
         if(null == value) {
             return null;

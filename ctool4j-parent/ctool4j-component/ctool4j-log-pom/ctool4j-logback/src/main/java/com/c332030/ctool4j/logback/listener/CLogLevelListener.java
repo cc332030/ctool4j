@@ -47,6 +47,11 @@ public class CLogLevelListener implements ICApplicationListener<EnvironmentChang
 
     }
 
+    /**
+     * 按配置键更新对应类的 logback 日志级别
+     *
+     * @param key 形如 "logging.level.类名" 的配置键
+     */
     @CLogAndIgnoreThrowable
     public void updateLogLevel(String key) {
 

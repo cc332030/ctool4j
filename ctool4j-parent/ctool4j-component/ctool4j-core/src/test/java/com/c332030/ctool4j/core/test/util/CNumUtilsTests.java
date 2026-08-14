@@ -15,6 +15,9 @@ import java.math.BigDecimal;
  */
 public class CNumUtilsTests {
 
+    /**
+     * 测试 long 溢出校验
+     */
     @Test
     public void assertOverflowLong() {
 
@@ -29,6 +32,9 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试 double 溢出校验
+     */
     @Test
     public void assertOverflowDouble() {
 
@@ -40,6 +46,9 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试数值转 int（溢出时返回 null）
+     */
     @Test
     public void toInt() {
 
@@ -55,6 +64,9 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试数值转 Base62 字符串
+     */
     @Test
     public void to62() {
 
@@ -69,6 +81,9 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试取最大值
+     */
     @Test
     public void max() {
 
@@ -86,6 +101,9 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试取最小值
+     */
     @Test
     public void min() {
 
@@ -103,6 +121,9 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试百分比计算
+     */
     @Test
     public void percent() {
 

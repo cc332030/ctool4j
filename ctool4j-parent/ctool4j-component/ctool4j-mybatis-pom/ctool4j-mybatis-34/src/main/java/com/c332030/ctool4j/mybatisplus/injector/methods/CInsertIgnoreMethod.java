@@ -25,6 +25,9 @@ public class CInsertIgnoreMethod extends CAbstractMpMethod {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 构造方法，指定使用 INSERT_IGNORE 方法
+     */
     public CInsertIgnoreMethod() {
         super(CMpSqlMethod.INSERT_IGNORE);
     }

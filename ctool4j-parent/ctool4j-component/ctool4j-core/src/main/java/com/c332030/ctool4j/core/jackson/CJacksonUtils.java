@@ -29,8 +29,14 @@ import java.util.Date;
 @UtilityClass
 public class CJacksonUtils {
 
+    /**
+     * 默认 ObjectMapper
+     */
     public static final ObjectMapper OBJECT_MAPPER;
 
+    /**
+     * 不序列化 null 值的 ObjectMapper
+     */
     public static final ObjectMapper OBJECT_MAPPER_NON_NULL;
 
     /**
@@ -38,6 +44,9 @@ public class CJacksonUtils {
      */
     public static final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
 
+    /**
+     * 自定义序列化/反序列化模块
+     */
     public static final SimpleModule SIMPLE_MODULE ;
     static {
 
@@ -76,6 +85,13 @@ public class CJacksonUtils {
 
     }
 
+    /**
+     * 配置 ObjectMapper
+     *
+     * @param objectMapper 待配置的 ObjectMapper
+     * @param <T>          ObjectMapper 类型
+     * @return 配置后的 ObjectMapper
+     */
     public <T extends ObjectMapper> T configure(T objectMapper) {
 
         // 避免 LocalDateTime、LocalDate、LocalTime 反序列化失败

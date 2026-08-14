@@ -33,6 +33,11 @@ public class CFeignLocalClientInit implements ICSpringInit, AutoCloseable {
 
     final NamingService namingService;
 
+    /**
+     * 构造方法，根据 Nacos 发现配置创建命名服务
+     *
+     * @param discoveryProperties Nacos 发现配置
+     */
     @SneakyThrows
     public CFeignLocalClientInit(NacosDiscoveryProperties discoveryProperties) {
         namingService = NamingFactory.createNamingService(discoveryProperties.getNacosProperties());

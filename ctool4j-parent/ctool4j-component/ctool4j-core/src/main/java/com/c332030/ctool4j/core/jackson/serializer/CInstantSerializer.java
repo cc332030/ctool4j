@@ -21,6 +21,9 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CInstantSerializer extends JsonSerializer<Instant> {
 
+    /**
+     * 单例实例
+     */
     public static final CInstantSerializer INSTANCE = new CInstantSerializer();
 
     @Override

@@ -17,6 +17,9 @@ import java.util.Date;
  */
 public class CDateSerializer extends JsonSerializer<Date> {
 
+    /**
+     * 单例实例
+     */
     public static final CDateSerializer INSTANCE = new CDateSerializer();
 
     @Override

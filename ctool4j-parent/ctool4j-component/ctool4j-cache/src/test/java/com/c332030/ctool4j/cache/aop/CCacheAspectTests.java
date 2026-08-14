@@ -24,6 +24,9 @@ public class CCacheAspectTests {
     @Autowired
     CCacheTestService cacheTestService;
 
+    /**
+     * 测试缓存切面的生效、命中与过期
+     */
     @Test
     @SneakyThrows
     public void cacheAspect() {

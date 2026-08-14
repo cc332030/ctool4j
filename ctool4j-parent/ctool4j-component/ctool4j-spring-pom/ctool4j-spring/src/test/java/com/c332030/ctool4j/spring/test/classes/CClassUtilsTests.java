@@ -9,6 +9,9 @@ package com.c332030.ctool4j.spring.test.classes;
  */
 public class CClassUtilsTests {
 
+    /**
+     * 测试扫描指定注解的类
+     */
 //    @Test
     public void listAnnotatedClass() {
 

@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Assertions;
  */
 public class CLambdaUtilsTests {
 
+    /**
+     * 测试获取字段的 getter lambda
+     */
 //    @Test
     public void getFieldGetLambda() {
 
@@ -32,6 +35,9 @@ public class CLambdaUtilsTests {
 
     }
 
+    /**
+     * 测试获取字段的 setter lambda
+     */
 //    @Test
     public void getFieldSetLambda() {
 

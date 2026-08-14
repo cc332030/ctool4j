@@ -23,6 +23,9 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CInstantDeserializer extends JsonDeserializer<Instant> {
 
+    /**
+     * 单例实例
+     */
     public static final CInstantDeserializer INSTANCE = new CInstantDeserializer();
 
     @Override

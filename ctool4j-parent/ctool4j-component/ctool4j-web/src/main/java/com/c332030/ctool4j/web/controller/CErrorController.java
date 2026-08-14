@@ -24,6 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 @ConditionalOnMissingBean(ErrorController.class)
 public class CErrorController implements ErrorController {
 
+    /**
+     * 统一错误处理入口，按请求中携带的状态码返回错误结果
+     *
+     * @param request 请求
+     * @return 错误结果
+     */
     @RequestMapping("/error")
     public CStrResult<Void> error(HttpServletRequest request) {
 

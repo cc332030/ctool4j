@@ -18,6 +18,9 @@ public class CUrlUtilsTests {
 
     static final String DEFAULT_DOMAIN2 = "https://cc332030.com";
 
+    /**
+     * 测试获取 URL 的路径部分
+     */
     @Test
     public void getPath() {
 
@@ -26,6 +29,9 @@ public class CUrlUtilsTests {
 
     }
 
+    /**
+     * 测试替换 URL 中的域名
+     */
     @Test
     public void replaceDomain() {
 

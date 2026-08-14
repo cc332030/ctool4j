@@ -39,8 +39,14 @@ import java.util.Map;
 @CAutowiredScan
 public class CRequestLogUtils {
 
+    /**
+     * 请求日志 logger 名称
+     */
     public final String REQUEST_LOG_STR = "request-log";
 
+    /**
+     * 请求体在日志 map 中的键名
+     */
     public final String REQUEST_BODY = "requestBody";
 
     final CLog REQUEST_LOG = CLogUtils.getLog(REQUEST_LOG_STR);
@@ -56,11 +62,22 @@ public class CRequestLogUtils {
     @CAutowired
     CRequestLogConfig requestLogConfig;
 
+    /**
+     * 判断请求日志功能是否开启
+     *
+     * @return true 表示开启
+     */
     public boolean isEnable() {
         val enable = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getEnable);
         return BooleanUtil.isTrue(enable);
     }
 
+    /**
+     * 判断 uri 是否命中排除规则
+     *
+     * @param uri 请求 uri
+     * @return true 表示命中排除规则
+     */
     public boolean isExcludeUri(String uri) {
         val excludeUriPatterns = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getExcludeUriPatterns);
         if (CollUtil.isEmpty(excludeUriPatterns)) {
@@ -88,10 +105,20 @@ public class CRequestLogUtils {
         return regexPattern.matcher(uri).matches();
     }
 
+    /**
+     * 获取当前线程的请求日志
+     *
+     * @return 当前线程的请求日志，无则返回空 Opt
+     */
     public Opt<CRequestLog> getOpt() {
         return Opt.ofNullable(REQUEST_LOG_THREAD_LOCAL.get());
     }
 
+    /**
+     * 获取当前线程的请求日志并移除
+     *
+     * @return 当前线程的请求日志，无则返回空 Opt
+     */
     public Opt<CRequestLog> getOptThenRemove() {
 
         val requestLogOpt = getOpt();
@@ -99,6 +126,11 @@ public class CRequestLogUtils {
         return requestLogOpt;
     }
 
+    /**
+     * 根据当前请求生成请求日志
+     *
+     * @return 生成的请求日志；uri 命中排除规则时返回 null
+     */
     public CRequestLog genRequestLog() {
 
         val request = CRequestUtils.getRequest();
@@ -122,6 +154,9 @@ public class CRequestLogUtils {
             .build();
     }
 
+    /**
+     * 初始化请求日志并绑定到当前线程
+     */
     public void init() {
 
         val requestLog = genRequestLog();
@@ -131,20 +166,39 @@ public class CRequestLogUtils {
 
     }
 
+    /**
+     * 移除当前线程绑定的请求日志
+     */
     public void remove() {
         REQUEST_LOG_THREAD_LOCAL.remove();
     }
 
+    /**
+     * 构造请求体 map
+     *
+     * @param requestBody 请求体
+     * @return 键为 {@link #REQUEST_BODY} 的 map
+     */
     public Map<String, Object> getRequestBodyMap(Object requestBody) {
         return CMap.of(
             REQUEST_BODY, requestBody
         );
     }
 
+    /**
+     * 设置请求体到请求日志
+     *
+     * @param req 请求体
+     */
     public void setRequestBodyReq(Object req) {
         setPrintAbleReqs(getRequestBodyMap(req));
     }
 
+    /**
+     * 将可打印的请求参数设置到请求日志
+     *
+     * @param reqs 请求参数 map
+     */
     public void setPrintAbleReqs(Map<String, Object> reqs) {
 
         val reqMap = CMapUtils.mapValue(
@@ -154,12 +208,23 @@ public class CRequestLogUtils {
         setReqs(reqMap);
     }
 
+    /**
+     * 将请求参数设置到请求日志
+     *
+     * @param reqs 请求参数 map
+     */
     public void setReqs(Map<String, Object> reqs) {
         val requestLogOpt = getOpt();
         requestLogOpt
             .ifPresent(requestLog -> requestLog.setReqs(reqs));
     }
 
+    /**
+     * 记录响应并写出请求日志
+     *
+     * @param rsp       响应对象
+     * @param throwable 异常，无则传 null
+     */
     public void write(Object rsp, Throwable throwable) {
 
         val requestLogOpt = getOpt();

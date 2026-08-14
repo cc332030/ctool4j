@@ -21,6 +21,9 @@ import java.util.Date;
  */
 public class CEntityUtilsTests {
 
+    /**
+     * 测试清空 CBaseEntity 的公共字段
+     */
     @Test
     public void clearCBaseEntity() {
 
@@ -56,6 +59,9 @@ public class CEntityUtilsTests {
 
     }
 
+    /**
+     * 测试清空 CBaseTimeEntity 的公共字段
+     */
     @Test
     public void clearBaseTimeEntity() {
 
@@ -78,6 +84,9 @@ public class CEntityUtilsTests {
 
     }
 
+    /**
+     * 测试清空 CLongId 的 id 字段
+     */
     @Test
     public void clearLongId() {
 
@@ -94,6 +103,9 @@ public class CEntityUtilsTests {
 
     }
 
+    /**
+     * 测试清空无公共字段的普通对象
+     */
     @Test
     public void clearNone() {
 

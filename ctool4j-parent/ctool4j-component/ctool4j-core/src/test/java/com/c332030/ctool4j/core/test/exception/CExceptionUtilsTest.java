@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 @CustomLog
 public class CExceptionUtilsTest {
 
+    /**
+     * 测试创建业务异常
+     */
     @Test
     public void newBusinessException() {
 

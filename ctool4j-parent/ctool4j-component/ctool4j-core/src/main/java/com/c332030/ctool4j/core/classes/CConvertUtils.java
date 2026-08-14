@@ -34,6 +34,11 @@ public class CConvertUtils {
                 .forEach(CConvertUtils::addConverter);
     }
 
+    /**
+     * 注册方法为类型转换器
+     *
+     * @param method 转换方法（入参为源类型，返回值为目标类型）
+     */
     public void addConverter(Method method) {
 
         @SuppressWarnings("unchecked")
@@ -43,6 +48,15 @@ public class CConvertUtils {
         addConverter(fromClass, toClass, o -> method.invoke(null, o));
     }
 
+    /**
+     * 注册类型转换器
+     *
+     * @param fromClass 源类型
+     * @param toClass   目标类型
+     * @param converter 转换函数
+     * @param <From>    源类型
+     * @param <To>      目标类型
+     */
     public <From, To> void addConverter(
             Class<From> fromClass,
             Class<To> toClass,
@@ -58,6 +72,9 @@ public class CConvertUtils {
         CLASS_CONVERTERS.add(classConverter);
     }
 
+    /**
+     * 类型转换器缓存（按源类型与目标类型查找）
+     */
     public final CBiClassValue<CFunction<Object, ?>> VALUE_SET_CLASS_VALUE =
             CBiClassValue.of((fromClass, toClass) -> {
 
@@ -82,10 +99,26 @@ public class CConvertUtils {
                 return null;
             });
 
+    /**
+     * 获取类型转换器
+     *
+     * @param fromClass 源类型
+     * @param toClass   目标类型
+     * @param <To>      目标类型
+     * @return 转换器，未注册时返回 null
+     */
     public <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
         return CObjUtils.anyType(VALUE_SET_CLASS_VALUE.get(fromClass, toClass));
     }
 
+    /**
+     * 转换对象为目标类型
+     *
+     * @param from    源对象
+     * @param toClass 目标类型
+     * @param <To>    目标类型
+     * @return 转换结果，无可用转换器时返回 null
+     */
     public <To> To convert(Object from, Class<To> toClass) {
         if(from == null) {
             return null;
@@ -98,6 +131,14 @@ public class CConvertUtils {
         return converter.apply(from);
     }
 
+    /**
+     * 转换对象为目标类型，返回 Opt
+     *
+     * @param from    源对象
+     * @param toClass 目标类型
+     * @param <To>    目标类型
+     * @return Opt 包装的转换结果
+     */
     public <To> Opt<To> convertOpt(Object from, Class<To> toClass) {
         return Opt.ofNullable(convert(from, toClass));
     }

@@ -17,10 +17,23 @@ import java.util.List;
 @UtilityClass
 public class CList {
 
+    /**
+     * 获取空 List
+     *
+     * @param <T> 元素类型
+     * @return 空 List
+     */
     public <T> List<T> of() {
         return Collections.emptyList();
     }
 
+    /**
+     * 获取单元素 List
+     *
+     * @param t   元素
+     * @param <T> 元素类型
+     * @return 单元素 List，元素为 null 时返回空 List
+     */
     public <T> List<T> of(T t) {
 
         if (t == null) {
@@ -29,6 +42,13 @@ public class CList {
         return Collections.singletonList(t);
     }
 
+    /**
+     * 获取元素 List（过滤 null 元素）
+     *
+     * @param ts  元素
+     * @param <T> 元素类型
+     * @return 不可变 List
+     */
     @SafeVarargs
     public <T> List<T> of(T... ts) {
 

@@ -26,8 +26,14 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CArrUtils {
 
+    /**
+     * 空对象数组
+     */
     public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
+    /**
+     * 空字符串数组
+     */
     public final String[] EMPAY_STR_ARR = new String[0];
 
     /**
@@ -128,6 +134,12 @@ public class CArrUtils {
         return arr;
     }
 
+    /**
+     * 字符串集合转字符串数组
+     *
+     * @param collection 字符串集合
+     * @return 字符串数组，集合为空时返回空数组
+     */
     public String[] toStrArr(Collection<String> collection) {
 
         if(CValidateUtils.isEmpty(collection)) {
@@ -137,6 +149,13 @@ public class CArrUtils {
             .toArray(EMPAY_STR_ARR);
     }
 
+    /**
+     * 获取数组第一个元素
+     *
+     * @param arr 数组
+     * @param <T> 元素类型
+     * @return 第一个元素，数组为空时返回 null
+     */
     public <T> T first(T[] arr) {
 
         if(ArrayUtil.isEmpty(arr)){

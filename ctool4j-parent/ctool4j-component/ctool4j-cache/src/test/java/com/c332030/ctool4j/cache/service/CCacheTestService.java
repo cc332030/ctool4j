@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class CCacheTestService {
 
+    /**
+     * 测试按 id 缓存，返回当前时间戳
+     *
+     * @param id 缓存键 id
+     * @return 当前时间戳
+     */
     @CCacheable(
         namespace = CCacheAspectTests.class,
         expire = 1
@@ -23,6 +29,12 @@ public class CCacheTestService {
         return System.currentTimeMillis();
     }
 
+    /**
+     * 测试按对象缓存，返回当前时间戳
+     *
+     * @param cacheUser 缓存键对象
+     * @return 当前时间戳
+     */
     @CCacheable(
         namespace = CCacheAspectTests.class,
         expire = 1

@@ -28,20 +28,49 @@ public class CLambdaUtils {
      */
     final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
+    /**
+     * 获取指定类的 Lookup
+     *
+     * @param clazz 类
+     * @return Lookup
+     */
     public MethodHandles.Lookup getLookup(Class<?> clazz) {
         return LOOKUP.in(clazz);
     }
 
+    /**
+     * 获取字段 getter 方法句柄
+     *
+     * @param clazz 类
+     * @param field 字段
+     * @return getter 方法句柄
+     */
     @SneakyThrows
     public MethodHandle getGetterMethodHandle(Class<?> clazz, Field field) {
         return getLookup(clazz).unreflectGetter(field);
     }
 
+    /**
+     * 获取字段 setter 方法句柄
+     *
+     * @param clazz 类
+     * @param field 字段
+     * @return setter 方法句柄
+     */
     @SneakyThrows
     public MethodHandle getSetterMethodHandle(Class<?> clazz, Field field) {
         return getLookup(clazz).unreflectSetter(field);
     }
 
+    /**
+     * 根据方法句柄生成 Lambda 实例
+     *
+     * @param methodHandle    方法句柄
+     * @param lambdaClass     Lambda 接口类
+     * @param lambdaMethodName Lambda 接口的方法名
+     * @param <T>             Lambda 类型
+     * @return Lambda 实例
+     */
     @SneakyThrows
     public <T> T getLambda(
             MethodHandle methodHandle,
@@ -62,6 +91,13 @@ public class CLambdaUtils {
         return CObjUtils.anyType(invokeExact);
     }
 
+    /**
+     * 获取字段读取 Lambda
+     *
+     * @param clazz 类
+     * @param field 字段
+     * @return 字段读取 Lambda
+     */
     @SneakyThrows
     public CFunction<Object, Object> getFieldGetLambda(Class<?> clazz, Field field) {
         val lambda = getLambda(
@@ -72,6 +108,13 @@ public class CLambdaUtils {
         return CObjUtils.anyType(lambda);
     }
 
+    /**
+     * 获取字段写入 Lambda
+     *
+     * @param clazz 类
+     * @param field 字段
+     * @return 字段写入 Lambda
+     */
     @SneakyThrows
     public CBiConsumer<Object, Object> getFieldSetLambda(Class<?> clazz, Field field) {
         val lambda = getLambda(

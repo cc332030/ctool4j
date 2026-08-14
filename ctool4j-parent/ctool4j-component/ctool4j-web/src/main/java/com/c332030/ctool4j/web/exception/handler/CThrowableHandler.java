@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @ConditionalOnMissingExceptionHandler(Throwable.class)
 public class CThrowableHandler {
 
+    /**
+     * 兜底处理未识别异常
+     *
+     * @param e 未识别异常
+     * @return 错误结果
+     */
     @ExceptionHandler(Throwable.class)
     public CStrResult<Void> handle(Throwable e) {
 

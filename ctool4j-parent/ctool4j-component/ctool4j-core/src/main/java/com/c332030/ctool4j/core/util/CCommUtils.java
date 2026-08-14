@@ -28,18 +28,43 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CCommUtils {
 
+    /**
+     * 设置表单提交 Content-Type
+     *
+     * @param headers 请求头
+     */
     public void contextTypeForm(HttpHeaders headers) {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     }
 
+    /**
+     * 设置 JSON Content-Type
+     *
+     * @param headers 请求头
+     */
     public void contextTypeJson(HttpHeaders headers) {
         headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
+    /**
+     * 设置 Accept 为 JSON
+     *
+     * @param headers 请求头
+     */
     public void acceptJson(HttpHeaders headers) {
         headers.setAccept(CList.of(MediaType.APPLICATION_JSON));
     }
 
+    /**
+     * 拼接完整 HTTP 报文（请求行、请求头、请求体、响应体）
+     *
+     * @param method       请求方法
+     * @param url          请求地址
+     * @param headers      请求头
+     * @param requestBody  请求体
+     * @param responseBody 响应体
+     * @return HTTP 报文
+     */
     public String getFullHttp(
             HttpMethod method,
             String url, Map<String, Collection<String>> headers,
@@ -54,6 +79,12 @@ public class CCommUtils {
                 ;
     }
 
+    /**
+     * 请求头拼为字符串（每个 header 一行）
+     *
+     * @param headers 请求头
+     * @return 请求头字符串，为空时返回 null
+     */
     public String getFullHeaderStr(Map<String, Collection<String>> headers) {
 
         if(MapUtil.isEmpty(headers)) {
@@ -63,6 +94,13 @@ public class CCommUtils {
         return getFullHeaderStr(headers, entry -> true);
     }
 
+    /**
+     * 请求头拼为字符串（按条件过滤，每个 header 一行）
+     *
+     * @param headers   请求头
+     * @param predicate 过滤条件
+     * @return 请求头字符串，为空时返回 null
+     */
     public String getFullHeaderStr(
             Map<String, Collection<String>> headers,
             Predicate<Map.Entry<String, Collection<String>>> predicate
@@ -80,6 +118,12 @@ public class CCommUtils {
                 ).collect(Collectors.joining("\n"));
     }
 
+    /**
+     * 判断请求体是否为文本类型
+     *
+     * @param headers 请求头
+     * @return 是否为文本类型
+     */
     public boolean isTextBody(Map<String, Collection<String>> headers) {
 
         val contentTypes = CCollUtils.defaultEmpty(headers.get(HttpHeaders.CONTENT_TYPE));

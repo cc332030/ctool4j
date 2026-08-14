@@ -21,6 +21,9 @@ import java.math.BigDecimal;
  */
 public class CBeanUtilsTest {
 
+    /**
+     * 测试属性复制时合并已有对象
+     */
     @Test
     public void copyMerge() {
 
@@ -46,6 +49,9 @@ public class CBeanUtilsTest {
 
     }
 
+    /**
+     * 测试属性类型不匹配时的复制行为
+     */
     @Test
     public void copyTypeUnmatched() {
 
@@ -67,6 +73,9 @@ public class CBeanUtilsTest {
 
     }
 
+    /**
+     * 测试属性复制时的类型转换
+     */
     @Test
     public void copyTypeConvert() {
 
@@ -96,6 +105,9 @@ public class CBeanUtilsTest {
 
     }
 
+    /**
+     * 测试属性复制时跳过集合与 Map
+     */
     @Test
     public void copySkipCollectionAndMap() {
 

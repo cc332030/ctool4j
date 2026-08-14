@@ -23,6 +23,9 @@ import org.apache.ibatis.mapping.SqlSource;
  */
 public class CInsertIgnoreMethod extends CAbstractMpMethod {
 
+    /**
+     * 构造方法，指定使用 INSERT_IGNORE 方法
+     */
     public CInsertIgnoreMethod() {
         super(CMpSqlMethod.INSERT_IGNORE);
     }

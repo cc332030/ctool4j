@@ -17,6 +17,9 @@ import java.util.*;
 @UtilityClass
 public class CMediaTypeUtils {
 
+    /**
+     * 文本类型关键字集合
+     */
     public static final Set<String> TEXT_KEYS = CSet.of(
             "text",
             "plain",
@@ -26,6 +29,12 @@ public class CMediaTypeUtils {
             "form"
     );
 
+    /**
+     * 判断媒体类型是否为文本类型
+     *
+     * @param mediaType 媒体类型字符串
+     * @return 是否为文本类型
+     */
     public boolean isText(String mediaType) {
         for (val key : TEXT_KEYS) {
             if (mediaType.contains(key)) {
@@ -35,6 +44,12 @@ public class CMediaTypeUtils {
         return false;
     }
 
+    /**
+     * 在媒体类型集合中加入 JSON5
+     *
+     * @param mediaTypes 媒体类型集合
+     * @return 加入 JSON5 后的有序集合
+     */
     public Set<MediaType> getSetWithJson5(Collection<MediaType> mediaTypes) {
 
         val set = new LinkedHashSet<>(mediaTypes);
@@ -42,6 +57,12 @@ public class CMediaTypeUtils {
         return set;
     }
 
+    /**
+     * 在媒体类型集合中加入 JSON5，返回列表
+     *
+     * @param mediaTypes 媒体类型集合
+     * @return 加入 JSON5 后的列表
+     */
     public List<MediaType> getListWithJson5(Collection<MediaType> mediaTypes) {
         return new ArrayList<>(getSetWithJson5(mediaTypes));
     }

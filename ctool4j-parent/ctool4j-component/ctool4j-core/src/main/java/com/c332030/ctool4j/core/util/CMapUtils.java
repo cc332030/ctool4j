@@ -233,6 +233,15 @@ public class CMapUtils {
         return map2;
     }
 
+    /**
+     * Map 按键值条件过滤
+     *
+     * @param map       Map
+     * @param predicate 过滤条件
+     * @param <K>       键泛型
+     * @param <V>       值泛型
+     * @return 过滤后的 Map
+     */
     public <K, V> Map<K, V> filter(Map<K, V> map, CBiPredicate<K, V> predicate) {
         if (MapUtil.isEmpty(map)) {
             return CMap.of();
@@ -243,14 +252,40 @@ public class CMapUtils {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    /**
+     * Map 按键过滤
+     *
+     * @param map       Map
+     * @param predicate 过滤条件
+     * @param <K>       键泛型
+     * @param <V>       值泛型
+     * @return 过滤后的 Map
+     */
     public <K, V> Map<K, V> filterKey(Map<K, V> map, CPredicate<K> predicate) {
         return filter(map, (k, v) -> predicate.test(k));
     }
 
+    /**
+     * Map 按值过滤
+     *
+     * @param map       Map
+     * @param predicate 过滤条件
+     * @param <K>       键泛型
+     * @param <V>       值泛型
+     * @return 过滤后的 Map
+     */
     public <K, V> Map<K, V> filterValue(Map<K, V> map, CPredicate<V> predicate) {
         return filter(map, (k, v) -> predicate.test(v));
     }
 
+    /**
+     * 合并多个 Map（键冲突时取第一个）
+     *
+     * @param maps Map 数组
+     * @param <K>  键泛型
+     * @param <V>  值泛型
+     * @return 合并后的不可变 Map
+     */
     @SafeVarargs
     public <K, V> Map<K, V> merge(Map<K, V>... maps) {
         return merge(
@@ -259,6 +294,12 @@ public class CMapUtils {
         );
     }
 
+    /**
+     * 转换 Map 的键值为可用字符串
+     *
+     * @param map 原 Map
+     * @return 键值均可用的新 Map
+     */
     public Map<String, String> toAvailableStrMap(Map<String, String> map) {
         return map(
             map,
@@ -267,6 +308,15 @@ public class CMapUtils {
         );
     }
 
+    /**
+     * 按指定合并函数合并多个 Map 为一个不可变 Map
+     *
+     * @param mergeFunction 值合并函数，冲突时生效
+     * @param maps          待合并的 Map 列表
+     * @param <K>           键类型
+     * @param <V>           值类型
+     * @return 合并后的不可变 Map
+     */
     @SafeVarargs
     public <K, V> Map<K, V> merge(BinaryOperator<V> mergeFunction, Map<K, V>... maps) {
 
@@ -286,6 +336,13 @@ public class CMapUtils {
             ));
     }
 
+    /**
+     * 对比多个 Map（按 hashCode 命名，打印差异表格）
+     *
+     * @param objs         待对比的 Map 列表
+     * @param showFunction 值显示函数
+     * @param <V>          值类型
+     */
     public <V> void compare(
         List<Map<String, V>> objs,
         ToStringFunction<V> showFunction
@@ -298,6 +355,16 @@ public class CMapUtils {
         );
     }
 
+    /**
+     * 对比多个对象的字段差异（打印差异表格）
+     *
+     * @param objs            待对比的对象列表
+     * @param getNameFunction 对象名称函数
+     * @param toMapFunction   对象转字段 Map 函数
+     * @param showFunction    值显示函数
+     * @param <T>             对象类型
+     * @param <V>             值类型
+     */
     public <T, V> void compare(
         List<T> objs,
         ToStringFunction<T> getNameFunction,
@@ -383,10 +450,30 @@ public class CMapUtils {
 
     }
 
+    /**
+     * 获取键对应的值，不存在时通过供应商计算并放入 Map
+     *
+     * @param map           Map
+     * @param key           键
+     * @param valueSupplier 值供应商
+     * @param <K>           键泛型
+     * @param <V>           值泛型
+     * @return 值
+     */
     public <K, V> V computeIfAbsent(Map<K, V> map, K key, CSupplier<V> valueSupplier) {
         return computeIfAbsent(map, key, k -> valueSupplier.get());
     }
 
+    /**
+     * 获取键对应的值，不存在时通过映射函数计算并放入 Map
+     *
+     * @param map             Map
+     * @param key             键
+     * @param mappingFunction 映射函数
+     * @param <K>             键泛型
+     * @param <V>             值泛型
+     * @return 值
+     */
     public <K, V> V computeIfAbsent(Map<K, V> map, K key, CFunction<K, V> mappingFunction) {
 
         val handle = map.get(key);

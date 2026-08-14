@@ -27,6 +27,15 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
 
     DATA data;
 
+    /**
+     * 构造结果
+     *
+     * @param code    状态码
+     * @param message 消息
+     * @param data    数据
+     * @param <DATA>  数据类型
+     * @return 结果
+     */
     public static <DATA> CStrResult<DATA> newInstance(String code, String message, DATA data) {
         return CStrResult.<DATA>builder()
             .code(code)
@@ -35,10 +44,24 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
             .build();
     }
 
+    /**
+     * 成功结果（无数据）
+     *
+     * @param <DATA> 数据类型
+     * @return 成功结果
+     */
     public static <DATA> CStrResult<DATA> success() {
         return success(null);
     }
 
+    /**
+     * 成功结果（指定状态）
+     *
+     * @param httpStatus 状态
+     * @param data       数据
+     * @param <DATA>     数据类型
+     * @return 成功结果
+     */
     public static <DATA> CStrResult<DATA> success(HttpStatus httpStatus, DATA data) {
         return newInstance(
             String.valueOf(httpStatus.value()),
@@ -47,6 +70,13 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
         );
     }
 
+    /**
+     * 成功结果
+     *
+     * @param data   数据
+     * @param <DATA> 数据类型
+     * @return 成功结果
+     */
     public static <DATA> CStrResult<DATA> success(DATA data) {
         return success(
             HttpStatus.OK,
@@ -54,10 +84,26 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
         );
     }
 
+    /**
+     * 失败结果
+     *
+     * @param code    状态码
+     * @param message 消息
+     * @param <DATA>  数据类型
+     * @return 失败结果
+     */
     public static <DATA> CStrResult<DATA> error(String code, String message) {
         return newInstance(code, message, null);
     }
 
+    /**
+     * 失败结果（指定状态）
+     *
+     * @param httpStatus 状态
+     * @param message    消息
+     * @param <DATA>     数据类型
+     * @return 失败结果
+     */
     public static <DATA> CStrResult<DATA> error(HttpStatus httpStatus, String message) {
         return error(
             String.valueOf(httpStatus.value()),
@@ -65,6 +111,13 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
         );
     }
 
+    /**
+     * 失败结果（仅状态）
+     *
+     * @param httpStatus 状态
+     * @param <DATA>     数据类型
+     * @return 失败结果
+     */
     public static <DATA> CStrResult<DATA> error(HttpStatus httpStatus) {
         return error(
             httpStatus,
@@ -72,6 +125,13 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
         );
     }
 
+    /**
+     * 失败结果（默认 500）
+     *
+     * @param message 消息
+     * @param <DATA>  数据类型
+     * @return 失败结果
+     */
     public static <DATA> CStrResult<DATA> error(String message) {
         return error(
             HttpStatus.INTERNAL_SERVER_ERROR,

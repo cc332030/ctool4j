@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CCoreTest {
 
+    /**
+     * 占位测试方法
+     */
     @Test
     public void test() {
 

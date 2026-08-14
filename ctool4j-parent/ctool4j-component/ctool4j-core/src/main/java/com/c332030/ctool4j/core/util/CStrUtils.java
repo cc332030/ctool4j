@@ -33,25 +33,49 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CStrUtils {
 
+    /**
+     * "null" 字符串常量
+     */
     public static final String NULL = "null";
 
+    /**
+     * "undefined" 字符串常量
+     */
     public static final String UNDEFINED = "undefined";
 
+    /**
+     * 单引号字符
+     */
     public static final Character SINGLE_QUOTATION = '\'';
 
+    /**
+     * 双引号字符
+     */
     public static final Character DOUBLE_QUOTATION = '"';
 
+    /**
+     * 默认分隔符
+     */
     public static final String DEFAULT_SEPARATOR = ",";
 
 
+    /**
+     * 不可用字符集合（引号）
+     */
     public static final Set<Character> NOT_AVAILABLE_CHARACTERS = CSet.of(
             SINGLE_QUOTATION, DOUBLE_QUOTATION
     );
 
+    /**
+     * 不可用字符串集合
+     */
     public static final Set<String> NOT_AVAILABLE_STRINGS = CSet.of(
             NULL, UNDEFINED
     );
 
+    /**
+     * UTF-8 BOM
+     */
     public static final String UTF8_BOM = "\uFEFF";
 
     /**
@@ -826,14 +850,37 @@ public class CStrUtils {
         return str;
     }
 
+    /**
+     * 重复字符串
+     *
+     * @param str   字符串
+     * @param count 重复次数
+     * @return 重复后的字符串
+     */
     public String repeat(String str, int count) {
         return repeat(str, count, "");
     }
 
+    /**
+     * 重复字符串并用分隔符连接
+     *
+     * @param str       字符串
+     * @param count     重复次数
+     * @param separator 分隔符
+     * @return 重复后的字符串
+     */
     public String repeat(String str, int count, String separator) {
         return String.join(separator, Collections.nCopies(count, str));
     }
 
+    /**
+     * 在字符串后填充字符至指定打印宽度
+     *
+     * @param str      字符串
+     * @param fillChar 填充字符
+     * @param length   打印宽度
+     * @return 填充后的字符串
+     */
     public String fillAfter(String str, char fillChar, int length) {
         if(StrUtil.isEmpty(str)) {
             return repeat(String.valueOf(fillChar), length);
@@ -847,6 +894,14 @@ public class CStrUtils {
         return str + repeat(String.valueOf(fillChar), restWidth);
     }
 
+    /**
+     * 在字符串两侧填充字符至指定打印宽度
+     *
+     * @param str      字符串
+     * @param fillChar 填充字符
+     * @param length   打印宽度
+     * @return 填充后的字符串
+     */
     public String fillSide(String str, char fillChar, int length) {
 
         if(StrUtil.isEmpty(str)) {
@@ -865,6 +920,12 @@ public class CStrUtils {
                 ;
     }
 
+    /**
+     * 生成指定长度的随机字符串（62 进制字符集）
+     *
+     * @param length 长度
+     * @return 随机字符串
+     */
     public String generateRandomString(int length) {
 
         String characters = CNumUtils.CHARTSET_62;
@@ -877,6 +938,12 @@ public class CStrUtils {
         return sb.toString();
     }
 
+    /**
+     * 获取字符串打印宽度（中文字符按 2 计）
+     *
+     * @param str 字符串
+     * @return 打印宽度
+     */
     public int getPrintWidth(String str) {
         var width = 0;
         for (var i = 0; i < str.length(); i++) {
@@ -885,6 +952,12 @@ public class CStrUtils {
         return width;
     }
 
+    /**
+     * 获取字符打印宽度（ASCII 按 1，其余按 2）
+     *
+     * @param ch 字符
+     * @return 打印宽度
+     */
     public int getPrintWidth(char ch) {
         if(ch <= 255) {
             return 1;
@@ -892,6 +965,12 @@ public class CStrUtils {
         return 2;
     }
 
+    /**
+     * 只保留中文字符
+     *
+     * @param str 字符串
+     * @return 中文字符串，原字符串为空时原样返回
+     */
     public String chineseOnly(String str) {
         if(StrUtil.isEmpty(str)) {
             return str;

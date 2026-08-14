@@ -15,6 +15,12 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CBase62Utils {
 
+    /**
+     * 字节数组 Base62 编码
+     *
+     * @param bytes 字节数组
+     * @return Base62 字符串，字节数组为空时返回 null
+     */
     public String encode(byte[] bytes) {
 
         if(ArrayUtil.isEmpty(bytes)) {
@@ -23,6 +29,12 @@ public class CBase62Utils {
         return Base62.encode(bytes);
     }
 
+    /**
+     * Base62 字符串解码
+     *
+     * @param value Base62 字符串
+     * @return 字节数组，字符串为空时返回 null
+     */
     public byte[] decode(String value) {
         if(StrUtil.isEmpty(value)) {
             return null;

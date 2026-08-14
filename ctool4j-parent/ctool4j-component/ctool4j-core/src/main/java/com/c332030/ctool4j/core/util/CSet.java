@@ -16,10 +16,23 @@ import java.util.*;
 @UtilityClass
 public class CSet {
 
+    /**
+     * 获取空 Set
+     *
+     * @param <T> 元素类型
+     * @return 空 Set
+     */
     public <T> Set<T> of() {
         return Collections.emptySet();
     }
 
+    /**
+     * 获取元素 Set（过滤 null 元素）
+     *
+     * @param ts  元素
+     * @param <T> 元素类型
+     * @return 不可变 Set
+     */
     @SafeVarargs
     public <T> Set<T> of(T... ts) {
 
@@ -33,6 +46,13 @@ public class CSet {
         return Collections.unmodifiableSet(set);
     }
 
+    /**
+     * 获取枚举 Set（过滤 null 元素）
+     *
+     * @param ts  枚举元素
+     * @param <T> 枚举类型
+     * @return 不可变枚举 Set
+     */
     @SafeVarargs
     public <T extends Enum<T>> Set<T> of(T... ts) {
 

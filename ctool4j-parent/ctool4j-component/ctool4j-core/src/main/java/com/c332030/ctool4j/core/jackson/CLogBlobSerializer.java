@@ -20,6 +20,9 @@ public class CLogBlobSerializer extends JsonSerializer<Object> {
      */
     public static final String BLOB_PLACEHOLDER = "<BLOB>";
 
+    /**
+     * 单例实例
+     */
     public static final CLogBlobSerializer INSTANCE = new CLogBlobSerializer();
 
     @Override

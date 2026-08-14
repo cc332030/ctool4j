@@ -15,6 +15,9 @@ import com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils;
  */
 public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements ICMpMethod {
 
+    /**
+     * 构造方法，指定无需更新的字段
+     */
     public CUpdateAllByIdMethod() {
         super(CMpFieldUtils.UPDATE_NOT_NEVER);
     }

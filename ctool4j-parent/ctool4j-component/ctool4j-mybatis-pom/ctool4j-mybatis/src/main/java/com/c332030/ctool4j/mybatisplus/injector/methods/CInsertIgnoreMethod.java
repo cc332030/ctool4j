@@ -18,6 +18,11 @@ public class CInsertIgnoreMethod extends Insert implements ICMpMethod {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 构造方法，指定使用 INSERT_IGNORE 方法
+     *
+     * @param ignoreAutoIncrementColumn 是否忽略自增主键列
+     */
     public CInsertIgnoreMethod(boolean ignoreAutoIncrementColumn) {
         super(
             CMpSqlMethod.INSERT_IGNORE.getMethod(),

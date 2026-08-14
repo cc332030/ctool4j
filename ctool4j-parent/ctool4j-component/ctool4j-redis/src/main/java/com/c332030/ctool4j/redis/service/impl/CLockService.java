@@ -319,29 +319,84 @@ public class CLockService {
         return tryLock(lock, timeout, timeUnit);
     }
 
+    /**
+     * 尝试加锁并执行操作
+     *
+     * @param key     锁 key
+     * @param runnable 锁成功后的操作
+     * @return true 表示获取锁并执行成功
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public boolean tryLockThenRun(String key, CRunnable runnable) {
         return null != tryLockThenRun(key, CObjUtils.toSupplier(runnable), null);
     }
 
+    /**
+     * 尝试加锁并执行操作，返回操作结果
+     *
+     * @param key          锁 key
+     * @param valueSupplier 锁成功后的操作
+     * @param <T>          结果类型
+     * @return 操作结果；未获取到锁时返回 null
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public <T> T tryLockThenRun(String key, Supplier<T> valueSupplier) {
         return tryLockThenRun(key, valueSupplier, null);
     }
 
+    /**
+     * 尝试加锁并执行操作，未获取到锁时执行失败回调
+     *
+     * @param key             锁 key
+     * @param runnable        锁成功后的操作
+     * @param failureRunnable 未获取到锁时的回调
+     * @return true 表示获取锁并执行成功
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public boolean tryLockThenRun(String key, CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, 0, null, CObjUtils.toSupplier(runnable), failureRunnable);
     }
+    /**
+     * 尝试加锁并执行操作，未获取到锁时执行失败回调
+     *
+     * @param key             锁 key
+     * @param valueSupplier   锁成功后的操作
+     * @param failureRunnable 未获取到锁时的回调
+     * @param <T>             结果类型
+     * @return 操作结果；未获取到锁时返回 null
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public <T> T tryLockThenRun(String key, Supplier<T> valueSupplier, CRunnable failureRunnable) {
         return tryLockThenRun(key, 0, null, valueSupplier, failureRunnable);
     }
 
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作
+     *
+     * @param key          锁 key
+     * @param waitDuration 等待锁的时长
+     * @param runnable     锁成功后的操作
+     * @return true 表示获取锁并执行成功
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public boolean tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), null);
     }
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作
+     *
+     * @param key           锁 key
+     * @param waitDuration  等待锁的时长
+     * @param valueSupplier 锁成功后的操作
+     * @param <T>           结果类型
+     * @return 操作结果；未获取到锁时返回 null
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier) {
         return tryLockThenRun(key, waitDuration, valueSupplier, null);
@@ -361,6 +416,17 @@ public class CLockService {
         return null != tryLockThenRun(key, waitDuration, CObjUtils.toSupplier(runnable), failureRunnable);
     }
 
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作，未获取到锁时执行失败回调
+     *
+     * @param key             锁 key
+     * @param waitDuration    等待锁的时长
+     * @param valueSupplier   锁成功后的操作
+     * @param failureRunnable 未获取到锁时的回调
+     * @param <T>             结果类型
+     * @return 操作结果；未获取到锁时返回 null
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public <T> T tryLockThenRun(String key, Duration waitDuration,
                                 CSupplier<T> valueSupplier, CRunnable failureRunnable) {
@@ -381,23 +447,67 @@ public class CLockService {
         return tryLockThenRun(key, timeout, timeUnit, valueSupplier, failureRunnable);
     }
 
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作
+     *
+     * @param key      锁 key
+     * @param waitTime 等待锁的时长数值
+     * @param timeUnit 等待时长的时间单位
+     * @param runnable 锁成功后的操作
+     * @return true 表示获取锁并执行成功
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public boolean tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                   CRunnable runnable) {
         return null != tryLockThenRun(key, waitTime, timeUnit, CObjUtils.toSupplier(runnable), null);
     }
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作
+     *
+     * @param key           锁 key
+     * @param waitTime      等待锁的时长数值
+     * @param timeUnit      等待时长的时间单位
+     * @param valueSupplier 锁成功后的操作
+     * @param <T>           结果类型
+     * @return 操作结果；未获取到锁时返回 null
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public <T> T tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                 Supplier<T> valueSupplier) {
         return tryLockThenRun(key, waitTime, timeUnit, valueSupplier, null);
     }
 
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作，未获取到锁时执行失败回调
+     *
+     * @param key             锁 key
+     * @param waitTime        等待锁的时长数值
+     * @param timeUnit        等待时长的时间单位
+     * @param runnable        锁成功后的操作
+     * @param failureRunnable 未获取到锁时的回调
+     * @return true 表示获取锁并执行成功
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public boolean tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                   CRunnable runnable, CRunnable failureRunnable) {
         return null != tryLockThenRun(key, waitTime, timeUnit, CObjUtils.toSupplier(runnable), failureRunnable);
     }
 
+    /**
+     * 尝试加锁并等待指定时长，成功后执行操作，未获取到锁时执行失败回调
+     *
+     * @param key             锁 key
+     * @param waitTime        等待锁的时长数值
+     * @param timeUnit        等待时长的时间单位
+     * @param valueSupplier   锁成功后的操作
+     * @param failureRunnable 未获取到锁时的回调
+     * @param <T>             结果类型
+     * @return 操作结果；未获取到锁时返回 null
+     * @deprecated 已废弃，建议使用 tryLock(String key) + Lock 的调用方式
+     */
     @Deprecated
     public <T> T tryLockThenRun(String key, long waitTime, TimeUnit timeUnit,
                                 Supplier<T> valueSupplier, CRunnable failureRunnable) {

@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CSqlUtilsTest {
 
+    /**
+     * 测试驼峰命名转下划线列名
+     */
     @Test
     public void toColumnName() {
 

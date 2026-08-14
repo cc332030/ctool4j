@@ -17,6 +17,9 @@ public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements 
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 构造方法，指定无需更新的字段
+     */
     public CUpdateAllByIdMethod() {
         super(CMpFieldUtils.UPDATE_NOT_NEVER);
     }

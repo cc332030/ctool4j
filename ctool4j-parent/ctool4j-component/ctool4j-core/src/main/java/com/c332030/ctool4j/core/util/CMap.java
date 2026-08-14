@@ -20,16 +20,43 @@ import java.util.Map;
 @UtilityClass
 public class CMap {
 
+    /**
+     * 获取空 Map
+     *
+     * @param <K> 键类型
+     * @param <V> 值类型
+     * @return 空 Map
+     */
     public <K, V> Map<K, V> of() {
         return Collections.emptyMap();
     }
 
+    /**
+     * 获取单键值 Map
+     *
+     * @param k1  键
+     * @param v1  值
+     * @param <K> 键类型
+     * @param <V> 值类型
+     * @return 单键值 Map
+     */
     public <K, V> Map<K, V> of(
             K k1, V v1
     ) {
         return Collections.singletonMap(k1, v1);
     }
 
+    /**
+     * 获取双键值 Map
+     *
+     * @param k1  第一个键
+     * @param v1  第一个值
+     * @param k2  第二个键
+     * @param v2  第二个值
+     * @param <K> 键类型
+     * @param <V> 值类型
+     * @return 不可变 Map
+     */
     public <K, V> Map<K, V> of(
             K k1, V v1,
             K k2, V v2
@@ -40,6 +67,19 @@ public class CMap {
         return Collections.unmodifiableMap(map);
     }
 
+    /**
+     * 获取三键值 Map
+     *
+     * @param k1  第一个键
+     * @param v1  第一个值
+     * @param k2  第二个键
+     * @param v2  第二个值
+     * @param k3  第三个键
+     * @param v3  第三个值
+     * @param <K> 键类型
+     * @param <V> 值类型
+     * @return 不可变 Map
+     */
     public <K, V> Map<K, V> of(
             K k1, V v1,
             K k2, V v2,
@@ -52,10 +92,27 @@ public class CMap {
         return Collections.unmodifiableMap(map);
     }
 
+    /**
+     * 复制 Map 到新有序 Map
+     *
+     * @param map  原 Map
+     * @param <K>  键类型
+     * @param <V>  值类型
+     * @return 新有序 Map，原 Map 为空时返回空 Map
+     */
     public <K, V> Map<K, V> of(Map<K, V> map) {
         return of(map, LinkedHashMap::new);
     }
 
+    /**
+     * 复制 Map 到指定类型新 Map
+     *
+     * @param map      原 Map
+     * @param supplier 新 Map 供应商
+     * @param <K>      键类型
+     * @param <V>      值类型
+     * @return 新 Map，原 Map 为空时返回空 Map
+     */
     public <K, V> Map<K, V> of(Map<K, V> map, CSupplier<Map<K, V>> supplier) {
 
         if(MapUtil.isEmpty(map)) {

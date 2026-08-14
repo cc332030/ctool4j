@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CProfileEnumTests {
 
+    /**
+     * 测试按名称获取环境枚举（大小写不敏感）
+     */
     @Test
     public void of() {
 

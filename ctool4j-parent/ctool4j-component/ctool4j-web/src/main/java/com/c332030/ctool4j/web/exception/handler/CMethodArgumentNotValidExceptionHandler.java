@@ -23,6 +23,12 @@ import java.util.stream.Collectors;
 @ConditionalOnMissingExceptionHandler(MethodArgumentNotValidException.class)
 public class CMethodArgumentNotValidExceptionHandler {
 
+    /**
+     * 处理参数校验异常，拼接全部字段错误信息
+     *
+     * @param e 参数校验异常
+     * @return 错误结果
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public CStrResult<Void> handle(MethodArgumentNotValidException e) {
 
