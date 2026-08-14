@@ -35,6 +35,14 @@ public class CClassValue<T> implements ICClassValue<T> {
     }
 
     /**
+     * 移除缓存值，下次 get 时重新计算
+     * @param clazz 类
+     */
+    public void remove(Class<?> clazz) {
+        classValue.remove(clazz);
+    }
+
+    /**
      * 创建 CClassValue
      * @param function 值函数
      * @return CClassValue
