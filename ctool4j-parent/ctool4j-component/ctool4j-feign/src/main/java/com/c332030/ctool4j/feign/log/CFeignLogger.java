@@ -23,7 +23,6 @@ import lombok.val;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -200,7 +199,7 @@ public class CFeignLogger extends Logger {
             return null;
         }
         if (CCommUtils.isTextBody(headers)) {
-            return new String(bodyBytes, StandardCharsets.UTF_8);
+            return new String(bodyBytes, CCommUtils.getCharsetOrDefault(headers));
         }
         return "[not text body]";
     }
