@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
@@ -87,13 +88,33 @@ public class CCommUtils {
     }
 
     /**
+     * 从 Content-Type 解析字符集，未声明时默认 UTF-8；无法解析的 Content-Type 忽略
+     * @param headers 请求/响应头
+     * @return 字符集
+     */
+    public Charset getCharsetOrDefault(Map<String, Collection<String>> headers) {
+        val contentTypes = CCollUtils.defaultEmpty(headers.get(HttpHeaders.CONTENT_TYPE));
+        for (val contentType : contentTypes) {
+            try {
+                val charset = MediaType.parseMediaType(contentType).getCharset();
+                if (null != charset) {
+                    return charset;
+                }
+            } catch (Exception e) {
+                // 无法解析的 Content-Type 忽略，继续尝试下一个
+            }
+        }
+        return StandardCharsets.UTF_8;
+    }
+
+    /**
      * 拼接请求行：METHOD path[?params]，仅 GET 请求拼接查询参数，
-     * POST/PUT 等请求的参数在 body 中，不拼到 URL
+     * POST/PUT 等请求的参数在 body 中，不拼到 URL。
+     * <p>请求行是完整 HTTP 报文的第一行，本方法不自带头部换行</p>
      */
     public void appendRequestUrl(StringBuilder sb, IHttpLogInfo info) {
 
         val method = info.getMethod();
-        sb.append("\n");
         sb.append(method);
         sb.append(" ");
         appendUrl(sb, info);
@@ -103,7 +124,6 @@ public class CCommUtils {
      * 拼接请求行：METHOD URL
      */
     public void appendRequestLine(StringBuilder sb, String method, String url) {
-        sb.append("\n");
         sb.append(method);
         sb.append(" ");
         sb.append(url);
@@ -179,7 +199,7 @@ public class CCommUtils {
         }
         sb.append("\n\n");
         if (isTextBody(headers)) {
-            sb.append(new String(bodyBytes, StandardCharsets.UTF_8));
+            sb.append(new String(bodyBytes, getCharsetOrDefault(headers)));
         } else {
             sb.append("[not text body]");
         }
