@@ -69,9 +69,12 @@ public class CCacheAspect {
         );
 
     /**
-     * 缓存切面
+     * 缓存切面：读缓存 → 未命中时执行原方法并写缓存（原方法在缓存方法内部执行）。
+     * <p>读缓存/执行原方法异常时记录日志并返回 null，不再重复执行原方法，
+     * 避免业务异常导致原方法被二次执行</p>
+     *
      * @param joinPoint 切入点
-     * @return 方法执行结果
+     * @return 方法执行结果；异常时返回 null
      */
     @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheable)")
     public Object cacheAspect(ProceedingJoinPoint joinPoint) {
@@ -89,8 +92,7 @@ public class CCacheAspect {
         } catch (Exception e) {
             log.error("获取缓存失败，cacheable: {}", cacheable, e);
         }
-
-        return CAspectUtils.process(joinPoint);
+        return null;
     }
 
     /**
@@ -153,7 +155,7 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取本地缓存
+     * 获取本地缓存：未命中时执行原方法并写缓存（Caffeine cache.get 原子加载，单 key 并发只执行一次）
      * @param joinPoint 切入点
      * @param cacheable 缓存注解
      * @return 本地缓存或执行结果
@@ -196,12 +198,12 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取 Redis 缓存
+     * 获取 Redis 缓存：未命中时执行原方法并写缓存（cacheService.getCache 读-算-写一体）
      * <p>
      * 缓存 key 格式：namespace:cacheKey（由 getCacheKey 生成）
      * @param joinPoint 切入点
-     * @param cacheable 缓存注解
      * @param method 目标方法（用于获取返回类型做反序列化）
+     * @param cacheable 缓存注解
      * @return Redis 缓存或执行结果
      */
     private Object getRedisCache(
