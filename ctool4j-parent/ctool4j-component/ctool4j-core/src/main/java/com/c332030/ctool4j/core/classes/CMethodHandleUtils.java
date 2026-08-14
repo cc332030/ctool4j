@@ -35,8 +35,11 @@ public class CMethodHandleUtils {
 
     /**
      * 字段 getter 方法句柄缓存
+     * key 弱引用，避免 Field 及其所属类加载器无法回收（与 CReflectUtils.ELEMENT_ANNOTATION_CACHE 一致）
      */
-    final Cache<Field, MethodHandle> GETTER_HANDLE_CACHE = CLocalCacheUtils.buildCache();
+    final Cache<Field, MethodHandle> GETTER_HANDLE_CACHE = CLocalCacheUtils.<Field, MethodHandle>cacheBuilder()
+        .weakKeys()
+        .build();
 
     /**
      * 获取字段 getter 方法句柄（带缓存）
@@ -63,8 +66,11 @@ public class CMethodHandleUtils {
 
     /**
      * 字段 setter 方法句柄缓存
+     * key 弱引用，避免 Field 及其所属类加载器无法回收
      */
-    final Cache<Field, MethodHandle> SETTER_HANDLE_CACHE = CLocalCacheUtils.buildCache();
+    final Cache<Field, MethodHandle> SETTER_HANDLE_CACHE = CLocalCacheUtils.<Field, MethodHandle>cacheBuilder()
+        .weakKeys()
+        .build();
 
     /**
      * 获取字段 setter 方法句柄（带缓存）
@@ -91,8 +97,11 @@ public class CMethodHandleUtils {
 
     /**
      * 方法句柄缓存
+     * key 弱引用，避免 Method 及其所属类加载器无法回收
      */
-    final Cache<Method, MethodHandle> METHOD_HANDLE_CACHE = CLocalCacheUtils.buildCache();
+    final Cache<Method, MethodHandle> METHOD_HANDLE_CACHE = CLocalCacheUtils.<Method, MethodHandle>cacheBuilder()
+        .weakKeys()
+        .build();
 
     /**
      * 获取方法的方法句柄（带缓存）
@@ -132,8 +141,12 @@ public class CMethodHandleUtils {
 
     /**
      * 构造器方法句柄缓存
+     * key 弱引用，避免 Constructor 及其所属类加载器无法回收
      */
-    final Cache<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE = CLocalCacheUtils.buildCache();
+    final Cache<Constructor<?>, MethodHandle> CONSTRUCTOR_HANDLE_CACHE =
+        CLocalCacheUtils.<Constructor<?>, MethodHandle>cacheBuilder()
+            .weakKeys()
+            .build();
 
     /**
      * 获取构造器方法句柄（带缓存）
