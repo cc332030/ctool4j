@@ -60,10 +60,10 @@ public interface IHttpLogInfo {
     }
 
     /**
-     * 耗时（毫秒）
+     * 耗时（毫秒），未设置测量时返回 null，由调用方决定是否输出
      */
-    default long getRt() {
-        return 0;
+    default Long getRt() {
+        return null;
     }
 
     /**
