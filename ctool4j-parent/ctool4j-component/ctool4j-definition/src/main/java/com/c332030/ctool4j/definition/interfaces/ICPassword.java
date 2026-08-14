@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public interface ICPassword {
 
-    @ApiModelProperty("用户名")
+    @ApiModelProperty("密码")
     String getPassword();
 
     void setPassword(String password);
