@@ -21,12 +21,12 @@ public class CPatternUtils {
     /**
      * 正则表达式缓存
      */
-    public Map<String, Pattern> REGEX_PATTERNS = new ConcurrentHashMap<>();
+    private final Map<String, Pattern> REGEX_PATTERNS = new ConcurrentHashMap<>();
 
     /**
      * url 正则表达式缓存（独立于普通正则缓存，避免拼接键与用户 regex 冲突）
      */
-    public Map<String, Pattern> URL_REGEX_PATTERNS = new ConcurrentHashMap<>();
+    private final Map<String, Pattern> URL_REGEX_PATTERNS = new ConcurrentHashMap<>();
 
     /**
      * 获取正则表达式缓存
