@@ -62,6 +62,11 @@ public class CRequestLog implements IHttpLogInfo {
      */
     Object requestBody;
 
+    /**
+     * 无完整请求头且无 token/traceId/tenantId/userId 时返回的空请求头，所有请求共享；只读不可修改
+     */
+    static final Map<String, Collection<String>> EMPTY_HEADERS = Collections.emptyMap();
+
     @Override
     public Map<String, Collection<String>> getHeaders() {
         if (MapUtil.isNotEmpty(headers)) {
@@ -80,7 +85,7 @@ public class CRequestLog implements IHttpLogInfo {
         if (StrUtil.isNotEmpty(userId)) {
             headerMap.put(CRequestHeaderEnum.X_USER_ID.getHeaderName(), Collections.singletonList(userId));
         }
-        return headerMap;
+        return headerMap.isEmpty() ? EMPTY_HEADERS : headerMap;
     }
 
     @Override

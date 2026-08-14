@@ -12,7 +12,6 @@ import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
 import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.log.util.CRequestLogUtils;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import feign.Logger;
 import feign.Request;
 import feign.Response;
@@ -25,9 +24,7 @@ import lombok.val;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * <p>
@@ -41,36 +38,26 @@ import java.util.concurrent.ConcurrentMap;
 public class CFeignLogger extends Logger {
 
     /**
-     * 进行中的 feign 请求日志，以 Request 引用为 key（Caffeine 的 ConcurrentMap 视图）。
-     * <p>feign.Request 未重写 equals，按引用精确匹配，同一线程嵌套/并发/异步的多个请求互不串扰，
-     * logAndRebufferResponse 通过 response.request() 精确取回对应请求</p>
-     * <p>key 使用强引用 + 确定性超时淘汰：正常请求（时长远小于 {@link #REQUEST_LOG_EXPIRE_DURATION}）
-     * 必定存活不丢日志；feign 对非 IOException 异常（如响应解码失败）不回调
-     * logIOException/logAndRebufferResponse，entry 无法按正常路径移除，超时后由 Caffeine 清理，
-     * 避免内存泄漏。不可用弱引用 key：依赖 GC 时机，正常请求可能提前失效导致日志丢失</p>
+     * 本线程进行中的 feign 请求日志（发起后、回调前），供回调取回打印。
+     * <p>标准 feign（同步阻塞 / AsyncFeign 在 executor 线程内串行执行）中，
+     * logRequest 与对应回调恒在同一线程且"进行中"的请求最多一个（重试/嵌套均串行交替），单值即可；
+     * 回调时取走并清除。若自定义 Client 等包装导致回调跨线程，本线程值为空，日志降级为不打印</p>
+     *
+     * <p><b>方案演进与设计思路</b>（记录取舍，避免后来者误改）：
+     * 最初用 {@code Caffeine<Request, CRequestLog> ConcurrentMap} 按 Request 引用精确取回 + ThreadLocal 兜底异常取回。
+     * 后简化为仅 ThreadLocal<CRequestLog>，依据如下：</p>
+     * <ol>
+     * <li><b>并发隔离靠 ThreadLocal 自身</b>：每线程独立实例，并发多线程下同接口并发日志不串（"线程内单线程"），
+     * 无需全局 map 按引用隔离。</li>
+     * <li><b>回调必在同线程</b>：标准 feign 中 logRequest 与 logAndRebufferResponse/logIOException 恒在同一线程
+     * 且"进行中"请求最多一个，ThreadLocal 单值即可配对，map 成为冗余。</li>
+     * <li><b>异常回调无 request 参数</b>（feign Logger API 限制），只能靠线程线索取回，ThreadLocal 是唯一载体；
+     * 故 ThreadLocal 本身不可删，否则所有连接类异常日志整条丢失。</li>
+     * </ol>
+     * <p><b>已接受的边界</b>：回调跨线程的自定义包装（如自定义 Client/InvocationHandler/Hystrix）下，
+     * 回调线程本值为空，该请求成功/异常日志降级为不打印。项目使用标准 feign，此边界已确认可接受。</p>
      */
-    final ConcurrentMap<Request, CRequestLog> REQUEST_LOG_MAP = Caffeine.newBuilder()
-        .expireAfterWrite(REQUEST_LOG_EXPIRE_DURATION)
-        .maximumSize(MAXIMUM_REQUEST_LOG_SIZE)
-        .<Request, CRequestLog>build()
-        .asMap();
-
-    /**
-     * 请求日志超时淘汰时长：超过该时长仍未完成的请求视为泄漏，由 Caffeine 清理
-     */
-    static final Duration REQUEST_LOG_EXPIRE_DURATION = Duration.ofMinutes(5);
-
-    /**
-     * 请求日志缓存容量上限（条）：超时淘汰外的极端情况兜底
-     */
-    static final long MAXIMUM_REQUEST_LOG_SIZE = 500;
-
-    /**
-     * 兜底记录本线程进行中的 feign 请求（按栈维护，支持同一线程嵌套 feign），
-     * 供 logIOException（feign API 不提供 request 参数）取回日志；
-     * 已完成/泄漏的残留由 pushRequest 入栈前按 REQUEST_LOG_MAP 清理
-     */
-    final ThreadLocal<Deque<Request>> REQUEST_DEQUE_THREAD_LOCAL = ThreadLocal.withInitial(ArrayDeque::new);
+    final ThreadLocal<CRequestLog> REQUEST_THREAD_LOCAL = new ThreadLocal<>();
 
     CFeignClientLogConfig config;
 
@@ -79,62 +66,20 @@ public class CFeignLogger extends Logger {
         if (CBoolUtils.isTrue(config.getEnable())) {
             if (enableLog(request)) {
                 // 永远先记录请求信息，统一保存到 CRequestLog，拼接在打印时执行
-                setRequestLog(request);
-                pushRequest(request);
+                REQUEST_THREAD_LOCAL.set(setRequestLog(request));
             }
         }
     }
 
     @Override
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) {
-        val requestLog = REQUEST_LOG_MAP.remove(response.request());
-        removeFromRequestDeque(response.request());
-        return dealResponse(response, requestLog, elapsedTime, this::dealResponseLog);
+        return this.dealResponse(response, elapsedTime, this::dealResponseLog);
     }
 
     @Override
     protected IOException logIOException(String configKey, Level logLevel, IOException ioe, long elapsedTime) {
-        // feign 异常回调不提供 request 参数，只能通过线程栈兜底取回最近一次未完成的请求
-        val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        val request = deque.pollLast();
-        if (deque.isEmpty()) {
-            REQUEST_DEQUE_THREAD_LOCAL.remove();
-        }
-        val requestLog = null == request ? null : REQUEST_LOG_MAP.remove(request);
-        return dealResponse(ioe, requestLog, elapsedTime, this::dealErrorLog);
-    }
-
-    /**
-     * 记录请求到本线程栈，供 logIOException 兜底取回。
-     * <p>入栈前清理本线程已完成的残留引用（其响应已从 REQUEST_LOG_MAP 移除），
-     * 避免异步返回时栈残留导致线程池复用时累积</p>
-     *
-     * @param request feign 请求
-     */
-    private void pushRequest(Request request) {
-        val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        while (!deque.isEmpty() && !REQUEST_LOG_MAP.containsKey(deque.peekLast())) {
-            deque.pollLast();
-        }
-        deque.addLast(request);
-    }
-
-    /**
-     * 请求正常完成后从本线程栈移除（仅当位于栈顶时按引用比较移除，避免同内容请求误删）
-     *
-     * @param request feign 请求
-     */
-    private void removeFromRequestDeque(Request request) {
-        val deque = REQUEST_DEQUE_THREAD_LOCAL.get();
-        if (deque.isEmpty()) {
-            return;
-        }
-        if (deque.peekLast() == request) {
-            deque.pollLast();
-        }
-        if (deque.isEmpty()) {
-            REQUEST_DEQUE_THREAD_LOCAL.remove();
-        }
+        // feign 异常回调不提供 request 参数，只能通过线程兜底取回本线程最近一次未完成的请求
+        return this.dealResponse(ioe, elapsedTime, this::dealErrorLog);
     }
 
     @Override
@@ -180,26 +125,47 @@ public class CFeignLogger extends Logger {
     }
 
     /**
-     * 记录请求信息到统一模型 CRequestLog：method、path、请求头、请求体，拼接在打印时执行
+     * 构建请求日志模型 CRequestLog：method、path、请求头、请求体，拼接在打印时执行
      *
      * @param request feign 原始请求
+     * @return 请求日志模型
      */
-    private void setRequestLog(Request request) {
+    private CRequestLog setRequestLog(Request request) {
         val requestLog = new CRequestLog();
         requestLog.setMethod(request.httpMethod().name());
         setPathAndParams(requestLog, request);
         if (BooleanUtil.isTrue(config.getEnableHeader())) {
-            // feign 请求头本身为 Map<String, Collection<String>>，可直接保存多值
-            requestLog.setHeaders(request.headers());
+            // feign 请求头为外部可变对象，深拷贝为不可变后再保存，避免日志模型被外部修改
+            requestLog.setHeaders(toImmutableHeaders(request.headers()));
         }
         requestLog.setRequestBody(getBodyText(request.body(), request.headers()));
-        REQUEST_LOG_MAP.put(request, requestLog);
+        return requestLog;
     }
 
     /**
-     * 设置日志 path（相对路径）与 query 参数：
-     * <p>feign 的 @RequestParam 无论 GET/POST 都在 URL query string 中，统一放入 params 对象，
-     * 由拼接层负责输出（GET 拼到 URL，非 GET 输出为 form 段），避免拼接层仅对 GET 拼接 params 导致丢失</p>
+     * feign 请求头（外部可变对象）深拷贝为不可变 Map：
+     * 外层 Map 与内层 Collection 均不可变，避免日志模型持有外部可变引用
+     *
+     * @param headers feign 请求头
+     * @return 不可变请求头，空 headers 返回 null
+     */
+    private Map<String, Collection<String>> toImmutableHeaders(Map<String, Collection<String>> headers) {
+        if (MapUtil.isEmpty(headers)) {
+            return null;
+        }
+        val headerMap = new LinkedHashMap<String, Collection<String>>();
+        headers.forEach((key, values) -> headerMap.put(
+            key,
+            null == values ? null : Collections.unmodifiableList(new ArrayList<>(values))
+        ));
+        return Collections.unmodifiableMap(headerMap);
+    }
+
+    /**
+     * 设置日志 path（相对路径，含 query string）：
+     * <p>feign 的 @RequestParam 无论 GET/POST 都已拼入 URL query string，
+     * 随 path 一并输出，避免非 GET 请求在请求体区重复输出 form 段（双 body 误导排障）；
+     * 服务端日志的 params 仍走拼接层，互不影响</p>
      *
      * @param requestLog 请求日志模型
      * @param request    feign 原始请求
@@ -207,23 +173,18 @@ public class CFeignLogger extends Logger {
     @SneakyThrows
     private void setPathAndParams(CRequestLog requestLog, Request request) {
         val url = new URL(request.url());
-        requestLog.setPath(url.getPath());
-        requestLog.setParams(getParamsMap(request.requestTemplate().queries()));
+        requestLog.setPath(appendQuery(url.getPath(), url.getQuery()));
     }
 
     /**
-     * feign 的 query 参数转换为日志模型参数（均为 Map&lt;String, Collection&lt;String&gt;&gt;）
+     * 路径后拼接 query string（无 query 时原样返回）
      *
-     * @param queries feign 展开后的 query 参数
-     * @return 日志模型参数，无参数返回 null
+     * @param path  请求路径
+     * @param query query string（URL 原样，已编码）
+     * @return 完整展示路径
      */
-    private Map<String, Collection<String>> getParamsMap(Map<String, Collection<String>> queries) {
-        if (MapUtil.isEmpty(queries)) {
-            return null;
-        }
-        val paramMap = new LinkedHashMap<String, Collection<String>>();
-        queries.forEach((key, values) -> paramMap.put(key, new ArrayList<>(values)));
-        return paramMap;
+    private String appendQuery(String path, String query) {
+        return StrUtil.isEmpty(query) ? path : path + "?" + query;
     }
 
     /**
@@ -244,16 +205,19 @@ public class CFeignLogger extends Logger {
     }
 
     /**
-     * 统一处理响应/异常日志：设置属性（耗时、响应体、异常）后走公共出口打印 http 格式
+     * 统一处理响应/异常日志：取回并清除本线程请求日志，设置属性（耗时、响应体、异常）后走公共出口打印 http 格式
      *
      * @param t           原始对象（响应或异常）
-     * @param requestLog  对应的请求日志，null 表示未命中（未记录请求或已被取走）
      * @param elapsedTime 耗时（毫秒）
      * @param function    设置响应体/异常的具体逻辑
      * @param <T>         原始对象类型
      * @return 原始对象（响应会被重新缓冲）
      */
-    private <T> T dealResponse(T t, CRequestLog requestLog, long elapsedTime, CBiFunction<T, CRequestLog, T> function) {
+    private <T> T dealResponse(T t, long elapsedTime, CBiFunction<T, CRequestLog, T> function) {
+
+        // 取回并清除本线程进行中的请求日志，无论后续是否打印都先清理，避免线程复用泄漏
+        val requestLog = REQUEST_THREAD_LOCAL.get();
+        REQUEST_THREAD_LOCAL.remove();
 
         if (CBoolUtils.isTrue(config.getEnable())) {
             if (null == requestLog || StrUtil.isEmpty(requestLog.getMethod())) {

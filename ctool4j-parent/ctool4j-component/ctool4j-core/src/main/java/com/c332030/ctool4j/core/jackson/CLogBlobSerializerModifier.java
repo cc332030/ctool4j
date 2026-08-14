@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.jackson;
 
+import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.annotation.CLogBlob;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -24,6 +25,12 @@ import java.util.stream.Collectors;
  * @since 2026/8/13
  */
 public class CLogBlobSerializerModifier extends BeanSerializerModifier {
+
+    /**
+     * 标注 {@link CLogBlob} 的字段名集合缓存：按类缓存，避免每次序列化重复构建
+     */
+    static final CClassValue<Set<String>> BLOB_FIELD_NAME_CACHE =
+        CClassValue.of(CLogBlobSerializerModifier::getBlobFieldNames);
 
     /**
      * 获取标注了 {@link CLogBlob} 的字段名集合
@@ -52,7 +59,7 @@ public class CLogBlobSerializerModifier extends BeanSerializerModifier {
             List<BeanPropertyWriter> beanProperties
     ) {
         // 兼容 getter 上的注解（BeanPropertyWriter 的 primary member 为 getter 时）
-        val blobFields = getBlobFieldNames(beanDesc.getBeanClass());
+        val blobFields = BLOB_FIELD_NAME_CACHE.get(beanDesc.getBeanClass());
         if (blobFields.isEmpty()) {
             return beanProperties;
         }
