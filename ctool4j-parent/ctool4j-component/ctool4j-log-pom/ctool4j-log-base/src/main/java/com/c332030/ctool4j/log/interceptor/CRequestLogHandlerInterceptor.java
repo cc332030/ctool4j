@@ -61,7 +61,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
                 }
                 // 完整耗时：endTimeMillis 由 beforeBodyWrite 设置（早于响应体写出），
                 // 此处以实际完成时间为准，包含视图渲染与响应写出耗时；
-                // 未记录开始时间时耗时恒为 0（getRt 在 beginTimeMillis 未设置时返回 null，兜底即 0）
+                // 未记录开始时间时耗时恒为 0（beginTimeMillis 未设置时兜底即 0）
                 long rt;
                 if (requestLog.getBeginTimeMillis() > 0) {
                     rt = System.currentTimeMillis() - requestLog.getBeginTimeMillis();
