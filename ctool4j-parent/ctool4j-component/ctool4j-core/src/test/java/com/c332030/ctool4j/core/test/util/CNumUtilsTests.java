@@ -35,7 +35,8 @@ public class CNumUtilsTests {
         CNumUtils.assertOverflow(Float.MIN_VALUE);
         CNumUtils.assertOverflow(Float.MAX_VALUE);
 
-        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Double.MIN_VALUE));
+        // Double.MIN_VALUE 极小正数，未超出 Float 范围，不抛异常
+        Assertions.assertDoesNotThrow(() -> CNumUtils.assertOverflow(Double.MIN_VALUE));
         Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Double.MAX_VALUE));
 
     }
