@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,8 @@ public class CFeignLocalClientInit implements ICSpringInit, AutoCloseable {
 
     final NamingService namingService;
 
+    volatile boolean closed;
+
     @SneakyThrows
     public CFeignLocalClientInit(NacosDiscoveryProperties discoveryProperties) {
         namingService = NamingFactory.createNamingService(discoveryProperties.getNacosProperties());
@@ -44,8 +47,17 @@ public class CFeignLocalClientInit implements ICSpringInit, AutoCloseable {
     }
 
     @Override
+    @PreDestroy
+    @SneakyThrows
     public void close() {
+        // Spring 不会调用 AutoCloseable.close，须经 @PreDestroy 在容器销毁时触发；
+        // 防重入：@PreDestroy 与显式调用可能重复触发
+        if(closed) {
+            return;
+        }
+        closed = true;
         doForClient("取消注册", namingService::deregisterInstance);
+        namingService.shutDown();
     }
 
     private void doForClient(String operateName, CBiConsumer<String, Instance> consumer) {
@@ -58,11 +70,16 @@ public class CFeignLocalClientInit implements ICSpringInit, AutoCloseable {
             Instance instance = null;
             try {
 
-                val ipPortArr = ipPort.split(":");
+                // 以最后一个冒号拆分 host:port，兼容 IPv6 地址（含多个冒号）；
+                // 缺端口或格式错误时抛异常，由外层 catch 记录，避免静默吞掉注册失败
+                val lastColonIndex = ipPort.lastIndexOf(":");
+                if(lastColonIndex <= 0) {
+                    throw new IllegalArgumentException("ip:port 格式错误: " + ipPort);
+                }
                 instance = new Instance();
                 instance.setClusterName(serviceName);
-                instance.setIp(ipPortArr[0]);
-                instance.setPort(Integer.parseInt(ipPortArr[1]));
+                instance.setIp(ipPort.substring(0, lastColonIndex));
+                instance.setPort(Integer.parseInt(ipPort.substring(lastColonIndex + 1)));
 
                 consumer.accept(serviceName, instance);
 
