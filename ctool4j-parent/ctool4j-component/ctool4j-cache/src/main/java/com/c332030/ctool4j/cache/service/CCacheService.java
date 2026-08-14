@@ -36,9 +36,11 @@ import java.util.function.Supplier;
 public class CCacheService {
 
     /**
-     * 异步刷新专用线程池：daemon 线程不阻塞 JVM 退出；独立于 commonPool，避免与业务并行流抢占
+     * 异步刷新专用线程池：daemon 线程不阻塞 JVM 退出；独立于 commonPool，避免与业务并行流抢占。
+     * <p>实例字段而非 static：由本实例的 {@link #destroy()} 随容器销毁关闭，
+     * 避免多 Spring 上下文（含单元测试多上下文）互相影响</p>
      */
-    static final ExecutorService REFRESH_EXECUTOR = Executors.newFixedThreadPool(
+    final ExecutorService REFRESH_EXECUTOR = Executors.newFixedThreadPool(
         Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
         r -> CThreadUtils.newDeamonThread(r, "cache-refresh")
     );
