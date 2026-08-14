@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.log.advice;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.log.util.CRequestLogUtils;
 import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
+import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import lombok.CustomLog;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

@@ -1,22 +1,21 @@
-package com.c332030.ctool4j.log.util;
+package com.c332030.ctool4j.web.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CPatternUtils;
-import com.c332030.ctool4j.log.config.CRequestLogConfig;
-import com.c332030.ctool4j.log.model.CRequestLog;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
-import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
+import com.c332030.ctool4j.web.config.CRequestLogConfig;
+import com.c332030.ctool4j.web.model.CRequestLog;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
@@ -208,88 +207,17 @@ public class CRequestLogUtils {
     }
 
     /**
-     * 请求体：完整请求体非空时优先，否则返回 reqs（服务端 MVC 场景请求体记录在 reqs）
-     *
-     * @param requestLog 请求日志
-     * @return 请求体
-     */
-    public Object getRequestBody(CRequestLog requestLog) {
-        if (null != requestLog.getRequestBody()) {
-            return requestLog.getRequestBody();
-        }
-        return requestLog.getReqs();
-    }
-
-    /**
-     * 响应体（已可打印处理）：未设置时返回 null，由拼接层输出无响应体占位符
-     *
-     * @param requestLog 请求日志
-     * @return 响应体，未设置时返回 null
-     */
-    public Object getResponseBody(CRequestLog requestLog) {
-        if (null == requestLog.getRsp()) {
-            return null;
-        }
-        return CLogUtils.getPrintAble(requestLog.getRsp());
-    }
-
-    /**
-     * 耗时（毫秒）：由起止时间计算；未设置或不可用（end 早于 begin）时返回 null
-     * <p>包装类型返回 null 表示未测量；业务数据区 {@link #getBusinessData(CRequestLog)} 按 null 判定不输出 rt，
-     * 避免未设置时间的日志输出无意义的 0ms</p>
-     *
-     * @param requestLog 请求日志
-     * @return 耗时（毫秒），无法计算时返回 null
-     */
-    public Long getRt(CRequestLog requestLog) {
-        if (requestLog.getBeginTimeMillis() > 0
-            && requestLog.getEndTimeMillis() >= requestLog.getBeginTimeMillis()) {
-            return requestLog.getEndTimeMillis() - requestLog.getBeginTimeMillis();
-        }
-        return null;
-    }
-
-    /**
-     * 应用特定业务数据（非 HTTP 请求头），仅用于日志末尾展示，有值才打印；
-     * <p>IP 在耗时前，耗时置于末尾，耗时以 {@link #getRt(CRequestLog)} 是否为空判定：未测量不输出
-     * （避免无意义的 rt: 0ms 噪音），真实测量为 0ms 的快速请求仍会输出</p>
-     *
-     * @param requestLog 请求日志
-     * @return 业务数据 map
-     */
-    public Map<String, String> getBusinessData(CRequestLog requestLog) {
-
-        val businessDataMap = new LinkedHashMap<String, String>();
-        CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, requestLog.getToken());
-        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), requestLog.getTraceId());
-        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), requestLog.getTenantId());
-        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), requestLog.getUserId());
-        CMapUtils.put(businessDataMap, "ip", requestLog.getIp());
-        val rt = getRt(requestLog);
-        if (null != rt) {
-            businessDataMap.put("rt", rt + "ms");
-        }
-        return businessDataMap;
-    }
-
-    /**
      * 记录请求日志、设置属性、打印日志的统一出口，默认打印 http 格式
      * <p>输出类似 HTTP 请求+响应的完整 dump，方便调试和回放</p>
      * <p>所有请求方式（服务端 MVC、feign、resttemplate、httpclient 等）构造 {@link CRequestLog} 后
      * 均可调用本方法统一打印，后续新增请求方式无需各自实现拼接逻辑</p>
      *
-     * @param requestLog 请求日志
+     * @param info 请求日志信息
      */
-    public void logWrite(CRequestLog requestLog) {
+    public void logWrite(IHttpLogInfo info) {
 
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(
-            sb,
-            requestLog,
-            getRequestBody(requestLog),
-            getResponseBody(requestLog),
-            getBusinessData(requestLog)
-        );
+        CCommUtils.appendHttpLog(sb, info);
 
         // HTTP 报文本身不自带头部换行，logback 输出时以换行开头，使报文从新行开始打印
         REQUEST_LOG.info("\n{}", sb);

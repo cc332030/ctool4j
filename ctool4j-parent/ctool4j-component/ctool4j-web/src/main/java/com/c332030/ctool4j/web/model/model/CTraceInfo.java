@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.log.model;
+package com.c332030.ctool4j.web.model.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

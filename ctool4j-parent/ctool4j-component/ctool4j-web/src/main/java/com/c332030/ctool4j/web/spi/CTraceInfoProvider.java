@@ -1,6 +1,6 @@
-package com.c332030.ctool4j.log.spi;
+package com.c332030.ctool4j.web.spi;
 
-import com.c332030.ctool4j.log.model.CTraceInfo;
+import com.c332030.ctool4j.web.model.model.CTraceInfo;
 
 /**
  * <p>

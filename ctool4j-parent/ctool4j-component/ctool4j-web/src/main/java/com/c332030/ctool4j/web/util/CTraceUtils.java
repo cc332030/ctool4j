@@ -1,14 +1,14 @@
-package com.c332030.ctool4j.log.util;
+package com.c332030.ctool4j.web.util;
 
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.c332030.ctool4j.core.util.CSpiUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
-import com.c332030.ctool4j.log.model.ICTraceInfo;
-import com.c332030.ctool4j.log.spi.CTraceInfoProvider;
-import com.c332030.ctool4j.log.spi.ICTraceInfoProvider;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.web.model.model.ICTraceInfo;
+import com.c332030.ctool4j.web.spi.CTraceInfoProvider;
+import com.c332030.ctool4j.web.spi.ICTraceInfoProvider;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.slf4j.MDC;

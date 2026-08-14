@@ -2,10 +2,10 @@ package com.c332030.ctool4j.feign.client;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.core.util.CThreadLocalUtils;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
+import com.c332030.ctool4j.web.util.CCommUtils;
 import feign.Client;
 import feign.Request;
 import feign.Response;

@@ -1,11 +1,11 @@
 package com.c332030.ctool4j.log.interceptor;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.log.config.CRequestLogConfig;
-import com.c332030.ctool4j.log.util.CRequestLogUtils;
-import com.c332030.ctool4j.log.util.CTraceUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.web.config.CRequestLogConfig;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
+import com.c332030.ctool4j.web.util.CRequestLogUtils;
+import com.c332030.ctool4j.web.util.CTraceUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;

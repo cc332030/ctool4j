@@ -1,10 +1,16 @@
-package com.c332030.ctool4j.core.util;
+package com.c332030.ctool4j.web.util;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
 import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
+import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CMapUtils;
+import com.c332030.ctool4j.core.util.CMediaTypeUtils;
+import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +20,7 @@ import org.springframework.http.MediaType;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -221,22 +228,13 @@ public class CCommUtils {
      * <p>格式要求：请求行、请求头、请求体必须保持标准 HTTP 报文结构连续输出
      * （请求行后紧跟请求头，中间不得插入非 HTTP 内容，否则无法作为 HTTP 客户端/回放格式使用）；
      * IP、rt、error、业务数据等日志元信息统一置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）</p>
-     * <p>请求体/响应体/业务数据等派生数据由调用方计算后传入，接口只提供纯字段数据，
-     * 派生逻辑（如耗时计算、可打印转换、业务数据组装）不写在 bean 中</p>
+     * <p>全部数据直接取自 {@link IHttpLogInfo} 属性，派生逻辑（请求体取 reqs、响应体可打印转换、
+     * 耗时计算、业务数据组装）均在本方法内处理，调用方无需传入任何派生参数</p>
      *
-     * @param sb           日志拼接器
-     * @param info         请求基础数据（请求行、请求头、params 等）
-     * @param requestBody  请求体（已可打印处理）
-     * @param responseBody 响应体（已可打印处理）
-     * @param businessData 业务数据 map（key → value），无数据时传空 map
+     * @param sb   日志拼接器
+     * @param info 请求日志信息（请求行、请求头、params、请求体、响应体、业务数据等）
      */
-    public void appendHttpLog(
-        StringBuilder sb,
-        IHttpLogInfo info,
-        Object requestBody,
-        Object responseBody,
-        Map<String, String> businessData
-    ) {
+    public void appendHttpLog(StringBuilder sb, IHttpLogInfo info) {
 
         // 请求行
         appendRequestUrl(sb, info);
@@ -253,9 +251,10 @@ public class CCommUtils {
         }
 
         // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
-        appendRequestBody(sb, info, requestBody);
+        appendRequestBody(sb, info, info.getReqs());
 
-        // 响应体
+        // 响应体：可打印处理后输出，未设置时输出占位符
+        val responseBody = null == info.getRsp() ? null : CLogUtils.getPrintAble(info.getRsp());
         if (null == responseBody) {
             sb.append("\n\n[no response body]");
         } else {
@@ -265,6 +264,7 @@ public class CCommUtils {
         appendError(sb, info.getErrorMessage());
 
         // 业务数据区（IP、耗时、token 等应用业务数据）：统一以空行与正文分隔，无数据时不追加
+        val businessData = getBusinessData(info);
         if (MapUtil.isNotEmpty(businessData)) {
             sb.append("\n\n");
             businessData.forEach((key, value) -> {
@@ -274,6 +274,43 @@ public class CCommUtils {
                 sb.append("\n");
             });
         }
+    }
+
+    /**
+     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：token、traceId、tenantId、userId、ip、耗时；
+     * 有值才放入，耗时以起止时间能否计算判定：未测量不输出（避免无意义的 rt: 0ms 噪音），
+     * 真实测量为 0ms 的快速请求仍会输出
+     *
+     * @param info 请求日志信息
+     * @return 业务数据 map
+     */
+    private Map<String, String> getBusinessData(IHttpLogInfo info) {
+
+        val businessDataMap = new LinkedHashMap<String, String>();
+        CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, info.getToken());
+        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), info.getTraceId());
+        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), info.getTenantId());
+        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), info.getUserId());
+        CMapUtils.put(businessDataMap, "ip", info.getIp());
+        val rt = getRt(info);
+        if (null != rt) {
+            businessDataMap.put("rt", rt + "ms");
+        }
+        return businessDataMap;
+    }
+
+    /**
+     * 耗时（毫秒）：由起止时间计算；未设置或不可用（end 早于 begin）时返回 null
+     *
+     * @param info 请求日志信息
+     * @return 耗时（毫秒），无法计算时返回 null
+     */
+    private Long getRt(IHttpLogInfo info) {
+        if (info.getBeginTimeMillis() > 0
+            && info.getEndTimeMillis() >= info.getBeginTimeMillis()) {
+            return info.getEndTimeMillis() - info.getBeginTimeMillis();
+        }
+        return null;
     }
 
     /**

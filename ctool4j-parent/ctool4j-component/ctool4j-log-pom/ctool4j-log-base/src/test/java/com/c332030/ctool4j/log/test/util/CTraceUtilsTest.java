@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.log.test.util;
 
-import com.c332030.ctool4j.log.model.CTraceInfo;
-import com.c332030.ctool4j.log.util.CTraceUtils;
+import com.c332030.ctool4j.web.model.model.CTraceInfo;
+import com.c332030.ctool4j.web.util.CTraceUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
