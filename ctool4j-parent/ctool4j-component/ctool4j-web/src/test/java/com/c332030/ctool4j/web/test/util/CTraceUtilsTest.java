@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.log.test.util;
+package com.c332030.ctool4j.web.test.util;
 
 import com.c332030.ctool4j.web.model.model.CTraceInfo;
 import com.c332030.ctool4j.web.util.CTraceUtils;
