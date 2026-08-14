@@ -246,7 +246,7 @@ public class CCacheService {
         /**
          * 缓存默认过期时长：未配置 expireDuration(Function) 动态计算时生效
          */
-        Duration expireDuration = Duration.ofDays(1);
+        Duration expireDuration = Duration.ofHours(23);
 
         private Function<T, Duration> expireDurationFunction;
 
