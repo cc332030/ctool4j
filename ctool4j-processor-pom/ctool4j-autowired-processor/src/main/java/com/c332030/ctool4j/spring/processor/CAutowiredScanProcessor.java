@@ -176,9 +176,12 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
     /**
      * 将完整类型名（含泛型/数组）转为简单名类型声明，如：
      * java.util.List&lt;com.xxx.XxxService&gt; → List&lt;XxxService&gt;；com.xxx.Xxx[] → Xxx[]
+     * 每个完整类名取其最后一个 '.' 之后的简单名（如 com.xxx.Xxx → Xxx）
      */
     private String toSimpleType(String fieldType) {
-        return fieldType.replaceAll("([a-zA-Z_$][a-zA-Z0-9_$]*)(\\.[a-zA-Z_$][a-zA-Z0-9_$]*)+", "$1");
+        return extractFullClassNames(fieldType).stream()
+                .reduce(fieldType, (type, fullName) -> type.replace(
+                        fullName, fullName.substring(fullName.lastIndexOf('.') + 1)));
     }
 
     /**
