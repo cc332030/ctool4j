@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.cache.service;
 
+import com.c332030.ctool4j.core.util.CThreadUtils;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
@@ -39,11 +40,7 @@ public class CCacheService {
      */
     static final ExecutorService REFRESH_EXECUTOR = Executors.newFixedThreadPool(
         Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
-        r -> {
-            val thread = new Thread(r, "cache-refresh");
-            thread.setDaemon(true);
-            return thread;
-        }
+        r -> CThreadUtils.newDeamonThread(r, "cache-refresh")
     );
 
     /**
