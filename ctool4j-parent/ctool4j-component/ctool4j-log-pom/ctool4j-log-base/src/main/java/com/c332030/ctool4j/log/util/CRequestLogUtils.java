@@ -22,9 +22,8 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * <p>
@@ -108,18 +107,44 @@ public class CRequestLogUtils {
             return null;
         }
         val traceId = CTraceUtils.getTraceId();
-
+        // 按开关采集完整请求头（默认关闭，避免日志泄露敏感头），先在 builder 外计算，避免 builder 设置值处出现复杂逻辑
+        val headers = CObjUtils.ifThenGet(requestLogConfig.getEnableHeader(), () -> collectHeaders(request));
         return CRequestLog.builder()
             .traceId(traceId)
             .method(request.getMethod())
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
+            .headers(headers)
             // Servlet 的 getParameterMap 返回 Map<String, String[]>，统一转换为集合类型
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
             .reqs(EMPTY_REQS)
             .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
+    }
+
+    /**
+     * 采集全部请求头：Servlet 的请求头视图遍历拷贝为独立 Map，避免日志模型持有请求对象的内部结构
+     *
+     * @param request HTTP 请求
+     * @return 请求头 map（headerName → 值列表），无请求头时返回 null
+     */
+    private Map<String, Collection<String>> collectHeaders(HttpServletRequest request) {
+        val headerNames = request.getHeaderNames();
+        if (null == headerNames) {
+            return null;
+        }
+        val headerMap = new LinkedHashMap<String, Collection<String>>();
+        while (headerNames.hasMoreElements()) {
+            val headerName = headerNames.nextElement();
+            val headerValues = request.getHeaders(headerName);
+            val values = new ArrayList<String>();
+            while (headerValues.hasMoreElements()) {
+                values.add(headerValues.nextElement());
+            }
+            headerMap.put(headerName, values);
+        }
+        return headerMap;
     }
 
     public void init() {
@@ -194,7 +219,8 @@ public class CRequestLogUtils {
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, requestLog);
 
-        REQUEST_LOG.info("{}", sb);
+        // HTTP 报文本身不自带头部换行，logback 输出时以换行开头，使报文从新行开始打印
+        REQUEST_LOG.info("\n{}", sb);
     }
 
 }
