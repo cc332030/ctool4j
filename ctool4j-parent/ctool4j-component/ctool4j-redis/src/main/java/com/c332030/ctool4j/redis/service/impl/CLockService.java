@@ -167,10 +167,9 @@ public class CLockService {
 
         /**
          * 执行无返回值业务
-         * <p>获取锁失败时执行 {@link #onLockFail} 回调后抛 {@link IllegalStateException}，
-         * 避免"锁失败"与"业务值为 null"混淆</p>
+         * <p>获取锁失败时执行 {@link #onLockFail} 回调，是否抛异常由回调决定，默认空操作不抛</p>
+         *
          * @param runnable 锁内执行的业务
-         * @throws IllegalStateException 获取锁失败
          */
         public void execute(Runnable runnable) {
             doExecute(() -> {
@@ -181,47 +180,26 @@ public class CLockService {
 
         /**
          * 执行有返回值业务
-         * <p>获取锁失败时执行 {@link #onLockFail} 回调后抛 {@link IllegalStateException}，
-         * 避免"锁失败"与"业务值为 null"混淆</p>
+         * <p>获取锁失败时执行 {@link #onLockFail} 回调并返回 null，是否抛异常由回调决定，默认空操作不抛</p>
+         *
          * @param callable 锁内执行的业务
-         * @return 业务返回值
+         * @return 业务返回值，获取锁失败时返回 null
          * @param <T> 返回值泛型
-         * @throws IllegalStateException 获取锁失败
          */
         public <T> T execute(Supplier<T> callable) {
             return doExecute(callable);
         }
 
         /**
-         * 执行有返回值业务，获取锁失败时不抛异常
-         * <p>与 {@link #execute(Supplier)} 的区别：锁失败仅执行 {@link #onLockFail} 回调并返回 null，
-         * 不抛 {@link IllegalStateException}；适合"抢不到锁就跳过"的尽力而为场景（如缓存异步刷新）</p>
-         *
-         * @param callable 锁内执行的业务
-         * @param <T>      返回值泛型
-         */
-        public <T> void executeQuietly(Supplier<T> callable) {
-            RLock lock = getLock(lockKey);
-            if (tryAcquireFailure(lock)) {
-                onLockFail.accept(lock);
-                return;
-            }
-            try {
-                callable.get();
-            } finally {
-                unlockSafely(lock);
-            }
-        }
-
-        /**
          * 加锁-执行-解锁统一模板
-         * <p>解锁走 unlockSafely：若配置了 unlockDelay 则延迟对应时长再释放锁，否则立即释放</p>
+         * <p>获取锁失败时执行 {@link #onLockFail} 回调并返回 null，是否抛异常由回调决定；
+         * 解锁走 unlockSafely：若配置了 unlockDelay 则延迟对应时长再释放锁，否则立即释放</p>
          */
         private <T> T doExecute(Supplier<T> supplier) {
             RLock lock = getLock(lockKey);
             if (tryAcquireFailure(lock)) {
                 onLockFail.accept(lock);
-                throw new IllegalStateException("获取分布式锁失败, lockKey: " + lockKey);
+                return null;
             }
             try {
                 return supplier.get();

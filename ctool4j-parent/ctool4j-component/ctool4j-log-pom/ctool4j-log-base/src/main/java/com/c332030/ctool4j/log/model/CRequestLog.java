@@ -112,10 +112,10 @@ public class CRequestLog implements IHttpLogInfo {
     }
 
     /**
-     * 耗时（毫秒）：由起止时间计算；未设置或不可用（end 早于 begin）时返回 null，
-     * 拼接层不输出耗时，避免展示 rt: 0ms 误导
+     * 耗时（毫秒）：由起止时间计算；未设置或不可用（end 早于 begin）时返回 0
+     * <p>基础类型无法返回 null，业务数据区 {@link #getBusinessData()} 恒输出 rt（含 0ms）</p>
      *
-     * @return 耗时（毫秒），无法计算时返回 null
+     * @return 耗时（毫秒），无法计算时返回 0
      */
     @Override
     public long getRt() {

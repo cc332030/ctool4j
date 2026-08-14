@@ -4,8 +4,8 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CLockUtils;
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
@@ -52,6 +52,12 @@ public class CCacheService {
     private static final long REFRESH_INTERVAL_MILLIS = 10_000L;
 
     /**
+     * 已过期路径默认等锁超时：缓存过期并发时等待持锁线程写完缓存后读新值，
+     * 避免默认不等待直接抢锁失败抛异常导致业务失败
+     */
+    private static final Duration DEFAULT_WAIT_TIME = Duration.ofSeconds(1);
+
+    /**
      * 刷新状态空闲淘汰时长：key 停止被访问后自动回收，避免动态 key 场景内存泄露
      */
     private static final Duration REFRESH_STATE_IDLE_DURATION = Duration.ofMinutes(5);
@@ -59,11 +65,14 @@ public class CCacheService {
     /**
      * 按 key 的异步刷新状态：独立于 builder 实例（builder 每次 new，实例字段无法跨调用持久），
      * 保证节流与防并发跨调用生效；Caffeine 空闲淘汰，key 停用后自动释放，避免内存泄露。
+     * <p>使用 LoadingCache 而非 Cache.get(key, function)：后者并发探测时 mapping 函数可能被多次执行、
+     * 各线程拿到各自实例，导致 refreshing/lastRefreshMillis 状态分叉（防并发与节流失效）；
+     * LoadingCache.get 保证每 key 单实例</p>
      * <p>已知取舍：刷新任务运行超过空闲淘汰时长而被淘汰时，节流状态丢失属极端情况，由使用者自行处理</p>
      */
-    private static final Cache<String, RefreshState> REFRESH_STATES = Caffeine.newBuilder()
+    private static final LoadingCache<String, RefreshState> REFRESH_STATES = Caffeine.newBuilder()
         .expireAfterAccess(REFRESH_STATE_IDLE_DURATION)
-        .build();
+        .build(key -> new RefreshState());
 
     /**
      * 单个 key 的异步刷新状态
@@ -117,24 +126,36 @@ public class CCacheService {
             return t;
         }
 
-        return lockService.tryLockThenRun(CLockUtils.getLockKey(key), waitDuration, () -> {
+        return lockService.tryLockThenRun(CLockUtils.getLockKey(key), waitDuration,
+            () -> computeAndWrite(key, tClass, valueSupplier, expireDurationFunction));
+    }
 
-            T tNew = redisService.getValue(key, tClass);
-            if (null != tNew) {
-                log.info("computeIfAbsent skip because exists value of key: {}", key);
-                return tNew;
-            }
-
-            tNew = valueSupplier.get();
-            Assert.notNull(tNew, "valueSupplier got null");
-
-            val expireDuration = expireDurationFunction.apply(tNew);
-            redisService.setValue(key, tNew, expireDuration);
-            log.info("computeIfAbsent setValue successfully, key: {}, expireDuration: {}",
-                key, expireDuration);
-
+    /**
+     * 双重检查后计算并写缓存（"读-算-写"公共逻辑）：
+     * 读缓存 → 命中直接返回 → 计算新值（非空校验）→ 计算过期时长 → 写缓存 → 返回
+     * <p>供锁内场景复用（旧版 {@link #computeIfAbsent(String, Class, Duration, Function, Supplier)}、
+     * {@link CCacheBuilder#computeIfAbsent(Supplier)}）；
+     * {@link #getCache(String, Class, int, Supplier)} 无锁且允许 null 值，语义不同独立实现</p>
+     *
+     * @param key                    缓存 key
+     * @param tClass                 返回值类型
+     * @param valueSupplier          值提供者（结果非空校验，null 视为计算失败）
+     * @param expireDurationFunction 根据值计算缓存过期时长
+     * @param <T>                    值泛型
+     * @return 缓存值
+     */
+    private <T> T computeAndWrite(String key, Class<T> tClass, Supplier<T> valueSupplier, Function<T, Duration> expireDurationFunction) {
+        T tNew = redisService.getValue(key, tClass);
+        if (null != tNew) {
+            log.debug("computeAndWrite skip because exists value of key: {}", key);
             return tNew;
-        });
+        }
+        tNew = valueSupplier.get();
+        Assert.notNull(tNew, "valueSupplier got null");
+        val cacheDuration = expireDurationFunction.apply(tNew);
+        redisService.setValue(key, tNew, cacheDuration);
+        log.debug("computeAndWrite setValue successfully, key: {}, cacheDuration: {}", key, cacheDuration);
+        return tNew;
     }
 
     /**
@@ -153,6 +174,8 @@ public class CCacheService {
 
     /**
      * 获取 Redis 缓存值，带过期时间
+     * <p>无锁的轻量"读-算-写"：值提供者允许返回 null（null 时不写缓存直接返回，避免缓存空值）；
+     * 与 {@link #computeAndWrite(String, Class, Supplier, Function)} 语义不同（后者锁内强校验非空），独立实现不复用</p>
      * @param key 缓存 key
      * @param tClass 返回值类型
      * @param expireSeconds 过期时间（秒）
@@ -207,9 +230,9 @@ public class CCacheService {
         private final Class<T> tClass;
 
         /**
-         * 等待获取锁的超时时间，默认不等待
+         * 等待获取锁的超时时间，默认等待（缓存已过期路径需阻塞等锁读新值，避免抢锁失败抛异常）
          */
-        Duration waitTime = Duration.ZERO;
+        Duration waitTime = DEFAULT_WAIT_TIME;
 
         /**
          * 快到期刷新窗口：剩余存活时间小于等于该窗口时触发异步刷新
@@ -234,7 +257,7 @@ public class CCacheService {
         }
 
         /**
-         * 等待获取锁的超时时间（秒），默认不等待
+         * 等待获取锁的超时时间（秒），默认等待
          * @param waitTime 等待秒数
          * @return this
          */
@@ -328,26 +351,8 @@ public class CCacheService {
                 .waitTime(waitTime)
                 .onLockFail(onLockFail);
 
-            return lockBuilder.execute(() -> {
-
-                T tNew = redisService.getValue(key, tClass);
-                if (null != tNew) {
-                    log.debug("cacheBuilder computeIfAbsent skip because exists value of key: {}", key);
-                    return tNew;
-                }
-
-                tNew = valueSupplier.get();
-                Assert.notNull(tNew, "valueSupplier got null");
-
-                val cacheDuration = null == expireDurationFunction
-                    ? expireDuration
-                    : expireDurationFunction.apply(tNew);
-                redisService.setValue(key, tNew, cacheDuration);
-                log.debug("cacheBuilder computeIfAbsent setValue successfully, key: {}, cacheDuration: {}",
-                    key, cacheDuration);
-
-                return tNew;
-            });
+            return lockBuilder.execute(() -> computeAndWrite(key, tClass, valueSupplier,
+                t -> null == expireDurationFunction ? expireDuration : expireDurationFunction.apply(t)));
         }
 
         /**
@@ -361,7 +366,7 @@ public class CCacheService {
          */
         private void refreshAsync(Supplier<T> valueSupplier) {
 
-            val refreshState = REFRESH_STATES.get(key, k -> new RefreshState());
+            val refreshState = REFRESH_STATES.get(key);
 
             val now = System.currentTimeMillis();
             // 间隔节流：无论上次刷新成功与否，间隔内不再发起
@@ -383,7 +388,7 @@ public class CCacheService {
                         .waitTime(Duration.ZERO)
                         // 抢锁失败是正常竞争（其他线程/实例正在刷新），打 debug 跳过，不抛异常
                         .onLockFail(lock -> log.debug("cacheBuilder refreshAsync skip because lock fail, key: {}", key))
-                        .executeQuietly(() -> {
+                        .execute(() -> {
 
                             // 双重检查：锁内可能已被其他线程刷新
                             val currentWithTtl = redisService.getValueWithTtl(key, tClass);

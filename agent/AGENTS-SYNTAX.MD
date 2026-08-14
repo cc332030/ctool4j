@@ -44,7 +44,6 @@
 
 ## Optional
 
-- 统一使用本项目 `COpt`，不混用 hutool `Opt`
 - 空安全链式：`COpt.ofNullable(x).map(f).orElse(d)`
 - 集合/字符串判空：`COpt.ofEmptyAble(...)`；空白字符串判断：`COpt.ofBlankAble(...)`
 
