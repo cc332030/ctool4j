@@ -3,12 +3,6 @@
 
 使用本项目提供的 C 工具类替代原生重复写法，统一代码风格。以下均为通用规则。
 
-## lambda
-
-- 恒等 lambda（`e -> e`、`x -> x`、`Function.identity()`）换成 `CFunction.self()`
-- 取第一个参数的 lambda（`(a, b) -> a`）换成 `CBiFunction.first()`
-- 取第二个参数的 lambda（`(a, b) -> b`）换成 `CBiFunction.second()`
-
 ## 集合（List / Set）
 
 - 创建集合：
@@ -36,22 +30,10 @@
 - 合并多个 Map：`CMapUtils.merge(maps...)`（默认取 first）或 `CMapUtils.merge(mergeFunction, maps...)`
 - 判空写入：`CMapUtils.put(map, k, v)`、`computeIfAbsent(map, key, supplier/function)`
 
-## 数组
-
-- 过滤：`Arrays.stream(arr).filter(...).collect(...)` 换成 `CArrUtils.filter/filterNull/filterString`
-- 取元素（含负索引）：`CArrUtils.get(arr, index)`
-- 元素映射：`CArrUtils.convert(arr, convert)`
-
 ## Optional
 
 - 空安全链式：`COpt.ofNullable(x).map(f).orElse(d)`
 - 集合/字符串判空：`COpt.ofEmptyAble(...)`；空白字符串判断：`COpt.ofBlankAble(...)`
-
-## 其他
-
-- 遍历并忽略异常：`CIteratorUtils.forEachIgnoreException(iterable, consumer)`
-- value 对象取值/设值：`CValueUtils.getValue/setValue`
-- 有序不可变 Map/Set 收集：`CCollectors.toUnmodifiableLinkedMap(...)` / `toLinkedSet()`（替代 `collectingAndThen(toMap, unmodifiableMap)` 等写法）
 
 ## 例外
 
