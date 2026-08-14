@@ -329,6 +329,10 @@ public class CRequestUtils {
 
     /**
      * 获取 Ip
+     * <p>注意：当前实现无条件信任 X-Forwarded-For 首段，客户端直连时
+     * 可伪造该请求头绕过 IP 校验/风控，属安全问题。
+     * 修复方案：仅信任来自已配置可信代理的 X-Forwarded-For（默认不信任，
+     * 未配置时忽略该头直接返回 remoteAddr）；当前业务场景较小，暂未修复</p>
      * @param request HttpServletRequest
      * @return Ip
      */
