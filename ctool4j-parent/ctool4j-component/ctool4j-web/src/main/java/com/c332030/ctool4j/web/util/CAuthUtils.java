@@ -80,6 +80,7 @@ public class CAuthUtils {
         val authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(StrUtil.isEmpty(authorization)
             || !authorization.startsWith(prefix)
+            ||  authorization.length() <= prefix.length()
         ) {
             return null;
         }
