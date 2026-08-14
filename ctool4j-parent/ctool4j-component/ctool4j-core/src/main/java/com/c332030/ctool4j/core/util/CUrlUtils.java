@@ -129,7 +129,8 @@ public class CUrlUtils {
         if(StrUtil.isEmpty(url)) {
             return null;
         }
-        return url.substring(url.indexOf("http"));
+        val index = url.indexOf("http");
+        return StrUtil.sub(url, index, url.length());
     }
 
     @SneakyThrows
