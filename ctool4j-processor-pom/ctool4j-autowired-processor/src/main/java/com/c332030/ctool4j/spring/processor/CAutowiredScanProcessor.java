@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes("com.c332030.ctool4j.spring.annotation.CAutowiredScan")
@@ -72,11 +73,7 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
         val initClassFullName = initClassPackage + "." + initClassName;
 
         val constructorParams = autowiredFields.stream()
-                .map(f -> {
-
-                    val simpleType = f.fieldType.substring(f.fieldType.lastIndexOf(".") + 1);
-                    return simpleType + " " + f.fieldName;
-                })
+                .map(f -> toSimpleType(f.fieldType) + " " + f.fieldName)
                 .collect(Collectors.joining(",\n        "))
                 ;
 
@@ -84,13 +81,16 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
                 .map(f -> className + ".set" + capitalize(f.fieldName) + "(" + f.fieldName + ");")
                 .collect(Collectors.joining("\n        "));
 
+        // 泛型/数组字段须拆出内部完整类名逐一 import（如 java.util.List<com.xxx.Xxx> 需 import 两者），
+        // 不能直接 import 整个类型字符串（java.util.List<com.xxx.Xxx> 是非法 import）
         val imports = new StringBuilder();
         imports.append("import ").append(classFullName).append(";\n");
-        for (val field : autowiredFields) {
-            if (!field.fieldType.startsWith("java.lang.") && !field.fieldType.equals(classFullName)) {
-                imports.append("import ").append(field.fieldType).append(";\n");
-            }
-        }
+        autowiredFields.stream()
+                .flatMap(field -> extractFullClassNames(field.fieldType).stream())
+                .distinct()
+                .filter(importName -> !importName.startsWith("java.lang."))
+                .filter(importName -> !importName.equals(classFullName))
+                .forEach(importName -> imports.append("import ").append(importName).append(";\n"));
 
         val code = render(template,
                 "packageName", initClassPackage,
@@ -171,6 +171,27 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
             return str;
         }
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
+    }
+
+    /**
+     * 将完整类型名（含泛型/数组）转为简单名类型声明，如：
+     * java.util.List&lt;com.xxx.XxxService&gt; → List&lt;XxxService&gt;；com.xxx.Xxx[] → Xxx[]
+     */
+    private String toSimpleType(String fieldType) {
+        return fieldType.replaceAll("([a-zA-Z_$][a-zA-Z0-9_$]*)(\\.[a-zA-Z_$][a-zA-Z0-9_$]*)+", "$1");
+    }
+
+    /**
+     * 提取类型字符串中的所有完整类名（含泛型参数、内嵌类），如：
+     * java.util.Map&lt;java.lang.String, com.xxx.Xxx&gt; → [java.util.Map, java.lang.String, com.xxx.Xxx]
+     */
+    private List<String> extractFullClassNames(String fieldType) {
+        val matcher = Pattern.compile("[a-zA-Z_$][a-zA-Z0-9_$]*(\\.[a-zA-Z_$][a-zA-Z0-9_$]*)+").matcher(fieldType);
+        val names = new ArrayList<String>();
+        while (matcher.find()) {
+            names.add(matcher.group());
+        }
+        return names;
     }
 
     private static class FieldInfo {
