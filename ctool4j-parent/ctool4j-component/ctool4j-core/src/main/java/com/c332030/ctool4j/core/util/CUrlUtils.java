@@ -227,7 +227,8 @@ public class CUrlUtils {
         if(StrUtil.isEmpty(url)) {
             return null;
         }
-        return url.substring(url.indexOf("http"));
+        val index = url.indexOf("http");
+        return StrUtil.sub(url, index, url.length());
     }
 
     /**
@@ -304,8 +305,11 @@ public class CUrlUtils {
             return url;
         }
 
-        val path = getPath(url);
-        return newDomain + path;
+        val uri = getURI(url);
+        val path = StrUtil.nullToEmpty(uri.getRawPath());
+        val query = StrUtil.isNotEmpty(uri.getRawQuery()) ? "?" + uri.getRawQuery() : "";
+        val fragment = StrUtil.isNotEmpty(uri.getRawFragment()) ? "#" + uri.getRawFragment() : "";
+        return newDomain + path + query + fragment;
     }
 
 }

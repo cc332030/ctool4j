@@ -1,10 +1,10 @@
 # ctool4j-web
 
-> Web MVC 通用能力封装：全局异常统一处理、跨域支持、JWT 与认证工具、请求响应体增强。
+> Web MVC 通用能力封装：全局异常统一处理、跨域支持、JWT 与认证工具、请求响应体增强、HTTP 请求日志与 traceId 透传。
 
 ## 简介
 
-`ctool4j-web` 面向 Spring Boot Web 应用，开箱即用地提供异常统一返回、CORS 跨域、认证辅助等能力，规范 Web 层的错误处理与安全基础。
+`ctool4j-web` 面向 Spring Boot Web 应用，开箱即用地提供异常统一返回、CORS 跨域、认证辅助、HTTP 请求日志与 traceId 透传等能力，规范 Web 层的错误处理与安全基础。
 
 ## 功能特性
 
@@ -15,6 +15,8 @@
 - **MVC 配置**：`CWebMvcConfigurer`（拦截器、静态资源配置）、静态资源过滤器 `ResourceFilter`
 - **统一错误页**：`CErrorController`
 - **请求/响应体增强抽象**：`ICBaseRequestBodyAdvice` / `ICBaseResponseBodyAdvice`（供日志等模块继承）
+- **HTTP 请求日志**：`CRequestLogUtils` 构造 / 保存 / 输出 `CRequestLog`（HTTP 格式 dump），`CCommUtils.appendHttpLog` 统一拼接，支持 URI 排除、请求体记录
+- **traceId 透传**：`CTraceUtils` 从请求头读取 traceId（无则生成），写入 ThreadLocal + MDC（key = `c-trace-id`），支持 SPI 定制提供者（`ICTraceInfoProvider`）
 - **工具类**：`CServletUtils`、`CWebUtils`
 
 ## 包结构
@@ -46,6 +48,13 @@
 | `CErrorController` | 控制器 | 统一错误页 |
 | `CWebMvcConfigurer` | 配置 | MVC 拦截器与资源映射 |
 | `ICBaseResponseBodyAdvice` | 接口 | 响应体增强抽象（日志模块使用） |
+| `CRequestLogUtils` | 工具类 | 请求日志构造 / 保存 / 输出（HTTP 格式 dump） |
+| `CRequestLog` | 模型 | 请求日志实体（builder 构造） |
+| `CRequestLogConfig` | 配置 | `logging.request-log` 配置项 |
+| `CCommUtils` | 工具类 | HTTP 报文拼接（请求行、请求头、body 等） |
+| `CTraceUtils` | 工具类 | traceId 生成与传递（ThreadLocal + MDC + SPI） |
+| `ICTraceInfo` / `CTraceInfo` | 模型 | traceId 载体接口与默认实现 |
+| `ICTraceInfoProvider` | SPI | traceInfo 提供者 SPI |
 
 ## 使用示例
 

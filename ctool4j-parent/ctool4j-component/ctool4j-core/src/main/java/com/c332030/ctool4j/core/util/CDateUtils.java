@@ -187,11 +187,7 @@ public class CDateUtils {
         }
 
         try {
-            var mills = CNumUtils.parseLong(text);
-            // 判断是否有将秒作为毫秒传过来
-            if(mills <= MIN_MILLS){
-                mills *= 1000;
-            }
+            val mills = CNumUtils.parseLong(text);
             return CDateUtils.toDate(mills);
         } catch (Exception ex) {
             log.debug("parse long text error", ex);
@@ -211,7 +207,7 @@ public class CDateUtils {
     }
 
     /**
-     * 时间戳转 Date
+     * 时间戳转 Date（秒/毫秒自动识别，见 {@link #toMillis(Long)}）
      *
      * @param mills 时间戳
      * @return Date
@@ -220,10 +216,27 @@ public class CDateUtils {
         if (null == mills) {
             return null;
         }
-        if(mills <= MIN_MILLS) {
-            mills *= 1000;
+        val millis = toMillis(mills);
+        return null == millis ? null : new Date(millis);
+    }
+
+    /**
+     * 时间戳统一归一化为毫秒：负数视为非法输入返回 null；小于等于 {@link #MIN_MILLS} 的值按秒处理乘 1000，否则视为毫秒。
+     * <p>toDate/toInstant/parseMaybeMills 共用此判定，保证同一时间戳语义一致
+     * （秒/毫秒的固有歧义边界由 MIN_MILLS 决定）</p>
+     *
+     * @param value 时间戳
+     * @return 毫秒时间戳；负数返回 null
+     */
+    private Long toMillis(Long value) {
+        // 时间戳不存在负数，负数视为非法输入返回 null
+        if (value < 0) {
+            return null;
         }
-        return new Date(mills);
+        if (value <= MIN_MILLS) {
+            return value * 1000;
+        }
+        return value;
     }
 
     /**
@@ -273,7 +286,7 @@ public class CDateUtils {
     }
 
     /**
-     * 时间戳转 Instant
+     * 时间戳转 Instant（秒/毫秒自动识别，与 {@link #toDate(Long)} 语义一致，见 {@link #toMillis(Long)}）
      *
      * @param mills 时间戳
      * @return Instant
@@ -282,7 +295,8 @@ public class CDateUtils {
         if (null == mills) {
             return null;
         }
-        return Instant.ofEpochMilli(mills);
+        val millis = toMillis(mills);
+        return null == millis ? null : Instant.ofEpochMilli(millis);
     }
 
     /**

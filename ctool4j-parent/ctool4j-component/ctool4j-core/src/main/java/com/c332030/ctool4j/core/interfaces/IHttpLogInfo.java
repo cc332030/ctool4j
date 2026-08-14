@@ -25,17 +25,38 @@ public interface IHttpLogInfo {
     String getPath();
 
     /**
-     * 请求来源 IP（仅用于日志展示的元信息，非 HTTP 请求头）
+     * 认证令牌（Authorization 请求头的值），仅用于日志末尾业务数据区展示
      */
-    default String getIp() {
+    default String getToken() {
         return null;
     }
 
     /**
-     * query 参数（仅 GET 时拼接到 URL）
+     * 链路追踪 ID
      */
-    default Map<String, Collection<String>> getParams() {
-        return CMap.of();
+    default String getTraceId() {
+        return null;
+    }
+
+    /**
+     * 租户 ID
+     */
+    default String getTenantId() {
+        return null;
+    }
+
+    /**
+     * 用户 ID
+     */
+    default String getUserId() {
+        return null;
+    }
+
+    /**
+     * 请求来源 IP（仅用于日志展示的元信息，非 HTTP 请求头）
+     */
+    default String getIp() {
+        return null;
     }
 
     /**
@@ -46,24 +67,25 @@ public interface IHttpLogInfo {
     }
 
     /**
-     * 请求体
+     * query 参数（仅 GET 时拼接到 URL）
      */
-    default Object getRequestBody() {
-        return null;
+    default Map<String, Collection<String>> getParams() {
+        return CMap.of();
     }
 
     /**
-     * 响应体（已经过可打印处理）
+     * 请求体/请求参数（key → value）：服务端 MVC 经 CLogRequestBodyAdvice 记录，feign 客户端经 getRequestBodyMap 记录，
+     * 拼接时统一从 reqs 取请求体
      */
-    default Object getResponseBody() {
-        return null;
+    default Map<String, Object> getReqs() {
+        return CMap.of();
     }
 
     /**
-     * 耗时（毫秒）
+     * 响应体：拼接时经 getPrintAble 可打印处理后输出（见 CCommUtils.appendHttpLog）
      */
-    default long getRt() {
-        return 0;
+    default Object getRsp() {
+        return null;
     }
 
     /**
@@ -74,12 +96,17 @@ public interface IHttpLogInfo {
     }
 
     /**
-     * 应用特定业务数据（非 HTTP 请求头，仅用于日志末尾展示），无数据时返回空 map 不打印
-     *
-     * @return 业务数据 map（key → value）
+     * 请求开始时间（毫秒时间戳），用于计算耗时
      */
-    default Map<String, String> getBusinessData() {
-        return CMap.of();
+    default long getBeginTimeMillis() {
+        return 0;
+    }
+
+    /**
+     * 请求结束时间（毫秒时间戳），用于计算耗时
+     */
+    default long getEndTimeMillis() {
+        return 0;
     }
 
 }

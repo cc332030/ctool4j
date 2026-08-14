@@ -6,12 +6,12 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CBoolUtils;
-import com.c332030.ctool4j.core.util.CCommUtils;
 import com.c332030.ctool4j.definition.function.CBiFunction;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
-import com.c332030.ctool4j.log.model.CRequestLog;
-import com.c332030.ctool4j.log.util.CRequestLogUtils;
+import com.c332030.ctool4j.web.model.CRequestLog;
+import com.c332030.ctool4j.web.util.CCommUtils;
+import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import feign.Logger;
 import feign.Request;
 import feign.Response;
@@ -23,7 +23,6 @@ import lombok.val;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -139,7 +138,8 @@ public class CFeignLogger extends Logger {
             // feign 请求头为外部可变对象，深拷贝为不可变后再保存，避免日志模型被外部修改
             requestLog.setHeaders(toImmutableHeaders(request.headers()));
         }
-        requestLog.setRequestBody(getBodyText(request.body(), request.headers()));
+        // 请求体文本放入 reqs，与 MVC 场景记录位置一致，拼接时统一从 reqs 取请求体
+        requestLog.setReqs(CRequestLogUtils.getRequestBodyMap(getBodyText(request.body(), request.headers())));
         return requestLog;
     }
 
@@ -200,7 +200,7 @@ public class CFeignLogger extends Logger {
             return null;
         }
         if (CCommUtils.isTextBody(headers)) {
-            return new String(bodyBytes, StandardCharsets.UTF_8);
+            return new String(bodyBytes, CCommUtils.getCharsetOrDefault(headers));
         }
         return "[not text body]";
     }
@@ -230,7 +230,7 @@ public class CFeignLogger extends Logger {
                 log.error("处理响应日志失败", e);
                 return t;
             } finally {
-                // 设置属性：耗时由 getRt() 按起止时间计算，业务数据区恒输出 rt（elapsedTime 为 0 的快速请求输出 rt: 0ms）
+                // 设置属性：耗时由 CCommUtils.appendHttpLog 按起止时间计算，业务数据区恒输出 rt（elapsedTime 为 0 的快速请求输出 rt: 0ms）
                 val now = System.currentTimeMillis();
                 requestLog.setBeginTimeMillis(now - elapsedTime);
                 requestLog.setEndTimeMillis(now);
@@ -268,7 +268,7 @@ public class CFeignLogger extends Logger {
      * @return 原异常
      */
     private IOException dealErrorLog(IOException ioException, CRequestLog requestLog) {
-        requestLog.setThrowableMessage(ioException.getMessage());
+        requestLog.setErrorMessage(ioException.getMessage());
         return ioException;
     }
 

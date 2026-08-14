@@ -15,6 +15,7 @@ import lombok.val;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -355,6 +356,10 @@ public class CRequestUtils {
 
     /**
      * 获取 Ip
+     * <p>注意：当前实现无条件信任 X-Forwarded-For 首段，客户端直连时
+     * 可伪造该请求头绕过 IP 校验/风控，属安全问题。
+     * 修复方案：仅信任来自已配置可信代理的 X-Forwarded-For（默认不信任，
+     * 未配置时忽略该头直接返回 remoteAddr）；当前业务场景较小，暂未修复</p>
      * @param request HttpServletRequest
      * @return Ip
      */
@@ -367,6 +372,25 @@ public class CRequestUtils {
         }
 
         return request.getRemoteAddr();
+    }
+
+    /**
+     * 获取请求属性并转为字符串（null 属性返回 null），可为空
+     * @param request       HttpServletRequest
+     * @param attributeName 属性名
+     * @return 属性字符串
+     */
+    public String getAttrStr(HttpServletRequest request, String attributeName) {
+        return StrUtil.toStringOrNull(request.getAttribute(attributeName));
+    }
+
+    /**
+     * 获取错误状态码（取自 RequestDispatcher.ERROR_STATUS_CODE 属性），可为空
+     * @param request HttpServletRequest
+     * @return 错误状态码字符串
+     */
+    public String getErrorStatusCode(HttpServletRequest request) {
+        return getAttrStr(request, RequestDispatcher.ERROR_STATUS_CODE);
     }
 
 }

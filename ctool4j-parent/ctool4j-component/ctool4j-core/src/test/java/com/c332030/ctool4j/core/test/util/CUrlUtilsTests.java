@@ -40,4 +40,12 @@ public class CUrlUtilsTests {
 
     }
 
+    @Test
+    public void replaceDomainKeepQueryAndFragment() {
+
+        val url = DEFAULT_DOMAIN + "/ip?x=1&y=2#frag";
+        Assertions.assertEquals(DEFAULT_DOMAIN2 + "/ip?x=1&y=2#frag", CUrlUtils.replaceDomain(url, DEFAULT_DOMAIN2));
+
+    }
+
 }

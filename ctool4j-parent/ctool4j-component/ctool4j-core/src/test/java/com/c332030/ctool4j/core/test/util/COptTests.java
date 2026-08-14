@@ -113,6 +113,17 @@ public class COptTests {
                 ;
         Assertions.assertEquals(33, result);
 
+        // 值存在时 supplier 不应执行（惰性语义）
+        val called = new boolean[] {false};
+        val presentResult = COpt.of(7)
+                .orElseGet(() -> {
+                    called[0] = true;
+                    return 33;
+                })
+                ;
+        Assertions.assertEquals(7, presentResult);
+        Assertions.assertFalse(called[0]);
+
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.controller;
 
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -33,7 +34,7 @@ public class CErrorController implements ErrorController {
     @RequestMapping("/error")
     public CStrResult<Void> error(HttpServletRequest request) {
 
-        val statusCodeStr = (String) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+        val statusCodeStr = CRequestUtils.getErrorStatusCode(request);
         val exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
         if(null != exception) {
             log.error("error with code: {}", statusCodeStr, exception);

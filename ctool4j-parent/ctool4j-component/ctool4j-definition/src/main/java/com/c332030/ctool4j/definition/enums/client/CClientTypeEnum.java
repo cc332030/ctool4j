@@ -16,7 +16,7 @@ public enum CClientTypeEnum {
 
     WEB("网页"),
 
-    OFFIACCOUNT("公众号"),
+    OFFICIAL_ACCOUNT("公众号"),
     MINI_PROGRAM("小程序"),
 
     APP("应用"),

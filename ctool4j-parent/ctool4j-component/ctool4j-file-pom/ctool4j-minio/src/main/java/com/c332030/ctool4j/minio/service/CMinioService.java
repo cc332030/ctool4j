@@ -61,13 +61,14 @@ public class CMinioService {
      *
      * @param bucket       存储桶名称
      * @param object       对象名称
-     * @param outputStream 目标输出流
+     * @param outputStream 目标输出流（调用方负责关闭）
      * @return 写入的字节数
      */
     @SneakyThrows
     public int getObjectThenWrite(String bucket, String object, OutputStream outputStream) {
-        val inputStream = getObject(bucket, object);
-        return IOUtils.copy(inputStream, outputStream);
+        try (val inputStream = getObject(bucket, object)) {
+            return IOUtils.copy(inputStream, outputStream);
+        }
     }
 
     /**

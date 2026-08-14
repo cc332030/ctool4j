@@ -1,0 +1,94 @@
+package com.c332030.ctool4j.core.test.exception;
+
+import com.c332030.ctool4j.core.exception.ICBusinessExceptionProvider;
+import com.c332030.ctool4j.definition.function.CBiFunction;
+import com.c332030.ctool4j.definition.function.CTriFunction;
+import com.c332030.ctool4j.definition.interfaces.ICRes;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+/**
+ * <p>
+ * Description: ICBusinessExceptionProviderTests
+ * </p>
+ *
+ * @since 2025/12/12
+ */
+public class ICBusinessExceptionProviderTests {
+
+    @Test
+    public void defaultGetMessageExceptionFunction_throws() {
+
+        ICBusinessExceptionProvider<RuntimeException> provider = new ICBusinessExceptionProvider<RuntimeException>() {
+        };
+        CBiFunction<String, Throwable, RuntimeException> fn = provider.getMessageExceptionFunction();
+
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> fn.apply("msg", null));
+
+    }
+
+    @Test
+    public void getExceptionFunction_delegates() {
+
+        ICBusinessExceptionProvider<IllegalStateException> provider = new ICBusinessExceptionProvider<IllegalStateException>() {
+            @Override
+            public CBiFunction<String, Throwable, IllegalStateException> getMessageExceptionFunction() {
+                return (message, cause) -> new IllegalStateException(message, cause);
+            }
+        };
+
+        CTriFunction<ICRes<?>, String, Throwable, IllegalStateException> fn = provider.getExceptionFunction();
+        Throwable cause = new RuntimeException("cause");
+        IllegalStateException ex = fn.apply(ICResTestsRes.of("200", "ok"), "detail", cause);
+
+        Assertions.assertEquals("[200] ok: detail", ex.getMessage());
+        Assertions.assertSame(cause, ex.getCause());
+
+    }
+
+    @Test
+    public void getExceptionFunction_nullRes() {
+
+        ICBusinessExceptionProvider<IllegalStateException> provider = new ICBusinessExceptionProvider<IllegalStateException>() {
+            @Override
+            public CBiFunction<String, Throwable, IllegalStateException> getMessageExceptionFunction() {
+                return (message, cause) -> new IllegalStateException(message, cause);
+            }
+        };
+
+        CTriFunction<ICRes<?>, String, Throwable, IllegalStateException> fn = provider.getExceptionFunction();
+        IllegalStateException ex = fn.apply(null, "only-extend", null);
+        Assertions.assertEquals("only-extend", ex.getMessage());
+
+    }
+
+    /**
+     * 测试用 ICRes 实现
+     */
+    static class ICResTestsRes implements ICRes<Object> {
+
+        private final String code;
+        private final String msg;
+
+        ICResTestsRes(String code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        static ICResTestsRes of(String code, String msg) {
+            return new ICResTestsRes(code, msg);
+        }
+
+        @Override
+        public String getCode() {
+            return code;
+        }
+
+        @Override
+        public String getMsg() {
+            return msg;
+        }
+
+    }
+
+}

@@ -307,6 +307,7 @@ public class CLockService {
      * @return true 加锁成功
      */
     public boolean tryLock(RLock lock, Duration waitDuration) {
+        Objects.requireNonNull(waitDuration, "waitDuration can't be null");
         long timeout;
         TimeUnit timeUnit;
         if (TimeoutUtils.hasMillis(waitDuration)) {

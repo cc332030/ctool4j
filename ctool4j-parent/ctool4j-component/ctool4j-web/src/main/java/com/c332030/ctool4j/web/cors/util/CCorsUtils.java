@@ -115,7 +115,8 @@ public class CCorsUtils {
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, headers);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-        response.setHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, method);
+        // 允许当前请求方法类型
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, method);
 
     }
 

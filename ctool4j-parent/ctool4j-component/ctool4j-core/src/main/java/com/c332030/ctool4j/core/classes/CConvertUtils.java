@@ -17,6 +17,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>
  * Description: CConvertUtils
  * </p>
+ * <p>
+ * 默认转换器由静态块人工注册，正确性由人工与测试用例保证；
+ * 查找按注册顺序先注册优先，类似类加载双亲委派，原则上不可被后注册的覆盖。
+ * </p>
  *
  * @since 2025/11/22
  */

@@ -44,6 +44,9 @@ public class CSqlUtils {
      * @return limit 语句
      */
     public String limitSql(Integer size) {
+        if(null == size) {
+            throw new IllegalArgumentException("size 不能为空");
+        }
         return "limit " + size;
     }
 
