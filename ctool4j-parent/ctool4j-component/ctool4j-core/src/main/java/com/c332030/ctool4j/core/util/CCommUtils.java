@@ -221,8 +221,22 @@ public class CCommUtils {
      * <p>格式要求：请求行、请求头、请求体必须保持标准 HTTP 报文结构连续输出
      * （请求行后紧跟请求头，中间不得插入非 HTTP 内容，否则无法作为 HTTP 客户端/回放格式使用）；
      * IP、rt、error、业务数据等日志元信息统一置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）</p>
+     * <p>请求体/响应体/业务数据等派生数据由调用方计算后传入，接口只提供纯字段数据，
+     * 派生逻辑（如耗时计算、可打印转换、业务数据组装）不写在 bean 中</p>
+     *
+     * @param sb           日志拼接器
+     * @param info         请求基础数据（请求行、请求头、params 等）
+     * @param requestBody  请求体（已可打印处理）
+     * @param responseBody 响应体（已可打印处理）
+     * @param businessData 业务数据 map（key → value），无数据时传空 map
      */
-    public void appendHttpLog(StringBuilder sb, IHttpLogInfo info) {
+    public void appendHttpLog(
+        StringBuilder sb,
+        IHttpLogInfo info,
+        Object requestBody,
+        Object responseBody,
+        Map<String, String> businessData
+    ) {
 
         // 请求行
         appendRequestUrl(sb, info);
@@ -239,20 +253,18 @@ public class CCommUtils {
         }
 
         // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
-        appendRequestBody(sb, info);
+        appendRequestBody(sb, info, requestBody);
 
         // 响应体
-        val rspBody = info.getResponseBody();
-        if (null == rspBody) {
+        if (null == responseBody) {
             sb.append("\n\n[no response body]");
         } else {
-            appendBodyObject(sb, rspBody);
+            appendBodyObject(sb, responseBody);
         }
 
         appendError(sb, info.getErrorMessage());
 
         // 业务数据区（IP、耗时、token 等应用业务数据）：统一以空行与正文分隔，无数据时不追加
-        val businessData = info.getBusinessData();
         if (MapUtil.isNotEmpty(businessData)) {
             sb.append("\n\n");
             businessData.forEach((key, value) -> {
@@ -267,9 +279,12 @@ public class CCommUtils {
     /**
      * 拼接请求体：form 方法（POST/PUT/PATCH）时，params 有值先输出 form-urlencoded 段，
      * 再输出请求体（feign 的 @RequestParam 放 params 对象后，即使有 body 也不会丢失）
+     *
+     * @param sb          日志拼接器
+     * @param info        请求基础数据（请求行、请求头、params 等）
+     * @param requestBody 请求体（已可打印处理）
      */
-    private void appendRequestBody(StringBuilder sb, IHttpLogInfo info) {
-        val reqBody = info.getRequestBody();
+    private void appendRequestBody(StringBuilder sb, IHttpLogInfo info, Object requestBody) {
         if (isFormBodyMethod(info.getMethod())) {
             val params = info.getParams();
             if (MapUtil.isNotEmpty(params)) {
@@ -277,7 +292,7 @@ public class CCommUtils {
                 appendFormBody(sb, params);
             }
         }
-        appendBodyObject(sb, reqBody);
+        appendBodyObject(sb, requestBody);
     }
 
     /**

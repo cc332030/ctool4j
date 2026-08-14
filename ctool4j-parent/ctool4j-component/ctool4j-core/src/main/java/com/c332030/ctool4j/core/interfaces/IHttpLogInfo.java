@@ -46,40 +46,10 @@ public interface IHttpLogInfo {
     }
 
     /**
-     * 请求体
-     */
-    default Object getRequestBody() {
-        return null;
-    }
-
-    /**
-     * 响应体（已经过可打印处理）
-     */
-    default Object getResponseBody() {
-        return null;
-    }
-
-    /**
-     * 耗时（毫秒），未设置测量时返回 null，由调用方决定是否输出
-     */
-    default Long getRt() {
-        return null;
-    }
-
-    /**
      * 异常信息
      */
     default String getErrorMessage() {
         return null;
-    }
-
-    /**
-     * 应用特定业务数据（非 HTTP 请求头，仅用于日志末尾展示），无数据时返回空 map 不打印
-     *
-     * @return 业务数据 map（key → value）
-     */
-    default Map<String, String> getBusinessData() {
-        return CMap.of();
     }
 
 }

@@ -229,7 +229,7 @@ public class CFeignLogger extends Logger {
                 log.error("处理响应日志失败", e);
                 return t;
             } finally {
-                // 设置属性：耗时由 getRt() 按起止时间计算，业务数据区恒输出 rt（elapsedTime 为 0 的快速请求输出 rt: 0ms）
+                // 设置属性：耗时由 CRequestLogUtils.getRt 按起止时间计算，业务数据区恒输出 rt（elapsedTime 为 0 的快速请求输出 rt: 0ms）
                 val now = System.currentTimeMillis();
                 requestLog.setBeginTimeMillis(now - elapsedTime);
                 requestLog.setEndTimeMillis(now);
@@ -267,7 +267,7 @@ public class CFeignLogger extends Logger {
      * @return 原异常
      */
     private IOException dealErrorLog(IOException ioException, CRequestLog requestLog) {
-        requestLog.setThrowableMessage(ioException.getMessage());
+        requestLog.setErrorMessage(ioException.getMessage());
         return ioException;
     }
 
