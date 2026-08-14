@@ -62,8 +62,8 @@ public interface IHttpLogInfo {
     /**
      * 耗时（毫秒）
      */
-    default Long getRt() {
-        return null;
+    default long getRt() {
+        return 0;
     }
 
     /**
@@ -71,6 +71,15 @@ public interface IHttpLogInfo {
      */
     default String getErrorMessage() {
         return null;
+    }
+
+    /**
+     * 应用特定业务数据（非 HTTP 请求头，仅用于日志末尾展示），无数据时返回空 map 不打印
+     *
+     * @return 业务数据 map（key → value）
+     */
+    default Map<String, String> getBusinessData() {
+        return CMap.of();
     }
 
 }

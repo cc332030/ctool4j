@@ -197,10 +197,10 @@ public class CCommUtils {
     }
 
     /**
-     * 统一拼接完整 HTTP 请求+响应日志（请求行、请求头、请求体、响应体、耗时、异常）。
+     * 统一拼接完整 HTTP 请求+响应日志（请求行、请求头、请求体、响应体、耗时、异常、业务数据）。
      * <p>格式要求：请求行、请求头、请求体必须保持标准 HTTP 报文结构连续输出
      * （请求行后紧跟请求头，中间不得插入非 HTTP 内容，否则无法作为 HTTP 客户端/回放格式使用）；
-     * IP、rt、error 等日志元信息统一置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）</p>
+     * IP、rt、error、业务数据等日志元信息统一置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）</p>
      */
     public void appendHttpLog(StringBuilder sb, IHttpLogInfo info) {
 
@@ -231,21 +231,16 @@ public class CCommUtils {
 
         appendError(sb, info.getErrorMessage());
 
-        // 元信息区（IP、耗时）：统一以空行与正文分隔，IP 与 rt 相邻行，均无时不追加
-        val hasIp = StrUtil.isNotEmpty(info.getIp());
-        val rt = info.getRt();
-        if (hasIp || null != rt) {
+        // 业务数据区（IP、耗时、token 等应用业务数据）：统一以空行与正文分隔，无数据时不追加
+        val businessData = info.getBusinessData();
+        if (MapUtil.isNotEmpty(businessData)) {
             sb.append("\n\n");
-            if (hasIp) {
-                sb.append("IP: ");
-                sb.append(info.getIp());
+            businessData.forEach((key, value) -> {
+                sb.append(key);
+                sb.append(": ");
+                sb.append(value);
                 sb.append("\n");
-            }
-            if (null != rt) {
-                sb.append("rt: ");
-                sb.append(rt);
-                sb.append("ms");
-            }
+            });
         }
     }
 

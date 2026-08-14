@@ -13,6 +13,7 @@ import org.redisson.api.RLock;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,6 +86,15 @@ public class CCacheService {
     CStringStringRedisService redisService;
 
     /**
+     * 容器销毁时关闭异步刷新线程池：允许已提交任务执行完（shutdown 不中断），
+     * daemon 线程本就随 JVM 退出，此处保证资源有序释放
+     */
+    @PreDestroy
+    public void destroy() {
+        REFRESH_EXECUTOR.shutdown();
+    }
+
+    /**
      * 分布式同步获取值，如果不存在则计算
      * @param key 缓存 key
      * @param tClass 返回值类型
@@ -131,7 +141,7 @@ public class CCacheService {
      * 设置 Redis 缓存值
      * @param key 缓存 key
      * @param value 值（将被序列化为 JSON String 存储）
-     * @param expireSeconds 过期时间（秒），0 则永不过期，负值视为配置错误抛异常
+     * @param expireSeconds 过期时间（秒），非正数则永不过期
      */
     public void setValue(String key, Object value, int expireSeconds) {
         if (expireSeconds > 0) {

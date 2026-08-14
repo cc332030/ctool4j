@@ -1,9 +1,9 @@
 package com.c332030.ctool4j.log.model;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLogUtils;
+import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,6 @@ import lombok.val;
 import org.springframework.http.HttpHeaders;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,8 +50,8 @@ public class CRequestLog implements IHttpLogInfo {
     long endTimeMillis;
 
     /**
-     * 完整请求头（headerName → 一个或多个 headerValue），非空时优先返回，
-     * 供 feign 等客户端请求日志使用，未配置时由 token/ip/traceId 等字段组合
+     * 完整请求头（headerName → 一个或多个 headerValue），
+     * 供 feign 等客户端请求日志使用，仅包含真实请求头；token/traceId 等应用业务数据见 {@link #getBusinessData()}
      */
     Map<String, Collection<String>> headers;
 
@@ -62,30 +61,28 @@ public class CRequestLog implements IHttpLogInfo {
      */
     Object requestBody;
 
-    /**
-     * 无完整请求头且无 token/traceId/tenantId/userId 时返回的空请求头，所有请求共享；只读不可修改
-     */
-    static final Map<String, Collection<String>> EMPTY_HEADERS = Collections.emptyMap();
-
     @Override
     public Map<String, Collection<String>> getHeaders() {
-        if (MapUtil.isNotEmpty(headers)) {
-            return headers;
-        }
-        val headerMap = new LinkedHashMap<String, Collection<String>>();
-        if (StrUtil.isNotEmpty(token)) {
-            headerMap.put(HttpHeaders.AUTHORIZATION, Collections.singletonList(token));
-        }
-        if (StrUtil.isNotEmpty(traceId)) {
-            headerMap.put(CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), Collections.singletonList(traceId));
-        }
-        if (StrUtil.isNotEmpty(tenantId)) {
-            headerMap.put(CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), Collections.singletonList(tenantId));
-        }
-        if (StrUtil.isNotEmpty(userId)) {
-            headerMap.put(CRequestHeaderEnum.X_USER_ID.getHeaderName(), Collections.singletonList(userId));
-        }
-        return headerMap.isEmpty() ? EMPTY_HEADERS : headerMap;
+        return MapUtil.emptyIfNull(headers);
+    }
+
+    /**
+     * 应用特定业务数据（非 HTTP 请求头），仅用于日志末尾展示，有值才打印；
+     * <p>IP 在耗时前，耗时置于末尾，耗时无值时默认 0</p>
+     *
+     * @return 业务数据 map
+     */
+    @Override
+    public Map<String, String> getBusinessData() {
+
+        val businessDataMap = new LinkedHashMap<String, String>();
+        CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, token);
+        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), traceId);
+        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), tenantId);
+        CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), userId);
+        CMapUtils.put(businessDataMap, "ip", ip);
+        businessDataMap.put("rt", getRt() + "ms");
+        return businessDataMap;
     }
 
     @Override
@@ -121,11 +118,11 @@ public class CRequestLog implements IHttpLogInfo {
      * @return 耗时（毫秒），无法计算时返回 null
      */
     @Override
-    public Long getRt() {
+    public long getRt() {
         if (beginTimeMillis > 0 && endTimeMillis >= beginTimeMillis) {
             return endTimeMillis - beginTimeMillis;
         }
-        return null;
+        return 0;
     }
 
     @Override

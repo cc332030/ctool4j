@@ -196,18 +196,18 @@ public class CLockService {
          * 执行有返回值业务，获取锁失败时不抛异常
          * <p>与 {@link #execute(Supplier)} 的区别：锁失败仅执行 {@link #onLockFail} 回调并返回 null，
          * 不抛 {@link IllegalStateException}；适合"抢不到锁就跳过"的尽力而为场景（如缓存异步刷新）</p>
+         *
          * @param callable 锁内执行的业务
-         * @return 业务返回值，获取锁失败时返回 null
-         * @param <T> 返回值泛型
+         * @param <T>      返回值泛型
          */
-        public <T> T executeQuietly(Supplier<T> callable) {
+        public <T> void executeQuietly(Supplier<T> callable) {
             RLock lock = getLock(lockKey);
-            if (!tryAcquire(lock)) {
+            if (tryAcquireFailure(lock)) {
                 onLockFail.accept(lock);
-                return null;
+                return;
             }
             try {
-                return callable.get();
+                callable.get();
             } finally {
                 unlockSafely(lock);
             }
@@ -219,7 +219,7 @@ public class CLockService {
          */
         private <T> T doExecute(Supplier<T> supplier) {
             RLock lock = getLock(lockKey);
-            if (!tryAcquire(lock)) {
+            if (tryAcquireFailure(lock)) {
                 onLockFail.accept(lock);
                 throw new IllegalStateException("获取分布式锁失败, lockKey: " + lockKey);
             }
@@ -230,7 +230,7 @@ public class CLockService {
             }
         }
 
-        private boolean tryAcquire(RLock lock) {
+        private boolean tryAcquireFailure(RLock lock) {
             try {
                 boolean acquired;
                 if (leaseTime > 0) {
@@ -239,13 +239,13 @@ public class CLockService {
                     acquired = CLockService.this.tryLock(lock, waitTime);
                 }
                 if (acquired) {
-                    log.info("加锁成功: {}", lockKey);
+                    log.debug("加锁成功: {}", lockKey);
                 }
-                return acquired;
+                return !acquired;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                log.info("加锁被中断: {}", lockKey, e);
-                return false;
+                log.error("加锁被中断: {}", lockKey, e);
+                return true;
             }
         }
 
@@ -273,9 +273,9 @@ public class CLockService {
                 }
                 try {
                     lock.unlock();
-                    log.info("释放锁成功: {}", lockKey);
+                    log.debug("释放锁成功: {}", lockKey);
                 } catch (Exception e) {
-                    log.info("释放锁异常: {}", lockKey, e);
+                    log.error("释放锁异常: {}", lockKey, e);
                 }
             }
         }
@@ -430,15 +430,15 @@ public class CLockService {
                 ? tryLock(lock)
                 : tryLock(lock, waitTime, timeUnit);
         if(locked) {
-            log.info("tryLockThenRun lock success, key: {}", key);
+            log.debug("tryLockThenRun lock success, key: {}", key);
             try {
                 return valueSupplier.get();
             } finally {
                 lock.unlock();
-                log.info("tryLockThenRun unlock success, key: {}", key);
+                log.debug("tryLockThenRun unlock success, key: {}", key);
             }
         } else {
-            log.info("tryLockThenRun wait timeout, key: {}, waitTime: {}, timeUnit: {}", key, waitTime, timeUnit);
+            log.debug("tryLockThenRun wait timeout, key: {}, waitTime: {}, timeUnit: {}", key, waitTime, timeUnit);
             if(null != failureRunnable) {
                 failureRunnable.run();
             }

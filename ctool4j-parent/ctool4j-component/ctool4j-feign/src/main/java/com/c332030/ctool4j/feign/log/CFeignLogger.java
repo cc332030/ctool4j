@@ -53,6 +53,8 @@ public class CFeignLogger extends Logger {
      * 且"进行中"请求最多一个，ThreadLocal 单值即可配对，map 成为冗余。</li>
      * <li><b>异常回调无 request 参数</b>（feign Logger API 限制），只能靠线程线索取回，ThreadLocal 是唯一载体；
      * 故 ThreadLocal 本身不可删，否则所有连接类异常日志整条丢失。</li>
+     * <li><b>残留防护</b>：logRequest 无条件写入本次请求标记（未记录请求写 null），覆盖上次异常残留
+     * （如自定义 Client 抛非 IOException 时无回调），杜绝"上次残留被下次未记录请求误取"的错配。</li>
      * </ol>
      * <p><b>已接受的边界</b>：回调跨线程的自定义包装（如自定义 Client/InvocationHandler/Hystrix）下，
      * 回调线程本值为空，该请求成功/异常日志降级为不打印。项目使用标准 feign，此边界已确认可接受。</p>
@@ -64,10 +66,9 @@ public class CFeignLogger extends Logger {
     @Override
     protected void logRequest(String configKey, Level logLevel, Request request) {
         if (CBoolUtils.isTrue(config.getEnable())) {
-            if (enableLog(request)) {
-                // 永远先记录请求信息，统一保存到 CRequestLog，拼接在打印时执行
-                REQUEST_THREAD_LOCAL.set(setRequestLog(request));
-            }
+            // 无条件写入本次请求的日志标记：记录请求时存入 CRequestLog，未记录（黑名单等）时存入 null，
+            // 覆盖上次异常残留，保证回调 get 到的一定是本次请求的标记，避免日志错配
+            REQUEST_THREAD_LOCAL.set(enableLog(request) ? setRequestLog(request) : null);
         }
     }
 
