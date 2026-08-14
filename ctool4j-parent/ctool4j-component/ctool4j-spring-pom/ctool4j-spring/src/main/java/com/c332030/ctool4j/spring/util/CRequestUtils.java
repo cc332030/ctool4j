@@ -15,6 +15,7 @@ import lombok.val;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -340,6 +341,25 @@ public class CRequestUtils {
         }
 
         return request.getRemoteAddr();
+    }
+
+    /**
+     * 获取请求属性并转为字符串（null 属性返回 null），可为空
+     * @param request       HttpServletRequest
+     * @param attributeName 属性名
+     * @return 属性字符串
+     */
+    public String getAttrStr(HttpServletRequest request, String attributeName) {
+        return StrUtil.toStringOrNull(request.getAttribute(attributeName));
+    }
+
+    /**
+     * 获取错误状态码（取自 RequestDispatcher.ERROR_STATUS_CODE 属性），可为空
+     * @param request HttpServletRequest
+     * @return 错误状态码字符串
+     */
+    public String getErrorStatusCode(HttpServletRequest request) {
+        return getAttrStr(request, RequestDispatcher.ERROR_STATUS_CODE);
     }
 
 }
