@@ -9,6 +9,8 @@ import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CPredicate;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -73,6 +75,11 @@ public class CReflectUtils {
         val constructors = constructorMap.get(argsLength);
         if(argsLength == 0) {
             return constructors;
+        }
+
+        // 无该参数个数的构造器时返回空列表，避免迭代 null 抛 NPE
+        if(null == constructors) {
+            return Collections.emptyList();
         }
 
         val matchConstructors = new ArrayList<Constructor<?>>();
@@ -322,8 +329,13 @@ public class CReflectUtils {
 
     /**
      * 方法/字段/类 注解缓存
+     * <p>key 使用弱引用（Caffeine weakKeys）：避免强引用持有 Class/Method/Field 导致
+     * 类加载器无法回收（热部署、动态类场景内存滞留）</p>
      */
-    final Map<Object, Map<Class<? extends Annotation>, Object>> ELEMENT_ANNOTATION_MAP = new ConcurrentHashMap<>();
+    final Cache<Object, Map<Class<? extends Annotation>, Object>> ELEMENT_ANNOTATION_CACHE =
+            Caffeine.newBuilder()
+                .weakKeys()
+                .build();
 
     /**
      * 获取方法/字段/类 注解
@@ -338,13 +350,7 @@ public class CReflectUtils {
         Class<T> annotationClass
     ) {
 
-        var annotationMap = ELEMENT_ANNOTATION_MAP.get(element);
-        if(null == annotationMap) {
-            synchronized (ELEMENT_ANNOTATION_MAP) {
-                annotationMap = ELEMENT_ANNOTATION_MAP
-                    .computeIfAbsent(element, k -> new ConcurrentHashMap<>());
-            }
-        }
+        var annotationMap = ELEMENT_ANNOTATION_CACHE.get(element, k -> new ConcurrentHashMap<>());
 
         var annotation = annotationMap.get(annotationClass);
         if(null == annotation) {
