@@ -69,6 +69,10 @@ public class CNumUtils {
 
     public Integer sum(Integer... values) {
 
+        if(null == values) {
+            return null;
+        }
+
         Integer result = null;
         for (Integer value : values) {
             if(null != value) {
@@ -81,6 +85,10 @@ public class CNumUtils {
 
     public Long sum(Long... values) {
 
+        if(null == values) {
+            return null;
+        }
+
         Long result = null;
         for (Long value : values) {
             if(null != value) {
@@ -92,6 +100,10 @@ public class CNumUtils {
     }
 
     public BigDecimal sum(BigDecimal... values) {
+
+        if(null == values) {
+            return null;
+        }
 
         BigDecimal result = null;
         for (BigDecimal value : values) {
@@ -140,6 +152,9 @@ public class CNumUtils {
     }
 
     public int compare(Integer v1, Integer v2) {
+        if(null == v1 && null == v2) {
+            return 0;
+        }
         if(null == v2) {
             return -1;
         }
@@ -150,6 +165,9 @@ public class CNumUtils {
     }
 
     public int compare(Long v1, Long v2) {
+        if(null == v1 && null == v2) {
+            return 0;
+        }
         if(null == v2) {
             return -1;
         }
@@ -160,6 +178,9 @@ public class CNumUtils {
     }
 
     public int compare(BigDecimal v1, BigDecimal v2) {
+        if(null == v1 && null == v2) {
+            return 0;
+        }
         if(null == v2) {
             return -1;
         }
@@ -241,7 +262,7 @@ public class CNumUtils {
     }
 
     public boolean isOverflow(double value) {
-        return value > Float.MAX_VALUE || value < Float.MIN_VALUE;
+        return value > Float.MAX_VALUE || value < -Float.MAX_VALUE;
     }
 
     public void assertOverflow(double value) {
@@ -391,6 +412,9 @@ public class CNumUtils {
      * @return 占比
      */
     public BigDecimal percent(Integer value, Integer total, int scale) {
+        if(null == value || null == total) {
+            return null;
+        }
         return percent(new BigDecimal(value), new BigDecimal(total), scale);
     }
 
@@ -412,6 +436,9 @@ public class CNumUtils {
      * @return 占比
      */
     public BigDecimal percent(Long value, Long total, int scale) {
+        if(null == value || null == total) {
+            return null;
+        }
         return percent(new BigDecimal(value), new BigDecimal(total), scale);
     }
 
@@ -433,6 +460,9 @@ public class CNumUtils {
      * @return 占比
      */
     public BigDecimal percent(BigDecimal value, BigDecimal total, int scale) {
+        if(null == value || null == total) {
+            return null;
+        }
         return divide(value.multiply(ONE_HUNDRED), total, scale);
     }
 
