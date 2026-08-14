@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.test.util;
 
 import com.c332030.ctool4j.core.util.CArrUtils;
-import com.c332030.ctool4j.definition.function.CFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -80,17 +79,17 @@ public class CArrUtilsTests {
         Object[] result = CArrUtils.convert(new Integer[]{1, 2, 3}, String::valueOf);
         Assertions.assertArrayEquals(new Object[]{"1", "2", "3"}, result);
 
-        Assertions.assertNull(CArrUtils.convert(null, (CFunction<Integer, String>) String::valueOf));
+        Assertions.assertNull(CArrUtils.convert(null, String::valueOf));
 
     }
 
     @Test
-    public void convertToTypedArrayThrows() {
+    public void convertToTypedArray() {
 
-        Assertions.assertThrowsExactly(ClassCastException.class,
-                () -> {
-                    String[] result = CArrUtils.convert(new Integer[]{1, 2, 3}, String::valueOf);
-                });
+        String[] result = CArrUtils.convert(new Integer[]{1, 2, 3}, String[]::new, String::valueOf);
+        Assertions.assertArrayEquals(new String[]{"1", "2", "3"}, result);
+
+        Assertions.assertNull(CArrUtils.convert(null, String[]::new, String::valueOf));
 
     }
 

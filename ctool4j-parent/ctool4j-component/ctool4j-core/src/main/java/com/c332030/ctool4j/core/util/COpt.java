@@ -163,7 +163,10 @@ public final class COpt<T> {
      * @return 值
      */
     public T orElseGet(CSupplier<T> supplier) {
-        return orElse(supplier.get());
+        if(isPresent()) {
+            return value;
+        }
+        return supplier.get();
     }
 
     /**

@@ -176,8 +176,11 @@ public class CUrlUtils {
             return url;
         }
 
-        val path = getPath(url);
-        return newDomain + path;
+        val uri = getURI(url);
+        val path = StrUtil.nullToEmpty(uri.getRawPath());
+        val query = StrUtil.isNotEmpty(uri.getRawQuery()) ? "?" + uri.getRawQuery() : "";
+        val fragment = StrUtil.isNotEmpty(uri.getRawFragment()) ? "#" + uri.getRawFragment() : "";
+        return newDomain + path + query + fragment;
     }
 
 }

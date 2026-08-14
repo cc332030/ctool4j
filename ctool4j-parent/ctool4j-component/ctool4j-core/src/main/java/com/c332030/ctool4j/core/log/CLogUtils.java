@@ -253,7 +253,8 @@ public class CLogUtils {
     /**
      * 处理参数
      * <p>设计意图：就地修改调用方传入的参数数组，将可 json 化的参数元素替换为 JSON 字符串，
-     * 调用方须知悉原数组元素会被替换（避免为日志复制数组的开销）；null 元素保持不动</p>
+     * 调用方须知悉原数组元素会被替换（避免为日志复制数组的开销）；null 元素保持不动。
+     * 属有意设计取舍（日志场景性能优先），code review 不再提醒</p>
      * @param args args
      * @param nonNull 是否不打印 null
      */
@@ -274,6 +275,9 @@ public class CLogUtils {
                                 ? CJsonUtils.toJsonNonNull(arg)
                                 : CJsonUtils.toJson(arg);
                     } catch (Exception e) {
+                        // 不少类型不支持转 json，虽已适配一部分但仍无法穷尽；
+                        // 转 json 失败即禁用该类型的 json 转换（改由手动兼容），
+                        // 避免每次日志都触发异常报错，属有意设计取舍
                         setJsonLog(argType, false);
                         log.error("转 json 失败，禁用 json 转换：{}", argType, e);
                     }

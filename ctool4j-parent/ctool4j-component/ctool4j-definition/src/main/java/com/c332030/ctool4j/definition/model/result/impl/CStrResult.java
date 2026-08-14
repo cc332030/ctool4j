@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 
 /**
  * <p>
@@ -39,7 +40,7 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
         return success(null);
     }
 
-    public static <DATA> CStrResult<DATA> success(HttpStatus httpStatus, DATA data) {
+    public static <DATA> CStrResult<DATA> success(@NonNull HttpStatus httpStatus, DATA data) {
         return newInstance(
             String.valueOf(httpStatus.value()),
             httpStatus.getReasonPhrase(),
@@ -58,14 +59,14 @@ public class CStrResult<DATA> implements ICStrResult<DATA> {
         return newInstance(code, message, null);
     }
 
-    public static <DATA> CStrResult<DATA> error(HttpStatus httpStatus, String message) {
+    public static <DATA> CStrResult<DATA> error(@NonNull HttpStatus httpStatus, String message) {
         return error(
             String.valueOf(httpStatus.value()),
             StrUtil.nullToDefault(message, httpStatus.getReasonPhrase())
         );
     }
 
-    public static <DATA> CStrResult<DATA> error(HttpStatus httpStatus) {
+    public static <DATA> CStrResult<DATA> error(@NonNull HttpStatus httpStatus) {
         return error(
             httpStatus,
             null
