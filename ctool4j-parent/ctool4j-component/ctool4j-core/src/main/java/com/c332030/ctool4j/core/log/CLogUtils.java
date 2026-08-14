@@ -252,6 +252,8 @@ public class CLogUtils {
 
     /**
      * 处理参数
+     * <p>设计意图：就地修改调用方传入的参数数组，将可 json 化的参数元素替换为 JSON 字符串，
+     * 调用方须知悉原数组元素会被替换（避免为日志复制数组的开销）；null 元素保持不动</p>
      * @param args args
      * @param nonNull 是否不打印 null
      */
