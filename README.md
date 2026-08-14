@@ -60,7 +60,7 @@ ctool4j-nacos-discovery（依赖 spring）
 | ctool4j-db | SQL 拼接工具 | [README](ctool4j-parent/ctool4j-component/ctool4j-db/README.md) |
 | ctool4j-transaction | 事务注解约定（@CTransactional） | [README](ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md) |
 | ctool4j-spring-pom | Spring 基础设施：Bean 装配、Context 工具、Security、Cloud | [README](ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md) |
-| ctool4j-web | Web MVC 通用能力：全局异常、跨域、JWT | [README](ctool4j-parent/ctool4j-component/ctool4j-web/README.md) |
+| ctool4j-web | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId 透传 | [README](ctool4j-parent/ctool4j-component/ctool4j-web/README.md) |
 | ctool4j-feign | Feign 增强：请求头传播、日志、自定义拦截器 | [README](ctool4j-parent/ctool4j-component/ctool4j-feign/README.md) |
 | ctool4j-redis | Redis 操作与 Redisson 分布式锁 | [README](ctool4j-parent/ctool4j-component/ctool4j-redis/README.md) |
 | ctool4j-cache | 二级缓存：本地缓存 + Redis，防击穿/防雪崩 | [README](ctool4j-parent/ctool4j-component/ctool4j-cache/README.md) |
