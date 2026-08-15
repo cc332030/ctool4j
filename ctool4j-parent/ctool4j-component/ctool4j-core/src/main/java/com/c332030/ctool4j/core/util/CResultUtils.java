@@ -14,7 +14,6 @@ import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -31,13 +30,15 @@ public class CResultUtils {
     private static final String EXCEPTION_MESSAGE_TEMPLATE = "[{}] {}";
 
     /**
-     * 成功状态码集合
+     * 成功状态码集合（不可变）
      */
-    public Set<String> SUCCESS_CODES = Stream.of(
-            0,
-            HttpStatus.OK.value(),
-            "000000"
-    ).map(String::valueOf).collect(Collectors.toSet());
+    public final Set<String> SUCCESS_CODES =
+        Stream.of(
+                0,
+                HttpStatus.OK.value(),
+                "000000"
+        ).map(String::valueOf)
+        .collect(CCollectors.toUnmodifiableSet());
 
     /**
      * 判断结果是否成功

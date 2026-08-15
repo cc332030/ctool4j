@@ -103,4 +103,17 @@ public class CCollectors {
         return Collectors.toCollection(LinkedHashSet::new);
     }
 
+    /**
+     * 收集为不可变 Set
+     *
+     * @param <T> 元素类型
+     * @return 收集器
+     */
+    public <T> Collector<T, ?, Set<T>> toUnmodifiableSet() {
+        return Collectors.collectingAndThen(
+                Collectors.toSet(),
+                Collections::unmodifiableSet
+        );
+    }
+
 }
