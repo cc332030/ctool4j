@@ -24,11 +24,23 @@ import java.io.IOException;
 @Component
 public class ResourceFilter implements ICFilter, PriorityOrdered {
 
+    /**
+     * 最高优先级，最先执行
+     *
+     * @return 优先级
+     */
     @Override
     public int getOrder() {
         return Integer.MIN_VALUE;
     }
 
+    /**
+     * 过滤请求：命中忽略资源 URL 时直接返回 204
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param chain    过滤器链
+     */
     @Override
     public void doFilter(
         HttpServletRequest request,

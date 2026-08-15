@@ -2,7 +2,7 @@ package com.c332030.ctool4j.definition.model.result;
 
 /**
  * <p>
- * Description: ICResult
+ * Description: ICIntResult
  * </p>
  *
  * @since 2025/2/24

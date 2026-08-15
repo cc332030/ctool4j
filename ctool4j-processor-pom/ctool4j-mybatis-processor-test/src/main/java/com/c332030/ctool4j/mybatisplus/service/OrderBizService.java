@@ -17,6 +17,9 @@ public class OrderBizService {
 
     OrderService orderService;
 
+    /**
+     * 调用 OrderService 按业务单号查询（处理器测试样例方法）
+     */
     public void getByOrderNo(){
 
         orderService.getByOrderNo("123");

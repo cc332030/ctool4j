@@ -7,7 +7,7 @@ import com.c332030.ctool4j.definition.interfaces.ICMessage;
 
 /**
  * <p>
- * Description: ICCodeMsgDataResult
+ * Description: ICCodeMessageDataResult
  * </p>
  *
  * @author c332030

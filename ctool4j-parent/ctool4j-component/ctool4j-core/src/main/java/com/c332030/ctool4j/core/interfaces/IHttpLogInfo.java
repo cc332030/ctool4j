@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: HTTP 日志信息接口，各模块实现此接口即可复用 CCommUtils 的日志拼接方法
+ * Description: IHttpLogInfo 日志信息接口，各模块实现此接口即可复用 CCommUtils 的日志拼接方法
  * </p>
  *
  * @since 2026/7/3

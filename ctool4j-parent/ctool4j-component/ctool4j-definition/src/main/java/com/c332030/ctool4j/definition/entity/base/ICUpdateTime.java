@@ -6,7 +6,7 @@ import java.util.Date;
 
 /**
  * <p>
- * Description: ICCreateTime
+ * Description: ICUpdateTime
  * </p>
  *
  * @since 2025/5/26

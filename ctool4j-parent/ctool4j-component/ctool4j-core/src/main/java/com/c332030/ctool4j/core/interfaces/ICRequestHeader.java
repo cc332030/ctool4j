@@ -7,7 +7,7 @@ import com.c332030.ctool4j.definition.interfaces.ICText;
 
 /**
  * <p>
- * Description: IRequestHeader
+ * Description: ICRequestHeader
  * </p>
  *
  * @author c332030

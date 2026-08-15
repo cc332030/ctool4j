@@ -1,13 +1,11 @@
 package com.c332030.ctool4j.mybatisplus.mapper;
 
-import com.c332030.ctool4j.definition.annotation.CBizId;
-import com.c332030.ctool4j.mybatisplus.entity.OrderDO;
 import com.c332030.ctool4j.mybatisplus.entity.OrderDetailDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
- * Description: OrderMapper
+ * Description: OrderDetailMapper
  * </p>
  *
  * @author c332030

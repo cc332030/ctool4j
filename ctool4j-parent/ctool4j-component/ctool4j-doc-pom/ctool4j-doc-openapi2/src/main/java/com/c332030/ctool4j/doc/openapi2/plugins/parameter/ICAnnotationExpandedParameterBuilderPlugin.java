@@ -7,7 +7,7 @@ import java.lang.annotation.Annotation;
 
 /**
  * <p>
- * Description: ICExpandedParameterBuilderPlugin
+ * Description: ICAnnotationExpandedParameterBuilderPlugin
  * </p>
  *
  * @since 2025/12/17
