@@ -24,22 +24,49 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * Description: CAutowiredScanProcessor
+ * </p>
+ * <p>
+ * 注解处理器：扫描标注 @CAutowiredScan 的类，为其中的 @CAutowired 字段生成构造器注入的 Init 类
+ * </p>
+ *
+ * @since 2026/5/17
+ */
 @SupportedAnnotationTypes("com.c332030.ctool4j.spring.annotation.CAutowiredScan")
 public class CAutowiredScanProcessor extends AbstractProcessor {
 
     private String template;
 
+    /**
+     * 初始化：加载 autowired-init 模板
+     *
+     * @param processingEnv 处理环境
+     */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.template = loadTemplate("/templates/autowired-init.ftl");
     }
 
+    /**
+     * 支持的 Java 源版本
+     *
+     * @return Java 8
+     */
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.RELEASE_8;
     }
 
+    /**
+     * 处理注解：为标注 @CAutowiredScan 的类生成 Init 类
+     *
+     * @param annotations 注解集合
+     * @param roundEnv    轮次环境
+     * @return true
+     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (template == null) {
