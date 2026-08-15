@@ -47,10 +47,11 @@ public class CJacksonUtils {
     /**
      * 自定义序列化/反序列化模块
      */
-    private final SimpleModule SIMPLE_MODULE;
-    static {
+    private final SimpleModule SIMPLE_MODULE = getDefinedModule();
 
-        val module = SIMPLE_MODULE = new SimpleModule();
+    public SimpleModule getDefinedModule() {
+
+        val module = new SimpleModule();
 
         // Long to String，避免前端溢出
         module.addSerializer(Long.class, ToStringSerializer.instance);
@@ -68,6 +69,7 @@ public class CJacksonUtils {
 
         // SIMPLE_MODULE 为 private，外部无法通过它注册自定义序列化器污染全局 mapper，无需冻结
         // 注意：makeImmutable() 在低版本 jackson-databind（如 2.13.5）不存在，不可使用
+        return module;
     }
 
     static {
