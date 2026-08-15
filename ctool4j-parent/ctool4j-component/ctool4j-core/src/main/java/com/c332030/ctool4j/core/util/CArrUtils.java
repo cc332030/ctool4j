@@ -34,7 +34,7 @@ public class CArrUtils {
     /**
      * 空字符串数组
      */
-    public final String[] EMPAY_STR_ARR = new String[0];
+    public final String[] EMPTY_STR_ARR = new String[0];
 
     /**
      * 过滤
@@ -161,10 +161,10 @@ public class CArrUtils {
     public String[] toStrArr(Collection<String> collection) {
 
         if(CValidateUtils.isEmpty(collection)) {
-            return EMPAY_STR_ARR;
+            return EMPTY_STR_ARR;
         }
         return collection
-            .toArray(EMPAY_STR_ARR);
+            .toArray(EMPTY_STR_ARR);
     }
 
     /**
