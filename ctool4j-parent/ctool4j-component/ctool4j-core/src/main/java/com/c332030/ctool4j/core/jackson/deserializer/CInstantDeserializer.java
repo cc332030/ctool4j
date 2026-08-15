@@ -28,6 +28,13 @@ public class CInstantDeserializer extends JsonDeserializer<Instant> {
      */
     public static final CInstantDeserializer INSTANCE = new CInstantDeserializer();
 
+    /**
+     * 反序列化瞬时时间：支持字符串（含毫秒）与整型毫秒时间戳，其余 token 交给默认实现
+     *
+     * @param parser  解析器
+     * @param context 反序列化上下文
+     * @return 瞬时时间
+     */
     @Override
     public Instant deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 

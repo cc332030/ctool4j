@@ -26,6 +26,13 @@ public class CInstantSerializer extends JsonSerializer<Instant> {
      */
     public static final CInstantSerializer INSTANCE = new CInstantSerializer();
 
+    /**
+     * 序列化为日期时间字符串
+     *
+     * @param value   瞬时时间
+     * @param gen     生成器
+     * @param provider 序列化提供者
+     */
     @Override
     public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeString(CDateUtils.formatDateTime(value));
