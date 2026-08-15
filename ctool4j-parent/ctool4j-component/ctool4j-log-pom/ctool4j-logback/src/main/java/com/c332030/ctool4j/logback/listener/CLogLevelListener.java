@@ -31,6 +31,11 @@ public class CLogLevelListener implements ICApplicationListener<EnvironmentChang
 
     Environment environment;
 
+    /**
+     * 监听环境变更事件，更新 logging.level 相关配置的日志级别
+     *
+     * @param event 环境变更事件
+     */
     @Override
     public void onEvent(EnvironmentChangeEvent event) {
 

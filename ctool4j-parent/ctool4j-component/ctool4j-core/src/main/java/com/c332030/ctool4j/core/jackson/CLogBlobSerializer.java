@@ -25,6 +25,13 @@ public class CLogBlobSerializer extends JsonSerializer<Object> {
      */
     public static final CLogBlobSerializer INSTANCE = new CLogBlobSerializer();
 
+    /**
+     * 序列化为固定占位符，避免长文本真实内容出现在日志中
+     *
+     * @param value       原始值（内容被忽略）
+     * @param gen         生成器
+     * @param serializers 序列化提供者
+     */
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeString(BLOB_PLACEHOLDER);

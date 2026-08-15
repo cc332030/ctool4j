@@ -48,6 +48,12 @@ public class CLogUtils {
      * 日志缓存
      */
     private static final ClassValue<CLog> LOGS = new ClassValue<CLog>() {
+        /**
+         * 为类创建日志对象
+         *
+         * @param type 类
+         * @return 日志对象
+         */
         @Override
         protected CLog computeValue(@NonNull Class<?> type) {
             return new CLog(type);

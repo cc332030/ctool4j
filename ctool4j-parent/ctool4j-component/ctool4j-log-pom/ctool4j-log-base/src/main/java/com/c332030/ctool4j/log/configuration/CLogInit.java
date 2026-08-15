@@ -15,6 +15,9 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 public class CLogInit implements ICSpringInit {
 
+    /**
+     * Spring 启动初始化回调（当前无处理逻辑）
+     */
     @Override
     public void onInit() {
 
