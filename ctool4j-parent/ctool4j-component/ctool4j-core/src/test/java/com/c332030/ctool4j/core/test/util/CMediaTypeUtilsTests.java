@@ -68,17 +68,32 @@ public class CMediaTypeUtilsTests {
     }
 
     /**
-     * 判断文本类型：非文本类型反例
+     * 判断文本类型：非文本类型反例，异常输入不限定范围
+     * <p>覆盖笔误值（vldeo）、随意捏造且不在关键字范围内的值（txso）等任意非法输入</p>
      */
     @Test
     public void isTextNegative() {
 
+        // 真实存在的非文本类型
         Assertions.assertFalse(CMediaTypeUtils.isText("image/png"));
         Assertions.assertFalse(CMediaTypeUtils.isText("application/octet-stream"));
         Assertions.assertFalse(CMediaTypeUtils.isText("video/mp4"));
         Assertions.assertFalse(CMediaTypeUtils.isText("audio/mpeg"));
         Assertions.assertFalse(CMediaTypeUtils.isText("font/woff2"));
         Assertions.assertFalse(CMediaTypeUtils.isText("application/pdf"));
+
+        // 笔误值
+        Assertions.assertFalse(CMediaTypeUtils.isText("vldeo"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("vldeo/mp4"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("txet"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("jsno"));
+
+        // 随意捏造、不在关键字范围内的值
+        Assertions.assertFalse(CMediaTypeUtils.isText("txso"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("txso/anything"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("abc"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("application/xyz"));
+        Assertions.assertFalse(CMediaTypeUtils.isText("foo+bar"));
 
     }
 
