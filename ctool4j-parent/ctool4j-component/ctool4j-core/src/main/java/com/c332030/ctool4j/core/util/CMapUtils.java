@@ -7,6 +7,7 @@ import cn.hutool.core.util.ArrayUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  *
  * @since 2024/2/26
  */
+@CustomLog
 @UtilityClass
 public class CMapUtils {
 
@@ -445,7 +447,7 @@ public class CMapUtils {
             sb.append("\n");
         }
 
-        System.out.println(sb);
+        log.info("\n{}", sb);
 
 
     }
