@@ -17,6 +17,11 @@ import javax.servlet.http.HttpServletResponse;
  * Description: CCorsResponseBodyAdvice
  * </p>
  *
+ * <p>
+ * CORS 备用方案：Filter 已自动生效时无需注册本 Advice；
+ * 需要时由使用方手动注册
+ * </p>
+ *
  * @since 2025/11/12
  */
 @CustomLog
