@@ -22,6 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 @CustomLog
 public class CAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    /**
+     * 处理未认证访问：根据异常类型生成提示消息并输出 401 错误响应
+     *
+     * @param request               请求
+     * @param response              响应
+     * @param authenticationException 认证异常
+     */
     @Override
     public void commence(
         HttpServletRequest request,

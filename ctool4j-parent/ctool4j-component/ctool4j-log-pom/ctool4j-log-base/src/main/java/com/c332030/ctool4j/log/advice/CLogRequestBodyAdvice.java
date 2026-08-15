@@ -24,6 +24,16 @@ import java.lang.reflect.Type;
 @ControllerAdvice
 public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
 
+    /**
+     * 请求体读取后记录日志
+     *
+     * @param body          请求体
+     * @param inputMessage  输入消息
+     * @param parameter     方法参数
+     * @param targetType    目标类型
+     * @param converterType 消息转换器类型
+     * @return 原请求体
+     */
     @Override
     public Object afterBodyRead(
             Object body,

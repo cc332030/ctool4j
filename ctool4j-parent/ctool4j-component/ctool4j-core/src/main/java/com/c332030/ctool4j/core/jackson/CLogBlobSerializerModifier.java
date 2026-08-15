@@ -52,6 +52,14 @@ public class CLogBlobSerializerModifier extends BeanSerializerModifier {
         );
     }
 
+    /**
+     * 修改序列化属性：将标注 {@link CLogBlob} 的字段替换为占位符输出
+     *
+     * @param config        序列化配置
+     * @param beanDesc      目标 bean 描述
+     * @param beanProperties 原始属性列表
+     * @return 处理后的属性列表（标注了 {@link CLogBlob} 的字段替换为占位符）
+     */
     @Override
     public List<BeanPropertyWriter> changeProperties(
             SerializationConfig config,

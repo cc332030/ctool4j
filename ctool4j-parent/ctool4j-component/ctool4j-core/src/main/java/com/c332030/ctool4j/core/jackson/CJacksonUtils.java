@@ -56,6 +56,12 @@ public class CJacksonUtils {
      */
     private final SimpleModule SIMPLE_MODULE = getDefinedModule();
 
+    /**
+     * 构建自定义序列化/反序列化模块
+     * <p>Long/BigDecimal 序列化为字符串避免前端溢出，Date/Instant 使用项目统一格式</p>
+     *
+     * @return 注册了自定义序列化器的模块
+     */
     public SimpleModule getDefinedModule() {
 
         val module = new SimpleModule();

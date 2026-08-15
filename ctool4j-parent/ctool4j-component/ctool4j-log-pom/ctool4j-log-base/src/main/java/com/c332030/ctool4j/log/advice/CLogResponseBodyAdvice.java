@@ -25,6 +25,17 @@ import javax.servlet.http.HttpServletResponse;
 @ControllerAdvice
 public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
 
+    /**
+     * 响应体写出前记录日志
+     *
+     * @param body                  响应体
+     * @param returnType            返回类型
+     * @param selectedContentType   选定的内容类型
+     * @param selectedConverterType 选定的转换器类型
+     * @param request               请求
+     * @param response              响应
+     * @return 原响应体
+     */
     @Nullable
     @Override
     public Object beforeBodyWrite(

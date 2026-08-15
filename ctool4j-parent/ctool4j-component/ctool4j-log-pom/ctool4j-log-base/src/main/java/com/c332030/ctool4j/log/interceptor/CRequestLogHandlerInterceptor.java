@@ -29,6 +29,14 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
 
     CRequestLogConfig config;
 
+    /**
+     * 请求前处理：初始化链路追踪与请求日志上下文
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param handler  处理器
+     * @return 是否继续处理，恒为 true
+     */
     @Override
     public boolean preHandle(
         HttpServletRequest request,
@@ -44,6 +52,14 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
         return true;
     }
 
+    /**
+     * 请求完成后处理：输出慢日志并清理链路追踪上下文
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param handler  处理器
+     * @param ex       处理异常
+     */
     @Override
     public void afterCompletion(
         HttpServletRequest request,

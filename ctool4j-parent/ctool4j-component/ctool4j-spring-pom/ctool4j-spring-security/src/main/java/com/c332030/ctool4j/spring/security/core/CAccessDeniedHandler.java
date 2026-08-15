@@ -19,6 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 @CustomLog
 public class CAccessDeniedHandler implements AccessDeniedHandler {
 
+    /**
+     * 处理访问被拒绝：输出 403 错误响应
+     *
+     * @param request              请求
+     * @param response             响应
+     * @param accessDeniedException 访问拒绝异常
+     */
     @Override
     public void handle(
         HttpServletRequest request,
