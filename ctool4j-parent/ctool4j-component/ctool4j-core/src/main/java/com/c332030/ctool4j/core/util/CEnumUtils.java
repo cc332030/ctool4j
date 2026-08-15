@@ -26,6 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CEnumUtils {
 
     private static final ClassValue<List<?>> ENUM_VALUES = new ClassValue<List<?>>() {
+        /**
+         * 缓存枚举所有值的不可变列表
+         *
+         * @param type 枚举类
+         * @return 枚举值列表
+         */
         @Override
         protected List<?> computeValue(Class<?> type) {
             return Collections.unmodifiableList(new ArrayList<>(Arrays.asList(type.getEnumConstants())));
@@ -33,6 +39,12 @@ public class CEnumUtils {
     };
 
     private static final ClassValue<Map<String, Map<?, ?>>> VALUE_ENUM_MAP_CLASS_MAP = new ClassValue<Map<String, Map<?, ?>>>() {
+        /**
+         * 缓存枚举字段名到值 Map 的容器（各枚举独立）
+         *
+         * @param type 枚举类
+         * @return 字段名到值 Map 的并发容器
+         */
         @Override
         protected Map<String, Map<?, ?>> computeValue(@NonNull Class<?> type) {
             return new ConcurrentHashMap<>();

@@ -34,6 +34,13 @@ public class CFeignClient implements Client {
 
     final CFeignClientLogConfig feignLogConfig;
 
+    /**
+     * 执行请求：开启日志时记录响应日志并重新缓冲响应体，否则透传默认客户端
+     *
+     * @param request 请求
+     * @param options 请求选项
+     * @return 响应
+     */
     @Override
     public Response execute(Request request, Request.Options options) throws IOException {
 
