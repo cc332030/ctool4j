@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
 
 /**
  * <p>
- * Description: CBase64Utils
+ * Description: CBase62Utils
  * </p>
  *
  * @since 2026/1/4
