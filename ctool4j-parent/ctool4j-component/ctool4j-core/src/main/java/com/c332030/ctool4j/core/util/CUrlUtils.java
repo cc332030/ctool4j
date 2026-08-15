@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +24,11 @@ import java.util.stream.Collectors;
  */
 @UtilityClass
 public class CUrlUtils {
+
+    /**
+     * http/https 协议起始匹配
+     */
+    private static final Pattern URL_START = Pattern.compile("https?://");
 
     /**
      * 字符串转 URI
@@ -218,17 +224,20 @@ public class CUrlUtils {
     }
 
     /**
-     * 提取 URL 中 http 开始的部分
+     * 提取 URL 中 http 协议开始的部分
      *
      * @param url URL
-     * @return http 开始的 URL，为空时返回 null
+     * @return http(s) 协议开始的 URL，为空或不含协议时返回 null
      */
     public String getUrl(String url) {
         if(StrUtil.isEmpty(url)) {
             return null;
         }
-        val index = url.indexOf("http");
-        return StrUtil.sub(url, index, url.length());
+        val matcher = URL_START.matcher(url);
+        if(!matcher.find()) {
+            return null;
+        }
+        return StrUtil.sub(url, matcher.start(), url.length());
     }
 
     /**
