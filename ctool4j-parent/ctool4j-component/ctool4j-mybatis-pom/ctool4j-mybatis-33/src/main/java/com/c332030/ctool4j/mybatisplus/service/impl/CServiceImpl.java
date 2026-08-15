@@ -13,6 +13,11 @@ import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
 public abstract class CServiceImpl<M extends CBaseMapper<T>, T>
         extends CBaseServiceImpl<M, T> {
 
+    /**
+     * 获取实体类类型
+     *
+     * @return 实体类
+     */
     @Override
     public Class<T> getEntityClass() {
         return CObjUtils.anyType(entityClass);

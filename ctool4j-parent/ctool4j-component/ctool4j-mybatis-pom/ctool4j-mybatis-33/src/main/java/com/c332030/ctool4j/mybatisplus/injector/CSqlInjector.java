@@ -24,6 +24,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CSqlInjector extends DefaultSqlInjector {
 
+    /**
+     * 获取方法列表：默认方法基础上追加 INSERT_IGNORE、UPDATE_ALL_BY_ID
+     *
+     * @param mapperClass Mapper 类
+     * @return 方法列表
+     */
     @Override
     public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
 

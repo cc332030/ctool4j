@@ -278,7 +278,7 @@ public class CSpringUtils {
     }
 
     /**
-     * 配置后缀，特定配置不加前缀
+     * 配置后缀，特定配置不加后缀
      * @param text 文本
      * @param excludeProfiles 不加前缀的配置
      * @return 带配置前缀的文本
@@ -323,7 +323,7 @@ public class CSpringUtils {
     }
 
     /**
-     * 配置后缀，PROD 不加前缀
+     * 配置后缀，PROD 不加后缀
      * @param text 文本
      * @return 带配置前缀的文本
      */

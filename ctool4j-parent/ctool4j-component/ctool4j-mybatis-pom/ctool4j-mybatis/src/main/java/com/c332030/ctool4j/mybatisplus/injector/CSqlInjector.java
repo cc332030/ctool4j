@@ -26,6 +26,14 @@ import java.util.List;
 @AllArgsConstructor
 public class CSqlInjector extends DefaultSqlInjector {
 
+    /**
+     * 获取方法列表：默认方法基础上追加 INSERT_IGNORE、UPDATE_ALL_BY_ID
+     *
+     * @param configuration MyBatis 配置
+     * @param mapperClass   Mapper 类
+     * @param tableInfo     表信息
+     * @return 方法列表
+     */
     @Override
     public List<AbstractMethod> getMethodList(Configuration configuration, Class<?> mapperClass, TableInfo tableInfo) {
 
