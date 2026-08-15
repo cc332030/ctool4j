@@ -6,7 +6,7 @@ import lombok.Getter;
 
 /**
  * <p>
- * Description: RequestHeaderEnum
+ * Description: CRequestHeaderEnum
  * </p>
  *
  * @author c332030

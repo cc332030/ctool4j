@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 
 /**
  * <p>
- * Description: RequestUtils
+ * Description: CRequestUtils
  * </p>
  *
  * @since 2024/12/9

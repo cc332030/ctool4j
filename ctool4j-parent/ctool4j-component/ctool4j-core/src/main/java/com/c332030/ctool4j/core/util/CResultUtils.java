@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 /**
  * <p>
- * Description: ResultUtils
+ * Description: CResultUtils
  * </p>
  *
  * @since 2025/2/11

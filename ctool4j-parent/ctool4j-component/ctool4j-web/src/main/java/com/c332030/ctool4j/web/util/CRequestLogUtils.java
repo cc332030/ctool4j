@@ -27,7 +27,7 @@ import java.util.*;
 
 /**
  * <p>
- * Description: RequestLoggerUtils
+ * Description: CRequestLogUtils
  * </p>
  *
  * @author c332030
