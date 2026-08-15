@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.util;
 
+import com.c332030.ctool4j.core.util.CCharsets;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -8,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletResponse;
-import java.nio.charset.StandardCharsets;
 
 /**
  * <p>
@@ -51,7 +51,7 @@ public class CServletUtils {
     ) {
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setCharacterEncoding(CCharsets.UTF_8.name());
         response.setStatus(httpStatus.value());
 
         val writer = response.getWriter();

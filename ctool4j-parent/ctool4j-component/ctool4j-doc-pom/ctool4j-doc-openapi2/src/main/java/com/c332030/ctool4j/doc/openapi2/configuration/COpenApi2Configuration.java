@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
  * Description: COpenApi2Configuration
  * </p>
  *
+ * <p>
+ * 本模块基于 springfox（OpenAPI2/Swagger 注解形态）实现。springfox 已停止维护，Knife4j 4.x 建议迁移 OpenAPI3
+ * （springdoc-openapi + Knife4j 4.x），保留此实现是为兼容老项目对 OpenAPI2 的依赖，不重复造轮子，
+ * 新项目建议直接使用 OpenAPI3；迁移属大工程需排期
+ * </p>
+ *
  * @since 2025/12/16
  */
 @CustomLog

@@ -2,6 +2,7 @@ package com.c332030.ctool4j.feign.client;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
+import com.c332030.ctool4j.core.util.CCharsets;
 import com.c332030.ctool4j.core.util.CThreadLocalUtils;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
@@ -15,7 +16,6 @@ import lombok.CustomLog;
 import lombok.val;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 
@@ -91,7 +91,7 @@ public class CFeignClient implements Client {
 
             if(CCommUtils.isTextBody(headers)) {
 
-                val responseBody = new String(bodyBytes, StandardCharsets.UTF_8);
+                val responseBody = new String(bodyBytes, CCharsets.UTF_8);
                 httpLog.append(responseBody);
             } else {
                 httpLog.append("[no response text body]");

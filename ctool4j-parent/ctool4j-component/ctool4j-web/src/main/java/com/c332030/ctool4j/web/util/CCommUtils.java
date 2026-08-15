@@ -6,10 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
 import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.util.CCollUtils;
-import com.c332030.ctool4j.core.util.CList;
-import com.c332030.ctool4j.core.util.CMapUtils;
-import com.c332030.ctool4j.core.util.CMediaTypeUtils;
+import com.c332030.ctool4j.core.util.*;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -18,7 +15,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -155,7 +151,7 @@ public class CCommUtils {
                 // 无法解析的 Content-Type 忽略，继续尝试下一个
             }
         }
-        return StandardCharsets.UTF_8;
+        return CCharsets.UTF_8;
     }
 
     /**

@@ -123,6 +123,8 @@ public class CSecurityConfiguration {
      * @throws Exception 构建过滤器链失败时抛出
      */
     @Bean
+    // 安全过滤链绑定了 permit/deny 等安全路径配置（CSpringSecurityRequestMatchersPathConfig），
+    // 该配置可来自配置中心（如 Nacos/Spring Cloud Config），使用 @RefreshScope 使安全规则变更即时生效，无需重启应用
     @RefreshScope
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain cFilterChain(

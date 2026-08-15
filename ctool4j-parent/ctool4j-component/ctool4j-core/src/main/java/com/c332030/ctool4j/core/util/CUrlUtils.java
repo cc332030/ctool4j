@@ -10,7 +10,6 @@ import lombok.val;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -219,7 +218,7 @@ public class CUrlUtils {
         if(StrUtil.isEmpty(value)) {
             return null;
         }
-        return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+        return URLDecoder.decode(value, CCharsets.UTF_8.name());
     }
 
     /**
