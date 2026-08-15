@@ -42,7 +42,7 @@ public class CCacheService {
      */
     final ExecutorService REFRESH_EXECUTOR = Executors.newFixedThreadPool(
         Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
-        r -> CThreadUtils.newDeamonThread(r, "cache-refresh")
+        r -> CThreadUtils.newDaemonThread(r, "cache-refresh")
     );
 
     /**
