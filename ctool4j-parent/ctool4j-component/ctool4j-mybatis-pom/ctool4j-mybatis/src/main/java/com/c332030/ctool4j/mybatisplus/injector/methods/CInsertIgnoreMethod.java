@@ -8,7 +8,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * <p>
- * Description: MySQLInsertIgnore
+ * Description: CInsertIgnoreMethod
  * </p>
  *
  * @author c332030
@@ -30,6 +30,14 @@ public class CInsertIgnoreMethod extends Insert implements ICMpMethod {
         );
     }
 
+    /**
+     * 创建 SQL 源：将 INSERT 替换为 INSERT IGNORE
+     *
+     * @param configuration MyBatis 配置
+     * @param script        原始 SQL 脚本
+     * @param parameterType 参数类型
+     * @return SQL 源
+     */
     @Override
     public SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType) {
         script = script.replaceAll("INSERT", "INSERT IGNORE");

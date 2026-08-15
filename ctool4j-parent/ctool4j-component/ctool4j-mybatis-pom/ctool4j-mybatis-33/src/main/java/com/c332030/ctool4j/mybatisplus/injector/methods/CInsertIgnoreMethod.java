@@ -15,7 +15,7 @@ import org.apache.ibatis.mapping.SqlSource;
 
 /**
  * <p>
- * Description: MySQLInsertIgnore
+ * Description: CInsertIgnoreMethod
  * </p>
  *
  * @author c332030
@@ -30,6 +30,14 @@ public class CInsertIgnoreMethod extends CAbstractMpMethod {
         super(CMpSqlMethod.INSERT_IGNORE);
     }
 
+    /**
+     * 注入 INSERT IGNORE 映射语句（支持自增主键回填）
+     *
+     * @param mapperClass Mapper 类
+     * @param modelClass  模型类
+     * @param tableInfo   表信息
+     * @return 映射语句
+     */
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         KeyGenerator keyGenerator = new NoKeyGenerator();
