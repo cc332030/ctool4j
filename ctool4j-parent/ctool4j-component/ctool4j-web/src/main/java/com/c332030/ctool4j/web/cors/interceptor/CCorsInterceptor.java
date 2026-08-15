@@ -18,6 +18,14 @@ import javax.servlet.http.HttpServletResponse;
 //@Component
 public class CCorsInterceptor implements ICHandlerInterceptor {
 
+    /**
+     * 请求前处理：输出 CORS 头，OPTIONS 预检请求返回 false
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param handler  处理器
+     * @return 是否继续处理
+     */
     @Override
     public boolean preHandle(
         HttpServletRequest request,
