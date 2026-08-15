@@ -10,4 +10,13 @@
 
     <artifactId>ctool4j-mybatis-processor</artifactId>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-processor-base</artifactId>
+        </dependency>
+
+    </dependencies>
+
 </project>
