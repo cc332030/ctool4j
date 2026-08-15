@@ -8,6 +8,9 @@ import java.util.function.Consumer;
  * <p>
  * Description: CConsumer
  * </p>
+ * <p>
+ * 注意：accept 方法内部使用 @SneakyThrows 包装受检异常，调用方无法从签名感知，需自行处理实际异常（设计取舍）
+ * </p>
  *
  * @since 2025/9/28
  */

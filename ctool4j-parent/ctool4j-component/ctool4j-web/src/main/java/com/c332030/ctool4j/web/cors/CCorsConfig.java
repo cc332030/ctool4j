@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: CORSConfig
+ * Description: CCorsConfig
  * </p>
  *
  * @author c332030
