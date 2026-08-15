@@ -73,6 +73,9 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
                 }
             });
 
+            // 先清 MDC 再清 ThreadLocal：removeTraceId 内部依赖当前 ThreadLocal 的 traceInfo，
+            // 若先 removeTraceInfo 会触发 withInitial 重建实例导致残留
+            CTraceUtils.removeTraceId();
             CTraceUtils.removeTraceInfo();
         } catch (Throwable e) {
             log.error("removeTraceInfo failure", e);
