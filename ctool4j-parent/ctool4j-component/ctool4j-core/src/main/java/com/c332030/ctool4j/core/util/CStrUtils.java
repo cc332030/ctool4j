@@ -820,7 +820,7 @@ public class CStrUtils {
     }
 
     /**
-     * 字符串最好一个数字自增
+     * 字符串最后一个数字自增
      * @param str 待自增字符串
      * @return 自增后的字符串
      */

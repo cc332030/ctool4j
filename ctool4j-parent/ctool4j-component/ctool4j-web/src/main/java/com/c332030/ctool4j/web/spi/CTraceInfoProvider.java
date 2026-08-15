@@ -11,6 +11,11 @@ import com.c332030.ctool4j.web.model.model.CTraceInfo;
  */
 public class CTraceInfoProvider implements ICTraceInfoProvider<CTraceInfo> {
 
+    /**
+     * 获取默认跟踪信息
+     *
+     * @return 跟踪信息
+     */
     @Override
     public CTraceInfo getTraceInfo() {
         return new CTraceInfo();
