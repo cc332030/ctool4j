@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * <p>
- * Description: CExceptionUtilsTest
+ * Description: CTraceUtilsTest
  * </p>
  *
  * @since 2025/9/14

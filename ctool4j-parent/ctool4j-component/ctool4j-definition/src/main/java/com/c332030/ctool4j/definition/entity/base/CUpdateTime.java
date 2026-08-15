@@ -11,7 +11,7 @@ import java.util.Date;
 
 /**
  * <p>
- * Description: CCreateTime
+ * Description: CUpdateTime
  * </p>
  *
  * @since 2025/5/26
