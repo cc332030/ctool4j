@@ -47,7 +47,7 @@ public class CCacheAspect {
 
     /**
      * 缓存 key: namespace Class, value: (expire -> Cache)
-     * 每个 namespace 下按不同过期时间分别维护一个 Guava Cache
+     * 每个 namespace 下按不同过期时间分别维护一个 Caffeine Cache
      */
     private static final Cache<Class<?>, Cache<Integer, Cache<String, Object>>>
         NAMESPACE_CACHES = CLocalCacheUtils.buildCache();
