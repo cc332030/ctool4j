@@ -60,6 +60,7 @@ public class CEnumDeserializerTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void getEnumClass() {
 
         CEnumDeserializer d = new CEnumDeserializer((Class<Enum<?>>) (Class<?>) CDbOperateEnum.class);

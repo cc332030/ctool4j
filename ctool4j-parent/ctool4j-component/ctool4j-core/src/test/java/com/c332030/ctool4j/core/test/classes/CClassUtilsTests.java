@@ -17,6 +17,8 @@ import javax.sql.DataSource;
  * <p>
  * Description: CClassUtilsTests
  * </p>
+ * <p>刻意使用 JDK 内部类（sun.misc.Unsafe、com.sun.beans.TypeResolver 等）验证包名判断逻辑，
+ * 内部专用 API 警告（sun.proprietary，javac 无法用 @SuppressWarnings 抑制）已知且接受</p>
  *
  * @since 2025/12/12
  */

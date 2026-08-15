@@ -267,12 +267,14 @@ class CFeignUtilsTests {
     // ==================== helper ====================
 
     private static Request buildRequest(String url) {
+        // 5 参 create 在 feign 11 已弃用，传 null RequestTemplate 等价于旧行为
         return Request.create(
             Request.HttpMethod.GET,
             url,
             Collections.emptyMap(),
             new byte[0],
-            StandardCharsets.UTF_8
+            StandardCharsets.UTF_8,
+            null
         );
     }
 

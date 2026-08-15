@@ -191,8 +191,9 @@ public class CJwtUtilsTests {
     // ---------- parseHeader / parseBody ----------
 
     @Test
+    @SuppressWarnings("unchecked")
     public void parseHeader() {
-        // 正例：header 解析为 Map
+        // 正例：header 解析为 Map（raw Map.class 传参导致 unchecked，测试刻意使用）
         String jwt = CJwtUtils.create(Collections.singletonMap("a", 1), SECRET);
         Map<String, Object> header = CJwtUtils.parseHeader(jwt, Map.class);
         Assertions.assertNotNull(header);
@@ -206,8 +207,9 @@ public class CJwtUtilsTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void parseBody() {
-        // 正例：body 解析为 Map，字段可回读
+        // 正例：body 解析为 Map，字段可回读（raw Map.class 传参导致 unchecked，测试刻意使用）
         Map<String, Object> bodyMap = new java.util.HashMap<>();
         bodyMap.put("name", "tom");
         String jwt = CJwtUtils.create(bodyMap, SECRET);
