@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: BeanUtils
+ * Description: CBeanUtils
  * </p>
  *
  * @author c332030
