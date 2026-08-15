@@ -70,8 +70,7 @@ public class CLog {
      */
     public void trace(String msg, Object... args) {
         if(isTraceEnabled()) {
-            CLogUtils.dealArgs(args);
-            log.trace(msg, args);
+            log.trace(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -124,8 +123,7 @@ public class CLog {
      */
     public void debug(String msg, Object... args) {
         if(isDebugEnabled()) {
-            CLogUtils.dealArgs(args);
-            log.debug(msg, args);
+            log.debug(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -137,8 +135,7 @@ public class CLog {
      */
     public void debugNonNull(String msg, Object... args) {
         if(isDebugEnabled()) {
-            CLogUtils.dealArgs(args, true);
-            log.debug(msg, args);
+            log.debug(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -204,8 +201,7 @@ public class CLog {
      */
     public void info(String msg, Object... args) {
         if(isInfoEnabled()) {
-            CLogUtils.dealArgs(args);
-            log.info(msg, args);
+            log.info(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -217,8 +213,7 @@ public class CLog {
      */
     public void infoNonNull(String msg, Object... args) {
         if(isInfoEnabled()) {
-            CLogUtils.dealArgs(args, true);
-            log.info(msg, args);
+            log.info(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -271,8 +266,7 @@ public class CLog {
      */
     public void warn(String msg, Object... args) {
         if(isWarnEnabled()) {
-            CLogUtils.dealArgs(args);
-            log.warn(msg, args);
+            log.warn(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -284,8 +278,7 @@ public class CLog {
      */
     public void warnNonNull(String msg, Object... args) {
         if(isWarnEnabled()) {
-            CLogUtils.dealArgs(args, true);
-            log.warn(msg, args);
+            log.warn(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -325,8 +318,7 @@ public class CLog {
      */
     public void error(String msg, Object... args) {
         if(isErrorEnabled()) {
-            CLogUtils.dealArgs(args);
-            log.error(msg, args);
+            log.error(msg, CLogUtils.toLogArgs(args));
         }
     }
 
@@ -338,8 +330,7 @@ public class CLog {
      */
     public void errorNonNull(String msg, Object... args) {
         if(isErrorEnabled()) {
-            CLogUtils.dealArgs(args, true);
-            log.error(msg, args);
+            log.error(msg, CLogUtils.toLogArgs(args));
         }
     }
 

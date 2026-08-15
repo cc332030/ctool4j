@@ -17,16 +17,27 @@ public class CLogBlobSerializerModifierTests {
     @Test
     public void blobFieldSerializedToPlaceholder() throws Exception {
 
-        String json = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(new BlobBean("long-content"));
+        // 日志专用 mapper：@CLogBlob 字段输出 <BLOB> 占位符
+        String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean("long-content"));
         Assertions.assertTrue(json.contains("\"content\":\"<BLOB>\""));
         Assertions.assertFalse(json.contains("long-content"));
 
     }
 
     @Test
+    public void globalMapperOutputsRealContent() throws Exception {
+
+        // 全局 mapper 不带占位符逻辑：@CLogBlob 字段输出真实内容（占位符仅用于日志打印）
+        String json = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(new BlobBean("long-content"));
+        Assertions.assertTrue(json.contains("long-content"));
+        Assertions.assertFalse(json.contains("\"content\":\"<BLOB>\""));
+
+    }
+
+    @Test
     public void normalFieldNotAffected() throws Exception {
 
-        String json = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(new BlobBean("long-content"));
+        String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean("long-content"));
         Assertions.assertTrue(json.contains("\"name\":\"tom\""));
 
     }
@@ -34,8 +45,17 @@ public class CLogBlobSerializerModifierTests {
     @Test
     public void noBlobBeanNormal() throws Exception {
 
-        String json = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(new PlainBean("raw-data"));
+        String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new PlainBean("raw-data"));
         Assertions.assertTrue(json.contains("\"data\":\"raw-data\""));
+
+    }
+
+    @Test
+    public void logMapperSkipsNullField() throws Exception {
+
+        // 日志专用 mapper 默认非 null：@CLogBlob 字段为 null 时不输出
+        String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean(null));
+        Assertions.assertFalse(json.contains("\"content\""));
 
     }
 

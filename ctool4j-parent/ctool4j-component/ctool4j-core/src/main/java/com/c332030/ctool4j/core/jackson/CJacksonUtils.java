@@ -45,6 +45,13 @@ public class CJacksonUtils {
     public final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
 
     /**
+     * 日志专用 ObjectMapper：不序列化 null 值 + 标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符
+     * <p>仅用于日志打印链路（CJsonUtils.toJsonLog），全局 ObjectMapper 不带长文本占位符逻辑，
+     * 业务序列化需输出真实内容</p>
+     */
+    public final ObjectMapper OBJECT_MAPPER_LOG;
+
+    /**
      * 自定义序列化/反序列化模块
      */
     private final SimpleModule SIMPLE_MODULE = getDefinedModule();
@@ -88,6 +95,12 @@ public class CJacksonUtils {
 //        OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
+        // 日志专用：不序列化 null + 长文本字段输出 <BLOB> 占位符（仅日志打印使用，全局 mapper 不带该逻辑）
+        OBJECT_MAPPER_LOG = OBJECT_MAPPER_NON_NULL.copy();
+        OBJECT_MAPPER_LOG.setSerializerFactory(
+            OBJECT_MAPPER_LOG.getSerializerFactory().withSerializerModifier(new CLogBlobSerializerModifier())
+        );
+
     }
 
     /**
@@ -109,12 +122,7 @@ public class CJacksonUtils {
 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        // 注册长文本字段检测：标注 @CLogBlob 的字段序列化时输出固定占位符 <BLOB>
-        // copy 出的 NON_NULL / SNAKE_CASE mapper 会继承该 serializerFactory
-        objectMapper.setSerializerFactory(
-            objectMapper.getSerializerFactory().withSerializerModifier(new CLogBlobSerializerModifier())
-        );
-
+        // 长文本字段占位符（CLogBlob）仅注册到日志专用 OBJECT_MAPPER_LOG，不污染全局 mapper
         // json5
         // 字段名不加引号
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);

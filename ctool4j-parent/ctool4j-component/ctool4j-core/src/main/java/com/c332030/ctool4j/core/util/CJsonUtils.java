@@ -75,6 +75,17 @@ public class CJsonUtils {
     }
 
     /**
+     * 转 json（日志专用）
+     * <p>不序列化 null 值；标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符，避免长文本刷屏日志。
+     * 仅日志打印链路使用（CLogUtils.toLogArgs），全局 mapper 无该行为</p>
+     * @param object 源对象
+     * @return json
+     */
+    public String toJsonLog(Object object) {
+        return toJson(object, CJacksonUtils.OBJECT_MAPPER_LOG);
+    }
+
+    /**
      * 从 json 转为对象
      * @param json json
      * @param tClass 目标对象类型
