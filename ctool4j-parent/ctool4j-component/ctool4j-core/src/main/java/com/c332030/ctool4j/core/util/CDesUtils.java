@@ -6,6 +6,7 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.DES;
 import lombok.experimental.UtilityClass;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +30,7 @@ public class CDesUtils {
      */
     public DES getDES(String key){
         return DES_MAP.computeIfAbsent(key,
-            k -> SecureUtil.des(k.getBytes()));
+            k -> SecureUtil.des(k.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
