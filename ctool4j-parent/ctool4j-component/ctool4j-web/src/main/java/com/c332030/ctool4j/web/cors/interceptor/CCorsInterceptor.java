@@ -12,6 +12,11 @@ import javax.servlet.http.HttpServletResponse;
  * Description: CCorsInterceptor
  * </p>
  *
+ * <p>
+ * CORS 备用方案：Filter 已自动生效时无需注册本拦截器；
+ * 需要时由使用方手动注册到拦截器链
+ * </p>
+ *
  * @since 2025/9/28
  */
 @CustomLog
