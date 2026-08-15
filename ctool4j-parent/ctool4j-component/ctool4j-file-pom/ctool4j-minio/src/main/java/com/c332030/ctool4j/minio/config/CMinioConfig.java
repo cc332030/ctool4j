@@ -19,8 +19,14 @@ public class CMinioConfig {
      */
     String endpoint;
 
+    /**
+     * 访问密钥 ID
+     */
     String accessKey;
 
+    /**
+     * 访问密钥
+     */
     String secretKey;
 
 }
