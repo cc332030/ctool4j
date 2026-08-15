@@ -12,7 +12,7 @@
 - **跨域全面支持**：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强多层方案
 - **认证与 JWT**：`CJwtUtils`（JWT 生成/解析）、`CAuthUtils`（认证辅助）
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称
-- **MVC 配置**：`CWebMvcConfigurer`（拦截器、静态资源配置）、静态资源过滤器 `ResourceFilter`
+- **MVC 配置**：`CWebMvcConfigurer`（拦截器、静态资源配置）、静态资源过滤器 `CResourceFilter`
 - **统一错误页**：`CErrorController`
 - **请求/响应体增强抽象**：`ICBaseRequestBodyAdvice` / `ICBaseResponseBodyAdvice`（供日志等模块继承）
 - **HTTP 请求日志**：`CRequestLogUtils` 构造 / 保存 / 输出 `CRequestLog`（HTTP 格式 dump），`CCommUtils.appendHttpLog` 统一拼接，支持 URI 排除、请求体记录

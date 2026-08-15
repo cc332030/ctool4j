@@ -15,14 +15,14 @@ import java.io.IOException;
 
 /**
  * <p>
- * Description: ResourceFilter
+ * Description: CResourceFilter
  * </p>
  *
  * @since 2026/1/28
  */
 @CustomLog
 @Component
-public class ResourceFilter implements ICFilter, PriorityOrdered {
+public class CResourceFilter implements ICFilter, PriorityOrdered {
 
     /**
      * 最高优先级，最先执行
