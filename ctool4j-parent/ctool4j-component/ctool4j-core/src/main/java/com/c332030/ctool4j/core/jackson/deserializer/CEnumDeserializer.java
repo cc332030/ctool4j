@@ -42,6 +42,13 @@ public class CEnumDeserializer
         this.enumClass = enumClass;
     }
 
+    /**
+     * 按枚举名反序列化，空白值返回 null
+     *
+     * @param p       解析器
+     * @param context 反序列化上下文
+     * @return 枚举实例
+     */
     @Override
     public Enum<?> deserialize(JsonParser p, DeserializationContext context) throws IOException {
 
@@ -53,6 +60,13 @@ public class CEnumDeserializer
         return CEnumUtils.nameOf(enumClass, value);
     }
 
+    /**
+     * 按字段类型创建绑定具体枚举类型的反序列化器
+     *
+     * @param context  反序列化上下文
+     * @param property 字段属性
+     * @return 绑定枚举类型的反序列化器
+     */
     @Override
     @SuppressWarnings("unchecked")
     public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty property) {

@@ -11,6 +11,13 @@ import cn.hutool.core.util.StrUtil;
  */
 public class CDefaultCacheIdConverter implements ICCacheIdConverter<Object, Object> {
 
+    /**
+     * 生成缓存 id：优先取 key，key 为空时取 object 的字符串形式，都为空返回 null
+     *
+     * @param key    缓存 key
+     * @param object 缓存对象
+     * @return 缓存 id
+     */
     @Override
     public String applyThrowable(Object key, Object object) throws Throwable {
 
