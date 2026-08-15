@@ -35,6 +35,32 @@ public class CLogBlobSerializerModifierTests {
     }
 
     @Test
+    public void logMapperDeepCopyDoesNotAffectOthers() throws Exception {
+
+        // copy() 为深拷贝：日志 mapper 与源/其他 mapper 是不同实例
+        Assertions.assertNotSame(CJacksonUtils.OBJECT_MAPPER_LOG, CJacksonUtils.OBJECT_MAPPER_NON_NULL);
+        Assertions.assertNotSame(CJacksonUtils.OBJECT_MAPPER_LOG, CJacksonUtils.OBJECT_MAPPER);
+        Assertions.assertNotSame(CJacksonUtils.OBJECT_MAPPER_NON_NULL, CJacksonUtils.OBJECT_MAPPER);
+
+        // 对日志 mapper 注册 CLogBlobSerializerModifier 不影响 copy 源 OBJECT_MAPPER_NON_NULL：
+        // 源 mapper 仍输出 @CLogBlob 字段真实内容（无 <BLOB> 占位符）
+        String nonNullJson = CJacksonUtils.OBJECT_MAPPER_NON_NULL.writeValueAsString(new BlobBean("secret-content"));
+        Assertions.assertTrue(nonNullJson.contains("secret-content"));
+        Assertions.assertFalse(nonNullJson.contains("<BLOB>"));
+
+        // 默认 mapper 同样不受影响
+        String defaultJson = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(new BlobBean("secret-content"));
+        Assertions.assertTrue(defaultJson.contains("secret-content"));
+        Assertions.assertFalse(defaultJson.contains("<BLOB>"));
+
+        // 日志 mapper 自身行为正常（正例）
+        String logJson = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean("secret-content"));
+        Assertions.assertTrue(logJson.contains("\"content\":\"<BLOB>\""));
+        Assertions.assertFalse(logJson.contains("secret-content"));
+
+    }
+
+    @Test
     public void normalFieldNotAffected() throws Exception {
 
         String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean("long-content"));

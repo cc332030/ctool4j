@@ -96,6 +96,7 @@ public class CJacksonUtils {
         OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
         // 日志专用：不序列化 null + 长文本字段输出 <BLOB> 占位符（仅日志打印使用，全局 mapper 不带该逻辑）
+        // copy() 为深拷贝（含 serializerFactory），此处注册 modifier 不会影响源/其他 mapper（有测试覆盖）
         OBJECT_MAPPER_LOG = OBJECT_MAPPER_NON_NULL.copy();
         OBJECT_MAPPER_LOG.setSerializerFactory(
             OBJECT_MAPPER_LOG.getSerializerFactory().withSerializerModifier(new CLogBlobSerializerModifier())
