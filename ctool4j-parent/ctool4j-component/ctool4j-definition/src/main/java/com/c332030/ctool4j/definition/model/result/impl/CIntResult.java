@@ -11,7 +11,7 @@ import org.springframework.lang.NonNull;
 
 /**
  * <p>
- * Description: CIntMsgResult
+ * Description: CIntResult
  * </p>
  *
  * @since 2025/5/13

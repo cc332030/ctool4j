@@ -14,7 +14,7 @@ import java.time.Duration;
 
 /**
  * <p>
- * Description: LockUtils
+ * Description: CLockUtils
  * </p>
  *
  * @author c332030

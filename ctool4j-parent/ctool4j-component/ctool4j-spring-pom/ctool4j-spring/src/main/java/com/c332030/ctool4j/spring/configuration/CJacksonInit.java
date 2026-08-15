@@ -23,6 +23,9 @@ public class CJacksonInit implements ICSpringInit {
 
     ObjectMapper objectMapper;
 
+    /**
+     * Spring 启动初始化回调：开启 json5 时配置 ObjectMapper
+     */
     @Override
     public void onInit() {
 
