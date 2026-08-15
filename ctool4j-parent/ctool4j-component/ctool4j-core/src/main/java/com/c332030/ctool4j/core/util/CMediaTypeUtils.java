@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.enums.CMimeTypeEnum;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -33,11 +34,21 @@ public class CMediaTypeUtils {
      * 判断媒体类型是否为文本类型
      *
      * @param mediaType 媒体类型字符串
-     * @return 是否为文本类型
+     * @return 是否为文本类型，mediaType 为空白时为 false
      */
     public boolean isText(String mediaType) {
+        if (StrUtil.isBlank(mediaType)) {
+            return false;
+        }
+        val lower = mediaType.toLowerCase();
         for (val key : TEXT_KEYS) {
-            if (mediaType.contains(key)) {
+            // 完整匹配或按 / + - 分隔的段匹配，避免子串误匹配（如 uniform 含 form）
+            if (lower.equals(key)
+                || lower.startsWith(key + "/")
+                || lower.contains("/" + key)
+                || lower.contains("+" + key)
+                || lower.contains("-" + key)
+            ) {
                 return true;
             }
         }
