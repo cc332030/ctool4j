@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
 public class CThreadUtilsTests {
 
     @Test
-    public void newDeamonThreadWithName() {
+    public void newDaemonThreadWithName() {
 
-        Thread thread = CThreadUtils.newDeamonThread(() -> {
+        Thread thread = CThreadUtils.newDaemonThread(() -> {
         }, "my-thread");
 
         Assertions.assertEquals("my-thread", thread.getName());
@@ -28,21 +28,21 @@ public class CThreadUtilsTests {
     }
 
     @Test
-    public void newDeamonThreadDefaultName() {
+    public void newDaemonThreadDefaultName() {
 
-        Thread thread = CThreadUtils.newDeamonThread(() -> {
+        Thread thread = CThreadUtils.newDaemonThread(() -> {
         });
 
-        Assertions.assertTrue(thread.getName().startsWith("DeamonThread-"));
+        Assertions.assertTrue(thread.getName().startsWith("DaemonThread-"));
         Assertions.assertTrue(thread.isDaemon());
 
     }
 
     @Test
-    public void newDeamonThreadRunnableExecutes() throws Exception {
+    public void newDaemonThreadRunnableExecutes() throws Exception {
 
         CountDownLatch latch = new CountDownLatch(1);
-        Thread thread = CThreadUtils.newDeamonThread(latch::countDown, "work");
+        Thread thread = CThreadUtils.newDaemonThread(latch::countDown, "work");
 
         thread.start();
         Assertions.assertTrue(latch.await(5, TimeUnit.SECONDS));

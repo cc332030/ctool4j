@@ -19,8 +19,8 @@ public class CThreadUtils {
      * @param runnable 任务
      * @return 守护线程
      */
-    public Thread newDeamonThread(Runnable runnable) {
-        return newDeamonThread(runnable, "DeamonThread-" + System.currentTimeMillis());
+    public Thread newDaemonThread(Runnable runnable) {
+        return newDaemonThread(runnable, "DaemonThread-" + System.currentTimeMillis());
     }
 
     /**
@@ -30,7 +30,7 @@ public class CThreadUtils {
      * @param name     线程名
      * @return 守护线程
      */
-    public Thread newDeamonThread(Runnable runnable, String name) {
+    public Thread newDaemonThread(Runnable runnable, String name) {
         val thread = new Thread(runnable, name);
         thread.setDaemon(true);
         return thread;
