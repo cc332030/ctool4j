@@ -43,7 +43,7 @@ public class CMybatisPlusConfiguration {
         @Autowired(required = false) Collection<InnerInterceptor> innerInterceptors
     ) {
 
-        val interceptors = new LinkedHashSet<>(innerInterceptors);
+        val interceptors = new LinkedHashSet<InnerInterceptor>();
         CCollUtils.addIgnoreNull(interceptors, dynamicTableNameInnerInterceptor);
         CCollUtils.addIgnoreNull(interceptors, paginationInnerInterceptor);
         CCollUtils.addAllIgnoreNull(interceptors, innerInterceptors);
