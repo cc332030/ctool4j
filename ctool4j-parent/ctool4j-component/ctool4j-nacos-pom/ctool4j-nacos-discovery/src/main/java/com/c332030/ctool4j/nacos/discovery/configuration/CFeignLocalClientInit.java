@@ -46,11 +46,17 @@ public class CFeignLocalClientInit implements ICSpringInit, AutoCloseable {
         namingService = NamingFactory.createNamingService(discoveryProperties.getNacosProperties());
     }
 
+    /**
+     * Spring 启动初始化回调：将本地客户端实例注册到 Nacos
+     */
     @Override
     public void onInit() {
         doForClient("注册", namingService::registerInstance);
     }
 
+    /**
+     * 关闭：取消注册本地实例并关闭命名服务，防重入
+     */
     @Override
     @PreDestroy
     @SneakyThrows

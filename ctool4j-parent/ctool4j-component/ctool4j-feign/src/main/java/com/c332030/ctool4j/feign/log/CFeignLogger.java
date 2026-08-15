@@ -62,6 +62,13 @@ public class CFeignLogger extends Logger {
 
     CFeignClientLogConfig config;
 
+    /**
+     * 记录请求日志：开启日志时写入本次请求标记
+     *
+     * @param configKey 配置键
+     * @param logLevel  日志级别
+     * @param request   请求
+     */
     @Override
     protected void logRequest(String configKey, Level logLevel, Request request) {
         if (CBoolUtils.isTrue(config.getEnable())) {
@@ -71,17 +78,42 @@ public class CFeignLogger extends Logger {
         }
     }
 
+    /**
+     * 记录响应日志并重新缓冲响应
+     *
+     * @param configKey   配置键
+     * @param logLevel    日志级别
+     * @param response    响应
+     * @param elapsedTime 耗时（毫秒）
+     * @return 重新缓冲后的响应
+     */
     @Override
     protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime) {
         return this.dealResponse(response, elapsedTime, this::dealResponseLog);
     }
 
+    /**
+     * 记录连接类异常日志
+     *
+     * @param configKey   配置键
+     * @param logLevel    日志级别
+     * @param ioe         异常
+     * @param elapsedTime 耗时（毫秒）
+     * @return 原异常
+     */
     @Override
     protected IOException logIOException(String configKey, Level logLevel, IOException ioe, long elapsedTime) {
         // feign 异常回调不提供 request 参数，只能通过线程兜底取回本线程最近一次未完成的请求
         return this.dealResponse(ioe, elapsedTime, this::dealErrorLog);
     }
 
+    /**
+     * 通用日志输出（本类不采用，提示调用方勿直接使用）
+     *
+     * @param configKey 配置键
+     * @param format    日志格式
+     * @param args      日志参数
+     */
     @Override
     protected void log(String configKey, String format, Object... args) {
         log.warn("Don't call this log method");
