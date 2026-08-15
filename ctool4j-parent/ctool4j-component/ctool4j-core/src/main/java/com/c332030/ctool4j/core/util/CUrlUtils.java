@@ -35,7 +35,6 @@ public class CUrlUtils {
      *
      * @param uri URI 字符串
      * @return URI
-     * @throws java.net.URISyntaxException 字符串格式不正确时抛出
      */
     @SneakyThrows
     public URI getURI(String uri) {
