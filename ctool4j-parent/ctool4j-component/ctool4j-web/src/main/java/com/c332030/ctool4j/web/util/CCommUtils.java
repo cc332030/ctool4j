@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Description: CommUtils
+ * Description: CCommUtils
  * </p>
  *
  * @since 2025/3/15

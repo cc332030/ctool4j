@@ -17,6 +17,12 @@ public class CClassValue<T> implements ICClassValue<T> {
 
     private CClassValue(CFunction<Class<?>, T> function) {
         classValue = new ClassValue<T>() {
+            /**
+             * 通过值函数计算指定类的值并缓存
+             *
+             * @param type 类
+             * @return 计算得到的值
+             */
             @Override
             protected T computeValue(@NonNull Class<?> type) {
                 return function.apply(type);
