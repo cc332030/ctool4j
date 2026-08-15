@@ -107,6 +107,8 @@ public class CJwtUtils {
     /**
      * 解析 jwt 头部为指定类型
      *
+     * <p>注意：仅 base64 解码，不校验签名，返回内容未认证不可信；需要认证时请先调用 {@link #verify(String, String)}</p>
+     *
      * @param jwt   jwt
      * @param clazz 目标类型
      * @param <T>   目标类型
@@ -153,6 +155,8 @@ public class CJwtUtils {
 
     /**
      * 解析 jwt 载荷为指定类型
+     *
+     * <p>注意：仅 base64 解码，不校验签名，返回内容未认证不可信；需要认证时请先调用 {@link #verify(String, String)}</p>
      *
      * @param jwt   jwt
      * @param clazz 目标类型
