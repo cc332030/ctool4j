@@ -45,8 +45,9 @@ public class CJacksonUtils {
     public final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
 
     /**
-     * 日志专用 ObjectMapper：不序列化 null 值 + 标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符
-     * <p>仅用于日志打印链路（CJsonUtils.toJsonLog），全局 ObjectMapper 不带长文本占位符逻辑，
+     * 日志专用 ObjectMapper：不序列化 null 值 + 标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符、
+     * 标注 CLogSensitive 的字段脱敏输出
+     * <p>仅用于日志打印链路（CJsonUtils.toJsonLog），全局 ObjectMapper 不带占位符/脱敏逻辑，
      * 业务序列化需输出真实内容</p>
      */
     public final ObjectMapper OBJECT_MAPPER_LOG;
@@ -101,11 +102,13 @@ public class CJacksonUtils {
 //        OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
-        // 日志专用：不序列化 null + 长文本字段输出 <BLOB> 占位符（仅日志打印使用，全局 mapper 不带该逻辑）
+        // 日志专用：不序列化 null + 长文本字段输出 <BLOB> 占位符、敏感字段脱敏（仅日志打印使用，全局 mapper 不带该逻辑）
         // copy() 为深拷贝（含 serializerFactory），此处注册 modifier 不会影响源/其他 mapper（有测试覆盖）
         OBJECT_MAPPER_LOG = OBJECT_MAPPER_NON_NULL.copy();
         OBJECT_MAPPER_LOG.setSerializerFactory(
-            OBJECT_MAPPER_LOG.getSerializerFactory().withSerializerModifier(new CLogBlobSerializerModifier())
+            OBJECT_MAPPER_LOG.getSerializerFactory()
+                .withSerializerModifier(new CLogBlobSerializerModifier())
+                .withSerializerModifier(new CLogSensitiveSerializerModifier())
         );
 
     }

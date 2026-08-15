@@ -1,19 +1,7 @@
 package com.c332030.ctool4j.core.jackson;
 
-import com.c332030.ctool4j.core.cache.impl.CClassValue;
-import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.annotation.CLogBlob;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import lombok.val;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.JsonSerializer;
 
 /**
  * <p>
@@ -24,62 +12,24 @@ import java.util.stream.Collectors;
  *
  * @since 2026/8/13
  */
-public class CLogBlobSerializerModifier extends BeanSerializerModifier {
+public class CLogBlobSerializerModifier extends CLogFieldSerializerModifier<CLogBlob> {
 
     /**
-     * 标注 {@link CLogBlob} 的字段名集合缓存：按类缓存，避免每次序列化重复构建
+     * 构建修改器
      */
-    static final CClassValue<Set<String>> BLOB_FIELD_NAME_CACHE =
-        CClassValue.of(CLogBlobSerializerModifier::getBlobFieldNames);
-
-    /**
-     * 获取标注了 {@link CLogBlob} 的字段名集合
-     * <p>复用 {@link CReflectUtils#FIELD_MAP_CLASS_VALUE}（内部按类缓存，避免反射扫描）：
-     * 递归父类字段，基类字段上的注解对子类序列化同样生效；
-     * 子类同名字段覆盖父类字段，仅父类标注且被子类同名遮蔽时该字段不生效（已知取舍）</p>
-     *
-     * @param type 目标类
-     * @return 标注了 {@link CLogBlob} 的字段名集合（不可变）
-     */
-    private static Set<String> getBlobFieldNames(Class<?> type) {
-        return Collections.unmodifiableSet(
-            CReflectUtils.FIELD_MAP_CLASS_VALUE.get(type)
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().isAnnotationPresent(CLogBlob.class))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet())
-        );
+    public CLogBlobSerializerModifier() {
+        super(CLogBlob.class);
     }
 
     /**
-     * 修改序列化属性：将标注 {@link CLogBlob} 的字段替换为占位符输出
+     * 创建占位符序列化器：忽略注解参数，固定输出 {@link CLogBlobSerializer#BLOB_PLACEHOLDER}
      *
-     * @param config        序列化配置
-     * @param beanDesc      目标 bean 描述
-     * @param beanProperties 原始属性列表
-     * @return 处理后的属性列表（标注了 {@link CLogBlob} 的字段替换为占位符）
+     * @param annotation 注解实例
+     * @return 占位符序列化器
      */
     @Override
-    public List<BeanPropertyWriter> changeProperties(
-            SerializationConfig config,
-            BeanDescription beanDesc,
-            List<BeanPropertyWriter> beanProperties
-    ) {
-        // 兼容 getter 上的注解（BeanPropertyWriter 的 primary member 为 getter 时）
-        val blobFields = BLOB_FIELD_NAME_CACHE.get(beanDesc.getBeanClass());
-        if (blobFields.isEmpty()) {
-            return beanProperties;
-        }
-        beanProperties.forEach(property -> {
-            // 兼容 getter 上的注解 + 兜底字段注解（lombok @Data 字段 private 时 primary member 是 getter）
-            if (null != property.getAnnotation(CLogBlob.class)
-                || blobFields.contains(property.getName())
-            ) {
-                property.assignSerializer(CLogBlobSerializer.INSTANCE);
-            }
-        });
-        return beanProperties;
+    protected JsonSerializer<Object> createSerializer(CLogBlob annotation) {
+        return CLogBlobSerializer.INSTANCE;
     }
 
 }
