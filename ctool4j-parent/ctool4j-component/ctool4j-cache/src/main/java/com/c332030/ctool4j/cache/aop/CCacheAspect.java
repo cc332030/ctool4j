@@ -70,29 +70,24 @@ public class CCacheAspect {
 
     /**
      * 缓存切面：读缓存 → 未命中时执行原方法并写缓存（原方法在缓存方法内部执行）。
-     * <p>读缓存/执行原方法异常时记录日志并返回 null，不再重复执行原方法，
-     * 避免业务异常导致原方法被二次执行</p>
+     * <p>读缓存/执行原方法异常不捕获，直接向上抛出，调用方可感知失败，
+     * 不再静默降级返回 null（异常时缓存未写入，不会污染缓存）</p>
      *
      * @param joinPoint 切入点
-     * @return 方法执行结果；异常时返回 null
+     * @return 方法执行结果
      */
     @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheable)")
     public Object cacheAspect(ProceedingJoinPoint joinPoint) {
 
         val method = CAspectUtils.getMethod(joinPoint);
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
-        try {
-            if (cacheable.local()) {
-                log.debug("启用本地缓存");
-                return getLocalCache(joinPoint, cacheable);
-            } else {
-                log.debug("启用 Redis 缓存");
-                return getRedisCache(joinPoint, method, cacheable);
-            }
-        } catch (Exception e) {
-            log.error("获取缓存失败，cacheable: {}", cacheable, e);
+        if (cacheable.local()) {
+            log.debug("启用本地缓存");
+            return getLocalCache(joinPoint, cacheable);
+        } else {
+            log.debug("启用 Redis 缓存");
+            return getRedisCache(joinPoint, method, cacheable);
         }
-        return null;
     }
 
     /**
