@@ -37,6 +37,9 @@ public abstract class CMpController<S extends ICService<T>, T> implements ICSpri
      */
     protected String entityName;
 
+    /**
+     * Spring 启动初始化回调：设置实体简单名称
+     */
     @Override
     public void onInit() {
         entityName = service.getEntitySimpleName();

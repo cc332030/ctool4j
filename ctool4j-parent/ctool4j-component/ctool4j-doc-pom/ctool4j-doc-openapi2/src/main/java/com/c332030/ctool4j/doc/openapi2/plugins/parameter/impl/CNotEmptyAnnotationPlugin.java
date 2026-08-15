@@ -13,6 +13,11 @@ import javax.validation.constraints.NotEmpty;
  */
 public class CNotEmptyAnnotationPlugin implements ICAnnotationExpandedParameterBuilderPlugin<NotEmpty> {
 
+    /**
+     * 获取支持的校验注解类型
+     *
+     * @return NotEmpty 注解类
+     */
     @Override
     public Class<NotEmpty> getAnnotationClass() {
         return NotEmpty.class;

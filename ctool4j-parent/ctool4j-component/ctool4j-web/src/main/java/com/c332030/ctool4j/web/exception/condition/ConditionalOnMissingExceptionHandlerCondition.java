@@ -30,6 +30,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ConditionalOnMissingExceptionHandlerCondition implements Condition {
 
+    /**
+     * 匹配条件：无任何 ControllerAdvice 或均未处理该异常类型时返回 true
+     *
+     * @param context  条件上下文
+     * @param metadata 注解元数据
+     * @return 是否满足条件
+     */
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 

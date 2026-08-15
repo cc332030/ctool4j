@@ -7,7 +7,7 @@ import lombok.Getter;
 
 /**
  * <p>
- * Description: MySqlMethod
+ * Description: CMpSqlMethod
  * </p>
  *
  * @author c332030
@@ -33,6 +33,11 @@ public enum CMpSqlMethod implements ICMpSqlMethod {
     final String desc;
     final String sql;
 
+    /**
+     * 获取方法名（枚举名转驼峰）
+     *
+     * @return 方法名
+     */
     @Override
     public String getMethod() {
         return StrUtil.toCamelCase(name());

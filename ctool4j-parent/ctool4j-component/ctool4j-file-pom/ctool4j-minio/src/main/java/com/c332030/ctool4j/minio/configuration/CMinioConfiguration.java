@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- * Description: HydrusConfiguration
+ * Description: CMinioConfiguration
  * </p>
  *
  * @since 2024/12/9

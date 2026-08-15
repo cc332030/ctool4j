@@ -79,6 +79,13 @@ public class COpenApi2Configuration {
     public static BeanPostProcessor cSpringfoxHandlerProviderBeanPostProcessor() {
         return new BeanPostProcessor() {
 
+            /**
+             * 初始化后处理：修复 springfox 的 handlerMappings 空指针问题
+             *
+             * @param bean     后置处理对象
+             * @param beanName Bean 名称
+             * @return 处理后的对象
+             */
             @Override
             public Object postProcessAfterInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
                 if (bean instanceof WebMvcRequestHandlerProvider) {
