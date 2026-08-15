@@ -25,6 +25,13 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
      */
     public static final CDateDeserializer INSTANCE = new CDateDeserializer();
 
+    /**
+     * 反序列化日期：字符串（含毫秒）与整型毫秒时间戳均支持
+     *
+     * @param parser  解析器
+     * @param context 反序列化上下文
+     * @return 日期；其他 token 类型返回 null
+     */
     @Override
     public Date deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 

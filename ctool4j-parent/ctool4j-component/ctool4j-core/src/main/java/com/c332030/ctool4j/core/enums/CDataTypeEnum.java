@@ -9,7 +9,7 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: DataTypeEnum
+ * Description: CDataTypeEnum
  * </p>
  *
  * @author c332030
