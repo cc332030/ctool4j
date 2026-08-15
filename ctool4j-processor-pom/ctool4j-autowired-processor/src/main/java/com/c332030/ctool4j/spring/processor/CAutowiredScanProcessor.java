@@ -1,14 +1,13 @@
 package com.c332030.ctool4j.spring.processor;
 
+import com.c332030.ctool4j.base.processor.CAbstractProcessor;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import lombok.val;
 import lombok.var;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
  * @since 2026/5/17
  */
 @SupportedAnnotationTypes("com.c332030.ctool4j.spring.annotation.CAutowiredScan")
-public class CAutowiredScanProcessor extends AbstractProcessor {
+public class CAutowiredScanProcessor extends CAbstractProcessor {
 
     private String template;
 
@@ -48,16 +47,10 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.template = loadTemplate("/templates/autowired-init.ftl");
-    }
-
-    /**
-     * 支持的 Java 源版本
-     *
-     * @return Java 8
-     */
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_8;
+        if (template == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    "Failed to load template: /templates/autowired-init.ftl");
+        }
     }
 
     /**

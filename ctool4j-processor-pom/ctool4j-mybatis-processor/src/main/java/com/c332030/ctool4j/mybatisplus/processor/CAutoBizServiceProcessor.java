@@ -1,13 +1,12 @@
 package com.c332030.ctool4j.mybatisplus.processor;
 
+import com.c332030.ctool4j.base.processor.CAbstractProcessor;
 import lombok.val;
 import lombok.var;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
@@ -29,7 +28,7 @@ import java.util.Set;
  * @since 2025/05/16
  */
 @SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService")
-public class CAutoBizServiceProcessor extends AbstractProcessor {
+public class CAutoBizServiceProcessor extends CAbstractProcessor {
 
     private String template;
 
@@ -42,16 +41,6 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.template = loadTemplate("/templates/biz-service.ftl");
-    }
-
-    /**
-     * 支持的 Java 源版本
-     *
-     * @return Java 8
-     */
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_8;
     }
 
     /**
