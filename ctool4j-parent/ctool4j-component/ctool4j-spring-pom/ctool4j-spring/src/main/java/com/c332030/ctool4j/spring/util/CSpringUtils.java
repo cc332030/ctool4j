@@ -133,7 +133,7 @@ public class CSpringUtils {
             CAssert.notNull(mainApplicationClass, "mainApplicationClass 不能为空");
 
             val springBootAppAnnotation = mainApplicationClass.getAnnotation(SpringBootApplication.class);
-            CAssert.notNull(springApplication, "mainApplicationClass 未标识 @SpringBootApplication");
+            CAssert.notNull(springBootAppAnnotation, "mainApplicationClass 未标识 @SpringBootApplication");
 
             val scanBasePackages = springBootAppAnnotation.scanBasePackages();
             if(ArrayUtil.isNotEmpty(scanBasePackages)) {
