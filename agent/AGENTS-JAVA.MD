@@ -6,6 +6,7 @@
 - 禁止移除 lombok 的使用
 - 使用 lombok val、var
 - 实体类使用 @Data、@SuperBuilder、@NoArgsConstructor、@AllArgsConstructor
+- JSON 处理全局统一使用 Jackson，禁止引入其他 JSON 库（如 Gson、fastjson）
 
 ## 健壮性
 
