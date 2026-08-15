@@ -97,10 +97,7 @@ public class CJacksonUtils {
 
         // 驼峰转下划线
         OBJECT_MAPPER_SNAKE_CASE = OBJECT_MAPPER.copy();
-
-        // TODO 低版本不支持
-//        OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-        OBJECT_MAPPER_SNAKE_CASE.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        configureSnakeCase(OBJECT_MAPPER_SNAKE_CASE);
 
         // 日志专用：不序列化 null + 长文本字段输出 <BLOB> 占位符、敏感字段脱敏（仅日志打印使用，全局 mapper 不带该逻辑）
         // copy() 为深拷贝（含 serializerFactory），此处注册 modifier 不会影响源/其他 mapper（有测试覆盖）
@@ -111,6 +108,17 @@ public class CJacksonUtils {
                 .withSerializerModifier(new CLogSensitiveSerializerModifier())
         );
 
+    }
+
+    /**
+     * 配置驼峰转下划线命名策略
+     * <p>高版本才有 PropertyNamingStrategies.SNAKE_CASE，低版本 jackson-databind 不支持，
+     * 为兼容低版本只能使用已弃用的 PropertyNamingStrategy.SNAKE_CASE，此弃用警告已知且接受</p>
+     */
+    @SuppressWarnings("deprecation")
+    private static void configureSnakeCase(ObjectMapper objectMapper) {
+
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     }
 
     /**
