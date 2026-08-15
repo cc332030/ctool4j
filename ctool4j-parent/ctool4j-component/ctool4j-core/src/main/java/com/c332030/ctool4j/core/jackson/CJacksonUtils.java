@@ -32,22 +32,22 @@ public class CJacksonUtils {
     /**
      * 默认 ObjectMapper
      */
-    public static final ObjectMapper OBJECT_MAPPER;
+    public final ObjectMapper OBJECT_MAPPER;
 
     /**
      * 不序列化 null 值的 ObjectMapper
      */
-    public static final ObjectMapper OBJECT_MAPPER_NON_NULL;
+    public final ObjectMapper OBJECT_MAPPER_NON_NULL;
 
     /**
      * 驼峰会转成下划线
      */
-    public static final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
+    public final ObjectMapper OBJECT_MAPPER_SNAKE_CASE;
 
     /**
      * 自定义序列化/反序列化模块
      */
-    public static final SimpleModule SIMPLE_MODULE ;
+    private final SimpleModule SIMPLE_MODULE;
     static {
 
         val module = SIMPLE_MODULE = new SimpleModule();
@@ -65,6 +65,9 @@ public class CJacksonUtils {
         module.addDeserializer(Instant.class, CInstantDeserializer.INSTANCE);
 
         module.addDeserializer(Enum.class, CEnumDeserializer.EMPTY_INSTANCE);
+
+        // SIMPLE_MODULE 为 private，外部无法通过它注册自定义序列化器污染全局 mapper，无需冻结
+        // 注意：makeImmutable() 在低版本 jackson-databind（如 2.13.5）不存在，不可使用
     }
 
     static {
