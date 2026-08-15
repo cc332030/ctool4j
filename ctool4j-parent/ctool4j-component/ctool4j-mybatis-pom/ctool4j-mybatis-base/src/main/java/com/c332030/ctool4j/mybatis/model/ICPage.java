@@ -3,11 +3,14 @@ package com.c332030.ctool4j.mybatis.model;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.core.util.CNumUtils;
 import com.c332030.ctool4j.core.util.CPageUtils;
+import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
 import com.c332030.ctool4j.mybatisplus.util.CMpPageUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.val;
 
 import java.util.List;
 
@@ -50,7 +53,11 @@ public interface ICPage {
 
     @JsonIgnore
     default Integer getStart() {
-        return (getPageNum() - 1) * getPageSize();
+        val pageNum = getPageNum();
+        val pageSize = getPageSize();
+        CAssert.isTrue(CNumUtils.greaterThanZero(pageNum), "pageNum must be greater than 0");
+        CAssert.isTrue(CNumUtils.greaterThanZero(pageSize), "pageSize must be greater than 0");
+        return (pageNum - 1) * pageSize;
     }
 
     @JsonIgnore
