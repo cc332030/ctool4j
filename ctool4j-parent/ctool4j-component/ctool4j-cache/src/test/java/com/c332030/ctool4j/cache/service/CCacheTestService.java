@@ -43,4 +43,18 @@ public class CCacheTestService {
         return System.currentTimeMillis();
     }
 
+    /**
+     * 测试缓存方法抛异常时向上传播，不被切面吞掉
+     *
+     * @param id 缓存键 id
+     * @return 永远抛异常
+     */
+    @CCacheable(
+        namespace = CCacheAspectTests.class,
+        expire = 1
+    )
+    public Long error(Integer id) {
+        throw new IllegalStateException("cache error: " + id);
+    }
+
 }
