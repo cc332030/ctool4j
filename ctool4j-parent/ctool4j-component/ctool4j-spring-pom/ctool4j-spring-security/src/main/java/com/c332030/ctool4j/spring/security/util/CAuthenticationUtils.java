@@ -93,11 +93,16 @@ public class CAuthenticationUtils {
      * 获取当前业务用户
      *
      * @param <T> 业务用户类型
-     * @return 当前业务用户
+     * @return 当前业务用户；未认证时返回 null
      */
     @SuppressWarnings("unchecked")
     public <T> T getUser() {
-        return (T)getSecurityUser().getUser();
+
+        val securityUser = getSecurityUser();
+        if (securityUser == null) {
+            return null;
+        }
+        return (T)securityUser.getUser();
     }
 
 }
