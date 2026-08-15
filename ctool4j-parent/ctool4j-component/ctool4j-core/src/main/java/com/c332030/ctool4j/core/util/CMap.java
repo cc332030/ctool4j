@@ -85,7 +85,7 @@ public class CMap {
             K k2, V v2,
             K k3, V v3
     ) {
-        val map = new HashMap<K, V>(2);
+        val map = new HashMap<K, V>(3);
         map.put(k1, v1);
         map.put(k2, v2);
         map.put(k3, v3);
@@ -121,7 +121,7 @@ public class CMap {
 
         val mapNew = supplier.get();
         mapNew.putAll(map);
-        return mapNew;
+        return Collections.unmodifiableMap(mapNew);
     }
 
 }
