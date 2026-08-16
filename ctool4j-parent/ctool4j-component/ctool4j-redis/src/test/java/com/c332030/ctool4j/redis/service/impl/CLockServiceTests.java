@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.redis.service.impl;
 
-import com.c332030.ctool4j.redis.service.CLockService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ class CLockServiceTests {
      * 正常路径：lock(format, args) 按 StrUtil.format 生成锁 key，执行时按该 key 加锁
      */
     @Test
-    void lock_formattedKey() {
+    void lock_formattedKey() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
 
         lockService.lock("sign:report:{}:{}", 1, 2).execute(() -> { });
@@ -55,7 +54,7 @@ class CLockServiceTests {
      * 正常路径：加锁成功后执行业务并解锁
      */
     @Test
-    void execute_lockSuccess_runsAndUnlocks() {
+    void execute_lockSuccess_runsAndUnlocks() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
         Mockito.when(lock.isHeldByCurrentThread()).thenReturn(true);
 
@@ -70,7 +69,7 @@ class CLockServiceTests {
      * 异常路径：加锁失败时不执行业务，且执行 onLockFail 回调
      */
     @Test
-    void execute_lockFail_invokesOnLockFail() {
+    void execute_lockFail_invokesOnLockFail() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
 
         AtomicBoolean executed = new AtomicBoolean(false);
@@ -88,7 +87,7 @@ class CLockServiceTests {
      * 正常路径：execute(Supplier) 加锁成功后返回业务返回值并解锁
      */
     @Test
-    void execute_supplier_returnsValue() {
+    void execute_supplier_returnsValue() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
         Mockito.when(lock.isHeldByCurrentThread()).thenReturn(true);
 
@@ -102,7 +101,7 @@ class CLockServiceTests {
      * 异常路径：execute(Supplier) 加锁失败返回 null，不执行业务
      */
     @Test
-    void execute_supplier_lockFail_returnsNull() {
+    void execute_supplier_lockFail_returnsNull() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
 
         AtomicReference<String> result = new AtomicReference<>();
@@ -119,7 +118,7 @@ class CLockServiceTests {
      * 正常路径：tryLock(RLock, Duration) 带毫秒精度的时长转为毫秒加锁
      */
     @Test
-    void tryLock_duration_millis() {
+    void tryLock_duration_millis() throws InterruptedException {
         Duration wait = Duration.ofMillis(1500).plusNanos(1);
         Mockito.when(lock.tryLock(1500L, TimeUnit.MILLISECONDS)).thenReturn(true);
 
@@ -133,7 +132,7 @@ class CLockServiceTests {
      * 正常路径：tryLock(RLock, Duration) 秒级时长转为秒加锁
      */
     @Test
-    void tryLock_duration_seconds() {
+    void tryLock_duration_seconds() throws InterruptedException {
         Mockito.when(lock.tryLock(3L, TimeUnit.SECONDS)).thenReturn(true);
 
         boolean acquired = lockService.tryLock(lock, Duration.ofSeconds(3));

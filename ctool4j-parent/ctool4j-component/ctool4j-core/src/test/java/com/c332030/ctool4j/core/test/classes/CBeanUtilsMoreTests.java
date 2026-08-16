@@ -4,15 +4,20 @@ import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
+import com.c332030.ctool4j.definition.interfaces.ICValue;
 import com.c332030.ctool4j.test.definition.model.UserDto;
 import com.c332030.ctool4j.test.definition.model.UserRsp;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -651,6 +656,335 @@ public class CBeanUtilsMoreTests {
         val to = CBeanUtils.copy(from, new LongValueBean());
 
         Assertions.assertEquals(10L, to.getValue());
+    }
+
+    @Data
+    public static class StrToNumberFrom {
+
+        private String intVal;
+
+        private String longVal;
+
+        private String decimalVal;
+
+        private String floatVal;
+
+        private String doubleVal;
+
+        private String boolVal;
+
+    }
+
+    @Data
+    public static class StrToNumberTo {
+
+        private Integer intVal;
+
+        private Long longVal;
+
+        private BigDecimal decimalVal;
+
+        private Float floatVal;
+
+        private Double doubleVal;
+
+        private Boolean boolVal;
+
+    }
+
+    /**
+     * 测试 String -> 数字/布尔：toInt/toLong/toBigDecimal/toFloat/toDouble/toBoolean 转换器
+     */
+    @Test
+    public void copyStrToNumber() {
+
+        val from = new StrToNumberFrom();
+        from.setIntVal("123");
+        from.setLongVal("456");
+        from.setDecimalVal("7.89");
+        from.setFloatVal("1.5");
+        from.setDoubleVal("2.5");
+        from.setBoolVal("1");
+
+        val to = CBeanUtils.copy(from, new StrToNumberTo());
+
+        Assertions.assertEquals(123, to.getIntVal());
+        Assertions.assertEquals(456L, to.getLongVal());
+        Assertions.assertEquals(0, to.getDecimalVal().compareTo(new BigDecimal("7.89")));
+        Assertions.assertEquals(1.5f, to.getFloatVal());
+        Assertions.assertEquals(2.5d, to.getDoubleVal());
+        // toBoolean 额外兼容数字 "1" 表示 true
+        Assertions.assertTrue(to.getBoolVal());
+    }
+
+    @Data
+    public static class NumberToStrFrom {
+
+        private Integer intVal;
+
+        private Long longVal;
+
+        private BigDecimal decimalVal;
+
+        private Float floatVal;
+
+        private Double doubleVal;
+
+        private Boolean boolVal;
+
+    }
+
+    @Data
+    public static class NumberToStrTo {
+
+        private String intVal;
+
+        private String longVal;
+
+        private String decimalVal;
+
+        private String floatVal;
+
+        private String doubleVal;
+
+        private String boolVal;
+
+    }
+
+    /**
+     * 测试数字/布尔 -> String：intStr/longStr/bigDecimalStr/floatStr/doubleStr/booleanStr 转换器
+     */
+    @Test
+    public void copyNumberToStr() {
+
+        val from = new NumberToStrFrom();
+        from.setIntVal(123);
+        from.setLongVal(456L);
+        from.setDecimalVal(new BigDecimal("7.89"));
+        from.setFloatVal(1.5f);
+        from.setDoubleVal(2.5d);
+        from.setBoolVal(true);
+
+        val to = CBeanUtils.copy(from, new NumberToStrTo());
+
+        Assertions.assertEquals("123", to.getIntVal());
+        Assertions.assertEquals("456", to.getLongVal());
+        Assertions.assertEquals("7.89", to.getDecimalVal());
+        Assertions.assertEquals("1.5", to.getFloatVal());
+        Assertions.assertEquals("2.5", to.getDoubleVal());
+        Assertions.assertEquals("true", to.getBoolVal());
+    }
+
+    @Data
+    public static class DateConvertFrom {
+
+        private String dateStr;
+
+        private Date dateVal;
+
+        private Long millsVal;
+
+        private Date dateToInstant;
+
+        private Instant instantVal;
+
+        private Date dateToStr;
+
+    }
+
+    @Data
+    public static class DateConvertTo {
+
+        private Date dateStr;
+
+        private Long dateVal;
+
+        private Date millsVal;
+
+        private Instant dateToInstant;
+
+        private Date instantVal;
+
+        private String dateToStr;
+
+    }
+
+    /**
+     * 测试日期系列转换：String->Date、Date->Long、Long->Date、Date->Instant、Instant->Date、Date->String
+     */
+    @Test
+    public void copyDateConvert() {
+
+        val date = new Date(1700000000000L);
+
+        val from = new DateConvertFrom();
+        from.setDateStr("2026-08-16 12:00:00");
+        from.setDateVal(date);
+        from.setMillsVal(1700000000000L);
+        from.setDateToInstant(date);
+        from.setInstantVal(Instant.ofEpochMilli(1700000000000L));
+        from.setDateToStr(date);
+
+        val to = CBeanUtils.copy(from, new DateConvertTo());
+
+        Assertions.assertEquals(DateUtil.parse("2026-08-16 12:00:00"), to.getDateStr());
+        Assertions.assertEquals(1700000000000L, to.getDateVal());
+        Assertions.assertEquals(date, to.getMillsVal());
+        Assertions.assertEquals(Instant.ofEpochMilli(1700000000000L), to.getDateToInstant());
+        Assertions.assertEquals(date, to.getInstantVal());
+        Assertions.assertEquals(DateUtil.formatDateTime(date), to.getDateToStr());
+    }
+
+    @Data
+    public static class ToBigDecimalFrom {
+
+        private int intVal;
+
+        private long longVal;
+
+        private Integer integerVal;
+
+        private Long longWrapperVal;
+
+        private double doubleVal;
+
+        private float floatVal;
+
+    }
+
+    @Data
+    public static class ToBigDecimalTo {
+
+        private BigDecimal intVal;
+
+        private BigDecimal longVal;
+
+        private BigDecimal integerVal;
+
+        private BigDecimal longWrapperVal;
+
+        private BigDecimal doubleVal;
+
+        private BigDecimal floatVal;
+
+    }
+
+    /**
+     * 测试数字 -> BigDecimal：toBigDecimal(int/long/Integer/Long/double/float) 转换器
+     */
+    @Test
+    public void copyToBigDecimal() {
+
+        val from = new ToBigDecimalFrom();
+        from.setIntVal(5);
+        from.setLongVal(100L);
+        from.setIntegerVal(5);
+        from.setLongWrapperVal(100L);
+        from.setDoubleVal(2.5d);
+        from.setFloatVal(1.5f);
+
+        val to = CBeanUtils.copy(from, new ToBigDecimalTo());
+
+        Assertions.assertEquals(0, to.getIntVal().compareTo(new BigDecimal("5")));
+        Assertions.assertEquals(0, to.getLongVal().compareTo(new BigDecimal("100")));
+        Assertions.assertEquals(0, to.getIntegerVal().compareTo(new BigDecimal("5")));
+        Assertions.assertEquals(0, to.getLongWrapperVal().compareTo(new BigDecimal("100")));
+        Assertions.assertEquals(0, to.getDoubleVal().compareTo(new BigDecimal("2.5")));
+        Assertions.assertEquals(0, to.getFloatVal().compareTo(new BigDecimal("1.5")));
+    }
+
+    @Data
+    public static class DecimalToFloatDoubleFrom {
+
+        private BigDecimal decimalToDouble;
+
+        private BigDecimal decimalToFloat;
+
+        private Float floatToDouble;
+
+    }
+
+    @Data
+    public static class DecimalToFloatDoubleTo {
+
+        private double decimalToDouble;
+
+        private float decimalToFloat;
+
+        private double floatToDouble;
+
+    }
+
+    /**
+     * 测试 BigDecimal -> double/float、Float -> double（doubleValue/floatValue 转换器）
+     */
+    @Test
+    public void copyDecimalToFloatDouble() {
+
+        val from = new DecimalToFloatDoubleFrom();
+        from.setDecimalToDouble(new BigDecimal("2.5"));
+        from.setDecimalToFloat(new BigDecimal("1.5"));
+        from.setFloatToDouble(2.5f);
+
+        val to = CBeanUtils.copy(from, new DecimalToFloatDoubleTo());
+
+        Assertions.assertEquals(2.5d, to.getDecimalToDouble());
+        Assertions.assertEquals(1.5f, to.getDecimalToFloat());
+        Assertions.assertEquals(2.5d, to.getFloatToDouble());
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public enum IntValueEnum implements ICValue<Integer> {
+
+        ONE(1), TWO(2);
+
+        private final Integer value;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public enum StrValueEnum implements ICValue<String> {
+
+        A("a"), B("b");
+
+        private final String value;
+
+    }
+
+    @Data
+    public static class EnumValueFrom {
+
+        private IntValueEnum intEnumVal;
+
+        private StrValueEnum strEnumVal;
+
+    }
+
+    @Data
+    public static class EnumValueTo {
+
+        private Integer intEnumVal;
+
+        private String strEnumVal;
+
+    }
+
+    /**
+     * 测试 ICValue 枚举 -> Integer/String（toEnumIntegerValue/toEnumStringValue 转换器）
+     */
+    @Test
+    public void copyEnumToValue() {
+
+        val from = new EnumValueFrom();
+        from.setIntEnumVal(IntValueEnum.ONE);
+        from.setStrEnumVal(StrValueEnum.A);
+
+        val to = CBeanUtils.copy(from, new EnumValueTo());
+
+        Assertions.assertEquals(1, to.getIntEnumVal());
+        Assertions.assertEquals("a", to.getStrEnumVal());
     }
 
 }
