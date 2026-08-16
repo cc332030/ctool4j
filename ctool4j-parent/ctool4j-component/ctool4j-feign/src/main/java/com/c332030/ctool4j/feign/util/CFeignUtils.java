@@ -161,7 +161,7 @@ public class CFeignUtils {
             case NONE:
                 break;
         }
-        log.debug("propagationMode: {}, propagationCustomHeaders: {}, propagationRequestHeaders",
+        log.debug("propagationMode: {}, propagationCustomHeaders: {}, propagationRequestHeaders: {}",
             propagationMode, propagationCustomHeaders, propagationRequestHeaders);
 
         CRequestUtils.getHeadersThenDo(propagationRequestHeaders, newHeaders::put);
