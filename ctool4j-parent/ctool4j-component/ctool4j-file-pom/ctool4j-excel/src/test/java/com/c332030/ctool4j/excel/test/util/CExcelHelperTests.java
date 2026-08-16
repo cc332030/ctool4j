@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.excel.test.util;
 
+import com.alibaba.excel.exception.ExcelGenerateException;
 import com.c332030.ctool4j.excel.util.CExcelHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -125,13 +126,14 @@ class CExcelHelperTests {
 
     /**
      * 异常路径：null 输出流抛出异常
+     * <p>easyexcel 将写流阶段的 NPE（cause 为 null 输出流触发）包装为 ExcelGenerateException，按实际抛出类型断言</p>
      */
     @Test
     void doWrite_nullOutputStreamThrows() {
         CExcelHelper helper = CExcelHelper.builder();
 
         Assertions.assertThrowsExactly(
-            NullPointerException.class,
+            ExcelGenerateException.class,
             () -> helper.doWrite(Collections.singletonList(newBean(1, "tom", "d1")), (java.io.OutputStream) null)
         );
     }

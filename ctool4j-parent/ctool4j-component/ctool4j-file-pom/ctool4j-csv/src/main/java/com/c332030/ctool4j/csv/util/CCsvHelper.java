@@ -283,13 +283,16 @@ public class CCsvHelper {
     /**
      * 将对象列表写入字节流
      *
-     * @param list         对象列表
+     * @param list         对象列表，为 null 或空（含过滤后为空）时不写入
      * @param outputStream 字节流
      */
     public void doWrite(
         List<?> list,
         OutputStream outputStream
     ) {
+        if(CollUtil.isEmpty(list)) {
+            return;
+        }
         if(!(outputStream instanceof BufferedOutputStream)) {
             outputStream = new BufferedOutputStream(outputStream);
         }
@@ -299,7 +302,7 @@ public class CCsvHelper {
     /**
      * 将对象列表写入文件
      *
-     * @param list 对象列表
+     * @param list 对象列表，为 null 或空（含过滤后为空）时不写入
      * @param file 目标文件
      */
     @SneakyThrows
@@ -307,19 +310,25 @@ public class CCsvHelper {
         List<?> list,
         File file
     ) {
+        if(CollUtil.isEmpty(list)) {
+            return;
+        }
         doWrite(list, Files.newOutputStream(file.toPath()));
     }
 
     /**
      * 将对象列表写入文件路径
      *
-     * @param list     对象列表
+     * @param list     对象列表，为 null 或空（含过滤后为空）时不写入
      * @param filePath 目标文件路径
      */
     public void doWrite(
         List<?> list,
         String filePath
     ) {
+        if(CollUtil.isEmpty(list)) {
+            return;
+        }
         doWrite(list, new File(filePath));
     }
 

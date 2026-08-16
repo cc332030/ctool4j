@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -353,5 +350,47 @@ class CCsvHelperTests {
         helper.doWrite(Collections.emptyList(), writer);
 
         Assertions.assertEquals("", writer.toString());
+    }
+
+    /**
+     * 边界：list 为 null 时直接返回，不输出任何内容
+     */
+    @Test
+    void doWrite_nullListNoOutput() {
+        CCsvHelper helper = CCsvHelper.builder();
+        StringWriter writer = new StringWriter();
+
+        helper.doWrite(null, writer);
+
+        Assertions.assertEquals("", writer.toString());
+    }
+
+    /**
+     * 边界：list 为 null 时直接返回，不向字节流写入任何内容
+     */
+    @Test
+    void doWrite_nullListOutputStreamNoWrite() {
+        CCsvHelper helper = CCsvHelper.builder();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        helper.doWrite(null, outputStream);
+
+        Assertions.assertEquals(0, outputStream.size());
+    }
+
+    /**
+     * 边界：list 为 null 时直接返回，不创建文件
+     */
+    @Test
+    void doWrite_nullListFileNotCreated() {
+        CCsvHelper helper = CCsvHelper.builder();
+        File file = new File(
+            System.getProperty("java.io.tmpdir"),
+            "ctool4j-csv-null-" + UUID.randomUUID() + ".csv"
+        );
+
+        helper.doWrite(null, file);
+
+        Assertions.assertFalse(file.exists());
     }
 }
