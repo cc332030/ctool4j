@@ -7,7 +7,6 @@ import com.c332030.ctool4j.mybatis.model.impl.CPage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -56,9 +55,10 @@ public class CPageTests {
 
     @Test
     public void getLimitSql() {
-        Assertions.assertEquals("limit 0 10", new CPage(1, 10, null).getLimitSql());
-        Assertions.assertEquals("limit 20 10", new CPage(3, 10, null).getLimitSql());
-        Assertions.assertEquals("limit 0 20", new CPage(1, 20, null).getLimitSql());
+        // MySQL 方言 LIMIT offset, count 格式
+        Assertions.assertEquals("limit 0,10", new CPage(1, 10, null).getLimitSql());
+        Assertions.assertEquals("limit 20,10", new CPage(3, 10, null).getLimitSql());
+        Assertions.assertEquals("limit 0,20", new CPage(1, 20, null).getLimitSql());
     }
 
     @Test
