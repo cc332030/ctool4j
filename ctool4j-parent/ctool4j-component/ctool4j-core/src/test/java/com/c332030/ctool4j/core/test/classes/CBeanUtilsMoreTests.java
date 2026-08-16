@@ -987,4 +987,87 @@ public class CBeanUtilsMoreTests {
         Assertions.assertEquals("a", to.getStrEnumVal());
     }
 
+    @Data
+    public static class NumConvertFrom {
+
+        private long longToInteger;
+
+        private Long wrapperLongToInt;
+
+        private Integer intToLong;
+
+        private Integer intToPrimitiveLong;
+
+    }
+
+    @Data
+    public static class NumConvertTo {
+
+        private Integer longToInteger;
+
+        private Integer wrapperLongToInt;
+
+        private Long intToLong;
+
+        private long intToPrimitiveLong;
+
+    }
+
+    /**
+     * 测试数字互转（非同型数字走转换器）：
+     * long/Long -> Integer（toInt(long)/toInt(Long)）、Integer -> Long（toLong(Integer)）、
+     * Integer -> long（longValue(Integer)，包装与原始非等价故走转换器而非 SELF）
+     */
+    @Test
+    public void copyNumConvert() {
+
+        val from = new NumConvertFrom();
+        from.setLongToInteger(100L);
+        from.setWrapperLongToInt(200L);
+        from.setIntToLong(300);
+        from.setIntToPrimitiveLong(400);
+
+        val to = CBeanUtils.copy(from, new NumConvertTo());
+
+        Assertions.assertEquals(100, to.getLongToInteger());
+        Assertions.assertEquals(200, to.getWrapperLongToInt());
+        Assertions.assertEquals(300L, to.getIntToLong());
+        Assertions.assertEquals(400L, to.getIntToPrimitiveLong());
+    }
+
+    @Data
+    public static class StrToPrimitiveFloatDoubleFrom {
+
+        private String floatVal;
+
+        private String doubleVal;
+
+    }
+
+    @Data
+    public static class StrToPrimitiveFloatDoubleTo {
+
+        private float floatVal;
+
+        private double doubleVal;
+
+    }
+
+    /**
+     * 测试 String -> 原始 float/double（floatValue(String)/doubleValue(String) 转换器，
+     * 与 String -> Float/Double 的 toFloat/toDouble 区分）
+     */
+    @Test
+    public void copyStrToPrimitiveFloatDouble() {
+
+        val from = new StrToPrimitiveFloatDoubleFrom();
+        from.setFloatVal("1.5");
+        from.setDoubleVal("2.5");
+
+        val to = CBeanUtils.copy(from, new StrToPrimitiveFloatDoubleTo());
+
+        Assertions.assertEquals(1.5f, to.getFloatVal());
+        Assertions.assertEquals(2.5d, to.getDoubleVal());
+    }
+
 }

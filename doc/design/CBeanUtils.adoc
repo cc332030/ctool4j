@@ -69,7 +69,7 @@ handle 全部经 `CMethodHandleUtils`（Caffeine 弱 key 缓存）获取，newIn
 2. 目标 final 字段 → 剔除（不可写）
 3. 源对象无同名字段 → 剔除
 4. 源声明集合/Map/数组 → 剔除（值必为集合，旧语义一律跳过）
-5. `Object.class != fromType && toType.isAssignableFrom(fromType)` → fast 条目（SELF 直接写）
+5. `Object.class != fromType && ClassUtil.isAssignable(toType, fromType)`（目标在前、源在后，支持原始/包装等价）→ fast 条目（SELF 直接写）
 6. Object 声明，或 `getConverterNoObjectFallback` 为 null（仅 Object 源兜底可匹配）→ fallback 条目
 7. 否则 → fast 条目（转换后写）
 
@@ -87,7 +87,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 `resolveValueAction` 规则：
 
 1. 实际值是集合/Map/数组 → `CFunction.EMPTY`（o -> null，跳过）
-2. `toClass.isAssignableFrom(valueClass)` → `CFunction.SELF`（直接写）
+2. `ClassUtil.isAssignable(toClass, valueClass)`（目标在前、源在后，支持原始/包装等价）→ `CFunction.SELF`（直接写）
 3. 否则 `getConverter`（完整查找，含 Object 兜底）→ 无则 EMPTY
 
 注意：fallback 动作解析必须用完整 `getConverter`（含 Object 兜底）——Object→String 兜底
@@ -106,7 +106,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 由此保证：运行期按实际值类型精确查找时，只要存在更精确的转换器，objectStr 绝不抢占；
 计划期按声明类型（宽类型，如 Object/Serializable）解析时，用 `getConverterNoObjectFallback`
 排除兜底，使"仅 Object 兜底可匹配"的字段回退运行期，避免 objectStr 抢占 Date→String 等
-更精确转换（Q1 问题）。
+更精确转换。
 
 === 1.7 备选方案及不选原因
 
@@ -124,8 +124,8 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 测试按"验证职责"分三类，避免单类测试文件膨胀：
 
-- `CBeanUtilsCompatibilityTests`（12 用例）：功能完整性测试——重构/优化前后行为一致性验证。
-- `CBeanUtilsMoreTests`（25 用例）：正例、反例、边界与新增行为验证。
+- `CBeanUtilsCompatibilityTests`（13 用例）：功能完整性测试——重构/优化前后行为一致性验证。
+- `CBeanUtilsMoreTests`（36 用例）：正例、反例、边界与新增行为验证。
 - `CBeanUtilsBenchmark`（12 用例）+ `BenchmarkRunner`：性能对比基准，独立于单元测试执行。
 
 === 2.2 测试手法：内嵌旧语义参考实现
@@ -171,6 +171,10 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
     toInstant/toDate→Date↔Instant、formatDateTime→Date→String）
   - 数字→BigDecimal `copyToBigDecimal`（int/long/Integer/Long/double/float→BigDecimal）
   - BigDecimal→double/float、Float→double `copyDecimalToFloatDouble`
+  - 数字互转 `copyNumConvert`（long/Long→Integer 走 toInt(long)/toInt(Long)、Integer→Long 走
+    toLong(Integer)、Integer→long 走 longValue(Integer)——包装与原始非等价故走转换器而非 SELF）
+  - String→原始 float/double `copyStrToPrimitiveFloatDouble`（floatValue(String)/doubleValue(String)，
+    与 String→Float/Double 的 toFloat/toDouble 区分）
   - ICValue 枚举→Integer/String `copyEnumToValue`（toEnumIntegerValue/toEnumStringValue）
 
 === 2.5 用例设计要点与边界
@@ -184,9 +188,10 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 === 2.6 已知限制与未覆盖场景
 
-- `copy(Object, CSupplier)` / `copyList(Collection, CSupplier)` 经 Map 中转：与直接路径
-  语义不一致（原始类型同型字段经 Map 中转丢失）——review P1 已知缺陷，待修复后需补
-  兼容性用例锁定一致行为。
+- `copy(Object, CSupplier)` / `copyList(Collection, CSupplier)` 经 Map 中转：已知
+  缺陷（原始类型同型字段经 Map 中转丢失）已连带解决——CConvertUtils 以
+  `ClassUtil.isAssignable` 判定可直接赋值后，装箱值经 Map 中转可拆箱直写原始类型字段；
+  已补兼容性用例 `copySupplierViaMapConsistency` 锁定 supplier 入口与直接路径一致行为。
 - 极端场景未专门设计用例：超大字段数 Bean（基准仅覆盖 8 字段典型 Bean）、深继承层级
   同名字段冲突（按名称匹配的固有语义）、自引用 Bean（copy 仅按同名字段复制、非深拷贝，
   无循环风险）。风险低，暂不补，记录备查。
@@ -196,7 +201,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 能测（已执行）：
 
-- 功能完整性（重构前后行为一致）：`CBeanUtilsCompatibilityTests` 12 用例，内嵌旧语义
+- 功能完整性（重构前后行为一致）：`CBeanUtilsCompatibilityTests` 13 用例，内嵌旧语义
   参考实现逐字段对比。
 - 跨操作系统：CBeanUtils 无平台特定 API（无文件/网络/环境变量依赖），Java 跨平台语义
   天然成立；已在 Windows 实测，Linux 未执行（理论一致，记录备查）。
@@ -245,8 +250,9 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
   新实现"直接写入"（消除运行期 instanceof 的必要取舍，javadoc 已注明）
 - 原始类型同型字段（int→int 等）：旧实现无转换器跳过、新实现 SELF 直接写入（旧缺口修复）
 - Object 声明字段回退运行期分派：无法计划期确定动作，fallback 路径保留
-- `copy(Object, CSupplier)` / `copyList(Collection, CSupplier)` 经 Map 中转：与直接路径
-  语义不一致（原始类型同型字段经 Map 丢失），待处理（review P1）
+- `copy(Object, CSupplier)` / `copyList(Collection, CSupplier)` 经 Map 中转：原始类型同型
+  字段经 Map 丢失问题已解决（`ClassUtil.isAssignable` 支持原始/包装等价），
+  与直接路径行为一致（兼容性用例 `copySupplierViaMapConsistency` 锁定）
 - 值动作/计划缓存无失效机制：转换器静态注册，无动态需求，风险低（已备注）
 
 == 5. 性能数据（100000 次迭代，第二轮全部初始化后计时）
@@ -264,3 +270,4 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 MethodHandle 动态分发（含 Object 签名类型检查）相对编译期静态内联存在固有差距，
 排除字节码方向后无法进一步消除。
+

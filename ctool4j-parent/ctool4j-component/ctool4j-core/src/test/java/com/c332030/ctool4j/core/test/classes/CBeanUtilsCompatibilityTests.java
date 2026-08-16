@@ -516,6 +516,35 @@ public class CBeanUtilsCompatibilityTests {
     }
 
     /**
+     * copy(Object, CSupplier) / copyList(Collection, CSupplier) 经 Map 中转与直接路径
+     * 在原始类型同型字段上行为一致（review P1 已修复：CConvertUtils 以 ClassUtil.isAssignable
+     * 判定可直接赋值后，装箱 Integer 经 Map 中转可拆箱直写原始类型字段，不再丢失）
+     */
+    @Test
+    public void copySupplierViaMapConsistency() {
+
+        val from = new PrimitiveFrom();
+        from.setLevel(5);
+        from.setScore(100L);
+        from.setRatio(0.5d);
+        from.setActive(true);
+
+        // copy(Object, CSupplier) 经 toMap 中转 vs copy(Object, Class) 直连字段
+        val supplierTo = CBeanUtils.copy(from, PrimitiveTo::new);
+        val directTo = CBeanUtils.copy(from, PrimitiveTo.class);
+        assertBeanFieldSame(PrimitiveTo.class, supplierTo, directTo);
+
+        // copyList(Collection, CSupplier) 与 copyList(Collection, Class) 元素字段一致
+        val list = Arrays.asList(from, from);
+        val supplierList = CBeanUtils.copyList(list, PrimitiveTo::new);
+        val directList = CBeanUtils.copyList(list, PrimitiveTo.class);
+        Assertions.assertEquals(directList.size(), supplierList.size());
+        for (int i = 0; i < supplierList.size(); i++) {
+            assertBeanFieldSame(PrimitiveTo.class, supplierList.get(i), directList.get(i));
+        }
+    }
+
+    /**
      * toMap 兼容：null 值过滤、final/集合字段入 map、不可变
      */
     @Test
