@@ -70,11 +70,18 @@ class CSpringSecurityUtilsTests {
     }
 
     @Test
-    void testGetUserDetails_throwsClassCast() {
-        // 易错：getUserDetails 内部 anyType(getPrincipal()) 因泛型重载歧义匹配到
-        // anyType(CSupplier) 重载，把 User 实例强转为 CSupplier，运行期抛 ClassCastException
+    void testGetUserDetails_userDetailsPrincipal() {
+        // 正例：principal 为 UserDetails 时原样返回（anyType((Object)...) 消除重载歧义）
         UserDetails userDetails = new User("admin", "pass", Collections.emptyList());
         Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null);
+        CSpringSecurityUtils.setAuthentication(auth);
+        Assertions.assertEquals(userDetails, CSpringSecurityUtils.getUserDetails());
+    }
+
+    @Test
+    void testGetUserDetails_stringPrincipal() {
+        // 反例：principal 非 UserDetails（如字符串）时强转失败，运行期抛 ClassCastException
+        Authentication auth = new UsernamePasswordAuthenticationToken("admin", null);
         CSpringSecurityUtils.setAuthentication(auth);
         Assertions.assertThrowsExactly(
             ClassCastException.class,
@@ -83,12 +90,9 @@ class CSpringSecurityUtilsTests {
     }
 
     @Test
-    void testGetUserDetails_emptyContext_throwsNPE() {
-        // 易错：空上下文时 getPrincipal 返回 null，anyType((CSupplier)null) 调用 supplier.get() 抛 NPE
+    void testGetUserDetails_emptyContext_returnsNull() {
+        // 边界：空上下文时 getPrincipal 返回 null，anyType((Object)null) 返回 null
         SecurityContextHolder.clearContext();
-        Assertions.assertThrowsExactly(
-            NullPointerException.class,
-            CSpringSecurityUtils::getUserDetails
-        );
+        Assertions.assertNull(CSpringSecurityUtils.getUserDetails());
     }
 }
