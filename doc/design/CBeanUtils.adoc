@@ -30,21 +30,29 @@
 
 [source,java]
 ----
- /**
+/**
  * @param fastEntries  计划期已解析动作：SELF 直接写 / 转换器转换后写
- * @param fallbackEntries  计划期未解析：运行期按实际值类型分派 */ record CopyPlan(CopyEntry[] fastEntries,CopyEntry[] fallbackEntries) {
+ * @param fallbackEntries  计划期未解析：运行期按实际值类型分派  */ @Builder
+private record CopyPlan(CopyEntry[] fastEntries,CopyEntry[] fallbackEntries) {
+
     }
 
 /**
  * @param converter  SELF 直接写；具体转换器转换后写；null 走回退路径
- * @param toType  目标字段声明类型（回退路径分派用） */ record CopyEntry(MethodHandle getterHandle,MethodHandle setterHandle,CFunction<Object,?> converter,Class<?> toType) {
+ * @param toType  目标字段声明类型（回退路径分派用）  */ @Builder
+private record CopyEntry(MethodHandle getterHandle,MethodHandle setterHandle,CFunction<Object,?> converter,Class<?> toType) {
+
     }
 
 /**
- * @param entries  含 final 与集合字段，不剔除 */ record ToMapPlan(ToMapEntry[] entries) {
+ * @param entries  含 final 与集合字段，不剔除  */ @Builder
+private record ToMapPlan(ToMapEntry[] entries) {
+
     }
 
-record ToMapEntry(Field field,MethodHandle getterHandle) {
+@Builder
+private record ToMapEntry(Field field,MethodHandle getterHandle) {
+
     }
 ----
 
@@ -116,7 +124,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 测试按"验证职责"分三类，避免单类测试文件膨胀：
 
-- `CBeanUtilsCompatibilityTests`（13 用例）：功能完整性测试——重构/优化前后行为一致性验证。
+- `CBeanUtilsCompatibilityTests`（12 用例）：功能完整性测试——重构/优化前后行为一致性验证。
 - `CBeanUtilsMoreTests`（25 用例）：正例、反例、边界与新增行为验证。
 - `CBeanUtilsBenchmark`（12 用例）+ `BenchmarkRunner`：性能对比基准，独立于单元测试执行。
 
@@ -179,7 +187,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 能测（已执行）：
 
-- 功能完整性（重构前后行为一致）：`CBeanUtilsCompatibilityTests` 13 用例，内嵌旧语义
+- 功能完整性（重构前后行为一致）：`CBeanUtilsCompatibilityTests` 12 用例，内嵌旧语义
   参考实现逐字段对比。
 - 跨操作系统：CBeanUtils 无平台特定 API（无文件/网络/环境变量依赖），Java 跨平台语义
   天然成立；已在 Windows 实测，Linux 未执行（理论一致，记录备查）。

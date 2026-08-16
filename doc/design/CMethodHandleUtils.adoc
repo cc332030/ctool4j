@@ -79,7 +79,10 @@ Lambda 转换（统一 Object 签名）。两者皆 setAccessible 语义（不�
 
 == 4. 测试设计
 
-* `CMethodHandleUtilsTests`：handle 生成与缓存（getter/setter/method/constructor）、`toHandleSpecial`
+* `CMethodHandleUtilsTests`：handle 生成与缓存（getter/setter/method/constructor）；
+  asType 版本（`getGetterHandleAsType`/`getSetterHandleAsType`）验证统一 Object 签名——接收者显式转型后
+  `invokeExact` 直接调用，引用类型字段读写、原始类型字段装箱（getter 返回 Object）与拆箱（setter 写入 Object 值）各一用例；
+  `toHandleSpecial` 当前无调用方（未使用，不作问题提示），暂无测试用例
 * `CLambdaUtilsTests`：`getFieldGetLambda`/`getFieldSetLambda`（基本类型装箱/拆箱、引用类型字段读写），使用 `ValueBean`（setAccessible 语义，无 public 字段限制）
 * `CReflectUtilsTests`：getValue/setValue 快速路径（含静态/final 回退、继承字段）、newInstance 快速路径
 

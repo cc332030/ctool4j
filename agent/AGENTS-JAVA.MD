@@ -3,10 +3,11 @@
 
 ## 编码
 
-- 禁止移除 lombok 的使用
-- 使用 lombok val、var
-- 实体类使用 @Data、@SuperBuilder、@NoArgsConstructor、@AllArgsConstructor
-- 严禁手写构造方法：无参、必参、全参构造方法一律使用 lombok 注解生成（@NoArgsConstructor/@RequiredArgsConstructor/@AllArgsConstructor），禁止手写任何构造器；禁止 `new Xxx(参数...)` 创建对象，创建一律使用 builder（@Builder/@SuperBuilder 生成的 builder 链式赋值，如 `CClassConverter.<From, To>builder().fromClass(...).build()`）；@AllArgsConstructor 等 lombok 构造注解仅用于框架注入或序列化等特殊场景（如 Spring 构造器注入，见 AGENTS-SPRING.MD），业务创建对象不得依赖其生成的构造器
+- 强制优先使用 lombok：能用 lombok 代替的绝不手写——getter/setter（@Getter/@Setter/@Data）、构造器（@NoArgsConstructor/@RequiredArgsConstructor/@AllArgsConstructor）、builder（@SuperBuilder）、toString/equals/hashCode（@ToString/@EqualsAndHashCode）等一律用 lombok 生成，反例：手写 get/set；禁止移除 lombok 的使用
+- 优先使用 lombok val、var：局部变量声明优先使用 `val`/`var`（类型由初始化表达式推断，`val` 不可变、`var` 可变），不得为显式写出类型而放弃 val/var（如 `String name = ...` 应写 `val name = ...`，`StringBuilder sb = ...` 应写 `var sb = ...`）；val/var 仅适用于局部变量，字段不得使用；类型推断结果不清晰（复杂泛型、联合类型推断等）等确需显式类型提示的场景可写显式类型
+- lombok.config 实时读取：lombok.config 内容可能调整，规范不固化具体配置项；使用 lombok 或涉及 lombok 默认行为时，实时读取项目根目录 `lombok.config`，按当前配置执行（如字段默认访问级别、@ToString/@EqualsAndHashCode 的 callSuper、@NonNull 异常类型、自定义日志注解等），不得在规范或代码注释中固化其具体配置内容
+- 实体类使用 @Data、@SuperBuilder（优先 SuperBuilder 而非 @Builder，支持继承场景）、@NoArgsConstructor、@AllArgsConstructor
+- 严禁手写构造方法：无参、必参、全参构造方法一律使用 lombok 注解生成（@NoArgsConstructor/@RequiredArgsConstructor/@AllArgsConstructor），禁止手写任何构造器；禁止 `new Xxx(参数...)` 创建对象，创建一律使用 builder（优先 @SuperBuilder 而非 @Builder，生成的 builder 链式赋值，如 `CClassConverter.<From, To>builder().fromClass(...).build()`）；@AllArgsConstructor 等 lombok 构造注解仅用于框架注入或序列化等特殊场景（如 Spring 构造器注入，见 AGENTS-SPRING.MD），业务创建对象不得依赖其生成的构造器
 - 定义方法时参数换行：多参数且整行宽度（含缩进）临近或超过 80 字符时，参数需换行——左括号 `(` 紧跟方法名后换行，每个参数单独一行，右括号 `)` 单独一行收尾；参数较少或整行宽度未达阈值时保持单行
 
 ```java
