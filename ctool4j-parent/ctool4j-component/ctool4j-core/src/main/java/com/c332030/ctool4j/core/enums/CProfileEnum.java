@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.enums;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Opt;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -62,6 +63,7 @@ public enum CProfileEnum {
      * @throws IllegalArgumentException 环境名未知时抛出
      */
     public static CProfileEnum of(String name) {
+        Assert.notNull(name, "profile name must not be null");
         return Opt.ofNullable(PROFILE_MAP.get(name))
             .orElseThrow(() -> new IllegalArgumentException("unknown profile: " + name));
     }
