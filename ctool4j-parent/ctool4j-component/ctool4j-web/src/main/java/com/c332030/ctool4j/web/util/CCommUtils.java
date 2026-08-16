@@ -130,6 +130,10 @@ public class CCommUtils {
      */
     public boolean isTextBody(Map<String, Collection<String>> headers) {
 
+        if(MapUtil.isEmpty(headers)) {
+            return false;
+        }
+
         val contentTypes = CCollUtils.defaultEmpty(headers.get(HttpHeaders.CONTENT_TYPE));
         return contentTypes.stream().anyMatch(CMediaTypeUtils::isText);
     }
@@ -140,6 +144,11 @@ public class CCommUtils {
      * @return 字符集
      */
     public Charset getCharsetOrDefault(Map<String, Collection<String>> headers) {
+
+        if(MapUtil.isEmpty(headers)) {
+            return CCharsets.UTF_8;
+        }
+
         val contentTypes = CCollUtils.defaultEmpty(headers.get(HttpHeaders.CONTENT_TYPE));
         for (val contentType : contentTypes) {
             try {
