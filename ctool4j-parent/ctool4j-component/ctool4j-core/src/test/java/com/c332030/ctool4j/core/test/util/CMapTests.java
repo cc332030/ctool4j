@@ -69,16 +69,16 @@ public class CMapTests {
     }
 
     @Test
-    public void ofMapCopyModifiable() {
+    public void ofMapCopyUnmodifiable() {
 
         Map<String, Integer> source = new HashMap<>();
         source.put("a", 1);
 
         Map<String, Integer> map = CMap.of(source);
-        map.put("b", 2);
-
-        Assertions.assertEquals(2, map.size());
-        Assertions.assertEquals(2, map.get("b"));
+        // of(Map) 与 of 系列一致返回不可变副本
+        Assertions.assertThrowsExactly(UnsupportedOperationException.class, () -> map.put("b", 2));
+        Assertions.assertEquals(1, map.size());
+        Assertions.assertEquals(1, map.get("a"));
         // 原 map 不受影响
         Assertions.assertEquals(1, source.size());
 
@@ -99,8 +99,9 @@ public class CMapTests {
         source.put("a", 1);
 
         Map<String, Integer> map = CMap.of(source, LinkedHashMap::new);
-        Assertions.assertInstanceOf(LinkedHashMap.class, map);
+        // supplier 指定内部容器；返回不可变副本（无法直接验证内部类型），验证内容与不可变
         Assertions.assertEquals(1, map.get("a"));
+        Assertions.assertThrowsExactly(UnsupportedOperationException.class, () -> map.put("b", 2));
 
     }
 
