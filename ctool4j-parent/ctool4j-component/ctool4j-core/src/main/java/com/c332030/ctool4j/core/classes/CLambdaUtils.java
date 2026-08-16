@@ -65,26 +65,30 @@ public class CLambdaUtils {
     /**
      * 根据方法句柄生成 Lambda 实例
      *
-     * @param methodHandle    方法句柄
-     * @param lambdaClass     Lambda 接口类
-     * @param lambdaMethodName Lambda 接口的方法名
-     * @param <T>             Lambda 类型
+     * @param methodHandle          直接方法句柄（须为 direct handle；类型适配由 LambdaMetafactory 内部完成，支持基本类型装箱/拆箱）
+     * @param lambdaClass           Lambda 接口类
+     * @param lambdaMethodName      Lambda 接口抽象方法名（如 CFunction 为 applyThrowable）
+     * @param samMethodType         接口抽象方法的泛型签名（如 (Object)Object）
+     * @param instantiatedMethodType 接口方法实例化后的具体类型
+     * @param <T>                   Lambda 类型
      * @return Lambda 实例
      */
     @SneakyThrows
     public <T> T getLambda(
             MethodHandle methodHandle,
             Class<T> lambdaClass,
-            String lambdaMethodName
+            String lambdaMethodName,
+            MethodType samMethodType,
+            MethodType instantiatedMethodType
     ) {
 
         val callSite = LambdaMetafactory.metafactory(
                 LOOKUP,
-                lambdaMethodName, // 函数式接口的方法名（Getter继承Function，方法名是apply）
-                MethodType.methodType(lambdaClass), // 生成的 Lambda 类型（Getter<T,R>）
-                methodHandle.type().generic(), // 方法类型的泛型签名（T -> R）
-                methodHandle, // 实际执行的方法句柄（字段读取）
-                methodHandle.type() // 实际方法类型（具体的T -> R，比如User -> String）
+                lambdaMethodName, // 函数式接口的抽象方法名
+                MethodType.methodType(lambdaClass), // 生成的 Lambda 类型
+                samMethodType, // 接口抽象方法的泛型签名
+                methodHandle, // 直接方法句柄（不能用 asType 包装，否则非 direct handle 导致 metafactory 抛异常）
+                instantiatedMethodType // 接口方法实例化后的具体类型
         );
 
         val invokeExact = callSite.getTarget().invokeExact();
@@ -93,6 +97,7 @@ public class CLambdaUtils {
 
     /**
      * 获取字段读取 Lambda
+     * <p>CFunction 的抽象方法为 applyThrowable（apply 为 default 覆写），须以抽象方法名生成。</p>
      *
      * @param clazz 类
      * @param field 字段
@@ -103,13 +108,16 @@ public class CLambdaUtils {
         val lambda = getLambda(
                 getGetterMethodHandle(clazz, field),
                 CFunction.class,
-                CFunction.APPLY
+                "applyThrowable",
+                MethodType.methodType(Object.class, Object.class),
+                MethodType.methodType(Object.class, Object.class)
         );
         return CObjUtils.anyType(lambda);
     }
 
     /**
      * 获取字段写入 Lambda
+     * <p>CBiConsumer 的抽象方法为 acceptThrowable（accept 为 default 覆写），须以抽象方法名生成。</p>
      *
      * @param clazz 类
      * @param field 字段
@@ -120,7 +128,9 @@ public class CLambdaUtils {
         val lambda = getLambda(
                 getSetterMethodHandle(clazz, field),
                 CBiConsumer.class,
-                CBiConsumer.ACCEPT
+                "acceptThrowable",
+                MethodType.methodType(void.class, Object.class, Object.class),
+                MethodType.methodType(void.class, Object.class, Object.class)
         );
         return CObjUtils.anyType(lambda);
 
