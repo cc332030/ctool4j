@@ -14,6 +14,7 @@ import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -21,7 +22,6 @@ import lombok.val;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,13 +39,6 @@ import java.util.stream.Collectors;
 public class CBeanUtils {
 
     /**
-     * 统一 Object 签名的 getter/setter MethodHandle 类型
-     * <p>运行期 invokeExact 无签名适配开销；原始类型字段由 asType 适配器自动装箱/拆箱</p>
-     */
-    private static final MethodType GETTER_HANDLE_TYPE = MethodType.methodType(Object.class, Object.class);
-    private static final MethodType SETTER_HANDLE_TYPE = MethodType.methodType(void.class, Object.class, Object.class);
-
-    /**
      * 复制计划缓存：按 (源类, 目标类) 对缓存
      */
     private static final CBiClassValue<CopyPlan> COPY_PLAN_BI_CLASS_VALUE = CBiClassValue.of(CBeanUtils::getCopyPlan);
@@ -58,12 +51,17 @@ public class CBeanUtils {
     /**
      * 空复制计划（JDK 源类使用，热路径零操作）
      */
-    private static final CopyPlan EMPTY_COPY_PLAN = new CopyPlan(new CopyEntry[0], new CopyEntry[0]);
+    private static final CopyPlan EMPTY_COPY_PLAN = CopyPlan.builder()
+            .fastEntries(new CopyEntry[0])
+            .fallbackEntries(new CopyEntry[0])
+            .build();
 
     /**
      * 空转 map 计划（JDK 类使用，热路径零操作）
      */
-    private static final ToMapPlan EMPTY_TO_MAP_PLAN = new ToMapPlan(new ToMapEntry[0]);
+    private static final ToMapPlan EMPTY_TO_MAP_PLAN = ToMapPlan.builder()
+            .entries(new ToMapEntry[0])
+            .build();
 
     /**
      * map 属性复制到对象
@@ -497,13 +495,13 @@ public class CBeanUtils {
                 continue;
             }
 
-            val getterHandle = CMethodHandleUtils.getGetterHandle(fromField).asType(GETTER_HANDLE_TYPE);
-            val setterHandle = CMethodHandleUtils.getSetterHandle(toField).asType(SETTER_HANDLE_TYPE);
+            val getterHandle = CMethodHandleUtils.getGetterHandleAsType(fromField);
+            val setterHandle = CMethodHandleUtils.getSetterHandleAsType(toField);
 
             // 声明类型可直接赋值：计划期确定直接写入（Object 声明除外——值类型不确定，
             // 可能持有集合，需回退运行期按实际值类型分派）
             if(Object.class != fromType && toType.isAssignableFrom(fromType)) {
-                fastEntries.add(new CopyEntry(getterHandle, setterHandle, CFunction.SELF, null));
+                fastEntries.add(newFastEntry(getterHandle, setterHandle, CFunction.SELF));
                 continue;
             }
 
@@ -514,13 +512,18 @@ public class CBeanUtils {
                     : CConvertUtils.getConverterNoObjectFallback(fromType, toType);
 
             if(null == converter) {
-                fallbackEntries.add(new CopyEntry(getterHandle, setterHandle, null, toType));
+                fallbackEntries.add(newFallbackEntry(getterHandle, setterHandle, toType));
             } else {
-                fastEntries.add(new CopyEntry(getterHandle, setterHandle, converter, null));
+                fastEntries.add(newFastEntry(getterHandle, setterHandle, converter));
             }
         }
 
-        return new CopyPlan(fastEntries.toArray(new CopyEntry[0]), fallbackEntries.toArray(new CopyEntry[0]));
+        val fastEntriesArray = fastEntries.toArray(new CopyEntry[0]);
+        val fallbackEntriesArray = fallbackEntries.toArray(new CopyEntry[0]);
+        return CopyPlan.builder()
+                .fastEntries(fastEntriesArray)
+                .fallbackEntries(fallbackEntriesArray)
+                .build();
     }
 
     /**
@@ -536,9 +539,49 @@ public class CBeanUtils {
         val fieldMap = CReflectUtils.getInstanceFieldMap(objClass);
         val entries = new ArrayList<ToMapEntry>(fieldMap.size());
         for (val field : fieldMap.values()) {
-            entries.add(new ToMapEntry(field, CMethodHandleUtils.getGetterHandle(field).asType(GETTER_HANDLE_TYPE)));
+            val getterHandle = CMethodHandleUtils.getGetterHandleAsType(field);
+            val entry = ToMapEntry.builder()
+                    .field(field)
+                    .getterHandle(getterHandle)
+                    .build();
+            entries.add(entry);
         }
-        return new ToMapPlan(entries.toArray(new ToMapEntry[0]));
+        val entriesArray = entries.toArray(new ToMapEntry[0]);
+        return ToMapPlan.builder()
+                .entries(entriesArray)
+                .build();
+    }
+
+    /**
+     * 构建快路径复制条目（直接写入或转换后写入）
+     *
+     * @param getterHandle getter 方法句柄
+     * @param setterHandle setter 方法句柄
+     * @param converter 转换器（{@link CFunction#SELF} 表示直接写入）
+     * @return 复制条目
+     */
+    private static CopyEntry newFastEntry(MethodHandle getterHandle, MethodHandle setterHandle, CFunction<Object, ?> converter) {
+        return CopyEntry.builder()
+                .getterHandle(getterHandle)
+                .setterHandle(setterHandle)
+                .converter(converter)
+                .build();
+    }
+
+    /**
+     * 构建回退路径复制条目（运行期按实际值类型分派）
+     *
+     * @param getterHandle getter 方法句柄
+     * @param setterHandle setter 方法句柄
+     * @param toType 目标字段声明类型
+     * @return 复制条目
+     */
+    private static CopyEntry newFallbackEntry(MethodHandle getterHandle, MethodHandle setterHandle, Class<?> toType) {
+        return CopyEntry.builder()
+                .getterHandle(getterHandle)
+                .setterHandle(setterHandle)
+                .toType(toType)
+                .build();
     }
 
     /**
@@ -554,16 +597,13 @@ public class CBeanUtils {
      * <p>fastEntries 为计划期已解析转换路径的字段（直接写入或转换后写入）；
      * fallbackEntries 为计划期未解析转换路径的字段（运行期按实际值类型判断）。</p>
      */
+    @Builder
     private static final class CopyPlan {
 
         final CopyEntry[] fastEntries;
 
         final CopyEntry[] fallbackEntries;
 
-        CopyPlan(CopyEntry[] fastEntries, CopyEntry[] fallbackEntries) {
-            this.fastEntries = fastEntries;
-            this.fallbackEntries = fallbackEntries;
-        }
     }
 
     /**
@@ -571,6 +611,7 @@ public class CBeanUtils {
      * <p>converter 为 {@link CFunction#SELF} 时直接写入，否则转换后写入；
      * converter 为 null 时走回退逻辑（toType 为目标字段声明类型，供运行期判断）。</p>
      */
+    @Builder
     private static final class CopyEntry {
 
         final MethodHandle getterHandle;
@@ -581,39 +622,28 @@ public class CBeanUtils {
 
         final Class<?> toType;
 
-        CopyEntry(MethodHandle getterHandle, MethodHandle setterHandle, CFunction<Object, ?> converter, Class<?> toType) {
-            this.getterHandle = getterHandle;
-            this.setterHandle = setterHandle;
-            this.converter = converter;
-            this.toType = toType;
-        }
     }
 
     /**
      * 转 map 计划：按类预计算的字段与 getter 方法句柄（含 final 字段）
      */
+    @Builder
     private static final class ToMapPlan {
 
         final ToMapEntry[] entries;
 
-        ToMapPlan(ToMapEntry[] entries) {
-            this.entries = entries;
-        }
     }
 
     /**
      * 转 map 条目
      */
+    @Builder
     private static final class ToMapEntry {
 
         final Field field;
 
         final MethodHandle getterHandle;
 
-        ToMapEntry(Field field, MethodHandle getterHandle) {
-            this.field = field;
-            this.getterHandle = getterHandle;
-        }
     }
 
 }
