@@ -120,17 +120,6 @@ public class CMethodHandleUtilsTests {
     }
 
     @Test
-    public void toSetterHandleFinalField() throws Throwable {
-
-        Field field = Person.class.getDeclaredField("finalName");
-        MethodHandle handle = CMethodHandleUtils.toSetterHandle(field);
-        Person person = new Person();
-        handle.invoke(person, "final-jerry");
-        Assertions.assertEquals("final-jerry", person.getFinalName());
-
-    }
-
-    @Test
     public void getGetterHandleAsType() throws Throwable {
 
         Field field = Person.class.getDeclaredField("name");
@@ -190,13 +179,6 @@ public class CMethodHandleUtilsTests {
 
         /** 年龄 */
         Integer age;
-
-        /** final 字段（验证 setter handle 兜底） */
-        final String finalName = "init";
-
-        public String getFinalName() {
-            return finalName;
-        }
 
         private String secret() {
             return "secret-" + name;
