@@ -222,8 +222,11 @@ public class CDateUtils {
 
     /**
      * 时间戳统一归一化为毫秒：负数视为非法输入返回 null；小于等于 {@link #MIN_MILLS} 的值按秒处理乘 1000，否则视为毫秒。
-     * <p>toDate/toInstant/parseMaybeMills 共用此判定，保证同一时间戳语义一致
-     * （秒/毫秒的固有歧义边界由 MIN_MILLS 决定）</p>
+     * <p>秒/毫秒自动识别为启发式，存在固有歧义：{@link #MIN_MILLS}（1e10）同时是 2286-11-20 的秒值与 1973-03-03 的毫秒值，
+     * 两者在 0 ~ 1e10 区间重叠，本方法统一按秒解释该区间；实际影响仅限 1973-03-03 之前的毫秒时间戳
+     * （现实几乎不存在）被按秒解释、2286-11-20 之后的秒值被按毫秒解释。
+     * 需要精确单位时建议调用方显式换算（秒：value*1000；毫秒：value）。
+     * toDate/toInstant/parseMaybeMills 共用此判定，保证同一时间戳语义一致。</p>
      *
      * @param value 时间戳
      * @return 毫秒时间戳；负数返回 null
