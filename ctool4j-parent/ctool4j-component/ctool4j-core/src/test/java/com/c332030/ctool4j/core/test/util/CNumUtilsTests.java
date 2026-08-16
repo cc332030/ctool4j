@@ -80,6 +80,16 @@ public class CNumUtilsTests {
         Assertions.assertEquals("2lkCB1", CNumUtils.to62(Integer.MAX_VALUE));
         Assertions.assertEquals("aZl8N0y58M7", CNumUtils.to62(Long.MAX_VALUE));
 
+        // 边界：0 的 62 进制为 "0"
+        Assertions.assertEquals("0", CNumUtils.to62(0));
+
+        // 边界：62 与 63 的进位
+        Assertions.assertEquals("11", CNumUtils.to62(63));
+
+        // 反例：负数不支持，快速失败
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> CNumUtils.to62(-1));
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> CNumUtils.to62(Long.MIN_VALUE));
+
     }
 
     /**
