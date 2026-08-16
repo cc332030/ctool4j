@@ -11,9 +11,17 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public interface ICDeleted {
 
+    /**
+     * 获取删除标识
+     * @return 删除标识
+     */
     @ApiModelProperty("删除标识")
     Boolean getDeleted();
 
+    /**
+     * 设置删除标识
+     * @param deleted 删除标识
+     */
     void setDeleted(Boolean deleted);
 
 }

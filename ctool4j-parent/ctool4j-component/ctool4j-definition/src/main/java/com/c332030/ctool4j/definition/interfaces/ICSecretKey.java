@@ -9,6 +9,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICSecretKey {
 
+    /**
+     * 获取密钥
+     * @return 密钥
+     */
     String getSecretKey();
 
 }

@@ -217,8 +217,17 @@ public class CAutowiredScanProcessor extends CAbstractProcessor {
         return names;
     }
 
+    /**
+     * 字段信息
+     */
     private static class FieldInfo {
+        /**
+         * 字段名
+         */
         final String fieldName;
+        /**
+         * 字段类型
+         */
         final String fieldType;
 
         FieldInfo(String fieldName, String fieldType) {

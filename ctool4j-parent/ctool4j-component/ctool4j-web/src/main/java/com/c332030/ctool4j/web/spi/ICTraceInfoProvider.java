@@ -11,6 +11,10 @@ import com.c332030.ctool4j.web.model.model.ICTraceInfo;
  */
 public interface ICTraceInfoProvider<T extends ICTraceInfo> {
 
+    /**
+     * 获取链路追踪信息
+     * @return 链路追踪信息
+     */
     T getTraceInfo();
 
 }

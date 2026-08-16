@@ -28,9 +28,15 @@ public class CFeignConfig {
 
 }
 
+/**
+ * 客户端配置
+ */
 @Data
 class ClientConfig {
 
+    /**
+     * 客户端地址
+     */
     String url;
 
 }

@@ -10,6 +10,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICDesc {
 
+    /**
+     * 获取描述
+     * @return 描述
+     */
     String getDesc();
 
 }

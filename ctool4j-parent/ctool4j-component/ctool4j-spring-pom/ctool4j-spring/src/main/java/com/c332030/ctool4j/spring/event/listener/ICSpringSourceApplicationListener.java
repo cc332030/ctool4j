@@ -13,6 +13,11 @@ import org.springframework.context.ApplicationEvent;
 @FunctionalInterface
 public interface ICSpringSourceApplicationListener<T extends ApplicationEvent> extends ICApplicationListener<T> {
 
+    /**
+     * 是否支持当前上下文事件
+     * @param event 事件
+     * @return 是否支持
+     */
     @Override
     default boolean supports(T event) {
         return CSpringUtils.isCurrentContextEvent(event);

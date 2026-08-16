@@ -51,6 +51,10 @@ public interface ICPage {
         return CList.of();
     }
 
+    /**
+     * 获取起始行号
+     * @return 起始行号
+     */
     @JsonIgnore
     default Integer getStart() {
         val pageNum = getPageNum();
@@ -60,16 +64,31 @@ public interface ICPage {
         return (pageNum - 1) * pageSize;
     }
 
+    /**
+     * 获取 limit SQL 片段
+     * @return limit SQL 片段
+     */
     @JsonIgnore
     default String getLimitSql() {
         return "limit " + getStart() + "," + getPageSize();
     }
 
+    /**
+     * 获取 MyBatis-Plus 分页对象
+     * @param orders 排序条件
+     * @param <E> 实体类型
+     * @return 分页对象
+     */
     @JsonIgnore
     default <E> Page<E> getPage(List<OrderItem> orders) {
         return CMpPageUtils.getPage(this, orders);
     }
 
+    /**
+     * 获取 MyBatis-Plus 分页对象（使用默认排序）
+     * @param <E> 实体类型
+     * @return 分页对象
+     */
     @JsonIgnore
     default <E> Page<E> getPage() {
         return getPage(getOrders());

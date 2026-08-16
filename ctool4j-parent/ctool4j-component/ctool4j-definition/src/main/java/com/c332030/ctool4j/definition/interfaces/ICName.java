@@ -9,8 +9,15 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICName {
 
+    /**
+     * name 字段名常量
+     */
     String NAME = "name";
 
+    /**
+     * 获取名称
+     * @return 名称
+     */
     String getName();
 
 }

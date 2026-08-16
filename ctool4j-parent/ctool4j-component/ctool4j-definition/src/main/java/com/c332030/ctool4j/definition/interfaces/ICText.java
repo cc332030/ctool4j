@@ -10,6 +10,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICText {
 
+    /**
+     * 获取文本
+     * @return 文本
+     */
     String getText();
 
 }
