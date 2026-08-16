@@ -95,10 +95,7 @@ class CCacheAspectCacheKeyTests {
 
     @Test
     void testGetCacheKey_cacheIdNullButObjectNull_returnsNull() {
-        // getCacheKey 对 null object 会 NPE（object.getClass），由 CDefaultCacheIdConverter 兜底不在此处
-        Assertions.assertThrowsExactly(
-            NullPointerException.class,
-            () -> aspect.getCacheKey(null, cacheable())
-        );
+        // getCacheKey 对 null object 返回 null（由调用方保证不写入缓存）
+        Assertions.assertNull(aspect.getCacheKey(null, cacheable()));
     }
 }
