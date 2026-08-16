@@ -7,6 +7,7 @@
 - 使用 lombok val、var
 - 实体类使用 @Data、@SuperBuilder、@NoArgsConstructor、@AllArgsConstructor
 - JSON 处理全局统一使用 Jackson，禁止引入其他 JSON 库（如 Gson、fastjson）
+- 日志打印严禁只有字符串拼接：禁止 `log.info("a" + b)` 写法，必须用占位符参数化（`log.info("a: {}", b)`，SLF4J 风格）；拼接在日志级别不满足时仍会执行造成浪费，占位符延迟求值且可读性好；静态文本（无参）如 `log.info("初始化完成")` 不属拼接，合规；异常日志不得拼 `e.getMessage()`，须将 throwable 作为最后一个参数传入（如 `log.error("msg: {}", arg, e)`）
 
 ## 健壮性
 
