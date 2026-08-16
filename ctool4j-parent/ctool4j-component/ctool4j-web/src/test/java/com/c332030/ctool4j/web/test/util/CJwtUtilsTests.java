@@ -1,11 +1,13 @@
 package com.c332030.ctool4j.web.test.util;
 
+import cn.hutool.jwt.JWTException;
 import com.c332030.ctool4j.web.util.CJwtUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.security.InvalidKeyException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -54,9 +56,9 @@ public class CJwtUtilsTests {
 
     @Test
     public void create_emptySecret() {
-        // 反例：空 secret 抛出异常（hutool JWTUtil 报 Empty key）
-        Assertions.assertThrows(
-            RuntimeException.class,
+        // 反例：空 secret 抛出异常（hutool JWTUtil 报 Empty key，JDK HmacSHA256 空 key 抛 InvalidKeyException）
+        Assertions.assertThrowsExactly(
+            InvalidKeyException.class,
             () -> CJwtUtils.create(Collections.singletonMap("a", 1), "")
         );
     }
@@ -80,8 +82,8 @@ public class CJwtUtilsTests {
     @Test
     public void verify_invalidJwt() {
         // 反例：非法 jwt（段数不足）抛出 JWTException
-        Assertions.assertThrows(
-            RuntimeException.class,
+        Assertions.assertThrowsExactly(
+            JWTException.class,
             () -> CJwtUtils.verify("not-a-jwt", SECRET)
         );
     }
@@ -89,8 +91,8 @@ public class CJwtUtilsTests {
     @Test
     public void verify_nullJwt() {
         // 异常路径：null jwt 抛出异常（hutool JWTUtil.verify 对非法输入抛 JWTException）
-        Assertions.assertThrows(
-            RuntimeException.class,
+        Assertions.assertThrowsExactly(
+            JWTException.class,
             () -> CJwtUtils.verify(null, SECRET)
         );
     }

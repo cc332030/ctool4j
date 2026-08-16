@@ -3,7 +3,8 @@ package com.c332030.ctool4j.core.test.util;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -100,9 +101,11 @@ public class CJsonUtilsTests {
         Assertions.assertNull(CJsonUtils.fromJson("", TestBean.class));
         Assertions.assertNull(CJsonUtils.fromJson(" ", TestBean.class));
 
-        // 非法 json 抛异常
-        Assertions.assertThrows(JsonProcessingException.class,
-                () -> CJsonUtils.fromJson("{\"a\":}", TestBean.class));
+        // 非法 json 抛异常（未知字段/JSON5 宽松语法不抛，此处用结构不匹配的输入）
+        Assertions.assertThrowsExactly(MismatchedInputException.class,
+                () -> CJsonUtils.fromJson("[1,2]", TestBean.class));
+        Assertions.assertThrowsExactly(JsonParseException.class,
+                () -> CJsonUtils.fromJson("{\"id\":\"1\"", TestBean.class));
 
         // 合法 json 反序列化
         val bean = CJsonUtils.fromJson("{\"id\":\"1\",\"userName\":\"a\"}", TestBean.class);

@@ -23,7 +23,7 @@ public class ICBusinessExceptionProviderTests {
         };
         CBiFunction<String, Throwable, RuntimeException> fn = provider.getMessageExceptionFunction();
 
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> fn.apply("msg", null));
+        Assertions.assertThrowsExactly(UnsupportedOperationException.class, () -> fn.apply("msg", null));
 
     }
 

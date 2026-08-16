@@ -104,7 +104,7 @@ class CJobUtilsTests {
      */
     @Test
     void dayJobTime_invalidParamThrows() {
-        Assertions.assertThrows(
+        Assertions.assertThrowsExactly(
             cn.hutool.core.date.DateException.class,
             () -> CJobUtils.dayJobTime("not-a-date", 1, consumer)
         );

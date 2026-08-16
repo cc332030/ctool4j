@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -119,7 +120,7 @@ class CExcelHelperTests {
         File file = new File(tempDir, "not-exist.xlsx");
         CExcelHelper helper = CExcelHelper.builder();
 
-        Assertions.assertThrows(Exception.class, () -> helper.doRead(file, CExcelTestBean.class));
+        Assertions.assertThrowsExactly(NoSuchFileException.class, () -> helper.doRead(file, CExcelTestBean.class));
     }
 
     /**
@@ -129,8 +130,8 @@ class CExcelHelperTests {
     void doWrite_nullOutputStreamThrows() {
         CExcelHelper helper = CExcelHelper.builder();
 
-        Assertions.assertThrows(
-            Exception.class,
+        Assertions.assertThrowsExactly(
+            NullPointerException.class,
             () -> helper.doWrite(Collections.singletonList(newBean(1, "tom", "d1")), (java.io.OutputStream) null)
         );
     }

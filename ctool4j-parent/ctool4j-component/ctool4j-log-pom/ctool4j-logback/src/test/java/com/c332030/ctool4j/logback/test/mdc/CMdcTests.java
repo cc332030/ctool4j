@@ -134,7 +134,7 @@ class CMdcTests {
      */
     @Test
     void putNullKeyThrows() {
-        Assertions.assertThrows(NullPointerException.class, () -> mdc.put(null, "v"));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> mdc.put(null, "v"));
     }
 
     /**
@@ -142,7 +142,7 @@ class CMdcTests {
      */
     @Test
     void putNullValueThrows() {
-        Assertions.assertThrows(NullPointerException.class, () -> mdc.put("k", null));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> mdc.put("k", null));
     }
 
     /**
@@ -150,6 +150,6 @@ class CMdcTests {
      */
     @Test
     void getNullKeyThrows() {
-        Assertions.assertThrows(NullPointerException.class, () -> mdc.get(null));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> mdc.get(null));
     }
 }
