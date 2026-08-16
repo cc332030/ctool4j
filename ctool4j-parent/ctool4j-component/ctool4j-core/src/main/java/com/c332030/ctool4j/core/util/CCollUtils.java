@@ -813,6 +813,7 @@ public class CCollUtils {
         }
 
         return collection.stream()
+                .filter(Objects::nonNull)
                 .filter(e -> Objects.nonNull(convert.apply(e)))
                 .min(Comparator.comparing(convert))
                 .orElse(null);
