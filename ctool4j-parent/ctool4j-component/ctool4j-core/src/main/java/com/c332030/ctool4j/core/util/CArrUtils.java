@@ -92,7 +92,8 @@ public class CArrUtils {
             newIndex = length + index;
         }
 
-        if(newIndex >= length) {
+        // 负索引越界（index < -length）同样视为无值返回 null
+        if(newIndex < 0 || newIndex >= length) {
             return null;
         }
 

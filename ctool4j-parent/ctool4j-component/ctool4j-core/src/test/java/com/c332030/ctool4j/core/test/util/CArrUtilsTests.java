@@ -65,11 +65,12 @@ public class CArrUtilsTests {
     }
 
     @Test
-    public void getNegativeIndexOutOfRangeThrows() {
+    public void getNegativeIndexOutOfRangeReturnsNull() {
 
         String[] arr = {"a", "b", "c"};
 
-        Assertions.assertThrowsExactly(ArrayIndexOutOfBoundsException.class, () -> CArrUtils.get(arr, -4));
+        // Q12 修复：负索引越界（index < -length）视为无值返回 null，不抛数组越界异常
+        Assertions.assertNull(CArrUtils.get(arr, -4));
 
     }
 
