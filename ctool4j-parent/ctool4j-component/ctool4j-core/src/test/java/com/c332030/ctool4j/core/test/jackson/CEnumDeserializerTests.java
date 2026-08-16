@@ -54,7 +54,7 @@ public class CEnumDeserializerTests {
     @Test
     public void deserializeUnknown_throws() {
 
-        Assertions.assertThrows(com.fasterxml.jackson.databind.JsonMappingException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> CJacksonUtils.OBJECT_MAPPER.readValue("{\"operate\":\"XXX\"}", EnumBean.class));
 
     }
