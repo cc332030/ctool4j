@@ -11,6 +11,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * <p>
@@ -66,6 +67,9 @@ public class CMethodHandleUtils {
 
     /**
      * 生成字段 setter 方法句柄
+     * <p>final 字段 JDK 禁止 unreflectSetter（抛 IllegalAccessException），
+     * 兜底用 {@link Field#set} 包装的句柄（实例 final 字段 setAccessible 后可写；
+     * static final 字段不可写，由 Field.set 抛异常，行为与反射语义一致）</p>
      *
      * @param field 字段
      * @return 方法句柄
@@ -73,8 +77,21 @@ public class CMethodHandleUtils {
     @SneakyThrows
     public MethodHandle toSetterHandle(Field field) {
         field.setAccessible(true);
+        if (Modifier.isFinal(field.getModifiers())) {
+            return MethodHandles.insertArguments(FIELD_SET_METHOD_HANDLE, 0, field);
+        }
         return MethodHandles.lookup().unreflectSetter(field);
     }
+
+    /**
+     * {@link Field#set} 的方法句柄（final 字段兜底用，签名 (Field, Object, Object)void）
+     */
+    @SneakyThrows
+    private static MethodHandle createFieldSetMethodHandle() {
+        return MethodHandles.lookup().unreflect(Field.class.getMethod("set", Object.class, Object.class));
+    }
+
+    private static final MethodHandle FIELD_SET_METHOD_HANDLE = createFieldSetMethodHandle();
 
     /**
      * 字段 setter 方法句柄缓存
