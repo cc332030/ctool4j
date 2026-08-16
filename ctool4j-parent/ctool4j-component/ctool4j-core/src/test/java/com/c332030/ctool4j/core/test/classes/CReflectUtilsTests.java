@@ -83,6 +83,28 @@ public class CReflectUtilsTests {
     }
 
     /**
+     * 测试按字段名读写：字段存在时正常，字段不存在时快速失败
+     */
+    @Test
+    public void getSetValueByFieldName() {
+
+        val bean = new ValueBean();
+
+        CReflectUtils.setValue(bean, "name", "by-name");
+        Assertions.assertEquals("by-name", CReflectUtils.getValue(bean, "name"));
+
+        Assertions.assertThrowsExactly(
+            IllegalArgumentException.class,
+            () -> CReflectUtils.getValue(bean, "noSuchField")
+        );
+        Assertions.assertThrowsExactly(
+            IllegalArgumentException.class,
+            () -> CReflectUtils.setValue(bean, "noSuchField", "x")
+        );
+
+    }
+
+    /**
      * 测试 Bean：覆盖实例/静态/final 字段
      */
     public static class ValueBean {
