@@ -62,7 +62,8 @@ public class CSensitiveSerializerTests {
 
         // 异常输入不限定范围：笔误值、随意捏造值均按字符串脱敏处理
         Assertions.assertEquals("txs******hing", new CSensitiveSerializer().mask("txso/anything"));
-        Assertions.assertEquals("vld***/mp4", new CSensitiveSerializer().mask("vldeo/mp4"));
+        // vldeo/mp4 前缀 vld、后缀 /mp4，中间 2 个字符打 2 个 *
+        Assertions.assertEquals("vld**/mp4", new CSensitiveSerializer().mask("vldeo/mp4"));
         Assertions.assertEquals("*******", new CSensitiveSerializer().mask("   abcd"));
 
     }
