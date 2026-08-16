@@ -92,12 +92,10 @@ public class CJwtUtilsTests {
     }
 
     @Test
-    public void verify_nullJwt() {
-        // 异常路径：null jwt 抛出异常（hutool JWTUtil.verify 对非法输入抛 JWTException）
-        Assertions.assertThrowsExactly(
-            JWTException.class,
-            () -> CJwtUtils.verify(null, SECRET)
-        );
+    public void verify_emptyJwt_returnsFalse() {
+        // 边界：null/空 jwt 不校验签名，直接返回 false
+        Assertions.assertFalse(CJwtUtils.verify(null, SECRET));
+        Assertions.assertFalse(CJwtUtils.verify("", SECRET));
     }
 
     @Test

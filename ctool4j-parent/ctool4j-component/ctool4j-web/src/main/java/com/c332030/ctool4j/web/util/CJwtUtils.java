@@ -56,13 +56,17 @@ public class CJwtUtils {
     /**
      * 验证
      *
-     * @param jwt    jwt
+     * @param jwt    jwt，为空时不校验签名，直接返回 false
      * @param secret 密钥，不能为空白
-     * @return 验证结果
+     * @return 验证结果；jwt 为空时返回 false
      * @throws IllegalArgumentException secret 为空白时抛出
      */
     public boolean verify(String jwt, String secret) {
         Assert.isTrue(StrUtil.isNotBlank(secret), "secret must not be blank");
+        // jwt 为空视为未认证，直接返回 false，避免依赖底层库对空 jwt 的抛错行为
+        if(StrUtil.isEmpty(jwt)) {
+            return false;
+        }
         return JWTUtil.verify(jwt, secret.getBytes(CCharsets.UTF_8));
     }
 
