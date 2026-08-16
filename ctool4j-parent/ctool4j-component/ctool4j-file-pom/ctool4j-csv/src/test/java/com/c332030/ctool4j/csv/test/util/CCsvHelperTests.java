@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -185,6 +186,22 @@ class CCsvHelperTests {
     }
 
     /**
+     * 正常路径：doRead(InputStream) 按 UTF-8 解码中文内容（不依赖平台默认字符集）
+     */
+    @Test
+    void doRead_inputStreamUtf8Chinese() {
+        CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
+        String csv = "姓名,年龄\n张三,18";
+        List<Map<String, String>> result = helper.doRead(
+            new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8))
+        );
+
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("张三", result.get(0).get("姓名"));
+        Assertions.assertEquals("18", result.get(0).get("年龄"));
+    }
+
+    /**
      * 异常路径：null 输入流抛出异常
      */
     @Test
@@ -248,6 +265,26 @@ class CCsvHelperTests {
         Assertions.assertTrue(lines[2].contains("2"));
         Assertions.assertTrue(lines[2].contains("jerry"));
         Assertions.assertTrue(lines[2].contains("d2"));
+    }
+
+    /**
+     * 正常路径：doWrite(List, OutputStream) 按 UTF-8 编码中文内容（不依赖平台默认字符集）
+     */
+    @Test
+    void doWrite_outputStreamUtf8Chinese() {
+        CCsvHelper helper = CCsvHelper.builder();
+
+        CCsvTestBean bean = new CCsvTestBean();
+        bean.setId(1L);
+        bean.setName("张三");
+        bean.setDesc("测试");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        helper.doWrite(Collections.singletonList(bean), baos);
+
+        String content = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+        Assertions.assertTrue(content.contains("张三"));
+        Assertions.assertTrue(content.contains("测试"));
     }
 
     /**
