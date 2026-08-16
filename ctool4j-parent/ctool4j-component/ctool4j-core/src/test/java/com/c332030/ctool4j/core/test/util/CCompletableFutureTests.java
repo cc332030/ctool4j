@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,15 +30,16 @@ public class CCompletableFutureTests {
     }
 
     @Test
-    public void runAsyncExceptionSwallowed() throws Exception {
+    public void runAsyncExceptionPropagated() throws Exception {
 
         CompletableFuture<Void> future = CCompletableFuture.runAsync(() -> {
             throw new IllegalStateException("boom");
         });
 
-        Assertions.assertNull(future.get(5, TimeUnit.SECONDS));
+        // Q22 修复：异常保持异常完成状态，get() 可感知失败，不再吞异常
         Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCompletedExceptionally());
+        Assertions.assertTrue(future.isCompletedExceptionally());
+        Assertions.assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
 
     }
 
