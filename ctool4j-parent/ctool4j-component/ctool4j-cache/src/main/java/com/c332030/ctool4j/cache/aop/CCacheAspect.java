@@ -92,15 +92,19 @@ public class CCacheAspect {
 
     /**
      * 生成缓存 key
-     * @param object 方法参数
+     * @param object 方法参数，为 null 时返回 null（由调用方保证不写入缓存）
      * @param cacheable 缓存注解
-     * @return 缓存 key
+     * @return 缓存 key；object 为 null 时返回 null
      */
     @SneakyThrows
     public String getCacheKey(
         Object object,
         CCacheable cacheable
     ) {
+
+        if (null == object) {
+            return null;
+        }
 
         val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
 
