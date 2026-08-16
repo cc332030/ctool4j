@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.ClassUtil;
 import com.c332030.ctool4j.core.cache.impl.CBiClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
@@ -105,7 +106,8 @@ public class CConvertUtils {
             return null;
         }
 
-        if(toClass.isAssignableFrom(fromClass)) {
+        // ClassUtil.isAssignable(目标, 源) 支持原始类型与包装类等价（如 int←Integer 拆箱、Integer←int 装箱），直接按 SELF 写入
+        if(ClassUtil.isAssignable(toClass, fromClass)) {
             return CFunction.SELF;
         }
 
