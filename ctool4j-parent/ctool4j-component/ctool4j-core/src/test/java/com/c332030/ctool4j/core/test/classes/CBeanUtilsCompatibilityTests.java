@@ -5,6 +5,7 @@ import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CConvertUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.definition.function.CConsumer;
@@ -567,7 +568,7 @@ public class CBeanUtilsCompatibilityTests {
         Assertions.assertNotNull(CReflectUtils.newInstance(FullTo.class));
         Assertions.assertNotNull(CBeanUtils.copy(newFullFrom(), FullTo.class));
 
-        Assertions.assertThrows(RuntimeException.class,
+        Assertions.assertThrowsExactly(CBusinessException.class,
                 () -> CReflectUtils.newInstance(NoNoArgConstructor.class));
     }
 
