@@ -64,4 +64,20 @@ public class CStrUtilsTest {
 
     }
 
+    /**
+     * 测试 toAvailable 对单侧引号的处理（Q16 修复：start == end 时保留该非引号字符）
+     */
+    @Test
+    public void toAvailableSingleQuote() {
+
+        Assertions.assertEquals("a", CStrUtils.toAvailable("'a"));
+        Assertions.assertEquals("a", CStrUtils.toAvailable("'a'"));
+        Assertions.assertEquals("ab", CStrUtils.toAvailable("'ab'"));
+        Assertions.assertEquals("a", CStrUtils.toAvailable("a'"));
+        Assertions.assertNull(CStrUtils.toAvailable("''"));
+        Assertions.assertNull(CStrUtils.toAvailable("'"));
+        Assertions.assertNull(CStrUtils.toAvailable(""));
+
+    }
+
 }

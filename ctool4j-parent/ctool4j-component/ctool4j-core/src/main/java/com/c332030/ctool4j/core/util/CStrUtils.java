@@ -507,6 +507,7 @@ public class CStrUtils {
             str = str.trim();
             if(!str.isEmpty()) {
 
+                // 有意设计：不考虑值中含分隔符，按第一个分隔符切分键值对，值中后续分隔符内容忽略
                 val keyValueArr = str.split(separatorKeyValue);
                 if(keyValueArr.length >= 2) {
                     val key = keyValueArr[0].trim();
@@ -722,7 +723,8 @@ public class CStrUtils {
         }
 
         if(needSubString) {
-            if(start >= end) {
+            // start == end 时仍保留该字符（该字符已确认非引号），仅当前后引号完全覆盖（start > end）时视为无可用内容
+            if(start > end) {
                 return null;
             }
             string = StrUtil.sub(string, start, end + 1);
