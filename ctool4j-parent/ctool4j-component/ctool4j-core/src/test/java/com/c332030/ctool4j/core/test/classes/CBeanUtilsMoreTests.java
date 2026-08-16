@@ -24,6 +24,10 @@ import java.util.*;
  * final/static 字段跳过、null 值跳过、类型不匹配无转换器时跳过、
  * toMap 过滤 null 键值并返回不可变 Map。
  * </p>
+ * <p>
+ * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见
+ * 设计文档 doc/design/cbean-utils.adoc。
+ * </p>
  *
  * @since 2026/8/16
  */
