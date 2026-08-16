@@ -199,12 +199,9 @@ public class CCommUtilsTests {
     }
 
     @Test
-    public void isTextBody_nullHeaders_throws() {
-        // 异常路径：null headers 直接取 CONTENT_TYPE 导致 NPE
-        Assertions.assertThrowsExactly(
-            NullPointerException.class,
-            () -> CCommUtils.isTextBody(null)
-        );
+    public void isTextBody_nullHeaders_returnsFalse() {
+        // 边界：null headers 按无 Content-Type 处理，返回 false
+        Assertions.assertFalse(CCommUtils.isTextBody(null));
     }
 
     // ---------- getCharsetOrDefault ----------
@@ -237,12 +234,9 @@ public class CCommUtilsTests {
     }
 
     @Test
-    public void getCharsetOrDefault_nullHeaders_throws() {
-        // 异常路径：null headers 直接取 CONTENT_TYPE 导致 NPE
-        Assertions.assertThrowsExactly(
-            NullPointerException.class,
-            () -> CCommUtils.getCharsetOrDefault(null)
-        );
+    public void getCharsetOrDefault_nullHeaders_returnsUtf8() {
+        // 边界：null headers 按无 Content-Type 处理，返回默认 UTF-8
+        Assertions.assertEquals(StandardCharsets.UTF_8, CCommUtils.getCharsetOrDefault(null));
     }
 
     // ---------- appendRequestUrl / appendUrl ----------
