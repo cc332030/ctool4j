@@ -32,12 +32,18 @@ public class CSqlUtilsTests {
 
         private Boolean deleted;
 
+        private String userFirstName;
+
         public Long getId() {
             return id;
         }
 
         public String getUserName() {
             return userName;
+        }
+
+        public String getUserFirstName() {
+            return userFirstName;
         }
 
         public Integer getAge() {
@@ -69,6 +75,13 @@ public class CSqlUtilsTests {
     @Test
     public void forUpdate() {
         Assertions.assertEquals("for update", CSqlUtils.forUpdate());
+    }
+
+    @Test
+    public void toColumnNameFunc() {
+        Assertions.assertEquals("id", CSqlUtils.toColumnName(TestUser::getId));
+        Assertions.assertEquals("user_name", CSqlUtils.toColumnName(TestUser::getUserName));
+        Assertions.assertEquals("user_first_name", CSqlUtils.toColumnName(TestUser::getUserFirstName));
     }
 
     @Test
