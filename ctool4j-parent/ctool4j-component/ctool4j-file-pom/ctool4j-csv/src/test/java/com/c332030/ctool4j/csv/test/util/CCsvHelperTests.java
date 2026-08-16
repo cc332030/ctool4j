@@ -4,10 +4,7 @@ import com.c332030.ctool4j.csv.util.CCsvHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -202,12 +199,13 @@ class CCsvHelperTests {
     }
 
     /**
-     * 异常路径：null 输入流抛出异常
+     * 边界：null 输入返回空集合，而非抛出异常（不依赖底层库对 null 的处理行为）
      */
     @Test
-    void doRead_nullInputStreamThrows() {
+    void doRead_nullInputReturnsEmpty() {
         CCsvHelper helper = CCsvHelper.builder();
-        Assertions.assertThrowsExactly(java.io.IOException.class, () -> helper.doRead((InputStreamReader) null));
+        Assertions.assertTrue(helper.doRead((InputStreamReader) null).isEmpty());
+        Assertions.assertTrue(helper.doRead((InputStream) null).isEmpty());
     }
 
     // ==================== doWrite ====================
