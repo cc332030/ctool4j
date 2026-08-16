@@ -38,6 +38,9 @@ public class CCorsUtils {
     /**
      * 处理 OPTIONS 预检请求，直接返回 204
      *
+     * <p>预检请求的 CORS 响应头由 {@link #handle} / {@link #handleDo} 在处理链中先行设置，
+     * 此处仅负责以 204 状态码结束预检请求，不再重复设置响应头（有意设计）</p>
+     *
      * @param request  请求
      * @param response 响应
      * @return true 表示本次为预检请求且已处理
