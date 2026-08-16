@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
+import com.c332030.ctool4j.core.util.CCharsets;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import lombok.CustomLog;
@@ -125,7 +126,7 @@ public class CCsvHelper {
         if(!(inputStream instanceof BufferedInputStream)) {
             inputStream = new BufferedInputStream(inputStream);
         }
-        return doRead(new InputStreamReader(inputStream));
+        return doRead(new InputStreamReader(inputStream, CCharsets.UTF_8));
     }
 
     /**
@@ -283,7 +284,7 @@ public class CCsvHelper {
         if(!(outputStream instanceof BufferedOutputStream)) {
             outputStream = new BufferedOutputStream(outputStream);
         }
-        doWrite(list, new OutputStreamWriter(outputStream));
+        doWrite(list, new OutputStreamWriter(outputStream, CCharsets.UTF_8));
     }
 
     /**
