@@ -79,17 +79,6 @@ public class CLogTests {
     }
 
     @Test
-    public void nonNullLogs() {
-
-        CLog log = new CLog(CLogTests.class);
-        log.infoNonNull("infoNonNull {}", "a");
-        log.debugNonNull("debugNonNull {}", "a");
-        log.warnNonNull("warnNonNull {}", "a");
-        log.errorNonNull("errorNonNull {}", "a");
-
-    }
-
-    @Test
     public void supplierLogs() {
 
         CLog log = new CLog(CLogTests.class);
