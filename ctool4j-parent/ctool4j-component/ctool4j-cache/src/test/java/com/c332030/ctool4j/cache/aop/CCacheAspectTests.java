@@ -68,14 +68,14 @@ public class CCacheAspectTests {
     public void cacheErrorPropagates() {
 
         val errorId = 999;
-        val ex = Assertions.assertThrows(
+        val ex = Assertions.assertThrowsExactly(
             IllegalStateException.class,
             () -> cacheTestService.error(errorId)
         );
         Assertions.assertTrue(ex.getMessage().contains("cache error: " + errorId));
 
         // 异常未写入缓存：再次调用仍抛异常（而非命中缓存返回）
-        Assertions.assertThrows(
+        Assertions.assertThrowsExactly(
             IllegalStateException.class,
             () -> cacheTestService.error(errorId)
         );
