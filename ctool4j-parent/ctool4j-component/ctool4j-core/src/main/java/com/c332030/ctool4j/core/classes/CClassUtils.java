@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.classes;
 
+import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CCollectors;
 import com.c332030.ctool4j.core.util.CMapUtils;
@@ -89,11 +90,29 @@ public class CClassUtils {
 
     /**
      * 判断是否为 JDK 类
+     * <p>结果按类缓存（类所属包名固定，判断结果不会变化），消除热路径每次
+     * 类名前缀匹配开销</p>
      *
      * @param clazz 类
      * @return 是否为 JDK 类
      */
     public boolean isJdkClass(Class<?> clazz) {
+        return IS_JDK_CLASS_CLASS_VALUE.get(clazz);
+    }
+
+    /**
+     * JDK 类判断缓存（按类）
+     */
+    private static final CClassValue<Boolean> IS_JDK_CLASS_CLASS_VALUE =
+            CClassValue.of(CClassUtils::checkJdkClass);
+
+    /**
+     * 判断是否为 JDK 类（不缓存）
+     *
+     * @param clazz 类
+     * @return 是否为 JDK 类
+     */
+    private static boolean checkJdkClass(Class<?> clazz) {
 
         if (BASE_CLASSES.contains(clazz)) {
             return true;

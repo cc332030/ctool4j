@@ -18,6 +18,9 @@ import lombok.val;
 import lombok.var;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,6 +51,85 @@ public class CReflectUtils {
                         return field;
                     }
             ));
+
+    /**
+     * 实例字段（非静态）名到字段的缓存
+     */
+    public static final CClassValue<Map<String, Field>> INSTANCE_FIELD_MAP_CLASS_VALUE =
+            CClassValue.of(type -> CClassUtils.getMap(
+                    type,
+                    Class::getDeclaredFields,
+                    field -> !CReflectUtils.isStatic(field),
+                    Field::getName,
+                    field -> {
+                        field.setAccessible(true);
+                        return field;
+                    }
+            ));
+
+    /**
+     * getter MethodHandle 的统一签名：以 Object 接收者取 Object 值
+     */
+    private static final MethodType GETTER_HANDLE_TYPE = MethodType.methodType(Object.class, Object.class);
+
+    /**
+     * setter MethodHandle 的统一签名：以 Object 接收者写入 Object 值
+     */
+    private static final MethodType SETTER_HANDLE_TYPE = MethodType.methodType(void.class, Object.class, Object.class);
+
+    /**
+     * 实例字段 getter MethodHandle 缓存（非静态字段）
+     */
+    public static final CClassValue<Map<String, MethodHandle>> GETTER_HANDLE_MAP_CLASS_VALUE =
+            CClassValue.of(type -> CClassUtils.getMap(
+                    type,
+                    Class::getDeclaredFields,
+                    field -> !CReflectUtils.isStatic(field),
+                    Field::getName,
+                    CReflectUtils::getGetterHandle
+            ));
+
+    /**
+     * 实例字段 setter MethodHandle 缓存（非静态、非 final 字段）
+     */
+    public static final CClassValue<Map<String, MethodHandle>> SETTER_HANDLE_MAP_CLASS_VALUE =
+            CClassValue.of(type -> CClassUtils.getMap(
+                    type,
+                    Class::getDeclaredFields,
+                    field -> !CReflectUtils.isStatic(field) && !CReflectUtils.isFinal(field),
+                    Field::getName,
+                    CReflectUtils::getSetterHandle
+            ));
+
+    /**
+     * 创建字段 getter MethodHandle（统一转为 Object 签名，运行时按实际类型插桩）
+     *
+     * @param field 字段
+     * @return getter MethodHandle
+     */
+    private static MethodHandle getGetterHandle(Field field) {
+        try {
+            field.setAccessible(true);
+            return MethodHandles.lookup().unreflectGetter(field).asType(GETTER_HANDLE_TYPE);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("can't create getter handle for field: " + field, e);
+        }
+    }
+
+    /**
+     * 创建字段 setter MethodHandle（统一转为 Object 签名，运行时按实际类型插桩）
+     *
+     * @param field 字段
+     * @return setter MethodHandle
+     */
+    private static MethodHandle getSetterHandle(Field field) {
+        try {
+            field.setAccessible(true);
+            return MethodHandles.lookup().unreflectSetter(field).asType(SETTER_HANDLE_TYPE);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("can't create setter handle for field: " + field, e);
+        }
+    }
 
     /**
      * 构造器按参数个数分组的缓存
@@ -148,6 +230,8 @@ public class CReflectUtils {
 
     /**
      * 通过无参构造器实例化对象
+     * <p>构造器 MethodHandle 按类缓存（复用 {@link CMethodHandleUtils} 生成的 handle），
+     * 消除热路径每次的构造器查表与弱 key 缓存查找开销</p>
      *
      * @param tClass 类
      * @param <T>    类型
@@ -155,12 +239,20 @@ public class CReflectUtils {
      */
     @SneakyThrows
     public <T> T newInstance(Class<T> tClass) {
-
-        val noArgConstructor = getNoArgConstructor(tClass);
-        CAssert.notNull(noArgConstructor, () -> " can't find no arg constructor, class: " + tClass);
-
-        return CObjUtils.anyType(noArgConstructor.newInstance());
+        return CObjUtils.anyType(NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE.get(tClass).invoke());
     }
+
+    /**
+     * 无参构造器 MethodHandle 缓存（按类）
+     */
+    private static final CClassValue<MethodHandle> NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE =
+            CClassValue.of(type -> {
+
+                val noArgConstructor = getNoArgConstructor(type);
+                CAssert.notNull(noArgConstructor, () -> " can't find no arg constructor, class: " + type);
+
+                return CMethodHandleUtils.getHandle(noArgConstructor);
+            });
 
     /**
      * 通过构造器实例化对象
@@ -299,12 +391,32 @@ public class CReflectUtils {
     }
 
     /**
-     * 获取类的实例变量 map
+     * 获取类的实例变量 map（缓存，只读使用）
      * @param type 类
      * @return 实例变量 map
      */
     public Map<String, Field> getInstanceFieldMap(Class<?> type) {
-        return getFieldMap(type, e -> !CReflectUtils.isStatic(e));
+        return INSTANCE_FIELD_MAP_CLASS_VALUE.get(type);
+    }
+
+    /**
+     * 获取类实例字段 getter MethodHandle map（非静态字段，含 final，缓存）
+     *
+     * @param type 类
+     * @return 字段名到 getter MethodHandle 的 map
+     */
+    public Map<String, MethodHandle> getGetterHandleMap(Class<?> type) {
+        return GETTER_HANDLE_MAP_CLASS_VALUE.get(type);
+    }
+
+    /**
+     * 获取类实例字段 setter MethodHandle map（非静态、非 final 字段，缓存）
+     *
+     * @param type 类
+     * @return 字段名到 setter MethodHandle 的 map
+     */
+    public Map<String, MethodHandle> getSetterHandleMap(Class<?> type) {
+        return SETTER_HANDLE_MAP_CLASS_VALUE.get(type);
     }
 
     /**
@@ -385,6 +497,8 @@ public class CReflectUtils {
 
     /**
      * 获取对象指定字段的值
+     * <p>非静态字段使用缓存的 MethodHandle 快速路径，静态字段回退 Field.get；
+     * 类型不匹配时抛 ClassCastException（Field.get 抛 IllegalArgumentException），为性能取舍</p>
      *
      * @param object     对象
      * @param field      字段
@@ -397,7 +511,11 @@ public class CReflectUtils {
         if (!accessible) {
             field.setAccessible(true);
         }
-        return CObjUtils.anyType(field.get(object));
+        val handle = GETTER_HANDLE_MAP_CLASS_VALUE.get(field.getDeclaringClass()).get(field.getName());
+        if (null == handle) {
+            return CObjUtils.anyType(field.get(object));
+        }
+        return CObjUtils.anyType(handle.invoke(object));
     }
 
     /**
@@ -425,6 +543,8 @@ public class CReflectUtils {
 
     /**
      * 设置对象指定字段的值
+     * <p>非静态非 final 字段使用缓存的 MethodHandle 快速路径，静态/final 字段回退 Field.set；
+     * 类型不匹配时抛 ClassCastException（Field.set 抛 IllegalArgumentException），为性能取舍</p>
      *
      * @param object     对象
      * @param field      字段
@@ -436,7 +556,12 @@ public class CReflectUtils {
         if (!accessible) {
             field.setAccessible(true);
         }
-        field.set(object, value);
+        val handle = SETTER_HANDLE_MAP_CLASS_VALUE.get(field.getDeclaringClass()).get(field.getName());
+        if (null == handle) {
+            field.set(object, value);
+            return;
+        }
+        handle.invoke(object, value);
     }
 
     /**

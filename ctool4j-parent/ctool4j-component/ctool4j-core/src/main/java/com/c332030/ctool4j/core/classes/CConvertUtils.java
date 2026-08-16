@@ -78,30 +78,56 @@ public class CConvertUtils {
 
     /**
      * 类型转换器缓存（按源类型与目标类型查找）
+     * <p>Object 源类型转换器（如 Object→String）为兜底、优先级最低：仅在无更精确
+     * 转换器匹配时命中，避免抢占 Date→String 等特殊转换。</p>
      */
     public final CBiClassValue<CFunction<Object, ?>> VALUE_SET_CLASS_VALUE =
-            CBiClassValue.of((fromClass, toClass) -> {
+            CBiClassValue.of((fromClass, toClass) -> findConverter(fromClass, toClass, true));
 
-                if(Collection.class.isAssignableFrom(fromClass)
-                        || Map.class.isAssignableFrom(fromClass)
-                        || fromClass.isArray()
-                ) {
-                    return null;
-                }
+    /**
+     * 查找类型转换器
+     *
+     * @param fromClass 源类型
+     * @param toClass   目标类型
+     * @param includeObjectFallback 是否包含 Object 源兜底转换器（如 Object→String）
+     * @return 转换器，未匹配时返回 null
+     */
+    private static CFunction<Object, ?> findConverter(
+            Class<?> fromClass,
+            Class<?> toClass,
+            boolean includeObjectFallback
+    ) {
 
-                if(toClass.isAssignableFrom(fromClass)) {
-                    return CFunction.SELF;
-                }
+        if(Collection.class.isAssignableFrom(fromClass)
+                || Map.class.isAssignableFrom(fromClass)
+                || fromClass.isArray()
+        ) {
+            return null;
+        }
 
-                for (val classConverter : CLASS_CONVERTERS) {
-                    if(classConverter.getFromClass().isAssignableFrom(fromClass)
-                            && classConverter.getToClass().isAssignableFrom(toClass)) {
-                        return CObjUtils.anyType(classConverter.getConverter());
+        if(toClass.isAssignableFrom(fromClass)) {
+            return CFunction.SELF;
+        }
+
+        CFunction<Object, ?> objectFallback = null;
+        for (val classConverter : CLASS_CONVERTERS) {
+            if(classConverter.getFromClass().isAssignableFrom(fromClass)
+                    && classConverter.getToClass().isAssignableFrom(toClass)) {
+
+                if(classConverter.getFromClass() == Object.class) {
+                    // Object 源兜底最后匹配（优先级最低），记录后继续找更精确的
+                    if(null == objectFallback) {
+                        objectFallback = CObjUtils.anyType(classConverter.getConverter());
                     }
+                    continue;
                 }
 
-                return null;
-            });
+                return CObjUtils.anyType(classConverter.getConverter());
+            }
+        }
+
+        return includeObjectFallback ? objectFallback : null;
+    }
 
     /**
      * 获取类型转换器
@@ -113,6 +139,20 @@ public class CConvertUtils {
      */
     public <To> CFunction<Object, To> getConverter(Class<?> fromClass, Class<To> toClass) {
         return CObjUtils.anyType(VALUE_SET_CLASS_VALUE.get(fromClass, toClass));
+    }
+
+    /**
+     * 获取类型转换器（排除 Object 源兜底，如 Object→String）
+     * <p>用于按声明类型解析转换路径：若仅 Object 源兜底可匹配，说明运行期实际值
+     * 类型可能命中更精确的转换器（如 Date→String），应回退到运行期按实际值类型判断。</p>
+     *
+     * @param fromClass 源类型
+     * @param toClass   目标类型
+     * @param <To>      目标类型
+     * @return 转换器，未匹配时返回 null
+     */
+    public <To> CFunction<Object, To> getConverterNoObjectFallback(Class<?> fromClass, Class<To> toClass) {
+        return CObjUtils.anyType(findConverter(fromClass, toClass, false));
     }
 
     /**

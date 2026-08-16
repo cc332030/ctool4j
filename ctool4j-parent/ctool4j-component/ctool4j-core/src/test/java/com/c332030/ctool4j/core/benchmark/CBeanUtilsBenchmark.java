@@ -43,6 +43,8 @@ public class CBeanUtilsBenchmark {
     public static List<BenchmarkCase> cases() {
         return Arrays.asList(
                 new CBeanUtilsCopyCase(),
+                new CBeanUtilsCopyOldPathCase(),
+                new CBeanUtilsCopyReuseTargetCase(),
                 new SpringBeanUtilsCopyCase(),
                 new HutoolBeanUtilCopyCase(),
                 new CglibBeanCopierCase(),
@@ -140,6 +142,55 @@ public class CBeanUtilsBenchmark {
         @Override
         public Object run() {
             return CBeanUtils.copy(source, BenchBean.class);
+        }
+    }
+
+    /**
+     * CBeanUtils.copy 旧实现路径（经 toMap 中转，模拟修复前组合方式，用于对比修复效果）
+     */
+    private static class CBeanUtilsCopyOldPathCase implements BenchmarkCase {
+
+        private BenchBean source;
+
+        @Override
+        public String name() {
+            return "CBeanUtils.copy(经Map)";
+        }
+
+        @Override
+        public void prepare() {
+            source = newSource();
+        }
+
+        @Override
+        public Object run() {
+            return CBeanUtils.copy(CBeanUtils.toMap(source), BenchBean.class);
+        }
+    }
+
+    /**
+     * CBeanUtils.copy 直连路径（复用目标实例，隔离 newInstance 反射构造开销）
+     */
+    private static class CBeanUtilsCopyReuseTargetCase implements BenchmarkCase {
+
+        private BenchBean source;
+
+        private BenchBean target;
+
+        @Override
+        public String name() {
+            return "CBeanUtils.copy(复用目标)";
+        }
+
+        @Override
+        public void prepare() {
+            source = newSource();
+            target = new BenchBean();
+        }
+
+        @Override
+        public Object run() {
+            return CBeanUtils.copy(source, target);
         }
     }
 
