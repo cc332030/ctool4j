@@ -6,10 +6,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
-import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 
 /**
@@ -63,77 +61,31 @@ public class CLambdaUtils {
     }
 
     /**
-     * 根据方法句柄生成 Lambda 实例
-     *
-     * @param methodHandle          直接方法句柄（须为 direct handle；类型适配由 LambdaMetafactory 内部完成，支持基本类型装箱/拆箱）
-     * @param lambdaClass           Lambda 接口类
-     * @param lambdaMethodName      Lambda 接口抽象方法名（如 CFunction 为 applyThrowable）
-     * @param samMethodType         接口抽象方法的泛型签名（如 (Object)Object）
-     * @param instantiatedMethodType 接口方法实例化后的具体类型
-     * @param <T>                   Lambda 类型
-     * @return Lambda 实例
-     */
-    @SneakyThrows
-    public <T> T getLambda(
-            MethodHandle methodHandle,
-            Class<T> lambdaClass,
-            String lambdaMethodName,
-            MethodType samMethodType,
-            MethodType instantiatedMethodType
-    ) {
-
-        val callSite = LambdaMetafactory.metafactory(
-                LOOKUP,
-                lambdaMethodName, // 函数式接口的抽象方法名
-                MethodType.methodType(lambdaClass), // 生成的 Lambda 类型
-                samMethodType, // 接口抽象方法的泛型签名
-                methodHandle, // 直接方法句柄（不能用 asType 包装，否则非 direct handle 导致 metafactory 抛异常）
-                instantiatedMethodType // 接口方法实例化后的具体类型
-        );
-
-        val invokeExact = callSite.getTarget().invokeExact();
-        return CObjUtils.anyType(invokeExact);
-    }
-
-    /**
      * 获取字段读取 Lambda
-     * <p>CFunction 的抽象方法为 applyThrowable（apply 为 default 覆写），须以抽象方法名生成。</p>
+     * <p>JDK 8 的 LambdaMetafactory 不支持 getField/putField 类直接方法句柄
+     * （抛 "Unsupported MethodHandle kind: getField"），故委托 MethodHandle.invoke 调用，
+     * 每次调用做参数适配与装箱（JDK 8 兼容性取舍，避免直接反射 Field.get）</p>
      *
      * @param clazz 类
      * @param field 字段
      * @return 字段读取 Lambda
      */
-    @SneakyThrows
     public CFunction<Object, Object> getFieldGetLambda(Class<?> clazz, Field field) {
-        val lambda = getLambda(
-                getGetterMethodHandle(clazz, field),
-                CFunction.class,
-                "applyThrowable",
-                MethodType.methodType(Object.class, Object.class),
-                MethodType.methodType(Object.class, Object.class)
-        );
-        return CObjUtils.anyType(lambda);
+        val handle = getGetterMethodHandle(clazz, field);
+        return handle::invoke;
     }
 
     /**
      * 获取字段写入 Lambda
-     * <p>CBiConsumer 的抽象方法为 acceptThrowable（accept 为 default 覆写），须以抽象方法名生成。</p>
+     * <p>同 {@link #getFieldGetLambda}，委托 MethodHandle.invoke 调用</p>
      *
      * @param clazz 类
      * @param field 字段
      * @return 字段写入 Lambda
      */
-    @SneakyThrows
     public CBiConsumer<Object, Object> getFieldSetLambda(Class<?> clazz, Field field) {
-        val lambda = getLambda(
-                getSetterMethodHandle(clazz, field),
-                CBiConsumer.class,
-                "acceptThrowable",
-                MethodType.methodType(void.class, Object.class, Object.class),
-                MethodType.methodType(void.class, Object.class, Object.class)
-        );
-        return CObjUtils.anyType(lambda);
-
+        val handle = getSetterMethodHandle(clazz, field);
+        return handle::invoke;
     }
 
 }

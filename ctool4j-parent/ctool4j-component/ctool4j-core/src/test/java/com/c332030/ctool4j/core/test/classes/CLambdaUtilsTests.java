@@ -18,12 +18,14 @@ public class CLambdaUtilsTests {
 
     /**
      * 测试 Bean：覆盖基本类型与引用类型字段
+     * <p>字段须为 public：CLambdaUtils 的 Lookup 基于其自身类，Lookup.in(clazz) 跨包时仅保留
+     * PUBLIC 访问级别，无法 unreflectGetter/unreflectSetter 跨包私有字段（JDK 8 无 privateLookupIn）</p>
      */
     public static class ValueBean {
 
-        private long id;
+        public long id;
 
-        private String name;
+        public String name;
 
     }
 
