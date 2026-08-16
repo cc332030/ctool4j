@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.controller;
 
+import com.c332030.ctool4j.core.util.CNumUtils;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 /**
  * <p>
@@ -40,7 +42,10 @@ public class CErrorController implements ErrorController {
             log.error("error with code: {}", statusCodeStr, exception);
         }
 
-        val httpStatus = HttpStatus.valueOf(Integer.parseInt(statusCodeStr));
+        // 直接访问 /error 时 ERROR_STATUS_CODE 为空或非法，兜底返回 500
+        val httpStatus = Optional.ofNullable(CNumUtils.parseIntDefaultNull(statusCodeStr))
+            .map(HttpStatus::resolve)
+            .orElse(HttpStatus.INTERNAL_SERVER_ERROR);
         return CStrResult.error(httpStatus);
     }
 
