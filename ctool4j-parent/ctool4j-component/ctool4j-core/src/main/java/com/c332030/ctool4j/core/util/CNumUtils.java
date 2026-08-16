@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
@@ -543,11 +544,19 @@ public class CNumUtils {
 
     /**
      * long 值转 62 进制字符串
+     * <p>不支持负数输入，0 的 62 进制表示为 "0"。</p>
      *
-     * @param value long 值
+     * @param value 非负 long 值
      * @return 62 进制字符串
+     * @throws IllegalArgumentException 输入为负数时抛出
      */
     public String to62(long value) {
+
+        Assert.isTrue(value >= 0, "to62 not support negative value: " + value);
+
+        if (value == 0) {
+            return "0";
+        }
 
         val sb = new StringBuilder();
         while (value != 0) {
