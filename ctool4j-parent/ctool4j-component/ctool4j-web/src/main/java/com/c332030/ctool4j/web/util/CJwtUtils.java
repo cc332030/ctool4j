@@ -1,11 +1,13 @@
 package com.c332030.ctool4j.web.util;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.jwt.JWTUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
+import com.c332030.ctool4j.core.util.CCharsets;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -37,25 +39,31 @@ public class CJwtUtils {
 
     /**
      * 创建 jwt
-     * @param body body
-     * @param secret 密钥
+     *
+     * @param body   body
+     * @param secret 密钥，不能为空白
      * @return jwt
+     * @throws IllegalArgumentException secret 为空白时抛出
      */
     public String create(Map<String, Object> body, String secret) {
+        Assert.isTrue(StrUtil.isNotBlank(secret), "secret must not be blank");
         return JWTUtil.createToken(
             body,
-            secret.getBytes()
+            secret.getBytes(CCharsets.UTF_8)
         );
     }
 
     /**
      * 验证
-     * @param jwt jwt
-     * @param secret 密钥
+     *
+     * @param jwt    jwt
+     * @param secret 密钥，不能为空白
      * @return 验证结果
+     * @throws IllegalArgumentException secret 为空白时抛出
      */
     public boolean verify(String jwt, String secret) {
-        return JWTUtil.verify(jwt, secret.getBytes());
+        Assert.isTrue(StrUtil.isNotBlank(secret), "secret must not be blank");
+        return JWTUtil.verify(jwt, secret.getBytes(CCharsets.UTF_8));
     }
 
     /**
