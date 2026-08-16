@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
  * 已知差异（旧缺口修复，javadoc 已注明）：原始类型同型字段旧实现无转换器跳过、
  * 新实现计划期 SELF 直接写入；源声明集合父类型实际持有集合旧实现跳过、新实现直接写入。
  * </p>
+ * <p>
+ * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见
+ * 设计文档 doc/design/cbean-utils.adoc。
+ * </p>
  *
  * @since 2026/8/16
  */
@@ -369,18 +373,11 @@ public class CBeanUtilsCompatibilityTests {
     // ============================ 兼容性测试 ============================
 
     /**
-     * 全字段复制兼容：基础/包装/日期/Object/父类型声明/继承/null/final/集合/无转换器字段
+     * 全字段复制兼容：基础/包装/日期/Object/父类型声明/继承/null/final/集合/无转换器字段；
+     * 其中声明 Object/Serializable 实际持有 Date 转 String 命中格式化（objectStr 优先级最低）也由本用例覆盖
      */
     @Test
     public void copyFullCompatibility() {
-        assertCopySame(newFullFrom(), FullTo.class);
-    }
-
-    /**
-     * 类型转换兼容：声明 Object/Serializable 实际持有 Date 转 String 命中格式化（objectStr 优先级最低）
-     */
-    @Test
-    public void copyObjectStrCompatibility() {
         assertCopySame(newFullFrom(), FullTo.class);
     }
 
