@@ -188,7 +188,10 @@ public class CUrlUtils {
             return Collections.emptyMap();
         }
 
-        val urlArr = url.split("\\?");
+        // 未解码前剥离 fragment（# 之后的部分），# 编码为 %23 不受影响
+        val noFragment = url.split("#", 2)[0];
+
+        val urlArr = noFragment.split("\\?");
         if(urlArr.length < 2) {
             return Collections.emptyMap();
         }
@@ -197,7 +200,8 @@ public class CUrlUtils {
         val map = new LinkedHashMap<String, String>(paramsArr.length);
         for (String param : paramsArr) {
 
-            val paramArr = param.split("=");
+            // 按第一个 = 分割，值中含 = 时保留完整
+            val paramArr = param.split("=", 2);
             if(paramArr.length < 2) {
                 continue;
             }
