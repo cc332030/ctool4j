@@ -163,6 +163,15 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 - newInstance：正常类、无 public 无参构造器抛异常
 - 无转换器跳过：`copyNoConverterSkip`（StringBuilder→StringBuffer）
 - 原始类型同型：`copyPrimitiveTypeFields`（int→int 直接写入）
+- 类型转换覆盖（CClassConvert 注册转换器、对象路径计划期 fast 写入）：
+  - 包装→基础拆箱 `copyWrapperToPrimitive`、Long→int `copyLongToInt`、int→Long `copyIntToLong`
+  - String→数字/布尔 `copyStrToNumber`（toInt/toLong/toBigDecimal/toFloat/toDouble/toBoolean）
+  - 数字/布尔→String `copyNumberToStr`（intStr/longStr/bigDecimalStr/floatStr/doubleStr/booleanStr）
+  - 日期互转 `copyDateConvert`（parseDateTime→String↔Date、toMills/fromMills→Date↔Long、
+    toInstant/toDate→Date↔Instant、formatDateTime→Date→String）
+  - 数字→BigDecimal `copyToBigDecimal`（int/long/Integer/Long/double/float→BigDecimal）
+  - BigDecimal→double/float、Float→double `copyDecimalToFloatDouble`
+  - ICValue 枚举→Integer/String `copyEnumToValue`（toEnumIntegerValue/toEnumStringValue）
 
 === 2.5 用例设计要点与边界
 
