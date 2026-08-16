@@ -56,6 +56,7 @@ public class CJobUtils {
                 .toInstant()
                 ;
 
+        // 故意多减 1 小时（时间窗口向前多覆盖 1 小时），避免任务执行延迟导致边界数据漏处理
         val startTime = endTime
                 .minus(1, ChronoUnit.HOURS)
                 .minus(days, ChronoUnit.DAYS);
