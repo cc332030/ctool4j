@@ -77,6 +77,10 @@ public class CAuthUtils {
      */
     public String getToken(HttpServletRequest request, String prefix) {
 
+        if(null == request) {
+            return null;
+        }
+
         val authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(StrUtil.isEmpty(authorization)
             || !authorization.startsWith(prefix)
