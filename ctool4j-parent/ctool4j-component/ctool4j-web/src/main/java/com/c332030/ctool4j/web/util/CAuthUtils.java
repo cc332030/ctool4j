@@ -22,7 +22,7 @@ public class CAuthUtils {
     /**
      * token 前缀
      */
-    public String TOKEN_PREFIX = "Bearer";
+    public final String TOKEN_PREFIX = "Bearer";
 
     /**
      * 移除前缀
