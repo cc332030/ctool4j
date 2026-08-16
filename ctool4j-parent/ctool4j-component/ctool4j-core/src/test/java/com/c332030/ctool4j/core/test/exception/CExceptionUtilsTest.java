@@ -28,4 +28,29 @@ public class CExceptionUtilsTest {
 
     }
 
+    /**
+     * 测试获取异常链信息：异常为 null 时返回 null（Q17）
+     */
+    @Test
+    public void getMessageWithCauseNull() {
+
+        Assertions.assertNull(CExceptionUtils.getMessageWithCause(null));
+
+    }
+
+    /**
+     * 测试获取异常链信息：包含 cause 时拼接展示
+     */
+    @Test
+    public void getMessageWithCause() {
+
+        val cause = new IllegalArgumentException("cause");
+        val ex = new IllegalStateException("main", cause);
+        val message = CExceptionUtils.getMessageWithCause(ex);
+
+        Assertions.assertTrue(message.contains("main"));
+        Assertions.assertTrue(message.contains("cause"));
+
+    }
+
 }

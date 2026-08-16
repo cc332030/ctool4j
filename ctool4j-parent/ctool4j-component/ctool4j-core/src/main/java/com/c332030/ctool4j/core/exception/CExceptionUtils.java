@@ -218,9 +218,13 @@ public class CExceptionUtils {
      * 获取异常信息及其所有 cause 信息
      *
      * @param throwable 异常
-     * @return 异常链信息
+     * @return 异常链信息；异常为 null 时返回 null
      */
     public String getMessageWithCause(Throwable throwable) {
+
+        if(null == throwable) {
+            return null;
+        }
 
         val throwableSet = new LinkedHashSet<Throwable>();
 
