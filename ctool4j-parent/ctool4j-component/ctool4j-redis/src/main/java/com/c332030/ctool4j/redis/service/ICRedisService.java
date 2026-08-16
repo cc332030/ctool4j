@@ -238,7 +238,7 @@ public interface ICRedisService<K, V> {
                 @SuppressWarnings("unchecked")
                 val valueSerializer = (RedisSerializer<V>)redisTemplate.getValueSerializer();
                 val valueInRedis = valueSerializer.deserialize(valueBytes);
-                value = convert.apply(valueInRedis);
+                value = CObjUtils.convert(valueInRedis, convert);
             }
 
             return new CValueWithTtl<>(value, ttl);
