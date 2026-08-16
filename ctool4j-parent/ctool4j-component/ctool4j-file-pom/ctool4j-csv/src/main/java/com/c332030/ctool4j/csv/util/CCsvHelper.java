@@ -96,6 +96,11 @@ public class CCsvHelper {
     @SneakyThrows
     public List<Map<String, String>> doRead(InputStreamReader reader) {
 
+        // null 输入视为空数据，返回空集合，避免依赖底层库对 null 的异常行为（不同版本抛错类型不一致）
+        if(reader == null) {
+            return Collections.emptyList();
+        }
+
         val csvFormat = getCsvFormatBuilder()
             .get();
         try(val csvParser = csvFormat.parse(reader)) {
@@ -123,6 +128,10 @@ public class CCsvHelper {
      * @return 表头与值的映射列表
      */
     public List<Map<String, String>> doRead(InputStream inputStream) {
+        // null 输入视为空数据，返回空集合，与 doRead(InputStreamReader) 行为保持一致
+        if(inputStream == null) {
+            return Collections.emptyList();
+        }
         if(!(inputStream instanceof BufferedInputStream)) {
             inputStream = new BufferedInputStream(inputStream);
         }
