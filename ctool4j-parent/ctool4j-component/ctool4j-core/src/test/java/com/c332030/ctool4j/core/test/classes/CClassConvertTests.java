@@ -50,7 +50,14 @@ public class CClassConvertTests {
     @Test
     public void toInt_error() {
 
-        Assertions.assertThrows(NumberFormatException.class, () -> CClassConvert.toInt("abc"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toInt("abc"));
+
+        // 笔误值/随意捏造值/范围外值
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toInt("1.5"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toInt("1,000"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toInt("!@#"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toInt("0x1F"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toInt("99999999999"));
 
     }
 
@@ -97,7 +104,12 @@ public class CClassConvertTests {
     @Test
     public void toLong_error() {
 
-        Assertions.assertThrows(NumberFormatException.class, () -> CClassConvert.toLong("abc"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toLong("abc"));
+
+        // 笔误值/随意捏造值/范围外值
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toLong("1.5"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toLong("1,000"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toLong("99999999999999999999"));
 
     }
 
@@ -171,7 +183,9 @@ public class CClassConvertTests {
         Assertions.assertEquals(new BigDecimal("0"), CClassConvert.toBigDecimal("0"));
         Assertions.assertEquals(new BigDecimal("123.45"), CClassConvert.toBigDecimal("123.45"));
         Assertions.assertNull(CClassConvert.toBigDecimal(""));
-        Assertions.assertThrows(NumberFormatException.class, () -> CClassConvert.toBigDecimal(" "));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toBigDecimal(" "));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toBigDecimal("abc"));
+        Assertions.assertThrowsExactly(NumberFormatException.class, () -> CClassConvert.toBigDecimal("1,000"));
         Assertions.assertNull(CClassConvert.toBigDecimal((String) null));
 
     }
