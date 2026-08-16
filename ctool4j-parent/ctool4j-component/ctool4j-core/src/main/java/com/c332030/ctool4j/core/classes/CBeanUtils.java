@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.cache.impl.CBiClassValue;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
@@ -438,7 +439,8 @@ public class CBeanUtils {
             return CFunction.EMPTY;
         }
 
-        if(toClass.isAssignableFrom(valueClass)) {
+        // ClassUtil.isAssignable(目标, 源) 支持原始类型与包装类等价（如 int←Integer 拆箱），直接按 SELF 写入
+        if(ClassUtil.isAssignable(toClass, valueClass)) {
             return CFunction.SELF;
         }
 
@@ -499,8 +501,9 @@ public class CBeanUtils {
             val setterHandle = CMethodHandleUtils.getSetterHandleAsType(toField);
 
             // 声明类型可直接赋值：计划期确定直接写入（Object 声明除外——值类型不确定，
-            // 可能持有集合，需回退运行期按实际值类型分派）
-            if(Object.class != fromType && toType.isAssignableFrom(fromType)) {
+            // 可能持有集合，需回退运行期按实际值类型分派）；
+            // ClassUtil.isAssignable(目标, 源) 支持原始类型与包装类等价（如 int←Integer 拆箱、Integer←int 装箱）
+            if(Object.class != fromType && ClassUtil.isAssignable(toType, fromType)) {
                 fastEntries.add(newFastEntry(getterHandle, setterHandle, CFunction.SELF));
                 continue;
             }

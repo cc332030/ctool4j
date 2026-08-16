@@ -533,4 +533,124 @@ public class CBeanUtilsMoreTests {
         Assertions.assertEquals("name", to.getObjName());
     }
 
+    @Data
+    public static class WrapperToPrimitiveFrom {
+
+        private Integer intValue;
+
+        private Long longValue;
+
+        private Float floatValue;
+
+        private Double doubleValue;
+
+        private Boolean boolValue;
+
+        private Character charValue;
+
+        private Byte byteValue;
+
+        private Short shortValue;
+
+    }
+
+    @Data
+    public static class WrapperToPrimitiveTo {
+
+        private int intValue;
+
+        private long longValue;
+
+        private float floatValue;
+
+        private double doubleValue;
+
+        private boolean boolValue;
+
+        private char charValue;
+
+        private byte byteValue;
+
+        private short shortValue;
+
+    }
+
+    /**
+     * 测试源包装类型 -> 目标基础类型字段（拆箱写入，修复前被静默跳过）
+     * <p>CClassConvert 已有 Long→int（intValue）等转换类，配合 ClassUtil.isAssignable
+     * 支持包装/基础等价后，同类型包装→基础直接拆箱写入（Integer→int 等）</p>
+     */
+    @Test
+    public void copyWrapperToPrimitive() {
+
+        val from = new WrapperToPrimitiveFrom();
+        from.setIntValue(1);
+        from.setLongValue(2L);
+        from.setFloatValue(3.0f);
+        from.setDoubleValue(4.0d);
+        from.setBoolValue(true);
+        from.setCharValue('c');
+        from.setByteValue((byte) 5);
+        from.setShortValue((short) 6);
+
+        val to = CBeanUtils.copy(from, new WrapperToPrimitiveTo());
+
+        Assertions.assertEquals(1, to.getIntValue());
+        Assertions.assertEquals(2L, to.getLongValue());
+        Assertions.assertEquals(3.0f, to.getFloatValue());
+        Assertions.assertEquals(4.0d, to.getDoubleValue());
+        Assertions.assertTrue(to.isBoolValue());
+        Assertions.assertEquals('c', to.getCharValue());
+        Assertions.assertEquals((byte) 5, to.getByteValue());
+        Assertions.assertEquals((short) 6, to.getShortValue());
+    }
+
+    /**
+     * 持有 Long 值的测试对象（LongToIntFrom 与 IntToLongTo 原结构相同，合并复用）
+     */
+    @Data
+    public static class LongValueBean {
+
+        private Long value;
+
+    }
+
+    /**
+     * 持有 int 值的测试对象（IntToLongFrom 与 LongToIntTo 原结构相同，合并复用）
+     */
+    @Data
+    public static class IntValueBean {
+
+        private int value;
+
+    }
+
+    /**
+     * 测试 Long -> int 走 CClassConvert.intValue 转换器（非同类型拆箱场景）
+     */
+    @Test
+    public void copyLongToInt() {
+
+        val from = new LongValueBean();
+        from.setValue(10L);
+
+        val to = CBeanUtils.copy(from, new IntValueBean());
+
+        Assertions.assertEquals(10, to.getValue());
+    }
+
+    /**
+     * 测试 int -> Long 走 CClassConvert.toLong 转换器（copyLongToInt 的反向对称场景）
+     */
+    @Test
+    public void copyIntToLong() {
+
+        val from = new IntValueBean();
+        from.setValue(10);
+
+        val to = CBeanUtils.copy(from, new LongValueBean());
+
+        Assertions.assertEquals(10L, to.getValue());
+    }
+
 }
