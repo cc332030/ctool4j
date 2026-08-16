@@ -18,8 +18,6 @@ public class CLambdaUtilsTests {
 
     /**
      * 测试 Bean：覆盖基本类型与引用类型字段
-     * <p>字段须为 public：CLambdaUtils 的 Lookup 基于其自身类，Lookup.in(clazz) 跨包时仅保留
-     * PUBLIC 访问级别，无法 unreflectGetter/unreflectSetter 跨包私有字段（JDK 8 无 privateLookupIn）</p>
      */
     public static class ValueBean {
 
@@ -42,14 +40,14 @@ public class CLambdaUtilsTests {
 
         // 基本类型字段装箱后经 lambda 读取
         val idField = CReflectUtils.getField(ValueBean.class, "id");
-        val idLambda = CLambdaUtils.getFieldGetLambda(ValueBean.class, idField);
+        val idLambda = CLambdaUtils.getFieldGetLambda(idField);
         Assertions.assertEquals(id, idLambda.apply(bean));
 
         // 引用类型字段经 lambda 读取
         val name = "ctool4j";
         bean.name = name;
         val nameField = CReflectUtils.getField(ValueBean.class, "name");
-        val nameLambda = CLambdaUtils.getFieldGetLambda(ValueBean.class, nameField);
+        val nameLambda = CLambdaUtils.getFieldGetLambda(nameField);
         Assertions.assertEquals(name, nameLambda.apply(bean));
 
     }
@@ -66,14 +64,14 @@ public class CLambdaUtilsTests {
 
         // 基本类型字段经 lambda 写入（拆箱）
         val idField = CReflectUtils.getField(ValueBean.class, "id");
-        val idLambda = CLambdaUtils.getFieldSetLambda(ValueBean.class, idField);
+        val idLambda = CLambdaUtils.getFieldSetLambda(idField);
         idLambda.accept(bean, id);
         Assertions.assertEquals(id, bean.id);
 
         // 引用类型字段经 lambda 写入
         val name = "ctool4j";
         val nameField = CReflectUtils.getField(ValueBean.class, "name");
-        val nameLambda = CLambdaUtils.getFieldSetLambda(ValueBean.class, nameField);
+        val nameLambda = CLambdaUtils.getFieldSetLambda(nameField);
         nameLambda.accept(bean, name);
         Assertions.assertEquals(name, bean.name);
 
