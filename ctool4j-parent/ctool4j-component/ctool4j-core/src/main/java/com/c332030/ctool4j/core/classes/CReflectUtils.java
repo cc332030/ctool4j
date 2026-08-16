@@ -19,8 +19,6 @@ import lombok.var;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,17 +66,7 @@ public class CReflectUtils {
             ));
 
     /**
-     * getter MethodHandle 的统一签名：以 Object 接收者取 Object 值
-     */
-    private static final MethodType GETTER_HANDLE_TYPE = MethodType.methodType(Object.class, Object.class);
-
-    /**
-     * setter MethodHandle 的统一签名：以 Object 接收者写入 Object 值
-     */
-    private static final MethodType SETTER_HANDLE_TYPE = MethodType.methodType(void.class, Object.class, Object.class);
-
-    /**
-     * 实例字段 getter MethodHandle 缓存（非静态字段）
+     * 实例字段 getter MethodHandle 缓存（非静态字段，统一 Object 签名，供 invokeExact 快速路径直接调用）
      */
     public static final CClassValue<Map<String, MethodHandle>> GETTER_HANDLE_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.getMap(
@@ -86,11 +74,11 @@ public class CReflectUtils {
                     Class::getDeclaredFields,
                     field -> !CReflectUtils.isStatic(field),
                     Field::getName,
-                    CReflectUtils::getGetterHandle
+                    CMethodHandleUtils::getGetterHandleAsType
             ));
 
     /**
-     * 实例字段 setter MethodHandle 缓存（非静态、非 final 字段）
+     * 实例字段 setter MethodHandle 缓存（非静态、非 final 字段，统一 Object 签名）
      */
     public static final CClassValue<Map<String, MethodHandle>> SETTER_HANDLE_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.getMap(
@@ -98,38 +86,8 @@ public class CReflectUtils {
                     Class::getDeclaredFields,
                     field -> !CReflectUtils.isStatic(field) && !CReflectUtils.isFinal(field),
                     Field::getName,
-                    CReflectUtils::getSetterHandle
+                    CMethodHandleUtils::getSetterHandleAsType
             ));
-
-    /**
-     * 创建字段 getter MethodHandle（统一转为 Object 签名，运行时按实际类型插桩）
-     *
-     * @param field 字段
-     * @return getter MethodHandle
-     */
-    private static MethodHandle getGetterHandle(Field field) {
-        try {
-            field.setAccessible(true);
-            return MethodHandles.lookup().unreflectGetter(field).asType(GETTER_HANDLE_TYPE);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("can't create getter handle for field: " + field, e);
-        }
-    }
-
-    /**
-     * 创建字段 setter MethodHandle（统一转为 Object 签名，运行时按实际类型插桩）
-     *
-     * @param field 字段
-     * @return setter MethodHandle
-     */
-    private static MethodHandle getSetterHandle(Field field) {
-        try {
-            field.setAccessible(true);
-            return MethodHandles.lookup().unreflectSetter(field).asType(SETTER_HANDLE_TYPE);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("can't create setter handle for field: " + field, e);
-        }
-    }
 
     /**
      * 构造器按参数个数分组的缓存

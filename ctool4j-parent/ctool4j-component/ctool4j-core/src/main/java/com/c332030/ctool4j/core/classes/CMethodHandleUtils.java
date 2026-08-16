@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -20,6 +21,17 @@ import java.lang.reflect.Method;
  */
 @UtilityClass
 public class CMethodHandleUtils {
+
+    /**
+     * getter MethodHandle 的统一签名：以 Object 接收者取 Object 值
+     * <p>运行期 invokeExact 无签名适配开销；原始类型字段由 asType 适配器自动装箱/拆箱</p>
+     */
+    public static final MethodType GETTER_HANDLE_TYPE = MethodType.methodType(Object.class, Object.class);
+
+    /**
+     * setter MethodHandle 的统一签名：以 Object 接收者写入 Object 值
+     */
+    public static final MethodType SETTER_HANDLE_TYPE = MethodType.methodType(void.class, Object.class, Object.class);
 
     /**
      * 生成字段 getter 方法句柄
@@ -81,6 +93,30 @@ public class CMethodHandleUtils {
     @SneakyThrows
     public MethodHandle getSetterHandle(Field field) {
         return SETTER_HANDLE_CACHE.get(field, CMethodHandleUtils::toSetterHandle);
+    }
+
+    /**
+     * 获取字段 getter 方法句柄（统一 Object 签名，带缓存）
+     * <p>与 {@link #getGetterHandle(Field)} 的差异：此处返回 {@link #GETTER_HANDLE_TYPE} 适配后的句柄，
+     * 供 invokeExact 快速路径直接调用；原始类型字段由 asType 适配器自动装箱/拆箱。
+     * 自 {@link CReflectUtils} 迁入（返回 MethodHandle 的方法统一归本类）</p>
+     *
+     * @param field 字段
+     * @return getter 方法句柄（统一 Object 签名）
+     */
+    public MethodHandle getGetterHandleAsType(Field field) {
+        return getGetterHandle(field).asType(GETTER_HANDLE_TYPE);
+    }
+
+    /**
+     * 获取字段 setter 方法句柄（统一 Object 签名，带缓存）
+     * <p>同 {@link #getGetterHandleAsType(Field)} 的签名语义，setter 版本以 {@link #SETTER_HANDLE_TYPE} 适配</p>
+     *
+     * @param field 字段
+     * @return setter 方法句柄（统一 Object 签名）
+     */
+    public MethodHandle getSetterHandleAsType(Field field) {
+        return getSetterHandle(field).asType(SETTER_HANDLE_TYPE);
     }
 
     /**
