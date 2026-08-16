@@ -151,7 +151,7 @@ class CCsvHelperTests {
     @Test
     void doRead_missingColumnThrows() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
-        Assertions.assertThrows(
+        Assertions.assertThrowsExactly(
             ArrayIndexOutOfBoundsException.class,
             () -> helper.doRead(toReader("a,b\n1"))
         );
@@ -190,7 +190,7 @@ class CCsvHelperTests {
     @Test
     void doRead_nullInputStreamThrows() {
         CCsvHelper helper = CCsvHelper.builder();
-        Assertions.assertThrows(Exception.class, () -> helper.doRead((InputStreamReader) null));
+        Assertions.assertThrowsExactly(java.io.IOException.class, () -> helper.doRead((InputStreamReader) null));
     }
 
     // ==================== doWrite ====================
