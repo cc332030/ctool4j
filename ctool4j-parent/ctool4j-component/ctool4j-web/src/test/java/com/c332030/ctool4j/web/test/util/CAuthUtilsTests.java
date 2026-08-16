@@ -102,12 +102,9 @@ public class CAuthUtilsTests {
     }
 
     @Test
-    public void getToken_nullRequest() {
-        // 异常路径：null request 抛出 NPE
-        Assertions.assertThrowsExactly(
-            NullPointerException.class,
-            () -> CAuthUtils.getToken(null, "Bearer")
-        );
+    public void getToken_nullRequest_returnsNull() {
+        // 边界：null request 按无请求处理，返回 null
+        Assertions.assertNull(CAuthUtils.getToken(null, "Bearer"));
     }
 
     @Test
