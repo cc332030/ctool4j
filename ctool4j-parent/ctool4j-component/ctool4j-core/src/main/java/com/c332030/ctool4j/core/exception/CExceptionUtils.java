@@ -208,7 +208,7 @@ public class CExceptionUtils {
     public <T> T ignore(CSupplier<T> supplier, String message) {
         try {
             return CSupplier.get(supplier);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error(message, e);
             return null;
         }
