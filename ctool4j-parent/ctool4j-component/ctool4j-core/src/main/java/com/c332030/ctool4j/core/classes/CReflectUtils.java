@@ -478,9 +478,10 @@ public class CReflectUtils {
      * @param fieldName 字段名
      * @param <T>       值类型
      * @return 字段值
+     * @throws IllegalArgumentException 字段不存在时抛出
      */
     public <T> T getValue(Object object, String fieldName) {
-        return getValue(object, getAllFieldMap(object.getClass()).get(fieldName));
+        return getValue(object, getField(object.getClass(), fieldName));
     }
 
     /**
@@ -524,9 +525,10 @@ public class CReflectUtils {
      * @param object    对象
      * @param fieldName 字段名
      * @param value     值
+     * @throws IllegalArgumentException 字段不存在时抛出
      */
     public void setValue(Object object, String fieldName, Object value) {
-        setValue(object, getAllFieldMap(object.getClass()).get(fieldName), value, true);
+        setValue(object, getField(object.getClass(), fieldName), value, true);
     }
 
 
