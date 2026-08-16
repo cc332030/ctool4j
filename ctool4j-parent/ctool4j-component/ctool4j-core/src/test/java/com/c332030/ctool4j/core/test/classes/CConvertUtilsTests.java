@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.test.classes;
 
 import com.c332030.ctool4j.core.classes.CConvertUtils;
+import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -103,10 +104,32 @@ public class CConvertUtilsTests {
     }
 
     /**
+     * 测试注册无参方法为转换器：不抛异常并跳过注册（Q16）
+     */
+    @Test
+    public void addConverterNoArgMethod() throws NoSuchMethodException {
+
+        val method = NoArgConverterBean.class.getDeclaredMethod("noArg");
+        Assertions.assertDoesNotThrow(() -> CConvertUtils.addConverter(method));
+
+    }
+
+    /**
      * 测试用枚举，实现 toString 语义（此处仅用于验证 Collection 之外的转换回退行为）
      */
     enum EnumBean {
         INSERT
+    }
+
+    /**
+     * 无参方法 Bean（验证 addConverter 跳过注册）
+     */
+    static class NoArgConverterBean {
+
+        public String noArg() {
+            return "no-arg";
+        }
+
     }
 
 }
