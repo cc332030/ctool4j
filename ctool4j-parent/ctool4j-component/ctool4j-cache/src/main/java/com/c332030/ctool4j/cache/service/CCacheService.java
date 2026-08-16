@@ -334,6 +334,11 @@ public class CCacheService {
                 && null != valueWithTtl.getTtl()
             ) {
                 val ttlMillis = valueWithTtl.getTtl() * 1000;
+                if (ttlMillis < 0) {
+                    // TTL=-1 表示 key 存在且无过期时间（永久缓存）：直接返回缓存值，
+                    // 避免每次访问都走加锁计算路径导致缓存形同虚设（Q6）
+                    return valueWithTtl.getValue();
+                }
                 if (ttlMillis > refreshWindow.toMillis()) {
                     // 未到期且未进入刷新窗口，直接返回原值
                     return valueWithTtl.getValue();
@@ -389,11 +394,12 @@ public class CCacheService {
                         .onLockFail(lock -> log.debug("cacheBuilder refreshAsync skip because lock fail, key: {}", key))
                         .execute(() -> {
 
-                            // 双重检查：锁内可能已被其他线程刷新
+                            // 双重检查：锁内可能已被其他线程刷新（未到期）；TTL=-1（永久缓存）也无需刷新；
+                            // TTL=-2（key 不存在）不在此分支，继续计算写缓存（Q6）
                             val currentWithTtl = redisService.getValueWithTtl(key, tClass);
-                            if (null != currentWithTtl
-                                && null != currentWithTtl.getTtl()
-                                && currentWithTtl.getTtl() * 1000 > refreshWindow.toMillis()
+                            val currentTtl = null == currentWithTtl ? null : currentWithTtl.getTtl();
+                            if (null != currentTtl
+                                && (currentTtl == -1L || currentTtl > 0 && currentTtl * 1000 > refreshWindow.toMillis())
                             ) {
                                 log.debug("cacheBuilder refreshAsync skip because refreshed by other thread, key: {}", key);
                                 return null;
