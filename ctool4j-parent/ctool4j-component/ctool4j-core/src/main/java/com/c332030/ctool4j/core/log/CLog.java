@@ -128,18 +128,6 @@ public class CLog {
     }
 
     /**
-     * 打印 debug 日志（跳过 null 参数）
-     *
-     * @param msg  日志信息
-     * @param args 参数
-     */
-    public void debugNonNull(String msg, Object... args) {
-        if(isDebugEnabled()) {
-            log.debug(msg, CLogUtils.toLogArgs(args));
-        }
-    }
-
-    /**
      * 打印 debug 日志（参数延迟求值）
      *
      * @param msg  日志信息
@@ -206,18 +194,6 @@ public class CLog {
     }
 
     /**
-     * 打印 info 日志（跳过 null 参数）
-     *
-     * @param msg  日志信息
-     * @param args 参数
-     */
-    public void infoNonNull(String msg, Object... args) {
-        if(isInfoEnabled()) {
-            log.info(msg, CLogUtils.toLogArgs(args));
-        }
-    }
-
-    /**
      * 是否启用 warn 日志
      *
      * @return 是否启用
@@ -271,18 +247,6 @@ public class CLog {
     }
 
     /**
-     * 打印 warn 日志（跳过 null 参数）
-     *
-     * @param msg  日志信息
-     * @param args 参数
-     */
-    public void warnNonNull(String msg, Object... args) {
-        if(isWarnEnabled()) {
-            log.warn(msg, CLogUtils.toLogArgs(args));
-        }
-    }
-
-    /**
      * 是否启用 error 日志
      *
      * @return 是否启用
@@ -317,18 +281,6 @@ public class CLog {
      * @param args 参数
      */
     public void error(String msg, Object... args) {
-        if(isErrorEnabled()) {
-            log.error(msg, CLogUtils.toLogArgs(args));
-        }
-    }
-
-    /**
-     * 打印 error 日志（跳过 null 参数）
-     *
-     * @param msg  日志信息
-     * @param args 参数
-     */
-    public void errorNonNull(String msg, Object... args) {
         if(isErrorEnabled()) {
             log.error(msg, CLogUtils.toLogArgs(args));
         }

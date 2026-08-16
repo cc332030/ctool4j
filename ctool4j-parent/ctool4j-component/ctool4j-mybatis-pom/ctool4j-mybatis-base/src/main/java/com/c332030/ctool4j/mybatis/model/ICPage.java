@@ -62,7 +62,7 @@ public interface ICPage {
 
     @JsonIgnore
     default String getLimitSql() {
-        return "limit " + getStart() + " " + getPageSize();
+        return "limit " + getStart() + ", " + getPageSize();
     }
 
     @JsonIgnore
