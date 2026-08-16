@@ -129,7 +129,7 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取或创建 namespace 下指定过期时间的 Caffeine Cache
+     * 获取或创建 namespace 下指定过期时间的 Guava Cache
      * <p>
      * 防御：每个 namespace 最多创建 {@value #MAX_EXPIRE_CACHES_PER_NAMESPACE} 个不同 expire 的 Cache 实例，
      * 超过阈值时复用已有的最长过期时间 Cache，防止无界增长。
@@ -144,28 +144,13 @@ public class CCacheAspect {
             return existing;
         }
 
-        // 防御：不同 expire 的 Cache 实例数达到阈值时复用已有最长过期时间的实例，防止无界增长
-        if (expireCaches.asMap().size() >= MAX_EXPIRE_CACHES_PER_NAMESPACE) {
-            val longestExpire = expireCaches.asMap().keySet().stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(expire);
-            return expireCaches.get(longestExpire, this::buildExpireCache);
-        }
-
-        return expireCaches.get(expire, this::buildExpireCache);
-    }
-
-    /**
-     * 构建指定过期时间的 Caffeine Cache
-     */
-    private Cache<String, Object> buildExpireCache(int expire) {
-
-        val builder = CLocalCacheUtils.cacheBuilder();
-        if (expire > 0) {
-            builder.expireAfterWrite(expire, TimeUnit.SECONDS);
-        }
-        return builder.build();
+        return expireCaches.get(expire, e -> {
+            val builder = CLocalCacheUtils.cacheBuilder();
+            if (e > 0) {
+                builder.expireAfterWrite(e, TimeUnit.SECONDS);
+            }
+            return builder.build();
+        });
     }
 
     /**
