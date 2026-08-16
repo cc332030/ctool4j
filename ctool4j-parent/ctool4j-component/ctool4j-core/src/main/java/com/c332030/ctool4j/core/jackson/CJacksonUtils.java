@@ -53,6 +53,16 @@ public class CJacksonUtils {
     public final ObjectMapper OBJECT_MAPPER_LOG;
 
     /**
+     * 保留原生数字类型的 ObjectMapper：Long/BigDecimal 不序列化为字符串
+     * <p>用于 CJsonUtils.toMap 等需要保留数值类型的场景（避免 Long 经 JSON 中转后变 String）；
+     * 对外 JSON 输出仍使用 OBJECT_MAPPER（Long 转字符串防前端溢出）。
+     * 反序列化时整数统一读为 Long、浮点数统一读为 BigDecimal，保证数值类型与精度稳定。
+     * 作为其余 mapper 的构建源头：通用配置（模块注册、feature、json5）仅在此构建一次，
+     * 其他 mapper 基于其 copy() 派生并调整差异点，避免多套构建逻辑漂移</p>
+     */
+    public final ObjectMapper OBJECT_MAPPER_NATIVE;
+
+    /**
      * 自定义序列化/反序列化模块
      */
     private final SimpleModule SIMPLE_MODULE = getDefinedModule();
@@ -64,14 +74,26 @@ public class CJacksonUtils {
      * @return 注册了自定义序列化器的模块
      */
     public SimpleModule getDefinedModule() {
+        return getDefinedModule(true);
+    }
+
+    /**
+     * 构建自定义序列化/反序列化模块
+     *
+     * @param numberToString Long/BigDecimal 是否序列化为字符串（避免前端溢出）
+     * @return 注册了自定义序列化器的模块
+     */
+    public SimpleModule getDefinedModule(boolean numberToString) {
 
         val module = new SimpleModule();
 
-        // Long to String，避免前端溢出
-        module.addSerializer(Long.class, ToStringSerializer.instance);
-        module.addSerializer(long.class, ToStringSerializer.instance);
+        if(numberToString) {
+            // Long to String，避免前端溢出
+            module.addSerializer(Long.class, ToStringSerializer.instance);
+            module.addSerializer(long.class, ToStringSerializer.instance);
 
-        module.addSerializer(BigDecimal.class, ToStringSerializer.instance);
+            module.addSerializer(BigDecimal.class, ToStringSerializer.instance);
+        }
 
         module.addSerializer(Date.class, CDateSerializer.INSTANCE);
         module.addDeserializer(Date.class, CDateDeserializer.INSTANCE);
@@ -88,7 +110,23 @@ public class CJacksonUtils {
 
     static {
 
-        OBJECT_MAPPER = configure(new ObjectMapper());
+        // 先构建 NATIVE（保留原生数字类型），其余 mapper 均基于其派生：
+        // 通用配置（findAndRegisterModules、getDefinedModule、feature、json5）只维护这一处，避免多套构建逻辑漂移
+        OBJECT_MAPPER_NATIVE = new ObjectMapper();
+        OBJECT_MAPPER_NATIVE.findAndRegisterModules();
+        OBJECT_MAPPER_NATIVE.registerModule(getDefinedModule(false));
+        configureFeature(OBJECT_MAPPER_NATIVE);
+        // 反序列化时整数统一读为 Long、浮点数统一读为 BigDecimal，保证数值类型与精度稳定
+        OBJECT_MAPPER_NATIVE.configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
+        OBJECT_MAPPER_NATIVE.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+
+        // 默认 mapper：基于 NATIVE 派生，需纠正两处差异——
+        // 1) 关闭 NATIVE 特化的数值反序列化，恢复默认（整数 Integer/Long 按值、浮点 Double）
+        // 2) 重新注册 Long/BigDecimal -> String 序列化，避免前端溢出
+        OBJECT_MAPPER = OBJECT_MAPPER_NATIVE.copy();
+        OBJECT_MAPPER.configure(DeserializationFeature.USE_LONG_FOR_INTS, false);
+        OBJECT_MAPPER.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, false);
+        OBJECT_MAPPER.registerModule(getDefinedModule(true));
 
         // 不打印 null
         // 不序列化 null 值，兼容飞书消息报错
@@ -135,12 +173,22 @@ public class CJacksonUtils {
         objectMapper.findAndRegisterModules();
         objectMapper.registerModule(SIMPLE_MODULE);
 
+        configureFeature(objectMapper);
+
+        return objectMapper;
+    }
+
+    /**
+     * 配置 ObjectMapper 通用 feature（json5 宽松解析、时间戳关闭等）
+     * <p>供 configure 与 OBJECT_MAPPER_NATIVE 复用，避免两种 mapper 的解析行为不一致</p>
+     */
+    private static void configureFeature(ObjectMapper objectMapper) {
+
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        // 长文本字段占位符（CLogBlob）仅注册到日志专用 OBJECT_MAPPER_LOG，不污染全局 mapper
         // json5
         // 字段名不加引号
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
@@ -156,8 +204,6 @@ public class CJacksonUtils {
         objectMapper.configure(JsonReadFeature.ALLOW_YAML_COMMENTS.mappedFeature(), true);
         // TODO 点开头的小数，低版本不支持
 //        objectMapper.configure(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature(), true);
-
-        return objectMapper;
     }
 
     /**

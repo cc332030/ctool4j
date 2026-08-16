@@ -3,7 +3,7 @@ package com.c332030.ctool4j.core.test.util;
 import com.c332030.ctool4j.core.util.CJsonUtils;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -104,7 +104,8 @@ public class CJsonUtilsTests {
         // 非法 json 抛异常（未知字段/JSON5 宽松语法不抛，此处用结构不匹配的输入）
         Assertions.assertThrowsExactly(MismatchedInputException.class,
                 () -> CJsonUtils.fromJson("[1,2]", TestBean.class));
-        Assertions.assertThrowsExactly(JsonParseException.class,
+        // 未闭合 JSON 抛 JsonEOFException（JsonParseException 子类，需用精确类型断言）
+        Assertions.assertThrowsExactly(JsonEOFException.class,
                 () -> CJsonUtils.fromJson("{\"id\":\"1\"", TestBean.class));
 
         // 合法 json 反序列化
@@ -176,8 +177,8 @@ public class CJsonUtilsTests {
 
         val map = CJsonUtils.toMap(newBean(1L, "a"));
         Assertions.assertEquals("a", map.get("userName"));
-        // Long 序列化为 String 后反序列化为 String
-        Assertions.assertEquals("1", map.get("id"));
+        // Q11 修复：Long 保留数值类型，不再经 JSON 中转变 String
+        Assertions.assertEquals(1L, map.get("id"));
 
         // null 对象返回 null
         Assertions.assertNull(CJsonUtils.toMap(null));

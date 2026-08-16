@@ -207,11 +207,17 @@ public class CJsonUtils {
 
     /**
      * 转 map
+     * <p>使用 OBJECT_MAPPER_NATIVE：Long/BigDecimal 保留数值类型，避免经 JSON 中转后变 String
+     * （与 CBeanUtils.toMap 的类型语义一致）；其余 JSON 语义（属性名、@JsonIgnore、日期格式）与 OBJECT_MAPPER 一致</p>
      * @param object 源对象
      * @return map
      */
     public Map<String, Object> toMap(Object object) {
-        return fromJson(toJson(object));
+        return fromJson(
+            toJson(object, CJacksonUtils.OBJECT_MAPPER_NATIVE),
+            CMapUtils.MAP_STRING_OBJECT_TYPE_REFERENCE,
+            CJacksonUtils.OBJECT_MAPPER_NATIVE
+        );
     }
 
     /**
