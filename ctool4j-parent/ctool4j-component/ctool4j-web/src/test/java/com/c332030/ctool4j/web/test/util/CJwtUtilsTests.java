@@ -7,7 +7,6 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.security.InvalidKeyException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -47,19 +46,23 @@ public class CJwtUtilsTests {
 
     @Test
     public void create_nullSecret_throws() {
-        // 异常路径：null secret 抛出 NPE
+        // 异常路径：null secret 快速失败（IllegalArgumentException）
         Assertions.assertThrowsExactly(
-            NullPointerException.class,
+            IllegalArgumentException.class,
             () -> CJwtUtils.create(Collections.singletonMap("a", 1), null)
         );
     }
 
     @Test
-    public void create_emptySecret() {
-        // 反例：空 secret 抛出异常（hutool JWTUtil 报 Empty key，JDK HmacSHA256 空 key 抛 InvalidKeyException）
+    public void create_emptySecret_throws() {
+        // 反例：空/纯空白 secret 快速失败（IllegalArgumentException）
         Assertions.assertThrowsExactly(
-            InvalidKeyException.class,
+            IllegalArgumentException.class,
             () -> CJwtUtils.create(Collections.singletonMap("a", 1), "")
+        );
+        Assertions.assertThrowsExactly(
+            IllegalArgumentException.class,
+            () -> CJwtUtils.create(Collections.singletonMap("a", 1), "   ")
         );
     }
 
@@ -94,6 +97,28 @@ public class CJwtUtilsTests {
         Assertions.assertThrowsExactly(
             JWTException.class,
             () -> CJwtUtils.verify(null, SECRET)
+        );
+    }
+
+    @Test
+    public void verify_nullSecret_throws() {
+        // 异常路径：null secret 快速失败（IllegalArgumentException）
+        Assertions.assertThrowsExactly(
+            IllegalArgumentException.class,
+            () -> CJwtUtils.verify("not-a-jwt", null)
+        );
+    }
+
+    @Test
+    public void verify_emptySecret_throws() {
+        // 反例：空/纯空白 secret 快速失败（IllegalArgumentException）
+        Assertions.assertThrowsExactly(
+            IllegalArgumentException.class,
+            () -> CJwtUtils.verify("not-a-jwt", "")
+        );
+        Assertions.assertThrowsExactly(
+            IllegalArgumentException.class,
+            () -> CJwtUtils.verify("not-a-jwt", "   ")
         );
     }
 
