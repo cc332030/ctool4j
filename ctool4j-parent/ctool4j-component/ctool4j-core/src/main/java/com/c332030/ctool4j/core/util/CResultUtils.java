@@ -100,7 +100,6 @@ public class CResultUtils {
      * @param result 结果
      * @param <T>    数据类型
      * @return 数据，为 null 时返回 null
-     * @throws Throwable 结果失败时抛出业务异常
      */
     public static <T> T getData(@Nullable ICBaseResult<?, T> result) {
         return getData(result, null);
@@ -112,7 +111,6 @@ public class CResultUtils {
      * @param result 结果
      * @param <T>    数据类型
      * @return 数据或空列表
-     * @throws Throwable 结果失败时抛出业务异常
      */
     public static <T> List<T> getDataDefaultEmptyList(@Nullable ICBaseResult<?, List<T>> result) {
         return getData(result, CList.of());
@@ -125,7 +123,6 @@ public class CResultUtils {
      * @param defaultValue 默认值
      * @param <T>          数据类型
      * @return 数据或默认值
-     * @throws Throwable 结果失败时抛出业务异常
      */
     public static <T> T getData(@Nullable ICBaseResult<?, T> result, T defaultValue) {
 

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  *
  * <p>使用示例：</p>
  * <pre>{@code
- * @CAutoBizService
+ * &#64;CAutoBizService
  * public interface IOrderNo {
  *     String getOrderNo();
  * }}</pre>
