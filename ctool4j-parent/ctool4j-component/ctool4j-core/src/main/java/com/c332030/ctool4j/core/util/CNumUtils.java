@@ -720,6 +720,10 @@ public class CNumUtils {
         if(null == value || null == total) {
             return null;
         }
+        // 总数为 0 无法计算占比，返回 null（不抛 divide 的 IllegalArgumentException）
+        if(BigDecimal.ZERO.compareTo(total) == 0) {
+            return null;
+        }
         return divide(value.multiply(ONE_HUNDRED), total, scale);
     }
 

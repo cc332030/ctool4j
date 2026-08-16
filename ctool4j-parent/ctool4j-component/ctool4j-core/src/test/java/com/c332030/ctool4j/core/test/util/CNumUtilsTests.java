@@ -148,4 +148,20 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试百分比计算：total 为 0 时返回 null
+     */
+    @Test
+    public void percentTotalZero() {
+
+        Assertions.assertNull(CNumUtils.percent(1, 0));
+        Assertions.assertNull(CNumUtils.percent(1L, 0L));
+        Assertions.assertNull(CNumUtils.percent(new BigDecimal(1), BigDecimal.ZERO));
+
+        Assertions.assertNull(CNumUtils.percent(1, 0, 2));
+        Assertions.assertNull(CNumUtils.percent(1L, 0L, 2));
+        Assertions.assertNull(CNumUtils.percent(new BigDecimal(1), BigDecimal.ZERO, 2));
+
+    }
+
 }
