@@ -75,7 +75,8 @@ public class CSpringSecurityUtils {
      * @return 当前用户详情
      */
     public <T extends UserDetails> T getUserDetails() {
-        return CObjUtils.anyType(getPrincipal());
+        // 显式 (Object) 强转，避免泛型 T（擦除为 Object）匹配到 anyType(CSupplier) 重载
+        return CObjUtils.anyType((Object) getPrincipal());
     }
 
     /**
