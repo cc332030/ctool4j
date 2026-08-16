@@ -179,6 +179,8 @@ public class CUrlUtils {
     /**
      * 解析 URL 的查询参数为 Map
      *
+     * <p>无值参数（如 {@code ?a=}）经解码为空串后按 null 处理，不放入结果 Map，视为无该参数（有意设计）</p>
+     *
      * @param url URL
      * @return 参数名到参数值的不可变 Map，URL 为空或无法解析时返回空 Map
      */
