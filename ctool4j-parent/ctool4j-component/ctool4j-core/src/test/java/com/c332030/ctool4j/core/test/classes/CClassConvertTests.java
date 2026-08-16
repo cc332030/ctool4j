@@ -30,6 +30,9 @@ public class CClassConvertTests {
         Assertions.assertEquals(false, CClassConvert.toBoolean("abc"));
         Assertions.assertEquals(false, CClassConvert.toBoolean("true "));
         Assertions.assertEquals(false, CClassConvert.toBoolean(" true"));
+        // Q24 修复：兼容 "1"/"0" 数字形式
+        Assertions.assertEquals(true, CClassConvert.toBoolean("1"));
+        Assertions.assertEquals(false, CClassConvert.toBoolean("0"));
 
     }
 

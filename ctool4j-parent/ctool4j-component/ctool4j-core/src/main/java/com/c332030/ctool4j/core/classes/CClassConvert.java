@@ -98,7 +98,8 @@ public class CClassConvert {
      * @return 布尔值
      */
     public Boolean toBoolean(String str) {
-        return Boolean.parseBoolean(str);
+        // Boolean.parseBoolean 仅识别 "true"/"false"，此处额外兼容数字 "1" 表示 true
+        return "1".equals(str) || Boolean.parseBoolean(str);
     }
 
     /**
