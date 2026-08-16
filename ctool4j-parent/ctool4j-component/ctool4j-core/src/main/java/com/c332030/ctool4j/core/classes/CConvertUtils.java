@@ -46,6 +46,12 @@ public class CConvertUtils {
      */
     public void addConverter(Method method) {
 
+        if (method.getParameterCount() < 1) {
+            // 无入参的方法无法确定源类型（getParameterTypes()[0] 会数组越界），跳过注册（Q16）
+            log.warn("跳过注册转换器：方法无入参，method: {}", method);
+            return;
+        }
+
         @SuppressWarnings("unchecked")
         val fromClass = (Class<Object>) method.getParameterTypes()[0];
         @SuppressWarnings("unchecked")
