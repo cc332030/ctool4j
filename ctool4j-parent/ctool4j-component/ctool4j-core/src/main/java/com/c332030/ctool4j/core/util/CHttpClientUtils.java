@@ -62,6 +62,8 @@ public class CHttpClientUtils {
     static {
         CONNECTION_MANAGER = new PoolingHttpClientConnectionManager();
         CONNECTION_MANAGER.setMaxTotal(MAX_TOTAL_CONNECTIONS);
+        // 单路由默认并发 2，显式提升至最大连接数，避免并发请求被路由级限制
+        CONNECTION_MANAGER.setDefaultMaxPerRoute(MAX_TOTAL_CONNECTIONS);
     }
 
     /**
