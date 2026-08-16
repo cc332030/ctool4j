@@ -19,7 +19,7 @@ public void doSomething(
 }
 ```
 - JSON 处理全局统一使用 Jackson，禁止引入其他 JSON 库（如 Gson、fastjson）
-- 日志打印严禁只有字符串拼接：禁止 `log.info("a" + b)` 写法，必须用占位符参数化（`log.info("a: {}", b)`，SLF4J 风格）；拼接在日志级别不满足时仍会执行造成浪费，占位符延迟求值且可读性好；静态文本（无参）如 `log.info("初始化完成")` 不属拼接，合规；异常日志不得拼 `e.getMessage()`，须将 throwable 作为最后一个参数传入（如 `log.error("msg: {}", arg, e)`）
+- 日志打印：静态文本（无参）如 `log.info("初始化完成")` 不属占位符参数化约束范围，合规；异常日志不得拼 `e.getMessage()`，须将 throwable 作为最后一个参数传入（如 `log.error("msg: {}", arg, e)`）
 
 ## 健壮性
 
@@ -36,7 +36,6 @@ public void doSomething(
 
 注释需满足发布私服 / Maven 中央仓库的 javadoc 检查（doclint）要求：
 
-- 所有 public / protected 的类、方法、字段必须编写 javadoc 注释
 - 多行注释永远写多行：`/**` 单独一行、注释内容逐行书写、`*/` 单独一行，禁止单行写法 `/** xxx */`
 - javadoc 使用完整多行块，包含 `@param`、`@return`、`@throws`、`@since`：
 
