@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.test.jackson;
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer;
 import com.c332030.ctool4j.definition.enums.CDbOperateEnum;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +55,8 @@ public class CEnumDeserializerTests {
     @Test
     public void deserializeUnknown_throws() {
 
-        Assertions.assertThrowsExactly(IllegalArgumentException.class,
+        // CEnumUtils 抛 IllegalArgumentException，Jackson 反序列化框架包装为 JsonMappingException 抛出
+        Assertions.assertThrowsExactly(JsonMappingException.class,
             () -> CJacksonUtils.OBJECT_MAPPER.readValue("{\"operate\":\"XXX\"}", EnumBean.class));
 
     }
