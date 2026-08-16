@@ -63,6 +63,8 @@ public class CSpringHttpUtils {
 
     /**
      * 配置消息转换器
+     * <p>注意：会修改入参集合内各转换器的状态（如为 Jackson 转换器追加 json5 媒体类型），
+     * 调用方不应假设入参在调用后保持不变</p>
      *
      * @param messageConverters 消息转换器
      */
@@ -76,7 +78,7 @@ public class CSpringHttpUtils {
                     configurer.accept(messageConverter);
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("configure message converter failed: {}", messageConverter.getClass().getName(), e);
             }
 
         });
