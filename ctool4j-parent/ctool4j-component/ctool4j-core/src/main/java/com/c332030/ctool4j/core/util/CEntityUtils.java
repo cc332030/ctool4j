@@ -13,7 +13,6 @@ import java.lang.invoke.MethodHandle;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -33,7 +32,7 @@ public class CEntityUtils {
                 CEntityUtils.class, "clear"
             ).stream()
             .map(CMethodHandleUtils::getHandle)
-            .collect(Collectors.toList());
+            .collect(CCollectors.toUnmodifiableList());
 
     /**
      * clear 方法参数类型 → 清除函数 映射（不含 {@code Object} 参数）
