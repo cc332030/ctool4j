@@ -2,10 +2,10 @@ package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CClassUtils;
+import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.entity.base.*;
 import com.c332030.ctool4j.definition.function.CConsumer;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -43,15 +43,11 @@ public class CEntityUtils {
 
             val param0 = method.getParameterTypes()[0];
             if (param0 != Object.class) {
-                map.put(param0, e -> invokeClear(method, e));
+                val handle = CMethodHandleUtils.getHandle(method);
+                map.put(param0, handle::invoke);
             }
         }
         return map;
-    }
-
-    @SneakyThrows
-    private void invokeClear(Method method, Object entity) {
-        method.invoke(null, entity);
     }
 
     /**
