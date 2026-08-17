@@ -113,4 +113,31 @@ public class CEntityUtilsTests {
 
     }
 
+    /**
+     * 测试无自身 clear 的子类，通过遍历父类/父接口链命中最近的清除方法
+     * <p>验证按继承距离查找"最近" clear，而非依赖方法声明顺序</p>
+     */
+    @Test
+    public void clearSubClass() {
+
+        val entity = new XBaseTimeEntity();
+        entity.setId(1L);
+        entity.setCreateTime(new Date());
+        entity.setUpdateTime(new Date());
+
+        // 走 Object 重载，运行时动态查找最近的 clear
+        CEntityUtils.clear((Object) entity);
+
+        Assertions.assertNull(entity.getId());
+        Assertions.assertNull(entity.getCreateTime());
+        Assertions.assertNull(entity.getUpdateTime());
+
+    }
+
+    /**
+     * 仅用于测试的继承子类（无自身 clear 方法）
+     */
+    private static class XBaseTimeEntity extends CBaseTimeEntity<Long> {
+    }
+
 }

@@ -4,13 +4,16 @@ import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.entity.base.*;
 import com.c332030.ctool4j.definition.function.CConsumer;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -30,41 +33,69 @@ public class CEntityUtils {
     );
 
     /**
-     * 各实体类清除方法缓存
+     * clear 方法参数类型 → 清除函数 映射（不含 {@code Object} 参数）
      */
-    private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(type -> {
+    private final Map<Class<?>, CConsumer<Object>> CLEAR_METHOD_MAP = buildClearMethodMap();
 
-        // getDeclaredMethods() 返回顺序不保证，不能依赖声明顺序选择最具体方法
-        val candidates = new ArrayList<Method>();
-        for (Method method : CLEAR_METHODS) {
+    private Map<Class<?>, CConsumer<Object>> buildClearMethodMap() {
+
+        val map = new HashMap<Class<?>, CConsumer<Object>>();
+        for (val method : CLEAR_METHODS) {
 
             val param0 = method.getParameterTypes()[0];
-            if(param0 != Object.class && param0.isAssignableFrom(type)) {
-                candidates.add(method);
+            if (param0 != Object.class) {
+                map.put(param0, e -> invokeClear(method, e));
             }
         }
+        return map;
+    }
 
-        // 选出参数类型最具体的重载（不存在更具体的可接收 type 的重载）
-        for (Method candidate : candidates) {
+    @SneakyThrows
+    private void invokeClear(Method method, Object entity) {
+        method.invoke(null, entity);
+    }
 
-            val param = candidate.getParameterTypes()[0];
-            val mostSpecific = candidates.stream()
-                    .noneMatch(other -> other != candidate
-                            && other.getParameterTypes()[0] != param
-                            && param.isAssignableFrom(other.getParameterTypes()[0]));
-            if(mostSpecific) {
-                return e -> {
-                    try {
-                        candidate.invoke(null, e);
-                    } catch (IllegalAccessException | InvocationTargetException ex) {
-                        throw new IllegalStateException(ex);
-                    }
-                };
+    /**
+     * 按继承距离（自身、父类、父接口由近及远）查找 type 最近的清除函数
+     * <p>相比按方法声明顺序匹配，可确定性命中"最近"的 clear 重载，不依赖反射顺序</p>
+     *
+     * @param type 实体类型
+     * @return 最近的清除函数，未匹配时返回空函数
+     */
+    private CConsumer<Object> findNearestClear(Class<?> type) {
+
+        val queue = new ArrayDeque<Class<?>>();
+        val visited = new HashSet<Class<?>>();
+        queue.add(type);
+        visited.add(type);
+
+        while (!queue.isEmpty()) {
+
+            val current = queue.poll();
+            val consumer = CLEAR_METHOD_MAP.get(current);
+            if (null != consumer) {
+                return consumer;
+            }
+
+            val superClass = current.getSuperclass();
+            if (null != superClass && superClass != Object.class && visited.add(superClass)) {
+                queue.add(superClass);
+            }
+            for (val iface : current.getInterfaces()) {
+                if (visited.add(iface)) {
+                    queue.add(iface);
+                }
             }
         }
-
         return CConsumer.empty();
-    });
+    }
+
+    /**
+     * 各实体类清除方法缓存
+     */
+    private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(
+            CEntityUtils::findNearestClear
+    );
 
     /**
      * 清空实体
