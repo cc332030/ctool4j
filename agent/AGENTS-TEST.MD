@@ -28,7 +28,7 @@
 
 ### 执行与验证
 
-- 验证以 Maven 结果为准：Windows cmd 下编译失败 exit code 可能为 0，不得仅凭 exit code 判断，必须依据 surefire 的 Tests run/Failures/Errors/Skipped 统计判断是否通过；获取统计须一步直接到位——运行测试时就让 surefire 打印统计汇总（不加 -q 由 Maven 输出，或命令内用 findstr/grep 过滤统计行），一次拿到结果，禁止两段式"先运行、再提示后单独读取报告"的流程，也不得反复附提示性说明
+- 验证以 Maven 结果为准：Windows cmd 下编译失败 exit code 可能为 0，不得仅凭 exit code 判断，必须依据 surefire 的 Tests run/Failures/Errors/Skipped 统计判断是否通过；输出优先重定向到文件（如 `mvn ... > build.log 2>&1`，避免终端/IDE 输出截断丢失统计，见 AGENTS.md 编译验证条目），获取统计须一步直接到位——从重定向的日志文件中用 findstr/grep 过滤统计行（同一命令内串联完成），一次拿到结果，禁止两段式"先运行、再提示后单独读取报告"的流程，也不得反复附提示性说明
 - 同一 Maven 模块禁止并行构建；多 agent 协作时同一模块分阶段执行（先写测试文件，再串行执行验证），避免构建冲突
 
 ### 环境与兼容
