@@ -7,7 +7,9 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,12 +34,32 @@ public class CEntityUtils {
      */
     private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(type -> {
 
-        for (int i = CLEAR_METHODS.size() - 1; i >= 0; i--) {
+        // getDeclaredMethods() 返回顺序不保证，不能依赖声明顺序选择最具体方法
+        val candidates = new ArrayList<Method>();
+        for (Method method : CLEAR_METHODS) {
 
-            val method = CLEAR_METHODS.get(i);
             val param0 = method.getParameterTypes()[0];
             if(param0 != Object.class && param0.isAssignableFrom(type)) {
-                return e -> method.invoke(null, e);
+                candidates.add(method);
+            }
+        }
+
+        // 选出参数类型最具体的重载（不存在更具体的可接收 type 的重载）
+        for (Method candidate : candidates) {
+
+            val param = candidate.getParameterTypes()[0];
+            val mostSpecific = candidates.stream()
+                    .noneMatch(other -> other != candidate
+                            && other.getParameterTypes()[0] != param
+                            && param.isAssignableFrom(other.getParameterTypes()[0]));
+            if(mostSpecific) {
+                return e -> {
+                    try {
+                        candidate.invoke(null, e);
+                    } catch (IllegalAccessException | InvocationTargetException ex) {
+                        throw new IllegalStateException(ex);
+                    }
+                };
             }
         }
 
