@@ -117,7 +117,10 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
+                        <!-- 失败是否中断构建 -->
                         <failOnError>true</failOnError>
+                        <!-- 隐藏 html 输出提示 -->
+                        <quiet>true</quiet>
                     </configuration>
                     <executions>
                         <execution>
