@@ -142,11 +142,22 @@ esac
 distributionUrlName="${distributionUrl##*/}"
 distributionUrlNameMain="${distributionUrlName%.*}"
 distributionUrlNameMain="${distributionUrlNameMain%-bin}"
-MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+# CNB 构建环境下 $HOME / /tmp 所在文件系统可能不支持文件写入（tar 解压报 Function not implemented），
+# 而工作区（CNB_BUILD_WORKSPACE）可正常读写。故在此环境下将 Maven 下载/解压目录重定向到工作区。
+if [ -n "${CNB_BUILD_WORKSPACE-}" ] && ! command -v mvn >/dev/null 2>&1; then
+  verbose "CNB build env detected, redirect Maven home to workspace: ${CNB_BUILD_WORKSPACE}"
+  MAVEN_USER_HOME="${MAVEN_USER_HOME:-${CNB_BUILD_WORKSPACE}.m2}"
+  CNB_MAVEN_WORKSPACE_DL="${CNB_BUILD_WORKSPACE}.mvnw-tmp"
+  mkdir -p "$CNB_MAVEN_WORKSPACE_DL" 2>/dev/null || :
+else
+  MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
+fi
 MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
 
 exec_maven() {
   unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
+  # 修复因解压工具（如 java.util.zip）不保留文件权限、或构建机缓存导致 bin 脚本丢失可执行位的情况。
+  [ -x "$MAVEN_HOME/bin/$MVN_CMD" ] || chmod +x "$MAVEN_HOME/bin/$MVN_CMD" "$MAVEN_HOME/bin/mvnDebug" 2>/dev/null || :
   exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
 }
 
@@ -155,18 +166,35 @@ if [ -d "$MAVEN_HOME" ]; then
   exec_maven "$@"
 fi
 
+# CNB 构建环境下 tar 解压 Maven 发行包可能失败（Function not implemented），
+# 若系统已安装 maven（CNB 构建环境自带 mvn），则直接使用，避免下载解压失败。
+if command -v mvn >/dev/null 2>&1; then
+  verbose "found system mvn, using it directly"
+  exec mvn "$@"
+fi
+
 case "${distributionUrl-}" in
 *?-bin.zip | *?maven-mvnd-?*-?*.zip) ;;
 *) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
 esac
 
 # prepare tmp dir
-if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
-  clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
-  trap clean HUP INT TERM EXIT
-else
+# 优先使用工作区下的临时目录（CNB 环境下 /tmp 可能不可写），否则回退 mktemp
+TMP_DOWNLOAD_DIR=''
+if [ -n "${CNB_MAVEN_WORKSPACE_DL-}" ] && [ -d "$CNB_MAVEN_WORKSPACE_DL" ]; then
+  CNB_DL_CANDIDATE="$CNB_MAVEN_WORKSPACE_DL/dl-$$"
+  if mkdir -p "$CNB_DL_CANDIDATE" 2>/dev/null; then
+    TMP_DOWNLOAD_DIR="$CNB_DL_CANDIDATE"
+  fi
+fi
+if [ -z "$TMP_DOWNLOAD_DIR" ] && command -v mktemp >/dev/null 2>&1; then
+  TMP_DOWNLOAD_DIR="$(mktemp -d 2>/dev/null)"
+fi
+if [ -z "$TMP_DOWNLOAD_DIR" ] || [ ! -d "$TMP_DOWNLOAD_DIR" ]; then
   die "cannot create temp dir"
 fi
+clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
+trap clean HUP INT TERM EXIT
 
 mkdir -p -- "${MAVEN_HOME%/*}"
 
@@ -175,11 +203,9 @@ verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
 verbose "Downloading from: $distributionUrl"
 verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
 
-# select .zip or .tar.gz
-if ! command -v unzip >/dev/null; then
-  distributionUrl="${distributionUrl%.zip}.tar.gz"
-  distributionUrlName="${distributionUrl##*/}"
-fi
+# 保持 .zip 发行包，交由下方解压逻辑处理（unzip -> Java -> tar）。
+# 说明：CNB 构建环境文件系统不支持 GNU tar 的部分 syscall，tar 解压报 "Function not implemented"。
+# 本仓库强制 JDK 8，故优先使用 JDK 自带的 java.util.zip 解压，避免依赖 unzip/tar 命令行。
 
 # verbose opt
 __MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
@@ -250,10 +276,76 @@ if [ -n "${distributionSha256Sum-}" ]; then
 fi
 
 # unzip and move
+# 解压优先级：unzip -> Java(zip) -> tar。
+# CNB 构建环境不支持 GNU tar 的部分 syscall（报 Function not implemented），
+# 本仓库强制 JDK 8，因此当 unzip 不可用时改用 JDK 自带 java.util.zip 解压 .zip。
+_extracted=false
 if command -v unzip >/dev/null; then
-  unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
-else
+  if unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR"; then
+    _extracted=true
+  fi
+fi
+
+# unzip 不可用或解压失败时，尝试用 JDK 的 java.util.zip 解压 .zip（绕过 GNU tar 的受限 syscall）
+if [ "$_extracted" != true ] && [ "${distributionUrlName##*.}" = zip ] && set_java_home; then
+  javaExtractor="$TMP_DOWNLOAD_DIR/Extractor.java"
+  cat >"$javaExtractor" <<'END'
+import java.io.*;
+import java.util.zip.*;
+
+/** 用 JDK 自带的 java.util.zip 解压 zip，仅使用基础文件读写，规避部分环境对 tar syscall 的限制。 */
+public class Extractor {
+  public static void main(String[] args) throws Exception {
+    if (args.length < 2) {
+      System.err.println("usage: Extractor <zip> <targetDir>");
+      System.exit(1);
+    }
+    File target = new File(args[1]);
+    try (ZipInputStream in = new ZipInputStream(new BufferedInputStream(new FileInputStream(args[0])))) {
+      ZipEntry entry;
+      byte[] buf = new byte[8192];
+      while ((entry = in.getNextEntry()) != null) {
+        String name = entry.getName();
+        File outFile = new File(target, name);
+        String canonical = outFile.getCanonicalPath();
+        if (!canonical.startsWith(target.getCanonicalPath() + File.separator) && !canonical.equals(target.getCanonicalPath())) {
+          throw new IOException("path traversal blocked: " + name);
+        }
+        if (entry.isDirectory()) {
+          outFile.mkdirs();
+        } else {
+          File parent = outFile.getParentFile();
+          if (parent != null) {
+            parent.mkdirs();
+          }
+          try (OutputStream out = new BufferedOutputStream(new FileOutputStream(outFile))) {
+            int n;
+            while ((n = in.read(buf)) != -1) {
+              out.write(buf, 0, n);
+            }
+          }
+        }
+        in.closeEntry();
+      }
+    }
+  }
+}
+END
+  verbose "Compiling Extractor.java with javac ..."
+  if "$(native_path "$JAVACCMD")" "$(native_path "$javaExtractor")" \
+      && "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Extractor \
+         "$(native_path "$TMP_DOWNLOAD_DIR/$distributionUrlName")" "$(native_path "$TMP_DOWNLOAD_DIR")"; then
+    _extracted=true
+  fi
+fi
+
+# last resort: tar extract .tar.gz (zip path won't reach here since we keep .zip)
+if [ "$_extracted" != true ]; then
   tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
+fi
+
+if [ "$_extracted" != true ]; then
+  die "failed to extract Maven distribution: $distributionUrlName"
 fi
 
 # Find the actual extracted directory name (handles snapshots where filename != directory name)
@@ -288,6 +380,8 @@ if [ -z "$actualDistributionDir" ]; then
 fi
 
 verbose "Found extracted Maven distribution directory: $actualDistributionDir"
+# 解压工具可能不保留可执行位（java.util.zip 解压的脚本权限默认为 644），此处统一补上。
+chmod +x "$TMP_DOWNLOAD_DIR/$actualDistributionDir/bin/$MVN_CMD" "$TMP_DOWNLOAD_DIR/$actualDistributionDir/bin/mvnDebug" 2>/dev/null || :
 printf %s\\n "$distributionUrl" >"$TMP_DOWNLOAD_DIR/$actualDistributionDir/mvnw.url"
 mv -- "$TMP_DOWNLOAD_DIR/$actualDistributionDir" "$MAVEN_HOME" || [ -d "$MAVEN_HOME" ] || die "fail to move MAVEN_HOME"
 
