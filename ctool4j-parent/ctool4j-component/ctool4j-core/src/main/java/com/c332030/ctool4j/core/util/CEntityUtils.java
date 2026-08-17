@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
+import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.definition.entity.base.*;
 import com.c332030.ctool4j.definition.function.CConsumer;
@@ -9,9 +10,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -64,27 +63,20 @@ public class CEntityUtils {
      */
     private CConsumer<Object> findNearestClear(Class<?> type) {
 
-        val queue = new ArrayDeque<Class<?>>();
-        val visited = new HashSet<Class<?>>();
-        queue.add(type);
-        visited.add(type);
+        for (val superClass : CClassUtils.getSuperClasses(type)) {
 
-        while (!queue.isEmpty()) {
-
-            val current = queue.poll();
-            val consumer = CLEAR_METHOD_MAP.get(current);
+            val consumer = CLEAR_METHOD_MAP.get(superClass);
             if (null != consumer) {
                 return consumer;
             }
+        }
 
-            val superClass = current.getSuperclass();
-            if (null != superClass && superClass != Object.class && visited.add(superClass)) {
-                queue.add(superClass);
-            }
-            for (val iface : current.getInterfaces()) {
-                if (visited.add(iface)) {
-                    queue.add(iface);
-                }
+        // getInterfaces 按继承距离由近及远且去重，顺序即"最近优先"
+        for (val iface : CClassUtils.getInterfaces(type)) {
+
+            val consumer = CLEAR_METHOD_MAP.get(iface);
+            if (null != consumer) {
+                return consumer;
             }
         }
         return CConsumer.empty();
