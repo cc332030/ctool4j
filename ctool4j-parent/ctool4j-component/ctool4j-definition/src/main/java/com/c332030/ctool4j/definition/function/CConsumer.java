@@ -53,6 +53,7 @@ public interface CConsumer<T> extends Consumer<T> {
      * 消费参数（consumer 为空时不做处理）
      * @param consumer 消费者
      * @param t 参数
+     * @param <T> 参数类型
      */
     static <T> void accept(Consumer<T> consumer, T t) {
         if(null == consumer) {

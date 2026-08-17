@@ -70,6 +70,7 @@ public interface CPredicate<T> extends Predicate<T> {
      * 测试参数（predicate 为空时返回 false）
      * @param predicate 断言
      * @param t 参数
+     * @param <T> 参数类型
      * @return 测试结果
      */
     static <T> boolean test(Predicate<T> predicate, T t) {

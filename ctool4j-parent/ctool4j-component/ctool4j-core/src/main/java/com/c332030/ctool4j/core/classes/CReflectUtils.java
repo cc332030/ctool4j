@@ -657,8 +657,10 @@ public class CReflectUtils {
     /**
      * 获取方法/字段/类 注解
      * @param element 元素
+     * @param getAnnoFunction 注解获取函数（返回 null 表示无注解）
      * @param annotationClass 注解类
      * @return 注解
+     * @param <ELEMENT> 元素类型
      * @param <T> 注解类泛型
      */
     public <ELEMENT, T extends Annotation> T getAnnotationCached(

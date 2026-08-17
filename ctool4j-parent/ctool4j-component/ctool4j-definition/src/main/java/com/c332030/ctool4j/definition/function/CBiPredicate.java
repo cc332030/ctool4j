@@ -75,6 +75,8 @@ public interface CBiPredicate<T, U> extends BiPredicate<T, U> {
      * @param predicate 断言
      * @param t 第一个参数
      * @param u 第二个参数
+     * @param <T> 第一个参数类型
+     * @param <U> 第二个参数类型
      * @return 测试结果
      */
     static <T, U> boolean test(BiPredicate<T, U> predicate, T t, U u) {

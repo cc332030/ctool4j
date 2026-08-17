@@ -183,6 +183,7 @@ public interface ICRedisService<K, V> {
      * 获取值
      * @param key key
      * @param convert 转换函数
+     * @param defaultValue 默认值
      * @return 值
      * @param <T> 转换类型
      */

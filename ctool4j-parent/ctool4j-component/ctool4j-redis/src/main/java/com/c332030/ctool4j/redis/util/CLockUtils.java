@@ -184,6 +184,7 @@ public class CLockUtils {
      * 创建锁构建器
      *
      * @param lockKey 锁 key
+     * @return 锁构建器
      */
     public CLockService.CLockBuilder lock(String lockKey) {
         return lockService.lock(lockKey);
@@ -194,6 +195,7 @@ public class CLockUtils {
      *
      * @param format 格式串，如 "sign:report:{}:{}"
      * @param args   格式化参数
+     * @return 锁构建器
      */
     public CLockService.CLockBuilder lock(String format, Object... args) {
         return lockService.lock(format, args);

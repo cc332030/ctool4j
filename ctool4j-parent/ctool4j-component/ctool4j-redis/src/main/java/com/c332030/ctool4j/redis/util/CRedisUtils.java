@@ -388,6 +388,7 @@ public class CRedisUtils {
      * 获取自增的业务id
      *
      * @param keyBefore  前缀
+     * @param duration   自增过期时长
      * @param incrLength 自增id长度
      * @return 业务id
      */

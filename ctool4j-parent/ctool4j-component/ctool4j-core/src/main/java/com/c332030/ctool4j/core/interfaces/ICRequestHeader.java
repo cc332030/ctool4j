@@ -17,6 +17,7 @@ public interface ICRequestHeader extends ICText, ICEnumName {
 
     /**
      * 数据类型
+     * @return 数据类型
      */
     default CDataTypeEnum getDataType() {
         return CDataTypeEnum.STRING;
@@ -24,6 +25,7 @@ public interface ICRequestHeader extends ICText, ICEnumName {
 
     /**
      * 是否必输
+     * @return 是否必输
      */
     default boolean isRequired() {
         return false;
@@ -31,6 +33,7 @@ public interface ICRequestHeader extends ICText, ICEnumName {
 
     /**
      * 报文头名
+     * @return 报文头名
      */
     default String getHeaderName() {
         return CStrUtils.upperUnderscoreToHeaderName(name());

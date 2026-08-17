@@ -62,6 +62,8 @@ public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
      * @param consumer 消费者
      * @param t 第一个参数
      * @param u 第二个参数
+     * @param <T> 第一个参数类型
+     * @param <U> 第二个参数类型
      */
     static <T, U> void accept(BiConsumer<T, U> consumer, T t, U u) {
         if(null == consumer) {

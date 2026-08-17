@@ -52,6 +52,7 @@ public interface CSupplier<T> extends Supplier<T> {
     /**
      * 获取结果（supplier 为空时返回 null）
      * @param supplier 供应器
+     * @param <T> 结果类型
      * @return 结果
      */
     static <T> T get(Supplier<T> supplier) {

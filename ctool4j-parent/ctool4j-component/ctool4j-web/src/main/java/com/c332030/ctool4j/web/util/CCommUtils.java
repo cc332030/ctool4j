@@ -167,6 +167,9 @@ public class CCommUtils {
      * 拼接请求行：METHOD path[?params]，仅 GET 请求拼接查询参数，
      * POST/PUT 等请求的参数在 body 中，不拼到 URL。
      * <p>请求行是完整 HTTP 报文的第一行，本方法不自带头部换行</p>
+     *
+     * @param sb   日志拼接器
+     * @param info 请求日志信息
      */
     public void appendRequestUrl(StringBuilder sb, IHttpLogInfo info) {
 
@@ -178,6 +181,10 @@ public class CCommUtils {
 
     /**
      * 拼接请求行：METHOD URL
+     *
+     * @param sb     日志拼接器
+     * @param method HTTP 方法
+     * @param url    URL
      */
     public void appendRequestLine(StringBuilder sb, String method, String url) {
         sb.append(method);
@@ -187,6 +194,9 @@ public class CCommUtils {
 
     /**
      * 拼接 URL 路径 + Query 参数
+     *
+     * @param sb   日志拼接器
+     * @param info 请求日志信息
      */
     public void appendUrl(StringBuilder sb, IHttpLogInfo info) {
 
@@ -214,6 +224,10 @@ public class CCommUtils {
 
     /**
      * 拼接单个 header 行：Key: Value
+     *
+     * @param sb            日志拼接器
+     * @param requestHeader 请求头枚举
+     * @param value         值
      */
     public void appendHeaderLine(StringBuilder sb, ICRequestHeader requestHeader, String value) {
         appendHeaderLine(sb, requestHeader.getHeaderName(), value);
@@ -221,6 +235,10 @@ public class CCommUtils {
 
     /**
      * 拼接单个 header 行：Key: Value
+     *
+     * @param sb    日志拼接器
+     * @param key   请求头名
+     * @param value 值
      */
     public void appendHeaderLine(StringBuilder sb, String key, String value) {
         if (StrUtil.isNotEmpty(value)) {
@@ -233,6 +251,9 @@ public class CCommUtils {
 
     /**
      * 拼接完整的 header 块
+     *
+     * @param sb      日志拼接器
+     * @param headers 请求头 map
      */
     public void appendHeaderBlock(StringBuilder sb, Map<String, Collection<String>> headers) {
         val headerStr = getFullHeaderStr(headers);
@@ -244,6 +265,10 @@ public class CCommUtils {
 
     /**
      * 拼接 body（byte[]，根据 Content-Type 判断是否文本），无 body 时不打印
+     *
+     * @param sb        日志拼接器
+     * @param bodyBytes body 字节数组
+     * @param headers   请求头 map（用于判断 Content-Type）
      */
     public void appendBody(
             StringBuilder sb,
@@ -423,6 +448,9 @@ public class CCommUtils {
 
     /**
      * 统一拼接异常信息：\n\nerror: message
+     *
+     * @param sb           日志拼接器
+     * @param errorMessage 异常信息
      */
     public void appendError(StringBuilder sb, String errorMessage) {
         if (StrUtil.isNotEmpty(errorMessage)) {

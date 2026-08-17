@@ -141,7 +141,7 @@ public class CRequestUtils {
 
     /**
      * 获取 Request，不能为空
-     * @return
+     * @return Request，不能为空
      */
     public HttpServletRequest getRequest() {
         return getRequestOpt()

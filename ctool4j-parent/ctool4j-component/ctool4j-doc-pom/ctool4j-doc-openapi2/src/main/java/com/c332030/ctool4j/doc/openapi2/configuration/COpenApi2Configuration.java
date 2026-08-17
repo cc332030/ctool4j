@@ -80,6 +80,8 @@ public class COpenApi2Configuration {
 
     /**
      * 避免 springfox 报空指针
+     *
+     * @return BeanPostProcessor
      */
     @Bean
     public static BeanPostProcessor cSpringfoxHandlerProviderBeanPostProcessor() {

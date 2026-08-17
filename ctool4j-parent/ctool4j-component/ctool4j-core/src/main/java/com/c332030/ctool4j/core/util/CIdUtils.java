@@ -34,9 +34,11 @@ public class CIdUtils {
 
     /**
      * 没有 '-' 的uuid
+     *
+     * @return 没有 '-' 的 UUID 字符串
      */
     public String stringUUIDNoHyphen() {
-        return stringUUID().replaceAll("-", "");
+        return stringUUID().replace("-", "");
     }
 
     /**
