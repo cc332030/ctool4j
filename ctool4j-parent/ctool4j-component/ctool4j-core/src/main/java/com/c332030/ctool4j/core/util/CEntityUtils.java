@@ -9,10 +9,11 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -25,11 +26,14 @@ import java.util.Map;
 public class CEntityUtils {
 
     /**
-     * 清除方法
+     * 清除方法句柄
      */
-    private static final List<Method> CLEAR_METHODS = CReflectUtils.getAllMethodsByName(
-            CEntityUtils.class, "clear"
-    );
+    private static final List<MethodHandle> CLEAR_METHODS =
+        CReflectUtils.getAllMethodsByName(
+                CEntityUtils.class, "clear"
+            ).stream()
+            .map(CMethodHandleUtils::getHandle)
+            .collect(Collectors.toList());
 
     /**
      * clear 方法参数类型 → 清除函数 映射（不含 {@code Object} 参数）
@@ -39,11 +43,10 @@ public class CEntityUtils {
     private Map<Class<?>, CConsumer<Object>> buildClearMethodMap() {
 
         val map = new HashMap<Class<?>, CConsumer<Object>>();
-        for (val method : CLEAR_METHODS) {
+        for (val handle : CLEAR_METHODS) {
 
-            val param0 = method.getParameterTypes()[0];
+            val param0 = handle.type().parameterType(0);
             if (param0 != Object.class) {
-                val handle = CMethodHandleUtils.getHandle(method);
                 map.put(param0, handle::invoke);
             }
         }
@@ -82,20 +85,22 @@ public class CEntityUtils {
      * 各实体类清除方法缓存
      */
     private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(
-            CEntityUtils::findNearestClear
+        CEntityUtils::findNearestClear
     );
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(Object entity) {
         CLEAN_ENTITY_CONSUMER.get(entity.getClass())
-                .accept(entity);
+            .accept(entity);
     }
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICId<?> entity) {
@@ -104,6 +109,7 @@ public class CEntityUtils {
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICCreateTime entity) {
@@ -112,6 +118,7 @@ public class CEntityUtils {
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICUpdateTime entity) {
@@ -120,15 +127,17 @@ public class CEntityUtils {
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICCreateUpdateTime entity) {
-        clear((ICCreateTime)entity);
-        clear((ICUpdateTime)entity);
+        clear((ICCreateTime) entity);
+        clear((ICUpdateTime) entity);
     }
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICCreateBy entity) {
@@ -138,6 +147,7 @@ public class CEntityUtils {
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICUpdateBy entity) {
@@ -147,38 +157,42 @@ public class CEntityUtils {
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICCreateUpdateBy entity) {
-        clear((ICCreateBy)entity);
-        clear((ICUpdateBy)entity);
+        clear((ICCreateBy) entity);
+        clear((ICUpdateBy) entity);
     }
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(ICCreateUpdateByAndTime entity) {
-        clear((ICCreateUpdateBy)entity);
-        clear((ICCreateUpdateTime)entity);
+        clear((ICCreateUpdateBy) entity);
+        clear((ICCreateUpdateTime) entity);
     }
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(CBaseTimeEntity<?> entity) {
         clear((ICId<?>) entity);
-        clear((ICCreateUpdateTime)entity);
+        clear((ICCreateUpdateTime) entity);
     }
 
     /**
      * 清空实体
+     *
      * @param entity 实体
      */
     public void clear(CBaseEntity<?> entity) {
         clear((ICId<?>) entity);
-        clear((ICCreateUpdateByAndTime)entity);
+        clear((ICCreateUpdateByAndTime) entity);
     }
 
 }
