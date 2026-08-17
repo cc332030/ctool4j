@@ -5,6 +5,9 @@ import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,27 +27,14 @@ public class CJsonUtilsTests {
     /**
      * 测试用 Bean，字段名用于验证驼峰/下划线互转
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class TestBean {
 
         private Long id;
 
         private String userName;
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
 
     }
 

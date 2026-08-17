@@ -1,6 +1,9 @@
 package com.c332030.ctool4j.core.test.jackson;
 
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -66,17 +69,12 @@ public class CDateDeserializerTests {
     /**
      * Date 反序列化测试 Bean
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     static class DateBean {
 
         private Date date;
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
 
     }
 

@@ -41,9 +41,9 @@ public class CPageTests {
 
     @Test
     public void getStart() {
-        Assertions.assertEquals(0, new CPage(1, 10, null).getStart());
-        Assertions.assertEquals(10, new CPage(2, 10, null).getStart());
-        Assertions.assertEquals(99, new CPage(10, 11, null).getStart());
+        Assertions.assertEquals(0, CPage.builder().pageNum(1).pageSize(10).build().getStart());
+        Assertions.assertEquals(10, CPage.builder().pageNum(2).pageSize(10).build().getStart());
+        Assertions.assertEquals(99, CPage.builder().pageNum(10).pageSize(11).build().getStart());
     }
 
     @Test
@@ -56,9 +56,9 @@ public class CPageTests {
     @Test
     public void getLimitSql() {
         // MySQL 方言 LIMIT offset, count 格式
-        Assertions.assertEquals("limit 0,10", new CPage(1, 10, null).getLimitSql());
-        Assertions.assertEquals("limit 20,10", new CPage(3, 10, null).getLimitSql());
-        Assertions.assertEquals("limit 0,20", new CPage(1, 20, null).getLimitSql());
+        Assertions.assertEquals("limit 0,10", CPage.builder().pageNum(1).pageSize(10).build().getLimitSql());
+        Assertions.assertEquals("limit 20,10", CPage.builder().pageNum(3).pageSize(10).build().getLimitSql());
+        Assertions.assertEquals("limit 0,20", CPage.builder().pageNum(1).pageSize(20).build().getLimitSql());
     }
 
     @Test

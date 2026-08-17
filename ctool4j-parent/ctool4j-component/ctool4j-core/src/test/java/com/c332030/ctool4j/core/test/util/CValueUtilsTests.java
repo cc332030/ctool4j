@@ -2,6 +2,8 @@ package com.c332030.ctool4j.core.test.util;
 
 import com.c332030.ctool4j.core.util.CValueUtils;
 import com.c332030.ctool4j.definition.interfaces.ICValue;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,18 +18,11 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class CValueUtilsTests {
 
+    @Getter
+    @RequiredArgsConstructor
     private static class ValueHolder implements ICValue<String> {
 
         private final String value;
-
-        ValueHolder(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String getValue() {
-            return value;
-        }
 
     }
 

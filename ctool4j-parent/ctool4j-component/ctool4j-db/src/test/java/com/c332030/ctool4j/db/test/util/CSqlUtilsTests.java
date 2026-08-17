@@ -3,6 +3,8 @@ package com.c332030.ctool4j.db.test.util;
 import cn.hutool.core.lang.Pair;
 import com.c332030.ctool4j.db.enums.CSqlSeparatorEnum;
 import com.c332030.ctool4j.db.util.CSqlUtils;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +24,8 @@ public class CSqlUtilsTests {
     /**
      * 测试实体，用于提供属性 lambda
      */
+    @Getter
+    @NoArgsConstructor
     public static class TestUser {
 
         private Long id;
@@ -34,25 +38,6 @@ public class CSqlUtilsTests {
 
         private String userFirstName;
 
-        public Long getId() {
-            return id;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public String getUserFirstName() {
-            return userFirstName;
-        }
-
-        public Integer getAge() {
-            return age;
-        }
-
-        public Boolean getDeleted() {
-            return deleted;
-        }
     }
 
     @Test

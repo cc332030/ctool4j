@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.test.jackson;
 import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.core.util.CDateUtils;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -73,86 +74,48 @@ public class CJacksonUtilsTests {
     /**
      * Long 序列化测试 Bean
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     static class LongBean {
 
         private Long id;
-
-        LongBean(Long id) {
-            this.id = id;
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
 
     }
 
     /**
      * Date 序列化测试 Bean
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     static class DateBean {
 
         private Date date;
-
-        DateBean(Date date) {
-            this.date = date;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
 
     }
 
     /**
      * null 序列化测试 Bean
      */
+    @Getter
+    @RequiredArgsConstructor
     static class NullableBean {
 
         private final String a;
         private final String b;
-
-        NullableBean(String a, String b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        public String getA() {
-            return a;
-        }
-
-        public String getB() {
-            return b;
-        }
 
     }
 
     /**
      * 下划线序列化测试 Bean
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     static class SnakeBean {
 
         private String userName;
-
-        SnakeBean(String userName) {
-            this.userName = userName;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
 
     }
 

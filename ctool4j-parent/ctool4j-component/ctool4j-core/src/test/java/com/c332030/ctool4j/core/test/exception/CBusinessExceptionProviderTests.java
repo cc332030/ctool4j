@@ -4,6 +4,8 @@ import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.core.exception.CBusinessExceptionProvider;
 import com.c332030.ctool4j.definition.function.CTriFunction;
 import com.c332030.ctool4j.definition.interfaces.ICRes;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,28 +47,15 @@ public class CBusinessExceptionProviderTests {
     /**
      * 测试用 ICRes 实现
      */
+    @Getter
+    @RequiredArgsConstructor
     static class CBusinessExceptionTestsRes implements ICRes<Object> {
 
         private final String code;
         private final String msg;
 
-        CBusinessExceptionTestsRes(String code, String msg) {
-            this.code = code;
-            this.msg = msg;
-        }
-
         static CBusinessExceptionTestsRes of(String code, String msg) {
             return new CBusinessExceptionTestsRes(code, msg);
-        }
-
-        @Override
-        public String getCode() {
-            return code;
-        }
-
-        @Override
-        public String getMsg() {
-            return msg;
         }
 
     }

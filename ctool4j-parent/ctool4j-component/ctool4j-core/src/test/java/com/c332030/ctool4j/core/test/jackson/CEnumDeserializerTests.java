@@ -4,6 +4,9 @@ import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer;
 import com.c332030.ctool4j.definition.enums.CDbOperateEnum;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -80,17 +83,12 @@ public class CEnumDeserializerTests {
     /**
      * 枚举反序列化测试 Bean
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     static class EnumBean {
 
         private CDbOperateEnum operate;
-
-        public CDbOperateEnum getOperate() {
-            return operate;
-        }
-
-        public void setOperate(CDbOperateEnum operate) {
-            this.operate = operate;
-        }
 
     }
 

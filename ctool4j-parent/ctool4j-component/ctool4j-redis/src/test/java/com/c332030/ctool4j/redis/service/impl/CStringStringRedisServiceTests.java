@@ -3,6 +3,9 @@ package com.c332030.ctool4j.redis.service.impl;
 import cn.hutool.core.lang.Opt;
 import com.c332030.ctool4j.redis.model.CValueWithTtl;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,24 +144,13 @@ public class CStringStringRedisServiceTests {
     /**
      * 测试辅助对象：Jackson 序列化/反序列化需要默认构造器与 getter/setter
      */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     private static class TestUser {
 
         private String name;
 
-        TestUser() {
-        }
-
-        TestUser(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
     }
 
 }

@@ -1,6 +1,9 @@
 package com.c332030.ctool4j.core.test.interfaces;
 
 import com.c332030.ctool4j.core.interfaces.ICopy;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -39,49 +42,23 @@ public class ICopyTests {
     /**
      * 源对象
      */
+    @Getter
+    @RequiredArgsConstructor
     public static class Source implements ICopy {
 
         private final String name;
         private final Integer age;
-
-        Source(String name, Integer age) {
-            this.name = name;
-            this.age = age;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Integer getAge() {
-            return age;
-        }
 
     }
 
     /**
      * 目标对象
      */
+    @Data
     public static class Target {
 
         private String name;
         private Integer age;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Integer getAge() {
-            return age;
-        }
-
-        public void setAge(Integer age) {
-            this.age = age;
-        }
 
     }
 

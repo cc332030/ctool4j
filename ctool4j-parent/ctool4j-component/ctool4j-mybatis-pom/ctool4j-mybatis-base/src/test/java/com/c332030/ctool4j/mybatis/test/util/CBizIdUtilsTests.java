@@ -2,6 +2,9 @@ package com.c332030.ctool4j.mybatis.test.util;
 
 import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +20,8 @@ public class CBizIdUtilsTests {
     /**
      * 带 @CBizId 字段的实体
      */
+    @Data
+    @NoArgsConstructor
     public static class BizEntity {
 
         @CBizId
@@ -24,29 +29,17 @@ public class CBizIdUtilsTests {
 
         private String other;
 
-        public String getBizId() {
-            return bizId;
-        }
-
-        public void setBizId(String bizId) {
-            this.bizId = bizId;
-        }
-
-        public String getOther() {
-            return other;
-        }
     }
 
     /**
      * 无 @CBizId 字段的实体
      */
+    @Getter
+    @NoArgsConstructor
     public static class NoBizEntity {
 
         private String id;
 
-        public String getId() {
-            return id;
-        }
     }
 
     @Test

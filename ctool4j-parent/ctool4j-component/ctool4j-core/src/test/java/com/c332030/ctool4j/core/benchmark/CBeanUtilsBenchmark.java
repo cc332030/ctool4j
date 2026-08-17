@@ -3,6 +3,7 @@ package com.c332030.ctool4j.core.benchmark;
 import cn.hutool.core.bean.BeanUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.sf.cglib.beans.BeanCopier;
@@ -30,12 +31,10 @@ import java.util.Map;
  *
  * @since 2026/8/16
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CBeanUtilsBenchmark {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    private CBeanUtilsBenchmark() {
-    }
 
     /**
      * 基准用例列表

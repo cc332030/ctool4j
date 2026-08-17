@@ -2,6 +2,8 @@ package com.c332030.ctool4j.core.test.exception;
 
 import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.definition.interfaces.ICRes;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -66,28 +68,15 @@ public class CBusinessExceptionTests {
     /**
      * 测试用 ICRes 实现
      */
+    @Getter
+    @RequiredArgsConstructor
     static class TestRes implements ICRes<Object> {
 
         private final String code;
         private final String msg;
 
-        TestRes(String code, String msg) {
-            this.code = code;
-            this.msg = msg;
-        }
-
         static TestRes of(String code, String msg) {
             return new TestRes(code, msg);
-        }
-
-        @Override
-        public String getCode() {
-            return code;
-        }
-
-        @Override
-        public String getMsg() {
-            return msg;
         }
 
     }
