@@ -13,6 +13,11 @@ import javax.lang.model.SourceVersion;
  */
 public abstract class CAbstractProcessor extends AbstractProcessor {
 
+    /**
+     * 支持的 Java 源版本
+     *
+     * @return Java 8
+     */
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.RELEASE_8;

@@ -10,4 +10,41 @@
 
     <artifactId>ctool4j-mybatis-processor</artifactId>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-processor-base</artifactId>
+        </dependency>
+
+        <!-- 测试编译触发自身注解处理器所需依赖（生成 service 接口） -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-mybatis</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <configuration>
+                            <!-- 清空父级 annotationProcessorPaths，testCompile 时从 classpath
+                                 自动发现处理器（本模块 target/classes 注册的自身处理器 + lombok） -->
+                            <annotationProcessorPaths combine.self="override"/>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
 </project>

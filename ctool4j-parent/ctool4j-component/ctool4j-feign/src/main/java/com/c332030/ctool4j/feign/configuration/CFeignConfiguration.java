@@ -20,22 +20,45 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CFeignConfiguration {
 
+    /**
+     * Feign 拦截器
+     *
+     * @return Feign 拦截器
+     */
     @Bean
     public CFeignInterceptor cFeignInterceptor() {
         return new CFeignInterceptor();
     }
 
 //    @Bean
+    /**
+     * Feign 客户端（带日志）
+     *
+     * @param client         底层客户端
+     * @param feignLogConfig 日志配置
+     * @return Feign 客户端
+     */
     public CFeignClient cFeignClient(Client client, CFeignClientLogConfig feignLogConfig) {
         return new CFeignClient(client, feignLogConfig);
     }
 
+    /**
+     * Feign 日志级别（默认 FULL）
+     *
+     * @return 日志级别
+     */
     @Bean
     @ConditionalOnMissingBean(Logger.Level.class)
     public Logger.Level cFeignLoggerLevel() {
         return Logger.Level.FULL;
     }
 
+    /**
+     * Feign 日志实现
+     *
+     * @param feignLogConfig 日志配置
+     * @return 日志实现
+     */
     @Bean
     @ConditionalOnMissingBean(Logger.class)
     public Logger cFeignLogger(CFeignClientLogConfig feignLogConfig) {

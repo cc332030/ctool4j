@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 @CustomLog
 public class CObjUtilsTest {
 
+    /**
+     * 测试对象类型转换
+     */
     @Test
     public void convert() {
 

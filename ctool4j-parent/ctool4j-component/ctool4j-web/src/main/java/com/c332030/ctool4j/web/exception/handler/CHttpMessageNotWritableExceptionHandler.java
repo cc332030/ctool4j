@@ -19,6 +19,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @ConditionalOnMissingExceptionHandler(HttpMessageNotWritableException.class)
 public class CHttpMessageNotWritableExceptionHandler {
 
+    /**
+     * 处理响应消息不可写异常，仅记录日志
+     *
+     * @param e 响应消息不可写异常
+     */
     @ExceptionHandler(HttpMessageNotWritableException.class)
     public void handle(HttpMessageNotWritableException e) {
         log.debug("handle HttpMessageNotWritableException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);

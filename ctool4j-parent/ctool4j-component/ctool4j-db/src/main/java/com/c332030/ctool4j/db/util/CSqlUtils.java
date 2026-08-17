@@ -23,27 +23,64 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CSqlUtils {
 
+    /**
+     * limit 1 语句
+     */
     public final String LIMIT_ONE = limitSql(1);
 
+    /**
+     * 默认分页大小的 limit 语句
+     *
+     * @return limit 语句
+     */
     public String limitSql() {
         return limitSql(CPageUtils.DEFAULT_PAGE_SIZE);
     }
 
+    /**
+     * 指定大小的 limit 语句
+     *
+     * @param size 大小
+     * @return limit 语句
+     */
     public String limitSql(Integer size) {
+        if(null == size) {
+            throw new IllegalArgumentException("size 不能为空");
+        }
         return "limit " + size;
     }
 
+    /**
+     * 行锁语句
+     *
+     * @return 行锁语句
+     */
     public String forUpdate() {
         return "for update";
     }
 
 
+    /**
+     * 表别名 t
+     */
     public static final String TABLE_ALIAS_T = "t";
 
+    /**
+     * 表别名 t1
+     */
     public static final String TABLE_ALIAS_T1 = "t1";
 
+    /**
+     * 表别名 t2
+     */
     public static final String TABLE_ALIAS_T2 = "t2";
 
+    /**
+     * 获取表别名 sql（别名非空白时加 "别名."）
+     *
+     * @param alias 别名
+     * @return 表别名 sql
+     */
     public String getTableAliasSql(String alias) {
         return CStrUtils.convertNotBlank(alias, e -> e + ".", StrUtil.EMPTY);
     }
@@ -139,10 +176,30 @@ public class CSqlUtils {
         );
     }
 
+    /**
+     * 获取左列等于右列 sql
+     *
+     * @param leftFunc  左列 lambda
+     * @param rightFunc 右列 lambda
+     * @param <T1>      左泛型
+     * @param <T2>      右泛型
+     * @return sql
+     */
     public <T1, T2> String getEqualsSql(Func1<T1, ?> leftFunc, Func1<T2, ?> rightFunc) {
         return getEqualsSql(leftFunc, null, rightFunc, null);
     }
 
+    /**
+     * 获取左列等于右列 sql（带别名）
+     *
+     * @param leftFunc   左列 lambda
+     * @param leftAlias  左别名
+     * @param rightFunc  右列 lambda
+     * @param rightAlias 右别名
+     * @param <T1>       左泛型
+     * @param <T2>       右泛型
+     * @return sql
+     */
     public <T1, T2> String getEqualsSql(
         Func1<T1, ?> leftFunc, String leftAlias,
         Func1<T2, ?> rightFunc, String rightAlias

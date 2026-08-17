@@ -20,11 +20,25 @@ public class CRefBiClassValue<T> implements ICRefBiClassValue<T> {
         classValue = CBiClassValue.of((type1, type2) -> new AtomicReference<>(function.apply(type1, type2)));
     }
 
+    /**
+     * 获取双类型缓存值
+     *
+     * @param type1 类型 1
+     * @param type2 类型 2
+     * @return 缓存值
+     */
     @Override
     public T get(Class<?> type1, Class<?> type2) {
         return classValue.get(type1, type2).get();
     }
 
+    /**
+     * 设置双类型缓存值
+     *
+     * @param type1 类型 1
+     * @param type2 类型 2
+     * @param value 值
+     */
     @Override
     public void set(Class<?> type1, Class<?> type2, T value) {
         classValue.get(type1, type2).set(value);

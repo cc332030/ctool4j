@@ -23,6 +23,10 @@ public interface ICBusinessExceptionProvider<T extends Throwable> {
         };
     }
 
+    /**
+     * 获取异常生成函数（默认实现抛出 UnsupportedOperationException）
+     * @return 异常生成函数
+     */
     default CBiFunction<String, Throwable, T> getMessageExceptionFunction() {
         return (message, cause) -> {
             throw new UnsupportedOperationException("No impl");

@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CSpringInit implements ICSpringInit {
 
+    /**
+     * Spring 启动初始化回调（当前无处理逻辑）
+     */
     @Override
     public void onInit() {
 

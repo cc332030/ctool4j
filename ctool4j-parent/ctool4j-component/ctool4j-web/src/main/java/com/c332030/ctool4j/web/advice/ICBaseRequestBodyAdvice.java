@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 
 /**
  * <p>
- * Description: CRequestBodyAdvice
+ * Description: ICBaseRequestBodyAdvice
  * </p>
  *
  * @since 2025/9/28

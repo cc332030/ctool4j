@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CToolSpringCloudInit implements ICSpringInit {
 
+    /**
+     * Spring 启动初始化回调
+     */
     @Override
     public void onInit() {
 

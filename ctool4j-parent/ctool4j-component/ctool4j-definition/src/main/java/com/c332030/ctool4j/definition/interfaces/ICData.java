@@ -9,6 +9,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICData<T> {
 
+    /**
+     * 获取数据
+     * @return 数据
+     */
     T getData();
 
 }

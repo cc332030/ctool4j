@@ -1,14 +1,13 @@
 package com.c332030.ctool4j.spring.processor;
 
+import com.c332030.ctool4j.base.processor.CAbstractProcessor;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import lombok.val;
 import lombok.var;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -21,24 +20,46 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * Description: CAutowiredScanProcessor
+ * </p>
+ * <p>
+ * 注解处理器：扫描标注 @CAutowiredScan 的类，为其中的 @CAutowired 字段生成构造器注入的 Init 类
+ * </p>
+ *
+ * @since 2026/5/17
+ */
 @SupportedAnnotationTypes("com.c332030.ctool4j.spring.annotation.CAutowiredScan")
-public class CAutowiredScanProcessor extends AbstractProcessor {
+public class CAutowiredScanProcessor extends CAbstractProcessor {
 
     private String template;
 
+    /**
+     * 初始化：加载 autowired-init 模板
+     *
+     * @param processingEnv 处理环境
+     */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.template = loadTemplate("/templates/autowired-init.ftl");
+        if (template == null) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+                    "Failed to load template: /templates/autowired-init.ftl");
+        }
     }
 
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_8;
-    }
-
+    /**
+     * 处理注解：为标注 @CAutowiredScan 的类生成 Init 类
+     *
+     * @param annotations 注解集合
+     * @param roundEnv    轮次环境
+     * @return true
+     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (template == null) {
@@ -72,11 +93,7 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
         val initClassFullName = initClassPackage + "." + initClassName;
 
         val constructorParams = autowiredFields.stream()
-                .map(f -> {
-
-                    val simpleType = f.fieldType.substring(f.fieldType.lastIndexOf(".") + 1);
-                    return simpleType + " " + f.fieldName;
-                })
+                .map(f -> toSimpleType(f.fieldType) + " " + f.fieldName)
                 .collect(Collectors.joining(",\n        "))
                 ;
 
@@ -84,13 +101,16 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
                 .map(f -> className + ".set" + capitalize(f.fieldName) + "(" + f.fieldName + ");")
                 .collect(Collectors.joining("\n        "));
 
+        // 泛型/数组字段须拆出内部完整类名逐一 import（如 java.util.List<com.xxx.Xxx> 需 import 两者），
+        // 不能直接 import 整个类型字符串（java.util.List<com.xxx.Xxx> 是非法 import）
         val imports = new StringBuilder();
         imports.append("import ").append(classFullName).append(";\n");
-        for (val field : autowiredFields) {
-            if (!field.fieldType.startsWith("java.lang.") && !field.fieldType.equals(classFullName)) {
-                imports.append("import ").append(field.fieldType).append(";\n");
-            }
-        }
+        autowiredFields.stream()
+                .flatMap(field -> extractFullClassNames(field.fieldType).stream())
+                .distinct()
+                .filter(importName -> !importName.startsWith("java.lang."))
+                .filter(importName -> !importName.equals(classFullName))
+                .forEach(importName -> imports.append("import ").append(importName).append(";\n"));
 
         val code = render(template,
                 "packageName", initClassPackage,
@@ -173,8 +193,41 @@ public class CAutowiredScanProcessor extends AbstractProcessor {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
+    /**
+     * 将完整类型名（含泛型/数组）转为简单名类型声明，如：
+     * java.util.List&lt;com.xxx.XxxService&gt; → List&lt;XxxService&gt;；com.xxx.Xxx[] → Xxx[]
+     * 每个完整类名取其最后一个 '.' 之后的简单名（如 com.xxx.Xxx → Xxx）
+     */
+    private String toSimpleType(String fieldType) {
+        return extractFullClassNames(fieldType).stream()
+                .reduce(fieldType, (type, fullName) -> type.replace(
+                        fullName, fullName.substring(fullName.lastIndexOf('.') + 1)));
+    }
+
+    /**
+     * 提取类型字符串中的所有完整类名（含泛型参数、内嵌类），如：
+     * java.util.Map&lt;java.lang.String, com.xxx.Xxx&gt; → [java.util.Map, java.lang.String, com.xxx.Xxx]
+     */
+    private List<String> extractFullClassNames(String fieldType) {
+        val matcher = Pattern.compile("[a-zA-Z_$][a-zA-Z0-9_$]*(\\.[a-zA-Z_$][a-zA-Z0-9_$]*)+").matcher(fieldType);
+        val names = new ArrayList<String>();
+        while (matcher.find()) {
+            names.add(matcher.group());
+        }
+        return names;
+    }
+
+    /**
+     * 字段信息
+     */
     private static class FieldInfo {
+        /**
+         * 字段名
+         */
         final String fieldName;
+        /**
+         * 字段类型
+         */
         final String fieldType;
 
         FieldInfo(String fieldName, String fieldType) {

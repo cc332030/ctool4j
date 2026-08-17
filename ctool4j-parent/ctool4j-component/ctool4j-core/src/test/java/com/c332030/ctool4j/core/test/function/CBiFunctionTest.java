@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CBiFunctionTest {
 
+    /**
+     * 测试取第一个参数
+     */
     @Test
     public void first() {
 
@@ -21,6 +24,9 @@ public class CBiFunctionTest {
 
     }
 
+    /**
+     * 测试取第二个参数
+     */
     @Test
     public void second() {
 

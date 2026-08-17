@@ -47,7 +47,7 @@ public class CCacheAspect {
 
     /**
      * 缓存 key: namespace Class, value: (expire -> Cache)
-     * 每个 namespace 下按不同过期时间分别维护一个 Guava Cache
+     * 每个 namespace 下按不同过期时间分别维护一个 Caffeine Cache
      */
     private static final Cache<Class<?>, Cache<Integer, Cache<String, Object>>>
         NAMESPACE_CACHES = CLocalCacheUtils.buildCache();
@@ -69,7 +69,10 @@ public class CCacheAspect {
         );
 
     /**
-     * 缓存切面
+     * 缓存切面：读缓存 → 未命中时执行原方法并写缓存（原方法在缓存方法内部执行）。
+     * <p>读缓存/执行原方法异常不捕获，直接向上抛出，调用方可感知失败，
+     * 不再静默降级返回 null（异常时缓存未写入，不会污染缓存）</p>
+     *
      * @param joinPoint 切入点
      * @return 方法执行结果
      */
@@ -78,32 +81,30 @@ public class CCacheAspect {
 
         val method = CAspectUtils.getMethod(joinPoint);
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
-        try {
-            if (cacheable.local()) {
-                log.debug("启用本地缓存");
-                return getLocalCache(joinPoint, cacheable);
-            } else {
-                log.debug("启用 Redis 缓存");
-                return getRedisCache(joinPoint, method, cacheable);
-            }
-        } catch (Exception e) {
-            log.error("获取缓存失败，cacheable: {}", cacheable, e);
+        if (cacheable.local()) {
+            log.debug("启用本地缓存");
+            return getLocalCache(joinPoint, cacheable);
+        } else {
+            log.debug("启用 Redis 缓存");
+            return getRedisCache(joinPoint, method, cacheable);
         }
-
-        return CAspectUtils.process(joinPoint);
     }
 
     /**
      * 生成缓存 key
-     * @param object 方法参数
+     * @param object 方法参数，为 null 时返回 null（由调用方保证不写入缓存）
      * @param cacheable 缓存注解
-     * @return 缓存 key
+     * @return 缓存 key；object 为 null 时返回 null
      */
     @SneakyThrows
     public String getCacheKey(
         Object object,
         CCacheable cacheable
     ) {
+
+        if (null == object) {
+            return null;
+        }
 
         val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
 
@@ -153,7 +154,7 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取本地缓存
+     * 获取本地缓存：未命中时执行原方法并写缓存（Caffeine cache.get 原子加载，单 key 并发只执行一次）
      * @param joinPoint 切入点
      * @param cacheable 缓存注解
      * @return 本地缓存或执行结果
@@ -196,12 +197,12 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取 Redis 缓存
+     * 获取 Redis 缓存：未命中时执行原方法并写缓存（cacheService.getCache 读-算-写一体）
      * <p>
      * 缓存 key 格式：namespace:cacheKey（由 getCacheKey 生成）
      * @param joinPoint 切入点
-     * @param cacheable 缓存注解
      * @param method 目标方法（用于获取返回类型做反序列化）
+     * @param cacheable 缓存注解
      * @return Redis 缓存或执行结果
      */
     private Object getRedisCache(

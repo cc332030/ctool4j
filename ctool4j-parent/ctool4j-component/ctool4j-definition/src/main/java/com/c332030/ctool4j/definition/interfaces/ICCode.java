@@ -9,6 +9,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICCode<T> {
 
+    /**
+     * 获取编码
+     * @return 编码
+     */
     T getCode();
 
 }

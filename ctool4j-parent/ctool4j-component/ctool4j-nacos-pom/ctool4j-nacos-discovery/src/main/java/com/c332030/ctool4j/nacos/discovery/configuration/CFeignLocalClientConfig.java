@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: FeignConfig
+ * Description: CFeignLocalClientConfig
  * </p>
  *
  * @since 2024/12/9

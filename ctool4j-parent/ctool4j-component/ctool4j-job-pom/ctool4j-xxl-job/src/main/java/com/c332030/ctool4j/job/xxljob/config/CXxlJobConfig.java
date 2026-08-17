@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>
- * Description: CXxlJobExecutorConfig
+ * Description: CXxlJobConfig
  * </p>
  *
  * @since 2025/11/29

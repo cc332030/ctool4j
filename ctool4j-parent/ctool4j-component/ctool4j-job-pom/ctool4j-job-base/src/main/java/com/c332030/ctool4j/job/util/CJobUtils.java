@@ -3,6 +3,7 @@ package com.c332030.ctool4j.job.util;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.definition.function.StartEndTimeConsumer;
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -17,6 +18,7 @@ import java.time.temporal.ChronoUnit;
  *
  * @since 2025/10/31
  */
+@CustomLog
 @UtilityClass
 public class CJobUtils {
 
@@ -39,6 +41,7 @@ public class CJobUtils {
 
         Instant instant = null;
         if(StrUtil.isNotBlank(param)){
+            // 任务参数来自外部配置，格式非法时抛异常，交由任务框架处理，不静默兜底
             instant = DateUtil.parse(param).toInstant();
         }
 
@@ -53,6 +56,7 @@ public class CJobUtils {
                 .toInstant()
                 ;
 
+        // 故意多减 1 小时（时间窗口向前多覆盖 1 小时），避免任务执行延迟导致边界数据漏处理
         val startTime = endTime
                 .minus(1, ChronoUnit.HOURS)
                 .minus(days, ChronoUnit.DAYS);

@@ -38,6 +38,11 @@ public class CSpringHttpUtils {
     @CAutowired
     CSpringJacksonConfig jacksonConfig;
 
+    /**
+     * 获取 POST 请求头，内容类型与接收类型均为 JSON
+     *
+     * @return POST 请求头
+     */
     public HttpHeaders getPostHeaders() {
         val headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -45,6 +50,11 @@ public class CSpringHttpUtils {
         return headers;
     }
 
+    /**
+     * 获取 GET 请求头，接收类型为 JSON
+     *
+     * @return GET 请求头
+     */
     public HttpHeaders getGetHeaders() {
         val headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -53,6 +63,8 @@ public class CSpringHttpUtils {
 
     /**
      * 配置消息转换器
+     * <p>注意：会修改入参集合内各转换器的状态（如为 Jackson 转换器追加 json5 媒体类型），
+     * 调用方不应假设入参在调用后保持不变</p>
      *
      * @param messageConverters 消息转换器
      */
@@ -66,7 +78,7 @@ public class CSpringHttpUtils {
                     configurer.accept(messageConverter);
                 }
             } catch (Exception e) {
-                log.error("", e);
+                log.error("configure message converter failed: {}", messageConverter.getClass().getName(), e);
             }
 
         });
@@ -77,6 +89,11 @@ public class CSpringHttpUtils {
         e -> configureJackson2HttpMessageConverter((MappingJackson2HttpMessageConverter)e)
     );
 
+    /**
+     * 配置 Jackson 消息转换器，开启 json5 时追加支持的媒体类型
+     *
+     * @param messageConverter Jackson 消息转换器
+     */
     public void configureJackson2HttpMessageConverter(MappingJackson2HttpMessageConverter messageConverter) {
 
         if(CBoolUtils.isTrue(jacksonConfig.getJson5())) {
@@ -85,6 +102,11 @@ public class CSpringHttpUtils {
 
     }
 
+    /**
+     * 为消息转换器追加 json5 媒体类型
+     *
+     * @param messageConverter 消息转换器
+     */
     public void configureJson5(AbstractHttpMessageConverter<?> messageConverter) {
 
         log.debug("enable json5");

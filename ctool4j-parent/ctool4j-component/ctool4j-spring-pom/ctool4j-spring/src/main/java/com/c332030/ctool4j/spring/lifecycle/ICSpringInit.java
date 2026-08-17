@@ -11,6 +11,9 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
  */
 public interface ICSpringInit extends SmartInitializingSingleton {
 
+    /**
+     * 单例 Bean 实例化后触发初始化
+     */
     @Override
     default void afterSingletonsInstantiated() {
         onInit();

@@ -9,7 +9,7 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: CFeignClientLogConfig
+ * Description: CFeignClientHeaderConfig
  * </p>
  *
  * @since 2025/9/21

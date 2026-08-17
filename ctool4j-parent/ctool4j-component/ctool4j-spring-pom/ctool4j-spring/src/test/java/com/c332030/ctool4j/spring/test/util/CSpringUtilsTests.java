@@ -21,6 +21,9 @@ public class CSpringUtilsTests {
 
     private static final String CLASS_NAME = CSpringUtilsTests.class.getSimpleName();
 
+    /**
+     * 测试获取当前激活环境
+     */
     @Test
     public void getActiveProfile() {
 
@@ -28,6 +31,9 @@ public class CSpringUtilsTests {
         Assertions.assertEquals(PROFILE, profile);
     }
 
+    /**
+     * 测试获取当前激活环境文本
+     */
     @Test
     public void getActiveProfileText() {
 
@@ -35,6 +41,9 @@ public class CSpringUtilsTests {
         Assertions.assertEquals(PROFILE.getText(), profile);
     }
 
+    /**
+     * 测试环境名前缀拼接
+     */
     @Test
     public void profilePrefix() {
 
@@ -42,6 +51,9 @@ public class CSpringUtilsTests {
         Assertions.assertEquals(PROFILE.name() + CLASS_NAME, profile);
     }
 
+    /**
+     * 测试生产环境外的环境名前缀拼接
+     */
     @Test
     public void profilePrefixExcludeProd() {
 
@@ -49,6 +61,9 @@ public class CSpringUtilsTests {
         Assertions.assertEquals(PROFILE.name() + CLASS_NAME, profile);
     }
 
+    /**
+     * 测试环境名后缀拼接
+     */
     @Test
     public void profileSuffix() {
 
@@ -56,6 +71,9 @@ public class CSpringUtilsTests {
         Assertions.assertEquals(CLASS_NAME + PROFILE.name(), profile);
     }
 
+    /**
+     * 测试生产环境外的环境名后缀拼接
+     */
     @Test
     public void profileSuffixExcludeProd() {
 
@@ -63,6 +81,9 @@ public class CSpringUtilsTests {
         Assertions.assertEquals(CLASS_NAME + PROFILE.name(), profile);
     }
 
+    /**
+     * 测试环境文本后缀拼接
+     */
     @Test
     public void profileTextSuffix() {
 

@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @ConditionalOnMissingExceptionHandler(IllegalArgumentException.class)
 public class CIllegalArgumentExceptionHandler {
 
+    /**
+     * 处理非法参数异常
+     *
+     * @param e 非法参数异常
+     * @return 错误结果
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public CStrResult<Void> handle(IllegalArgumentException e) {
 

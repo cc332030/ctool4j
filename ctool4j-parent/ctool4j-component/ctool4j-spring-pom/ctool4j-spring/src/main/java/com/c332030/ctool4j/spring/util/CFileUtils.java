@@ -25,6 +25,12 @@ import java.util.Map;
 @UtilityClass
 public class CFileUtils {
 
+    /**
+     * 从路径中提取文件名
+     *
+     * @param path 路径
+     * @return 文件名；路径为空时返回 null
+     */
     public String getFileName(String path) {
 
         if(StrUtil.isEmpty(path)){
@@ -68,19 +74,41 @@ public class CFileUtils {
         return fileName.substring(separatorIndex + 1).toLowerCase();
     }
 
+    /**
+     * 按内容获取文件类型
+     *
+     * @param inputStream 输入流
+     * @return 文件类型
+     */
     public String getFileType(InputStream inputStream) {
         return FileTypeUtil.getType(inputStream);
     }
 
+    /**
+     * 获取路径对应文件的 MIME 类型
+     *
+     * @param path 路径
+     * @return MIME 类型；无法识别时返回 null
+     */
     public String getMimeType(String path) {
         return getMimeType(path, null);
     }
 
+    /**
+     * 常见但默认映射缺失的 MIME 类型补充映射
+     */
     public final Map<String, String> EXTRA_MIME_TYPE_MAP = CMap.of(
         "webp", "image/webp",
         "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
+    /**
+     * 获取路径对应文件的 MIME 类型，无法识别时返回默认类型
+     *
+     * @param path        路径
+     * @param defaultType 默认 MIME 类型
+     * @return MIME 类型
+     */
     public String getMimeType(String path, String defaultType) {
 
         var extension = Opt.ofBlankAble(getFileType(path))

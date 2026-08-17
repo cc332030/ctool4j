@@ -24,9 +24,18 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CLogAndIgnoreThrowableAspect {
 
+    /**
+     * 标注了 CLogAndIgnoreThrowable 注解的方法切点
+     */
     @Pointcut("@annotation(com.c332030.ctool4j.spring.exception.annotation.CLogAndIgnoreThrowable)")
     public void annotationPointcut() {}
 
+    /**
+     * 环绕增强，记录被标注方法抛出的异常并吞掉
+     *
+     * @param joinPoint 切点
+     * @return 切点方法的返回值；异常时返回 null
+     */
     @SneakyThrows
     @Around("annotationPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) {

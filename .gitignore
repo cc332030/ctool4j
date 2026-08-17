@@ -2,6 +2,8 @@
 .idea
 *.iml
 
+.codebuddy*
+
 .gradle
 
 target*
@@ -12,3 +14,5 @@ release.properties
 *.versionsBackup
 
 logs*
+
+tmp*

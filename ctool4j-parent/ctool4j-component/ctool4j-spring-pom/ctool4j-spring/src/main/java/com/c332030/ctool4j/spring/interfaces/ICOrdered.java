@@ -11,11 +11,20 @@ import org.springframework.core.Ordered;
  */
 public interface ICOrdered<T extends ICOrdered<T>> extends Ordered, Comparable<T> {
 
+    /**
+     * 获取排序值
+     * @return 排序值
+     */
     @Override
     default int getOrder() {
         return 0;
     }
 
+    /**
+     * 按排序值比较
+     * @param o 待比较对象
+     * @return 比较结果
+     */
     @Override
     default int compareTo(T o) {
         return Integer.compare(this.getOrder(), o.getOrder());

@@ -24,6 +24,9 @@ public class CCacheAspectTests {
     @Autowired
     CCacheTestService cacheTestService;
 
+    /**
+     * 测试缓存切面的生效、命中与过期
+     */
     @Test
     @SneakyThrows
     public void cacheAspect() {
@@ -54,6 +57,28 @@ public class CCacheAspectTests {
 
         Assertions.assertNotEquals(a1, a3);
         Assertions.assertNotEquals(uA1, uA3);
+
+    }
+
+    /**
+     * 测试缓存方法抛异常时向上传播，不返回 null（Q28 修复）
+     * <p>注意：缓存 key 仅由参数生成（不含方法名），需用独立 id 避免与 cacheAspect() 中 time(id) 串 key</p>
+     */
+    @Test
+    public void cacheErrorPropagates() {
+
+        val errorId = 999;
+        val ex = Assertions.assertThrowsExactly(
+            IllegalStateException.class,
+            () -> cacheTestService.error(errorId)
+        );
+        Assertions.assertTrue(ex.getMessage().contains("cache error: " + errorId));
+
+        // 异常未写入缓存：再次调用仍抛异常（而非命中缓存返回）
+        Assertions.assertThrowsExactly(
+            IllegalStateException.class,
+            () -> cacheTestService.error(errorId)
+        );
 
     }
 

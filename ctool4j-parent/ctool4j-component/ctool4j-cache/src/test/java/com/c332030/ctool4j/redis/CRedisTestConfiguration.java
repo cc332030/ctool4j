@@ -16,6 +16,11 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 public class CRedisTestConfiguration {
 
+    /**
+     * 提供 mock 的 RedissonClient，避免测试依赖真实 Redis
+     *
+     * @return mock 的 RedissonClient
+     */
     @Bean
     @Primary
     public RedissonClient mockRedissonClient() {

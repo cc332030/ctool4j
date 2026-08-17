@@ -23,15 +23,34 @@ import java.io.InputStream;
 @UtilityClass
 public class CWebUtils {
 
+    /**
+     * 构造下载响应头值
+     *
+     * @param filename 文件名
+     * @return Content-Disposition 响应头值
+     */
     public String getContentDispositionValue(String filename) {
         return "attachment;filename=" + filename;
     }
 
+    /**
+     * 将输入流写出为响应内容
+     *
+     * @param inputStream 内容输入流
+     * @param filePath    文件路径，用于推断文件名与 MIME 类型
+     */
     @SneakyThrows
     public void writeResponse(InputStream inputStream, String filePath) {
         writeResponse(inputStream, null, filePath);
     }
 
+    /**
+     * 将输入流写出为响应内容，可指定内容长度
+     *
+     * @param inputStream    内容输入流
+     * @param contentLength  内容长度，为空时不设置
+     * @param filePath       文件路径，用于推断文件名与 MIME 类型
+     */
     @SneakyThrows
     public void writeResponse(InputStream inputStream, Number contentLength, String filePath) {
 

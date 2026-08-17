@@ -59,12 +59,23 @@ public interface ICRedisService<K, V> {
         return getRedisTemplate().opsForValue();
     }
 
+    /**
+     * 判断 key 是否存在
+     * @param key key
+     * @return 是否存在
+     */
     default boolean hasKey(K key) {
 
         val result = getRedisTemplate().hasKey(key);
         return CBoolUtils.isTrue(result);
     }
 
+    /**
+     * 键不存在时设置值
+     * @param key key
+     * @param value 值
+     * @return 是否设置成功
+     */
     default boolean setIfAbsent(K key, V value) {
 
         val result = opsForValue()
@@ -72,6 +83,13 @@ public interface ICRedisService<K, V> {
         return CBoolUtils.isTrue(result);
     }
 
+    /**
+     * 键不存在时设置值（带超时）
+     * @param key key
+     * @param value 值
+     * @param timeout 超时
+     * @return 是否设置成功
+     */
     default boolean setIfAbsent(K key, V value, Duration timeout) {
 
         val result = opsForValue()
@@ -141,6 +159,11 @@ public interface ICRedisService<K, V> {
         return opsForValue().get(key);
     }
 
+    /**
+     * 获取值
+     * @param key key
+     * @return 值 Optional
+     */
     default Opt<V> getValueOpt(K key){
         return Opt.ofNullable(getValue(key));
     }
@@ -160,6 +183,7 @@ public interface ICRedisService<K, V> {
      * 获取值
      * @param key key
      * @param convert 转换函数
+     * @param defaultValue 默认值
      * @return 值
      * @param <T> 转换类型
      */
@@ -172,18 +196,38 @@ public interface ICRedisService<K, V> {
         return ObjUtil.defaultIfNull(convert.apply(value), defaultValue);
     }
 
+    /**
+     * 获取 Integer 值
+     * @param key key
+     * @return Integer 值
+     */
     default Integer getValueInt(K key){
         return CObjUtils.convert(getValue(key), Integer.class);
     }
 
+    /**
+     * 获取 Integer 值
+     * @param key key
+     * @return Integer 值 Optional
+     */
     default Opt<Integer> getValueIntOpt(K key){
         return Opt.ofNullable(getValueInt(key));
     }
 
+    /**
+     * 获取 Long 值
+     * @param key key
+     * @return Long 值
+     */
     default Long getValueLong(K key){
         return CObjUtils.convert(getValue(key), Long.class);
     }
 
+    /**
+     * 获取 Long 值
+     * @param key key
+     * @return Long 值 Optional
+     */
     default Opt<Long> getValueLongOpt(K key){
         return Opt.ofNullable(getValueLong(key));
     }
@@ -200,10 +244,22 @@ public interface ICRedisService<K, V> {
         getRedisTemplate().delete(key);
     }
 
+    /**
+     * 获取值与剩余生存时间
+     * @param key key
+     * @return 值与剩余生存时间
+     */
     default CValueWithTtl<V> getValueWithTtl(K key) {
         return getValueWithTtl(key, CFunction.self());
     }
 
+    /**
+     * 获取值与剩余生存时间
+     * @param key key
+     * @param convert 转换函数
+     * @param <T> 转换类型
+     * @return 值与剩余生存时间
+     */
     default <T> CValueWithTtl<T> getValueWithTtl(K key, CFunction<V, T> convert) {
 
         val redisTemplate = getRedisTemplate();
@@ -238,7 +294,7 @@ public interface ICRedisService<K, V> {
                 @SuppressWarnings("unchecked")
                 val valueSerializer = (RedisSerializer<V>)redisTemplate.getValueSerializer();
                 val valueInRedis = valueSerializer.deserialize(valueBytes);
-                value = convert.apply(valueInRedis);
+                value = CObjUtils.convert(valueInRedis, convert);
             }
 
             return new CValueWithTtl<>(value, ttl);
@@ -246,11 +302,22 @@ public interface ICRedisService<K, V> {
 
     }
 
+    /**
+     * 自增 1
+     * @param key key
+     * @return 自增后的值
+     */
     default Long incr(K key) {
         return opsForValue()
             .increment(key);
     }
 
+    /**
+     * 自增指定值
+     * @param key key
+     * @param delta 增量
+     * @return 自增后的值
+     */
     default Long incr(K key, long delta) {
         return opsForValue()
             .increment(key, delta);

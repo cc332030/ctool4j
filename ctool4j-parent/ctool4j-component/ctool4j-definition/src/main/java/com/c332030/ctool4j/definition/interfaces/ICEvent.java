@@ -9,6 +9,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICEvent<E> {
 
+    /**
+     * 处理事件
+     * @param event 事件
+     */
     void onEvent(E event);
 
 }

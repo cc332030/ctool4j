@@ -23,11 +23,23 @@ import java.io.IOException;
 @Component
 public class CCorsFilter implements ICFilter, PriorityOrdered {
 
+    /**
+     * 最高优先级，最先执行
+     *
+     * @return 优先级
+     */
     @Override
     public int getOrder() {
         return Integer.MIN_VALUE;
     }
 
+    /**
+     * 过滤请求：输出 CORS 头，OPTIONS 预检请求直接返回
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param chain    过滤器链
+     */
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 

@@ -14,8 +14,16 @@ public abstract class CAbstractMpMethod extends AbstractMethod implements ICMpMe
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 注入的 SQL 方法枚举
+     */
     protected final ICMpSqlMethod sqlMethod;
 
+    /**
+     * 构造方法
+     *
+     * @param sqlMethodEnum 注入的 SQL 方法枚举
+     */
     public CAbstractMpMethod(ICMpSqlMethod sqlMethodEnum) {
         super(sqlMethodEnum.getMethod());
         sqlMethod = sqlMethodEnum;

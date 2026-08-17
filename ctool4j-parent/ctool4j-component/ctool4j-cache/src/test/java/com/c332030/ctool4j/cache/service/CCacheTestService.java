@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class CCacheTestService {
 
+    /**
+     * 测试按 id 缓存，返回当前时间戳
+     *
+     * @param id 缓存键 id
+     * @return 当前时间戳
+     */
     @CCacheable(
         namespace = CCacheAspectTests.class,
         expire = 1
@@ -23,12 +29,32 @@ public class CCacheTestService {
         return System.currentTimeMillis();
     }
 
+    /**
+     * 测试按对象缓存，返回当前时间戳
+     *
+     * @param cacheUser 缓存键对象
+     * @return 当前时间戳
+     */
     @CCacheable(
         namespace = CCacheAspectTests.class,
         expire = 1
     )
     public Long userCache(CCacheUser cacheUser) {
         return System.currentTimeMillis();
+    }
+
+    /**
+     * 测试缓存方法抛异常时向上传播，不被切面吞掉
+     *
+     * @param id 缓存键 id
+     * @return 永远抛异常
+     */
+    @CCacheable(
+        namespace = CCacheAspectTests.class,
+        expire = 1
+    )
+    public Long error(Integer id) {
+        throw new IllegalStateException("cache error: " + id);
     }
 
 }

@@ -11,6 +11,10 @@ import org.slf4j.event.Level;
  */
 public interface ICLogLevel {
 
+    /**
+     * 获取日志级别
+     * @return 日志级别
+     */
     Level getLevel();
 
 }

@@ -11,6 +11,10 @@ import org.slf4j.event.Level;
  */
 public interface ICLogLevelInfo extends ICLogLevel {
 
+    /**
+     * 获取日志级别
+     * @return 日志级别
+     */
     @Override
     default Level getLevel() {
         return Level.INFO;

@@ -13,6 +13,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
@@ -44,6 +49,31 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- 性能对比工具：cglib BeanCopier（字节码生成实现），仅 benchmark 代码使用 -->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.3.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- 性能基准入口：仅显式执行本命令时运行，不随 mvn test/打包执行 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <mainClass>com.c332030.ctool4j.core.benchmark.BenchmarkRunner</mainClass>
+                    <classpathScope>test</classpathScope>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

@@ -13,6 +13,11 @@ import springfox.documentation.spi.service.ExpandedParameterBuilderPlugin;
  */
 public interface ICExpandedParameterBuilderPlugin extends ExpandedParameterBuilderPlugin {
 
+    /**
+     * 是否支持指定文档类型（默认全部支持）
+     * @param delimiter 文档类型
+     * @return 是否支持
+     */
     @Override
     default boolean supports(@NonNull DocumentationType delimiter) {
         return true;

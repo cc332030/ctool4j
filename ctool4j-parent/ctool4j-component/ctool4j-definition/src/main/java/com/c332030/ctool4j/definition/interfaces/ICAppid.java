@@ -9,6 +9,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICAppid {
 
+    /**
+     * 获取 appid
+     * @return appid
+     */
     String getAppid();
 
 }

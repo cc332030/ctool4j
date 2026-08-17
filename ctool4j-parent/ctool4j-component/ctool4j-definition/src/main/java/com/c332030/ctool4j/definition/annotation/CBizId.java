@@ -14,6 +14,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CBizId {
 
+    /**
+     * 业务 ID 字段名，默认为空
+     *
+     * @return 业务 ID 字段名
+     */
     String value() default "";
 
 }

@@ -19,6 +19,9 @@ import java.util.Date;
 @CustomLog
 public class CJobUtilsTest {
 
+    /**
+     * 测试按天划分任务执行时间
+     */
     @Test
     public void dayJobTime() {
 

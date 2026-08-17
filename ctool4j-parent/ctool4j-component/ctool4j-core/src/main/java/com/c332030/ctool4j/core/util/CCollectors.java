@@ -18,18 +18,45 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CCollectors {
 
+    /**
+     * 收集为不可变 LinkedHashMap（元素自身为值）
+     *
+     * @param keyMapper 键提取函数
+     * @param <T>       元素类型
+     * @param <K>       键类型
+     * @return 收集器
+     */
     public <T, K> Collector<T, ?, Map<K, T>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper
     ) {
         return toUnmodifiableLinkedMap(keyMapper, Function.identity());
     }
 
+    /**
+     * 收集为不可变 LinkedHashMap（元素自身为值，带键冲突合并）
+     *
+     * @param keyMapper    键提取函数
+     * @param mergeFunction 键冲突合并函数
+     * @param <T>          元素类型
+     * @param <K>          键类型
+     * @return 收集器
+     */
     public <T, K> Collector<T, ?, Map<K, T>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper, BinaryOperator<T> mergeFunction
     ) {
         return toUnmodifiableLinkedMap(keyMapper, Function.identity(), mergeFunction);
     }
 
+    /**
+     * 收集为不可变 LinkedHashMap（键值分别提取）
+     *
+     * @param keyMapper   键提取函数
+     * @param valueMapper 值提取函数
+     * @param <T>         元素类型
+     * @param <K>         键类型
+     * @param <U>         值类型
+     * @return 收集器
+     */
     public <T, K, U> Collector<T, ?, Map<K,U>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper,
             Function<? super T, ? extends U> valueMapper
@@ -39,6 +66,17 @@ public class CCollectors {
         );
     }
 
+    /**
+     * 收集为不可变 LinkedHashMap（键值分别提取，带键冲突合并）
+     *
+     * @param keyMapper    键提取函数
+     * @param valueMapper  值提取函数
+     * @param mergeFunction 键冲突合并函数
+     * @param <T>          元素类型
+     * @param <K>          键类型
+     * @param <U>          值类型
+     * @return 收集器
+     */
     public <T, K, U> Collector<T, ?, Map<K,U>> toUnmodifiableLinkedMap(
             Function<? super T, ? extends K> keyMapper,
             Function<? super T, ? extends U> valueMapper,
@@ -55,8 +93,27 @@ public class CCollectors {
         );
     }
 
+    /**
+     * 收集为 LinkedHashSet
+     *
+     * @param <T> 元素类型
+     * @return 收集器
+     */
     public <T> Collector<T, ?, Set<T>> toLinkedSet() {
         return Collectors.toCollection(LinkedHashSet::new);
+    }
+
+    /**
+     * 收集为不可变 Set
+     *
+     * @param <T> 元素类型
+     * @return 收集器
+     */
+    public <T> Collector<T, ?, Set<T>> toUnmodifiableSet() {
+        return Collectors.collectingAndThen(
+                Collectors.toSet(),
+                Collections::unmodifiableSet
+        );
     }
 
 }

@@ -36,6 +36,12 @@ public class CPageUtils {
 
     /**
      * 分页查询并执行逻辑
+     *
+     * <p>终止条件：queryFunction 返回 null、返回集合为空，或 doSth 返回 false</p>
+     *
+     * <p>当返回自定义分页对象（非集合，如 IPage）时，无法通过 CollUtil.isEmpty 判断是否结束，
+     * 需由业务在无数据时返回 null，或让 doSth 在结束场景返回 false</p>
+     *
      * @param queryFunction 分页查询
      * @param doSth 执行逻辑
      * @param <T> 数据类型

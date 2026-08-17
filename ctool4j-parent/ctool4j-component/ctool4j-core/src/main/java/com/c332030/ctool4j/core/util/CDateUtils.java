@@ -31,10 +31,21 @@ import java.util.Date;
 @UtilityClass
 public class CDateUtils {
 
+    /**
+     * 初始 Instant（epoch 0）
+     */
     public static final Instant INITIAL_INSTANT = Instant.ofEpochMilli(0);
 
+    /**
+     * 默认时区（系统时区）
+     */
     public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
+    /**
+     * 获取初始日期（epoch 0）
+     *
+     * @return 初始日期
+     */
     public Date initialDate() {
         return new Date(0);
     }
@@ -176,11 +187,7 @@ public class CDateUtils {
         }
 
         try {
-            var mills = CNumUtils.parseLong(text);
-            // 判断是否有将秒作为毫秒传过来
-            if(mills <= MIN_MILLS){
-                mills *= 1000;
-            }
+            val mills = CNumUtils.parseLong(text);
             return CDateUtils.toDate(mills);
         } catch (Exception ex) {
             log.debug("parse long text error", ex);
@@ -200,7 +207,7 @@ public class CDateUtils {
     }
 
     /**
-     * 时间戳转 Date
+     * 时间戳转 Date（秒/毫秒自动识别，见 {@link #toMillis(Long)}）
      *
      * @param mills 时间戳
      * @return Date
@@ -209,10 +216,30 @@ public class CDateUtils {
         if (null == mills) {
             return null;
         }
-        if(mills <= MIN_MILLS) {
-            mills *= 1000;
+        val millis = toMillis(mills);
+        return null == millis ? null : new Date(millis);
+    }
+
+    /**
+     * 时间戳统一归一化为毫秒：负数视为非法输入返回 null；小于等于 {@link #MIN_MILLS} 的值按秒处理乘 1000，否则视为毫秒。
+     * <p>秒/毫秒自动识别为启发式，存在固有歧义：{@link #MIN_MILLS}（1e10）同时是 2286-11-20 的秒值与 1973-03-03 的毫秒值，
+     * 两者在 0 ~ 1e10 区间重叠，本方法统一按秒解释该区间；实际影响仅限 1973-03-03 之前的毫秒时间戳
+     * （现实几乎不存在）被按秒解释、2286-11-20 之后的秒值被按毫秒解释。
+     * 需要精确单位时建议调用方显式换算（秒：value*1000；毫秒：value）。
+     * toDate/toInstant/parseMaybeMills 共用此判定，保证同一时间戳语义一致。</p>
+     *
+     * @param value 时间戳
+     * @return 毫秒时间戳；负数返回 null
+     */
+    private Long toMillis(Long value) {
+        // 时间戳不存在负数，负数视为非法输入返回 null
+        if (value < 0) {
+            return null;
         }
-        return new Date(mills);
+        if (value <= MIN_MILLS) {
+            return value * 1000;
+        }
+        return value;
     }
 
     /**
@@ -262,7 +289,7 @@ public class CDateUtils {
     }
 
     /**
-     * 时间戳转 Instant
+     * 时间戳转 Instant（秒/毫秒自动识别，与 {@link #toDate(Long)} 语义一致，见 {@link #toMillis(Long)}）
      *
      * @param mills 时间戳
      * @return Instant
@@ -271,7 +298,8 @@ public class CDateUtils {
         if (null == mills) {
             return null;
         }
-        return Instant.ofEpochMilli(mills);
+        val millis = toMillis(mills);
+        return null == millis ? null : Instant.ofEpochMilli(millis);
     }
 
     /**

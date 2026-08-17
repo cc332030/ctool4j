@@ -27,6 +27,14 @@ import java.util.LinkedHashSet;
 @Configuration
 public class CMybatisPlusConfiguration {
 
+    /**
+     * 创建 MybatisPlusInterceptor，聚合可用的内置拦截器
+     *
+     * @param dynamicTableNameInnerInterceptor 动态表名拦截器，可为 null
+     * @param paginationInnerInterceptor       分页拦截器，可为 null
+     * @param innerInterceptors                其他内置拦截器集合，可为 null
+     * @return 聚合后的 MybatisPlusInterceptor
+     */
     @Bean
     @ConditionalOnMissingBean(MybatisPlusInterceptor.class)
     public MybatisPlusInterceptor cMybatisPlusInterceptor(
@@ -45,6 +53,11 @@ public class CMybatisPlusConfiguration {
         return mybatisPlusInterceptor;
     }
 
+    /**
+     * 创建分页内置拦截器
+     *
+     * @return 分页内置拦截器
+     */
     @Bean
     @ConditionalOnBean(MybatisPlusInterceptor.class)
     @ConditionalOnMissingBean(PaginationInnerInterceptor.class)
@@ -52,6 +65,11 @@ public class CMybatisPlusConfiguration {
         return new PaginationInnerInterceptor();
     }
 
+    /**
+     * 创建防全表更新删除的内置拦截器
+     *
+     * @return 防全表更新删除的内置拦截器
+     */
     @Bean
     @ConditionalOnBean(MybatisPlusInterceptor.class)
     @ConditionalOnMissingBean(BlockAttackInnerInterceptor.class)

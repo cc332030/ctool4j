@@ -9,6 +9,10 @@ package com.c332030.ctool4j.definition.interfaces;
  */
 public interface ICEnumNameValue extends ICEnumName, ICValue<String> {
 
+    /**
+     * 获取值（默认返回枚举名称）
+     * @return 值
+     */
     @Override
     default String getValue() {
         return name();

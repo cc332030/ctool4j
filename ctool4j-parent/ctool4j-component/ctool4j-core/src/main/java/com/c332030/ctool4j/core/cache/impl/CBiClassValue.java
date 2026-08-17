@@ -32,6 +32,15 @@ public class CBiClassValue<T> implements ICBiClassValue<T> {
     }
 
     /**
+     * 移除缓存值，下次 get 时重新计算
+     * @param type1 类1
+     * @param type2 类2
+     */
+    public void remove(Class<?> type1, Class<?> type2) {
+        classValue.get(type1).remove(type2);
+    }
+
+    /**
      * 创建 CBiClassValue
      * @param function 值函数
      * @return CClassValue

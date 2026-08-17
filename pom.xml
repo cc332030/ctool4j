@@ -5,6 +5,7 @@
     <groupId>com.c332030</groupId>
     <artifactId>ctool4j</artifactId>
     <version>1.0.20260730-SNAPSHOT</version>
+
     <packaging>pom</packaging>
 
     <licenses>
@@ -73,9 +74,7 @@
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <maven-dependency-plugin.version>3.11.0</maven-dependency-plugin.version>
-        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
 
-        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <versions-maven-plugin.version>2.19.1</versions-maven-plugin.version>
         <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
 
@@ -119,7 +118,10 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
-                        <failOnError>false</failOnError>
+                        <!-- 失败是否中断构建 -->
+                        <failOnError>true</failOnError>
+                        <!-- 隐藏 html 输出提示 -->
+                        <quiet>true</quiet>
                     </configuration>
                     <executions>
                         <execution>

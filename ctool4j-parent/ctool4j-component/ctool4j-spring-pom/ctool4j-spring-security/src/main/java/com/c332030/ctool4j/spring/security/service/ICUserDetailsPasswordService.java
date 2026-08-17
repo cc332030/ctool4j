@@ -13,12 +13,24 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  */
 public interface ICUserDetailsPasswordService<T> extends UserDetailsPasswordService {
 
+    /**
+     * 更新用户密码
+     * @param user 用户详情
+     * @param newPassword 新密码
+     * @return 更新后的用户详情
+     */
     @Override
     @SuppressWarnings("unchecked")
     default UserDetails updatePassword(UserDetails user, String newPassword) {
         return updatePassword((CSecurityUser<T>)user, newPassword);
     }
 
+    /**
+     * 更新用户密码
+     * @param user 用户详情
+     * @param newPassword 新密码
+     * @return 更新后的用户详情
+     */
     CSecurityUser<T> updatePassword(CSecurityUser<T> user, String newPassword);
 
 }
