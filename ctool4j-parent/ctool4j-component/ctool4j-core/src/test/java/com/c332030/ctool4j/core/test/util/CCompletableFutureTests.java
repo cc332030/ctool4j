@@ -36,10 +36,12 @@ public class CCompletableFutureTests {
             throw new IllegalStateException("boom");
         });
 
-        // Q22 修复：异常保持异常完成状态，get() 可感知失败，不再吞异常
+        // 修复：异常保持异常完成状态，get() 可感知失败，不再吞异常
+        // 先阻塞等待任务完成（get() 抛 ExecutionException 即代表已执行且未吞异常），
+        // 再断言完成状态，避免异步任务未完成时的竞态导致 isDone() 为 false
+        Assertions.assertThrows(ExecutionException.class, () -> future.get(100, TimeUnit.MILLISECONDS));
         Assertions.assertTrue(future.isDone());
         Assertions.assertTrue(future.isCompletedExceptionally());
-        Assertions.assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
 
     }
 
