@@ -70,10 +70,10 @@ public class CRequestLog implements IHttpLogInfo {
     Map<String, Collection<String>> params;
 
     /**
-     * 请求体/请求参数（key → value）：服务端 MVC 经 CLogRequestBodyAdvice 记录，feign 客户端经 getRequestBodyMap 记录，
-     * 拼接时统一从 reqs 取请求体
+     * 请求体（统一为 Object）：服务端 MVC 经 CLogRequestBodyAdvice 记录请求体对象，
+     * feign 客户端记录请求体文本字符串，拼接时统一从 req 取请求体
      */
-    Object reqs;
+    Object req;
 
     /**
      * 响应体：拼接时经 getPrintAble 可打印处理后输出（见 CCommUtils.appendHttpLog）

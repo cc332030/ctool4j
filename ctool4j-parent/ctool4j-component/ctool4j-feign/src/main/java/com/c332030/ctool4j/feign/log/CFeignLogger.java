@@ -170,8 +170,8 @@ public class CFeignLogger extends Logger {
             // feign 请求头为外部可变对象，深拷贝为不可变后再保存，避免日志模型被外部修改
             requestLog.setHeaders(toImmutableHeaders(request.headers()));
         }
-        // 请求体文本放入 reqs，与 MVC 场景记录位置一致，拼接时统一从 reqs 取请求体
-        requestLog.setReqs(getBodyText(request.body(), request.headers()));
+        // 请求体文本放入 req，与 MVC 场景记录位置一致，拼接时统一从 req 取请求体
+        requestLog.setReq(getBodyText(request.body(), request.headers()));
         return requestLog;
     }
 

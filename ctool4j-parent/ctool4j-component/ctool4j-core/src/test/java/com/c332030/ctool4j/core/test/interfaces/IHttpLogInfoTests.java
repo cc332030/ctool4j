@@ -58,7 +58,7 @@ public class IHttpLogInfoTests {
 
         Assertions.assertTrue(info.getHeaders().isEmpty());
         Assertions.assertTrue(info.getParams().isEmpty());
-        Assertions.assertNull(info.getReqs());
+        Assertions.assertNull(info.getReq());
 
         Assertions.assertEquals(0L, info.getBeginTimeMillis());
         Assertions.assertEquals(0L, info.getEndTimeMillis());

@@ -86,7 +86,7 @@ public interface IHttpLogInfo {
      * 请求体
      * @return 请求体
      */
-    default Object getReqs() {
+    default Object getReq() {
         return null;
     }
 

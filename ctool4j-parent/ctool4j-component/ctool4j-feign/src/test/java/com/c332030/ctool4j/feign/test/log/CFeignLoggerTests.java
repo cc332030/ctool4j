@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * CFeignLogger 测试
  *
- * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/reqs）、
+ * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/req）、
  * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回
  *
  * @author c332030
@@ -182,7 +182,7 @@ class CFeignLoggerTests {
         logger.logRequest("cfg", Logger.Level.FULL, request);
 
         CRequestLog requestLog = currentRequestLog();
-        Assertions.assertEquals("{\"name\":\"张三\"}", requestLog.getReqs().get("requestBody"));
+        Assertions.assertEquals("{\"name\":\"张三\"}", requestLog.getReq());
     }
 
     @Test
@@ -195,7 +195,7 @@ class CFeignLoggerTests {
             new byte[]{1, 2, 3}, "application/octet-stream");
         logger.logRequest("cfg", Logger.Level.FULL, request);
 
-        Assertions.assertEquals("[not text body]", currentRequestLog().getReqs().get("requestBody"));
+        Assertions.assertEquals("[not text body]", currentRequestLog().getReq());
     }
 
     @Test
@@ -209,7 +209,7 @@ class CFeignLoggerTests {
         logger.logRequest("cfg", Logger.Level.FULL, request);
 
         // 空 body -> getBodyText 返回 null
-        Assertions.assertNull(currentRequestLog().getReqs().get("requestBody"));
+        Assertions.assertNull(currentRequestLog().getReq());
     }
 
     @Test

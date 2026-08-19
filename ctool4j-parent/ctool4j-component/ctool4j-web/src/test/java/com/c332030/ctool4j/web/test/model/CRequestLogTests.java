@@ -32,11 +32,11 @@ public class CRequestLogTests {
     public void allArgsConstructor() {
         Map<String, Collection<String>> headers = new HashMap<>();
         Map<String, Collection<String>> params = new HashMap<>();
-        Map<String, Object> reqs = new HashMap<>();
+        Object req = "requestBody";
 
         val log = new CRequestLog(
             "GET", "/path", "token", "trace-1", "tenant-1", "user-1", "127.0.0.1",
-            headers, params, reqs, "rsp", "boom", 100L, 200L
+            headers, params, req, "rsp", "boom", 100L, 200L
         );
 
         Assertions.assertEquals("GET", log.getMethod());
@@ -48,7 +48,7 @@ public class CRequestLogTests {
         Assertions.assertEquals("127.0.0.1", log.getIp());
         Assertions.assertSame(headers, log.getHeaders());
         Assertions.assertSame(params, log.getParams());
-        Assertions.assertSame(reqs, log.getReqs());
+        Assertions.assertSame(req, log.getReq());
         Assertions.assertEquals("rsp", log.getRsp());
         Assertions.assertEquals("boom", log.getErrorMessage());
         Assertions.assertEquals(100L, log.getBeginTimeMillis());

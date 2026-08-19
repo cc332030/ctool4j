@@ -47,7 +47,7 @@ public class CLogRequestBodyAdvice implements ICBaseRequestBodyAdvice {
             try {
                 CRequestLogUtils.setRequestBodyReq(body);
             } catch (Throwable e) {
-                log.error("setReqs failure, url: {}", CRequestUtils.getRequestURIDefaultNull(), e);
+                log.error("setReq failure, url: {}", CRequestUtils.getRequestURIDefaultNull(), e);
             }
         }
 

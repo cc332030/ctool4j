@@ -302,7 +302,7 @@ public class CCommUtils {
      * <p>格式要求：请求行、请求头、请求体必须保持标准 HTTP 报文结构连续输出
      * （请求行后紧跟请求头，中间不得插入非 HTTP 内容，否则无法作为 HTTP 客户端/回放格式使用）；
      * IP、rt、error、业务数据等日志元信息统一置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）</p>
-     * <p>全部数据直接取自 {@link IHttpLogInfo} 属性，派生逻辑（请求体取 reqs、响应体可打印转换、
+     * <p>全部数据直接取自 {@link IHttpLogInfo} 属性，派生逻辑（请求体取 req、响应体可打印转换、
      * 耗时计算、业务数据组装）均在本方法内处理，调用方无需传入任何派生参数</p>
      *
      * @param sb   日志拼接器
@@ -325,7 +325,7 @@ public class CCommUtils {
         }
 
         // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
-        appendRequestBody(sb, info, info.getReqs());
+        appendRequestBody(sb, info, info.getReq());
 
         // 响应体：可打印处理后输出，未设置时输出占位符
         val responseBody = null == info.getRsp() ? null : CLogUtils.getPrintAble(info.getRsp());

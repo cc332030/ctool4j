@@ -8,7 +8,6 @@ import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CPatternUtils;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
@@ -43,19 +42,14 @@ public class CRequestLogUtils {
      */
     public final String REQUEST_LOG_STR = "request-log";
 
-    /**
-     * 请求体在日志 map 中的键名
-     */
-    public final String REQUEST_BODY = "requestBody";
-
     final CLog REQUEST_LOG = CLogUtils.getLog(REQUEST_LOG_STR);
 
     final ThreadLocal<CRequestLog> REQUEST_LOG_THREAD_LOCAL = new ThreadLocal<>();
 
     /**
-     * 无请求体时的占位 map，所有请求共享；只读不可修改（unmodifiable 保护）
+     * 无请求体时的占位字符串，所有请求共享；req 统一为 Object，直接存字符串与 feign 场景语义一致
      */
-    final Map<String, Object> EMPTY_REQS = Collections.unmodifiableMap(getRequestBodyMap("[no request body]"));
+    public final String EMPTY_REQ = "[no request body]";
 
     @Setter
     @CAutowired
@@ -149,7 +143,7 @@ public class CRequestLogUtils {
             .headers(headers)
             // Servlet 的 getParameterMap 返回 Map<String, String[]>，统一转换为集合类型
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
-            .reqs(EMPTY_REQS)
+            .req(EMPTY_REQ)
             .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
@@ -199,44 +193,32 @@ public class CRequestLogUtils {
     }
 
     /**
-     * 构造请求体 map
-     *
-     * @param requestBody 请求体
-     * @return 键为 {@link #REQUEST_BODY} 的 map
-     */
-    public Map<String, Object> getRequestBodyMap(Object requestBody) {
-        return CMap.of(
-            REQUEST_BODY, requestBody
-        );
-    }
-
-    /**
      * 设置请求体到请求日志
      *
      * @param req 请求体
      */
     public void setRequestBodyReq(Object req) {
-        setPrintAbleReqs(req);
+        setPrintAbleReq(req);
     }
 
     /**
      * 将可打印的请求参数设置到请求日志
      *
-     * @param reqs 请求参数 map
+     * @param req 请求体
      */
-    public void setPrintAbleReqs(Object reqs) {
-        setReqs(CLogUtils.getPrintAble(reqs));
+    public void setPrintAbleReq(Object req) {
+        setReq(CLogUtils.getPrintAble(req));
     }
 
     /**
      * 将请求参数设置到请求日志
      *
-     * @param reqs 请求参数 map
+     * @param req 请求体
      */
-    public void setReqs(Object reqs) {
+    public void setReq(Object req) {
         val requestLogOpt = getOpt();
         requestLogOpt
-            .ifPresent(requestLog -> requestLog.setReqs(reqs));
+            .ifPresent(requestLog -> requestLog.setReq(req));
     }
 
     /**

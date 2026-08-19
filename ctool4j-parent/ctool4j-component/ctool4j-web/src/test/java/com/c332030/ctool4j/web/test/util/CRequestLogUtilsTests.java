@@ -19,35 +19,12 @@ import org.junit.jupiter.api.Test;
 @CustomLog
 public class CRequestLogUtilsTests {
 
-    // ---------- getRequestBodyMap ----------
+    // ---------- EMPTY_REQ（无请求体占位，req 统一为 Object 直接存字符串） ----------
 
     @Test
-    public void getRequestBodyMap() {
-        // 正例：封装 requestBody 到 map（key 为 REQUEST_BODY）
-        val reqBody = new Object() {
-            @Override
-            public String toString() {
-                return "{\"a\":1}";
-            }
-        };
-        val map = CRequestLogUtils.getRequestBodyMap(reqBody);
-        Assertions.assertNotNull(map);
-        Assertions.assertSame(reqBody, map.get(CRequestLogUtils.REQUEST_BODY));
-    }
-
-    @Test
-    public void getRequestBodyMap_null() {
-        // 边界：null requestBody 也封装进 map
-        val map = CRequestLogUtils.getRequestBodyMap(null);
-        Assertions.assertNotNull(map);
-        Assertions.assertNull(map.get(CRequestLogUtils.REQUEST_BODY));
-    }
-
-    @Test
-    public void getRequestBodyMap_string() {
-        // 正例：字符串 body
-        val map = CRequestLogUtils.getRequestBodyMap("hello");
-        Assertions.assertEquals("hello", map.get(CRequestLogUtils.REQUEST_BODY));
+    public void emptyReqs() {
+        // 正例：占位为固定字符串，与 feign 场景 req 存字符串语义一致
+        Assertions.assertEquals("[no request body]", CRequestLogUtils.EMPTY_REQ);
     }
 
     // ---------- getOpt / getOptThenRemove / remove（ThreadLocal 空场景） ----------
@@ -84,7 +61,6 @@ public class CRequestLogUtilsTests {
     public void constants() {
         // 正例：常量定义合理
         Assertions.assertEquals("request-log", CRequestLogUtils.REQUEST_LOG_STR);
-        Assertions.assertEquals("requestBody", CRequestLogUtils.REQUEST_BODY);
     }
 
 }

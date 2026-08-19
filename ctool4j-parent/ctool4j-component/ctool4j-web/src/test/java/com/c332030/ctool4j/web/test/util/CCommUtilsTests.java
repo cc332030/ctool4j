@@ -439,7 +439,8 @@ public class CCommUtilsTests {
         val log = requestLog();
         log.setMethod(HttpMethod.POST.name());
         log.setParams(Collections.singletonMap("name", Collections.singletonList("张三")));
-        log.setReqs(Collections.singletonMap("requestBody", "{\"x\":1}"));
+        // req 统一为 Object，请求体直接存字符串
+        log.setReq("{\"x\":1}");
         log.setRsp("{\"y\":2}");
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, log);
