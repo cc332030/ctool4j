@@ -353,11 +353,12 @@ public class CCommUtils {
     private Map<String, String> getBusinessData(IHttpLogInfo info) {
 
         val businessDataMap = new LinkedHashMap<String, String>();
-        CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, info.getToken());
+        // 重复打印
+//        CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, info.getToken());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), info.getTraceId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), info.getTenantId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), info.getUserId());
-        CMapUtils.put(businessDataMap, "ip", info.getIp());
+//        CMapUtils.put(businessDataMap, "ip", info.getIp());
         val rt = getRt(info);
         if (null != rt) {
             businessDataMap.put("rt", rt + "ms");
