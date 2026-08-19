@@ -322,7 +322,7 @@ public class CCommUtils {
         }
 
         // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
-        appendRequestBody(sb, info, info.getReq());
+        appendRequestBody(sb, info);
 
         // 响应体：可打印处理后输出，未设置时输出占位符
         appendBodyObject(sb, info.getRsp());
@@ -385,17 +385,16 @@ public class CCommUtils {
      *
      * @param sb          日志拼接器
      * @param info        请求基础数据（请求行、请求头、params 等）
-     * @param requestBody 请求体（已可打印处理）
      */
-    private void appendRequestBody(StringBuilder sb, IHttpLogInfo info, Object requestBody) {
-        if (isFormBodyMethod(info.getMethod())) {
-            val params = info.getParams();
-            if (MapUtil.isNotEmpty(params)) {
-                sb.append("\n\n");
-                appendFormBody(sb, params);
-            }
+    private void appendRequestBody(StringBuilder sb, IHttpLogInfo info) {
+
+        val params = info.getParams();
+        if (MapUtil.isNotEmpty(params)) {
+            appendFormBody(sb, params);
+            sb.append("\n\n");
         }
-        appendBodyObject(sb, requestBody);
+
+        appendBodyObject(sb, info.getReq());
     }
 
     /**
