@@ -222,29 +222,24 @@ public class CRequestLogUtils {
     }
 
     /**
-     * 记录响应并写出请求日志
+     * 记录响应体到请求日志（只记录不打印，打印由拦截器 afterCompletion 统一出口 logWrite 执行）
      *
      * @param rsp       响应对象
      * @param throwable 异常，无则传 null
      */
-    public void write(Object rsp, Throwable throwable) {
+    public void setRsp(Object rsp, Throwable throwable) {
 
         val requestLogOpt = getOpt();
         if (!requestLogOpt.isPresent()) {
-            log.debug("write failure because requestLog is null");
+            log.debug("setRsp failure because requestLog is null");
             return;
         }
         val requestLog = requestLogOpt.get();
 
-        val endTimeMillis = System.currentTimeMillis();
-
-        requestLog.setEndTimeMillis(endTimeMillis);
         requestLog.setRsp(rsp);
         if (null != throwable) {
             requestLog.setErrorMessage(throwable.getMessage());
         }
-
-        logWrite(requestLog);
 
     }
 

@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
 
     /**
-     * 响应体写出前记录日志
+     * 响应体写出前记录响应体到请求日志（仅记录，日志打印由 CRequestLogHandlerInterceptor.afterCompletion 统一执行）
      *
      * @param body                  响应体
      * @param returnType            返回类型
@@ -49,9 +49,9 @@ public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> 
 
         if(BooleanUtil.isTrue(CRequestLogUtils.isEnable())) {
             try {
-                CRequestLogUtils.write(body, null);
+                CRequestLogUtils.setRsp(body, null);
             } catch (Throwable e) {
-                log.error("write failure", e);
+                log.error("setRsp failure", e);
             }
         }
 

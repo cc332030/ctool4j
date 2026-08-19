@@ -53,7 +53,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
     }
 
     /**
-     * 请求完成后处理：输出慢日志并清理链路追踪上下文
+     * 请求完成后处理：打印请求日志、输出慢日志并清理链路追踪上下文
      *
      * @param request  请求
      * @param response 响应
@@ -71,12 +71,20 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
 
             val requestLogOpt = CRequestLogUtils.getOptThenRemove();
             requestLogOpt.ifPresent(requestLog -> {
+
+                // 请求日志打印（受 enable 总开关控制）：endTimeMillis 以实际完成时间为准，
+                // 覆盖 beforeBodyWrite 记录响应体时的时间，包含视图渲染与响应写出耗时
+                if (CRequestLogUtils.isEnable()) {
+                    requestLog.setEndTimeMillis(System.currentTimeMillis());
+                    CRequestLogUtils.logWrite(requestLog);
+                }
+
                 // 慢日志开关关闭时直接跳过，不做耗时计算，避免浪费 CPU
                 if (!BooleanUtil.isTrue(config.getSlowLogEnable())) {
                     return;
                 }
-                // 完整耗时：endTimeMillis 由 beforeBodyWrite 设置（早于响应体写出），
-                // 此处以实际完成时间为准，包含视图渲染与响应写出耗时；
+
+                // 完整耗时：以实际完成时间为准，包含视图渲染与响应写出耗时；
                 // 未记录开始时间时耗时恒为 0（beginTimeMillis 未设置时兜底即 0）
                 long rt;
                 if (requestLog.getBeginTimeMillis() > 0) {
