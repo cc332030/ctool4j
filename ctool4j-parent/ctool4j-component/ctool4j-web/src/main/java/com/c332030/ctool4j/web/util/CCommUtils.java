@@ -290,9 +290,6 @@ public class CCommUtils {
      * 拼接 body（Object，直接 toString），无 body 时不打印
      */
     private void appendBodyObject(StringBuilder sb, Object body) {
-        if (null == body) {
-            return;
-        }
         sb.append("\n\n");
         sb.append(CLogUtils.getPrintAbleString(body));
     }
@@ -328,12 +325,7 @@ public class CCommUtils {
         appendRequestBody(sb, info, info.getReq());
 
         // 响应体：可打印处理后输出，未设置时输出占位符
-        val responseBody = null == info.getRsp() ? null : CLogUtils.getPrintAble(info.getRsp());
-        if (null == responseBody) {
-            sb.append("\n\n[no response body]");
-        } else {
-            appendBodyObject(sb, responseBody);
-        }
+        appendBodyObject(sb, info.getRsp());
 
         appendError(sb, info.getErrorMessage());
 
