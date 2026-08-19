@@ -216,7 +216,7 @@ public class CRequestLogUtils {
      * @param req 请求体
      */
     public void setRequestBodyReq(Object req) {
-        setPrintAbleReqs(getRequestBodyMap(req));
+        setPrintAbleReqs(req);
     }
 
     /**
@@ -224,13 +224,8 @@ public class CRequestLogUtils {
      *
      * @param reqs 请求参数 map
      */
-    public void setPrintAbleReqs(Map<String, Object> reqs) {
-
-        val reqMap = CMapUtils.mapValue(
-            reqs,
-            CLogUtils::getPrintAble
-        );
-        setReqs(reqMap);
+    public void setPrintAbleReqs(Object reqs) {
+        setReqs(CLogUtils.getPrintAble(reqs));
     }
 
     /**
@@ -238,7 +233,7 @@ public class CRequestLogUtils {
      *
      * @param reqs 请求参数 map
      */
-    public void setReqs(Map<String, Object> reqs) {
+    public void setReqs(Object reqs) {
         val requestLogOpt = getOpt();
         requestLogOpt
             .ifPresent(requestLog -> requestLog.setReqs(reqs));

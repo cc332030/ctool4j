@@ -371,4 +371,23 @@ public class CLogUtils {
             .apply(value);
     }
 
+    /**
+     * 获取可打印的字符串
+     * @param value 源数据
+     * @return 字符串
+     */
+    public String getPrintAbleString(Object value) {
+
+        if(null == value) {
+            return "[null]";
+        }
+
+        value = getPrintAble(value);
+        if(String.class == value.getClass()) {
+            return (String) value;
+        }
+
+        return CJsonUtils.toJsonLog(value);
+    }
+
 }

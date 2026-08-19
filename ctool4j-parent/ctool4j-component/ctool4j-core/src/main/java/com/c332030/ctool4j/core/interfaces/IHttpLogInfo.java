@@ -83,12 +83,11 @@ public interface IHttpLogInfo {
     }
 
     /**
-     * 请求体/请求参数（key → value）：服务端 MVC 经 CLogRequestBodyAdvice 记录，feign 客户端经 getRequestBodyMap 记录，
-     * 拼接时统一从 reqs 取请求体
-     * @return 请求体/请求参数 map
+     * 请求体
+     * @return 请求体
      */
-    default Map<String, Object> getReqs() {
-        return CMap.of();
+    default Object getReqs() {
+        return null;
     }
 
     /**

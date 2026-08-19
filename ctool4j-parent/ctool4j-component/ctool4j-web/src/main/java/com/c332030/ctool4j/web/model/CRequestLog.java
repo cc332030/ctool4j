@@ -73,7 +73,7 @@ public class CRequestLog implements IHttpLogInfo {
      * 请求体/请求参数（key → value）：服务端 MVC 经 CLogRequestBodyAdvice 记录，feign 客户端经 getRequestBodyMap 记录，
      * 拼接时统一从 reqs 取请求体
      */
-    Map<String, Object> reqs;
+    Object reqs;
 
     /**
      * 响应体：拼接时经 getPrintAble 可打印处理后输出（见 CCommUtils.appendHttpLog）

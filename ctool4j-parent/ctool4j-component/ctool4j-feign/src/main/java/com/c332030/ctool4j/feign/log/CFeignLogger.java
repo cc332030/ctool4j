@@ -171,7 +171,7 @@ public class CFeignLogger extends Logger {
             requestLog.setHeaders(toImmutableHeaders(request.headers()));
         }
         // 请求体文本放入 reqs，与 MVC 场景记录位置一致，拼接时统一从 reqs 取请求体
-        requestLog.setReqs(CRequestLogUtils.getRequestBodyMap(getBodyText(request.body(), request.headers())));
+        requestLog.setReqs(getBodyText(request.body(), request.headers()));
         return requestLog;
     }
 

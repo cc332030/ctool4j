@@ -294,7 +294,7 @@ public class CCommUtils {
             return;
         }
         sb.append("\n\n");
-        sb.append(body);
+        sb.append(CLogUtils.getPrintAbleString(body));
     }
 
     /**
