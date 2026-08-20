@@ -24,6 +24,7 @@ public class CJacksonUtilsTests {
         Assertions.assertNotNull(CJacksonUtils.OBJECT_MAPPER);
         Assertions.assertNotNull(CJacksonUtils.OBJECT_MAPPER_NON_NULL);
         Assertions.assertNotNull(CJacksonUtils.OBJECT_MAPPER_SNAKE_CASE);
+        Assertions.assertNotNull(CJacksonUtils.OBJECT_MAPPER_LOG);
 
     }
 
@@ -47,9 +48,15 @@ public class CJacksonUtilsTests {
     @Test
     public void nonNullOmitsNull() throws Exception {
 
+        // OBJECT_MAPPER_NON_NULL：忽略 null 字段
         String json = CJacksonUtils.OBJECT_MAPPER_NON_NULL.writeValueAsString(new NullableBean("a", null));
         Assertions.assertFalse(json.contains("\"b\""));
 
+        // OBJECT_MAPPER_LOG 从 NON_NULL 派生，同样忽略 null 字段
+        String logJson = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new NullableBean("a", null));
+        Assertions.assertFalse(logJson.contains("\"b\""));
+
+        // OBJECT_MAPPER：默认序列化 null 字段
         String normalJson = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(new NullableBean("a", null));
         Assertions.assertTrue(normalJson.contains("\"b\":null"));
 
