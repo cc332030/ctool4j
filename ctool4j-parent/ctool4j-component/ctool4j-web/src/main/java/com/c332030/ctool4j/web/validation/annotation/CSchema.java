@@ -59,6 +59,10 @@ public @interface CSchema {
     /**
      * 校验失败时的提示消息
      *
+     * <p>仅描述校验不通过的原因（如 "不能为空"），字段名前缀由异常处理器
+     * {@code CMethodArgumentNotValidExceptionHandler} 拼接为 "字段名 + message"。
+     * 也可显式指定自定义 message 覆盖。</p>
+     *
      * @return 提示消息
      */
     String message() default "不能为空";
