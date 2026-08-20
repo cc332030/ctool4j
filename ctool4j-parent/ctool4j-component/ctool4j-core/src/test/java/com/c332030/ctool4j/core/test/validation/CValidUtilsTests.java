@@ -88,6 +88,18 @@ public class CValidUtilsTests {
         Assertions.assertTrue(CValidUtils.isValid(new Object[]{"a"}));
         Assertions.assertFalse(CValidUtils.isValid(new Object[0]));
         Assertions.assertTrue(CValidUtils.isNotValid(new Object[0]));
+
+        Assertions.assertTrue(CValidUtils.isValid(new float[]{1f}));
+        Assertions.assertFalse(CValidUtils.isValid(new float[0]));
+        Assertions.assertTrue(CValidUtils.isNotValid(new float[0]));
+
+        Assertions.assertTrue(CValidUtils.isValid(new double[]{1d}));
+        Assertions.assertFalse(CValidUtils.isValid(new double[0]));
+        Assertions.assertTrue(CValidUtils.isNotValid(new double[0]));
+
+        Assertions.assertTrue(CValidUtils.isValid(new boolean[]{true}));
+        Assertions.assertFalse(CValidUtils.isValid(new boolean[0]));
+        Assertions.assertTrue(CValidUtils.isNotValid(new boolean[0]));
     }
 
 }

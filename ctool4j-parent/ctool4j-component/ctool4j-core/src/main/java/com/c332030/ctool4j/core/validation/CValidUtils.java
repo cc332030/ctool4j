@@ -227,6 +227,66 @@ public class CValidUtils {
     }
 
     /**
+     * 判断 float 数组是否有效（非空）
+     *
+     * @param value float 数组
+     * @return 是否有效
+     */
+    public boolean isValid(float[] value) {
+        return ArrayUtil.isNotEmpty(value);
+    }
+
+    /**
+     * 判断 float 数组是否无效（null 或空）
+     *
+     * @param value float 数组
+     * @return 是否无效
+     */
+    public boolean isNotValid(float[] value) {
+        return ArrayUtil.isEmpty(value);
+    }
+
+    /**
+     * 判断 double 数组是否有效（非空）
+     *
+     * @param value double 数组
+     * @return 是否有效
+     */
+    public boolean isValid(double[] value) {
+        return ArrayUtil.isNotEmpty(value);
+    }
+
+    /**
+     * 判断 double 数组是否无效（null 或空）
+     *
+     * @param value double 数组
+     * @return 是否无效
+     */
+    public boolean isNotValid(double[] value) {
+        return ArrayUtil.isEmpty(value);
+    }
+
+    /**
+     * 判断 boolean 数组是否有效（非空）
+     *
+     * @param value boolean 数组
+     * @return 是否有效
+     */
+    public boolean isValid(boolean[] value) {
+        return ArrayUtil.isNotEmpty(value);
+    }
+
+    /**
+     * 判断 boolean 数组是否无效（null 或空）
+     *
+     * @param value boolean 数组
+     * @return 是否无效
+     */
+    public boolean isNotValid(boolean[] value) {
+        return ArrayUtil.isEmpty(value);
+    }
+
+    /**
      * 判断对象数组是否有效（非空）
      *
      * @param value 对象数组
