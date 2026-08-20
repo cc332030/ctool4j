@@ -5,6 +5,10 @@
 
 ## 单元测试
 
+### 目录结构与命名
+
+- 测试类与源类包路径保持相同：测试类（`src/test/java`）的包路径与对应源类（`src/main/java`）一致（如源类 `com.c332030.ctool4j.core.util.CEntityUtils`，其测试类 `CEntityUtilsTests` 应位于同包 `com.c332030.ctool4j.core.util`），不额外加 `test` 段等路径层
+
 ### 用例设计
 
 - 测试目标：优先覆盖"容易出错或出错后难发现"的方法，含正常路径、边界与异常路径；异常断言用 `assertThrowsExactly` 精确匹配异常类型，不用 `assertThrows`（避免父类异常掩盖子类语义）
