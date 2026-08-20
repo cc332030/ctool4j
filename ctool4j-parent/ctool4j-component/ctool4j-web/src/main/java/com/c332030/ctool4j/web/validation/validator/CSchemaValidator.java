@@ -1,6 +1,7 @@
-package com.c332030.ctool4j.web.validation.annotation;
+package com.c332030.ctool4j.web.validation.validator;
 
 import com.c332030.ctool4j.core.validation.CValidUtils;
+import com.c332030.ctool4j.web.validation.annotation.CSchema;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -10,17 +11,32 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: CRequired 注解校验器：按值类型自动选择校验逻辑，校验规则复用 {@link CValidUtils}
+ * Description: CSchema 注解校验器：按 {@link CSchema#required()} 决定是否校验，
+ * 校验规则按值类型自动分发，复用 {@link CValidUtils}
  * （字符串→notBlank、集合/Map/数组→notEmpty、其他→notNull）
  * </p>
  *
  * @author c332030
  */
-public class CRequiredValidator implements ConstraintValidator<CRequired, Object> {
+public class CSchemaValidator implements ConstraintValidator<CSchema, Object> {
+
+    /**
+     * 是否必填（false 时跳过校验，直接通过）
+     */
+    private boolean required;
+
+    @Override
+    public void initialize(CSchema constraintAnnotation) {
+        this.required = constraintAnnotation.required();
+    }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
 
+        // 非必填：不校验，直接通过
+        if (!required) {
+            return true;
+        }
         // 必填：null 不通过（CValidUtils.isValid(Object) 对 null 返回 false）
         if (null == value) {
             return false;
