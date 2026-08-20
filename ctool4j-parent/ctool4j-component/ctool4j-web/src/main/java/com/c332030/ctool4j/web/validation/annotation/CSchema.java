@@ -38,6 +38,15 @@ import java.lang.annotation.*;
 public @interface CSchema {
 
     /**
+     * 字段描述（对应文档中的属性描述，功能同 {@code ApiModelProperty.value} / OpenAPI3 {@code Schema.description}）
+     *
+     * <p>非空时由文档插件写入属性 description；为空则不覆盖描述。不参与运行时校验。</p>
+     *
+     * @return 字段描述
+     */
+    String value() default "";
+
+    /**
      * 是否必填（默认 false）
      *
      * <p>true：执行必填校验（按类型自动分发），并在文档中标记为必填；
@@ -46,15 +55,6 @@ public @interface CSchema {
      * @return 是否必填
      */
     boolean required() default false;
-
-    /**
-     * 字段描述（对应文档中的属性描述，功能同 {@code ApiModelProperty.value} / OpenAPI3 {@code Schema.description}）
-     *
-     * <p>非空时由文档插件写入属性 description；为空则不覆盖描述。不参与运行时校验。</p>
-     *
-     * @return 字段描述
-     */
-    String value() default "";
 
     /**
      * 校验失败时的提示消息
