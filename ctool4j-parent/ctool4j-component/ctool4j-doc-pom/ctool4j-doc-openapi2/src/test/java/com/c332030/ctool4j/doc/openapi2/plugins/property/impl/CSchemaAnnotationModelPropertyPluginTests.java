@@ -57,6 +57,7 @@ class CSchemaAnnotationModelPropertyPluginTests {
     @Test
     void supports() {
         Assertions.assertTrue(plugin.supports(DocumentationType.SWAGGER_2));
+        Assertions.assertTrue(plugin.supports(DocumentationType.SWAGGER_12));
     }
 
     @Test

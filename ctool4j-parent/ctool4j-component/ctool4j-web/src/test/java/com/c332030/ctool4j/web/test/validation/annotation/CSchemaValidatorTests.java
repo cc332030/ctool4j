@@ -3,13 +3,16 @@ package com.c332030.ctool4j.web.test.validation.annotation;
 import com.c332030.ctool4j.web.validation.annotation.CSchema;
 import lombok.Getter;
 import lombok.Setter;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Payload;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,11 +34,19 @@ import java.util.Set;
  */
 public class CSchemaValidatorTests {
 
+    private static ValidatorFactory validatorFactory;
+
     private static Validator validator;
 
     @BeforeAll
     public static void init() {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+
+    @AfterAll
+    public static void close() {
+        validatorFactory.close();
     }
 
     /**
@@ -146,6 +157,107 @@ public class CSchemaValidatorTests {
         ObjectBean ok = new ObjectBean();
         ok.setPayload(new Object());
         Assertions.assertTrue(validator.validate(ok).isEmpty(), "payload 非 null 应通过");
+    }
+
+    /**
+     * groups 兼容：指定分组时才校验，默认组不校验
+     */
+    @Test
+    public void validate_groups() {
+        GroupsBean bean = new GroupsBean();
+
+        // 默认组：username 不在默认组，不校验
+        Assertions.assertTrue(validator.validate(bean).isEmpty(), "默认组不应校验 UpdateGroup 分组的字段");
+
+        // UpdateGroup 分组：username 缺失，校验失败
+        Assertions.assertFalse(
+            validator.validate(bean, UpdateGroup.class).isEmpty(),
+            "UpdateGroup 分组应校验该必填字段");
+    }
+
+    /**
+     * groups 兼容：提供值后，指定分组校验通过（正例）
+     */
+    @Test
+    public void validate_groups_valid() {
+        GroupsBean bean = new GroupsBean();
+        bean.setUsername("c332030");
+        Assertions.assertTrue(
+            validator.validate(bean, UpdateGroup.class).isEmpty(),
+            "UpdateGroup 分组提供值应通过");
+    }
+
+    /**
+     * groups 兼容：其他分组（CreateGroup）校验时不触发 UpdateGroup 字段（反例，分组隔离）
+     */
+    @Test
+    public void validate_groups_otherGroup() {
+        GroupsBean bean = new GroupsBean();
+        // username 缺失，但用 CreateGroup 分组校验，不属于该分组的字段不校验
+        Assertions.assertTrue(
+            validator.validate(bean, CreateGroup.class).isEmpty(),
+            "CreateGroup 分组不应校验 UpdateGroup 分组的字段");
+    }
+
+    /**
+     * payload 兼容：校验失败时 violation 携带自定义 payload（反例）
+     */
+    @Test
+    public void validate_payload() {
+        Set<ConstraintViolation<PayloadBean>> violations = validator.validate(new PayloadBean());
+        Assertions.assertFalse(violations.isEmpty(), "必填字段缺失应有校验错误");
+        Assertions.assertTrue(violations.stream().anyMatch(v ->
+                v.getConstraintDescriptor().getPayload().contains(MyPayload.class)),
+            "校验错误应携带自定义 payload");
+    }
+
+    /**
+     * payload 兼容：提供值后校验通过，无 violation（正例）
+     */
+    @Test
+    public void validate_payload_valid() {
+        PayloadBean bean = new PayloadBean();
+        bean.setCode("E100");
+        Assertions.assertTrue(validator.validate(bean).isEmpty(), "payload 字段提供值应通过");
+    }
+
+    /**
+     * 分组接口：创建组
+     */
+    private interface CreateGroup {}
+
+    /**
+     * 分组接口：更新组
+     */
+    private interface UpdateGroup {}
+
+    /**
+     * 自定义载荷
+     */
+    private static class MyPayload implements Payload {}
+
+    /**
+     * 测试用 bean：分组必填字段
+     */
+    @Getter
+    @Setter
+    private static class GroupsBean {
+
+        @CSchema(value = "用户名", required = true, groups = UpdateGroup.class)
+        private String username;
+
+    }
+
+    /**
+     * 测试用 bean：自定义载荷字段
+     */
+    @Getter
+    @Setter
+    private static class PayloadBean {
+
+        @CSchema(value = "编码", required = true, payload = MyPayload.class)
+        private String code;
+
     }
 
     /**

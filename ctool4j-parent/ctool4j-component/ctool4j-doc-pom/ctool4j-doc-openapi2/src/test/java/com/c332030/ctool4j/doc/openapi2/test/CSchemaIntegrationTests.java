@@ -77,6 +77,19 @@ public class CSchemaIntegrationTests {
     }
 
     /**
+     * 必填字段生效：username 空字符串 → 校验失败（notBlank 边界，HTTP 200 + body code=500）
+     */
+    @Test
+    public void requiredField_empty() throws Exception {
+        mockMvc.perform(post("/c-schema/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value("500"))
+            .andExpect(jsonPath("$.message").value("username 不能为空"));
+    }
+
+    /**
      * 非必填字段生效：username 必填提供，非必填字段（remark/other）缺失 → 200
      */
     @Test
