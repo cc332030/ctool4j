@@ -17,6 +17,7 @@ import java.util.Objects;
  *
  * @since 2026/1/20
  */
+@Deprecated
 @UtilityClass
 public class CValidateUtils {
 

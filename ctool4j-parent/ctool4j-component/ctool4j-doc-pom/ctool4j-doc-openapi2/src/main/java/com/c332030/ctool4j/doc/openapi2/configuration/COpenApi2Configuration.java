@@ -3,6 +3,7 @@ package com.c332030.ctool4j.doc.openapi2.configuration;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CRequiredAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import io.swagger.annotations.Api;
@@ -55,6 +56,16 @@ public class COpenApi2Configuration {
     @Bean
     public CNotEmptyAnnotationPlugin cExpanderNotEmpty() {
         return new CNotEmptyAnnotationPlugin();
+    }
+
+    /**
+     * 必填注解插件（@CRequired）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CRequiredAnnotationPlugin cExpanderCRequired() {
+        return new CRequiredAnnotationPlugin();
     }
 
     /**
