@@ -59,21 +59,4 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-
-            <!-- 性能基准入口：仅显式执行本命令时运行，不随 mvn test/打包执行 -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <mainClass>com.c332030.ctool4j.core.benchmark.BenchmarkRunner</mainClass>
-                    <classpathScope>test</classpathScope>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </build>
-
 </project>

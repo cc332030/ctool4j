@@ -7,8 +7,11 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.sf.cglib.beans.BeanCopier;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +35,21 @@ import java.util.Map;
  * @since 2026/8/16
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CBeanUtilsBenchmark {
+public class CBeanUtilsBenchmarkTests {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    /**
+     * 基准执行入口（显式运行：mvn test -Dtest=CBeanUtilsBenchmarkTests -DfailIfNoTests=false）
+     * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
+     */
+    @Test
+    public void benchmark() {
+        BenchmarkReport report = BenchmarkRunner.run(cases(), "CBeanUtils 属性复制性能对比");
+        Path reportPath = Paths.get(System.getProperty("user.dir"), "tmp", "benchmark-report-cbeanutils.md");
+        report.writeTo(reportPath);
+        System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());
+    }
 
     /**
      * 基准用例列表

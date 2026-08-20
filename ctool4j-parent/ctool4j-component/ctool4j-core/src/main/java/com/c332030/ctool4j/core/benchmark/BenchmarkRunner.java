@@ -6,12 +6,12 @@ import java.util.List;
 
 /**
  * <p>
- * Description: 轻量性能基准运行器（main 入口）
+ * Description: 轻量性能基准运行器（通用框架）
  * </p>
  * <p>
- * 架构说明：性能测试代码置于测试源码目录（独立包 benchmark，无 @Test、命名不匹配
- * surefire 测试类规则），不随 mvn test 执行、不参与打包；仅通过明确命令
- * "mvn test-compile exec:java" 触发本类 main 执行。
+ * 架构说明：本框架置于 core 主代码，各模块性能基准用例放各模块测试源码目录
+ * （JUnit 测试类命名以 BenchmarkTests 结尾，surefire 打包/测试时排除），
+ * 由测试方法调用 {@link #run(List, String)} 触发基准，返回报告后可写入文件。
  * </p>
  * <p>
  * 流程：共测试两次。第一轮对所有用例预热，触发全部实现方式初始化/加载
@@ -33,9 +33,14 @@ public class BenchmarkRunner {
      */
     private static final int MEASURE_ITERATIONS = 100_000;
 
-    public static void main(String[] args) {
-
-        List<BenchmarkCase> cases = CBeanUtilsBenchmark.cases();
+    /**
+     * 运行一组基准用例（预热 + 计时），返回报告（含控制台打印）
+     *
+     * @param cases 基准用例列表
+     * @param title 报告标题
+     * @return 基准报告（可用于导出 markdown 文件）
+     */
+    public static BenchmarkReport run(List<BenchmarkCase> cases, String title) {
 
         // 第一轮：对所有用例预热，触发全部实现方式初始化/加载（结果不计入）
         for (BenchmarkCase bc : cases) {
@@ -73,20 +78,23 @@ public class BenchmarkRunner {
             }
         }
 
-        print(results);
-    }
-
-    private static void print(List<BenchmarkResult> results) {
-
         results.sort(Comparator.comparingDouble(BenchmarkResult::avgNanos));
 
-        double baseline = results.get(0).avgNanos();
+        BenchmarkReport report = new BenchmarkReport(title, results);
+
+        print(report);
+        return report;
+    }
+
+    private static void print(BenchmarkReport report) {
+
+        double baseline = report.getResults().get(0).avgNanos();
 
         System.out.println();
-        System.out.println("===== CBeanUtils 属性复制性能对比（" + MEASURE_ITERATIONS + " 次迭代）=====");
+        System.out.println("===== " + report.getTitle() + "（" + MEASURE_ITERATIONS + " 次迭代）=====");
         System.out.printf("%-24s %16s %16s %14s%n", "实现方式", "Avg(ns/op)", "ops/s", "相对基线");
         System.out.println("--------------------------------------------------------------------------");
-        for (BenchmarkResult result : results) {
+        for (BenchmarkResult result : report.getResults()) {
             System.out.printf("%-24s %16.1f %16.0f %12.2fx%n",
                     result.getName(),
                     result.avgNanos(),

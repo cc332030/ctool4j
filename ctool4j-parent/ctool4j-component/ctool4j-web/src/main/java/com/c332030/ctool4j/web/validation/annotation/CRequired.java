@@ -5,13 +5,11 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * <p>
  * Description: 必填校验注解，按被标注值（字段/参数）的实际类型自动选择校验逻辑
- * </p>
  *
- * <p>
- * 合并 notNull、notBlank（字符串）、notEmpty（集合/Map/数组）三类校验，按类型自动分发，
- * 避免开发者因类型选择错误注解（如对集合标 notBlank、对字符串标 notEmpty）而报错：
+ * <p>合并 notNull、notBlank（字符串）、notEmpty（集合/Map/数组）三类校验，按类型自动分发，
+ * 避免开发者因类型选择错误注解（如对集合标 notBlank、对字符串标 notEmpty）而报错：</p>
+ *
  * <ul>
  *   <li>null → 不通过（必填）</li>
  *   <li>CharSequence（字符串）→ 按 notBlank（非空且非空白）</li>
@@ -19,7 +17,6 @@ import java.lang.annotation.*;
  *   <li>数组 → 按 notEmpty（长度大于 0）</li>
  *   <li>其他对象 → 非 null 即通过</li>
  * </ul>
- * </p>
  *
  * @author c332030
  */
