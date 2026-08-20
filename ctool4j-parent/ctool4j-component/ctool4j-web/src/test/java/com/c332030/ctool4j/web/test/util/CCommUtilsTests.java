@@ -475,14 +475,15 @@ public class CCommUtilsTests {
 
     @Test
     public void appendHttpLog_reqNullRspPresent() {
-        // 分支：请求体为 null 但响应体有值，请求体输出 [null] 占位，响应体正常输出
+        // 分支：请求体为 null（不输出）但响应体有值，只输出响应体
         val log = requestLog();
         log.setMethod(HttpMethod.POST.name());
         log.setRsp("{\"y\":2}");
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, log);
         val result = sb.toString();
-        Assertions.assertTrue(result.contains("[null]\n\n{\"y\":2}"));
+        Assertions.assertTrue(result.contains("{\"y\":2}"));
+        Assertions.assertFalse(result.contains("[null]"));
     }
 
     @Test
@@ -522,11 +523,11 @@ public class CCommUtilsTests {
 
     @Test
     public void appendHttpLog_noResponseBody() {
-        // 边界：无响应体时输出 getPrintAbleString(null) 的默认值 [null]
+        // 边界：请求体/响应体为 null 时不输出占位（避免出现 [null]）
         val log = requestLog();
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, log);
-        Assertions.assertTrue(sb.toString().contains("[null]"));
+        Assertions.assertFalse(sb.toString().contains("[null]"));
     }
 
     @Test

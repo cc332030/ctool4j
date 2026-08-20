@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.feign.log;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
@@ -172,8 +171,9 @@ public class CFeignLogger extends Logger {
             // feign 请求头为外部可变对象，深拷贝为不可变后再保存，避免日志模型被外部修改
             requestLog.setHeaders(toImmutableHeaders(request.headers()));
         }
-        // 请求体文本放入 req，与 MVC 场景记录位置一致，拼接时统一从 req 取请求体
-        requestLog.setReq(getBodyText(request.body(), request.headers()));
+        // 请求体文本放入 req，与 MVC 场景记录位置一致，拼接时统一从 req 取请求体；
+        // 空请求体输出 EMPTY_REQ 占位，与 MVC 无 body 时一致，避免 [null]
+        requestLog.setReq(CCommUtils.getBodyText(request.body(), request.headers(), CRequestLogUtils.EMPTY_REQ));
         return requestLog;
     }
 
@@ -220,23 +220,6 @@ public class CFeignLogger extends Logger {
      */
     private String appendQuery(String path, String query) {
         return StrUtil.isEmpty(query) ? path : path + "?" + query;
-    }
-
-    /**
-     * 请求/响应体字节数组转换为可打印文本，非文本 body 输出占位符
-     *
-     * @param bodyBytes 字节数组
-     * @param headers   请求头（用于判断 Content-Type 是否文本）
-     * @return 可打印文本，空 body 返回 null
-     */
-    private String getBodyText(byte[] bodyBytes, Map<String, Collection<String>> headers) {
-        if (ArrayUtil.isEmpty(bodyBytes)) {
-            return null;
-        }
-        if (CCommUtils.isTextBody(headers)) {
-            return new String(bodyBytes, CCommUtils.getCharsetOrDefault(headers));
-        }
-        return "[not text body]";
     }
 
     /**
@@ -290,7 +273,8 @@ public class CFeignLogger extends Logger {
      */
     private Response dealResponseLog(Response response, CRequestLog requestLog) {
         val responseBodyBytes = getBodyBytes(response);
-        requestLog.setRsp(getBodyText(responseBodyBytes, response.headers()));
+        // 空响应体输出 EMPTY_RSP 占位，与 MVC 无 body 时一致，避免 [null]
+        requestLog.setRsp(CCommUtils.getBodyText(responseBodyBytes, response.headers(), CRequestLogUtils.EMPTY_RSP));
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
 

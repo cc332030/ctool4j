@@ -4,6 +4,7 @@ import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.log.CFeignLogger;
 import com.c332030.ctool4j.web.model.CRequestLog;
+import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import feign.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -208,8 +209,8 @@ class CFeignLoggerTests {
             new byte[0], "application/json");
         logger.logRequest("cfg", Logger.Level.FULL, request);
 
-        // 空 body -> getBodyText 返回 null
-        Assertions.assertNull(currentRequestLog().getReq());
+        // 空 body -> 统一占位 EMPTY_REQ，与 MVC 无请求体时一致
+        Assertions.assertEquals(CRequestLogUtils.EMPTY_REQ, currentRequestLog().getReq());
     }
 
     @Test

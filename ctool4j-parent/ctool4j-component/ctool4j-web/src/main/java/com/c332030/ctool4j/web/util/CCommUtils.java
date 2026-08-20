@@ -264,6 +264,11 @@ public class CCommUtils {
     }
 
     /**
+     * 非文本 body 的输出占位符
+     */
+    public static final String NOT_TEXT_BODY = "[not text body]";
+
+    /**
      * 拼接 body（byte[]，根据 Content-Type 判断是否文本），无 body 时不打印
      *
      * @param sb        日志拼接器
@@ -275,21 +280,47 @@ public class CCommUtils {
             byte[] bodyBytes,
             Map<String, Collection<String>> headers
     ) {
-        if (ArrayUtil.isEmpty(bodyBytes)) {
+        // 空 body 由占位符参数传入 null，统一方法返回 null 时不输出
+        val bodyText = getBodyText(bodyBytes, headers, null);
+        if (null == bodyText) {
             return;
         }
         sb.append("\n\n");
-        if (isTextBody(headers)) {
-            sb.append(new String(bodyBytes, getCharsetOrDefault(headers)));
-        } else {
-            sb.append("[not text body]");
-        }
+        sb.append(bodyText);
     }
 
     /**
-     * 拼接 body（Object，经 getPrintAbleString 输出，null 时输出 [null]）
+     * body 字节数组转可打印文本的统一出口：
+     * <p>所有请求方式（feign、resttemplate、httpclient 等）统一调用，不再各自实现 body 转换逻辑：
+     * 空 body 返回 emptyPlaceholder，文本 body 按 Content-Type 字符集解码，非文本 body 输出占位符</p>
+     *
+     * @param bodyBytes       body 字节数组
+     * @param headers         请求/响应头（用于判断 Content-Type 与字符集）
+     * @param emptyPlaceholder 空 body 时返回的占位符（如 EMPTY_REQ/EMPTY_RSP），无需占位可传 null
+     * @return 可打印文本；空 body 且 emptyPlaceholder 为 null 时返回 null
+     */
+    public String getBodyText(
+            byte[] bodyBytes,
+            Map<String, Collection<String>> headers,
+            String emptyPlaceholder
+    ) {
+        if (ArrayUtil.isEmpty(bodyBytes)) {
+            return emptyPlaceholder;
+        }
+        if (isTextBody(headers)) {
+            return new String(bodyBytes, getCharsetOrDefault(headers));
+        }
+        return NOT_TEXT_BODY;
+    }
+
+    /**
+     * 拼接 body（Object，经 getPrintAbleString 输出）；null 时不输出
      */
     private void appendBodyObject(StringBuilder sb, Object body) {
+        // null 请求体/响应体不输出（避免出现 [null] 占位）；服务端 MVC 无 body 时由 EMPTY_REQ/EMPTY_RSP 占位（非 null）
+        if (null == body) {
+            return;
+        }
         sb.append("\n\n");
         sb.append(CLogUtils.getPrintAbleString(body));
     }
