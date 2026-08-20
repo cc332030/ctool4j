@@ -126,7 +126,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 - `CBeanUtilsCompatibilityTests`（13 用例）：功能完整性测试——重构/优化前后行为一致性验证。
 - `CBeanUtilsMoreTests`（36 用例）：正例、反例、边界与新增行为验证。
-- `CBeanUtilsBenchmark`（12 用例）+ `BenchmarkRunner`：性能对比基准，独立于单元测试执行。
+- `CBeanUtilsBenchmark`（12 用例）+ `CBenchmarkRunner`：性能对比基准，独立于单元测试执行。
 
 === 2.2 测试手法：内嵌旧语义参考实现
 
@@ -270,4 +270,3 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 
 MethodHandle 动态分发（含 Object 签名类型检查）相对编译期静态内联存在固有差距，
 排除字节码方向后无法进一步消除。
-

@@ -11,7 +11,7 @@ package com.c332030.ctool4j.core.benchmark;
  *
  * @since 2026/8/16
  */
-public interface BenchmarkCase {
+public interface CBenchmarkCase {
 
     /**
      * 用例名称（用于结果对比展示）

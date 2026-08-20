@@ -45,7 +45,7 @@ public class CBeanUtilsBenchmarkTests {
      */
     @Test
     public void benchmark() {
-        BenchmarkReport report = BenchmarkRunner.run(cases(), "CBeanUtils 属性复制性能对比");
+        CBenchmarkReport report = CBenchmarkRunner.run(cases(), "CBeanUtils 属性复制性能对比");
         Path reportPath = Paths.get(System.getProperty("user.dir"), "tmp", "benchmark-report-cbeanutils.md");
         report.writeTo(reportPath);
         System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());
@@ -54,7 +54,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * 基准用例列表
      */
-    public static List<BenchmarkCase> cases() {
+    public static List<CBenchmarkCase> cases() {
         return Arrays.asList(
                 new CBeanUtilsCopyCase(),
                 new CBeanUtilsCopyOldPathCase(),
@@ -139,7 +139,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * CBeanUtils.copy（被测，反射 + 值转换）
      */
-    private static class CBeanUtilsCopyCase implements BenchmarkCase {
+    private static class CBeanUtilsCopyCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -162,7 +162,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * CBeanUtils.copy 旧实现路径（经 toMap 中转，模拟修复前组合方式，用于对比修复效果）
      */
-    private static class CBeanUtilsCopyOldPathCase implements BenchmarkCase {
+    private static class CBeanUtilsCopyOldPathCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -185,7 +185,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * CBeanUtils.copy 直连路径（复用目标实例，隔离 newInstance 反射构造开销）
      */
-    private static class CBeanUtilsCopyReuseTargetCase implements BenchmarkCase {
+    private static class CBeanUtilsCopyReuseTargetCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -211,7 +211,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * Spring BeanUtils.copyProperties（反射实现）
      */
-    private static class SpringBeanUtilsCopyCase implements BenchmarkCase {
+    private static class SpringBeanUtilsCopyCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -236,7 +236,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * hutool BeanUtil.copyProperties（反射实现）
      */
-    private static class HutoolBeanUtilCopyCase implements BenchmarkCase {
+    private static class HutoolBeanUtilCopyCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -259,7 +259,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * cglib BeanCopier（字节码生成实现）
      */
-    private static class CglibBeanCopierCase implements BenchmarkCase {
+    private static class CglibBeanCopierCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -287,7 +287,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * Jackson convertValue（序列化中转实现）
      */
-    private static class JacksonConvertCase implements BenchmarkCase {
+    private static class JacksonConvertCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -310,7 +310,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * 手工 setter（编译期直接赋值基线）
      */
-    private static class ManualSetterCase implements BenchmarkCase {
+    private static class ManualSetterCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -333,7 +333,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * CBeanUtils.toMap（被测，反射）
      */
-    private static class CBeanUtilsToMapCase implements BenchmarkCase {
+    private static class CBeanUtilsToMapCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -356,7 +356,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * hutool BeanUtil.beanToMap（反射实现）
      */
-    private static class HutoolBeanUtilToMapCase implements BenchmarkCase {
+    private static class HutoolBeanUtilToMapCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -379,7 +379,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * Jackson convertValue 转 map（序列化中转实现）
      */
-    private static class JacksonToMapCase implements BenchmarkCase {
+    private static class JacksonToMapCase implements CBenchmarkCase {
 
         private BenchBean source;
 
@@ -402,7 +402,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * 手工循环（编译期直接赋值基线）
      */
-    private static class ManualToMapCase implements BenchmarkCase {
+    private static class ManualToMapCase implements CBenchmarkCase {
 
         private BenchBean source;
 

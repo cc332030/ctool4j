@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.web.benchmark;
 
-import com.c332030.ctool4j.core.benchmark.BenchmarkCase;
-import com.c332030.ctool4j.core.benchmark.BenchmarkReport;
-import com.c332030.ctool4j.core.benchmark.BenchmarkRunner;
+import com.c332030.ctool4j.core.benchmark.CBenchmarkCase;
+import com.c332030.ctool4j.core.benchmark.CBenchmarkReport;
+import com.c332030.ctool4j.core.benchmark.CBenchmarkRunner;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Data;
@@ -46,7 +46,7 @@ public class CRequiredValidatorBenchmarkTests {
      */
     @Test
     public void benchmark() {
-        BenchmarkReport report = BenchmarkRunner.run(cases(), "CRequired 校验性能对比");
+        CBenchmarkReport report = CBenchmarkRunner.run(cases(), "CRequired 校验性能对比");
         Path reportPath = Paths.get(System.getProperty("user.dir"), "tmp", "benchmark-report-crequired.md");
         report.writeTo(reportPath);
         System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());
@@ -55,7 +55,7 @@ public class CRequiredValidatorBenchmarkTests {
     /**
      * 基准用例列表
      */
-    public static List<BenchmarkCase> cases() {
+    public static List<CBenchmarkCase> cases() {
         return Arrays.asList(
             new CRequiredCase(),
             new StandardConstraintCase(),
@@ -143,7 +143,7 @@ public class CRequiredValidatorBenchmarkTests {
     /**
      * @CRequired 校验（被测）：经 hibernate Validator 执行 CRequiredValidator
      */
-    private static class CRequiredCase implements BenchmarkCase {
+    private static class CRequiredCase implements CBenchmarkCase {
 
         private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -168,7 +168,7 @@ public class CRequiredValidatorBenchmarkTests {
     /**
      * 标准 javax.validation 注解校验（常规）：@NotNull/@NotBlank/@NotEmpty
      */
-    private static class StandardConstraintCase implements BenchmarkCase {
+    private static class StandardConstraintCase implements CBenchmarkCase {
 
         private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -193,7 +193,7 @@ public class CRequiredValidatorBenchmarkTests {
     /**
      * 手工 CValidUtils.isValid（基线，不经 Validator）
      */
-    private static class ManualValidCase implements BenchmarkCase {
+    private static class ManualValidCase implements CBenchmarkCase {
 
         private CRequiredBean bean;
 

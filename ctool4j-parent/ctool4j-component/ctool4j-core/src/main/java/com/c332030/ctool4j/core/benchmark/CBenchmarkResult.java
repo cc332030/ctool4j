@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public class BenchmarkResult {
+public class CBenchmarkResult {
 
     private final String name;
 

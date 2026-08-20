@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @since 2026/8/20
  */
-public class BenchmarkReport {
+public class CBenchmarkReport {
 
     /**
      * 报告标题
@@ -23,7 +23,7 @@ public class BenchmarkReport {
     /**
      * 按耗时升序的结果列表（首项为基线）
      */
-    private final List<BenchmarkResult> results;
+    private final List<CBenchmarkResult> results;
 
     /**
      * 构造报告
@@ -31,7 +31,7 @@ public class BenchmarkReport {
      * @param title   标题
      * @param results 结果列表（按耗时升序）
      */
-    public BenchmarkReport(String title, List<BenchmarkResult> results) {
+    public CBenchmarkReport(String title, List<CBenchmarkResult> results) {
         this.title = title;
         this.results = results;
     }
@@ -50,7 +50,7 @@ public class BenchmarkReport {
      *
      * @return 结果列表
      */
-    public List<BenchmarkResult> getResults() {
+    public List<CBenchmarkResult> getResults() {
         return results;
     }
 
@@ -64,10 +64,10 @@ public class BenchmarkReport {
         StringBuilder sb = new StringBuilder();
         sb.append("# ").append(title).append("\n\n");
 
-        BenchmarkResult baseline = results.get(0);
+        CBenchmarkResult baseline = results.get(0);
         sb.append("| 实现方式 | Avg(ns/op) | ops/s | 相对基线 |\n");
         sb.append("| --- | ---: | ---: | ---: |\n");
-        for (BenchmarkResult result : results) {
+        for (CBenchmarkResult result : results) {
             sb.append("| ").append(result.getName())
                 .append(" | ").append(String.format("%.1f", result.avgNanos()))
                 .append(" | ").append(String.format("%.0f", result.opsPerSecond()))

@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @since 2026/8/16
  */
-public class BenchmarkRunner {
+public class CBenchmarkRunner {
 
     /**
      * 预热次数（不计时，触发 JIT 编译）
@@ -40,10 +40,10 @@ public class BenchmarkRunner {
      * @param title 报告标题
      * @return 基准报告（可用于导出 markdown 文件）
      */
-    public static BenchmarkReport run(List<BenchmarkCase> cases, String title) {
+    public static CBenchmarkReport run(List<CBenchmarkCase> cases, String title) {
 
         // 第一轮：对所有用例预热，触发全部实现方式初始化/加载（结果不计入）
-        for (BenchmarkCase bc : cases) {
+        for (CBenchmarkCase bc : cases) {
 
             bc.prepare();
 
@@ -53,9 +53,9 @@ public class BenchmarkRunner {
         }
 
         // 第二轮：全部初始化完成后，再预热并正式计时
-        List<BenchmarkResult> results = new ArrayList<>();
+        List<CBenchmarkResult> results = new ArrayList<>();
 
-        for (BenchmarkCase bc : cases) {
+        for (CBenchmarkCase bc : cases) {
 
             bc.prepare();
 
@@ -70,7 +70,7 @@ public class BenchmarkRunner {
             }
             long elapsed = System.nanoTime() - start;
 
-            results.add(new BenchmarkResult(bc.name(), MEASURE_ITERATIONS, elapsed));
+            results.add(new CBenchmarkResult(bc.name(), MEASURE_ITERATIONS, elapsed));
 
             // 防止 JIT 消除，blackhole 仅参与一次无副作用累加
             if (blackhole == Long.MIN_VALUE) {
@@ -78,15 +78,15 @@ public class BenchmarkRunner {
             }
         }
 
-        results.sort(Comparator.comparingDouble(BenchmarkResult::avgNanos));
+        results.sort(Comparator.comparingDouble(CBenchmarkResult::avgNanos));
 
-        BenchmarkReport report = new BenchmarkReport(title, results);
+        CBenchmarkReport report = new CBenchmarkReport(title, results);
 
         print(report);
         return report;
     }
 
-    private static void print(BenchmarkReport report) {
+    private static void print(CBenchmarkReport report) {
 
         double baseline = report.getResults().get(0).avgNanos();
 
@@ -94,7 +94,7 @@ public class BenchmarkRunner {
         System.out.println("===== " + report.getTitle() + "（" + MEASURE_ITERATIONS + " 次迭代）=====");
         System.out.printf("%-24s %16s %16s %14s%n", "实现方式", "Avg(ns/op)", "ops/s", "相对基线");
         System.out.println("--------------------------------------------------------------------------");
-        for (BenchmarkResult result : report.getResults()) {
+        for (CBenchmarkResult result : report.getResults()) {
             System.out.printf("%-24s %16.1f %16.0f %12.2fx%n",
                     result.getName(),
                     result.avgNanos(),
