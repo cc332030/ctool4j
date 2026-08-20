@@ -52,6 +52,11 @@ public class CRequestLogUtils {
      */
     public final String EMPTY_REQ = "[no request body]";
 
+    /**
+     * 无响应体时的占位字符串，服务端 MVC 请求日志初始化为该值，实际响应有值时由 setRsp 覆盖
+     */
+    public final String EMPTY_RSP = "[no response body]";
+
     @Setter
     @CAutowired
     CRequestLogConfig requestLogConfig;
@@ -146,6 +151,7 @@ public class CRequestLogUtils {
             // Servlet 的 getParameterMap 返回 Map<String, String[]>，统一转换为集合类型
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
             .req(EMPTY_REQ)
+            .rsp(EMPTY_RSP)
             .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
@@ -238,7 +244,9 @@ public class CRequestLogUtils {
         }
         val requestLog = requestLogOpt.get();
 
-        requestLog.setRsp(rsp);
+        if(null != rsp) {
+            requestLog.setRsp(rsp);
+        }
         if (null != throwable) {
             requestLog.setErrorMessage(throwable.getMessage());
         }

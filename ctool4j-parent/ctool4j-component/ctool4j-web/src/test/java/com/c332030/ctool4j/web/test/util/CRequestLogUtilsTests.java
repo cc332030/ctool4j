@@ -19,12 +19,18 @@ import org.junit.jupiter.api.Test;
 @CustomLog
 public class CRequestLogUtilsTests {
 
-    // ---------- EMPTY_REQ（无请求体占位，req 统一为 Object 直接存字符串） ----------
+    // ---------- EMPTY_REQ / EMPTY_RSP（无请求体/响应体占位，统一为字符串） ----------
 
     @Test
     public void emptyReqs() {
         // 正例：占位为固定字符串，与 feign 场景 req 存字符串语义一致
         Assertions.assertEquals("[no request body]", CRequestLogUtils.EMPTY_REQ);
+    }
+
+    @Test
+    public void emptyRsp() {
+        // 正例：无响应体占位为固定字符串，服务端 MVC 请求日志初始化使用
+        Assertions.assertEquals("[no response body]", CRequestLogUtils.EMPTY_RSP);
     }
 
     // ---------- getOpt / getOptThenRemove / remove（ThreadLocal 空场景） ----------

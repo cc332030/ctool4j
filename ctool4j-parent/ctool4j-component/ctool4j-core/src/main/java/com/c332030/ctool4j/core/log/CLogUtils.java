@@ -378,10 +378,6 @@ public class CLogUtils {
      */
     public String getPrintAbleString(Object value) {
 
-        if(null == value) {
-            return "[null]";
-        }
-
         value = getPrintAble(value);
         if(String.class == value.getClass()) {
             return (String) value;
