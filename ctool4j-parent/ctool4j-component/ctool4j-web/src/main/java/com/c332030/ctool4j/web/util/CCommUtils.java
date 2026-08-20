@@ -287,7 +287,7 @@ public class CCommUtils {
     }
 
     /**
-     * 拼接 body（Object，直接 toString），无 body 时不打印
+     * 拼接 body（Object，经 getPrintAbleString 输出，null 时输出 [null]）
      */
     private void appendBodyObject(StringBuilder sb, Object body) {
         sb.append("\n\n");
@@ -329,7 +329,7 @@ public class CCommUtils {
 
         appendError(sb, info.getErrorMessage());
 
-        // 业务数据区（IP、耗时、token 等应用业务数据）：统一以空行与正文分隔，无数据时不追加
+        // 业务数据区（traceId、tenantId、userId、耗时等应用业务数据）：统一以空行与正文分隔，无数据时不追加
         val businessData = getBusinessData(info);
         if (MapUtil.isNotEmpty(businessData)) {
             sb.append("\n\n");
@@ -343,7 +343,7 @@ public class CCommUtils {
     }
 
     /**
-     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：token、traceId、tenantId、userId、ip、耗时；
+     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：traceId、tenantId、userId、耗时；
      * 有值才放入，耗时以起止时间能否计算判定：未测量不输出（避免无意义的 rt: 0ms 噪音），
      * 真实测量为 0ms 的快速请求仍会输出
      *
@@ -353,12 +353,9 @@ public class CCommUtils {
     private Map<String, String> getBusinessData(IHttpLogInfo info) {
 
         val businessDataMap = new LinkedHashMap<String, String>();
-        // 重复打印
-//        CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, info.getToken());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), info.getTraceId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), info.getTenantId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), info.getUserId());
-//        CMapUtils.put(businessDataMap, "ip", info.getIp());
         val rt = getRt(info);
         if (null != rt) {
             businessDataMap.put("rt", rt + "ms");

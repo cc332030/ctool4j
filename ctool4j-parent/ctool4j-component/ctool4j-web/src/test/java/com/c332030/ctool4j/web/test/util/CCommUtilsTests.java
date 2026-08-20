@@ -422,14 +422,12 @@ public class CCommUtilsTests {
     public void appendHttpLog_get() {
         // 正例：GET 完整拼接（请求行 + query + header + 业务数据）
         val log = requestLog();
-        log.setToken("token-1");
         log.setTraceId("trace-1");
         log.setParams(Collections.singletonMap("a", Collections.singletonList("1")));
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, log);
         val result = sb.toString();
         Assertions.assertTrue(result.startsWith("GET /api/test?a=1"));
-        Assertions.assertTrue(result.contains("Authorization: token-1"));
         Assertions.assertTrue(result.contains("X-Trace-Id: trace-1"));
     }
 
@@ -452,11 +450,11 @@ public class CCommUtilsTests {
 
     @Test
     public void appendHttpLog_noResponseBody() {
-        // 边界：无响应体时输出占位符
+        // 边界：无响应体时输出 getPrintAbleString(null) 的默认值 [null]
         val log = requestLog();
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, log);
-        Assertions.assertTrue(sb.toString().contains("[no response body]"));
+        Assertions.assertTrue(sb.toString().contains("[null]"));
     }
 
     @Test
