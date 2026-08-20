@@ -3,8 +3,8 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
 import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
-import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.*;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
@@ -171,7 +171,7 @@ public class CCommUtils {
      * @param sb   日志拼接器
      * @param info 请求日志信息
      */
-    public void appendRequestUrl(StringBuilder sb, IHttpLogInfo info) {
+    public void appendRequestUrl(StringBuilder sb, ICHttpLogInfo info) {
 
         val method = info.getMethod();
         sb.append(method);
@@ -198,7 +198,7 @@ public class CCommUtils {
      * @param sb   日志拼接器
      * @param info 请求日志信息
      */
-    public void appendUrl(StringBuilder sb, IHttpLogInfo info) {
+    public void appendUrl(StringBuilder sb, ICHttpLogInfo info) {
 
         sb.append(info.getPath());
         val params = info.getParams();
@@ -298,14 +298,21 @@ public class CCommUtils {
      * 统一拼接完整 HTTP 请求+响应日志（请求行、请求头、请求体、响应体、耗时、异常、业务数据）。
      * <p>格式要求：请求行、请求头、请求体必须保持标准 HTTP 报文结构连续输出
      * （请求行后紧跟请求头，中间不得插入非 HTTP 内容，否则无法作为 HTTP 客户端/回放格式使用）；
+     * 来源标识置于整个日志最前面（独立一行，满足"来源前缀"诉求）；
      * IP、rt、error、业务数据等日志元信息统一置于末尾（不参与 HTTP 报文结构，禁止插入请求行与请求头之间）</p>
-     * <p>全部数据直接取自 {@link IHttpLogInfo} 属性，派生逻辑（请求体取 req、响应体可打印转换、
+     * <p>全部数据直接取自 {@link ICHttpLogInfo} 属性，派生逻辑（请求体取 req、响应体可打印转换、
      * 耗时计算、业务数据组装）均在本方法内处理，调用方无需传入任何派生参数</p>
      *
      * @param sb   日志拼接器
      * @param info 请求日志信息（请求行、请求头、params、请求体、响应体、业务数据等）
      */
-    public void appendHttpLog(StringBuilder sb, IHttpLogInfo info) {
+    public void appendHttpLog(StringBuilder sb, ICHttpLogInfo info) {
+
+        // 日志来源标识置于整个日志最前面（独立一行）；请求行等 HTTP 报文结构紧随其后
+        val source = info.getSource();
+        if (null != source) {
+            sb.append('[').append(source.getText()).append("]\n");
+        }
 
         // 请求行
         appendRequestUrl(sb, info);
@@ -350,7 +357,7 @@ public class CCommUtils {
      * @param info 请求日志信息
      * @return 业务数据 map
      */
-    private Map<String, String> getBusinessData(IHttpLogInfo info) {
+    private Map<String, String> getBusinessData(ICHttpLogInfo info) {
 
         val businessDataMap = new LinkedHashMap<String, String>();
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), info.getTraceId());
@@ -369,7 +376,7 @@ public class CCommUtils {
      * @param info 请求日志信息
      * @return 耗时（毫秒），无法计算时返回 null
      */
-    private Long getRt(IHttpLogInfo info) {
+    private Long getRt(ICHttpLogInfo info) {
         if (info.getBeginTimeMillis() > 0
             && info.getEndTimeMillis() >= info.getBeginTimeMillis()) {
             return info.getEndTimeMillis() - info.getBeginTimeMillis();
@@ -384,12 +391,14 @@ public class CCommUtils {
      * @param sb          日志拼接器
      * @param info        请求基础数据（请求行、请求头、params 等）
      */
-    private void appendRequestBody(StringBuilder sb, IHttpLogInfo info) {
+    private void appendRequestBody(StringBuilder sb, ICHttpLogInfo info) {
 
         val params = info.getParams();
         if (MapUtil.isNotEmpty(params)) {
-            appendFormBody(sb, params);
+            // form body 前补空行，与请求行/请求头分隔，符合 HTTP 报文"headers 与 body 间空行"格式要求；
+            // form body 后不加，由 appendBodyObject 统一处理与 req body 间的分隔
             sb.append("\n\n");
+            appendFormBody(sb, params);
         }
 
         appendBodyObject(sb, info.getReq());

@@ -5,6 +5,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.enums.CLogSource;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.definition.function.CBiFunction;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
@@ -164,6 +165,7 @@ public class CFeignLogger extends Logger {
      */
     private CRequestLog setRequestLog(Request request) {
         val requestLog = new CRequestLog();
+        requestLog.setSource(CLogSource.FEIGN);
         requestLog.setMethod(request.httpMethod().name());
         setPathAndParams(requestLog, request);
         if (BooleanUtil.isTrue(config.getEnableHeader())) {

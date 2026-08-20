@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.test.model;
 
+import com.c332030.ctool4j.core.enums.CLogSource;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -35,10 +36,11 @@ public class CRequestLogTests {
         Object req = "requestBody";
 
         val log = new CRequestLog(
-            "GET", "/path", "token", "trace-1", "tenant-1", "user-1", "127.0.0.1",
+            CLogSource.MVC, "GET", "/path", "token", "trace-1", "tenant-1", "user-1", "127.0.0.1",
             headers, params, req, "rsp", "boom", 100L, 200L
         );
 
+        Assertions.assertEquals(CLogSource.MVC, log.getSource());
         Assertions.assertEquals("GET", log.getMethod());
         Assertions.assertEquals("/path", log.getPath());
         Assertions.assertEquals("token", log.getToken());
@@ -59,11 +61,14 @@ public class CRequestLogTests {
     public void builderAndSetter() {
         val log = CRequestLog.builder()
             .method("POST")
+            .source(CLogSource.FEIGN)
             .build();
         log.setPath("/post");
+        log.setSource(CLogSource.MVC);
 
         Assertions.assertEquals("POST", log.getMethod());
         Assertions.assertEquals("/post", log.getPath());
+        Assertions.assertEquals(CLogSource.MVC, log.getSource());
     }
 
 }

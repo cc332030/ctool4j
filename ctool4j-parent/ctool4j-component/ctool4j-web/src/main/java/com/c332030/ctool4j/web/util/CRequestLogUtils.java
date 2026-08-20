@@ -5,7 +5,8 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
-import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
+import com.c332030.ctool4j.core.enums.CLogSource;
+import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
@@ -137,6 +138,7 @@ public class CRequestLogUtils {
         val headers = CObjUtils.ifThenGet(requestLogConfig.getEnableHeader(), () -> collectHeaders(request));
         return CRequestLog.builder()
             .traceId(traceId)
+            .source(CLogSource.MVC)
             .method(request.getMethod())
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
@@ -251,7 +253,7 @@ public class CRequestLogUtils {
      *
      * @param info 请求日志信息
      */
-    public void logWrite(IHttpLogInfo info) {
+    public void logWrite(ICHttpLogInfo info) {
 
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, info);

@@ -7,12 +7,20 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: IHttpLogInfo 日志信息接口，各模块实现此接口即可复用 CCommUtils 的日志拼接方法
+ * Description: ICHttpLogInfo 日志信息接口，各模块实现此接口即可复用 CCommUtils 的日志拼接方法
  * </p>
  *
  * @since 2026/7/3
  */
-public interface IHttpLogInfo {
+public interface ICHttpLogInfo {
+
+    /**
+     * 日志来源（如 feign、mvc 等），用于日志最前面标识请求来源；未设置时为 null
+     * @return 日志来源
+     */
+    default ICSource getSource() {
+        return null;
+    }
 
     /**
      * HTTP 方法：GET/POST/PUT/DELETE...

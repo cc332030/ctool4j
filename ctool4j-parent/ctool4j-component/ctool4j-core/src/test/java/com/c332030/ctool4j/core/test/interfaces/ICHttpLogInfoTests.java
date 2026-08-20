@@ -1,22 +1,22 @@
 package com.c332030.ctool4j.core.test.interfaces;
 
-import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
+import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
  * <p>
- * Description: IHttpLogInfoTests
+ * Description: ICHttpLogInfoTests
  * </p>
  *
  * @since 2025/12/12
  */
-public class IHttpLogInfoTests {
+public class ICHttpLogInfoTests {
 
     @Test
     public void requiredMethods() {
 
-        IHttpLogInfo info = new IHttpLogInfo() {
+        ICHttpLogInfo info = new ICHttpLogInfo() {
             @Override
             public String getMethod() {
                 return "POST";
@@ -36,7 +36,7 @@ public class IHttpLogInfoTests {
     @Test
     public void defaults() {
 
-        IHttpLogInfo info = new IHttpLogInfo() {
+        ICHttpLogInfo info = new ICHttpLogInfo() {
             @Override
             public String getMethod() {
                 return "GET";
@@ -55,6 +55,7 @@ public class IHttpLogInfoTests {
         Assertions.assertNull(info.getIp());
         Assertions.assertNull(info.getRsp());
         Assertions.assertNull(info.getErrorMessage());
+        Assertions.assertNull(info.getSource());
 
         Assertions.assertTrue(info.getHeaders().isEmpty());
         Assertions.assertTrue(info.getParams().isEmpty());
@@ -68,7 +69,7 @@ public class IHttpLogInfoTests {
     @Test
     public void overridden() {
 
-        IHttpLogInfo info = new IHttpLogInfo() {
+        ICHttpLogInfo info = new ICHttpLogInfo() {
             @Override
             public String getMethod() {
                 return "PUT";

@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.model;
 
-import com.c332030.ctool4j.core.interfaces.IHttpLogInfo;
+import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
+import com.c332030.ctool4j.core.interfaces.ICSource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,12 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CRequestLog implements IHttpLogInfo {
+public class CRequestLog implements ICHttpLogInfo {
+
+    /**
+     * 日志来源（如 feign、mvc 等），用于日志最前面标识请求来源
+     */
+    ICSource source;
 
     /**
      * HTTP 方法：GET/POST/PUT/DELETE...

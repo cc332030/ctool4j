@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.test.util;
 
+import com.c332030.ctool4j.core.enums.CLogSource;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import com.c332030.ctool4j.web.util.CCommUtils;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class CCommUtilsTests {
 
     /**
-     * 构造一个可复用的 IHttpLogInfo 实现，复用 CRequestLog（@Data 提供 public setter）
+     * 构造一个可复用的 ICHttpLogInfo 实现，复用 CRequestLog（@Data 提供 public setter）
      */
     private CRequestLog requestLog() {
         val log = new CRequestLog();
@@ -432,6 +433,17 @@ public class CCommUtilsTests {
     }
 
     @Test
+    public void appendHttpLog_source() {
+        // 正例：设置 source 时，日志最前面输出 [来源] 独立行，请求行紧随其后
+        val log = requestLog();
+        log.setSource(CLogSource.FEIGN);
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log);
+        val result = sb.toString();
+        Assertions.assertTrue(result.startsWith("[feign]\nGET /api/test"));
+    }
+
+    @Test
     public void appendHttpLog_postFormAndBody() {
         // 正例：POST 有 params（form body）+ 请求体，两者均输出
         val log = requestLog();
@@ -446,6 +458,66 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("name=张三"));
         Assertions.assertTrue(result.contains("{\"x\":1}"));
         Assertions.assertTrue(result.contains("{\"y\":2}"));
+    }
+
+    @Test
+    public void appendHttpLog_paramsEmptyReqOnly() {
+        // 分支：params 为空但请求体有值，只输出 json 请求体（无 form body）
+        val log = requestLog();
+        log.setMethod(HttpMethod.POST.name());
+        log.setReq("{\"x\":1}");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log);
+        val result = sb.toString();
+        Assertions.assertTrue(result.startsWith("POST /api/test\n\n{\"x\":1}"));
+        Assertions.assertFalse(result.contains("name="));
+    }
+
+    @Test
+    public void appendHttpLog_reqNullRspPresent() {
+        // 分支：请求体为 null 但响应体有值，请求体输出 [null] 占位，响应体正常输出
+        val log = requestLog();
+        log.setMethod(HttpMethod.POST.name());
+        log.setRsp("{\"y\":2}");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log);
+        val result = sb.toString();
+        Assertions.assertTrue(result.contains("[null]\n\n{\"y\":2}"));
+    }
+
+    @Test
+    public void appendHttpLog_allFields() {
+        // 正例：所有选项都有值，验证最终完整打印格式
+        val log = requestLog();
+        log.setSource(CLogSource.MVC);
+        log.setMethod(HttpMethod.POST.name());
+        log.setPath("/api/submit");
+        log.setHeaders(headers("Content-Type", "application/json"));
+        log.setParams(Collections.singletonMap("name", Collections.singletonList("张三")));
+        log.setReq("{\"x\":1}");
+        log.setRsp("{\"y\":2}");
+        log.setErrorMessage("boom");
+        log.setTraceId("trace-1");
+        log.setTenantId("tenant-1");
+        log.setUserId("user-1");
+        log.setBeginTimeMillis(1000L);
+        log.setEndTimeMillis(1100L);
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log);
+        Assertions.assertEquals(
+            "[mvc]\n"
+                + "POST /api/submit\n"
+                + "Content-Type: application/json\n\n"
+                + "name=张三\n\n"
+                + "{\"x\":1}\n\n"
+                + "{\"y\":2}\n\n"
+                + "error: boom\n\n"
+                + "X-Trace-Id: trace-1\n"
+                + "X-Tenant-Id: tenant-1\n"
+                + "X-User-Id: user-1\n"
+                + "rt: 100ms\n",
+            sb.toString()
+        );
     }
 
     @Test
