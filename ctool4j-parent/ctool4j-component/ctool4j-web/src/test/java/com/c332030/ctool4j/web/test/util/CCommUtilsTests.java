@@ -367,35 +367,36 @@ public class CCommUtilsTests {
         Assertions.assertEquals("start", sb.toString());
     }
 
-    // ---------- appendBody ----------
+    // ---------- getBodyText（feign 等 byte[] body 场景的真实转换节点） ----------
 
     @Test
-    public void appendBody_text() {
+    public void getBodyText_text() {
         // 正例：文本 body 按 charset 解码
         val body = "你好".getBytes(StandardCharsets.UTF_8);
         val map = headers(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
-        val sb = new StringBuilder("start");
-        CCommUtils.appendBody(sb, body, map);
-        Assertions.assertEquals("start\n\n你好", sb.toString());
+        Assertions.assertEquals("你好", CCommUtils.getBodyText(body, map, CCommUtils.NOT_TEXT_BODY));
     }
 
     @Test
-    public void appendBody_binary() {
+    public void getBodyText_binary() {
         // 反例：非文本 body 输出占位符
         val body = new byte[]{(byte) 0xFF, (byte) 0x00};
         val map = headers(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
-        val sb = new StringBuilder("start");
-        CCommUtils.appendBody(sb, body, map);
-        Assertions.assertEquals("start\n\n[not text body]", sb.toString());
+        Assertions.assertEquals(CCommUtils.NOT_TEXT_BODY, CCommUtils.getBodyText(body, map, null));
     }
 
     @Test
-    public void appendBody_emptyBytes() {
-        // 边界：空 byte[] 不拼接
-        val sb = new StringBuilder("start");
-        CCommUtils.appendBody(sb, new byte[0], null);
-        CCommUtils.appendBody(sb, null, null);
-        Assertions.assertEquals("start", sb.toString());
+    public void getBodyText_emptyBytes_returnsPlaceholder() {
+        // 边界：空 body 返回传入占位符（feign 无请求体时输出 EMPTY_REQ/EMPTY_RSP，避免 [null]）
+        Assertions.assertEquals("EMPTY", CCommUtils.getBodyText(new byte[0], null, "EMPTY"));
+        Assertions.assertEquals("EMPTY", CCommUtils.getBodyText(null, null, "EMPTY"));
+    }
+
+    @Test
+    public void getBodyText_emptyBytes_noPlaceholder_returnsNull() {
+        // 边界：空 body 且未传占位符时返回 null（不输出）
+        Assertions.assertNull(CCommUtils.getBodyText(new byte[0], null, null));
+        Assertions.assertNull(CCommUtils.getBodyText(null, null, null));
     }
 
     // ---------- appendError ----------

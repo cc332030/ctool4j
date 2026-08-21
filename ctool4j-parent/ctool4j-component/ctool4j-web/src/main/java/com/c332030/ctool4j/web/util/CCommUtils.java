@@ -269,27 +269,6 @@ public class CCommUtils {
     public static final String NOT_TEXT_BODY = "[not text body]";
 
     /**
-     * 拼接 body（byte[]，根据 Content-Type 判断是否文本），无 body 时不打印
-     *
-     * @param sb        日志拼接器
-     * @param bodyBytes body 字节数组
-     * @param headers   请求头 map（用于判断 Content-Type）
-     */
-    public void appendBody(
-            StringBuilder sb,
-            byte[] bodyBytes,
-            Map<String, Collection<String>> headers
-    ) {
-        // 空 body 由占位符参数传入 null，统一方法返回 null 时不输出
-        val bodyText = getBodyText(bodyBytes, headers, null);
-        if (null == bodyText) {
-            return;
-        }
-        sb.append("\n\n");
-        sb.append(bodyText);
-    }
-
-    /**
      * body 字节数组转可打印文本的统一出口：
      * <p>所有请求方式（feign、resttemplate、httpclient 等）统一调用，不再各自实现 body 转换逻辑：
      * 空 body 返回 emptyPlaceholder，文本 body 按 Content-Type 字符集解码，非文本 body 输出占位符</p>
