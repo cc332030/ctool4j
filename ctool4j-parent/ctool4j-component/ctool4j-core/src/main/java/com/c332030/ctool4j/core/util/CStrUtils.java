@@ -932,7 +932,7 @@ public class CStrUtils {
      */
     public String generateRandomString(int length) {
 
-        String characters = CNumUtils.CHARTSET_62;
+        val characters = CNumUtils.CHARSET_62;
         val sb = new StringBuilder(length);
         val secureRandom = new SecureRandom();
         for (int i = 0; i < length; i++) {
