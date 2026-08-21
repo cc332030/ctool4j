@@ -1,9 +1,16 @@
 = CBeanUtils 设计文档
 
+Version: 1.1
+LastModified: 2026-08-21
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.classes.CBeanUtils
 状态：已落地（2026-08-16，计划预计算 + fallback 全预热）
 适用范围：JavaBean 属性复制、对象转 Map、Map 转对象
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 源码 `CBeanUtils` 类 javadoc 增加 `@see` 双向引用（指向本设计文档与对应测试文档），落实"代码与文档互相引用"规范；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-16 | 初始落地（计划预计算 + fallback 全预热，对应源码与设计文档已对齐）
 
 == 1. 功能设计
 

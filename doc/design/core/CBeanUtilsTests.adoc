@@ -1,6 +1,13 @@
 = CBeanUtils 测试用例文档
 
+Version: 1.1
+LastModified: 2026-08-21
 所属功能：`com.c332030.ctool4j.core.classes.CBeanUtils`（core 工具类）——JavaBean 属性复制、对象转 Map、Map 转对象、集合/数组复制、newInstance。
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 补充 Version/LastModified 头部字段（落实"文档版本与变更日志"规范）；对应源码 `CBeanUtils` 类 javadoc 已增加 `@see` 双向引用
+- 1.0 | 2026-08-16 | 初始落地（测试用例文档，与设计文档 `CBeanUtils.adoc` 成对）
 
 对应测试类：
 - `com.c332030.ctool4j.core.test.classes.CBeanUtilsMoreTests`（正例/反例/边界/类型转换）
