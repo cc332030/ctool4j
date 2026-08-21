@@ -7,7 +7,7 @@
 - `com.c332030.ctool4j.core.test.classes.CBeanUtilsCompatibilityTests`（重构前后行为一致性兼容性）
 - `com.c332030.ctool4j.core.benchmark.CBeanUtilsBenchmarkTests`（性能基准，独立于单元测试，由 CBenchmarkRunner 驱动）
 
-对应设计文档：`doc/design/CBeanUtils.adoc`（功能设计，测试内容以本文档为准）。
+对应设计文档：`doc/design/core/CBeanUtils.adoc`（功能设计，测试内容以本文档为准）。
 
 本文档为 CBeanUtils 的测试用例文档，含用例设计思路与依据、覆盖场景、性能数据，以及测试用例的分类与编号索引；测试方法通过行注释标注对应编号（如 `// 对应测试用例 2.3.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
 
@@ -37,7 +37,7 @@
 
 === 用例设计依据
 
-- 依据功能设计（`doc/design/CBeanUtils.adoc`）的功能目标与计划预计算方案：copy 直连目标字段、
+- 依据功能设计（`doc/design/core/CBeanUtils.adoc`）的功能目标与计划预计算方案：copy 直连目标字段、
   运行期仅遍历字段数组 + null 判断
 - 依据需求对边界行为的约定：null 过滤、key 冲突抛异常、结果不可变、空结果 `CMap.of()`、JDK 源不复制
 - 依据测试方法（等价类/边界值/分支覆盖）：宽声明类型回退、无转换器跳过、objectStr 优先级为分派分支

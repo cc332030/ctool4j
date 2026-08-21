@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/req）、
  * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回；
- * 测试用例分类与编号见 doc/design/CFeignLoggerTests.adoc，各测试方法以行注释标注对应编号
+ * 测试用例分类与编号见 doc/design/feign/CFeignLoggerTests.adoc，各测试方法以行注释标注对应编号
  *
  * @author c332030
  */

@@ -26,4 +26,4 @@ rt: 100ms             耗时
 - `getBodyText` 为 byte[] body → 可打印文本的统一转换节点：空 body 返回占位符（EMPTY_REQ/EMPTY_RSP）、文本 body 按 Content-Type charset 解码、非文本 body 输出占位符
 - 状态行未知状态码（不在 HttpStatus 枚举）仅输出数字、不输出描述
 
-测试内容见 `doc/design/CCommUtilsTests.adoc`。
+测试内容见 `doc/design/web/CCommUtilsTests.adoc`。

@@ -18,4 +18,4 @@
 - 空请求体输出 EMPTY_REQ、空响应体输出 EMPTY_RSP 占位（避免 `[null]`，与 MVC 一致）
 - 采集响应状态码与响应头，供输出响应报文头（与 MVC 对称）
 
-测试内容见 `doc/design/CFeignLoggerTests.adoc`。
+测试内容见 `doc/design/feign/CFeignLoggerTests.adoc`。

@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * <p>`com.c332030.ctool4j.web.util.CCommUtils`（web 工具类）请求日志拼接的测试用例，
  * 覆盖容易出错或出错后难发现的方法：headers 拼接、URL/Query 拼接、charset 解析、响应报文头、完整 HTTP 日志拼接等；
- * 测试用例分类与编号见 doc/design/CCommUtilsTests.adoc，各测试方法以行注释标注对应编号</p>
+ * 测试用例分类与编号见 doc/design/web/CCommUtilsTests.adoc，各测试方法以行注释标注对应编号</p>
  *
  * @since 2026/8/14
  */
