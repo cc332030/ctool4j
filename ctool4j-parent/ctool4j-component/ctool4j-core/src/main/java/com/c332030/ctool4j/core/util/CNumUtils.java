@@ -31,12 +31,12 @@ public class CNumUtils {
     /**
      * 62 进制字符集
      */
-    public final String CHARTSET_62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public final String CHARSET_62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /**
      * 62 进制字符集数组
      */
-    public final char[] CHARTSET_62_ARR = CHARTSET_62.toCharArray();
+    public final char[] CHARSET_62_ARR = CHARSET_62.toCharArray();
 
     /**
      * 常量 100
@@ -564,7 +564,7 @@ public class CNumUtils {
         while (value != 0) {
 
             val index = (int) (value % 62);
-            sb.append(CHARTSET_62_ARR[index]);
+            sb.append(CHARSET_62_ARR[index]);
             value /= 62;
         }
 
