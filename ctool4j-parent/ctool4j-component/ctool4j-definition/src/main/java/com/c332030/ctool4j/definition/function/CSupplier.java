@@ -13,8 +13,8 @@ import java.util.function.Supplier;
  * </p>
  *
  * @since 2025/1/15
- * @see doc/design/core/CSupplier.adoc
- * @see doc/design/core/CSupplierTests.adoc
+ * @see "doc/design/core/CSupplier.adoc"
+ * @see "doc/design/core/CSupplierTests.adoc"
  */
 @FunctionalInterface
 public interface CSupplier<T> extends Supplier<T> {

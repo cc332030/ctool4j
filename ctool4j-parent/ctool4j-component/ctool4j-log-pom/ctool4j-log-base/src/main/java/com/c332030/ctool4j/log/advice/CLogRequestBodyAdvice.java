@@ -18,7 +18,7 @@ import java.lang.reflect.Type;
  * </p>
  *
  * @author c332030
- * @see doc/design/log/CLogRequestBodyAdvice.adoc
+ * @see "doc/design/log/CLogRequestBodyAdvice.adoc"
  * @since 2025/12/20
  */
 @CustomLog

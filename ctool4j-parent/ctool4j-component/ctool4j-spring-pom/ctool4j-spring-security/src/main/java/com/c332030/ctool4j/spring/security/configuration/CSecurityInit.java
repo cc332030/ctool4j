@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * </p>
  *
  * @since 2026/1/24
- * @see doc/design/spring/CSecurityInit.adoc
+ * @see "doc/design/spring/CSecurityInit.adoc"
  */
 @Component
 public class CSecurityInit implements ICSpringInit {

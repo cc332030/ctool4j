@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Description: CFeignUtils
  * </p>
  *
- * @see doc/design/feign/CFeignUtils.adoc
- * @see doc/design/feign/CFeignUtilsTests.adoc
+ * @see "doc/design/feign/CFeignUtils.adoc"
+ * @see "doc/design/feign/CFeignUtilsTests.adoc"
  * @since 2025/9/21
  */
 @CustomLog

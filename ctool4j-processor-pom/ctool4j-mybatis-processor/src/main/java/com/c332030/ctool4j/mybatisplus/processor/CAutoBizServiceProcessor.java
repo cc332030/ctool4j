@@ -26,7 +26,7 @@ import java.util.Set;
  * </p>
  *
  * @since 2025/05/16
- * @see doc/design/mybatisplus/CAutoBizServiceProcessor.adoc
+ * @see "doc/design/mybatisplus/CAutoBizServiceProcessor.adoc"
  */
 @SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService")
 public class CAutoBizServiceProcessor extends CAbstractProcessor {

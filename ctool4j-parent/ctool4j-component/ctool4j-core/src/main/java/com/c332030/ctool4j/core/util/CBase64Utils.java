@@ -11,8 +11,8 @@ import lombok.experimental.UtilityClass;
  * </p>
  *
  * @since 2026/1/4
- * @see doc/design/core/CBase64Utils.adoc
- * @see doc/design/core/CBase64UtilsTests.adoc
+ * @see "doc/design/core/CBase64Utils.adoc"
+ * @see "doc/design/core/CBase64UtilsTests.adoc"
  */
 @UtilityClass
 public class CBase64Utils {

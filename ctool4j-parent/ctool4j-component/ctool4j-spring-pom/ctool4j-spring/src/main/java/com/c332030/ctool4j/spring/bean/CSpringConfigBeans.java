@@ -13,7 +13,7 @@ import lombok.experimental.UtilityClass;
  * </p>
  *
  * @since 2025/11/10
- * @see doc/design/spring/CSpringConfigBeans.adoc
+ * @see "doc/design/spring/CSpringConfigBeans.adoc"
  */
 @UtilityClass
 @CAutowiredScan

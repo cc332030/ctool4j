@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/4/2
- * @see doc/design/core/CReflectUtils.adoc
- * @see doc/design/core/CReflectUtilsTests.adoc
+ * @see "doc/design/core/CReflectUtils.adoc"
+ * @see "doc/design/core/CReflectUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

@@ -7,8 +7,8 @@ import org.slf4j.event.Level;
  * Description: ICLogLevelTrace
  * </p>
  *
- * @see doc/design/log/ICLogLevelTrace.adoc
- * @see doc/design/log/ICLogLevelTests.adoc
+ * @see "doc/design/log/ICLogLevelTrace.adoc"
+ * @see "doc/design/log/ICLogLevelTests.adoc"
  * @since 2026/3/20
  */
 public interface ICLogLevelTrace extends ICLogLevel {

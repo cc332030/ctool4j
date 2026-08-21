@@ -9,7 +9,7 @@ import lombok.Data;
  *
  * @author c332030
  * @since 2026/8/14
- * @see doc/design/excel/CExcelTestBean.adoc
+ * @see "doc/design/excel/CExcelTestBean.adoc"
 */
 @Data
 public class CExcelTestBean {

@@ -13,8 +13,8 @@ import java.util.Iterator;
  * </p>
  *
  * @since 2025/9/28
- * @see doc/design/core/CIteratorUtils.adoc
- * @see doc/design/core/CIteratorUtilsTests.adoc
+ * @see "doc/design/core/CIteratorUtils.adoc"
+ * @see "doc/design/core/CIteratorUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

@@ -15,8 +15,8 @@ import org.springframework.http.HttpStatus;
  * </p>
  *
  * @since 2025/5/13
- * @see doc/design/core/CIntMsgResult.adoc
- * @see doc/design/core/CIntMsgResultTests.adoc
+ * @see "doc/design/core/CIntMsgResult.adoc"
+ * @see "doc/design/core/CIntMsgResultTests.adoc"
  */
 @Data
 @SuperBuilder

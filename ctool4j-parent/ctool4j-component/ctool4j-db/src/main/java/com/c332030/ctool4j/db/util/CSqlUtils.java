@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
  * Description: CSqlUtils
  * </p>
  *
- * @see doc/design/db/CSqlUtils.adoc
- * @see doc/design/db/CSqlUtilsTests.adoc
+ * @see "doc/design/db/CSqlUtils.adoc"
+ * @see "doc/design/db/CSqlUtilsTests.adoc"
  * @since 2025/11/5
  */
 @UtilityClass

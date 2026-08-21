@@ -18,8 +18,8 @@ import java.util.function.Supplier;
  * </p>
  *
  * @since 2025/9/14
- * @see doc/design/core/CAssert.adoc
- * @see doc/design/core/CAssertTests.adoc
+ * @see "doc/design/core/CAssert.adoc"
+ * @see "doc/design/core/CAssertTests.adoc"
  */
 @UtilityClass
 public class CAssert {

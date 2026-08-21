@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
  * Description: CTool4jConstants
  * </p>
  *
- * @see doc/design/definition/CTool4jConstants.adoc
+ * @see "doc/design/definition/CTool4jConstants.adoc"
  * @since 2025/9/14
  */
 @UtilityClass

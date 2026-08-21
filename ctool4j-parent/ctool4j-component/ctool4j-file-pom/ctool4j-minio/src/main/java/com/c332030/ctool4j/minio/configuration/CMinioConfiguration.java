@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * Description: CMinioConfiguration
  * </p>
  *
- * @see doc/design/minio/CMinioConfiguration.adoc
+ * @see "doc/design/minio/CMinioConfiguration.adoc"
  * @since 2024/12/9
  */
 @Configuration

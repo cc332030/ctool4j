@@ -11,7 +11,7 @@ import com.c332030.ctool4j.redis.util.CLockUtils;
  * </p>
  *
  * @since 2025/12/8
- * @see doc/design/mybatisplus/ICMpLockService.adoc
+ * @see "doc/design/mybatisplus/ICMpLockService.adoc"
  */
 public interface ICMpLockService<ENTITY> extends ICService<ENTITY> {
 

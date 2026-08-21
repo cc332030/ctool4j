@@ -12,8 +12,8 @@ import java.util.*;
  * </p>
  *
  * @since 2024/11/12
- * @see doc/design/core/CSet.adoc
- * @see doc/design/core/CSetTests.adoc
+ * @see "doc/design/core/CSet.adoc"
+ * @see "doc/design/core/CSetTests.adoc"
  */
 @UtilityClass
 public class CSet {

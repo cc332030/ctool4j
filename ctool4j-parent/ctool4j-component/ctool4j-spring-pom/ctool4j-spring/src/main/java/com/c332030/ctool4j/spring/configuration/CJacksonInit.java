@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @since 2026/4/8
- * @see doc/design/spring/CJacksonInit.adoc
+ * @see "doc/design/spring/CJacksonInit.adoc"
  */
 @Configuration
 @AllArgsConstructor

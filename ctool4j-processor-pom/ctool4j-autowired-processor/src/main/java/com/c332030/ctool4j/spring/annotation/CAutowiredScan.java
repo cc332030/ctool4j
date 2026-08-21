@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * @since 2025/12/23
- * @see doc/design/spring/CAutowiredScan.adoc
+ * @see "doc/design/spring/CAutowiredScan.adoc"
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

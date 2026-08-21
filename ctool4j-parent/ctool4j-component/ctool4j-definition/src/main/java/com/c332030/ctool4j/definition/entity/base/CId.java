@@ -14,8 +14,8 @@ import java.io.Serializable;
  * </p>
  *
  * @since 2025/5/26
- * @see doc/design/core/CId.adoc
- * @see doc/design/core/CIdTests.adoc
+ * @see "doc/design/core/CId.adoc"
+ * @see "doc/design/core/CIdTests.adoc"
  */
 @Data
 @SuperBuilder

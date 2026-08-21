@@ -7,8 +7,8 @@ import com.c332030.ctool4j.definition.function.CBiFunction;
  * Description: ICCacheIdConverter
  * </p>
  *
- * @see doc/design/cache/ICCacheIdConverter.adoc
- * @see doc/design/cache/CDefaultCacheIdConverterTests.adoc
+ * @see "doc/design/cache/ICCacheIdConverter.adoc"
+ * @see "doc/design/cache/CDefaultCacheIdConverterTests.adoc"
  * @since 2025/9/27
  */
 public interface ICCacheIdConverter<KEY, CLASS> extends CBiFunction<KEY, CLASS, String> {

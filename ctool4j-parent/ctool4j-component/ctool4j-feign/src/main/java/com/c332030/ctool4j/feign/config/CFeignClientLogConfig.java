@@ -11,8 +11,8 @@ import java.util.Set;
  * Description: CFeignClientLogConfig
  * </p>
  *
- * @see doc/design/feign/CFeignClientLogConfig.adoc
- * @see doc/design/feign/CFeignClientLogConfigTests.adoc
+ * @see "doc/design/feign/CFeignClientLogConfig.adoc"
+ * @see "doc/design/feign/CFeignClientLogConfigTests.adoc"
  * @since 2025/9/21
  */
 @Data

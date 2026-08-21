@@ -13,8 +13,8 @@ import java.util.function.Consumer;
  * </p>
  *
  * @since 2025/9/28
- * @see doc/design/core/CConsumer.adoc
- * @see doc/design/core/CConsumerTests.adoc
+ * @see "doc/design/core/CConsumer.adoc"
+ * @see "doc/design/core/CConsumerTests.adoc"
  */
 @FunctionalInterface
 public interface CConsumer<T> extends Consumer<T> {

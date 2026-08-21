@@ -12,8 +12,8 @@ import java.io.IOException;
  * </p>
  *
  * @since 2026/8/13
- * @see doc/design/core/CLogBlobSerializer.adoc
- * @see doc/design/core/CLogBlobSerializerTests.adoc
+ * @see "doc/design/core/CLogBlobSerializer.adoc"
+ * @see "doc/design/core/CLogBlobSerializerTests.adoc"
  */
 public class CLogBlobSerializer extends JsonSerializer<Object> {
 

@@ -13,8 +13,8 @@ import java.util.function.BiConsumer;
  * </p>
  *
  * @since 2025/2/21
- * @see doc/design/core/CBiConsumer.adoc
- * @see doc/design/core/CBiConsumerTests.adoc
+ * @see "doc/design/core/CBiConsumer.adoc"
+ * @see "doc/design/core/CBiConsumerTests.adoc"
  */
 @FunctionalInterface
 public interface CBiConsumer<T, U> extends BiConsumer<T, U> {

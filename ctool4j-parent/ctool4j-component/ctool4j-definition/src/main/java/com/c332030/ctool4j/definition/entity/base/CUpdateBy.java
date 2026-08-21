@@ -11,8 +11,8 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @since 2025/12/6
- * @see doc/design/core/CUpdateBy.adoc
- * @see doc/design/core/CUpdateByTests.adoc
+ * @see "doc/design/core/CUpdateBy.adoc"
+ * @see "doc/design/core/CUpdateByTests.adoc"
  */
 @Data
 @SuperBuilder

@@ -14,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
  * </p>
  *
  * @since 2025/12/1
- * @see doc/design/spring/CRestTemplateUtils.adoc
- * @see doc/design/spring/CRestTemplateUtilsTests.adoc
+ * @see "doc/design/spring/CRestTemplateUtils.adoc"
+ * @see "doc/design/spring/CRestTemplateUtilsTests.adoc"
  */
 @UtilityClass
 public class CRestTemplateUtils {

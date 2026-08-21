@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * Description: CFeignLocalClientInit
  * </p>
  *
- * @see doc/design/nacos/CFeignLocalClientInit.adoc
+ * @see "doc/design/nacos/CFeignLocalClientInit.adoc"
  * @since 2025/1/13
  */
 @CustomLog

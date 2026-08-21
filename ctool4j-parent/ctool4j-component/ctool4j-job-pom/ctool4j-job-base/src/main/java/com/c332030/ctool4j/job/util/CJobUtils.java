@@ -16,8 +16,8 @@ import java.time.temporal.ChronoUnit;
  * Description: CJobUtils
  * </p>
  *
- * @see doc/design/job/CJobUtils.adoc
- * @see doc/design/job/CJobUtilsTests.adoc
+ * @see "doc/design/job/CJobUtils.adoc"
+ * @see "doc/design/job/CJobUtilsTests.adoc"
  * @since 2025/10/31
  */
 @CustomLog

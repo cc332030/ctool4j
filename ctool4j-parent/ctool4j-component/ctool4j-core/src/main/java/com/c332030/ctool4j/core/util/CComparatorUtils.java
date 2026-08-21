@@ -13,8 +13,8 @@ import java.util.function.Function;
  * </p>
  *
  * @since 2025/3/26
- * @see doc/design/core/CComparatorUtils.adoc
- * @see doc/design/core/CComparatorUtilsTests.adoc
+ * @see "doc/design/core/CComparatorUtils.adoc"
+ * @see "doc/design/core/CComparatorUtilsTests.adoc"
  */
 @UtilityClass
 public class CComparatorUtils {

@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author c332030
  * @since 2024/5/7
- * @see doc/design/mybatisplus/CSqlInjector.adoc
+ * @see "doc/design/mybatisplus/CSqlInjector.adoc"
  */
 @CustomLog
 @Component

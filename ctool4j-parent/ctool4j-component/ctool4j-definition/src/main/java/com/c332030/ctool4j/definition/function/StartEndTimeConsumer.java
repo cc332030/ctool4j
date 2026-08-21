@@ -8,8 +8,8 @@ import java.time.Instant;
  * </p>
  *
  * @since 2025/10/31
- * @see doc/design/core/StartEndTimeConsumer.adoc
- * @see doc/design/core/StartEndTimeConsumerTests.adoc
+ * @see "doc/design/core/StartEndTimeConsumer.adoc"
+ * @see "doc/design/core/StartEndTimeConsumerTests.adoc"
  */
 @FunctionalInterface
 public interface StartEndTimeConsumer extends CBiConsumer<Instant, Instant> {

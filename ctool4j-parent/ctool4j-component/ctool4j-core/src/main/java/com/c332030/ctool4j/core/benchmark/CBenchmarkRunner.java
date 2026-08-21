@@ -20,7 +20,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/16
- * @see doc/design/core/CBenchmarkRunner.adoc
+ * @see "doc/design/core/CBenchmarkRunner.adoc"
  */
 public class CBenchmarkRunner {
 

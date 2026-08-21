@@ -23,8 +23,8 @@ import java.util.function.Supplier;
  * Description: CLockService
  * </p>
  *
- * @see doc/design/redis/CLockService.adoc
- * @see doc/design/redis/CLockServiceTests.adoc
+ * @see "doc/design/redis/CLockService.adoc"
+ * @see "doc/design/redis/CLockServiceTests.adoc"
  * @since 2025/11/3
  */
 @CustomLog

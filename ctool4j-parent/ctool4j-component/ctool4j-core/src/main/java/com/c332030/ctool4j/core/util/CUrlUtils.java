@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/12/2
- * @see doc/design/core/CUrlUtils.adoc
- * @see doc/design/core/CUrlUtilsTests.adoc
+ * @see "doc/design/core/CUrlUtils.adoc"
+ * @see "doc/design/core/CUrlUtilsTests.adoc"
  */
 @UtilityClass
 public class CUrlUtils {

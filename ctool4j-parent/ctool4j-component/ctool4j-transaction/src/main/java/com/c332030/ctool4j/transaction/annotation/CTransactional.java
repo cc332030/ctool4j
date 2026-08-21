@@ -12,8 +12,8 @@ import java.lang.annotation.*;
  * Description: CTransactional
  * </p>
  *
- * @see doc/design/transaction/CTransactional.adoc
- * @see doc/design/transaction/CTransactionalTests.adoc
+ * @see "doc/design/transaction/CTransactional.adoc"
+ * @see "doc/design/transaction/CTransactionalTests.adoc"
  * @since 2025/9/21
  */
 @Documented

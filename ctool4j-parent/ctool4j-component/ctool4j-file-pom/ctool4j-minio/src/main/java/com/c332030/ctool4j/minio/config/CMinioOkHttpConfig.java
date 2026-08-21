@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CMinioOkHttpConfig
  * </p>
  *
- * @see doc/design/minio/CMinioOkHttpConfig.adoc
+ * @see "doc/design/minio/CMinioOkHttpConfig.adoc"
  * @since 2026/7/15
  */
 @Data

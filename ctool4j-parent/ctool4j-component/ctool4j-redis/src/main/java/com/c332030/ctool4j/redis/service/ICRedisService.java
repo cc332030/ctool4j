@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
  * Description: ICRedisService
  * </p>
  *
- * @see doc/design/redis/ICRedisService.adoc
- * @see doc/design/redis/CObjectValueRedisServiceTests.adoc
- * @see doc/design/redis/CStringStringRedisServiceTests.adoc
+ * @see "doc/design/redis/ICRedisService.adoc"
+ * @see "doc/design/redis/CObjectValueRedisServiceTests.adoc"
+ * @see "doc/design/redis/CStringStringRedisServiceTests.adoc"
  * @since 2025/11/4
  */
 public interface ICRedisService<K, V> {

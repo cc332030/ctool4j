@@ -7,7 +7,7 @@ import org.slf4j.event.Level;
  * Description: ICRes
  * </p>
  *
- * @see doc/design/definition/ICRes.adoc
+ * @see "doc/design/definition/ICRes.adoc"
  * @since 2025/10/24
  */
 public interface ICRes<T> extends ICCode<T>, ICMsg {

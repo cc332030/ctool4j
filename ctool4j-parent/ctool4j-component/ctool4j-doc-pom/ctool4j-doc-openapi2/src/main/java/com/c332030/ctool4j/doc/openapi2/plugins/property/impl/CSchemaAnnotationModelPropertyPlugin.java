@@ -21,8 +21,8 @@ import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
  * （替代 {@code @ApiModelProperty + @NotNull} 两个注解）
  * </p>
  *
- * @see doc/design/openapi2/CSchemaAnnotationModelPropertyPlugin.adoc
- * @see doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc
+ * @see "doc/design/openapi2/CSchemaAnnotationModelPropertyPlugin.adoc"
+ * @see "doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc"
  * @author c332030
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)

@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/4/18
- * @see doc/design/core/CCollectors.adoc
- * @see doc/design/core/CCollectorsTests.adoc
+ * @see "doc/design/core/CCollectors.adoc"
+ * @see "doc/design/core/CCollectorsTests.adoc"
  */
 @UtilityClass
 public class CCollectors {

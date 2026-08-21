@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @since 2026/4/29
- * @see doc/design/core/CPatternUtils.adoc
- * @see doc/design/core/CPatternUtilsTests.adoc
+ * @see "doc/design/core/CPatternUtils.adoc"
+ * @see "doc/design/core/CPatternUtilsTests.adoc"
  */
 @UtilityClass
 public class CPatternUtils {

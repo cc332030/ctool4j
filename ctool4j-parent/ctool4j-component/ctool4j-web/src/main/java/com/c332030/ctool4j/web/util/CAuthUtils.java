@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2026/3/16
- * @see doc/design/web/CAuthUtils.adoc
- * @see doc/design/web/CAuthUtilsTests.adoc
+ * @see "doc/design/web/CAuthUtils.adoc"
+ * @see "doc/design/web/CAuthUtilsTests.adoc"
  */
 @UtilityClass
 public class CAuthUtils {

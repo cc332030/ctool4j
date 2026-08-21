@@ -13,8 +13,8 @@ import java.util.function.BiPredicate;
  * </p>
  *
  * @since 2025/1/15
- * @see doc/design/core/CBiPredicate.adoc
- * @see doc/design/core/CBiPredicateTests.adoc
+ * @see "doc/design/core/CBiPredicate.adoc"
+ * @see "doc/design/core/CBiPredicateTests.adoc"
  */
 @FunctionalInterface
 public interface CBiPredicate<T, U> extends BiPredicate<T, U> {

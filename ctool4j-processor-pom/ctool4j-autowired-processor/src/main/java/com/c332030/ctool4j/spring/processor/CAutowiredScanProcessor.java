@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2026/5/17
- * @see doc/design/spring/CAutowiredScanProcessor.adoc
- * @see doc/design/spring/CAutowiredScanProcessorTests.adoc
+ * @see "doc/design/spring/CAutowiredScanProcessor.adoc"
+ * @see "doc/design/spring/CAutowiredScanProcessorTests.adoc"
  */
 @SupportedAnnotationTypes("com.c332030.ctool4j.spring.annotation.CAutowiredScan")
 public class CAutowiredScanProcessor extends CAbstractProcessor {

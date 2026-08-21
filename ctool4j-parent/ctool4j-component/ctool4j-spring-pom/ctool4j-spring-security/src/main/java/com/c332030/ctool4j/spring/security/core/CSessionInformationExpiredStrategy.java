@@ -12,8 +12,8 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * </p>
  *
  * @since 2026/1/28
- * @see doc/design/spring/CSessionInformationExpiredStrategy.adoc
- * @see doc/design/spring/CSessionInformationExpiredStrategyTests.adoc
+ * @see "doc/design/spring/CSessionInformationExpiredStrategy.adoc"
+ * @see "doc/design/spring/CSessionInformationExpiredStrategyTests.adoc"
  */
 @CustomLog
 public class CSessionInformationExpiredStrategy implements SessionInformationExpiredStrategy {

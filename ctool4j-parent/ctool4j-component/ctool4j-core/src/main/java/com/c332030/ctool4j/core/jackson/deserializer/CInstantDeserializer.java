@@ -19,8 +19,8 @@ import java.time.Instant;
  *
  * @author c332030
  * @since 2024/3/27
- * @see doc/design/core/CInstantDeserializer.adoc
- * @see doc/design/core/CInstantDeserializerTests.adoc
+ * @see "doc/design/core/CInstantDeserializer.adoc"
+ * @see "doc/design/core/CInstantDeserializerTests.adoc"
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CInstantDeserializer extends JsonDeserializer<Instant> {

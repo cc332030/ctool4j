@@ -11,8 +11,8 @@ import lombok.SneakyThrows;
  * </p>
  *
  * @since 2025/1/15
- * @see doc/design/core/CRunnable.adoc
- * @see doc/design/core/CRunnableTests.adoc
+ * @see "doc/design/core/CRunnable.adoc"
+ * @see "doc/design/core/CRunnableTests.adoc"
  */
 @FunctionalInterface
 public interface CRunnable extends Runnable {

@@ -8,7 +8,7 @@ import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
  * </p>
  *
  * @since 2025/12/17
- * @see doc/design/mybatisplus/ICBizIdService.adoc
+ * @see "doc/design/mybatisplus/ICBizIdService.adoc"
  */
 public interface ICBizIdService<ENTITY> extends ICCheckService<ENTITY> {
 

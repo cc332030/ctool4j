@@ -15,7 +15,7 @@ import java.util.Set;
  *
  * @author c332030
  * @since 2024/5/8
- * @see doc/design/web/CCorsConfig.adoc
+ * @see "doc/design/web/CCorsConfig.adoc"
  */
 @Data
 @ConfigurationProperties("cors")

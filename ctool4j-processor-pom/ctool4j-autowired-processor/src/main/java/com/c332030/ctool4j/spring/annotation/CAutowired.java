@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * </p>
  *
  * @since 2025/12/23
- * @see doc/design/spring/CAutowired.adoc
+ * @see "doc/design/spring/CAutowired.adoc"
  */
 @Documented
 @Inherited

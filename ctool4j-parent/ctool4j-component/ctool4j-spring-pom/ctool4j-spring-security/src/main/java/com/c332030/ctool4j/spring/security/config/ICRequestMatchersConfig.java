@@ -6,7 +6,7 @@ package com.c332030.ctool4j.spring.security.config;
  * </p>
  *
  * @since 2026/1/24
- * @see doc/design/spring/ICRequestMatchersConfig.adoc
+ * @see "doc/design/spring/ICRequestMatchersConfig.adoc"
  */
 public interface ICRequestMatchersConfig {
 

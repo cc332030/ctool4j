@@ -8,7 +8,7 @@ import org.springframework.core.Ordered;
  * </p>
  *
  * @since 2025/9/28
- * @see doc/design/spring/ICOrdered.adoc
+ * @see "doc/design/spring/ICOrdered.adoc"
  */
 public interface ICOrdered<T extends ICOrdered<T>> extends Ordered, Comparable<T> {
 

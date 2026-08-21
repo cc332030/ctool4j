@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
  * </p>
  *
  * @since 2026/8/16
- * @see doc/design/core/CBenchmarkResult.adoc
- * @see doc/design/core/CBenchmarkResultTests.adoc
+ * @see "doc/design/core/CBenchmarkResult.adoc"
+ * @see "doc/design/core/CBenchmarkResultTests.adoc"
  */
 @Getter
 @RequiredArgsConstructor

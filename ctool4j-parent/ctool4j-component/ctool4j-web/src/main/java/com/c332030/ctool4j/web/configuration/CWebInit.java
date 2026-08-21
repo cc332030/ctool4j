@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * </p>
  *
  * @since 2026/1/9
- * @see doc/design/web/CWebInit.adoc
+ * @see "doc/design/web/CWebInit.adoc"
  */
 @Component
 public class CWebInit implements ICSpringInit {

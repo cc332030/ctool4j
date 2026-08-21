@@ -8,7 +8,7 @@ import org.springframework.aop.framework.AopContext;
  * </p>
  *
  * @since 2024/3/15
- * @see doc/design/spring/ICProxyService.adoc
+ * @see "doc/design/spring/ICProxyService.adoc"
  */
 public interface ICProxyService<T> {
 

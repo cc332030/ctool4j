@@ -9,8 +9,8 @@ import com.c332030.ctool4j.definition.function.CBiFunction;
  * </p>
  *
  * @since 2025/11/20
- * @see doc/design/core/CBiClassValue.adoc
- * @see doc/design/core/CBiClassValueTests.adoc
+ * @see "doc/design/core/CBiClassValue.adoc"
+ * @see "doc/design/core/CBiClassValueTests.adoc"
  */
 public class CBiClassValue<T> implements ICBiClassValue<T> {
 

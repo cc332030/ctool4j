@@ -19,8 +19,8 @@ import org.slf4j.MDC;
  * </p>
  *
  * @since 2025/9/26
- * @see doc/design/web/CTraceUtils.adoc
- * @see doc/design/web/CTraceUtilsTests.adoc
+ * @see "doc/design/web/CTraceUtils.adoc"
+ * @see "doc/design/web/CTraceUtilsTests.adoc"
  */
 @UtilityClass
 public class CTraceUtils {

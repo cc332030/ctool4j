@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
  * Description: CExcelUtils
  * </p>
  *
- * @see doc/design/excel/CExcelUtils.adoc
+ * @see "doc/design/excel/CExcelUtils.adoc"
  * @since 2026/1/14
  */
 @UtilityClass

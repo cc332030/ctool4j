@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CXxlJobAdminConfig
  * </p>
  *
- * @see doc/design/xxljob/CXxlJobAdminConfig.adoc
+ * @see "doc/design/xxljob/CXxlJobAdminConfig.adoc"
  * @since 2025/11/29
  */
 @Data

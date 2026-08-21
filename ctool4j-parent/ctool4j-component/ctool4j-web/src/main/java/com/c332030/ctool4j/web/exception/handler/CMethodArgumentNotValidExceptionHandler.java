@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2026/4/9
- * @see doc/design/web/CMethodArgumentNotValidExceptionHandler.adoc
+ * @see "doc/design/web/CMethodArgumentNotValidExceptionHandler.adoc"
  */
 @CustomLog
 @RestControllerAdvice

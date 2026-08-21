@@ -19,7 +19,7 @@ import java.io.IOException;
  * </p>
  *
  * @since 2026/1/28
- * @see doc/design/web/CResourceFilter.adoc
+ * @see "doc/design/web/CResourceFilter.adoc"
  */
 @CustomLog
 @Component

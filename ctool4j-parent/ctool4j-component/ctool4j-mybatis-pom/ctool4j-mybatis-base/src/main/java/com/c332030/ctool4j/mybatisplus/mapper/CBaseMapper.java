@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
  * </p>
  *
  * @since 2025/11/27
- * @see doc/design/mybatisplus/CBaseMapper.adoc
+ * @see "doc/design/mybatisplus/CBaseMapper.adoc"
  */
 public interface CBaseMapper<T> extends BaseMapper<T> {
 

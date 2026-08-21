@@ -20,7 +20,7 @@ import java.util.List;
  * </p>
  *
  * @since 2025/2/14
- * @see doc/design/mybatis/ICPage.adoc
+ * @see "doc/design/mybatis/ICPage.adoc"
  */
 @CJsonLog
 public interface ICPage {

@@ -9,8 +9,8 @@ import com.c332030.ctool4j.definition.interfaces.ICRes;
  * </p>
  *
  * @since 2025/9/14
- * @see doc/design/core/CBusinessExceptionProvider.adoc
- * @see doc/design/core/CBusinessExceptionProviderTests.adoc
+ * @see "doc/design/core/CBusinessExceptionProvider.adoc"
+ * @see "doc/design/core/CBusinessExceptionProviderTests.adoc"
  */
 public class CBusinessExceptionProvider implements ICBusinessExceptionProvider<CBusinessException> {
 

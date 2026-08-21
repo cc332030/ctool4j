@@ -20,8 +20,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/12/18
- * @see doc/design/core/CEntityUtils.adoc
- * @see doc/design/core/CEntityUtilsTests.adoc
+ * @see "doc/design/core/CEntityUtils.adoc"
+ * @see "doc/design/core/CEntityUtilsTests.adoc"
  */
 @UtilityClass
 public class CEntityUtils {

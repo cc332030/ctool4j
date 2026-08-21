@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Description: ICUpdateBy
  * </p>
  *
- * @see doc/design/definition/ICUpdateBy.adoc
+ * @see "doc/design/definition/ICUpdateBy.adoc"
  * @since 2025/12/6
  */
 public interface ICUpdateBy {

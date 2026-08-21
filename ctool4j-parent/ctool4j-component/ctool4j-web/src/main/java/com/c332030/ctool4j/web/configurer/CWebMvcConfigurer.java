@@ -19,7 +19,7 @@ import java.util.List;
  * </p>
  *
  * @since 2025/9/28
- * @see doc/design/web/CWebMvcConfigurer.adoc
+ * @see "doc/design/web/CWebMvcConfigurer.adoc"
  */
 @Configuration
 @AllArgsConstructor

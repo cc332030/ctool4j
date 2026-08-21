@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
  * </p>
  *
  * @since 2025/12/3
- * @see doc/design/mybatis/CBizIdUtils.adoc
+ * @see "doc/design/mybatis/CBizIdUtils.adoc"
  */
 @UtilityClass
 public class CBizIdUtils {

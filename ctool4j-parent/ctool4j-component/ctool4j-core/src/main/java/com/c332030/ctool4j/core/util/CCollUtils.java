@@ -24,8 +24,8 @@ import java.util.stream.Stream;
  * </p>
  *
  * @since 2024/11/21
- * @see doc/design/core/CCollUtils.adoc
- * @see doc/design/core/CCollUtilsTests.adoc
+ * @see "doc/design/core/CCollUtils.adoc"
+ * @see "doc/design/core/CCollUtilsTests.adoc"
  */
 @UtilityClass
 public class CCollUtils {

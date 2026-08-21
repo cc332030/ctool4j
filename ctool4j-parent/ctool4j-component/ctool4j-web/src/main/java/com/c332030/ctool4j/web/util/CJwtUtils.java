@@ -20,8 +20,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/9/25
- * @see doc/design/web/CJwtUtils.adoc
- * @see doc/design/web/CJwtUtilsTests.adoc
+ * @see "doc/design/web/CJwtUtils.adoc"
+ * @see "doc/design/web/CJwtUtilsTests.adoc"
  */
 @UtilityClass
 public class CJwtUtils {

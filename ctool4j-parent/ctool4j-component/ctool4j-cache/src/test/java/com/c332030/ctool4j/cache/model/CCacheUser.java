@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @since 2026/6/16
- * @see doc/design/cache/CCacheUser.adoc
+ * @see "doc/design/cache/CCacheUser.adoc"
 */
 @Data
 @Accessors(chain = true)

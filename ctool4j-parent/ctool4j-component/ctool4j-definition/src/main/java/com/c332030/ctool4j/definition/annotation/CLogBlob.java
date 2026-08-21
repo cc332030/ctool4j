@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  * 该字段值被替换为固定占位符 &lt;BLOB&gt;，避免 base64、文件流等长内容刷屏日志；
  * 全局 ObjectMapper 无该行为，业务序列化输出真实内容</p>
  *
- * @see doc/design/definition/CLogBlob.adoc
+ * @see "doc/design/definition/CLogBlob.adoc"
  * @since 2026/8/13
  */
 @Documented

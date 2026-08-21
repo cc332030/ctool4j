@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Primary;
  * </p>
  *
  * @since 2026/6/16
- * @see doc/design/cache/CRedisTestConfiguration.adoc
+ * @see "doc/design/cache/CRedisTestConfiguration.adoc"
 */
 @Configuration
 public class CRedisTestConfiguration {

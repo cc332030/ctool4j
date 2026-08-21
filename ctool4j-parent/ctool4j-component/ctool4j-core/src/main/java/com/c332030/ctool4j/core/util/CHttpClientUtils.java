@@ -17,8 +17,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
  * </p>
  *
  * @since 2025/12/1
- * @see doc/design/core/CHttpClientUtils.adoc
- * @see doc/design/core/CHttpClientUtilsTests.adoc
+ * @see "doc/design/core/CHttpClientUtils.adoc"
+ * @see "doc/design/core/CHttpClientUtilsTests.adoc"
  */
 @UtilityClass
 public class CHttpClientUtils {

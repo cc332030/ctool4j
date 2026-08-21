@@ -14,8 +14,8 @@ import java.util.*;
  * </p>
  *
  * @since 2025/9/21
- * @see doc/design/core/CMediaTypeUtils.adoc
- * @see doc/design/core/CMediaTypeUtilsTests.adoc
+ * @see "doc/design/core/CMediaTypeUtils.adoc"
+ * @see "doc/design/core/CMediaTypeUtilsTests.adoc"
  */
 @UtilityClass
 public class CMediaTypeUtils {

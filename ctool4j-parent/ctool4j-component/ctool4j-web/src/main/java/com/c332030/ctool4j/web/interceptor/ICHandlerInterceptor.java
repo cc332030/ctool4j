@@ -8,7 +8,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * </p>
  *
  * @since 2025/9/28
- * @see doc/design/web/ICHandlerInterceptor.adoc
+ * @see "doc/design/web/ICHandlerInterceptor.adoc"
  */
 public interface ICHandlerInterceptor extends HandlerInterceptor {
 

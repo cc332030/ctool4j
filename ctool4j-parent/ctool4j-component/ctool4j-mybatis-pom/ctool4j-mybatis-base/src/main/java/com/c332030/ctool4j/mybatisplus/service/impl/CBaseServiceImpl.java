@@ -10,7 +10,7 @@ import com.c332030.ctool4j.mybatisplus.service.ICService;
  * </p>
  *
  * @since 2025/11/27
- * @see doc/design/mybatisplus/CBaseServiceImpl.adoc
+ * @see "doc/design/mybatisplus/CBaseServiceImpl.adoc"
  */
 public abstract class CBaseServiceImpl<M extends CBaseMapper<T>, T>
         extends ServiceImpl<M, T>

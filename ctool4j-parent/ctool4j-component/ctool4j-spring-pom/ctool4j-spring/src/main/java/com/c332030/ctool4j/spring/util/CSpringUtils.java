@@ -30,8 +30,8 @@ import java.util.function.Consumer;
  * </p>
  *
  * @since 2025/9/10
- * @see doc/design/spring/CSpringUtils.adoc
- * @see doc/design/spring/CSpringUtilsTests.adoc
+ * @see "doc/design/spring/CSpringUtils.adoc"
+ * @see "doc/design/spring/CSpringUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

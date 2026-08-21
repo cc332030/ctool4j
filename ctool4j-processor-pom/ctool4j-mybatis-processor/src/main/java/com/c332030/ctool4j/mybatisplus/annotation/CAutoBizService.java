@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  * }}</pre>
  *
  * @since 2025/05/16
- * @see doc/design/mybatisplus/CAutoBizService.adoc
+ * @see "doc/design/mybatisplus/CAutoBizService.adoc"
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

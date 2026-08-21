@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  *
  * @since 2026/1/4
- * @see doc/design/core/CDesUtils.adoc
- * @see doc/design/core/CDesUtilsTests.adoc
+ * @see "doc/design/core/CDesUtils.adoc"
+ * @see "doc/design/core/CDesUtilsTests.adoc"
  */
 @UtilityClass
 public class CDesUtils {

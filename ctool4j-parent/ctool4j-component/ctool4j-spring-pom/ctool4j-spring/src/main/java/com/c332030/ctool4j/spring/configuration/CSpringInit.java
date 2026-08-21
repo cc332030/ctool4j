@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * </p>
  *
  * @since 2025/11/10
- * @see doc/design/spring/CSpringInit.adoc
+ * @see "doc/design/spring/CSpringInit.adoc"
  */
 @CustomLog
 @Component

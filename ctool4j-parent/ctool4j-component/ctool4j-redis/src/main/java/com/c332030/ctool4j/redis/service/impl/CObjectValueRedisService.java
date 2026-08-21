@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
  * Description: CObjectValueRedisService
  * </p>
  *
- * @see doc/design/redis/CObjectValueRedisService.adoc
- * @see doc/design/redis/CObjectValueRedisServiceTests.adoc
+ * @see "doc/design/redis/CObjectValueRedisService.adoc"
+ * @see "doc/design/redis/CObjectValueRedisServiceTests.adoc"
  * @since 2025/11/4
  */
 @Service

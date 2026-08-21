@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  *
  * @since 2025/11/21
- * @see doc/design/core/CTestUtils.adoc
- * @see doc/design/core/CTestUtilsTests.adoc
+ * @see "doc/design/core/CTestUtils.adoc"
+ * @see "doc/design/core/CTestUtilsTests.adoc"
  */
 @Slf4j
 @UtilityClass

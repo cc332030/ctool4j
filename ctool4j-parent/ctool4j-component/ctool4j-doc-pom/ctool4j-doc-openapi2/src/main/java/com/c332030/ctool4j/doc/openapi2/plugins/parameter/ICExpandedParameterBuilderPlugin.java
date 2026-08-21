@@ -9,7 +9,7 @@ import springfox.documentation.spi.service.ExpandedParameterBuilderPlugin;
  * Description: ICExpandedParameterBuilderPlugin
  * </p>
  *
- * @see doc/design/openapi2/ICExpandedParameterBuilderPlugin.adoc
+ * @see "doc/design/openapi2/ICExpandedParameterBuilderPlugin.adoc"
  * @since 2025/12/17
  */
 public interface ICExpandedParameterBuilderPlugin extends ExpandedParameterBuilderPlugin {

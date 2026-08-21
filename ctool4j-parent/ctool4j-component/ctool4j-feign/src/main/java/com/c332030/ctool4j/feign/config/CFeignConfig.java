@@ -11,7 +11,7 @@ import java.util.Map;
  * Description: CFeignConfig
  * </p>
  *
- * @see doc/design/feign/CFeignConfig.adoc
+ * @see "doc/design/feign/CFeignConfig.adoc"
  * @since 2025/9/21
  */
 @Data

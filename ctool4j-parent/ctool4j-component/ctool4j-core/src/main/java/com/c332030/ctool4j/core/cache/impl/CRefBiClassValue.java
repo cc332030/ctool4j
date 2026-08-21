@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * </p>
  *
  * @since 2025/11/21
- * @see doc/design/core/CRefBiClassValue.adoc
- * @see doc/design/core/CRefBiClassValueTests.adoc
+ * @see "doc/design/core/CRefBiClassValue.adoc"
+ * @see "doc/design/core/CRefBiClassValueTests.adoc"
  */
 public class CRefBiClassValue<T> implements ICRefBiClassValue<T> {
 

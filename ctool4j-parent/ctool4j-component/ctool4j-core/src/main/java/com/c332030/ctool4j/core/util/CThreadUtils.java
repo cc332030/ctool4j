@@ -9,8 +9,8 @@ import lombok.val;
  * </p>
  *
  * @since 2026/8/14
- * @see doc/design/core/CThreadUtils.adoc
- * @see doc/design/core/CThreadUtilsTests.adoc
+ * @see "doc/design/core/CThreadUtils.adoc"
+ * @see "doc/design/core/CThreadUtilsTests.adoc"
  */
 @UtilityClass
 public class CThreadUtils {

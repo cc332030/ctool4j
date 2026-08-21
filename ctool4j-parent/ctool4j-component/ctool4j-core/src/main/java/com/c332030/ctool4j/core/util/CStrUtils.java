@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/3/15
- * @see doc/design/core/CStrUtils.adoc
- * @see doc/design/core/CStrUtilsTests.adoc
+ * @see "doc/design/core/CStrUtils.adoc"
+ * @see "doc/design/core/CStrUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

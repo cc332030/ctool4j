@@ -13,8 +13,8 @@ import java.util.function.Function;
  * </p>
  *
  * @since 2025/1/15
- * @see doc/design/core/CFunction.adoc
- * @see doc/design/core/CFunctionTests.adoc
+ * @see "doc/design/core/CFunction.adoc"
+ * @see "doc/design/core/CFunctionTests.adoc"
  */
 @FunctionalInterface
 public interface CFunction<O, R> extends Function<O, R> {

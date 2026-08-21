@@ -10,8 +10,8 @@ import lombok.NonNull;
  * </p>
  *
  * @since 2025/11/20
- * @see doc/design/core/CClassValue.adoc
- * @see doc/design/core/CClassValueTests.adoc
+ * @see "doc/design/core/CClassValue.adoc"
+ * @see "doc/design/core/CClassValueTests.adoc"
  */
 public class CClassValue<T> implements ICClassValue<T> {
 

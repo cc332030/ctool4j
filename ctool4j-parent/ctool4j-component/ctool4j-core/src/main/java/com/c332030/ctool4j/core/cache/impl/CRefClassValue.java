@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * </p>
  *
  * @since 2025/11/21
- * @see doc/design/core/CRefClassValue.adoc
- * @see doc/design/core/CRefClassValueTests.adoc
+ * @see "doc/design/core/CRefClassValue.adoc"
+ * @see "doc/design/core/CRefClassValueTests.adoc"
  */
 public class CRefClassValue<T> implements ICRefClassValue<T> {
 

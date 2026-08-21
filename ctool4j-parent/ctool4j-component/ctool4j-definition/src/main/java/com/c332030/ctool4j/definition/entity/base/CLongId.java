@@ -10,8 +10,8 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @since 2025/5/26
- * @see doc/design/core/CLongId.adoc
- * @see doc/design/core/CLongIdTests.adoc
+ * @see "doc/design/core/CLongId.adoc"
+ * @see "doc/design/core/CLongIdTests.adoc"
  */
 @Data
 @SuperBuilder

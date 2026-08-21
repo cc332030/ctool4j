@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * Description: CFeignInit
  * </p>
  *
- * @see doc/design/feign/CFeignInit.adoc
+ * @see "doc/design/feign/CFeignInit.adoc"
  * @since 2025/12/22
  */
 @Component

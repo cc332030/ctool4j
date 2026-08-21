@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * </p>
  *
  * @since 2026/4/22
- * @see doc/design/web/ConditionalOnMissingExceptionHandler.adoc
+ * @see "doc/design/web/ConditionalOnMissingExceptionHandler.adoc"
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

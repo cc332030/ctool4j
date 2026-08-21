@@ -8,7 +8,7 @@ import com.c332030.ctool4j.web.model.model.CTraceInfo;
  * </p>
  *
  * @since 2025/9/26
- * @see doc/design/web/CTraceInfoProvider.adoc
+ * @see "doc/design/web/CTraceInfoProvider.adoc"
  */
 public class CTraceInfoProvider implements ICTraceInfoProvider<CTraceInfo> {
 

@@ -12,8 +12,8 @@ import lombok.val;
  * </p>
  *
  * @since 2025/12/22
- * @see doc/design/core/CBoolUtils.adoc
- * @see doc/design/core/CBoolUtilsTests.adoc
+ * @see "doc/design/core/CBoolUtils.adoc"
+ * @see "doc/design/core/CBoolUtilsTests.adoc"
  */
 @UtilityClass
 public class CBoolUtils {

@@ -17,7 +17,7 @@ import javax.validation.Valid;
  * </p>
  *
  * @author c332030
- * @see doc/design/openapi2/CSchemaTestController.adoc
+ * @see "doc/design/openapi2/CSchemaTestController.adoc"
 */
 @Validated
 @RestController

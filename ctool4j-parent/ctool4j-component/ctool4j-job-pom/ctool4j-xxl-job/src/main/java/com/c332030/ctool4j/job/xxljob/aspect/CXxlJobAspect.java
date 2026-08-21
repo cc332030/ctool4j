@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * Description: CXxlJobAspect
  * </p>
  *
- * @see doc/design/xxljob/CXxlJobAspect.adoc
+ * @see "doc/design/xxljob/CXxlJobAspect.adoc"
  * @since 2025/11/28
  */
 @CustomLog

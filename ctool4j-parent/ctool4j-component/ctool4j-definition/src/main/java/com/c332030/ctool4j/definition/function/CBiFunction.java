@@ -13,8 +13,8 @@ import java.util.function.BiFunction;
  * </p>
  *
  * @since 2025/5/12
- * @see doc/design/core/CBiFunction.adoc
- * @see doc/design/core/CBiFunctionTests.adoc
+ * @see "doc/design/core/CBiFunction.adoc"
+ * @see "doc/design/core/CBiFunctionTests.adoc"
  */
 @FunctionalInterface
 public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {

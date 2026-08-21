@@ -9,7 +9,7 @@ import lombok.Data;
  *
  * @author c332030
  * @since 2026/8/14
- * @see doc/design/csv/CCsvTestBean.adoc
+ * @see "doc/design/csv/CCsvTestBean.adoc"
 */
 @Data
 public class CCsvTestBean {

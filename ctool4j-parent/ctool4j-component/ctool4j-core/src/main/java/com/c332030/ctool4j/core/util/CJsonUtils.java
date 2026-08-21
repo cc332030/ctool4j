@@ -17,8 +17,8 @@ import java.util.Map;
  *
  * @author c332030
  * @since 2024/3/4
- * @see doc/design/core/CJsonUtils.adoc
- * @see doc/design/core/CJsonUtilsTests.adoc
+ * @see "doc/design/core/CJsonUtils.adoc"
+ * @see "doc/design/core/CJsonUtilsTests.adoc"
  */
 @UtilityClass
 public class CJsonUtils {

@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
  * Description: CRedisConfiguration
  * </p>
  *
- * @see doc/design/redis/CRedisConfiguration.adoc
+ * @see "doc/design/redis/CRedisConfiguration.adoc"
  * @since 2025/11/4
  */
 @Configuration

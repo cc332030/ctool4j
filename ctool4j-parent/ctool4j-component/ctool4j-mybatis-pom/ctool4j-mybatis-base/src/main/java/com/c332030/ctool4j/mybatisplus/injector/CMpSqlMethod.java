@@ -12,8 +12,8 @@ import lombok.Getter;
  *
  * @author c332030
  * @since 2024/5/7
- * @see doc/design/mybatisplus/CMpSqlMethod.adoc
- * @see doc/design/mybatisplus/CMpSqlMethodTests.adoc
+ * @see "doc/design/mybatisplus/CMpSqlMethod.adoc"
+ * @see "doc/design/mybatisplus/CMpSqlMethodTests.adoc"
  */
 @Getter
 @AllArgsConstructor

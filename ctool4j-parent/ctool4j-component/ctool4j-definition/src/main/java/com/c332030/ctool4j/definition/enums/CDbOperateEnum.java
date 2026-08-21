@@ -10,8 +10,8 @@ import lombok.Getter;
  * </p>
  *
  * @since 2025/11/10
- * @see doc/design/core/CDbOperateEnum.adoc
- * @see doc/design/core/CDbOperateEnumTests.adoc
+ * @see "doc/design/core/CDbOperateEnum.adoc"
+ * @see "doc/design/core/CDbOperateEnumTests.adoc"
  */
 @Getter
 @AllArgsConstructor

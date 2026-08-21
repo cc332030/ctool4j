@@ -20,8 +20,8 @@ import java.io.IOException;
  * </p>
  *
  * @since 2025/8/11
- * @see doc/design/core/CEnumDeserializer.adoc
- * @see doc/design/core/CEnumDeserializerTests.adoc
+ * @see "doc/design/core/CEnumDeserializer.adoc"
+ * @see "doc/design/core/CEnumDeserializerTests.adoc"
  */
 @Getter
 public class CEnumDeserializer

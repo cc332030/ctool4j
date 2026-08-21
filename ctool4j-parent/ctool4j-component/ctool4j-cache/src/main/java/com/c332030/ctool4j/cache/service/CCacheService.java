@@ -28,8 +28,8 @@ import java.util.function.Supplier;
  * Description: CCacheService
  * </p>
  *
- * @see doc/design/cache/CCacheService.adoc
- * @see doc/design/cache/CCacheBuilderTests.adoc
+ * @see "doc/design/cache/CCacheService.adoc"
+ * @see "doc/design/cache/CCacheBuilderTests.adoc"
  * @since 2025/9/26
  */
 @CustomLog

@@ -7,7 +7,7 @@ package com.c332030.ctool4j.mybatisplus.injector;
  *
  * @author c332030
  * @since 2024/5/7
- * @see doc/design/mybatisplus/ICMpSqlMethod.adoc
+ * @see "doc/design/mybatisplus/ICMpSqlMethod.adoc"
  */
 public interface ICMpSqlMethod {
 

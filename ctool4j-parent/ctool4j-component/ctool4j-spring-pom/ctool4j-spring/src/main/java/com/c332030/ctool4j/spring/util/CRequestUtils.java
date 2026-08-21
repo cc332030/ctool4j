@@ -28,8 +28,8 @@ import java.util.function.BiConsumer;
  * </p>
  *
  * @since 2024/12/9
- * @see doc/design/spring/CRequestUtils.adoc
- * @see doc/design/spring/CRequestUtilsTests.adoc
+ * @see "doc/design/spring/CRequestUtils.adoc"
+ * @see "doc/design/spring/CRequestUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

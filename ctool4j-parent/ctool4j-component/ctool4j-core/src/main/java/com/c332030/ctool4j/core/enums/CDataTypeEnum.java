@@ -14,8 +14,8 @@ import java.util.Set;
  *
  * @author c332030
  * @since 2024/3/21
- * @see doc/design/core/CDataTypeEnum.adoc
- * @see doc/design/core/CDataTypeEnumTests.adoc
+ * @see "doc/design/core/CDataTypeEnum.adoc"
+ * @see "doc/design/core/CDataTypeEnumTests.adoc"
  */
 @Getter
 @AllArgsConstructor

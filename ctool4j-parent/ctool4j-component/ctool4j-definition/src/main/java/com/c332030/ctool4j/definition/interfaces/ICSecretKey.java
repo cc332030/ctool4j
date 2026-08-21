@@ -5,7 +5,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * Description: ICSecretKey
  * </p>
  *
- * @see doc/design/definition/ICSecretKey.adoc
+ * @see "doc/design/definition/ICSecretKey.adoc"
  * @since 2025/12/30
  */
 public interface ICSecretKey {

@@ -22,8 +22,8 @@ import java.util.Objects;
  * </p>
  *
  * @since 2026/8/20
- * @see doc/design/core/CValidUtils.adoc
- * @see doc/design/core/CValidUtilsTests.adoc
+ * @see "doc/design/core/CValidUtils.adoc"
+ * @see "doc/design/core/CValidUtilsTests.adoc"
  */
 @UtilityClass
 public class CValidUtils {

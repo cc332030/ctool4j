@@ -31,7 +31,7 @@ import java.util.Set;
  * </p>
  *
  * @author c332030
- * @see doc/design/web/StandardConstraintValidatorTests.adoc
+ * @see "doc/design/web/StandardConstraintValidatorTests.adoc"
  */
 @CTool4jSpringBootTest
 public class StandardConstraintValidatorTests {

@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2025/9/10
- * @see doc/design/core/CArrUtils.adoc
- * @see doc/design/core/CArrUtilsTests.adoc
+ * @see "doc/design/core/CArrUtils.adoc"
+ * @see "doc/design/core/CArrUtilsTests.adoc"
  */
 @UtilityClass
 public class CArrUtils {

@@ -11,8 +11,8 @@ import java.util.function.Supplier;
  * </p>
  *
  * @since 2025/9/21
- * @see doc/design/core/CThreadLocalUtils.adoc
- * @see doc/design/core/CThreadLocalUtilsTests.adoc
+ * @see "doc/design/core/CThreadLocalUtils.adoc"
+ * @see "doc/design/core/CThreadLocalUtilsTests.adoc"
  */
 @UtilityClass
 public class CThreadLocalUtils {

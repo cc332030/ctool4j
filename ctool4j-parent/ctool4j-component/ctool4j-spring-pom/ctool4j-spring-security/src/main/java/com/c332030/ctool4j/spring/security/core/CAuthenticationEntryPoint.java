@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2026/1/26
- * @see doc/design/spring/CAuthenticationEntryPoint.adoc
- * @see doc/design/spring/CAuthenticationEntryPointTests.adoc
+ * @see "doc/design/spring/CAuthenticationEntryPoint.adoc"
+ * @see "doc/design/spring/CAuthenticationEntryPointTests.adoc"
  */
 @CustomLog
 public class CAuthenticationEntryPoint implements AuthenticationEntryPoint {

@@ -9,8 +9,8 @@ import lombok.Getter;
  * </p>
  *
  * @since 2026/6/25
- * @see doc/design/core/CPlatformTypeEnum.adoc
- * @see doc/design/core/CPlatformTypeEnumTests.adoc
+ * @see "doc/design/core/CPlatformTypeEnum.adoc"
+ * @see "doc/design/core/CPlatformTypeEnumTests.adoc"
  */
 @Getter
 @AllArgsConstructor

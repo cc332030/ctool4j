@@ -14,8 +14,8 @@ import java.util.*;
  * </p>
  *
  * @since 2026/1/14
- * @see doc/design/core/CProfileEnum.adoc
- * @see doc/design/core/CProfileEnumTests.adoc
+ * @see "doc/design/core/CProfileEnum.adoc"
+ * @see "doc/design/core/CProfileEnumTests.adoc"
  */
 @Getter
 @AllArgsConstructor

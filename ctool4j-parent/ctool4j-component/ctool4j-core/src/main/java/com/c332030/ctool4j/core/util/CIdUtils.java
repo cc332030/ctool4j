@@ -19,8 +19,8 @@ import java.util.UUID;
  * </p>
  *
  * @since 2025/11/27
- * @see doc/design/core/CIdUtils.adoc
- * @see doc/design/core/CIdUtilsTests.adoc
+ * @see "doc/design/core/CIdUtils.adoc"
+ * @see "doc/design/core/CIdUtilsTests.adoc"
  */
 @UtilityClass
 public class CIdUtils {

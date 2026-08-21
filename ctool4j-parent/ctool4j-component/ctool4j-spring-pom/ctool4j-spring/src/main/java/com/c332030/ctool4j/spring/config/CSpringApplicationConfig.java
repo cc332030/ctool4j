@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2025/11/10
- * @see doc/design/spring/CSpringApplicationConfig.adoc
+ * @see "doc/design/spring/CSpringApplicationConfig.adoc"
  */
 @Data
 @ConfigurationProperties("spring.application")

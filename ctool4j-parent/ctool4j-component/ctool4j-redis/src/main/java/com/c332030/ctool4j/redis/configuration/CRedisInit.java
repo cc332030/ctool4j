@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * Description: CRedisInit
  * </p>
  *
- * @see doc/design/redis/CRedisInit.adoc
+ * @see "doc/design/redis/CRedisInit.adoc"
  * @since 2025/12/8
  */
 @Component

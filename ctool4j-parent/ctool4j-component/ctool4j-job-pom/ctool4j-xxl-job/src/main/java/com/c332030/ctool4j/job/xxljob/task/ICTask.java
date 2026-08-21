@@ -7,7 +7,7 @@ import com.c332030.ctool4j.spring.service.ICProxyService;
  * Description: ICTask
  * </p>
  *
- * @see doc/design/xxljob/ICTask.adoc
+ * @see "doc/design/xxljob/ICTask.adoc"
  * @since 2025/12/26
  */
 public interface ICTask<T extends ICTask<T>> extends ICProxyService<T> {

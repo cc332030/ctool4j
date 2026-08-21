@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
  * </p>
  *
  * @since 2025/11/22
- * @see doc/design/core/CProxyUtils.adoc
+ * @see "doc/design/core/CProxyUtils.adoc"
  */
 @UtilityClass
 public class CProxyUtils {

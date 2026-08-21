@@ -6,7 +6,7 @@ package com.c332030.ctool4j.mybatisplus.injector;
  * </p>
  *
  * @since 2026/1/6
- * @see doc/design/mybatisplus/ICMpMethod.adoc
+ * @see "doc/design/mybatisplus/ICMpMethod.adoc"
  */
 public interface ICMpMethod {
 

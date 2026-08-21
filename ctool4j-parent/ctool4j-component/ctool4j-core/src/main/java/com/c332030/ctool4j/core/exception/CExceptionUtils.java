@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2025/9/14
- * @see doc/design/core/CExceptionUtils.adoc
- * @see doc/design/core/CExceptionUtilsTests.adoc
+ * @see "doc/design/core/CExceptionUtils.adoc"
+ * @see "doc/design/core/CExceptionUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

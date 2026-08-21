@@ -17,8 +17,8 @@ import java.util.Arrays;
  * 空值输出 null</p>
  *
  * @since 2026/8/16
- * @see doc/design/core/CSensitiveSerializer.adoc
- * @see doc/design/core/CSensitiveSerializerTests.adoc
+ * @see "doc/design/core/CSensitiveSerializer.adoc"
+ * @see "doc/design/core/CSensitiveSerializerTests.adoc"
  */
 public class CSensitiveSerializer extends JsonSerializer<Object> {
 

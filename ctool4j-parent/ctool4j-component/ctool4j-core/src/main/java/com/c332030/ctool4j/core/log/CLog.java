@@ -11,8 +11,8 @@ import java.util.function.Supplier;
  * </p>
  *
  * @since 2025/3/9
- * @see doc/design/core/CLog.adoc
- * @see doc/design/core/CLogTests.adoc
+ * @see "doc/design/core/CLog.adoc"
+ * @see "doc/design/core/CLogTests.adoc"
  */
 public class CLog {
 

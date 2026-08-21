@@ -8,7 +8,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * </p>
  *
  * @since 2025/11/17
- * @see doc/design/spring/ICCurrentContextRefreshedListener.adoc
+ * @see "doc/design/spring/ICCurrentContextRefreshedListener.adoc"
  */
 public interface ICCurrentContextRefreshedListener extends ICSpringSourceApplicationListener<ContextRefreshedEvent> {
 

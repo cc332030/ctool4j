@@ -15,8 +15,8 @@ import java.lang.annotation.Annotation;
  * </p>
  *
  * @since 2026/4/22
- * @see doc/design/spring/CAnnotationUtils.adoc
- * @see doc/design/spring/CAnnotationUtilsTests.adoc
+ * @see "doc/design/spring/CAnnotationUtils.adoc"
+ * @see "doc/design/spring/CAnnotationUtilsTests.adoc"
  */
 @UtilityClass
 public class CAnnotationUtils {

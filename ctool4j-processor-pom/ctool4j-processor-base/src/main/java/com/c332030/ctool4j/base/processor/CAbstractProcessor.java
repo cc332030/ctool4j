@@ -10,8 +10,8 @@ import javax.lang.model.SourceVersion;
  *
  * @author c332030
  * @since 2026/5/31
- * @see doc/design/base/CAbstractProcessor.adoc
- * @see doc/design/base/CAbstractProcessorTests.adoc
+ * @see "doc/design/base/CAbstractProcessor.adoc"
+ * @see "doc/design/base/CAbstractProcessorTests.adoc"
  */
 public abstract class CAbstractProcessor extends AbstractProcessor {
 

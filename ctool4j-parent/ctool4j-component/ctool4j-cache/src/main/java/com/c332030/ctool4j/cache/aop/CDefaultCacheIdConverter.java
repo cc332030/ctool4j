@@ -7,8 +7,8 @@ import cn.hutool.core.util.StrUtil;
  * Description: CDefaultCacheIdConverter
  * </p>
  *
- * @see doc/design/cache/CDefaultCacheIdConverter.adoc
- * @see doc/design/cache/CDefaultCacheIdConverterTests.adoc
+ * @see "doc/design/cache/CDefaultCacheIdConverter.adoc"
+ * @see "doc/design/cache/CDefaultCacheIdConverterTests.adoc"
  * @since 2025/9/27
  */
 public class CDefaultCacheIdConverter implements ICCacheIdConverter<Object, Object> {

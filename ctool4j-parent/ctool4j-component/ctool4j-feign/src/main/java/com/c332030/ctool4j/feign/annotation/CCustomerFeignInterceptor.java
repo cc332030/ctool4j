@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * Description: CCustomerFeignInterceptor
  * </p>
  *
- * @see doc/design/feign/CCustomerFeignInterceptor.adoc
+ * @see "doc/design/feign/CCustomerFeignInterceptor.adoc"
  * @since 2025/12/26
  */
 @Documented

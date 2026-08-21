@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
  * </p>
  *
  * @since 2025/9/11
- * @see doc/design/spring/CSpringConfiguration.adoc
+ * @see "doc/design/spring/CSpringConfiguration.adoc"
  */
 @Configuration
 @ComponentScan(CTool4jConstants.BASE_PACKAGE)

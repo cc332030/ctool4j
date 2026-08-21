@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @author c332030
- * @see doc/design/openapi2/CSpringFoxUtils.adoc
- * @see doc/design/openapi2/CSpringFoxUtilsTests.adoc
+ * @see "doc/design/openapi2/CSpringFoxUtils.adoc"
+ * @see "doc/design/openapi2/CSpringFoxUtilsTests.adoc"
  * @since 2024/8/27
  */
 @UtilityClass

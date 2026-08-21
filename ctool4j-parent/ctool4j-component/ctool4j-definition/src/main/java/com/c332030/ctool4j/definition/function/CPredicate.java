@@ -13,8 +13,8 @@ import java.util.function.Predicate;
  * </p>
  *
  * @since 2025/1/15
- * @see doc/design/core/CPredicate.adoc
- * @see doc/design/core/CPredicateTests.adoc
+ * @see "doc/design/core/CPredicate.adoc"
+ * @see "doc/design/core/CPredicateTests.adoc"
  */
 @FunctionalInterface
 public interface CPredicate<T> extends Predicate<T> {

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
  * Description: CFeignConfiguration
  * </p>
  *
- * @see doc/design/feign/CFeignConfiguration.adoc
+ * @see "doc/design/feign/CFeignConfiguration.adoc"
  * @since 2025/9/21
  */
 @Configuration

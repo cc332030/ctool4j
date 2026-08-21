@@ -12,7 +12,7 @@ import lombok.Setter;
  * </p>
  *
  * @author c332030
- * @see doc/design/web/CSchemaValidatorTestDTO.adoc
+ * @see "doc/design/web/CSchemaValidatorTestDTO.adoc"
  */
 @Getter
 @Setter

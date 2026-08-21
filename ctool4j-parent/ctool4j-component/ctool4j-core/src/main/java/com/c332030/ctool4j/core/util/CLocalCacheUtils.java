@@ -10,8 +10,8 @@ import lombok.experimental.UtilityClass;
  * </p>
  *
  * @since 2026/6/17
- * @see doc/design/core/CLocalCacheUtils.adoc
- * @see doc/design/core/CLocalCacheUtilsTests.adoc
+ * @see "doc/design/core/CLocalCacheUtils.adoc"
+ * @see "doc/design/core/CLocalCacheUtilsTests.adoc"
  */
 @UtilityClass
 public class CLocalCacheUtils {

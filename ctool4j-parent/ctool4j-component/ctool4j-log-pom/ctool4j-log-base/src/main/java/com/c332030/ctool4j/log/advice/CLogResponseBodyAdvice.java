@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @author c332030
- * @see doc/design/log/CLogResponseBodyAdvice.adoc
+ * @see "doc/design/log/CLogResponseBodyAdvice.adoc"
  * @since 2025/12/20
  */
 @CustomLog

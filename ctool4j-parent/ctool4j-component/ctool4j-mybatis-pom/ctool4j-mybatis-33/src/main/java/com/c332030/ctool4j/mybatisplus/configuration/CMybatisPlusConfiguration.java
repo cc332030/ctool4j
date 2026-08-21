@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @since 2025/12/29
- * @see doc/design/mybatisplus/CMybatisPlusConfiguration.adoc
+ * @see "doc/design/mybatisplus/CMybatisPlusConfiguration.adoc"
  */
 @Configuration
 public class CMybatisPlusConfiguration {

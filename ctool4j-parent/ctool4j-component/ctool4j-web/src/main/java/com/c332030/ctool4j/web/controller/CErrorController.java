@@ -21,7 +21,7 @@ import java.util.Optional;
  * </p>
  *
  * @since 2026/4/9
- * @see doc/design/web/CErrorController.adoc
+ * @see "doc/design/web/CErrorController.adoc"
  */
 @CustomLog
 @RestController

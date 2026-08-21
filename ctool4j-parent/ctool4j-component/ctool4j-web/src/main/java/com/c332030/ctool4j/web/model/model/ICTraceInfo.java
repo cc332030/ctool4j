@@ -6,7 +6,7 @@ package com.c332030.ctool4j.web.model.model;
  * </p>
  *
  * @since 2025/9/26
- * @see doc/design/web/ICTraceInfo.adoc
+ * @see "doc/design/web/ICTraceInfo.adoc"
  */
 public interface ICTraceInfo {
 

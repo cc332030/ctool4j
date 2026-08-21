@@ -19,7 +19,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/1/20
- * @see doc/design/mybatis/CPageReq.adoc
+ * @see "doc/design/mybatis/CPageReq.adoc"
  */
 @Data
 @SuperBuilder

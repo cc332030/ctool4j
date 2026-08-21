@@ -14,8 +14,8 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/4/14
- * @see doc/design/core/CDateSerializer.adoc
- * @see doc/design/core/CDateSerializerTests.adoc
+ * @see "doc/design/core/CDateSerializer.adoc"
+ * @see "doc/design/core/CDateSerializerTests.adoc"
  */
 public class CDateSerializer extends JsonSerializer<Date> {
 

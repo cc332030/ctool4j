@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentMap;
  * Description: CMdc
  * </p>
  *
- * @see doc/design/log/CMdc.adoc
- * @see doc/design/log/CMdcTests.adoc
+ * @see "doc/design/log/CMdc.adoc"
+ * @see "doc/design/log/CMdcTests.adoc"
  * @since 2025/9/26
  */
 public class CMdc implements MDCAdapter {

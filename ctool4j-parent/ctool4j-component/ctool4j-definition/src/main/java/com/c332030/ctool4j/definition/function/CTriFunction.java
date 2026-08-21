@@ -11,8 +11,8 @@ import lombok.SneakyThrows;
  * </p>
  *
  * @since 2025/10/24
- * @see doc/design/core/CTriFunction.adoc
- * @see doc/design/core/CTriFunctionTests.adoc
+ * @see "doc/design/core/CTriFunction.adoc"
+ * @see "doc/design/core/CTriFunctionTests.adoc"
  */
 @FunctionalInterface
 public interface CTriFunction<O1, O2, O3, R> {

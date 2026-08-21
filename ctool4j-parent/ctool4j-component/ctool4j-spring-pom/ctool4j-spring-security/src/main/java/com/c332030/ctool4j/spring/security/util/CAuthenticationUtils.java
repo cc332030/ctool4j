@@ -18,8 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * </p>
  *
  * @since 2026/1/24
- * @see doc/design/spring/CAuthenticationUtils.adoc
- * @see doc/design/spring/CAuthenticationUtilsTests.adoc
+ * @see "doc/design/spring/CAuthenticationUtils.adoc"
+ * @see "doc/design/spring/CAuthenticationUtilsTests.adoc"
  */
 @UtilityClass
 @CAutowiredScan

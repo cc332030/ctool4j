@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Description: ICId
  * </p>
  *
- * @see doc/design/definition/ICId.adoc
+ * @see "doc/design/definition/ICId.adoc"
  * @since 2025/5/26
  */
 public interface ICId<T extends Serializable> {

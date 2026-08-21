@@ -9,7 +9,7 @@ import java.util.Date;
  * Description: ICCreateTime
  * </p>
  *
- * @see doc/design/definition/ICCreateTime.adoc
+ * @see "doc/design/definition/ICCreateTime.adoc"
  * @since 2025/5/26
  */
 public interface ICCreateTime {
