@@ -66,4 +66,4 @@ LastModified: 2026-08-21
 == 变更日志
 
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
-- 1.0 | 2026-08-21 | 初始落地
+- 1.0 | 2026-08-21 | 初始落地：getter/setter、method、constructor 三类 handle 的生成/缓存/asType 统一签名用例设计思路与分类编号索引

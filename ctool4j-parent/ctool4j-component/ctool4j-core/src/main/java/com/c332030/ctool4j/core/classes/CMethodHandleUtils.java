@@ -16,8 +16,11 @@ import java.lang.reflect.Method;
  * <p>
  * Description: CMethodHandleUtils
  * </p>
+ * <p>MethodHandle 的创建、缓存与统一 Object 签名适配工具类，功能设计与用例设计见设计文档。</p>
  *
  * @since 2026/6/17
+ * @see "doc/design/core/CMethodHandleUtils.adoc"
+ * @see "doc/design/core/CMethodHandleUtilsTests.adoc"
  */
 @UtilityClass
 public class CMethodHandleUtils {

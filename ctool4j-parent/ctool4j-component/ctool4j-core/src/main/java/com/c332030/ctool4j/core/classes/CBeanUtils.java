@@ -36,10 +36,8 @@ import java.util.stream.Collectors;
  *
  * @author c332030
  * @version 1.0
- * @see doc/design/core/CBeanUtils.adoc
- * @see doc/design/core/CBeanUtilsTests.adoc
- * @see doc/design/core/CBeanUtils.adoc
- * @see doc/design/core/CBeanUtilsTests.adoc
+ * @see "doc/design/core/CBeanUtils.adoc"
+ * @see "doc/design/core/CBeanUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass

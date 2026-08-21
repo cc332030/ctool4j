@@ -28,10 +28,11 @@ import java.util.*;
  * <p>
  * Description: CFeignLogger
  * </p>
+ * <p>feign 请求日志拦截器，按请求生命周期拦截并输出统一格式 HTTP 请求日志，功能设计与用例设计见设计文档。</p>
  *
  * @since 2025/12/2
- * @see doc/design/feign/CFeignLogger.adoc
- * @see doc/design/feign/CFeignLoggerTests.adoc
+ * @see "doc/design/feign/CFeignLogger.adoc"
+ * @see "doc/design/feign/CFeignLoggerTests.adoc"
  */
 @CustomLog
 @AllArgsConstructor

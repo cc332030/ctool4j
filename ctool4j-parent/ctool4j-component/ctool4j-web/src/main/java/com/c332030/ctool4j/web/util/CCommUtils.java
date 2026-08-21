@@ -25,10 +25,11 @@ import java.util.stream.Collectors;
  * <p>
  * Description: CCommUtils
  * </p>
+ * <p>HTTP 请求日志拼接工具类，将请求日志信息拼接为类似 HTTP 请求+响应的完整报文 dump，功能设计与用例设计见设计文档。</p>
  *
  * @since 2025/3/15
- * @see doc/design/web/CCommUtils.adoc
- * @see doc/design/web/CCommUtilsTests.adoc
+ * @see "doc/design/web/CCommUtils.adoc"
+ * @see "doc/design/web/CCommUtilsTests.adoc"
  */
 @UtilityClass
 public class CCommUtils {

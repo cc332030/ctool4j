@@ -37,4 +37,5 @@
 - 文档规范：[AGENTS-DOC.MD](agent/AGENTS-DOC.MD)
 - code review 规范：[AGENTS-REVIEW.MD](agent/AGENTS-REVIEW.MD)
 - 任务与 git 规范：[AGENTS-GIT.MD](agent/AGENTS-GIT.MD)
+- cnb 规范：[AGENTS-CNB.MD](agent/AGENTS-CNB.MD)
 - agent 协作规范：[AGENTS-AGENT.MD](agent/AGENTS-AGENT.MD)

@@ -1,4 +1,10 @@
-= CMethodHandleUtils 设计说明
+= CMethodHandleUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CMethodHandleUtils
+状态：已落地
 
 Version: 1.0
 LastModified: 2026-08-21
@@ -97,4 +103,4 @@ Lambda 转换（统一 Object 签名）。两者皆 setAccessible 语义（不�
 
 == 变更日志
 
-- 1.0 | 2026-08-21 | 初始落地
+- 1.0 | 2026-08-21 | 初始落地：MethodHandle 相关代码分布说明、收敛重构尝试（已撤销）记录、还原后功能说明、兜底设计与适用范围
