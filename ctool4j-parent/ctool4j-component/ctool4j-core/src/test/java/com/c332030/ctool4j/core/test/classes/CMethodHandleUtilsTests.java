@@ -15,8 +15,11 @@ import java.lang.reflect.Method;
 
 /**
  * <p>
- * Description: CMethodHandleUtilsTests
+ * Description: CMethodHandleUtils 测试（handle 生成与缓存、统一 Object 签名适配）
  * </p>
+ *
+ * <p>`com.c332030.ctool4j.core.classes.CMethodHandleUtils`（core 工具类）的测试用例；
+ * 测试用例分类与编号见 doc/design/CMethodHandleUtilsTests.adoc，各测试方法以行注释标注对应编号</p>
  *
  * @since 2025/12/12
  */

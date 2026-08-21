@@ -118,104 +118,7 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 | Object 声明字段计划期按声明类型解析 | 命中 objectStr 抢占 Date→String，与旧实现运行期按实际值类型查找语义不一致（违反 objectStr 优先级最低约束） |
 | 运行期保留集合 instanceof / isAssignableFrom 判断 | 用户要求"所有检查都预热做，为 null 除外"，不满足预热要求 |
 
-== 2. 测试设计
-
-=== 2.1 测试架构与组织
-
-测试按"验证职责"分三类，避免单类测试文件膨胀：
-
-- `CBeanUtilsCompatibilityTests`（13 用例）：功能完整性测试——重构/优化前后行为一致性验证。
-- `CBeanUtilsMoreTests`（36 用例）：正例、反例、边界与新增行为验证。
-- `CBeanUtilsBenchmark`（12 用例）+ `CBenchmarkRunner`：性能对比基准，独立于单元测试执行。
-
-=== 2.2 测试手法：内嵌旧语义参考实现
-
-兼容性测试的核心手法：在测试类内嵌旧语义参考实现（`oldCopy`/`oldCopyMap`/`oldToMap`/
-`oldCopyFromArr`，按重构前"copy 经 toMap 中转、运行期按实际值类型转换"语义实现），
-逐字段对比新旧实现结果 equal。
-
-设计考量：
-
-- 对比基准选"旧语义参考实现"而非断言具体值：即使具体值变化也能暴露语义差异；若断言具体值，
-  重构后新值正确但语义不同（如 Date 格式化 vs toString）无法被发现。
-- 参考实现独立于被测实现书写（不调用被测方法），保证基准不受重构污染。
-- 覆盖场景刻意包含"语义易错点"：objectStr 优先级、集合跳过、无转换器跳过、原始类型同型、
-  宽声明类型（Object/父类）等——这些是计划期/运行期分派最容易出偏差的地方。
-
-=== 2.3 基准测试设计
-
-- 对比实现方式至少 3 类：手工 setter/toMap（基线）、cglib BeanCopier、Spring BeanUtils、
-  hutool BeanUtil、Jackson convertValue/beanToMap、本实现各入口。
-- 两轮测试：第一轮触发全部初始化（转换器注册、计划缓存预热），第二轮全部初始化完成后计时，
-  排除初始化/加载开销干扰。
-- 结果须分析差异原因：copy 225.4 ns/op 主要开销为 MethodHandle 动态分发（约 16 次 handle 调用），
-  toMap 353.2 瓶颈在 map 写入——给出对应结论（排除字节码方向后固有差距）。
-
-=== 2.4 覆盖场景
-
-- 全字段复制：基础/包装/日期/Object/父类型声明/继承/null/final/集合/无转换器字段
-- objectStr 优先级：Object/Serializable 声明实际 Date 转 String 命中格式化（`copyObjectStrLowestPriority`）
-- JDK 源不复制（`toMapJdkClass` 等）、null 源/目标边界
-- Map 源：基础/null/类型转换/final/集合跳过
-- 四个复制入口：Object+Class/supplier、Map+Class/supplier
-- copyFromArr 反序覆盖、copyList/copyListFromMap
-- toMap：null 过滤/final/集合/不可变/下划线/json 命名/null/JDK 源/key 冲突抛异常
-- newInstance：正常类、无 public 无参构造器抛异常
-- 无转换器跳过：`copyNoConverterSkip`（StringBuilder→StringBuffer）
-- 原始类型同型：`copyPrimitiveTypeFields`（int→int 直接写入）
-- 类型转换覆盖（CClassConvert 注册转换器、对象路径计划期 fast 写入）：
-  - 包装→基础拆箱 `copyWrapperToPrimitive`、Long→int `copyLongToInt`、int→Long `copyIntToLong`
-  - String→数字/布尔 `copyStrToNumber`（toInt/toLong/toBigDecimal/toFloat/toDouble/toBoolean）
-  - 数字/布尔→String `copyNumberToStr`（intStr/longStr/bigDecimalStr/floatStr/doubleStr/booleanStr）
-  - 日期互转 `copyDateConvert`（parseDateTime→String↔Date、toMills/fromMills→Date↔Long、
-    toInstant/toDate→Date↔Instant、formatDateTime→Date→String）
-  - 数字→BigDecimal `copyToBigDecimal`（int/long/Integer/Long/double/float→BigDecimal）
-  - BigDecimal→double/float、Float→double `copyDecimalToFloatDouble`
-  - 数字互转 `copyNumConvert`（long/Long→Integer 走 toInt(long)/toInt(Long)、Integer→Long 走
-    toLong(Integer)、Integer→long 走 longValue(Integer)——包装与原始非等价故走转换器而非 SELF）
-  - String→原始 float/double `copyStrToPrimitiveFloatDouble`（floatValue(String)/doubleValue(String)，
-    与 String→Float/Double 的 toFloat/toDouble 区分）
-  - ICValue 枚举→Integer/String `copyEnumToValue`（toEnumIntegerValue/toEnumStringValue）
-
-=== 2.5 用例设计要点与边界
-
-- 异常输入用例覆盖任意非法值：如 `CClassConvertTests` 的 toInt/toLong 覆盖 "1.5"、"1,000"、
-  "!@#"、"0x1F"、超长数字等（不局限于一种看似合理的非法值）。
-- 边界行为锁定期望：null key 过滤、null 值跳过、key 冲突抛 IllegalStateException、结果不可变
-  （`Collections.unmodifiableMap`）、空结果返回 `CMap.of()`。
-- 已知取舍（测试侧）：原始类型同型（int→int）旧实现跳过、新实现写入，兼容性测试按新语义断言
-  并标注差异；集合父类型实际持集合同理。
-
-=== 2.6 已知限制与未覆盖场景
-
-- `copy(Object, CSupplier)` / `copyList(Collection, CSupplier)` 经 Map 中转：已知
-  缺陷（原始类型同型字段经 Map 中转丢失）已连带解决——CConvertUtils 以
-  `ClassUtil.isAssignable` 判定可直接赋值后，装箱值经 Map 中转可拆箱直写原始类型字段；
-  已补兼容性用例 `copySupplierViaMapConsistency` 锁定 supplier 入口与直接路径一致行为。
-- 极端场景未专门设计用例：超大字段数 Bean（基准仅覆盖 8 字段典型 Bean）、深继承层级
-  同名字段冲突（按名称匹配的固有语义）、自引用 Bean（copy 仅按同名字段复制、非深拷贝，
-  无循环风险）。风险低，暂不补，记录备查。
-- 多线程并发预热竞争：计划缓存基于 `ClassValue`（线程安全），未做专门并发压力测试。
-
-=== 2.7 兼容性考量（能测的与不能测的）
-
-能测（已执行）：
-
-- 功能完整性（重构前后行为一致）：`CBeanUtilsCompatibilityTests` 13 用例，内嵌旧语义
-  参考实现逐字段对比。
-- 跨操作系统：CBeanUtils 无平台特定 API（无文件/网络/环境变量依赖），Java 跨平台语义
-  天然成立；已在 Windows 实测，Linux 未执行（理论一致，记录备查）。
-
-不能测（环境受限，记录用例设计与考量）：
-
-- 跨 JDK 版本升级：项目 Java 8 目标，依赖 `java.lang.invoke.MethodHandle`、
-  `java.lang.ClassValue`（JDK7 引入的稳定 API）与反射 Field（目标为用户类而非 JDK 内部类，
-  无 JDK9+ 模块化 setAccessible 限制）；本机仅 JDK 8，更高版本（9/11/17/21）未实测。
-  若未来有对应环境需补充升级验证。
-- 多线程并发压力：本地无压测基准，未实测高并发下缓存 get 竞争开销（ClassValue 已保证
-  线程安全，风险低）。
-
-== 3. 兜底设计
+== 2. 兜底设计
 
 | 场景 | 兜底行为 |
 |------|---------|
@@ -229,22 +132,22 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
 | 无参构造器缺失 | `CAssert.notNull` 抛异常；ClassValue 计算失败自动清理重算 |
 | key 冲突（toMap） | 抛 IllegalStateException（与 merge 语义一致） |
 
-== 4. 适用范围
+== 3. 适用范围
 
-=== 4.1 适用场景
+=== 3.1 适用场景
 
 - 同名字段 JavaBean 属性复制（含类型转换、可赋值直接写）
 - 对象转 Map（含 json 名/下划线/注解 key 命名）
 - Map 转对象、集合复制（copyList/copyListFromMap）、数组反序覆盖（copyFromArr）
 
-=== 4.2 不适用/边界场景
+=== 3.2 不适用/边界场景
 
 - JDK 类源：不拷贝（copy 返回目标原对象、toMap 返回空 map）
 - 目标 final 字段：不可写
 - 集合/Map/数组字段：一律跳过（Map 源除外，走老流程）
 - 无转换器的字段类型：跳过
 
-=== 4.3 已知限制与取舍
+=== 3.3 已知限制与取舍
 
 - 源字段声明类型为集合父类型（Iterable/Serializable 等）且实际持有集合：旧实现"跳过"、
   新实现"直接写入"（消除运行期 instanceof 的必要取舍，javadoc 已注明）
@@ -255,18 +158,4 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
   与直接路径行为一致（兼容性用例 `copySupplierViaMapConsistency` 锁定）
 - 值动作/计划缓存无失效机制：转换器静态注册，无动态需求，风险低（已备注）
 
-== 5. 性能数据（100000 次迭代，第二轮全部初始化后计时）
 
-| 实现方式 | Avg(ns/op) | 说明 |
-|----------|-----------|------|
-| 手工 setter | 29.9 | 基线 |
-| cglib BeanCopier | 33.0 | 对比 |
-| CBeanUtils.copy（复用目标） | 107.2 | ~16 次 handle 调用 ≈ 6.7 ns/次 |
-| 手工 toMap | 149.9 | 基线 |
-| CBeanUtils.copy | 225.4 | 相对 Spring 927.6 快 4.1 倍、hutool 6138.2 快 27 倍 |
-| CBeanUtils.toMap | 353.2 | 相对手工 149.9 慢 2.4 倍，瓶颈在 map 写入（预期内） |
-| Spring BeanUtils | 927.6 | 对比 |
-| hutool BeanUtil | 6138.2 | 对比 |
-
-MethodHandle 动态分发（含 Object 签名类型检查）相对编译期静态内联存在固有差距，
-排除字节码方向后无法进一步消除。

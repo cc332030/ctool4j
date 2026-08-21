@@ -1,0 +1,62 @@
+= CMethodHandleUtils 测试用例文档
+
+所属功能：`com.c332030.ctool4j.core.classes.CMethodHandleUtils`（core 工具类）——MethodHandle 的创建、缓存与统一 Object 签名适配。
+
+对应测试类：`com.c332030.ctool4j.core.test.classes.CMethodHandleUtilsTests`
+
+对应设计文档：`doc/design/CMethodHandleUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CMethodHandleUtils 的测试用例文档，含用例设计思路与依据及分类编号索引；测试方法通过行注释标注对应编号（如 `// 对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按 handle 的「类型维度」组织分类：getter/setter、method、constructor，再按「生成 vs 缓存 vs asType 签名适配」细分，覆盖 CMethodHandleUtils 的全部对外入口
+- 每个入口给出「生成 + 调用生效」用例，缓存相关入口另给「二次获取同一 handle（assertSame）」用例，验证按 Field/Method/Constructor 弱 key 缓存
+- asType 统一 Object 签名（`GETTER_HANDLE_TYPE`/`SETTER_HANDLE_TYPE`）单独成类：getter 返回 Object（引用类型）、原始类型字段装箱返回 Object、setter 收 Object（引用类型）、原始类型字段拆箱写入——覆盖统一签名下引用/原始两种字段的装箱拆箱行为
+- 测试输入结构 `Person`/`PrimitiveHolder`：`PrimitiveHolder` 字段刻意保留原始类型 `int`，以覆盖原始类型字段经 asType 的装箱/拆箱（POJO 属性按规范用包装类，此处为验证核心行为特例）
+
+=== 设计依据
+
+- 依据功能设计（`doc/design/CMethodHandleUtils.adoc`）对职责的约定：`CMethodHandleUtils` 只保留 handle 生成与缓存（toXxxHandle/getXxxHandle）；asType 版本供 invokeExact 快速路径与 Lambda 转换
+- 依据 3.5 语义区分：`getGetterHandle`（原始签名缓存）与 `getGetterHandleAsType`（统一 Object 签名）并存，故分别覆盖
+- 依据测试方法（等价类/边界值）：引用类型字段与原始类型字段为两类等价输入；缓存二次获取断言同一实例验证缓存命中
+
+=== 覆盖场景
+
+- handle 生成 + 调用生效：getter/setter（原始签名）、method、constructor 各一用例（生成后 invoke 取引用类型字段值/写入）
+- 缓存命中：getterSetter/method/constructor 三类 handle 二次获取 assertSame 同一实例（按 Field/Method/Constructor 弱 key 缓存）
+- asType 统一 Object 签名：getter 取引用类型字段（接收者显式转型后 invokeExact 直接调用）、原始类型字段装箱返回 Object、setter 写引用类型字段、原始类型字段 Object 值自动拆箱写入
+
+=== 边界与取舍
+
+- 原始类型字段（`PrimitiveHolder` 的 int）经 asType 自动装箱（getter）/拆箱（setter），与引用类型字段两类等价输入分别覆盖（POJO 属性按规范用包装类，此为验证核心行为特例）
+- `toHandleSpecial`（special 方法句柄）当前无调用方、未使用，不作问题提示，暂无测试用例
+
+== 1. getter/setter handle
+
+=== 1.1 getter handle（原始签名）
+- 1.1.1 getGetterHandle 生成 getter handle，invoke 取引用类型字段值（getterHandle）
+- 1.1.2 toGetterHandle 生成（toGetterHandle）
+- 1.1.3 二次获取 getGetterHandle 缓存命中（assertSame）（getterSetterCache）
+
+=== 1.2 setter handle（原始签名）
+- 1.2.1 getSetterHandle 生成 setter handle，invoke 写入引用类型字段（setterHandle）
+- 1.2.2 toSetterHandle 生成（toSetterHandle）
+
+=== 1.3 asType 统一 Object 签名
+- 1.3.1 getGetterHandleAsType：接收者显式转型后 invokeExact 直接调用，取引用类型字段（getGetterHandleAsType）
+- 1.3.2 getGetterHandleAsType 原始类型字段：装箱后以 Object 返回（getGetterHandleAsTypePrimitive）
+- 1.3.3 getSetterHandleAsType：收 Object 值写入引用类型字段（setGetterHandleAsType）
+- 1.3.4 getSetterHandleAsType 原始类型字段：Object 值经 asType 自动拆箱写入（setGetterHandleAsTypePrimitive）
+
+== 2. method handle
+
+- 2.1 getHandle(Method) 生成方法 handle 并调用（methodHandle）
+- 2.2 二次获取 getHandle(Method) 缓存命中（assertSame）（methodHandleCache）
+
+== 3. constructor handle
+
+- 3.1 getHandle(Constructor) 生成构造器 handle 并调用（constructorHandle）
+- 3.2 二次获取 getHandle(Constructor) 缓存命中（assertSame）（constructorHandleCache）

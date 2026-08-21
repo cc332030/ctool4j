@@ -1,0 +1,21 @@
+= CFeignLogger 设计文档
+
+模块：ctool4j-feign
+类：com.c332030.ctool4j.feign.log.CFeignLogger
+状态：已落地
+
+== 1. 功能说明
+
+`CFeignLogger` 为 feign 请求日志拦截器，按请求生命周期拦截 feign 请求并输出统一格式的 HTTP 请求日志：
+
+- `logRequest`：判定是否记录（开关 + 白名单/黑名单 + logAll），构建请求日志模型（method/path/query/请求头/请求体）
+- `logAndRebufferResponse`：重缓冲响应体（可再读）、构建响应日志模型（响应体/响应状态码/响应头）
+- `logIOException`：记录异常信息
+- 打印统一走 `CRequestLogUtils.logWrite` → `CCommUtils.appendHttpLog`
+
+关键约定：
+- 请求头/响应头采集层总是采集（深拷贝为不可变），是否输出由打印层 `enableHeader` 开关控制（与 MVC 采集解耦）
+- 空请求体输出 EMPTY_REQ、空响应体输出 EMPTY_RSP 占位（避免 `[null]`，与 MVC 一致）
+- 采集响应状态码与响应头，供输出响应报文头（与 MVC 对称）
+
+测试内容见 `doc/design/CFeignLoggerTests.adoc`。

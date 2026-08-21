@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/req）、
  * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回；
- * 测试用例分类与编号见 doc/test/CFeignLogger.adoc，各测试方法以行注释标注对应编号
+ * 测试用例分类与编号见 doc/design/CFeignLoggerTests.adoc，各测试方法以行注释标注对应编号
  *
  * @author c332030
  */
@@ -269,7 +269,7 @@ class CFeignLoggerTests {
         Assertions.assertArrayEquals("{\"result\":1}".getBytes(StandardCharsets.UTF_8),
             Util.toByteArray(rebuilt.body().asInputStream()));
         Assertions.assertEquals("{\"result\":1}", requestLog.getRsp());
-        // 对应测试用例 3.1.2：采集响应状态码与响应头，供 appendHttpLog 输出响应报文头
+        // 对应测试用例 3.3.1：采集响应状态码与响应头，供 appendHttpLog 输出响应报文头
         Assertions.assertEquals(200, requestLog.getResponseStatus());
         // feign 的 Response.headers() 统一为小写 header 名（HTTP 头不区分大小写），值为 Collection 实现
         Assertions.assertNotNull(requestLog.getResponseHeaders());

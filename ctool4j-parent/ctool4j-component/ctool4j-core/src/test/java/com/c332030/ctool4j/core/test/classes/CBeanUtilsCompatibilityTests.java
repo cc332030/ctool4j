@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
  * </p>
  * <p>
  * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见
- * 设计文档 doc/design/CBeanUtils.adoc。
+ * 设计文档 doc/design/CBeanUtils.adoc；测试用例分类与编号见测试文档
+ * doc/design/CBeanUtilsTests.adoc，各测试方法以行注释标注对应编号。
  * </p>
  *
  * @since 2026/8/16
