@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
  * </p>
  *
  * @since 2025/5/13
+ * @see doc/design/core/CResult.adoc
+ * @see doc/design/core/CResultTests.adoc
  */
 @Data
 @SuperBuilder

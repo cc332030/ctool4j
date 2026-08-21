@@ -1,0 +1,42 @@
+= CSchemaAnnotationPlugin 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CSchemaAnnotationPlugin
+状态：已落地
+适用范围：@CSchema 校验注解 → 方法参数必填
+
+== 1. 功能说明
+
+`CSchemaAnnotationPlugin` 实现 `ICAnnotationExpandedParameterBuilderPlugin<CSchema>`，识别 `@CSchema` 注解，`required=true` 时将方法参数标记为必填。
+
+== 2. 设计要点
+
+=== 2.1 注解识别
+
+- `getAnnotationClass()` 返回 `CSchema.class`。
+- `isRequired(annotation)` 返回 `((CSchema) annotation).required()`，按注解 required 属性决定是否必填。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| required=false | 不标记必填 |
+| 未命中 @CSchema | 不标记必填 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- springfox 文档生成时按 `@CSchema` 的 required 属性标记方法参数必填。
+
+== 5. 已知限制与取舍
+
+- 依赖 `@CSchema`（web 模块）注解定义。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

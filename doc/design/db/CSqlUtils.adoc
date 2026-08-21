@@ -1,0 +1,67 @@
+= CSqlUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-db
+类：com.c332030.ctool4j.db.util.CSqlUtils
+状态：已落地
+适用范围：SQL 片段（limit、行锁、列名、条件）拼接与字段名转换工具
+
+== 1. 功能说明
+
+`CSqlUtils`（`@UtilityClass`，静态工具类）提供 SQL 拼接相关的常用片段生成：
+
+- `limitSql()` / `limitSql(Integer)`：生成 `limit N` 语句（默认 `CPageUtils.DEFAULT_PAGE_SIZE`）；
+  常量 `LIMIT_ONE = limitSql(1)`。
+- `forUpdate()`：返回行锁语句 `for update`。
+- `getTableAliasSql(String)`：表别名非空白时返回 `别名.`，否则返回空串。
+- `toColumnName(Func1)` / `toColumnName(String)`：驼峰转下划线列名（hutool `StrUtil.toUnderlineCase`）。
+- `getColumnsSql(Collection<Func1>, String alias)`：多个属性 lambda 转列名列表并按别名前缀、逗号拼接。
+- `getGreaterSql(...)`：生成 `列 > 数值`（可带别名）条件。
+- `getEqualsSql(...)`：生成 `左列 = 右列`（可带别名）条件；支持单对、多对（按分隔符枚举拼接）。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- `limitSql(null)` 抛出 `IllegalArgumentException("size 不能为空")`。
+- 列名统一经驼峰转下划线（`StrUtil.toUnderlineCase`），支持属性 lambda（hutool `LambdaUtil.getFieldName`）。
+- 别名非空白（`StrUtil.isBlank` 判断）时加 `别名.` 前缀；布尔字面量列（`true`/`false`）不加前缀。
+- `getColumnsSql` 空集合/null 返回空串；`getEqualsSql` 多对版本按分隔符枚举的 joiningCollector 拼接。
+
+=== 2.2 实现方式
+
+- 借助 hutool（`CollUtil`/`StrUtil`/`LambdaUtil`/`Pair`）与自定义 `CStrUtils`/`CPageUtils`。
+- `getGreaterSql`/`getEqualsSql` 通过 `CStrUtils.format` 组装字符串，列名经 `toColumnName` 转换。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| `limitSql(null)` | 抛 `IllegalArgumentException` |
+| `getTableAliasSql` 空白/空别名 | 返回空串 |
+| `getColumnsSql` 空/null 集合 | 返回空串 |
+| 布尔字段列 | 不加别名前缀（避免 `t.true` 这类非法片段） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- MyBatis/手写 SQL 场景下生成 limit、行锁、列名与等值/大于条件片段。
+
+=== 4.2 不适用/边界场景
+
+- 仅生成片段字符串，不执行 SQL；不处理参数绑定与注入转义，调用方自行拼接到完整 SQL 时需注意。
+- `toColumnName` 依赖 hutool 的下划线转换规则，对含数字/特殊字符的字段名转换结果需调用方确认。
+
+== 5. 已知限制与取舍
+
+- 列名转换基于 lambda 字段名（hutool 序列化解析），复杂 lambda（如嵌套调用）可能无法正确解析字段名。
+- `getGreaterSql`/`getEqualsSql` 不校验数值与别名的合法性，直接拼入字符串。
+- 拼接类方法为纯字符串拼接，不防 SQL 注入，条件值部分由调用方负责参数化。
+
+测试内容见 `doc/design/db/CSqlUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

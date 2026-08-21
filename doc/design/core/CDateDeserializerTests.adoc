@@ -1,0 +1,42 @@
+= CDateDeserializer 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.jackson.deserializer.CDateDeserializer`（core jackson 类）——Date 反序列化。
+
+对应测试类：`com.c332030.ctool4j.core.test.jackson.CDateDeserializerTests`
+
+对应设计文档：`doc/design/core/CDateDeserializer.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CDateDeserializer 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「字符串 / 毫秒 / 整型 / 空值边界」多个维度组织。
+- 用 DateBean（date 字段）经 OBJECT_MAPPER 反序列化验证各输入形态。
+- 空值边界覆盖空字符串/null/缺失字段返回 null。
+
+=== 设计依据
+
+- 依据功能设计对字符串与整型毫秒反序列化的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：字符串日期；字符串毫秒；整型毫秒；空字符串返回 null；null 返回 null；缺失字段返回 null。
+- 未覆盖：其他 token（如浮点）回退默认实现的分支（未单列）。
+
+== 1. 反序列化
+
+- 1.1 字符串日期：`"2025-03-03 08:01:03"` 解析非空（stringDate）
+- 1.2 字符串毫秒：`"1731502563000"` 转 Date（millisDate）
+- 1.3 整型毫秒：`1731502563000` 转 Date（numberIntDate）
+- 1.4 空字符串：返回 null（emptyString）
+- 1.5 null：返回 null（nullValue）
+- 1.6 缺失字段：返回 null（missingField）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

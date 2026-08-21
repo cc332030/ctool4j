@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
  * </p>
  *
  * @since 2026/8/15
+ * @see doc/design/core/CCharsets.adoc
  */
 @UtilityClass
 public class CCharsets {

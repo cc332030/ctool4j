@@ -5,6 +5,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * Description: ICName
  * </p>
  *
+ * @see doc/design/definition/ICName.adoc
  * @since 2026/4/23
  */
 public interface ICName {

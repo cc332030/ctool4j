@@ -5,6 +5,7 @@ package com.c332030.ctool4j.definition.model.result;
  * Description: ICStrResult
  * </p>
  *
+ * @see doc/design/definition/ICStrResult.adoc
  * @since 2025/2/24
  */
 public interface ICStrResult<DATA> extends ICResult<String, DATA> {

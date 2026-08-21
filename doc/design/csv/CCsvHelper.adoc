@@ -1,0 +1,71 @@
+= CCsvHelper 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-csv
+类：com.c332030.ctool4j.csv.util.CCsvHelper
+状态：已落地
+适用范围：CSV 读写工具（读取为 Map/对象，写入对象/行数据）
+
+== 1. 功能说明
+
+`CCsvHelper` 提供 CSV 的读写能力，采用 builder 模式配置：
+
+- 读取（doRead）：将 CSV 从字符流/字节流/文件/路径读为 `List<Map<String,String>>`，或按类转换为对象列表。
+- 写入（doWrite）：将表头+行数据或对象列表写入字符流/字节流/文件/路径。
+- 配置项：记录分隔符（recordSeparator）、字段分隔符（delimiter）、是否跳过表头（skipHeaderRecord）。
+
+== 2. 设计要点
+
+=== 2.1 读取（doRead）
+
+- 底层使用 Apache Commons CSV（`CSVFormat`/`CSVParser`）。
+- 默认 `setHeader()` 自动识别表头行，表头行不进入结果数据。
+- 表头与单元格值均经 `CCsvUtils.trim` 处理（去空白、去退格）。
+- 以表头为 key、单元格值为 value 组装 `LinkedHashMap`。
+- `skipHeaderRecord(true)` 时跳过表头记录；默认 `setHeader()` 也已自动跳过表头。
+
+=== 2.2 写入（doWrite）
+
+- 底层使用 `CSVPrinter`。
+- `doWrite(Collection<String>, List<List<String>>, Writer)`：显式指定表头与行数据。
+- `doWrite(List<?>, Writer)`：依据首元素类型的字段反射生成表头，逐行写入各字段值。
+- 表头或行数据为空（含过滤后为空）时不输出，仅记录日志。
+
+=== 2.3 空值处理
+
+- null 输入（reader/inputStream）视为空数据返回空集合，不依赖底层库对 null 的异常行为。
+- 表头/行数据中的 null 元素过滤后判断空。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| doRead 入参为 null（reader/inputStream） | 返回空集合 |
+| doRead(File/String) | 经 `Files.newInputStream`/`new File` 转字节流处理 |
+| doWrite 表头或行数据为空 | 不输出，记录日志 |
+| doWrite 对象列表为空/null | 不输出 |
+| doWrite 写入行异常 | 通过 `Lombok.sneakyThrow` 抛出 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 简单 CSV 的读取与导出，字段名与表头一一对应时的对象转换。
+
+=== 4.2 不适用/边界场景
+
+- 复杂 CSV（嵌套引号、跨行字段、空表头）依赖底层库行为。
+- 非法行（列数少于表头）在按表头索引取值时会抛越界异常（当前实现行为）。
+
+== 5. 已知限制与取舍
+
+- 对象写入的表头列顺序由反射返回的字段 Map 决定，不保证与声明顺序一致。
+- `doWrite(List<?>, ...)` 取首元素类型推断字段，list 元素类型不一致时字段集以首元素为准。
+- 字节流写入统一使用 UTF-8 编码，不依赖平台默认字符集。
+
+测试内容见 `doc/design/csv/CCsvHelperTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

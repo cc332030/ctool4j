@@ -11,6 +11,7 @@ import java.util.Set;
  * </p>
  *
  * @since 2026/1/28
+ * @see doc/design/web/ResourceUrlConstants.adoc
  */
 @UtilityClass
 public class ResourceUrlConstants {

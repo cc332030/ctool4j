@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CDocOpenApi2Config
  * </p>
  *
+ * @see doc/design/openapi2/CDocOpenApi2Config.adoc
+ * @see doc/design/openapi2/CDocOpenApi2ConfigTests.adoc
  * @since 2026/1/6
  */
 @Data

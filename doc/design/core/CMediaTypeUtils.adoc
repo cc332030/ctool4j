@@ -1,0 +1,60 @@
+= CMediaTypeUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CMediaTypeUtils
+状态：已落地
+适用范围：媒体类型是否为文本判断、媒体类型集合/列表追加 JSON5
+
+== 1. 功能说明
+
+`CMediaTypeUtils` 为媒体类型（MediaType）工具类，提供：
+
+- `isText(String)`：判断媒体类型字符串是否为文本类型
+- `getSetWithJson5(Collection)` / `getListWithJson5(Collection)`：在媒体类型集合/列表中加入 JSON5
+
+== 2. 设计要点
+
+=== 2.1 isText 判断规则
+
+- 空白/null 入参返回 false。
+- 入参转小写后，与关键字集合 `TEXT_KEYS`（text/plain/html/json/xml/form）按段匹配：
+  完整匹配、以 `key/` 开头、含 `/key`、含 `+key`（结构化后缀语法）、含 `-key`。
+- 段匹配避免子串误匹配（如 `uniform` 含 `form` 但非文本类型）——关键字必须被 `/`、`+`、`-`
+  分隔才是有效段。
+
+=== 2.2 JSON5 追加
+
+- `getSetWithJson5` 以 `LinkedHashSet` 保持原有顺序并追加 `CMimeTypeEnum.JSON5` 的 MimeType。
+- `getListWithJson5` 基于 set 结果转为 List（JSON5 位于末尾）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| isText 空白/null | 返回 false |
+| getSetWithJson5 入参为空集合 | 返回仅含 JSON5 的集合 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 判断请求/响应媒体类型是否为可读文本（日志脱敏、展示等）。
+- 需要支持 JSON5 媒体类型的接口配置（在既有媒体类型基础上追加）。
+
+=== 4.2 不适用/边界场景
+
+- isText 基于关键字段匹配，不解析完整 MIME 语法；对带 charset 参数的类型通过子串含 `/key` 或
+  `key/` 匹配（如 `text/html; charset=utf-8` 命中 `text/` 前缀段）。
+
+== 5. 已知限制与取舍
+
+- 关键字匹配为启发式（段匹配），无法覆盖所有文本类型，但覆盖常见文本媒体类型；非文本类型
+  （如 `image/*`、`application/pdf`）不会被误判为文本。
+
+测试内容见 `doc/design/core/CMediaTypeUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

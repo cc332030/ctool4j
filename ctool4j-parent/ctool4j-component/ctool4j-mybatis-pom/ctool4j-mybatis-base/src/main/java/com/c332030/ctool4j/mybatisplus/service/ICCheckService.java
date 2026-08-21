@@ -15,6 +15,7 @@ import java.util.Optional;
  * </p>
  *
  * @since 2026/5/20
+ * @see doc/design/mybatisplus/ICCheckService.adoc
  */
 public interface ICCheckService<ENTITY> extends IService<ENTITY> {
 

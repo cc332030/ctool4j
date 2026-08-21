@@ -25,6 +25,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * 覆盖：addInterceptor / getApiType / intercept / newResponse / transferHeaders
  * 的正常路径、边界与异常路径
  *
+ * <p>是 {@link com.c332030.ctool4j.feign.util.CFeignUtils} 的测试用例（对应测试文档
+ * <code>doc/design/feign/CFeignUtilsTests.adoc</code>）。</p>
+ *
  * @author c332030
  */
 class CFeignUtilsTests {
@@ -62,6 +65,7 @@ class CFeignUtilsTests {
 
     // ==================== addInterceptor / intercept ====================
 
+    /** 对应测试用例 1.1 */
     @Test
     void testInterceptMatchByClass() {
 
@@ -81,6 +85,7 @@ class CFeignUtilsTests {
         Assertions.assertSame(template, got.get());
     }
 
+    /** 对应测试用例 1.2 */
     @Test
     void testInterceptNotMatch() {
 
@@ -93,6 +98,7 @@ class CFeignUtilsTests {
         Assertions.assertFalse(invoked.get());
     }
 
+    /** 对应测试用例 1.3 */
     @Test
     void testInterceptEmptyInterceptorMap() {
 
@@ -100,6 +106,7 @@ class CFeignUtilsTests {
         Assertions.assertFalse(matched);
     }
 
+    /** 对应测试用例 1.4 */
     @Test
     void testInterceptTemplateNoTargetThrowsNpe() {
 
@@ -110,6 +117,7 @@ class CFeignUtilsTests {
         );
     }
 
+    /** 对应测试用例 2.1 */
     @Test
     void testGetApiType() {
 
@@ -120,6 +128,7 @@ class CFeignUtilsTests {
         Assertions.assertSame(MarkerApi.class, CFeignUtils.getApiType(template));
     }
 
+    /** 对应测试用例 2.2 */
     @Test
     void testGetApiTypeNullTargetThrowsNpe() {
 
@@ -131,6 +140,7 @@ class CFeignUtilsTests {
 
     // ==================== newResponse ====================
 
+    /** 对应测试用例 3.1 */
     @Test
     void testNewResponse() throws java.io.IOException {
 
@@ -160,6 +170,7 @@ class CFeignUtilsTests {
         Assertions.assertEquals("application/json", cts.iterator().next());
     }
 
+    /** 对应测试用例 3.2 */
     @Test
     void testNewResponseNullBody() {
 
@@ -179,6 +190,7 @@ class CFeignUtilsTests {
 
     // ==================== transferHeaders ====================
 
+    /** 对应测试用例 4.1 */
     @Test
     void testTransferHeadersNullConfigNoOp() throws Exception {
 
@@ -192,6 +204,7 @@ class CFeignUtilsTests {
         Assertions.assertEquals("v", template.headers().get("X-Old").iterator().next());
     }
 
+    /** 对应测试用例 4.2 */
     @Test
     void testTransferHeadersAllNoPropagationHeadersNoOp() throws Exception {
 
@@ -209,6 +222,7 @@ class CFeignUtilsTests {
         Assertions.assertEquals("v", template.headers().get("X-Old").iterator().next());
     }
 
+    /** 对应测试用例 4.3 */
     @Test
     void testTransferHeadersAllCopiesOrigin() throws Exception {
 
@@ -226,6 +240,7 @@ class CFeignUtilsTests {
         Assertions.assertTrue(template.headers().containsKey("X-Old"));
     }
 
+    /** 对应测试用例 4.4 */
     @Test
     void testTransferHeadersCustomFilters() throws Exception {
 
@@ -248,6 +263,7 @@ class CFeignUtilsTests {
         Assertions.assertFalse(template.headers().containsKey("X-Other"));
     }
 
+    /** 对应测试用例 4.5 */
     @Test
     void testTransferHeadersNone() throws Exception {
 

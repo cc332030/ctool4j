@@ -26,6 +26,9 @@ class CErrorControllerTests {
 
     // ---------- error ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testError_withStatusCode() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -36,6 +39,9 @@ class CErrorControllerTests {
         Assertions.assertEquals("500", result.getCode());
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testError_withoutStatusCode_default500() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -46,6 +52,9 @@ class CErrorControllerTests {
         Assertions.assertEquals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), result.getCode());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testError_invalidStatusCode_default500() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);

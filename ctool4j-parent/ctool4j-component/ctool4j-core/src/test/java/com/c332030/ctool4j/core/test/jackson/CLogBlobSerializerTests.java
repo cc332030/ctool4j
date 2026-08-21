@@ -17,6 +17,9 @@ import java.io.StringWriter;
  */
 public class CLogBlobSerializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void serializeBlob() throws Exception {
 
@@ -29,6 +32,9 @@ public class CLogBlobSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void serializeNullContent() throws Exception {
 

@@ -8,6 +8,7 @@ import com.c332030.ctool4j.definition.interfaces.ICText;
  * </p>
  *
  * @author c332030
+ * @see doc/design/core/ICSource.adoc
  */
 public interface ICSource extends ICText {
 

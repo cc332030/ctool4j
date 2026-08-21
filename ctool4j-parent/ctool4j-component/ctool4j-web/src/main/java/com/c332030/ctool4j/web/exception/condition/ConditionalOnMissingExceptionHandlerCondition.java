@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2026/4/9
+ * @see doc/design/web/ConditionalOnMissingExceptionHandlerCondition.adoc
  */
 @CustomLog
 @AllArgsConstructor

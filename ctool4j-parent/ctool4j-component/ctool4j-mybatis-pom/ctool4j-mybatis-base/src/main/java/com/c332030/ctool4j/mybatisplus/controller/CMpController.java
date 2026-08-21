@@ -22,6 +22,7 @@ import javax.validation.constraints.NotNull;
  * </p>
  *
  * @since 2026/1/20
+ * @see doc/design/mybatisplus/CMpController.adoc
  */
 @CustomLog
 public abstract class CMpController<S extends ICService<T>, T> implements ICSpringInit {

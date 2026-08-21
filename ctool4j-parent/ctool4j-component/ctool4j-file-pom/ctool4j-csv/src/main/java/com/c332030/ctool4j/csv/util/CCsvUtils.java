@@ -10,6 +10,8 @@ import lombok.val;
  * Description: CCsvUtils
  * </p>
  *
+ * @see doc/design/csv/CCsvUtils.adoc
+ * @see doc/design/csv/CCsvUtilsTests.adoc
  * @since 2026/1/14
  */
 @UtilityClass

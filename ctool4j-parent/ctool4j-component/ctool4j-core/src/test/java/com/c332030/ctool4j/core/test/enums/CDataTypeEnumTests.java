@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CDataTypeEnumTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void values() {
 
@@ -34,6 +37,9 @@ public class CDataTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getLowerCase() {
 
@@ -50,6 +56,9 @@ public class CDataTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void dateTypes() {
 

@@ -10,6 +10,7 @@ package com.c332030.ctool4j.core.benchmark;
  * </p>
  *
  * @since 2026/8/16
+ * @see doc/design/core/CBenchmarkCase.adoc
  */
 public interface CBenchmarkCase {
 

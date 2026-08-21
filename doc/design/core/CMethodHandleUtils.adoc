@@ -1,5 +1,8 @@
 = CMethodHandleUtils 设计说明
 
+Version: 1.0
+LastModified: 2026-08-21
+
 == 1. 背景
 
 MethodHandle 相关代码在项目中的分布（还原后现状）：
@@ -91,3 +94,7 @@ Lambda 转换（统一 Object 签名）。两者皆 setAccessible 语义（不�
 * 适用：MethodHandle 的创建、缓存与统一签名（`CMethodHandleUtils`）、按类 handle map 缓存（`CReflectUtils`）、MethodHandle → Lambda 转换（`CLambdaUtils`）
 * 不适用：反射元数据查询（字段/方法/构造器/注解）仍归 `CReflectUtils`；Lambda 业务语义（非 MethodHandle 场景）不在 `CLambdaUtils`
 * 已知取舍：`getGetterHandle`/`getGetterHandleAsType` 并存（见 3.5）；统一签名常量收敛至 `CMethodHandleUtils`（原 `CReflectUtils`/`CBeanUtils` 重复定义已消除）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

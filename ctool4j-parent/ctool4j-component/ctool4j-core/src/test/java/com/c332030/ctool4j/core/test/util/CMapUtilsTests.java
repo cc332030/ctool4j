@@ -18,6 +18,9 @@ import java.util.*;
  */
 public class CMapUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void put() {
 
@@ -35,6 +38,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void defaultEmpty() {
 
@@ -49,6 +55,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void toStringValueMap() {
 
@@ -66,6 +75,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void newMap() {
 
@@ -84,6 +96,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void newEnumMap() {
 
@@ -95,6 +110,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void newIgnoreCaseMap() {
 
@@ -108,6 +126,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void map() {
 
@@ -142,6 +163,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void filter() {
 
@@ -163,6 +187,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void merge() {
 
@@ -196,6 +223,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 6.1
+     */
     @Test
     public void toAvailableStrMap() {
 
@@ -223,6 +253,9 @@ public class CMapUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 6.2
+     */
     @Test
     public void computeIfAbsent() {
 

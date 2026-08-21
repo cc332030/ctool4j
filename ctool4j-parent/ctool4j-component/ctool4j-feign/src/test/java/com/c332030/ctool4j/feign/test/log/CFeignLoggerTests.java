@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/req）、
  * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回；
- * 测试用例分类与编号见 doc/design/feign/CFeignLoggerTests.adoc，各测试方法以行注释标注对应编号
+ * 测试用例分类与编号见 doc/design/feign/CFeignLoggerTests.adoc，各测试方法在 javadoc 中标注对应编号
  *
  * @author c332030
  */
@@ -53,6 +53,9 @@ class CFeignLoggerTests {
 
     // ==================== enableLog 判定（logRequest 写入 REQUEST_THREAD_LOCAL） ====================
 
+    /**
+     * 对应测试用例 5.1.1
+     */
     @Test
     void testLogRequestDisabledDoesNothing() throws Exception {
 
@@ -65,6 +68,9 @@ class CFeignLoggerTests {
         Assertions.assertNotNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 1.1.1
+     */
     @Test
     void testLogRequestHostWhiteListHit() throws Exception {
 
@@ -78,6 +84,9 @@ class CFeignLoggerTests {
         Assertions.assertEquals("GET", requestLog.getMethod());
     }
 
+    /**
+     * 对应测试用例 1.1.2
+     */
     @Test
     void testLogRequestPathWhiteListHit() throws Exception {
 
@@ -89,6 +98,9 @@ class CFeignLoggerTests {
         Assertions.assertNotNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 1.1.3
+     */
     @Test
     void testLogRequestApiWhiteListHit() throws Exception {
 
@@ -100,6 +112,9 @@ class CFeignLoggerTests {
         Assertions.assertNotNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 1.1.6
+     */
     @Test
     void testLogRequestHostBlackListHit() throws Exception {
 
@@ -112,6 +127,9 @@ class CFeignLoggerTests {
         Assertions.assertNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 1.1.4
+     */
     @Test
     void testLogRequestWhiteListWinsOverBlackList() throws Exception {
 
@@ -125,6 +143,9 @@ class CFeignLoggerTests {
         Assertions.assertNotNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 1.1.7
+     */
     @Test
     void testLogRequestNoListLogAllFalse() throws Exception {
 
@@ -136,6 +157,9 @@ class CFeignLoggerTests {
         Assertions.assertNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 1.1.5
+     */
     @Test
     void testLogRequestNoListLogAllTrue() throws Exception {
 
@@ -149,6 +173,9 @@ class CFeignLoggerTests {
 
     // ==================== 请求日志模型构建 ====================
 
+    /**
+     * 对应测试用例 2.1.1
+     */
     @Test
     void testSetRequestLogPathWithQuery() throws Exception {
 
@@ -163,6 +190,9 @@ class CFeignLoggerTests {
         Assertions.assertEquals("/order/list?id=1&type=2", requestLog.getPath());
     }
 
+    /**
+     * 对应测试用例 2.1.2
+     */
     @Test
     void testSetRequestLogPathWithoutQuery() throws Exception {
 
@@ -174,6 +204,9 @@ class CFeignLoggerTests {
         Assertions.assertEquals("/order/list", currentRequestLog().getPath());
     }
 
+    /**
+     * 对应测试用例 2.2.1
+     */
     @Test
     void testSetRequestLogBodyText() throws Exception {
 
@@ -187,6 +220,9 @@ class CFeignLoggerTests {
         Assertions.assertEquals("{\"name\":\"张三\"}", requestLog.getReq());
     }
 
+    /**
+     * 对应测试用例 2.2.2
+     */
     @Test
     void testSetRequestLogBodyNonText() throws Exception {
 
@@ -200,6 +236,9 @@ class CFeignLoggerTests {
         Assertions.assertEquals("[not text body]", currentRequestLog().getReq());
     }
 
+    /**
+     * 对应测试用例 2.2.3
+     */
     @Test
     void testSetRequestLogBodyEmpty() throws Exception {
 
@@ -214,6 +253,9 @@ class CFeignLoggerTests {
         Assertions.assertEquals(CRequestLogUtils.EMPTY_REQ, currentRequestLog().getReq());
     }
 
+    /**
+     * 对应测试用例 2.3.1
+     */
     @Test
     void testSetRequestLogHeadersImmutableWhenEnabled() throws Exception {
 
@@ -231,12 +273,14 @@ class CFeignLoggerTests {
         Assertions.assertThrowsExactly(UnsupportedOperationException.class, headers::clear);
     }
 
+    /**
+     * 对应测试用例 2.3.2：enableHeader 为打印层开关，采集层总是采集请求头存储，是否输出由打印层控制
+     */
     @Test
     void testSetRequestLogHeadersAlwaysCollectedEvenDisabled() throws Exception {
 
         config.setEnable(true);
         config.setLogAll(true);
-        // 对应测试用例 2.3.2：enableHeader 为打印层开关，采集层总是采集请求头存储，是否输出由打印层控制
         config.setEnableHeader(false);
 
         Request request = buildRequest("http://api.example.com/foo", "X-Trace", Collections.singletonList("abc"));
@@ -252,6 +296,9 @@ class CFeignLoggerTests {
 
     // ==================== logAndRebufferResponse ====================
 
+    /**
+     * 对应测试用例 3.3.1：采集响应状态码与响应头，供 appendHttpLog 输出响应报文头
+     */
     @Test
     void testLogAndRebufferResponseBuffersBody() throws Exception {
 
@@ -269,7 +316,6 @@ class CFeignLoggerTests {
         Assertions.assertArrayEquals("{\"result\":1}".getBytes(StandardCharsets.UTF_8),
             Util.toByteArray(rebuilt.body().asInputStream()));
         Assertions.assertEquals("{\"result\":1}", requestLog.getRsp());
-        // 对应测试用例 3.3.1：采集响应状态码与响应头，供 appendHttpLog 输出响应报文头
         Assertions.assertEquals(200, requestLog.getResponseStatus());
         // feign 的 Response.headers() 统一为小写 header 名（HTTP 头不区分大小写），值为 Collection 实现
         Assertions.assertNotNull(requestLog.getResponseHeaders());
@@ -279,6 +325,9 @@ class CFeignLoggerTests {
         Assertions.assertNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 5.1.1
+     */
     @Test
     void testLogAndRebufferResponseNoRequestLogReturnsSame() throws Exception {
 
@@ -294,6 +343,9 @@ class CFeignLoggerTests {
 
     // ==================== logIOException ====================
 
+    /**
+     * 对应测试用例 4.1.1
+     */
     @Test
     void testLogIOExceptionSetsError() throws Exception {
 
@@ -311,6 +363,9 @@ class CFeignLoggerTests {
         Assertions.assertNull(currentRequestLog());
     }
 
+    /**
+     * 对应测试用例 5.1.1
+     */
     @Test
     void testLogIOExceptionNoRequestLogReturnsSame() throws Exception {
 

@@ -18,6 +18,7 @@ public class CReflectUtilsTests {
 
     /**
      * 测试缓存的注解获取
+     * 对应测试用例 1.1
      */
     @Test
     public void getAnnotationCached() {
@@ -29,6 +30,7 @@ public class CReflectUtilsTests {
 
     /**
      * 测试实例字段读写走缓存的 MethodHandle 快速路径
+     * 对应测试用例 2.1
      */
     @Test
     public void getSetValueInstanceField() {
@@ -43,6 +45,7 @@ public class CReflectUtilsTests {
 
     /**
      * 测试静态字段读写回退 Field 原生路径
+     * 对应测试用例 2.2
      */
     @Test
     public void getSetValueStaticField() {
@@ -56,6 +59,7 @@ public class CReflectUtilsTests {
 
     /**
      * 测试 final 字段 setValue 回退 Field.set（handle 缓存排除 final 字段，保持原行为）
+     * 对应测试用例 2.3
      */
     @Test
     public void setValueFinalField() {
@@ -70,6 +74,7 @@ public class CReflectUtilsTests {
 
     /**
      * 测试父类声明字段经子类实例读写
+     * 对应测试用例 2.4
      */
     @Test
     public void getSetValueInheritField() {
@@ -84,6 +89,7 @@ public class CReflectUtilsTests {
 
     /**
      * 测试按字段名读写：字段存在时正常，字段不存在时快速失败
+     * 对应测试用例 2.5
      */
     @Test
     public void getSetValueByFieldName() {

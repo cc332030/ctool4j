@@ -1,0 +1,56 @@
+= CCorsResponseBodyAdvice 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.cors.advice.CCorsResponseBodyAdvice
+状态：已落地
+
+== 1. 功能说明
+
+`CCorsResponseBodyAdvice` 为跨域的**备用方案**（`@ControllerAdvice` 已被注释，需使用方手动注册），
+实现 `ICBaseResponseBodyAdvice<Object>`，在响应体写入前调用 `CCorsUtils.handle(request, response)`
+输出 CORS 头，然后原样返回响应体。
+
+核心方法 `beforeBodyWrite(...)`：
+
+- 从 `ServerHttpRequest`/`ServerHttpResponse` 解包为 `HttpServletRequest`/`HttpServletResponse`
+  （经 `ICBaseResponseBodyAdvice` 默认实现），调用 `CCorsUtils.handle` 设置 CORS 响应头
+- 返回原响应体 `body`
+
+== 2. 设计要点
+
+=== 2.1 备用方案定位
+
+- 当 `CCorsFilter` 已自动生效时，无需注册本 Advice；本 Advice 供无法使用 Filter 的场景手动注册。
+
+=== 2.2 复用处理逻辑
+
+- 复用 `CCorsUtils.handle` 统一的 CORS 头输出逻辑，不重复实现。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| `CCorsUtils.handle` 内部异常 | 被 CCorsUtils 自身 try-catch 记录日志，不影响响应写出 |
+| body 为 null | 原样返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 无法依赖 Filter 的跨域场景（如需在响应体写出阶段设置头）。
+
+=== 4.2 不适用/边界场景
+
+- Filter 已生效时无需使用；未注册则本 Advice 不生效。
+
+== 5. 已知限制与取舍
+
+- 需手动注册才生效；跨域处理统一收敛在 `CCorsUtils`。
+
+测试内容见 `doc/design/web/CCorsResponseBodyAdviceTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

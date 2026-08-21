@@ -1,0 +1,28 @@
+= CCreateBy 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CCreateBy
+状态：已落地
+适用范围：创建人实体（实现 ICCreateBy）
+
+== 1. 功能说明
+
+`CCreateBy` 为创建人实体，实现 `ICCreateBy`，含 `createById` 与 `createBy` 字段（@TableField 不可更新）。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要创建人字段的实体。
+
+== 5. 已知限制与取舍
+
+- 创建人字段不可更新。
+
+测试内容见 `doc/design/core/CCreateByTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

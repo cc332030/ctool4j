@@ -1,0 +1,59 @@
+= CList 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CList
+状态：已落地
+适用范围：构造空/单元素/元素 List（过滤 null）
+
+== 1. 功能说明
+
+`CList` 为 List 构造工具类，提供：
+
+- `of()`：空 List
+- `of(T t)`：单元素 List（元素为 null 时返回空 List）
+- `of(T... ts)`：构造不可变 List，过滤 null 元素
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 单元素重载：元素为 null 时返回空 List（`Collections.emptyList()`）。
+- 可变参数重载：过滤 null 元素；全部为 null/空参时返回空 List。
+- 返回不可变 List（`Collections.unmodifiableList` / `Collections.emptyList` /
+  `Collections.singletonList`），调用方 add 抛 UnsupportedOperationException。
+
+=== 2.2 实现方式
+
+- 可变参数先经 `CArrUtils.filterNull(ts)` 去空，`ArrayUtil.isEmpty` 时空返回空 List，否则包不可变。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| of() 空参 | 返回空 List |
+| of(t) 单元素为 null | 返回空 List |
+| of(T...) 全部为 null / 空参 | 返回空 List |
+| of(T...) 含 null 元素 | 过滤 null，保留非空元素 |
+| 返回 List 被修改 | 抛 UnsupportedOperationException |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要不可变 List、且自动过滤 null 元素的集合构造。
+
+=== 4.2 不适用/边界场景
+
+- 返回不可变 List，需要后续增删时用原生 `new ArrayList`。
+
+== 5. 已知限制与取舍
+
+- 自动过滤 null，牺牲"保留 null"能力换取安全的集合构造。
+
+测试内容见 `doc/design/core/CListTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

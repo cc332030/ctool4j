@@ -1,0 +1,49 @@
+= CValueUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CValueUtils`（core 工具类）——对象经函数取值后的枚举值获取、枚举值消费。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CValueUtilsTests`
+
+对应设计文档：`doc/design/core/CValueUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CValueUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「直接取值 / 对象重载取值 / 消费」三个维度组织。
+- 直接取值：从 ICValue 取值正例与 null 枚举返回 null。
+- 对象重载：obj 取值正例、obj 为 null、函数返回 null 三分支。
+- 消费：枚举非空时消费、枚举 null 时不消费（初始值保持不变）。
+
+=== 设计依据
+
+- 依据功能设计对 null 语义的约定（返回 null / 跳过消费）。
+- 依据测试方法（等价类/边界值）：正例、null 对象、null 函数结果、null 枚举。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：getValue(ICValue) 正例与 null；getValue(obj, function) 正例、obj null、函数 null；
+  setValue 非空消费与 null 不消费。
+- 未覆盖：ICValue 实现为 null 值的情况（其取值仍为 null，与 null 枚举语义一致，未单列）。
+
+== 1. 直接取值（getValue(ICValue)）
+
+- 1.1 正例：`ValueHolder("hello")` → `"hello"`；null 枚举 → null（getValueFromICValue）
+
+== 2. 对象重载取值（getValue(obj, function)）
+
+- 2.1 正例：`holder → "obj-value"`；obj 为 null → null；函数返回 null → null（getValueFromObj）
+
+== 3. 消费（setValue）
+
+- 3.1 非空消费：枚举 `"value"` 被消费（setValueConsumesWhenNonNull）
+- 3.2 null 不消费：null 枚举不改变初始值（setValueNullICValueNoOp）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,49 @@
+= CLogFieldSerializerModifier 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.CLogFieldSerializerModifier
+状态：已落地
+适用范围：日志字段序列化修改器抽象基类（检测注解字段并替换序列化器）
+
+== 1. 功能说明
+
+`CLogFieldSerializerModifier<A extends Annotation>` 为日志字段序列化修改器抽象基类，扩展
+`BeanSerializerModifier`，检测标注指定注解的字段并替换为对应序列化器。
+
+- 仅注册到日志专用 ObjectMapper（OBJECT_MAPPER_LOG / toJsonLog），全局 ObjectMapper 不注册。
+- 子类声明注解类型与序列化器创建逻辑（`createSerializer`），字段扫描与替换由基类统一处理。
+
+== 2. 设计要点
+
+=== 2.1 注解字段检测
+
+- 按类缓存标注注解的字段名集合（`CClassValue`，复用 `CReflectUtils.FIELD_MAP_CLASS_VALUE`）。
+- 递归父类字段，基类字段上的注解对子类序列化同样生效；子类同名字段覆盖父类字段（已知取舍）。
+
+=== 2.2 属性替换
+
+- `changeProperties` 遍历属性：getter 上的注解优先，字段注解兜底；命中则 `assignSerializer` 替换为
+  对应序列化器。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 日志打印链路的字段脱敏/占位替换（@CLogBlob、@CLogSensitive）。
+
+=== 4.2 不适用/边界场景
+
+- 子类同名字段遮蔽父类注解字段时不生效（已知取舍）。
+
+== 5. 已知限制与取舍
+
+- 仅日志专用 mapper 生效，业务序列化输出真实内容。
+- 按类缓存避免重复反射扫描。
+
+说明：本类为抽象基类，由子类实现并测试，无独立测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

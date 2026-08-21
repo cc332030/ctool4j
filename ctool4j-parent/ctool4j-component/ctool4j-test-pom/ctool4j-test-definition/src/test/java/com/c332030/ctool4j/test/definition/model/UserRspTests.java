@@ -16,6 +16,9 @@ import java.util.Date;
  */
 class UserRspTests {
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void noArgsConstructor() {
         UserRsp rsp = new UserRsp();
@@ -24,6 +27,9 @@ class UserRspTests {
         Assertions.assertNull(rsp.getSex());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void superBuilder_inheritanceWiring() {
         Date updateTime = new Date(1700000000000L);
@@ -53,6 +59,9 @@ class UserRspTests {
         Assertions.assertEquals(updateTime, rsp.getUpdateTime());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void superBuilder_defaultNullFields() {
         UserRsp rsp = UserRsp.builder().userName("admin").build();
@@ -62,6 +71,9 @@ class UserRspTests {
         Assertions.assertNull(rsp.getAmount());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     void equals_sameValues() {
         UserRsp a = UserRsp.builder().userName("admin").sex("male").build();
@@ -70,6 +82,9 @@ class UserRspTests {
         Assertions.assertEquals(a.hashCode(), b.hashCode());
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     void equals_differentField() {
         UserRsp a = UserRsp.builder().userName("admin").sex("male").build();
@@ -77,12 +92,18 @@ class UserRspTests {
         Assertions.assertNotEquals(a, b);
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     void equals_null() {
         UserRsp a = UserRsp.builder().userName("admin").build();
         Assertions.assertNotEquals(a, null);
     }
 
+        /**
+     * 对应测试用例 1.7
+     */
     @Test
     void equals_otherType() {
         UserRsp rsp = UserRsp.builder().userName("admin").sex("male").build();
@@ -91,6 +112,9 @@ class UserRspTests {
         Assertions.assertNotEquals(rsp, "string");
     }
 
+        /**
+     * 对应测试用例 1.8
+     */
     @Test
     void equals_sameValueButDifferentSubclassNotEqual() {
         UserRsp rsp = UserRsp.builder().userName("admin").build();

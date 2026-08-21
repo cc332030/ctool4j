@@ -1,0 +1,68 @@
+= COpt 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.COpt
+状态：已落地
+适用范围：可空值容器（类似 Optional），含空值/空集合/空字符串/空 Map 判定构造
+
+== 1. 功能说明
+
+`COpt<T>` 为可空值容器类，提供：
+
+- 构造：`empty` / `of`（null 抛 NPE）/ `ofNullable` / `ofEmptyAble`（空字符串/空集合/空迭代器/空 Map 视为空）/ `ofBlankAble`（空白字符串视为空）
+- 取值：`get`（空抛 NoSuchElementException）/ `orElse` / `orElseGet` / `orElseThrow`
+- 转换：`map` / `flatMap` / `filter`
+- 判断与消费：`isPresent` / `ifPresent`
+
+== 2. 设计要点
+
+=== 2.1 构造语义
+
+- `of`：null 抛 `NullPointerException`。
+- `ofEmptyAble`：多态重载，分别对 `CharSequence`（StrUtil.isEmpty）、`Iterable`（IterUtil.isEmpty）、
+  `Collection`（CollUtil.isEmpty）、`Map`（MapUtil.isEmpty）做空判断，为空返回 empty。
+- `ofBlankAble`：空白字符串（StrUtil.isBlank）视为空。
+
+=== 2.2 取值与转换
+
+- `get`：值为 null 抛 `NoSuchElementException`。
+- `orElse` / `orElseGet`：空时返回默认值/经 supplier 获取（惰性，值存在时不调用 supplier）。
+- `orElseThrow`：空时抛出 supplier 提供的异常（@SneakyThrows）。
+- `map`：函数返回 null 时返回 empty；`flatMap`：函数返回 null 时返回 empty。
+- `filter`：不满足 predicate 返回 empty。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| of(null) | 抛 NullPointerException |
+| ofEmptyAble 空字符串/空集合/空 Map/空迭代器 | 返回 empty |
+| ofBlankAble 空白字符串 | 返回 empty |
+| get() 空值 | 抛 NoSuchElementException |
+| orElse/orElseGet 空值 | 返回默认值/经 supplier |
+| map/flatMap 函数返回 null | 返回 empty |
+| filter 不满足 | 返回 empty |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要链式处理可能为空的值，且区分"空字符串/空集合"语义的场景。
+
+=== 4.2 不适用/边界场景
+
+- `of` 不接收 null；需空值用 `ofNullable` / `ofEmptyAble`。
+- `get` 空值抛异常，需要空值时用 `orElse` 系列。
+
+== 5. 已知限制与取舍
+
+- 提供比 JDK Optional 更丰富的空判定构造（空字符串/集合/Map），贴近业务空值语义。
+- 空容器 `EMPTY` 单例，`empty()` 经 `CObjUtils.anyType` 做类型适配。
+
+测试内容见 `doc/design/core/COptTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

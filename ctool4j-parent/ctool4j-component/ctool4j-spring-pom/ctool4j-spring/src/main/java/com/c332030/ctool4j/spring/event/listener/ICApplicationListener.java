@@ -11,6 +11,7 @@ import org.springframework.lang.NonNull;
  * </p>
  *
  * @since 2025/10/31
+ * @see doc/design/spring/ICApplicationListener.adoc
  */
 @FunctionalInterface
 public interface ICApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E>, ICEvent<E> {

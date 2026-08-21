@@ -21,6 +21,9 @@ import java.util.*;
  */
 public class CCollUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void defaultEmpty() {
 
@@ -40,6 +43,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void forEach() {
 
@@ -53,6 +59,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void groupingBy() {
 
@@ -79,6 +88,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void addIgnore() {
 
@@ -100,6 +112,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void addAllIgnoreNull() {
 
@@ -114,6 +129,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void concatOne() {
 
@@ -136,6 +154,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.4
+     */
     @Test
     public void concat() {
 
@@ -149,6 +170,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void filter() {
 
@@ -183,6 +207,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void convert() {
 
@@ -215,6 +242,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 6.1
+     */
     @Test
     public void newCollection() {
 
@@ -242,6 +272,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 7.1
+     */
     @Test
     public void contains() {
 
@@ -254,6 +287,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 7.2
+     */
     @Test
     public void get() {
 
@@ -267,6 +303,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 7.3
+     */
     @Test
     public void first() {
 
@@ -278,6 +317,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 7.4
+     */
     @Test
     public void last() {
 
@@ -294,6 +336,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 7.5
+     */
     @Test
     public void onlyOne() {
 
@@ -305,6 +350,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 8.1
+     */
     @Test
     public void minMax() {
 
@@ -326,6 +374,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 9.1
+     */
     @Test
     public void stream() {
 
@@ -334,6 +385,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 9.2
+     */
     @Test
     public void toMap() {
 
@@ -375,6 +429,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 10.1
+     */
     @Test
     public void containsAny() {
 
@@ -388,6 +445,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 10.2
+     */
     @Test
     public void getValues() {
 
@@ -399,6 +459,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void size() {
 
@@ -411,6 +474,9 @@ public class CCollUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 10.3
+     */
     @Test
     public void collectionType() {
 

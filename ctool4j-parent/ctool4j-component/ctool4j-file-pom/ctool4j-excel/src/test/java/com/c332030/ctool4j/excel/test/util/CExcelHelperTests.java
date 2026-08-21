@@ -18,6 +18,11 @@ import java.util.List;
  * Description: CExcelHelperTests
  * </p>
  *
+ * <p>
+ * 是 {@link CExcelHelper} 的测试用例（对应测试文档
+ * <code>doc/design/excel/CExcelHelperTests.adoc</code>）。
+ * </p>
+ *
  * @author c332030
  * @since 2026/8/14
  */
@@ -36,7 +41,9 @@ class CExcelHelperTests {
 
     /**
      * 正常路径：doWrite 写入临时文件后 doRead 可读回数据（往返一致）
-     */
+ * <p>
+ * 对应测试用例 1.1
+ */
     @Test
     void doWriteThenDoRead_roundTrip() throws Exception {
         List<CExcelTestBean> beans = Arrays.asList(
@@ -68,7 +75,9 @@ class CExcelHelperTests {
 
     /**
      * 正常路径：中文与超长字符串往返一致
-     */
+ * <p>
+ * 对应测试用例 1.2
+ */
     @Test
     void doWriteThenDoRead_chineseAndLongValue() throws Exception {
         String longValue = repeat("x", 30000);
@@ -87,7 +96,9 @@ class CExcelHelperTests {
 
     /**
      * 边界：null 元素被过滤
-     */
+ * <p>
+ * 对应测试用例 2.1
+ */
     @Test
     void doWrite_nullFiltered() throws Exception {
         File file = new File(tempDir, "null.xlsx");
@@ -102,7 +113,9 @@ class CExcelHelperTests {
 
     /**
      * 边界：空 list 不写入任何内容（文件存在但无数据）
-     */
+ * <p>
+ * 对应测试用例 2.2
+ */
     @Test
     void doWrite_emptyList() throws Exception {
         File file = new File(tempDir, "empty.xlsx");
@@ -115,7 +128,9 @@ class CExcelHelperTests {
 
     /**
      * 异常路径：读取不存在的文件抛出异常
-     */
+ * <p>
+ * 对应测试用例 3.1
+ */
     @Test
     void doRead_nonExistentFileThrows() {
         File file = new File(tempDir, "not-exist.xlsx");
@@ -127,7 +142,9 @@ class CExcelHelperTests {
     /**
      * 异常路径：null 输出流抛出异常
      * <p>easyexcel 将写流阶段的 NPE（cause 为 null 输出流触发）包装为 ExcelGenerateException，按实际抛出类型断言</p>
-     */
+ * <p>
+ * 对应测试用例 3.2
+ */
     @Test
     void doWrite_nullOutputStreamThrows() {
         CExcelHelper helper = CExcelHelper.builder();

@@ -16,6 +16,9 @@ import java.util.function.BiPredicate;
  */
 public class CBiPredicateTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void testNormal() {
 
@@ -26,6 +29,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void testNullInputs() {
 
@@ -35,6 +41,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void testSneakyThrowsCheckedException() {
 
@@ -49,6 +58,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void alwaysTrue() {
 
@@ -59,6 +71,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void alwaysFalse() {
 
@@ -69,6 +84,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticTestNullPredicate() {
 
@@ -76,6 +94,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void staticTestNormal() {
 
@@ -86,6 +107,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convert() {
 
@@ -98,6 +122,9 @@ public class CBiPredicateTests {
 
     }
 
+    /**
+     * 对应测试用例 2.6
+     */
     @Test
     public void convertNullCBiPredicate() {
 

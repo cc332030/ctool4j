@@ -17,6 +17,8 @@ import java.util.Date;
  * 由使用方决定，多版本兼容），javac 的"未知枚举常量"警告已知且接受</p>
  *
  * @since 2025/5/26
+ * @see doc/design/core/CUpdateTime.adoc
+ * @see doc/design/core/CUpdateTimeTests.adoc
  */
 @Data
 @SuperBuilder

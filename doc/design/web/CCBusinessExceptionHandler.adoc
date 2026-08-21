@@ -1,0 +1,42 @@
+= CCBusinessExceptionHandler 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.exception.handler.CCBusinessExceptionHandler
+状态：已落地
+适用范围：`@RestControllerAdvice` 业务异常处理器，统一处理 `CBusinessException`
+
+== 1. 功能说明
+
+`CCBusinessExceptionHandler` 标注 `@RestControllerAdvice`，通过 `@ExceptionHandler(CBusinessException.class)` 处理业务异常：
+
+- 通过 `@ConditionalOnMissingExceptionHandler(CBusinessException.class)` 控制：容器存在其他同类型处理器时本处理器不生效。
+- 返回 `CStrResult<Void>` 错误结果（`CStrResult.error(...)`）。
+- 记录请求 URI 与异常堆栈（log），保证问题可追溯。
+
+== 2. 设计要点
+
+- 用 `CRequestUtils.getRequestURIDefaultNull()` 记录请求 URI 用于日志。
+- 返回 `CStrResult<Void>` 错误结果（`CStrResult.error(...)`）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 容器已存在同类型处理器 | @ConditionalOnMissingExceptionHandler 使本处理器不生效 |
+| 异常对象为 null | 记录日志并返回错误结果 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- Web 应用统一业务异常的响应格式。
+
+== 5. 已知限制与取舍
+
+- 依赖 `CStrResult` 响应结构，与项目统一响应格式耦合。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

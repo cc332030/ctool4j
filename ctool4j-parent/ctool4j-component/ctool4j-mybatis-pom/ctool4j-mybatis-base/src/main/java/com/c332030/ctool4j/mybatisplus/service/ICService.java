@@ -31,6 +31,7 @@ import java.util.Set;
  * </p>
  *
  * @since 2025/11/27
+ * @see doc/design/mybatisplus/ICService.adoc
  */
 public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
 

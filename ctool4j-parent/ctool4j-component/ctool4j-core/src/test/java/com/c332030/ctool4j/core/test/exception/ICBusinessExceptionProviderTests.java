@@ -18,6 +18,9 @@ import org.junit.jupiter.api.Test;
  */
 public class ICBusinessExceptionProviderTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void defaultGetMessageExceptionFunction_throws() {
 
@@ -29,6 +32,9 @@ public class ICBusinessExceptionProviderTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getExceptionFunction_delegates() {
 
@@ -48,6 +54,9 @@ public class ICBusinessExceptionProviderTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void getExceptionFunction_nullRes() {
 

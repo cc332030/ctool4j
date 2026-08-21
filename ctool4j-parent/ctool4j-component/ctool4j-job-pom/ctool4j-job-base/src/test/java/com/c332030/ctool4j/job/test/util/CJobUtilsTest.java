@@ -21,6 +21,7 @@ public class CJobUtilsTest {
 
     /**
      * 测试按天划分任务执行时间
+     * 对应测试用例 1.2（合法 param，days=3，startTime 相应前移）
      */
     @Test
     public void dayJobTime() {

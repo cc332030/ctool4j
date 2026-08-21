@@ -25,6 +25,7 @@ import java.util.Objects;
  * </p>
  *
  * @since 2026/1/9
+ * @see doc/design/web/CCorsUtils.adoc
  */
 @CustomLog
 @UtilityClass

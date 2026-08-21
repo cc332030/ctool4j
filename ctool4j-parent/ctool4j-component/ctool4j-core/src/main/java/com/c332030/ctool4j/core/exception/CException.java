@@ -8,6 +8,8 @@ import lombok.experimental.StandardException;
  * </p>
  *
  * @since 2025/10/27
+ * @see doc/design/core/CException.adoc
+ * @see doc/design/core/CExceptionTests.adoc
  */
 @StandardException
 public class CException extends RuntimeException{

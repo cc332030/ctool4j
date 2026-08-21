@@ -1,0 +1,65 @@
+= CSpiUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CSpiUtils
+状态：已落地
+适用范围：SPI 服务加载（获取全部实现、首实现、自定义实现优先）
+
+== 1. 功能说明
+
+`CSpiUtils` 为 SPI 加载工具类，基于 JDK `ServiceLoader` 提供：
+
+- `getImpls(Class)`：获取接口所有实现（按 ServiceLoader 顺序）
+- `getFirstImpl(Class)`：获取第一个实现（无实现抛 IllegalStateException）
+- `getFirstCustomImplOrDefault(Class, Class defaultImpl)`：取第一个非默认实现，否则返回默认实现
+- `getImplsSorted(Class, Comparator)` / `getImplsSorted(Class)`：获取实现并排序
+
+== 2. 设计要点
+
+=== 2.1 加载与空处理
+
+- `getImpls` 基于 `ServiceLoader.load(clazz)` 遍历收集为 List。
+- `getFirstImpl`：实现为空时抛 `IllegalStateException("No impl for ...")`，避免返回 null。
+
+=== 2.2 自定义实现优先
+
+- `getFirstCustomImplOrDefault`：遍历实现，`defaultImpl.isInstance(provider)` 时记为默认实现，
+  遇到第一个非默认实现记为自定义实现并中断；最后 `ObjUtil.defaultIfNull(custom, default)`——
+  有自定义返回自定义，否则返回默认实现。
+
+=== 2.3 排序
+
+- `getImplsSorted(clazz, comparator)` 在 `getImpls` 结果上 `sort(comparator)`。
+- `getImplsSorted(clazz)`（元素 Comparable）按 `Comparable::compareTo` 自然序排序。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| getFirstImpl 无实现 | 抛 IllegalStateException |
+| getFirstCustomImplOrDefault 无自定义实现 | 返回默认实现 |
+| getFirstCustomImplOrDefault 无任何实现 | 返回 null（defaultProvider 也为 null） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 通过 SPI 机制加载可插拔实现，支持默认实现回退与自定义优先。
+
+=== 4.2 不适用/边界场景
+
+- 依赖 `META-INF/services` 配置；无配置时 getImpls 返回空。
+- getFirstCustomImplOrDefault 无任何实现时返回 null，调用方需注意判空。
+
+== 5. 已知限制与取舍
+
+- getFirstImpl 无实现抛异常（而非返回 null），保证调用方明确感知加载失败。
+- 自定义优先策略简单：第一个非默认实现即命中，多自定义实现时取顺序首个。
+
+测试内容见 `doc/design/core/CSpiUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,64 @@
+= CLogLevelListener 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-log
+类：com.c332030.ctool4j.logback.listener.CLogLevelListener
+状态：已落地
+适用范围：监听环境变更事件并更新 logback 日志级别
+
+== 1. 功能说明
+
+`CLogLevelListener` 监听 Spring Cloud `EnvironmentChangeEvent`，当 `logging.level.*` 相关配置变更时，更新对应类的 logback 日志级别。
+
+- `onEvent(EnvironmentChangeEvent)`：过滤 `logging.level` 前缀的 key，逐个调用 `updateLogLevel`。
+- `updateLogLevel(String)`：解析配置键对应的类名与级别值，更新 logback logger 级别。
+
+== 2. 设计要点
+
+=== 2.1 onEvent
+
+- 过滤 `event.getKeys()` 中前缀为 `CLogUtils.LOGGING_LEVEL` 的 key。
+- 无匹配 key 时仅记 debug 日志返回。
+
+=== 2.2 updateLogLevel
+
+- 类名取 key 去掉 `LOGGING_LEVEL_PREFIX` 前缀后的部分。
+- 类名或级别值为空时直接返回。
+- 通过 `LoggerFactory.getLogger(className)` 获取 logger，若为 logback `ch.qos.logback.classic.Logger` 则更新级别。
+- 方法标注 `@CLogAndIgnoreThrowable`，异常记录后忽略，不影响主流程。
+
+=== 2.3 级别更新
+
+- `Level.toLevel(levelStrNew)` 解析字符串级别并 `logger.setLevel(...)`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 无匹配 key | 记 debug 日志返回 |
+| className 为空 | 直接返回 |
+| level 配置为空 | 直接返回 |
+| logger 非 logback Logger | 跳过不更新 |
+| 更新过程抛异常 | `@CLogAndIgnoreThrowable` 记录并忽略 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 运行时通过配置中心（Nacos 等）动态调整日志级别。
+
+=== 4.2 不适用/边界场景
+
+- 仅处理 logback 实现；非 logback 的 logger 不更新。
+
+== 5. 已知限制与取舍
+
+- 依赖 Spring Cloud 环境变更事件，脱离该事件源需手动调用 `updateLogLevel`。
+- 异常静默忽略（仅记录），可能导致级别未按预期更新而不易察觉。
+
+测试内容见 `doc/design/log/CLogLevelListenerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

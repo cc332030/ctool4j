@@ -18,6 +18,9 @@ import java.util.Date;
  */
 public class CJacksonUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void mappersNotNull() {
 
@@ -28,6 +31,9 @@ public class CJacksonUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void longToJsonString() throws Exception {
 
@@ -36,6 +42,9 @@ public class CJacksonUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void dateToFormattedString() throws Exception {
 
@@ -45,6 +54,9 @@ public class CJacksonUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void nonNullOmitsNull() throws Exception {
 
@@ -62,6 +74,9 @@ public class CJacksonUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void snakeCase() throws Exception {
 
@@ -70,6 +85,9 @@ public class CJacksonUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void json5UnquotedAndSingleQuotes() throws Exception {
 

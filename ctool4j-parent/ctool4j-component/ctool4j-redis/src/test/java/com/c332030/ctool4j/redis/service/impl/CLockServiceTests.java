@@ -22,6 +22,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * 正常路径（加锁成功执行并解锁）与异常路径（加锁失败走 onLockFail、不执行业务）。
  * </p>
  *
+ * <p>
+ * 是 {@link CLockService} 的测试用例（对应测试文档
+ * <code>doc/design/redis/CLockServiceTests.adoc</code>）。
+ * </p>
+ *
  * @since 2026/8/16
  */
 class CLockServiceTests {
@@ -41,6 +46,7 @@ class CLockServiceTests {
     /**
      * 正常路径：lock(format, args) 按 StrUtil.format 生成锁 key，执行时按该 key 加锁
      */
+    /** 对应测试用例 1.1 */
     @Test
     void lock_formattedKey() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
@@ -53,6 +59,7 @@ class CLockServiceTests {
     /**
      * 正常路径：加锁成功后执行业务并解锁
      */
+    /** 对应测试用例 2.1 */
     @Test
     void execute_lockSuccess_runsAndUnlocks() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -68,6 +75,7 @@ class CLockServiceTests {
     /**
      * 异常路径：加锁失败时不执行业务，且执行 onLockFail 回调
      */
+    /** 对应测试用例 2.2 */
     @Test
     void execute_lockFail_invokesOnLockFail() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
@@ -86,6 +94,7 @@ class CLockServiceTests {
     /**
      * 正常路径：execute(Supplier) 加锁成功后返回业务返回值并解锁
      */
+    /** 对应测试用例 2.3 */
     @Test
     void execute_supplier_returnsValue() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -100,6 +109,7 @@ class CLockServiceTests {
     /**
      * 异常路径：execute(Supplier) 加锁失败返回 null，不执行业务
      */
+    /** 对应测试用例 2.4 */
     @Test
     void execute_supplier_lockFail_returnsNull() throws InterruptedException {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
@@ -117,6 +127,7 @@ class CLockServiceTests {
     /**
      * 正常路径：tryLock(RLock, Duration) 带毫秒精度的时长转为毫秒加锁
      */
+    /** 对应测试用例 3.1 */
     @Test
     void tryLock_duration_millis() throws InterruptedException {
         Duration wait = Duration.ofMillis(1500).plusNanos(1);
@@ -131,6 +142,7 @@ class CLockServiceTests {
     /**
      * 正常路径：tryLock(RLock, Duration) 秒级时长转为秒加锁
      */
+    /** 对应测试用例 3.2 */
     @Test
     void tryLock_duration_seconds() throws InterruptedException {
         Mockito.when(lock.tryLock(3L, TimeUnit.SECONDS)).thenReturn(true);
@@ -144,6 +156,7 @@ class CLockServiceTests {
     /**
      * 异常路径：tryLock(RLock, Duration) 传入 null 抛 NullPointerException
      */
+    /** 对应测试用例 3.3 */
     @Test
     void tryLock_duration_null_throws() {
         Assertions.assertThrowsExactly(NullPointerException.class,

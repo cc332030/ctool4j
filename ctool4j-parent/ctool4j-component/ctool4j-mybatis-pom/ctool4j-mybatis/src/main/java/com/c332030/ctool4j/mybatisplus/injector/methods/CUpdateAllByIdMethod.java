@@ -11,6 +11,7 @@ import com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils;
  * </p>
  *
  * @since 2026/1/6
+ * @see doc/design/mybatisplus/CUpdateAllByIdMethod.adoc
  */
 public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements ICMpMethod {
 

@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
  */
 public class CPatternUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getCache() {
 
@@ -25,6 +28,9 @@ public class CPatternUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getCacheCached() {
 
@@ -34,6 +40,9 @@ public class CPatternUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getCacheWithCustom() {
 
@@ -43,6 +52,9 @@ public class CPatternUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getUrlCacheDoubleStar() {
 
@@ -54,6 +66,9 @@ public class CPatternUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void getUrlCacheSingleStar() {
 
@@ -64,6 +79,9 @@ public class CPatternUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void getUrlCacheEscapesDot() {
 

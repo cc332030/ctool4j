@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
  * 日志打印链路统一生效（toLogArgs 参数打印等）；全局 ObjectMapper 不注册，业务序列化输出真实内容</p>
  *
  * @since 2026/8/16
+ * @see doc/design/core/CLogSensitiveSerializerModifier.adoc
+ * @see doc/design/core/CLogSensitiveSerializerModifierTests.adoc
  */
 public class CLogSensitiveSerializerModifier extends CLogFieldSerializerModifier<CLogSensitive> {
 

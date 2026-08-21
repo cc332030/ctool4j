@@ -1,0 +1,67 @@
+= CValidateUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.validation.CValidateUtils`（core 校验类，@Deprecated）——值空值判断（isNull/isEmpty/isBlank 系列）。
+
+对应测试类：`com.c332030.ctool4j.core.test.validation.CValidateUtilsTests`
+
+对应设计文档：`doc/design/core/CValidateUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CValidateUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「null / 字符串 / 可迭代集合 / Map / 数组」多个类型维度组织，每类覆盖 isEmpty 与 isNotEmpty 正反分支。
+- null 覆盖 isNull/isNotNull；字符串覆盖 empty/notEmpty/blank/notBlank；集合/Map/数组覆盖 empty/notEmpty。
+
+=== 设计依据
+
+- 依据功能设计对各类型空值判断（isEmpty/isBlank）的约定。
+- 依据测试方法（等价类/边界值）：null/空/非空、空串/空白。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：isNull/isNotNull；字符串 empty/notEmpty/blank/notBlank；可迭代 isEmpty/isNotEmpty；
+  集合 isEmpty/isNotEmpty；Map isEmpty/isNotEmpty；byte/short/char/int/long/Object 数组 isEmpty/isNotEmpty。
+- 未覆盖：float/double/boolean 数组（本类未提供对应重载，属设计边界）。
+
+== 1. null 判断
+
+- 1.1 isNull：null 为 true、非 null 为 false（isNull）
+- 1.2 isNotNull：非 null 为 true、null 为 false（isNotNull）
+
+== 2. 字符串
+
+- 2.1 isEmpty：null/空串为 true、非空为 false（isEmptyCharSequence）
+- 2.2 isNotEmpty：null/空串为 false、非空为 true（isNotEmptyCharSequence）
+- 2.3 isBlank：null/空串/纯空白为 true、非空白为 false（isBlank）
+- 2.4 isNotBlank：null/纯空白为 false、非空白为 true（isNotBlank）
+
+== 3. 可迭代与集合
+
+- 3.1 isEmpty 集合：null/空为 true、非空为 false（isEmptyCollection）
+- 3.2 isNotEmpty 集合：null 为 false、非空为 true（isNotEmptyCollection）
+- 3.3 isEmpty 可迭代：null/空为 true、非空为 false（isEmptyIterable）
+- 3.4 isNotEmpty 可迭代：null 为 false、非空为 true（isNotEmptyIterable）
+
+== 4. Map
+
+- 4.1 isEmpty：null/空为 true、非空为 false（isEmptyMap）
+- 4.2 isNotEmpty：null 为 false、非空为 true（isNotEmptyMap）
+
+== 5. 数组
+
+- 5.1 byte：isEmpty/isNotEmpty（isEmptyByteArray / isNotEmptyByteArray）
+- 5.2 short：isEmpty/isNotEmpty（isEmptyShortArray / isNotEmptyShortArray）
+- 5.3 char：isEmpty/isNotEmpty（isEmptyCharArray / isNotEmptyCharArray）
+- 5.4 int：isEmpty/isNotEmpty（isEmptyIntArray / isNotEmptyIntArray）
+- 5.5 long：isEmpty/isNotEmpty（isEmptyLongArray / isNotEmptyLongArray）
+- 5.6 Object：isEmpty/isNotEmpty（isEmptyObjectArray / isNotEmptyObjectArray）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

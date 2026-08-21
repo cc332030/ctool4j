@@ -1,0 +1,44 @@
+= CRefBiClassValue 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.cache.impl.CRefBiClassValue`（core 缓存类）——可设置的双类缓存值。
+
+对应测试类：`com.c332030.ctool4j.core.test.cache.impl.CRefBiClassValueTests`
+
+对应设计文档：`doc/design/core/CRefBiClassValue.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CRefBiClassValue 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「初始值 / 设置取值 / 组合独立」三个维度组织。
+- 初始值验证 of 计算；设置取值验证 set 覆盖 get；组合独立验证不同组合互不影响。
+
+=== 设计依据
+
+- 依据功能设计对双类组合初始计算与 set 覆盖的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：初始值；set 后 get 返回覆盖值；不同组合独立。
+- 未覆盖：无（覆盖了核心语义）。
+
+== 1. 初始值
+
+- 1.1 getInitial：of 计算双类组合初始值（getInitial）
+
+== 2. 设置与取值
+
+- 2.1 setAndGet：set 覆盖后 get 返回覆盖值（setAndGet）
+
+== 3. 组合独立
+
+- 3.1 independentByPair：不同组合缓存互不影响（independentByPair）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

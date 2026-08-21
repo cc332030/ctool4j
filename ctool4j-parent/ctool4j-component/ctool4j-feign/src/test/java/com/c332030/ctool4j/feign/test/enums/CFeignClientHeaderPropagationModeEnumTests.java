@@ -9,10 +9,14 @@ import org.junit.jupiter.api.Test;
  *
  * 覆盖：getText / values / valueOf 正常路径与异常路径
  *
+ * <p>是 {@link CFeignClientHeaderPropagationModeEnum} 的测试用例（对应测试文档
+ * <code>doc/design/feign/CFeignClientHeaderPropagationModeEnumTests.adoc</code>）。</p>
+ *
  * @author c332030
  */
 class CFeignClientHeaderPropagationModeEnumTests {
 
+    /** 对应测试用例 1.1 */
     @Test
     void testGetText() {
 
@@ -21,18 +25,21 @@ class CFeignClientHeaderPropagationModeEnumTests {
         Assertions.assertEquals("无", CFeignClientHeaderPropagationModeEnum.NONE.getText());
     }
 
+    /** 对应测试用例 1.2 */
     @Test
     void testValues() {
 
         Assertions.assertEquals(3, CFeignClientHeaderPropagationModeEnum.values().length);
     }
 
+    /** 对应测试用例 1.3 */
     @Test
     void testValueOf() {
 
         Assertions.assertSame(CFeignClientHeaderPropagationModeEnum.ALL, CFeignClientHeaderPropagationModeEnum.valueOf("ALL"));
     }
 
+    /** 对应测试用例 1.4 */
     @Test
     void testValueOfNotExist() {
 

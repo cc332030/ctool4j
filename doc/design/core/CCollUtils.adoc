@@ -1,0 +1,91 @@
+= CCollUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CCollUtils
+状态：已落地
+适用范围：集合操作（空兜底/遍历/分组/添加/拼接/过滤/转换/新建/取元素/最值/转 Map 等）
+
+== 1. 功能说明
+
+`CCollUtils` 为集合工具类，提供丰富的集合操作：
+
+- 空兜底：`defaultEmpty`、`size`
+- 遍历/分组：`forEach`、`groupingBy`
+- 添加/拼接：`addIgnoreNull`/`addIgnoreEmpty`/`addIgnoreBlank`、`addAllIgnoreNull`、`concat`、`concatOne`
+- 过滤：`filter`（Collection/List/Set × predicate/convert）/`filterNull`/`filterString`/`filterKey`/`filterStringKey`
+- 转换：`convert`（多版本）/`convertSet`/`convertToList`/`convertToSet`/`convertToCollection`/`convertString`/`convertCollection`
+- 新建：`newList`/`newSet`/`newLinkedSet`/`newMap`/`newLinkedMap`
+- 元素：`contains`/`containsAny`/`get`/`first`/`last`/`onlyOne`/`getValues`
+- 最值：`min`/`max`（按字段取值）
+- 其他：`stream`、`toMap`（多版本）
+
+== 2. 设计要点
+
+=== 2.1 空值语义
+
+- 多数方法对 null/空集合返回空结果（空集合/空 Map/空流/null），不抛异常。
+- `defaultEmpty`：null/空集合返回空集合（非 null）；非空返回原引用。
+
+=== 2.2 过滤语义
+
+- `filter`：按 predicate 过滤；null 元素参与 predicate 判断。
+- `filterNull`/`filterString`：过滤 null 元素 / 过滤空、空白、null 字符串。
+- `filterKey`/`filterStringKey`：按 key（字段取值）过滤，key 为 null 的元素被过滤。
+
+=== 2.3 转换语义
+
+- `convert`：元素转换；转换结果为 null 的元素被过滤；可选 predicate 过滤。
+- 空集合返回供应商提供的新集合；null 对象返回空集合。
+- `convertString`：转换后为空白/null 的元素被过滤。
+
+=== 2.4 集合新建
+
+- `newList(0)` 等 size=0 返回不可变空集合；size>0 返回可变集合（size 为初始容量）。
+
+=== 2.5 元素获取
+
+- `get`：List 索引取元素，越界/负索引/null 返回 null。
+- `first`/`last`：空/null 返回 null；last 对非 List 走 reduce。
+- `onlyOne`：空返回 null、单个返回、多个抛业务异常。
+
+=== 2.6 最值与转 Map
+
+- `min`/`max`：按字段取值，null 集合/空/全 null 返回 null，过滤 convert 结果 null 元素。
+- `toMap`：key-value 映射；value 为 null 的条目跳过；无 merge 冲突抛 IllegalStateException；
+  Pair 版本；返回不可变 Map。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| defaultEmpty null/空集合 | 返回空集合（非 null） |
+| filter/concat 等空/null 入参 | 返回空结果，不抛异常 |
+| get 越界/负索引/null | 返回 null |
+| first/last 空/null | 返回 null |
+| onlyOne 空/单元素/多元素 | null / 元素 / 抛业务异常 |
+| min/max 空/null/全 null | 返回 null |
+| toMap value 为 null / key 冲突无 merge | 跳过 / 抛 IllegalStateException |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 集合的过滤、转换、拼接、分组、取元素、最值、转 Map 等通用操作。
+
+=== 4.2 不适用/边界场景
+
+- filter/convert 依赖转换函数，转换结果为 null 的元素被丢弃。
+- toMap key 冲突无 merge 时抛异常，需显式提供 mergeFunction。
+
+== 5. 已知限制与取舍
+
+- null/空入参统一返回空结果（而非抛异常），简化调用方判空。
+- 过滤/转换丢弃 null 结果，换取结果集无 null 的安全语义。
+
+测试内容见 `doc/design/core/CCollUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

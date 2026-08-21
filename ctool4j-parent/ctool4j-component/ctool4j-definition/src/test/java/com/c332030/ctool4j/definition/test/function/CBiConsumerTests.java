@@ -16,6 +16,9 @@ import java.util.function.BiConsumer;
  */
 public class CBiConsumerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void acceptNormal() {
 
@@ -29,6 +32,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void acceptNullInputs() {
 
@@ -42,6 +48,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void acceptSneakyThrowsCheckedException() {
 
@@ -56,6 +65,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void empty() {
 
@@ -65,6 +77,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void staticAcceptNullConsumer() {
 
@@ -72,6 +87,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticAcceptNormal() {
 
@@ -85,6 +103,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void convert() {
 
@@ -100,6 +121,9 @@ public class CBiConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convertNullCBiConsumer() {
 

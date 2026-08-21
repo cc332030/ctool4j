@@ -21,6 +21,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2026/7/15
+ * @see doc/design/spring/CFileUtils.adoc
+ * @see doc/design/spring/CFileUtilsTests.adoc
  */
 @UtilityClass
 public class CFileUtils {

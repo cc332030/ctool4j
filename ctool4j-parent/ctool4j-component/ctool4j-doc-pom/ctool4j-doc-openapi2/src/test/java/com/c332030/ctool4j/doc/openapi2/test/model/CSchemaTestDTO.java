@@ -11,7 +11,8 @@ import lombok.Setter;
  * </p>
  *
  * @author c332030
- */
+ * @see doc/design/openapi2/CSchemaTestDTO.adoc
+*/
 @Getter
 @Setter
 public class CSchemaTestDTO {

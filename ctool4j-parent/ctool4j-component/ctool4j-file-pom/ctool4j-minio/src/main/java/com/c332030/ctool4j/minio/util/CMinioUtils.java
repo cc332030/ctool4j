@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
  * Description: CMinioUtils
  * </p>
  *
+ * @see doc/design/minio/CMinioUtils.adoc
  * @since 2026/7/15
  */
 @UtilityClass

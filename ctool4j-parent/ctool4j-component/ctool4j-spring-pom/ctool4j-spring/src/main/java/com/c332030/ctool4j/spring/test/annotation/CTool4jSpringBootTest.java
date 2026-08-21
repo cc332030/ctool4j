@@ -22,6 +22,7 @@ import java.lang.annotation.*;
  * </p>
  *
  * @since 2025/12/28
+ * @see doc/design/spring/CTool4jSpringBootTest.adoc
  */
 @Documented
 @Inherited

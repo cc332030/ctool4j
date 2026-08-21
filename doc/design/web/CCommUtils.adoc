@@ -1,5 +1,7 @@
 = CCommUtils 设计文档
 
+Version: 1.0
+LastModified: 2026-08-21
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.util.CCommUtils
 状态：已落地
@@ -27,3 +29,7 @@ rt: 100ms             耗时
 - 状态行未知状态码（不在 HttpStatus 枚举）仅输出数字、不输出描述
 
 测试内容见 `doc/design/web/CCommUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

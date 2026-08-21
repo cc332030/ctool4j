@@ -1,0 +1,39 @@
+= CCacheUtils 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.cache.util.CCacheUtils`（cache 模块）——缓存构建器静态入口。
+
+对应测试类：`com.c332030.ctool4j.cache.util.CCacheUtilsTests`
+
+对应设计文档：`doc/design/cache/CCacheUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CCacheUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证静态入口在 `cacheService` 注入前（null）调用 `cacheBuilder` 抛 NPE（未注入兜底）；
+  注入后正确转发到 `CCacheService.cacheBuilder` 返回构建器。
+- 使用 Mockito mock `CLockService`/`CStringStringRedisService` 构造真实 `CCacheService`。
+- 测试前后 setCacheService(null) 清空静态字段，避免依赖测试执行顺序。
+
+=== 设计依据
+
+- 依据功能设计对 `cacheService` 依赖注入与转发的约定。
+- 依据黑盒原则：覆盖"未注入抛异常"与"注入后正常转发"两条路径。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：未注入抛 NPE、注入后转发返回构建器。
+- 未覆盖：注入后构建器实际的读-算-写行为（由 `CCacheBuilderTests` 覆盖）。
+
+== 1. 静态入口转发
+
+- 1.1 未注入：`cacheBuilder` 抛 `NullPointerException`（cacheBuilder_notSet_throwsNullPointerException）
+- 1.2 已注入：转发到 `CCacheService.cacheBuilder` 返回非空构建器（cacheBuilder_set_delegatesToCacheService）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

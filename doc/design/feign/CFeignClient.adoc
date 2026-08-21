@@ -1,0 +1,53 @@
+= CFeignClient 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-feign
+类：com.c332030.ctool4j.feign.client.CFeignClient
+状态：已落地
+适用范围：带响应日志的 Feign 客户端包装
+
+== 1. 功能说明
+
+`CFeignClient` 实现 feign `Client`，包装默认客户端。开启日志时记录响应日志并重新缓冲响应体，
+否则透传默认客户端执行。
+
+- `execute(request, options)`：执行请求；日志开启时读取响应体、记录响应日志，再重建响应体返回。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- `feignLogConfig.enable` 为 false 时直接透传默认客户端，不产生日志开销。
+- 日志开启时：读响应头 + 响应体字节，拼接到线程局部 HTTP 日志，并 log.info 输出。
+- 响应体已读取，需重建 `Response` 返回（body 重新包装），避免下游拿不到响应体。
+
+=== 2.2 实现方式
+
+- 基于 `feign.Util.toByteArray` 读响应流；`CCommUtils` 拼 header/判断文本 body。
+- 用 try-with-resources 关闭响应，重建 Response 返回。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 日志处理异常 | 记录 error 日志，不中断（响应已重建返回） |
+| 无响应体 | 日志输出 `[no response body]` |
+| 非文本 body | 日志输出 `[no response text body]` |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+- 需要记录 Feign 响应日志（含响应头/体）的客户端包装。
+
+=== 4.2 不适用/边界场景
+- 日志关闭时零开销透传；响应体过大时日志会占用内存。
+
+== 5. 已知限制与取舍
+
+- 读响应体到内存用于日志，大响应体有内存开销。
+- 重建 Response 未保留 protocolVersion（低版本兼容）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

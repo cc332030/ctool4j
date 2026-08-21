@@ -15,6 +15,9 @@ import java.math.BigDecimal;
  */
 public class CAmountUtilsTests {
 
+    /**
+     * 对应测试用例 1.1 / 1.2 / 1.3 / 1.4
+     */
     @Test
     public void toYuanByInteger() {
 
@@ -26,6 +29,9 @@ public class CAmountUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1 / 2.2 / 2.3
+     */
     @Test
     public void toYuanByLong() {
 
@@ -35,6 +41,9 @@ public class CAmountUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1 / 3.2 / 3.3
+     */
     @Test
     public void toYuanByBigDecimal() {
 

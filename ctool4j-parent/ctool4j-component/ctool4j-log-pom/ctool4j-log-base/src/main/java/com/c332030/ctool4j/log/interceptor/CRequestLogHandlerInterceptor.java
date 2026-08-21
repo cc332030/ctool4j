@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * Description: CRequestLogHandlerInterceptor
  * </p>
  *
+ * @see doc/design/log/CRequestLogHandlerInterceptor.adoc
  * @since 2025/9/28
  */
 @CustomLog

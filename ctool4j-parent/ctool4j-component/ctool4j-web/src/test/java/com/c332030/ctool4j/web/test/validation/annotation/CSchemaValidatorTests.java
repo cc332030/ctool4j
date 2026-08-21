@@ -1,28 +1,34 @@
 package com.c332030.ctool4j.web.test.validation.annotation;
 
+import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
 import com.c332030.ctool4j.web.validation.annotation.CSchema;
 import lombok.Getter;
 import lombok.Setter;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Payload;
-import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * <p>
- * Description: CSchemaValidator 按类型自动校验逻辑测试（经 hibernate Validator 完整校验，
- * 验证 required/message 等属性生效）
+ * Description: CSchemaValidator 按类型自动校验逻辑测试：启动 Spring 容器（@CTool4jSpringBootTest），
+ * 经容器注入的真实 {@link Validator} 完整校验（验证 required/message 等属性生效），并通过 MockMvc
+ * 走真实接口（@Valid @RequestBody）验证必填/非必填生效，贴近真实使用场景
  * </p>
  *
  * <p>
@@ -31,26 +37,20 @@ import java.util.Set;
  * </p>
  *
  * @author c332030
+ * @see doc/design/web/CSchemaValidatorTests.adoc
  */
+@AutoConfigureMockMvc
+@CTool4jSpringBootTest
 public class CSchemaValidatorTests {
 
-    private static ValidatorFactory validatorFactory;
+    @Autowired
+    private Validator validator;
 
-    private static Validator validator;
-
-    @BeforeAll
-    public static void init() {
-        validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
-    }
-
-    @AfterAll
-    public static void close() {
-        validatorFactory.close();
-    }
+    @Autowired
+    private MockMvc mockMvc;
 
     /**
-     * 必填字符串：缺失（null）→ 校验失败，返回默认 message
+     * 必填字符串：缺失（null）→ 校验失败，返回默认 message（对应测试用例 1.1）
      */
     @Test
     public void validate_stringRequired() {
@@ -62,7 +62,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 必填字符串：空白 → 校验失败（notBlank）
+     * 必填字符串：空白 → 校验失败（notBlank）（对应测试用例 1.2）
      */
     @Test
     public void validate_stringBlank() {
@@ -72,7 +72,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 必填字符串：非空 → 通过
+     * 必填字符串：非空 → 通过（对应测试用例 1.3）
      */
     @Test
     public void validate_stringValid() {
@@ -82,7 +82,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 自定义 message：校验失败时使用注解声明的 message
+     * 自定义 message：校验失败时使用注解声明的 message（对应测试用例 1.4）
      */
     @Test
     public void validate_customMessage() {
@@ -95,7 +95,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 非必填字段：null/空白均通过
+     * 非必填字段：null/空白均通过（对应测试用例 1.5）
      */
     @Test
     public void validate_notRequired() {
@@ -106,7 +106,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 集合必填：空集合校验失败、非空通过
+     * 集合必填：空集合校验失败、非空通过（对应测试用例 1.6）
      */
     @Test
     public void validate_collection() {
@@ -120,7 +120,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * Map 必填：空 Map 校验失败、非空通过
+     * Map 必填：空 Map 校验失败、非空通过（对应测试用例 1.7）
      */
     @Test
     public void validate_map() {
@@ -134,7 +134,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 数组必填：空数组校验失败、非空通过
+     * 数组必填：空数组校验失败、非空通过（对应测试用例 1.8）
      */
     @Test
     public void validate_array() {
@@ -148,7 +148,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * 其他对象必填：null 校验失败、非 null 通过
+     * 其他对象必填：null 校验失败、非 null 通过（对应测试用例 1.9）
      */
     @Test
     public void validate_object() {
@@ -160,7 +160,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * groups 兼容：指定分组时才校验，默认组不校验
+     * groups 兼容：指定分组时才校验，默认组不校验（对应测试用例 1.10）
      */
     @Test
     public void validate_groups() {
@@ -176,7 +176,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * groups 兼容：提供值后，指定分组校验通过（正例）
+     * groups 兼容：提供值后，指定分组校验通过（正例）（对应测试用例 1.11）
      */
     @Test
     public void validate_groups_valid() {
@@ -188,7 +188,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * groups 兼容：其他分组（CreateGroup）校验时不触发 UpdateGroup 字段（反例，分组隔离）
+     * groups 兼容：其他分组（CreateGroup）校验时不触发 UpdateGroup 字段（反例，分组隔离）（对应测试用例 1.12）
      */
     @Test
     public void validate_groups_otherGroup() {
@@ -200,7 +200,7 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * payload 兼容：校验失败时 violation 携带自定义 payload（反例）
+     * payload 兼容：校验失败时 violation 携带自定义 payload（反例）（对应测试用例 1.13）
      */
     @Test
     public void validate_payload() {
@@ -212,13 +212,61 @@ public class CSchemaValidatorTests {
     }
 
     /**
-     * payload 兼容：提供值后校验通过，无 violation（正例）
+     * payload 兼容：提供值后校验通过，无 violation（正例）（对应测试用例 1.14）
      */
     @Test
     public void validate_payload_valid() {
         PayloadBean bean = new PayloadBean();
         bean.setCode("E100");
         Assertions.assertTrue(validator.validate(bean).isEmpty(), "payload 字段提供值应通过");
+    }
+
+    /**
+     * 接口必填生效：username 缺失 → 校验失败（HTTP 200 + body code=500，ctool4j 异常约定）（对应测试用例 2.1）
+     */
+    @Test
+    public void requiredField_missing() throws Exception {
+        mockMvc.perform(post("/c-schema-validator/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value("500"))
+            .andExpect(jsonPath("$.message").value("username 不能为空"));
+    }
+
+    /**
+     * 接口必填生效：username 空白 → 校验失败（notBlank，HTTP 200 + body code=500）（对应测试用例 2.2）
+     */
+    @Test
+    public void requiredField_blank() throws Exception {
+        mockMvc.perform(post("/c-schema-validator/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"   \"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value("500"))
+            .andExpect(jsonPath("$.message").value("username 不能为空"));
+    }
+
+    /**
+     * 接口非必填生效：username 必填提供，非必填字段（remark/other）缺失 → 200（对应测试用例 2.3）
+     */
+    @Test
+    public void optionalField_missing() throws Exception {
+        mockMvc.perform(post("/c-schema-validator/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"c332030\"}"))
+            .andExpect(status().isOk());
+    }
+
+    /**
+     * 接口正常：必填 + 非必填均提供 → 200（对应测试用例 2.4）
+     */
+    @Test
+    public void allFields_present() throws Exception {
+        mockMvc.perform(post("/c-schema-validator/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"c332030\",\"remark\":\"备注\",\"other\":\"x\"}"))
+            .andExpect(status().isOk());
     }
 
     /**

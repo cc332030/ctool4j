@@ -1,0 +1,55 @@
+= CAmountUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CAmountUtils`（core 工具类）——金额单位换算（分 → 元，四舍五入保留 2 位小数）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CAmountUtilsTests`
+
+对应设计文档：`doc/design/core/CAmountUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CAmountUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「入参形态」分三类（Integer / Long / BigDecimal），每类覆盖正例、边界（0、负数）与 null。
+- 正例覆盖典型值与小数结果：整数分（123 → 1.23）、长整型分（123456 → 1234.56）、
+  BigDecimal 分含小数（123.456 → 1.23，验证四舍五入）。
+- 边界覆盖 0（0 分 → 0.00）与负数（-123 → -1.23），null 统一断言返回 null。
+
+=== 设计依据
+
+- 依据功能设计对换算规则的约定（元 = 分 ÷ 100，四舍五入保留 2 位小数）。
+- 依据功能设计对 null 返回 null 的约定。
+- 依据测试方法（等价类/边界值）：典型值、0 边界、负数反例、null 异常输入、BigDecimal 小数四舍五入分支。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：三种入参形态的正例、0、负数、null；BigDecimal 小数四舍五入。
+- 未覆盖：元 → 分反向换算（本类不提供）；超 2 位小数的元金额精确运算（会四舍五入，见设计文档边界）。
+
+== 1. toYuan(Integer)
+
+- 1.1 正例：123 → 1.23、1 → 0.01（toYuanByInteger）
+- 1.2 边界：0 → 0.00（toYuanByInteger）
+- 1.3 反例：-123 → -1.23（toYuanByInteger）
+- 1.4 边界：null → null（toYuanByInteger）
+
+== 2. toYuan(Long)
+
+- 2.1 正例：123456L → 1234.56（toYuanByLong）
+- 2.2 边界：0L → 0.00（toYuanByLong）
+- 2.3 边界：null → null（toYuanByLong）
+
+== 3. toYuan(BigDecimal)
+
+- 3.1 正例：123 → 1.23（toYuanByBigDecimal）
+- 3.2 边界/分支：123.456 → 1.23，验证四舍五入保留 2 位小数（toYuanByBigDecimal）
+- 3.3 边界：null → null（toYuanByBigDecimal）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

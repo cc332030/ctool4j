@@ -44,6 +44,9 @@ public class CSchemaIntegrationTests {
     /**
      * 字段必填生效：@CSchema 约束被 Spring 的 LocalValidatorFactoryBean 识别（username 缺失产生校验错误）
      */
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void directValidator() {
         CSchemaTestDTO dto = new CSchemaTestDTO();
@@ -52,6 +55,9 @@ public class CSchemaIntegrationTests {
 
     /**
      * 必填字段生效：username 缺失 → 校验失败（HTTP 200 + body code=500）
+     */
+    /**
+     * 对应测试用例 1.2
      */
     @Test
     public void requiredField_missing() throws Exception {
@@ -66,6 +72,9 @@ public class CSchemaIntegrationTests {
     /**
      * 必填字段生效：username 空白 → 校验失败（notBlank，HTTP 200 + body code=500）
      */
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void requiredField_blank() throws Exception {
         mockMvc.perform(post("/c-schema/test")
@@ -78,6 +87,9 @@ public class CSchemaIntegrationTests {
 
     /**
      * 必填字段生效：username 空字符串 → 校验失败（notBlank 边界，HTTP 200 + body code=500）
+     */
+    /**
+     * 对应测试用例 1.4
      */
     @Test
     public void requiredField_empty() throws Exception {
@@ -92,6 +104,9 @@ public class CSchemaIntegrationTests {
     /**
      * 非必填字段生效：username 必填提供，非必填字段（remark/other）缺失 → 200
      */
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void optionalField_missing() throws Exception {
         mockMvc.perform(post("/c-schema/test")
@@ -102,6 +117,9 @@ public class CSchemaIntegrationTests {
 
     /**
      * 接口正常：必填 + 非必填均提供 → 200
+     */
+    /**
+     * 对应测试用例 1.6
      */
     @Test
     public void allFields_present() throws Exception {
@@ -116,6 +134,9 @@ public class CSchemaIntegrationTests {
      *
      * <p>说明：springfox 生成 JSON 中中文字符以 Unicode 转义（形如 uXXXX），故用 jsonPath 断言（解析后对比），
      * 不用字符串 contains（无法匹配转义后的中文）。</p>
+     */
+    /**
+     * 对应测试用例 1.7
      */
     @Test
     public void fieldDocumentation() throws Exception {

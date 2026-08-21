@@ -21,6 +21,7 @@ import java.util.Objects;
  * </p>
  *
  * @since 2025/12/6
+ * @see doc/design/mybatisplus/ICMainBizService.adoc
  */
 public interface ICMainBizService<ENTITY extends MAIN_BIZ, MAIN_BIZ>
         extends ICService<ENTITY> {

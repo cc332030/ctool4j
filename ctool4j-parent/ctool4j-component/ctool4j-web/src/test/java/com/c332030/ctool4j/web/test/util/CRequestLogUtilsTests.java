@@ -16,17 +16,24 @@ import org.junit.jupiter.api.Test;
  *
  * @since 2026/8/14
  */
+
 @CustomLog
 public class CRequestLogUtilsTests {
 
     // ---------- EMPTY_REQ / EMPTY_RSP（无请求体/响应体占位，统一为字符串） ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void emptyReqs() {
         // 正例：占位为固定字符串，与 feign 场景 req 存字符串语义一致
         Assertions.assertEquals("[no request body]", CRequestLogUtils.EMPTY_REQ);
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void emptyRsp() {
         // 正例：无响应体占位为固定字符串，服务端 MVC 请求日志初始化使用
@@ -35,6 +42,9 @@ public class CRequestLogUtilsTests {
 
     // ---------- getOpt / getOptThenRemove / remove（ThreadLocal 空场景） ----------
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getOpt_empty() {
         // 边界：ThreadLocal 未初始化时返回 empty Opt
@@ -44,6 +54,9 @@ public class CRequestLogUtilsTests {
         Assertions.assertTrue(opt.isEmpty());
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void getOptThenRemove_empty() {
         // 边界：ThreadLocal 为空时 getOptThenRemove 返回 empty 且不抛异常
@@ -53,6 +66,9 @@ public class CRequestLogUtilsTests {
         Assertions.assertTrue(opt.isEmpty());
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void remove_idempotent() {
         // 边界：重复 remove 不抛异常（幂等）
@@ -63,6 +79,9 @@ public class CRequestLogUtilsTests {
 
     // ---------- 常量 ----------
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void constants() {
         // 正例：常量定义合理

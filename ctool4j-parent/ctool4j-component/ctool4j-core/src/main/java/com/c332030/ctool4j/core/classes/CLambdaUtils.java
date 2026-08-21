@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
  *
  * @author c332030
  * @since 2025/12/20
+ * @see doc/design/core/CLambdaUtils.adoc
+ * @see doc/design/core/CLambdaUtilsTests.adoc
  */
 @UtilityClass
 public class CLambdaUtils {

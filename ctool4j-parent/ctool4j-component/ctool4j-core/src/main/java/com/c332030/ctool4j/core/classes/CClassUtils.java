@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2025/11/21
+ * @see doc/design/core/CClassUtils.adoc
+ * @see doc/design/core/CClassUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

@@ -11,6 +11,7 @@ import lombok.CustomLog;
  * Description: CFeignInterceptor
  * </p>
  *
+ * @see doc/design/feign/CFeignInterceptor.adoc
  * @since 2025/9/21
  */
 @CustomLog

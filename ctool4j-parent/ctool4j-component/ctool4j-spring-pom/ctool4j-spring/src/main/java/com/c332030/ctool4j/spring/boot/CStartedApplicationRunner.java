@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationRunner;
  * </p>
  *
  * @since 2026/5/12
+ * @see doc/design/spring/CStartedApplicationRunner.adoc
  */
 public interface CStartedApplicationRunner extends ApplicationRunner {
 

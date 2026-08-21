@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
  * 新项目建议直接使用 OpenAPI3；迁移属大工程需排期
  * </p>
  *
+ * @see doc/design/openapi2/COpenApi2Configuration.adoc
  * @since 2025/12/16
  */
 @CustomLog

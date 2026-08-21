@@ -1,0 +1,36 @@
+= CHttpMessageNotWritableExceptionHandler 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.web.exception.handler.CHttpMessageNotWritableExceptionHandler`（web 响应消息不可写异常处理器）。
+
+对应测试类：`com.c332030.ctool4j.web.test.exception.handler.CHttpMessageNotWritableExceptionHandlerTests`
+
+对应设计文档：`doc/design/web/CHttpMessageNotWritableExceptionHandler.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CHttpMessageNotWritableExceptionHandler 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 直接实例化处理器并调用 `handle`，验证 响应消息不可写异常 的处理结果。
+- 返回错误结果/直接结束响应，不抛出。
+
+=== 设计依据
+
+- 依据功能设计对响应消息不可写异常处理结果（错误码/消息）的约定。
+- 依据测试方法（正例/边界）：返回错误结果/直接结束响应，不抛出。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：响应消息不可写异常的 `handle` 处理路径。
+- 未覆盖：真实 MVC 容器下的异常拦截链路。
+
+== 1. 响应消息不可写异常处理
+
+- 1.1 handle：验证响应消息不可写异常处理结果
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

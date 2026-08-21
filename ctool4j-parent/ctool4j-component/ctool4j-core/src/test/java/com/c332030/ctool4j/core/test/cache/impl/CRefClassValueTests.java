@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CRefClassValueTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getInitial() {
 
@@ -21,6 +24,9 @@ public class CRefClassValueTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void setAndGet() {
 
@@ -30,6 +36,9 @@ public class CRefClassValueTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void independentByClass() {
 

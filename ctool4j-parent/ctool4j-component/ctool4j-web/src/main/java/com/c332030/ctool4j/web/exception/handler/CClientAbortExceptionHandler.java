@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </p>
  *
  * @since 2026/4/9
+ * @see doc/design/web/CClientAbortExceptionHandler.adoc
  */
 @CustomLog
 @RestControllerAdvice

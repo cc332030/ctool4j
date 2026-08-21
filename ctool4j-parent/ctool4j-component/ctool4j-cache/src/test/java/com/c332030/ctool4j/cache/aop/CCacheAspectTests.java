@@ -16,6 +16,11 @@ import java.util.concurrent.TimeUnit;
  * Description: CCacheAspectTests
  * </p>
  *
+ * <p>
+ * 是 {@link CCacheAspect} 的测试用例（对应测试文档
+ * <code>doc/design/cache/CCacheAspectTests.adoc</code>）。
+ * </p>
+ *
  * @since 2026/6/16
  */
 @CTool4jSpringBootTest
@@ -26,6 +31,8 @@ public class CCacheAspectTests {
 
     /**
      * 测试缓存切面的生效、命中与过期
+     *
+     * <p>对应测试用例 1.1：本地缓存命中/未命中/过期</p>
      */
     @Test
     @SneakyThrows
@@ -63,6 +70,8 @@ public class CCacheAspectTests {
     /**
      * 测试缓存方法抛异常时向上传播，不返回 null（Q28 修复）
      * <p>注意：缓存 key 仅由参数生成（不含方法名），需用独立 id 避免与 cacheAspect() 中 time(id) 串 key</p>
+     *
+     * <p>对应测试用例 1.2：异常传播，异常不写缓存</p>
      */
     @Test
     public void cacheErrorPropagates() {

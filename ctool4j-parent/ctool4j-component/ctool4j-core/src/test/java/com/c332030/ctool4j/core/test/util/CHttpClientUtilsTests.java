@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CHttpClientUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void timeoutConstants() {
 
@@ -24,6 +27,9 @@ public class CHttpClientUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void requestConfig() {
 
@@ -37,6 +43,9 @@ public class CHttpClientUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void connectionManager() {
 
@@ -46,6 +55,9 @@ public class CHttpClientUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void httpClientAndFactory() {
 

@@ -34,6 +34,9 @@ class CAuthenticationEntryPointTests {
         return response.getContentAsString();
     }
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testCommence_credentialsNotFound() throws Exception {
         // 正例：无有效登录用户
@@ -42,6 +45,9 @@ class CAuthenticationEntryPointTests {
         Assertions.assertTrue(content.contains("/api/user"));
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testCommence_badCredentials() throws Exception {
         // 正例：凭证错误，提示为异常消息
@@ -49,6 +55,9 @@ class CAuthenticationEntryPointTests {
         Assertions.assertTrue(content.contains("bad token"));
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testCommence_otherExceptionUsesDefaultReason() throws Exception {
         // 边界：其他认证异常时提示回退为 401 默认文案

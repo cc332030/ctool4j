@@ -1,0 +1,35 @@
+= CInstantSerializer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.serializer.CInstantSerializer
+状态：已落地
+适用范围：Jackson Instant 序列化为日期时间字符串
+
+== 1. 功能说明
+
+`CInstantSerializer` 为 Jackson `Instant` 序列化器，扩展 `JsonSerializer<Instant>`，将瞬时时间序列化为
+日期时间字符串（`yyyy-MM-dd HH:mm:ss`）。提供单例 `INSTANCE`（私有构造）。
+
+== 2. 设计要点
+
+=== 2.1 序列化
+
+- `serialize` 经 `CDateUtils.formatDateTime(value)` 输出日期时间字符串。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要 Instant 统一序列化为日期时间字符串的 JSON 输出。
+
+== 5. 已知限制与取舍
+
+- 固定 `yyyy-MM-dd HH:mm:ss` 格式。
+
+测试内容见 `doc/design/core/CInstantSerializerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

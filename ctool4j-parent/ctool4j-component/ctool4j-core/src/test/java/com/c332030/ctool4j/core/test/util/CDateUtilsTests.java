@@ -19,6 +19,7 @@ import java.util.Date;
  * <p>
  * Description: CDateUtilsTests
  * </p>
+ * <p>`com.c332030.ctool4j.core.util.CDateUtils`（CDateUtils）的测试用例</p>
  *
  * @since 2025/12/7
  */
@@ -37,6 +38,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试日期时间格式化
+     * 对应测试用例 1.1
      */
     @Test
     public void format() {
@@ -50,6 +52,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试日期时间解析
+     * 对应测试用例 2.1
      */
     @Test
     public void parse() {
@@ -73,6 +76,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试转换为 Date
+     * 对应测试用例 3.1
      */
     @Test
     public void toDate() {
@@ -91,6 +95,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试转换为 Instant
+     * 对应测试用例 3.2
      */
     @Test
     public void toInstant() {
@@ -104,6 +109,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试增加秒
+     * 对应测试用例 4.1
      */
     @Test
     public void plusSecond() {
@@ -128,6 +134,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试减少秒
+     * 对应测试用例 4.1
      */
     @Test
     public void minusSecond() {
@@ -152,6 +159,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试增加分钟
+     * 对应测试用例 4.2
      */
     @Test
     public void plusMinute() {
@@ -177,6 +185,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试减少分钟
+     * 对应测试用例 4.2
      */
     @Test
     public void minusMinute() {
@@ -201,6 +210,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试增加小时
+     * 对应测试用例 4.3
      */
     @Test
     public void plusHour() {
@@ -225,6 +235,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试减少小时
+     * 对应测试用例 4.3
      */
     @Test
     public void minusHour() {
@@ -249,6 +260,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试增加天
+     * 对应测试用例 4.4
      */
     @Test
     public void plusDay() {
@@ -273,6 +285,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试减少天
+     * 对应测试用例 4.4
      */
     @Test
     public void minusDay() {
@@ -297,6 +310,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试增加月
+     * 对应测试用例 4.5
      */
     @Test
     public void plusMonth() {
@@ -322,6 +336,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试减少月
+     * 对应测试用例 4.5
      */
     @Test
     public void minusMonth() {
@@ -346,6 +361,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试增加年
+     * 对应测试用例 4.6
      */
     @Test
     public void plusYear() {
@@ -371,6 +387,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试减少年
+     * 对应测试用例 4.6
      */
     @Test
     public void minusYear() {
@@ -395,6 +412,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试按时间单位数组增加
+     * 对应测试用例 4.7
      */
     @Test
     public void plusArr() {
@@ -416,6 +434,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试按时间单位数组减少
+     * 对应测试用例 4.8
      */
     @Test
     public void minusArr() {
@@ -437,6 +456,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试毫秒字符串解析
+     * 对应测试用例 5.1
      */
     @Test
     public void parseMaybeMills() {
@@ -448,6 +468,7 @@ public class CDateUtilsTests {
 
     /**
      * 测试秒级时间戳字符串解析
+     * 对应测试用例 5.2
      */
     @Test
     public void parseMaybeMillsForSecondMills() {

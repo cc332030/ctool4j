@@ -10,7 +10,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
  * </p>
  *
  * @author c332030
- */
+ * @see doc/design/openapi2/CSchemaTestConfiguration.adoc
+*/
 @Configuration
 @EnableSwagger2WebMvc
 public class CSchemaTestConfiguration {

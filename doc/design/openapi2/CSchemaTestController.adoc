@@ -1,0 +1,28 @@
+= CSchemaTestController 设计文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.test.controller.CSchemaTestController
+状态：已落地
+适用范围：CSchema 集成测试辅助 Controller
+
+== 1. 功能说明
+
+`CSchemaTestController` 为 `CSchema` 集成测试辅助 Controller（`@RestController`，`@Api` 标注）：
+
+- `test(@Valid @RequestBody CSchemaTestDTO dto)`：POST `/c-schema/test`，接收 `@CSchema` 标注的 DTO，`@Valid` 触发字段校验（username required=true 必填），标注 `@ApiOperation` 供 springfox 生成字段文档
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- `CSchemaIntegrationTests` 集成测试，作为真实接口入口验证 `@CSchema` 必填校验与字段文档生成。
+
+== 5. 已知限制与取舍
+
+- 测试辅助类；仅提供单个测试接口。
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

@@ -1,0 +1,38 @@
+= CBizIdUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-mybatis
+类：com.c332030.ctool4j.mybatis.util.CBizIdUtils
+状态：已落地
+适用范围：业务ID工具
+
+== 1. 功能说明
+
+`CBizIdUtils`：业务ID工具。
+
+== 2. 设计要点
+
+- 获取/生成实体业务ID，校验 bizId 字段为 String
+
+== 3. 兜底设计
+
+无 @CBizId 字段返回 null
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+业务ID生成
+
+=== 4.2 不适用/边界场景
+
+依赖反射与 CClassValue
+
+== 5. 已知限制与取舍
+
+依赖反射与 CClassValue
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

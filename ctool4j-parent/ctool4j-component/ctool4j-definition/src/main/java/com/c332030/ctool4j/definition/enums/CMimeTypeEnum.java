@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
  * </p>
  *
  * @since 2025/11/17
+ * @see doc/design/core/CMimeTypeEnum.adoc
+ * @see doc/design/core/CMimeTypeEnumTests.adoc
  */
 @Getter
 @AllArgsConstructor

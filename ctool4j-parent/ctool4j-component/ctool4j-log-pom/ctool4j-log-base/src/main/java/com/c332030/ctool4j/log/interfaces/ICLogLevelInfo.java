@@ -7,6 +7,8 @@ import org.slf4j.event.Level;
  * Description: ICLogLevelInfo
  * </p>
  *
+ * @see doc/design/log/ICLogLevelInfo.adoc
+ * @see doc/design/log/ICLogLevelTests.adoc
  * @since 2026/3/20
  */
 public interface ICLogLevelInfo extends ICLogLevel {

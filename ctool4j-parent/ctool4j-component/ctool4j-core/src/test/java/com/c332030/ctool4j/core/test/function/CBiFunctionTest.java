@@ -15,6 +15,7 @@ public class CBiFunctionTest {
 
     /**
      * 测试取第一个参数
+     * 对应测试用例 2.1
      */
     @Test
     public void first() {
@@ -26,6 +27,7 @@ public class CBiFunctionTest {
 
     /**
      * 测试取第二个参数
+     * 对应测试用例 2.2
      */
     @Test
     public void second() {

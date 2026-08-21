@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CExceptionTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void defaultConstructor() {
 
@@ -22,6 +25,9 @@ public class CExceptionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void messageConstructor() {
 
@@ -30,6 +36,9 @@ public class CExceptionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void causeConstructor() {
 
@@ -39,6 +48,9 @@ public class CExceptionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void messageAndCauseConstructor() {
 

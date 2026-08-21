@@ -15,6 +15,9 @@ import java.io.IOException;
  */
 public class CTriFunctionTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void applyNormal() {
 
@@ -24,6 +27,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void applyNullInputs() {
 
@@ -33,6 +39,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void applySneakyThrowsCheckedException() {
 
@@ -47,6 +56,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void first() {
 
@@ -56,6 +68,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void second() {
 
@@ -65,6 +80,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void third() {
 
@@ -74,6 +92,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void staticApplyNullFunction() {
 
@@ -81,6 +102,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void staticApplyNormal() {
 
@@ -90,6 +114,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.6
+     */
     @Test
     public void convert() {
 
@@ -101,6 +128,9 @@ public class CTriFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.7
+     */
     @Test
     public void convertNullCTriFunction() {
 

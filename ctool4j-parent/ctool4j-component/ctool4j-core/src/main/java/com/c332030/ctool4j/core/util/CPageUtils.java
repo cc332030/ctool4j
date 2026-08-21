@@ -15,6 +15,8 @@ import java.util.List;
  * </p>
  *
  * @since 2025/10/31
+ * @see doc/design/core/CPageUtils.adoc
+ * @see doc/design/core/CPageUtilsTests.adoc
  */
 @UtilityClass
 public class CPageUtils {

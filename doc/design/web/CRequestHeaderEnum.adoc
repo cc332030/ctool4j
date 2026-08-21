@@ -1,0 +1,38 @@
+= CRequestHeaderEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.enums.CRequestHeaderEnum
+状态：已落地
+适用范围：请求头枚举（实现 ICRequestHeader）
+
+== 1. 功能说明
+
+`CRequestHeaderEnum` 为请求头枚举，实现 `ICRequestHeader`，定义 7 种请求头
+（AUTHORIZATION/ACCEPT_LANGUAGE/ACCEPT/X_REAL_IP/X_TRACE_ID/X_TENANT_ID/X_USER_ID），各带描述。
+
+继承默认行为：`getHeaderName()`（下划线转中划线）、`getText()`。
+
+== 2. 设计要点
+
+=== 2.1 Header 名推导
+
+- 经 `ICRequestHeader.getHeaderName()` 默认实现（`upperUnderscoreToHeaderName`）转
+  `X_TRACE_ID` → `X-Trace-Id` 等。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 请求头字段的标准化枚举（鉴权/语言/追踪 id 等）。
+
+== 5. 已知限制与取舍
+
+- 描述为中文文本。
+
+测试内容见 `doc/design/web/CRequestHeaderEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

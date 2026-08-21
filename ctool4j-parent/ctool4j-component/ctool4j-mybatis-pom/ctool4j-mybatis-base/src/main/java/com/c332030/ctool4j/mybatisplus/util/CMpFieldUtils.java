@@ -12,6 +12,7 @@ import java.util.function.Predicate;
  * </p>
  *
  * @since 2026/1/6
+ * @see doc/design/mybatisplus/CMpFieldUtils.adoc
  */
 @UtilityClass
 public class CMpFieldUtils {

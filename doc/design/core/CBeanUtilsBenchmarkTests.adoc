@@ -1,0 +1,34 @@
+= CBeanUtils 性能对比基准测试用例文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-core
+被测类：com.c332030.ctool4j.core.classes.CBeanUtils
+状态：已落地
+
+本文档为 CBeanUtilsBenchmarkTests 的性能测试文档，含性能测试设计思路、对比实现、覆盖场景与取舍，以及测试用例的分类编号索引。
+
+== 性能测试设计思路
+
+=== 对比维度
+
+- 对象复制（copy），对比多类实现方式（满足对比类别 ≥3 类）：
+  - CBeanUtilsCopyCase：当前 copy 实现
+  - CBeanUtilsCopyOldPathCase：旧路径实现
+  - CBeanUtilsCopyReuseTargetCase：复用目标对象实现
+
+=== 执行方式
+
+- 性能测试独立于单元测试，仅在明确命令执行时才运行（显式运行）。
+- 排除初始化干扰：测试两次，第二次在全部实现方式初始化完成后进行。
+- 结果写入报告，分析性能差异原因并给出方案。
+
+== 分类编号索引
+
+=== 6. 基准执行
+
+- 6.1 benchmark：CBeanUtils 复制性能对比基准（多实现方式对比）
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

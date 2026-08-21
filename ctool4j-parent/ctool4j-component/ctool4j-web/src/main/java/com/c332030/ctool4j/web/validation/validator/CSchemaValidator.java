@@ -23,6 +23,7 @@ import java.util.Map;
  * </p>
  *
  * @author c332030
+ * @see doc/design/web/CSchemaValidator.adoc
  */
 public class CSchemaValidator implements ConstraintValidator<CSchema, Object> {
 

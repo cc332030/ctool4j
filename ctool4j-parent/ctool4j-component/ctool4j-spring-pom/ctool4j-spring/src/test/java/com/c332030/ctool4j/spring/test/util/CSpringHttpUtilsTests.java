@@ -44,6 +44,9 @@ public class CSpringHttpUtilsTests {
 
     // ---------- getPostHeaders ----------
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getPostHeaders() {
         // 正例：内容类型与接收类型均为 JSON
@@ -56,6 +59,9 @@ public class CSpringHttpUtilsTests {
 
     // ---------- getGetHeaders ----------
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getGetHeaders() {
         // 正例：接收类型为 JSON，无内容类型
@@ -68,6 +74,9 @@ public class CSpringHttpUtilsTests {
 
     // ---------- configureMessageConverters ----------
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void configureMessageConverters_whenJacksonAndJson5() {
         // 正例：包含 Jackson 转换器且开启 json5 时，追加 json5 媒体类型
@@ -82,6 +91,9 @@ public class CSpringHttpUtilsTests {
                 .contains(CMimeTypeEnum.JSON5.getMimeType()));
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void configureMessageConverters_whenJacksonAndNotJson5() {
         // 反例：开启 json5 为 false 时不追加 json5 媒体类型
@@ -96,6 +108,9 @@ public class CSpringHttpUtilsTests {
                 .contains(CMimeTypeEnum.JSON5.getMimeType()));
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void configureMessageConverters_whenUnknownConverter() {
         // 反例：未知类型转换器时无配置逻辑且不抛异常
@@ -112,6 +127,9 @@ public class CSpringHttpUtilsTests {
 
     // ---------- configureJackson2HttpMessageConverter ----------
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void configureJackson2HttpMessageConverter_whenJson5() {
         // 正例：开启 json5 时追加 json5 媒体类型
@@ -124,6 +142,9 @@ public class CSpringHttpUtilsTests {
                 .contains(CMimeTypeEnum.JSON5.getMimeType()));
     }
 
+        /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void configureJackson2HttpMessageConverter_whenNotJson5() {
         // 反例：未开启 json5 时不追加 json5 媒体类型
@@ -138,6 +159,9 @@ public class CSpringHttpUtilsTests {
 
     // ---------- configureJson5 ----------
 
+        /**
+     * 对应测试用例 1.8
+     */
     @Test
     public void configureJson5() {
         // 正例：直接追加 json5 媒体类型

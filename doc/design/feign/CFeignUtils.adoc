@@ -1,0 +1,52 @@
+= CFeignUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-feign
+类：com.c332030.ctool4j.feign.util.CFeignUtils
+状态：已落地
+适用范围：Feign 拦截、header 透传与响应重建工具
+
+== 1. 功能说明
+
+`CFeignUtils`（`@UtilityClass` + `@CAutowiredScan`）提供 Feign 工具：
+
+- `addInterceptor(clazz, consumer)`：按接口类注册请求拦截器（`INTERCEPTOR_MAP`）。
+- `getApiType(template)`：获取请求对应 Feign 接口类型。
+- `intercept(template)` / `intercept(type, template)`：判断是否命中拦截器。
+- `newResponse(response, bodyBytes)`：重建响应。
+- `transferHeaders(template)`：按 headerConfig 透传请求头。
+
+== 2. 设计要点
+
+=== 2.1 拦截器
+
+- `INTERCEPTOR_MAP`（ConcurrentHashMap）缓存接口类 → 拦截处理。
+- `intercept` 命中接口类型且有注册处理时执行并返回 true。
+
+=== 2.2 header 透传
+
+- 按 `headerConfig.propagationMode`：ALL（全部复制）、CUSTOM（自定义 headers）、NONE（不透传）。
+- 基于 `CRequestUtils` 读取当前请求 header 并复制到模板。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| headerConfig 为 null | transferHeaders 无操作 |
+| 无拦截器注册 | intercept 返回 false |
+| 模板无 feignTarget | getApiType 抛 NPE |
+
+== 4. 适用范围
+
+- Feign 接口级拦截与请求头传播控制。
+
+== 5. 已知限制与取舍
+
+- 拦截按接口类型精确匹配；header 透传依赖 `CRequestUtils`（Servlet 请求上下文）。
+
+测试内容见 `doc/design/feign/CFeignUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

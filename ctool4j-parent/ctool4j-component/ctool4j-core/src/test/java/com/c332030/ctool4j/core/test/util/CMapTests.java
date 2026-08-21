@@ -17,6 +17,9 @@ import java.util.Map;
  */
 public class CMapTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void ofEmpty() {
 
@@ -24,6 +27,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void ofSingle() {
 
@@ -33,6 +39,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void ofTwo() {
 
@@ -43,6 +52,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void ofTwoUnmodifiable() {
 
@@ -51,6 +63,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void ofThree() {
 
@@ -60,6 +75,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void ofThreeUnmodifiable() {
 
@@ -68,6 +86,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void ofMapCopyUnmodifiable() {
 
@@ -84,6 +105,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void ofNullMapReturnsEmpty() {
 
@@ -92,6 +116,9 @@ public class CMapTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void ofMapWithSupplier() {
 

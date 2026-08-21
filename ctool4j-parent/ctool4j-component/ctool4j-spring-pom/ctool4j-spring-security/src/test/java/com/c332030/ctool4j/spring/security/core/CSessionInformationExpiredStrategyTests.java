@@ -24,6 +24,9 @@ class CSessionInformationExpiredStrategyTests {
 
     private final CSessionInformationExpiredStrategy strategy = new CSessionInformationExpiredStrategy();
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testOnExpiredSessionDetected_write401() throws Exception {
         // 正例：会话过期输出 401，文案为 Expired + 请求路径

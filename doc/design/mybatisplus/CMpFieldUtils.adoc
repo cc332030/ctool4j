@@ -1,0 +1,38 @@
+= CMpFieldUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-mybatisplus
+类：com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils
+状态：已落地
+适用范围：字段工具
+
+== 1. 功能说明
+
+`CMpFieldUtils`：字段工具。
+
+== 2. 设计要点
+
+- 筛选更新策略非 NEVER 的字段等
+
+== 3. 兜底设计
+
+无
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+字段处理
+
+=== 4.2 不适用/边界场景
+
+静态工具
+
+== 5. 已知限制与取舍
+
+静态工具
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -21,6 +21,9 @@ public class CValidUtilsTests {
 
     // ---------- Object（非 null） ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void object() {
         Assertions.assertTrue(CValidUtils.isValid((Object) "abc"));
@@ -31,6 +34,9 @@ public class CValidUtilsTests {
 
     // ---------- CharSequence（notBlank） ----------
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void charSequence() {
         Assertions.assertTrue(CValidUtils.isValid("abc"));
@@ -43,6 +49,9 @@ public class CValidUtilsTests {
 
     // ---------- Collection / Iterable（notEmpty） ----------
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void collection() {
         Assertions.assertTrue(CValidUtils.isValid(Collections.singletonList(1)));
@@ -53,6 +62,9 @@ public class CValidUtilsTests {
 
     // ---------- Map（notEmpty） ----------
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void map() {
         Assertions.assertTrue(CValidUtils.isValid(Collections.singletonMap("k", "v")));
@@ -63,6 +75,9 @@ public class CValidUtilsTests {
 
     // ---------- 数组（notEmpty） ----------
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void arrays() {
         Assertions.assertTrue(CValidUtils.isValid(new byte[]{1}));

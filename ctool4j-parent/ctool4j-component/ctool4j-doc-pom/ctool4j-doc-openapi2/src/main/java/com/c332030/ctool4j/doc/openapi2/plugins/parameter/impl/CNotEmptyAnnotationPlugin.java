@@ -9,6 +9,8 @@ import javax.validation.constraints.NotEmpty;
  * Description: CNotEmptyAnnotationPlugin
  * </p>
  *
+ * @see doc/design/openapi2/CNotEmptyAnnotationPlugin.adoc
+ * @see doc/design/openapi2/CNotEmptyAnnotationPluginTests.adoc
  * @since 2025/12/17
  */
 public class CNotEmptyAnnotationPlugin implements ICAnnotationExpandedParameterBuilderPlugin<NotEmpty> {

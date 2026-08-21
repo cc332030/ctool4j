@@ -1,0 +1,35 @@
+= ICTest 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.interfaces.ICTest`（core 接口类）——测试环境判断接口。
+
+对应测试类：`com.c332030.ctool4j.core.test.interfaces.ICTestTests`
+
+对应设计文档：`doc/design/core/ICTest.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 ICTest 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 用一个匿名实现验证 `isTest()` 委托 `CTestUtils.isTest()`，结果一致。
+
+=== 设计依据
+
+- 依据功能设计对委托 CTestUtils 的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：isTest() 与 CTestUtils.isTest() 一致（测试环境为 true）。
+- 未覆盖：生产环境（非测试 classpath）分支（依赖运行环境）。
+
+== 1. 测试环境判断
+
+- 1.1 isTest：实现类 isTest() 与 CTestUtils.isTest() 一致（isTest）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

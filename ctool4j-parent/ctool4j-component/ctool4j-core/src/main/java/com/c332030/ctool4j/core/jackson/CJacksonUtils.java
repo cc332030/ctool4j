@@ -25,6 +25,8 @@ import java.util.Date;
  *
  * @author c332030
  * @since 2024/3/5
+ * @see doc/design/core/CJacksonUtils.adoc
+ * @see doc/design/core/CJacksonUtilsTests.adoc
  */
 @UtilityClass
 public class CJacksonUtils {

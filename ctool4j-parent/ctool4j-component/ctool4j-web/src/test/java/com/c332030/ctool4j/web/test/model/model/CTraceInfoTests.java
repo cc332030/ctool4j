@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CTraceInfoTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
         val info = new CTraceInfo();
@@ -23,6 +26,9 @@ public class CTraceInfoTests {
         Assertions.assertNull(info.getTraceId());
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void allArgsConstructor() {
         val info = new CTraceInfo("trace-1");
@@ -30,6 +36,9 @@ public class CTraceInfoTests {
         Assertions.assertEquals("trace-1", info.getTraceId());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void builder() {
         val info = CTraceInfo.builder()
@@ -39,6 +48,9 @@ public class CTraceInfoTests {
         Assertions.assertEquals("trace-1", info.getTraceId());
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void setterAndGetter() {
         val info = new CTraceInfo();

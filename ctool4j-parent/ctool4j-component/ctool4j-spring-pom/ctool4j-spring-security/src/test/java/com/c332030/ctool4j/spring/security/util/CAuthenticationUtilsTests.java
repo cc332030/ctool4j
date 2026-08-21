@@ -31,6 +31,9 @@ class CAuthenticationUtilsTests {
         CAuthenticationUtils.setPasswordEncoder(null);
     }
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testEncode_returnsNonRawAndMatches() {
         String encoded = CAuthenticationUtils.encode("password123");
@@ -38,18 +41,27 @@ class CAuthenticationUtilsTests {
         Assertions.assertTrue(CAuthenticationUtils.matches("password123", encoded));
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testMatches_correctRawPassword() {
         String encoded = CAuthenticationUtils.encode("secret");
         Assertions.assertTrue(CAuthenticationUtils.matches("secret", encoded));
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testMatches_wrongRawPassword() {
         String encoded = CAuthenticationUtils.encode("secret");
         Assertions.assertFalse(CAuthenticationUtils.matches("wrong", encoded));
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     void testMatches_nullRawPassword_throws() {
         // 易错：BCrypt 对 null rawPassword 抛 IllegalArgumentException
@@ -60,12 +72,18 @@ class CAuthenticationUtilsTests {
         );
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     void testMatches_emptyRawPassword() {
         String encoded = CAuthenticationUtils.encode("secret");
         Assertions.assertFalse(CAuthenticationUtils.matches("", encoded));
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     void testMatches_nullEncodedPassword_returnsFalse() {
         // 易错：BCrypt 对 null encodedPassword 直接返回 false，不抛异常

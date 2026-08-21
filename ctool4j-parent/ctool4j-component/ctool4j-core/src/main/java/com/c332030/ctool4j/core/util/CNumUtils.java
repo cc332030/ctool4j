@@ -21,6 +21,8 @@ import java.math.RoundingMode;
  * </p>
  *
  * @since 2024/12/2
+ * @see doc/design/core/CNumUtils.adoc
+ * @see doc/design/core/CNumUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

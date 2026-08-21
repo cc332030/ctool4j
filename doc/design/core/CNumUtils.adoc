@@ -1,0 +1,75 @@
+= CNumUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CNumUtils
+状态：已落地
+适用范围：数值工具（默认值/正负判断/求和/除法/缩放/比较/解析/溢出校验/进制转换/最值/百分比）
+
+== 1. 功能说明
+
+`CNumUtils` 为数值工具类，提供丰富的数值操作：
+
+- 常量：`CHARTSET_62`（62 进制字符集）、`ONE_HUNDRED`
+- 默认值：`defaultZero`（Integer/Long/BigDecimal）
+- 正负判断：`greaterThanZero` / `lessThanZero`
+- 运算：`sum`、`divide`、`scale` / `scale2`
+- 比较：`compare`
+- 解析：`parseInt`/`parseLong`（含默认值/fallback）、`toStringThenParseInt`/`toStringThenParseLong`、`parse`
+- 溢出校验：`isOverflow` / `assertOverflow`（long→int、double→float）
+- 转换：`toInt`/`toLong`/`toBigDecimal`/`to62`
+- 最值：`max`/`min`（跳过 null）
+- 百分比：`percent`（value/total，可带 scale）
+
+== 2. 设计要点
+
+=== 2.1 溢出校验
+
+- `assertOverflow(long)`：`(int)value != value` 判断是否超出 int 范围，溢出抛 ArithmeticException。
+- `assertOverflow(double)`：`value > Float.MAX_VALUE || value < -Float.MAX_VALUE` 判断是否超出 float 范围。
+
+=== 2.2 转换
+
+- `toInt(long)`：溢出时返回 null（而非抛异常），记录 debug 日志。
+- `to62(long)`：转为 62 进制字符串，不支持负数（抛 IllegalArgumentException），0 的 62 进制为 "0"。
+
+=== 2.3 最值
+
+- `max`/`min`：跳过 null 值；数组为空或全为 null 返回 null。
+
+=== 2.4 百分比
+
+- `percent(value, total, scale)`：value 或 total 为 null 返回 null；total 为 0 时返回 null（除法无意义）。
+- 返回 `value ÷ total × 100` 的百分比，保留 scale 位小数。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| assertOverflow 溢出 | 抛 ArithmeticException |
+| toInt 溢出 | 返回 null |
+| to62 负数 | 抛 IllegalArgumentException |
+| max/min 空/全 null | 返回 null |
+| percent value/total 为 null 或 total=0 | 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 数值的解析、转换、比较、求和、最值、百分比等通用运算。
+
+=== 4.2 不适用/边界场景
+
+- to62 不支持负数；percent 的 total 为 0 返回 null。
+
+== 5. 已知限制与取舍
+
+- toInt 溢出返回 null 而非抛异常，牺牲严格性换取调用便利（调用方需判空）。
+- 溢出校验显式抛出，保证数值范围安全。
+
+测试内容见 `doc/design/core/CNumUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

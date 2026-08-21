@@ -18,6 +18,7 @@ public class CLogUtilsTest {
 
     /**
      * 测试判断类型是否以 JSON 格式记录日志
+     * 对应测试用例 1.1
      */
     @Test
     public void isJsonLog() {

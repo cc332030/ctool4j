@@ -11,6 +11,8 @@ import lombok.experimental.UtilityClass;
  * </p>
  *
  * @since 2026/1/4
+ * @see doc/design/core/CBase62Utils.adoc
+ * @see doc/design/core/CBase62UtilsTests.adoc
  */
 @UtilityClass
 public class CBase62Utils {

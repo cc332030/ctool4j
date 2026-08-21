@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * </p>
  *
  * @since 2026/2/1
+ * @see doc/design/spring/ICUserDetailsService.adoc
  */
 public interface ICUserDetailsService<T> extends UserDetailsService {
 

@@ -1,0 +1,38 @@
+= CServiceImpl 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-mybatisplus
+类：com.c332030.ctool4j.mybatisplus.service.impl.CServiceImpl
+状态：已落地
+适用范围：服务实现
+
+== 1. 功能说明
+
+`CServiceImpl`：服务实现。
+
+== 2. 设计要点
+
+- 实现 ICService 的默认服务逻辑
+
+== 3. 兜底设计
+
+无
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+服务实现
+
+=== 4.2 不适用/边界场景
+
+实现 ICService
+
+== 5. 已知限制与取舍
+
+实现 ICService
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

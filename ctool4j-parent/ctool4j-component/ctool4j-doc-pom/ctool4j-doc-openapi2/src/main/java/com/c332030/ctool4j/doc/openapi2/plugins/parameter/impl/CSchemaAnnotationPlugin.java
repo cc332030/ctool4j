@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
  * Description: CSchemaAnnotationPlugin：识别 @CSchema 注解，在 required=true 时将参数标记为必填
  * </p>
  *
+ * @see doc/design/openapi2/CSchemaAnnotationPlugin.adoc
  * @author c332030
  */
 public class CSchemaAnnotationPlugin implements ICAnnotationExpandedParameterBuilderPlugin<CSchema> {

@@ -7,6 +7,7 @@ import java.lang.annotation.*;
  * Description: CBizId
  * </p>
  *
+ * @see doc/design/definition/CBizId.adoc
  * @since 2025/12/3
  */
 @Documented

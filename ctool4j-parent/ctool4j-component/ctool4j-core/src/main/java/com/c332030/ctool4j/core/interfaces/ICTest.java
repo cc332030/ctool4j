@@ -8,6 +8,8 @@ import com.c332030.ctool4j.core.util.CTestUtils;
  * </p>
  *
  * @since 2025/11/21
+ * @see doc/design/core/ICTest.adoc
+ * @see doc/design/core/ICTestTests.adoc
  */
 public interface ICTest {
 

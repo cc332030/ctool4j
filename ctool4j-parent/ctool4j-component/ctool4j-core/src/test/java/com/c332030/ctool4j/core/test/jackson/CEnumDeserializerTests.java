@@ -19,6 +19,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CEnumDeserializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void deserializeEnum() throws Exception {
 
@@ -28,6 +31,9 @@ public class CEnumDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void deserializeTrim() throws Exception {
 
@@ -37,6 +43,9 @@ public class CEnumDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void deserializeBlank() throws Exception {
 
@@ -46,6 +55,9 @@ public class CEnumDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void deserializeEmptyString() throws Exception {
 
@@ -55,6 +67,9 @@ public class CEnumDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void deserializeUnknown_throws() {
 
@@ -64,6 +79,9 @@ public class CEnumDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     @SuppressWarnings("unchecked")
     public void getEnumClass() {
@@ -73,6 +91,9 @@ public class CEnumDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void emptyInstanceNotNull() {
 

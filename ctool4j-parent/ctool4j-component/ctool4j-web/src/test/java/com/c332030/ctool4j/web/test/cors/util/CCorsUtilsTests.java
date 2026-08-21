@@ -54,6 +54,9 @@ public class CCorsUtilsTests {
 
     // ---------- handleOptions ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void handleOptions_whenDisable() {
         // 反例：未开启跨域时，OPTIONS 请求不处理
@@ -65,6 +68,9 @@ public class CCorsUtilsTests {
         Assertions.assertEquals(200, response.getStatus());
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void handleOptions_whenEnableAndOptions() {
         // 正例：开启跨域且为 OPTIONS 请求时，返回 204 并视为已处理
@@ -77,6 +83,9 @@ public class CCorsUtilsTests {
         Assertions.assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void handleOptions_whenEnableAndNotOptions() {
         // 反例：开启跨域但非 OPTIONS 请求时，不处理
@@ -88,6 +97,9 @@ public class CCorsUtilsTests {
         Assertions.assertFalse(handled);
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void handleOptions_whenOptionsIgnoreCase() {
         // 边界：方法名大小写不敏感时仍视为 OPTIONS
@@ -99,6 +111,9 @@ public class CCorsUtilsTests {
         Assertions.assertTrue(handled);
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void handleOptions_whenConfigNull() {
         // 异常：config 为 null 时异常被吞掉并返回 false
@@ -111,6 +126,9 @@ public class CCorsUtilsTests {
 
     // ---------- handle ----------
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void handle_whenEnable() {
         // 正例：开启跨域时委托 handleDo 设置跨域响应头
@@ -126,6 +144,9 @@ public class CCorsUtilsTests {
                 response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
+    /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void handle_whenDisable() {
         // 反例：未开启跨域时，不设置任何跨域响应头
@@ -140,6 +161,9 @@ public class CCorsUtilsTests {
 
     // ---------- handleDo ----------
 
+    /**
+     * 对应测试用例 1.8
+     */
     @Test
     public void handleDo_whenNoOrigin() {
         // 反例：无 Origin 请求头时，不做跨域处理
@@ -152,6 +176,9 @@ public class CCorsUtilsTests {
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
+    /**
+     * 对应测试用例 1.9
+     */
     @Test
     public void handleDo_whenSameOrigin() {
         // 反例：同源请求（HOST 与 Origin 主机一致）时，不设置跨域响应头
@@ -165,6 +192,9 @@ public class CCorsUtilsTests {
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
+    /**
+     * 对应测试用例 1.10
+     */
     @Test
     public void handleDo_whenOriginNotAllowed() {
         // 反例：Origin 不在允许列表中时，不设置跨域响应头
@@ -179,6 +209,9 @@ public class CCorsUtilsTests {
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
+    /**
+     * 对应测试用例 1.11
+     */
     @Test
     public void handleDo_whenMethodNotAllowed() {
         // 反例：请求方法不在允许方法列表中时，不设置跨域响应头
@@ -194,6 +227,9 @@ public class CCorsUtilsTests {
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
+    /**
+     * 对应测试用例 1.12
+     */
     @Test
     public void handleDo_whenAllowedHeadersAll() {
         // 正例：允许全部请求头时，ALLOW_HEADERS 为通配符
@@ -216,6 +252,9 @@ public class CCorsUtilsTests {
                 response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
     }
 
+    /**
+     * 对应测试用例 1.13
+     */
     @Test
     public void handleDo_whenAllowedHeadersSpecific() {
         // 正例：允许指定请求头时，ALLOW_HEADERS 为逗号拼接的列表

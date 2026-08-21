@@ -13,6 +13,7 @@ import java.lang.annotation.*;
  * </p>
  *
  * @since 2026/5/14
+ * @see doc/design/spring/CLazyService.adoc
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

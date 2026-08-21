@@ -1,0 +1,48 @@
+= CBoolUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CBoolUtils`（core 工具类）——布尔值判断（含 null 语义）与对象经函数取值的布尔判断。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CBoolUtilsTests`
+
+对应设计文档：`doc/design/core/CBoolUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CBoolUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「基础判断 / 对象函数重载」两个维度组织，每类覆盖四种判断（isTrue/isNotTrue/isFalse/isNotFalse）。
+- 每种判断覆盖 true/false/null 三个取值，验证 null 视为 false 的语义与取反关系（isNotTrue=!isTrue 等）。
+- 对象函数重载额外覆盖 null 对象入参，验证经 `CObjUtils.convert` 取值后的 null 语义。
+
+=== 设计依据
+
+- 依据功能设计对 null 视为 false 的约定与取反关系。
+- 依据测试方法（等价类/边界值）：true/false 正例、null 边界。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：四种判断 ×（true/false/null）；对象函数重载的四种判断 ×（true/false/null 对象入参）。
+- 未覆盖：非布尔对象的属性取值判断的真实对象场景（以 String 布尔值经 Boolean::valueOf 模拟，行为一致）。
+
+== 1. 基础判断
+
+- 1.1 isTrue：true→true、false→false、null→false（isTrue）
+- 1.2 isNotTrue：true→false、false→true、null→true（isNotTrue）
+- 1.3 isFalse：false→true、true→false、null→false（isFalse）
+- 1.4 isNotFalse：false→false、true→true、null→true（isNotFalse）
+
+== 2. 对象函数重载
+
+- 2.1 isTrue(T, function)：`"true"`→true、`"false"`→false、null 对象→false（isTrueByFunction）
+- 2.2 isNotTrue(T, function)：`"true"`→false、`"false"`→true、null 对象→true（isNotTrueByFunction）
+- 2.3 isFalse(T, function)：`"false"`→true、`"true"`→false、null 对象→false（isFalseByFunction）
+- 2.4 isNotFalse(T, function)：`"false"`→false、`"true"`→true、null 对象→true（isNotFalseByFunction）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

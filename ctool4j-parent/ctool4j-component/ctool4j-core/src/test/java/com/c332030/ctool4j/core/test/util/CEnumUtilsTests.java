@@ -17,6 +17,9 @@ import java.util.Map;
  */
 public class CEnumUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getNameMap() {
 
@@ -28,6 +31,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getMapByFieldName() {
 
@@ -39,6 +45,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getMapByUnknownFieldThrows() {
 
@@ -47,6 +56,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void getMapNotEnumThrows() {
 
@@ -55,6 +67,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void valueOfByMap() {
 
@@ -63,6 +78,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void valueOfByMapNotFoundThrows() {
 
@@ -71,6 +89,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void nameOf() {
 
@@ -78,6 +99,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void nameOfNotFoundThrows() {
 
@@ -86,6 +110,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void valueOfByFieldName() {
 
@@ -94,6 +121,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.6
+     */
     @Test
     public void valueOfByFieldNameNotFoundThrows() {
 
@@ -102,6 +132,9 @@ public class CEnumUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void values() {
 

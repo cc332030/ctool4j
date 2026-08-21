@@ -28,6 +28,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2026/1/27
+ * @see doc/design/spring/CSpringHttpUtils.adoc
+ * @see doc/design/spring/CSpringHttpUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

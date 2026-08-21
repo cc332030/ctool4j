@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
  * Description: CSqlSeparatorEnum
  * </p>
  *
+ * @see doc/design/db/CSqlSeparatorEnum.adoc
+ * @see doc/design/db/CSqlSeparatorEnumTests.adoc
  * @since 2025/11/11
  */
 @Getter

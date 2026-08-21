@@ -21,6 +21,9 @@ import java.util.stream.Stream;
  */
 public class CCollectorsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void toUnmodifiableLinkedMapWithKey() {
 
@@ -36,6 +39,9 @@ public class CCollectorsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void toUnmodifiableLinkedMapWithKeyAndMerge() {
 
@@ -48,6 +54,9 @@ public class CCollectorsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void toUnmodifiableLinkedMapWithKeyValue() {
 
@@ -60,6 +69,9 @@ public class CCollectorsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void toUnmodifiableLinkedMapWithKeyValueMerge() {
 
@@ -73,6 +85,9 @@ public class CCollectorsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void toUnmodifiableLinkedMapUnmodifiable() {
 
@@ -83,6 +98,9 @@ public class CCollectorsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void toUnmodifiableLinkedMapConflictKey() {
 
@@ -94,6 +112,9 @@ public class CCollectorsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void toLinkedSet() {
 

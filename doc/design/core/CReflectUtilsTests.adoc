@@ -1,0 +1,46 @@
+= CReflectUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.classes.CReflectUtils`（core 对象类）——反射工具（字段/方法/构造器/注解缓存）。
+
+对应测试类：`com.c332030.ctool4j.core.test.classes.CReflectUtilsTests`
+
+对应设计文档：`doc/design/core/CReflectUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CReflectUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「注解缓存 / 实例字段 / 静态字段 / final 字段 / 继承字段 / 按名读写」多个维度组织。
+- 用 ValueBean（实例 name/静态 STATIC_VALUE/final finalValue）与 SubValueBean（继承）验证字段读写各路径。
+- 按字段名读写验证存在正常、不存在快速失败抛 IllegalArgumentException。
+
+=== 设计依据
+
+- 依据功能设计对 MethodHandle 快速路径、静态/final 回退、按名快速失败的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：getAnnotationCached；实例字段走快速路径；静态字段回退；final 字段 setValue 回退；父类字段经子类
+  实例读写；按字段名读写存在/不存在抛异常。
+- 未覆盖：getAllConstructors/getMethods/getAllMethods 等其余入口（当前测试聚焦字段读写核心路径）。
+
+== 1. 注解缓存
+
+- 1.1 getAnnotationCached：CPageConfig 命中 ConfigurationProperties 注解（getAnnotationCached）
+
+== 2. 字段读写
+
+- 2.1 实例字段：走 MethodHandle 快速路径（getSetValueInstanceField）
+- 2.2 静态字段：回退 Field 原生路径（getSetValueStaticField）
+- 2.3 final 字段：setValue 回退 Field.set（setValueFinalField）
+- 2.4 继承字段：父类字段经子类实例读写（getSetValueInheritField）
+- 2.5 按字段名：存在正常、不存在抛 IllegalArgumentException（getSetValueByFieldName）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

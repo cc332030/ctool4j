@@ -12,6 +12,8 @@ import java.util.Objects;
  * </p>
  *
  * @since 2024/3/19
+ * @see doc/design/core/CObjUtils.adoc
+ * @see doc/design/core/CObjUtilsTests.adoc
  */
 @UtilityClass
 public class CObjUtils {

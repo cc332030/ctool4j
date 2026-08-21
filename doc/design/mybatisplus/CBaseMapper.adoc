@@ -1,0 +1,38 @@
+= CBaseMapper 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-mybatisplus
+类：com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper
+状态：已落地
+适用范围：基础 Mapper 接口
+
+== 1. 功能说明
+
+`CBaseMapper`：基础 Mapper 接口。
+
+== 2. 设计要点
+
+- 继承 BaseMapper，提供插入忽略、按ID更新所有字段等自定义方法
+
+== 3. 兜底设计
+
+默认继承 BaseMapper 能力
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+Mapper 扩展
+
+=== 4.2 不适用/边界场景
+
+依赖 SQL 注入器
+
+== 5. 已知限制与取舍
+
+依赖 SQL 注入器
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

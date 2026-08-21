@@ -16,6 +16,9 @@ import java.util.function.Supplier;
  */
 public class CSupplierTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getNormal() {
 
@@ -25,6 +28,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getNull() {
 
@@ -34,6 +40,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getSneakyThrowsCheckedException() {
 
@@ -48,6 +57,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void alwaysNull() {
 
@@ -57,6 +69,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void staticGetNullSupplier() {
 
@@ -64,6 +79,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticGetNormal() {
 
@@ -73,6 +91,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void convert() {
 
@@ -84,6 +105,9 @@ public class CSupplierTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convertNullCSupplier() {
 

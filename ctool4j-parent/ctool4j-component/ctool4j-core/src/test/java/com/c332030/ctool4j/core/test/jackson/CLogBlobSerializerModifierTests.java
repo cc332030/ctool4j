@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CLogBlobSerializerModifierTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void blobFieldSerializedToPlaceholder() throws Exception {
 
@@ -27,6 +30,9 @@ public class CLogBlobSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void globalMapperOutputsRealContent() throws Exception {
 
@@ -37,6 +43,9 @@ public class CLogBlobSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void logMapperDeepCopyDoesNotAffectOthers() throws Exception {
 
@@ -63,6 +72,9 @@ public class CLogBlobSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void normalFieldNotAffected() throws Exception {
 
@@ -71,6 +83,9 @@ public class CLogBlobSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void noBlobBeanNormal() throws Exception {
 
@@ -79,6 +94,9 @@ public class CLogBlobSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void logMapperSkipsNullField() throws Exception {
 

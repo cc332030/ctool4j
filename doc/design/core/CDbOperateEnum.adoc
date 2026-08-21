@@ -1,0 +1,29 @@
+= CDbOperateEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.enums.CDbOperateEnum
+状态：已落地
+适用范围：数据库操作枚举（插入/查询/更新/删除）
+
+== 1. 功能说明
+
+`CDbOperateEnum` 为数据库操作枚举，实现 `ICOperate`，定义四种操作（INSERT/SELECT/UPDATE/DELETE），
+各带中文描述 `text`，提供 `getText()` 与 `getName()`。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 数据库操作类型的标准化枚举。
+
+== 5. 已知限制与取舍
+
+- 描述为中文文本。
+
+测试内容见 `doc/design/core/CDbOperateEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -15,12 +15,16 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
  * <p>覆盖 CHttpRequestMethodNotSupportedExceptionHandler.handle：统一返回默认 500</p>
  *
  * @since 2026/8/16
+ * <p>`com.c332030.ctool4j.web.exception.handler.CHttpRequestMethodNotSupportedExceptionHandler`（CHttpRequestMethodNotSupportedExceptionHandler）的测试用例</p>
  */
 public class CHttpRequestMethodNotSupportedExceptionHandlerTests {
 
     private final CHttpRequestMethodNotSupportedExceptionHandler handler =
         new CHttpRequestMethodNotSupportedExceptionHandler();
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void handle() {
         val e = new HttpRequestMethodNotSupportedException("DELETE", "method not supported");

@@ -19,6 +19,11 @@ import org.springframework.core.env.Environment;
  * 覆盖 updateLogLevel 的正常路径（更新生效）、边界（className 为空、level 为空不生效）
  * </p>
  *
+ * <p>
+ * 是 {@link CLogLevelListener} 的测试用例（对应测试文档
+ * <code>doc/design/log/CLogLevelListenerTests.adoc</code>）。
+ * </p>
+ *
  * @since 2026/8/16
  */
 class CLogLevelListenerTests {
@@ -42,7 +47,9 @@ class CLogLevelListenerTests {
 
     /**
      * 正常路径：key 合法且 level 有值时，目标 logger 级别更新
-     */
+ * <p>
+ * 对应测试用例 1.1
+ */
     @Test
     void updateLogLevel_normal() {
         Environment environment = Mockito.mock(Environment.class);
@@ -57,7 +64,9 @@ class CLogLevelListenerTests {
 
     /**
      * 正常路径：多次更新可切换级别
-     */
+ * <p>
+ * 对应测试用例 1.2
+ */
     @Test
     void updateLogLevel_switchLevel() {
         Environment environment = Mockito.mock(Environment.class);
@@ -74,7 +83,9 @@ class CLogLevelListenerTests {
 
     /**
      * 边界：key 去除前缀后 className 为空，不生效且不抛异常
-     */
+ * <p>
+ * 对应测试用例 2.1
+ */
     @Test
     void updateLogLevel_blankClassNameNoOp() {
         Environment environment = Mockito.mock(Environment.class);
@@ -88,7 +99,9 @@ class CLogLevelListenerTests {
 
     /**
      * 边界：level 配置值为空，不生效且不抛异常
-     */
+ * <p>
+ * 对应测试用例 2.2
+ */
     @Test
     void updateLogLevel_blankLevelNoOp() {
         Environment environment = Mockito.mock(Environment.class);

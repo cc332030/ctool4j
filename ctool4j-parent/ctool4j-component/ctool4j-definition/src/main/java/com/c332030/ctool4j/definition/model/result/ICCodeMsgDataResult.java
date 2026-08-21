@@ -8,6 +8,7 @@ import com.c332030.ctool4j.definition.interfaces.ICMsgAdapter;
  * </p>
  *
  * @author c332030
+ * @see doc/design/definition/ICCodeMsgDataResult.adoc
  * @since 2025/12/9
  */
 public interface ICCodeMsgDataResult<CODE, DATA> extends ICBaseResult<CODE, DATA>, ICMsgAdapter {

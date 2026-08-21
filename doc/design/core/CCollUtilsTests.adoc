@@ -1,0 +1,96 @@
+= CCollUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CCollUtils`（core 工具类）——集合操作（空兜底/遍历/分组/添加/拼接/过滤/转换/新建/取元素/最值/转 Map）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CCollUtilsTests`
+
+对应设计文档：`doc/design/core/CCollUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CCollUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「空兜底 / 遍历分组 / 添加拼接 / 过滤 / 转换 / 新建 / 元素 / 最值 / 转 Map / 其他」多维度组织。
+- 空/null 入参统一作为边界覆盖，验证返回空结果而非抛异常。
+- 过滤、转换、最值、转 Map 覆盖 null 元素过滤与异常路径。
+
+=== 设计依据
+
+- 依据功能设计对空值语义、null 过滤、异常路径的约定。
+- 依据测试方法（等价类/边界值/分支覆盖/异常路径）：null 入参、空集合、null 元素、冲突、越界。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：defaultEmpty；forEach（null 不抛）；groupingBy（空/分组/null key 过滤/不可变/predicate）；
+  addIgnore（null/empty/blank）；addAllIgnoreNull；concatOne（前后/null）；concat（null 过滤/全 null）；
+  filter（Collection/List/Set/null/filterNull/filterString/filterKey/filterStringKey/convert 过滤）；
+  convert（转换/null 过滤/predicate/convertSet/convertToList/convertToSet/convertToCollection/
+  convertString/convertCollection）；newCollection（size0 不可变/size>0 可变）；contains；get（越界/负数/null）；
+  first/last（空/null）；onlyOne（空/单/多抛异常）；minMax（null/空/convert null 过滤）；
+  stream（null/正常）；toMap（基本/空/value null/自定义 value/predicate/merge/冲突抛异常/不可变/Pair）；
+  containsAny；getValues；size；collectionType（返回类型）。
+- 未覆盖：`newLinkedSet`/`newLinkedMap` 独立创建断言（在 newCollection 中覆盖 isEmpty，类型未逐一断言）。
+
+== 1. 空兜底
+
+- 1.1 defaultEmpty：null/空返回空、非空返回原引用（defaultEmpty）
+- 1.2 size：null/空返回 0、正常返回大小（size）
+
+== 2. 遍历与分组
+
+- 2.1 forEach：null 不抛、正常遍历（forEach）
+- 2.2 groupingBy：空返回空；分组正确；null key 过滤；不可变；自定义 predicate（groupingBy）
+
+== 3. 添加与拼接
+
+- 3.1 addIgnoreNull/Empty/Blank：忽略 null/空/空白（addIgnore）
+- 3.2 addAllIgnoreNull：null 集合不抛、正常添加（addAllIgnoreNull）
+- 3.3 concatOne：元素前/后；null 元素与 null 集合忽略；不影响原集合（concatOne）
+- 3.4 concat：null 集合过滤、全 null 返回空、正常拼接（concat）
+
+== 4. 过滤
+
+- 4.1 filter：Collection/List/Set 版本；null 入参返回空；filterNull；filterString；filterKey；
+  filterStringKey；convert 过滤（filter）
+
+== 5. 转换
+
+- 5.1 convert：基本转换；null 元素过滤；predicate；convertSet；空集合返回新集合；null 对象返回空；
+  convertString（空白过滤）；convertCollection（null 过滤）（convert）
+
+== 6. 集合新建
+
+- 6.1 newCollection：size0 不可变；size>0 可变（newCollection）
+
+== 7. 元素获取
+
+- 7.1 contains：null/空返回 false、正常正反（contains）
+- 7.2 get：正索引；越界/负数/null 返回 null（get）
+- 7.3 first：正常、null/空返回 null（first）
+- 7.4 last：List 索引与非 List reduce、null/空返回 null（last）
+- 7.5 onlyOne：空 null、单元素、多元素抛业务异常（onlyOne）
+
+== 8. 最值
+
+- 8.1 minMax：min/max 正例；null/空返回 null；convert 结果 null 过滤（minMax）
+
+== 9. 流与转 Map
+
+- 9.1 stream：null 空流、正常计数（stream）
+- 9.2 toMap：基本；空集合；value null 跳过；自定义 value；predicate 过滤 key；merge 冲突；无 merge
+  冲突抛异常；不可变；Pair 版本（toMap）
+
+== 10. 其他
+
+- 10.1 containsAny：命中/多候选/未命中；空 elements/null 集合返回 false（containsAny）
+- 10.2 getValues：null 枚举返回空；正常枚举取值（getValues）
+- 10.3 返回类型验证：defaultEmpty 返回 List、convertSet 返回 LinkedHashSet、toMap 返回 Map（collectionType）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

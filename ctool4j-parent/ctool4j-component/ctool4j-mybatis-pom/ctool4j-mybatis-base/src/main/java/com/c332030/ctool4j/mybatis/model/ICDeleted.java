@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
  * </p>
  *
  * @since 2025/12/16
+ * @see doc/design/mybatis/ICDeleted.adoc
  */
 public interface ICDeleted {
 

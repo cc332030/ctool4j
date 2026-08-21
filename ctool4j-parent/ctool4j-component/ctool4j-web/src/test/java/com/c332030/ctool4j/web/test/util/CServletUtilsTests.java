@@ -21,11 +21,15 @@ import java.util.Map;
  *
  * @since 2026/8/14
  */
+
 @CustomLog
 public class CServletUtilsTests {
 
     // ---------- writeJson(String) ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void writeJson_string() throws Exception {
         // 正例：写入 JSON 字符串 + 状态码 + content-type
@@ -37,6 +41,9 @@ public class CServletUtilsTests {
         Assertions.assertEquals("{\"a\":1}", response.getContentAsString());
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void writeJson_string_errorStatus() {
         // 正例：错误状态码
@@ -45,6 +52,9 @@ public class CServletUtilsTests {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void writeJson_string_emptyJson() throws Exception {
         // 边界：空 JSON 字符串写入
@@ -53,6 +63,9 @@ public class CServletUtilsTests {
         Assertions.assertEquals("", response.getContentAsString());
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void writeJson_string_null() {
         // 反例：null jsonBody 抛出 NPE
@@ -62,6 +75,9 @@ public class CServletUtilsTests {
         );
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void writeJson_string_nullResponse() {
         // 异常路径：null response 抛出 NPE
@@ -73,6 +89,9 @@ public class CServletUtilsTests {
 
     // ---------- writeJson(Object) ----------
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void writeJson_object() throws Exception {
         // 正例：Object body 序列化为 JSON 写入
@@ -87,6 +106,9 @@ public class CServletUtilsTests {
         Assertions.assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 
+    /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void writeJson_object_map() throws Exception {
         // 正例：Map body
@@ -98,6 +120,9 @@ public class CServletUtilsTests {
         Assertions.assertTrue(response.getContentAsString().contains("1"));
     }
 
+    /**
+     * 对应测试用例 1.8
+     */
     @Test
     public void writeJson_object_null() {
         // 反例：null body 抛出 NPE

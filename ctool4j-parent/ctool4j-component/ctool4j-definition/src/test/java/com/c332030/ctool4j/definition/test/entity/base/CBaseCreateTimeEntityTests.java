@@ -15,6 +15,9 @@ import java.util.Date;
  */
 public class CBaseCreateTimeEntityTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
 
@@ -25,6 +28,9 @@ public class CBaseCreateTimeEntityTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void setterAndGetter() {
 
@@ -39,6 +45,9 @@ public class CBaseCreateTimeEntityTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void toStringNullSafe() {
 
@@ -53,6 +62,9 @@ public class CBaseCreateTimeEntityTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void toStringWithValues() {
 
@@ -67,6 +79,9 @@ public class CBaseCreateTimeEntityTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void equalsAndHashCode() {
 
@@ -88,6 +103,9 @@ public class CBaseCreateTimeEntityTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void equalsSameReference() {
 
@@ -96,6 +114,9 @@ public class CBaseCreateTimeEntityTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void builder() {
 

@@ -15,6 +15,7 @@ public class CProfileEnumTests {
 
     /**
      * 测试按名称获取环境枚举（大小写不敏感）
+     * 对应测试用例 1.1
      */
     @Test
     public void of() {
@@ -26,6 +27,7 @@ public class CProfileEnumTests {
 
     /**
      * 测试全部环境枚举按名称获取
+     * 对应测试用例 1.2
      */
     @Test
     public void ofAllEnums() {
@@ -41,6 +43,7 @@ public class CProfileEnumTests {
 
     /**
      * 测试未知环境名抛 IllegalArgumentException
+     * 对应测试用例 1.3
      */
     @Test
     public void ofUnknownThrows() {
@@ -66,6 +69,7 @@ public class CProfileEnumTests {
 
     /**
      * 测试生产环境集合仅含 PROD
+     * 对应测试用例 2.1
      */
     @Test
     public void prodProfiles() {
@@ -78,6 +82,7 @@ public class CProfileEnumTests {
 
     /**
      * 测试描述字段
+     * 对应测试用例 3.1
      */
     @Test
     public void text() {

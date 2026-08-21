@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
  */
 public class ICopyTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void copyToClass() {
 
@@ -27,6 +30,9 @@ public class ICopyTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void copyToInstance() {
 

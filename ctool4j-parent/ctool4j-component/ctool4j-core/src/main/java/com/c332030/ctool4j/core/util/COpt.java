@@ -25,6 +25,8 @@ import java.util.Objects;
  * </p>
  *
  * @since 2025/12/6
+ * @see doc/design/core/COpt.adoc
+ * @see doc/design/core/COptTests.adoc
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class COpt<T> {

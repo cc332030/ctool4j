@@ -1,0 +1,67 @@
+= CDateUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CDateUtils`（core 工具类）——日期时间工具（格式化/解析/转换/加减/时间戳解析）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CDateUtilsTests`
+
+对应设计文档：`doc/design/core/CDateUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CDateUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「格式化 / 解析 / 转换 / 加减运算 / 时间戳解析」多个维度组织。
+- 以固定日期 `2025-03-03 08:01:03` 为基准，验证格式化与解析往返一致。
+- 加减运算覆盖秒/分/时/天/月/年六个时间单位的 plus/minus（含 0 单位边界），以及 Duration、单位数组版本。
+- 时间戳解析覆盖毫秒时间戳与秒级时间戳（9999999999）两形态。
+
+=== 设计依据
+
+- 依据功能设计对格式化模式、时间戳智能解析、加减运算的约定。
+- 依据测试方法（等价类/边界值）：六个单位、0 单位边界、时间戳长短、null 入参。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：formatDate/Time/DateTime/format；parse（parseMaybeMills/parseInstantMaybeMills 日期/时间/日期时间/
+  毫秒字符串）；toDate（null/mills/instant/边界时间戳）；toInstant（null/mills/date）；plus/minus 六单位
+  （Instant/Date 两入口、0 单位边界）；plusArr/minusArr 单位数组；parseMaybeMills 毫秒与秒级时间戳。
+- 未覆盖：`calc`/`getDayBegin`/`toLocalDate`/`toLocalTime`/`toLocalDateTime`/`toZonedDateTime` 等其余入口
+  （当前测试聚焦格式化/解析/转换/加减/时间戳核心路径，其余入口可后续批次补充）。
+
+== 1. 格式化
+
+- 1.1 formatDate/Time/DateTime 与自定义 pattern（format）
+
+== 2. 解析
+
+- 2.1 parseMaybeMills/parseInstantMaybeMills：日期/时间/日期时间/毫秒字符串解析（parse）
+
+== 3. 转换
+
+- 3.1 toDate：null 返回 null；mills/instant 转换；边界时间戳（9999999999）（toDate）
+- 3.2 toInstant：null 返回 null；mills/date 转换（toInstant）
+
+== 4. 加减运算（plus/minus）
+
+- 4.1 秒：plus/minus 1 秒（Instant/Date），0 秒不变（plusSecond / minusSecond）
+- 4.2 分：plus/minus 1 分（Instant/Date），0 分不变（plusMinute / minusMinute）
+- 4.3 时：plus/minus 1 时（Instant/Date），0 时不变（plusHour / minusHour）
+- 4.4 天：plus/minus 1 天（Instant/Date），0 天不变（plusDay / minusDay）
+- 4.5 月：plus/minus 1 月（单位版本），0 月不变（plusMonth / minusMonth）
+- 4.6 年：plus/minus 1 年（单位版本），0 年不变（plusYear / minusYear）
+- 4.7 单位数组：plusArr 六单位同时增加（plusArr）
+- 4.8 单位数组：minusArr 六单位同时减少（minusArr）
+
+== 5. 时间戳解析（parseMaybeMills）
+
+- 5.1 毫秒时间戳：`1767492170633` → `2026-01-04 10:02:50`（parseMaybeMills）
+- 5.2 秒级时间戳：`9999999999` → `2286-11-21 01:46:39`（parseMaybeMillsForSecondMills）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

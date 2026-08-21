@@ -20,6 +20,9 @@ import java.util.Date;
  */
 public class CInstantSerializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void serialize() throws Exception {
 

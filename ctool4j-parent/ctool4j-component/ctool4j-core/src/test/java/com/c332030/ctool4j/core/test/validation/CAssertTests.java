@@ -21,6 +21,9 @@ import java.util.Map;
  */
 public class CAssertTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void isTrue() {
 
@@ -37,6 +40,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void equals() {
 
@@ -55,6 +61,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void isNull() {
 
@@ -65,6 +74,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void notNull() {
 
@@ -75,6 +87,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void notEmptyString() {
 
@@ -89,6 +104,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void notBlank() {
 
@@ -104,6 +122,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     public void notEmptyByteArray() {
 
@@ -114,6 +135,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.4
+     */
     @Test
     public void notEmptyIntArray() {
 
@@ -124,6 +148,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.5
+     */
     @Test
     public void notEmptyLongArray() {
 
@@ -134,6 +161,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.6
+     */
     @Test
     public void notEmptyObjectArray() {
 
@@ -144,6 +174,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.7
+     */
     @Test
     public void notEmptyCollection() {
 
@@ -155,6 +188,9 @@ public class CAssertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.8
+     */
     @Test
     public void notEmptyMap() {
 

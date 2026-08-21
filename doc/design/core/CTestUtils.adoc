@@ -1,0 +1,48 @@
+= CTestUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CTestUtils
+状态：已落地
+适用范围：判断当前是否处于测试环境
+
+== 1. 功能说明
+
+`CTestUtils` 为测试环境判断工具类，提供：
+
+- `isTest()`：是否处于测试环境
+- `isNotTest()`：是否不处于测试环境
+
+== 2. 设计要点
+
+=== 2.1 判断依据
+
+- 基于 `CTool4jTestConstants.IS_TEST` 常量判断（测试环境 classpath 包含 JUnit 时该常量恒为 true）。
+- `isNotTest()` = `!isTest()`，语义自洽。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 测试环境 | isTest() 为 true，isNotTest() 为 false |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要区分测试/生产环境行为的代码路径（如日志级别、Mock 数据注入）。
+
+=== 4.2 不适用/边界场景
+
+- 基于 classpath 常量判断，无法区分单元测试/集成测试等细分环境。
+
+== 5. 已知限制与取舍
+
+- 判断依赖编译期/classpath 常量，简单直接；复杂环境区分需结合 Spring Profile 等。
+
+测试内容见 `doc/design/core/CTestUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -11,6 +11,8 @@ import lombok.experimental.UtilityClass;
  * Description: CCacheUtils
  * </p>
  *
+ * @see doc/design/cache/CCacheUtils.adoc
+ * @see doc/design/cache/CCacheUtilsTests.adoc
  * @since 2025/9/27
  */
 @UtilityClass

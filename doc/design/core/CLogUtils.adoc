@@ -1,0 +1,73 @@
+= CLogUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.log.CLogUtils
+状态：已落地
+适用范围：日志工具（日志获取、是否转 JSON 判断、可打印数据处理）
+
+== 1. 功能说明
+
+`CLogUtils` 为日志工具类，提供：
+
+- 日志获取：`getLog(name)` / `getLog(Class)`（按类缓存 CLog）
+- JSON 化判断与配置：`isJsonLog` / `setJsonLog` / `addJsonLogDomainPackage` / `addJsonLogAnnotations` 等
+- 参数处理：`toLogArgs` / `getSupplierArgs`
+- 可打印数据处理：`getPrintAble` / `getPrintAbleString` / `isPrintAble`
+- 常量：`LOGGING_LEVEL` / `LOGGING_LEVEL_PREFIX`
+
+== 2. 设计要点
+
+=== 2.1 JSON 化判断（isJsonLog）
+
+- 基于 `CRefClassValue` 缓存按类判断结果，规则优先级：
+  1. 枚举不转；命中 `NOT_JSON_LOG_SUPERCLASSES`（DataSource/InputStream/OutputStream/Throwable 等）不转；
+     命中 `NOT_JSON_LOG_DOMAIN_PACKAGE`（.sun./.apache.）不转。
+  2. 命中 `JSON_LOG_SUPERCLASSES`（ICBaseResult/Collection/Map）转。
+  3. 命中 `JSON_LOG_DOMAIN_PACKAGE`（.config./.entity./.model. 等）转。
+  4. 命中 `JSON_LOG_ANNOTATIONS`（CJsonLog/ConfigurationProperties）转。
+  5. 兜底：JDK 类不转，其余转。
+- 各类"添加"方法可动态扩展集合。
+
+=== 2.2 参数 JSON 化（toLogArgs）
+
+- 对可 JSON 化参数替换为 JSON 字符串（日志专用 mapper：不序列化 null + CLogBlob 字段输出 `<BLOB>` 占位符）；
+  返回新数组不修改调用方入参；null 元素保持不动。
+- 转 JSON 失败则禁用该类型转换并记录错误日志（有意设计取舍，避免每次日志都抛异常）。
+
+=== 2.3 可打印数据（getPrintAble）
+
+- 可 JSON 化或基础可打印类型（CharSequence/Number/Date/枚举/基本类）原样返回；否则经转换函数
+  （byte[] → `[byte[n]]`、MultipartFile → `文件名:大小`、其他 → `[类名]`）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| isJsonLog 枚举 / 命中不转集合 | 返回 false |
+| isJsonLog 命中转集合 / 非 JDK 类 | 返回 true |
+| toLogArgs 转 JSON 失败 | 禁用该类型转换，记录错误日志 |
+| getPrintAble null | 返回 "[null]" |
+| getPrintAble 不可打印类型 | 返回 "[类名]" 等占位 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 统一日志参数 JSON 化、敏感数据脱敏（CLogBlob）、可打印数据转换。
+
+=== 4.2 不适用/边界场景
+
+- JSON 化规则依赖包名/注解/父类启发式判断，复杂类型需手动 `setJsonLog` 指定。
+
+== 5. 已知限制与取舍
+
+- 转 JSON 失败即禁用该类型转换，避免重复异常（核心取舍）。
+- 各类集合基于 CopyOnWriteArraySet 线程安全，支持运行期扩展规则。
+
+测试内容见 `doc/design/core/CLogUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

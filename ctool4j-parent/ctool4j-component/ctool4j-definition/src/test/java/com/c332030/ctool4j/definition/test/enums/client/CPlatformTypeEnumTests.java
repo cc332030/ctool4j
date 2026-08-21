@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CPlatformTypeEnumTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void values() {
 
@@ -20,6 +23,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void web() {
 
@@ -28,6 +34,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void android() {
 
@@ -36,6 +45,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void ios() {
 
@@ -44,6 +56,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void harmonyOs() {
 
@@ -52,6 +67,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void windows() {
 
@@ -60,6 +78,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void macOs() {
 
@@ -68,6 +89,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.8
+     */
     @Test
     public void linux() {
 
@@ -76,6 +100,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.9
+     */
     @Test
     public void wearable() {
 
@@ -84,6 +111,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.10
+     */
     @Test
     public void valueOf_normal() {
 
@@ -98,6 +128,9 @@ public class CPlatformTypeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.11
+     */
     @Test
     public void valueOfUnknown() {
 

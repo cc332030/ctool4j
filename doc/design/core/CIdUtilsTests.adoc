@@ -1,0 +1,68 @@
+= CIdUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CIdUtils`（core 工具类）——UUID/雪花 ID 生成、类 ID 前缀计算、带前缀雪花 ID、ID 前缀解析。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CIdUtilsTests`
+
+对应设计文档：`doc/design/core/CIdUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CIdUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「生成 / 前缀计算 / 前缀解析」三个维度组织：生成类验证 UUID/雪花 ID 的形态与唯一性，前缀计算验证类名前缀约定，前缀解析验证数字前字符的解析规则。
+- UUID 形态断言长度与 '-' 有无，雪花 ID 断言为正数且两次不相等（验证递增）。
+- 前缀计算以测试类自身（`CIdUtilsTests`）验证类名前缀规则（大写字母去 DO → `CIUT`）。
+- 前缀解析覆盖含前缀、纯字母（无数字）、以数字开头、空、null 等分支。
+
+=== 设计依据
+
+- 依据功能设计对前缀计算规则（`@CBizId` 优先、类名大写去 DO、按类缓存）与解析规则（数字前字符）的约定。
+- 依据测试方法（等价类/边界值/分支覆盖）：UUID 形态、前缀截取边界（length 超长）、解析各分支。
+- 前缀截取覆盖"length 超前缀长度"边界。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：UUID 带/不带连字符形态；雪花 ID 正数且递增；类前缀（含注解优先、类名大写去 DO）、前缀截取边界；
+  带前缀雪花 ID（字符串/类/类+长度三种入口）；前缀解析（含前缀、纯字母、数字开头、空、null、转换函数）。
+- 未覆盖：`@CBizId` 注解优先路径（测试类无注解，仅覆盖类名回退路径；注解路径依赖注解声明，未在单测中构造）。
+
+== 1. UUID 生成
+
+- 1.1 stringUUID：36 位且含 '-'（stringUUID）
+- 1.2 stringUUIDNoHyphen：32 位且不含 '-'（stringUUIDNoHyphen）
+
+== 2. 雪花 ID 生成
+
+- 2.1 nextId：正数且两次不相等（递增）（nextId）
+
+== 3. 类 ID 前缀计算
+
+- 3.1 getPrefix：类名大写去 DO（`CIdUtilsTests` → `CIUT`）（getPrefix）
+- 3.2 getPrefix(Class, length)：截取 2 位 `CI`（getPrefixByLength）
+- 3.3 边界：length 超前缀长度时返回完整前缀 `CIUT`（getPrefixByLength）
+
+== 4. 带前缀雪花 ID
+
+- 4.1 nextIdWithPrefix(String)：`P-` 前缀 + 正数雪花 ID（nextIdWithPrefix）
+- 4.2 nextIdWithPrefix(Class)：类前缀 `CIUT` + 正数雪花 ID（nextIdWithPrefixByClass）
+- 4.3 nextIdWithPrefix(Class, length)：截取前缀 `CI` + 正数雪花 ID（nextIdWithPrefixByClassAndLength）
+
+== 5. 前缀解析
+
+- 5.1 含前缀：`P-123` → `P-`（getPrefixFromId）
+- 5.2 纯字母无数字：`ABC` → `ABC`（getPrefixFromId）
+- 5.3 以数字开头无前缀：`123abc` → null（getPrefixFromId）
+- 5.4 边界：空字符串 → null（getPrefixFromId）
+- 5.5 边界：null → null（getPrefixFromId）
+- 5.6 转换函数：`P-123` → `P-` / 长度 2（getPrefixFromIdWithFunction）
+- 5.7 无前缀时不调用转换函数直接返回 null：`123` → null（getPrefixFromIdWithFunction）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -22,6 +22,8 @@ import java.util.stream.Stream;
  * </p>
  *
  * @since 2025/2/11
+ * @see doc/design/core/CResultUtils.adoc
+ * @see doc/design/core/CResultUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

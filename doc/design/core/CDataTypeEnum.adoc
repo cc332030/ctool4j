@@ -1,0 +1,55 @@
+= CDataTypeEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.enums.CDataTypeEnum
+状态：已落地
+适用范围：数据类型枚举（含日期类型集合、描述、小写名）
+
+== 1. 功能说明
+
+`CDataTypeEnum` 为数据类型枚举，实现 `ICText`，定义 13 种数据类型（INT/LONG/FLOAT/DOUBLE/BOOLEAN/
+STRING/DATE/TIME/DATETIME/TIMESTAMP/ENUM/OPTION/MULTI_OPTION），每种带中文描述。
+
+提供：
+
+- `getText()`：类型描述
+- `getLowerCase()`：枚举名小写形式
+- `DATE_TYPES`：日期相关类型集合（DATE/TIME/DATETIME/TIMESTAMP）
+
+== 2. 设计要点
+
+=== 2.1 日期类型集合
+
+- `DATE_TYPES` 为不可变 Set（`CSet.of`），仅含日期相关类型，便于统一判断"是否日期类型"。
+
+=== 2.2 小写名
+
+- `getLowerCase()` 返回 `name().toLowerCase()`，供配置/传输使用。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 判断是否日期类型 | 用 `DATE_TYPES.contains` |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 数据类型的标准化枚举（字段类型映射、校验）。
+
+=== 4.2 不适用/边界场景
+
+- getLowerCase 依赖枚举名；新增枚举需同步维护 DATE_TYPES。
+
+== 5. 已知限制与取舍
+
+- 描述为中文文本，作为展示/传输语义约定。
+
+测试内容见 `doc/design/core/CDataTypeEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2025/11/12
+ * @see doc/design/web/CCorsResponseBodyAdvice.adoc
  */
 @CustomLog
 //@ControllerAdvice

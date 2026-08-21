@@ -1,12 +1,14 @@
 = CMethodHandleUtils 测试用例文档
 
+Version: 1.1
+LastModified: 2026-08-21
 所属功能：`com.c332030.ctool4j.core.classes.CMethodHandleUtils`（core 工具类）——MethodHandle 的创建、缓存与统一 Object 签名适配。
 
 对应测试类：`com.c332030.ctool4j.core.test.classes.CMethodHandleUtilsTests`
 
 对应设计文档：`doc/design/core/CMethodHandleUtils.adoc`（功能设计，测试内容以本文档为准）。
 
-本文档为 CMethodHandleUtils 的测试用例文档，含用例设计思路与依据及分类编号索引；测试方法通过行注释标注对应编号（如 `// 对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+本文档为 CMethodHandleUtils 的测试用例文档，含用例设计思路与依据及分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
 
 == 用例设计思路与依据
 
@@ -60,3 +62,8 @@
 
 - 3.1 getHandle(Constructor) 生成构造器 handle 并调用（constructorHandle）
 - 3.2 二次获取 getHandle(Constructor) 缓存命中（assertSame）（constructorHandleCache）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

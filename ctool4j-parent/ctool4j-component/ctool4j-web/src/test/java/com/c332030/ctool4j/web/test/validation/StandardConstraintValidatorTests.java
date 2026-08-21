@@ -1,14 +1,14 @@
 package com.c332030.ctool4j.web.test.validation;
 
+import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
 import com.c332030.ctool4j.web.validation.annotation.CSchema;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -20,7 +20,8 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: 标准 Bean Validation 注解（@NotNull/@NotBlank/@NotEmpty）生效验证
+ * Description: 标准 Bean Validation 注解（@NotNull/@NotBlank/@NotEmpty）生效验证：启动 Spring 容器
+ * （@CTool4jSpringBootTest），经容器注入的真实 {@link Validator} 校验，贴近真实使用场景
  * </p>
  *
  * <p>
@@ -30,18 +31,16 @@ import java.util.Set;
  * </p>
  *
  * @author c332030
+ * @see doc/design/web/StandardConstraintValidatorTests.adoc
  */
+@CTool4jSpringBootTest
 public class StandardConstraintValidatorTests {
 
-    private static Validator validator;
-
-    @BeforeAll
-    public static void init() {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
-    }
+    @Autowired
+    private Validator validator;
 
     /**
-     * @NotNull 生效：null → violation，message 非空
+     * @NotNull 生效：null → violation，message 非空（对应测试用例 1.1）
      */
     @Test
     public void notNull() {
@@ -53,7 +52,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * @NotNull 生效：非 null → 通过
+     * @NotNull 生效：非 null → 通过（对应测试用例 1.2）
      */
     @Test
     public void notNull_valid() {
@@ -63,7 +62,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * @NotBlank 生效：空白字符串 → violation
+     * @NotBlank 生效：空白字符串 → violation（对应测试用例 1.3）
      */
     @Test
     public void notBlank() {
@@ -77,7 +76,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * @NotBlank 生效：非空白 → 通过
+     * @NotBlank 生效：非空白 → 通过（对应测试用例 1.4）
      */
     @Test
     public void notBlank_valid() {
@@ -87,7 +86,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * @NotEmpty 生效：空集合 → violation
+     * @NotEmpty 生效：空集合 → violation（对应测试用例 1.5）
      */
     @Test
     public void notEmpty() {
@@ -97,7 +96,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * @NotEmpty 生效：非空集合 → 通过
+     * @NotEmpty 生效：非空集合 → 通过（对应测试用例 1.6）
      */
     @Test
     public void notEmpty_valid() {
@@ -107,7 +106,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * 标准注解与 @CSchema 同 bean 共存：message 处理逻辑一致（都由约束注解 message 提供，经 getMessage 返回）
+     * 标准注解与 @CSchema 同 bean 共存：message 处理逻辑一致（都由约束注解 message 提供，经 getMessage 返回）（对应测试用例 1.7）
      */
     @Test
     public void standardAndCSchema_coexist() {

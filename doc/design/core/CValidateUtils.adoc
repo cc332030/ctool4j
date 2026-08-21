@@ -1,0 +1,59 @@
+= CValidateUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.validation.CValidateUtils
+状态：已落地（@Deprecated，建议使用 CValidUtils）
+适用范围：值空值判断（isNull/isEmpty/isBlank 系列）
+
+== 1. 功能说明
+
+`CValidateUtils` 为值判断工具类，提供各类型的空值判断：
+
+- null：`isNull` / `isNotNull`
+- 字符串：`isEmpty` / `isNotEmpty` / `isBlank` / `isNotBlank`
+- 可迭代/集合：`isEmpty` / `isNotEmpty`
+- Map：`isEmpty` / `isNotEmpty`
+- 数组（byte/short/char/int/long/Object）：`isEmpty` / `isNotEmpty`
+
+== 2. 设计要点
+
+=== 2.1 废弃状态
+
+- 本类标记 `@Deprecated`，其按类型判断有效性（isValid）的语义已迁移至 `CValidUtils`；
+  保留本类以兼容既有使用。
+
+=== 2.2 判断语义
+
+- 字符串空值：`isEmpty` 用 `StrUtil.isEmpty`（null 或空串）；`isBlank` 用 `StrUtil.isBlank`
+  （null、空串、纯空白）。
+- 集合/Map/数组：`isEmpty` 用 `CollUtil.isEmpty` / `MapUtil.isEmpty` / `ArrayUtil.isEmpty`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 字符串 null/空串 | isEmpty 为 true |
+| 字符串 null/空串/纯空白 | isBlank 为 true |
+| 集合/Map/数组 null/空 | isEmpty 为 true |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对值做空值判断的既有代码；新代码建议使用 `CValidUtils`。
+
+=== 4.2 不适用/边界场景
+
+- 本类已废弃，新开发优先使用 `CValidUtils`。
+
+== 5. 已知限制与取舍
+
+- 保留兼容性（不删除），但标记废弃引导迁移至 `CValidUtils`。
+
+测试内容见 `doc/design/core/CValidateUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

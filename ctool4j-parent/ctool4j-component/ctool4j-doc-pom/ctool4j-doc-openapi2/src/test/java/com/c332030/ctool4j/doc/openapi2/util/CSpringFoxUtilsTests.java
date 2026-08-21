@@ -20,6 +20,10 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/14
+ *
+ * <p>
+ * 是 {@link CSpringFoxUtils} 的测试用例（对应测试文档 <code>doc/design/openapi2/CSpringFoxUtilsTests.adoc</code>）。
+ * </p>
  */
 class CSpringFoxUtilsTests {
 
@@ -36,6 +40,10 @@ class CSpringFoxUtilsTests {
         private final String text;
     }
 
+    /**
+     * <p>
+     * 对应测试用例 1.1
+     */
     @Test
     void getDocketBuilder() {
         Docket docket = CSpringFoxUtils.getDocketBuilder();
@@ -43,6 +51,10 @@ class CSpringFoxUtilsTests {
         Assertions.assertEquals(DocumentationType.SWAGGER_2, docket.getDocumentationType());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 2.1
+     */
     @Test
     void getHeaderParameter() {
         Parameter parameter = CSpringFoxUtils.getHeaderParameter(Header.AUTHORIZATION);
@@ -54,6 +66,10 @@ class CSpringFoxUtilsTests {
         Assertions.assertEquals("鉴权", parameter.getDescription());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 2.2
+     */
     @Test
     void getHeaderParameter_lowerCaseDataType() {
         Parameter parameter = CSpringFoxUtils.getHeaderParameter(Header.X_TRACE_ID);
@@ -63,12 +79,20 @@ class CSpringFoxUtilsTests {
         Assertions.assertFalse(parameter.isRequired());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 2.3
+     */
     @Test
     void getHeaderParameter_null() {
         Assertions.assertThrowsExactly(NullPointerException.class,
                 () -> CSpringFoxUtils.getHeaderParameter(null));
     }
 
+    /**
+     * <p>
+     * 对应测试用例 3.1
+     */
     @Test
     void globalParameterList() {
         List<Parameter> parameters = CSpringFoxUtils.globalParameterList(
@@ -79,6 +103,10 @@ class CSpringFoxUtilsTests {
         Assertions.assertEquals("X-Trace-Id", parameters.get(1).getName());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 3.2
+     */
     @Test
     void globalParameterList_empty() {
         List<Parameter> parameters = CSpringFoxUtils.globalParameterList(Collections.emptyList());
@@ -86,6 +114,10 @@ class CSpringFoxUtilsTests {
         Assertions.assertTrue(parameters.isEmpty());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 3.3
+     */
     @Test
     void globalParameterList_null() {
         List<Parameter> parameters = CSpringFoxUtils.globalParameterList(null);
@@ -93,6 +125,10 @@ class CSpringFoxUtilsTests {
         Assertions.assertTrue(parameters.isEmpty());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 3.4
+     */
     @Test
     void globalParameterList_filterNullElement() {
         List<Parameter> parameters = CSpringFoxUtils.globalParameterList(

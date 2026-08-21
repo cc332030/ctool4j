@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class StartEndTimeConsumerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void acceptNormal() {
 
@@ -30,6 +33,9 @@ public class StartEndTimeConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void acceptNullInputs() {
 
@@ -43,6 +49,9 @@ public class StartEndTimeConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void acceptSneakyThrowsCheckedException() {
 

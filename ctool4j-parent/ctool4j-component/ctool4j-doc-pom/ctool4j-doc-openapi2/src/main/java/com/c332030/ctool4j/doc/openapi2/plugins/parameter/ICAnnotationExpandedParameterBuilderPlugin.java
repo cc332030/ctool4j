@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
  * Description: ICAnnotationExpandedParameterBuilderPlugin
  * </p>
  *
+ * @see doc/design/openapi2/ICAnnotationExpandedParameterBuilderPlugin.adoc
  * @since 2025/12/17
  */
 public interface ICAnnotationExpandedParameterBuilderPlugin<T extends Annotation> extends ICExpandedParameterBuilderPlugin {

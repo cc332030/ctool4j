@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CXxlJobExecutorLogConfig
  * </p>
  *
+ * @see doc/design/xxljob/CXxlJobExecutorLogConfig.adoc
  * @since 2025/11/29
  */
 @Data

@@ -15,6 +15,8 @@ import org.springframework.lang.NonNull;
  * </p>
  *
  * @since 2025/5/13
+ * @see doc/design/core/CStrResult.adoc
+ * @see doc/design/core/CStrResultTests.adoc
  */
 @Data
 @SuperBuilder

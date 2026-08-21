@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2026/1/23
+ * @see doc/design/spring/CSpringSecurityUtils.adoc
+ * @see doc/design/spring/CSpringSecurityUtilsTests.adoc
  */
 @UtilityClass
 public class CSpringSecurityUtils {

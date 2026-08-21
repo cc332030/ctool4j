@@ -5,6 +5,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * Description: ICOperate
  * </p>
  *
+ * @see doc/design/definition/ICOperate.adoc
  * @since 2025/11/10
  */
 public interface ICOperate extends ICEnumName {

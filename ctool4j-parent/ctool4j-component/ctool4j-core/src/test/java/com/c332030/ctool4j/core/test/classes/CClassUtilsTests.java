@@ -36,9 +36,10 @@ public class CClassUtilsTests {
 
     /**
      * 测试类字段对比
+     * 对应测试用例 1.1
      */
     @Test
-    public void compareField(){
+    public void compareField() {
 
         CClassUtils.compareField(CId.class, CBaseTimeEntity.class, CBaseEntity.class);
 
@@ -46,6 +47,7 @@ public class CClassUtilsTests {
 
     /**
      * 测试获取类所在包的首段名称
+     * 对应测试用例 2.1
      */
     @Test
     public void getFirstPackage() {
@@ -59,6 +61,7 @@ public class CClassUtilsTests {
 
     /**
      * 测试是否为 JDK 类
+     * 对应测试用例 3.1
      */
     @Test
     public void isJdkClass() {
@@ -75,6 +78,7 @@ public class CClassUtilsTests {
     /**
      * 测试获取类及其所有父类（不含 Object）
      * <p>顺序约定：类本身在前，沿继承链由子至父，直至顶层父类（Object 除外）</p>
+     * 对应测试用例 4.1
      */
     @Test
     public void getSuperClasses() {
@@ -116,6 +120,7 @@ public class CClassUtilsTests {
      * <p>顺序约定：按父类链由子至父遍历，每层按 getInterfaces 声明顺序，
      * LinkedHashSet 去重保序；只取各类直接实现的接口，不递归接口继承
      * （如 ICCreateUpdateBy 是 ICCreateUpdateByAndTime 的父接口，不会出现）</p>
+     * 对应测试用例 5.1
      */
     @Test
     public void getInterfaces() {

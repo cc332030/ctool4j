@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CCountryCodeEnumTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void values() {
 
@@ -20,6 +23,9 @@ public class CCountryCodeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void chn() {
 
@@ -29,6 +35,9 @@ public class CCountryCodeEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void valueOfUnknown() {
 

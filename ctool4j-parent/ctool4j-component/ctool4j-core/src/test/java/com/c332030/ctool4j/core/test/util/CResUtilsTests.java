@@ -28,6 +28,9 @@ public class CResUtilsTests {
         };
     }
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void formatMessage() {
 
@@ -36,6 +39,9 @@ public class CResUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void formatMessageNullRes() {
 
@@ -44,6 +50,9 @@ public class CResUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void formatMessageEmptyExtend() {
 
@@ -52,6 +61,9 @@ public class CResUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void formatResMessage() {
 
@@ -60,6 +72,9 @@ public class CResUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void formatResMessageNullRes() {
 
@@ -68,6 +83,9 @@ public class CResUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void formatResMessageEmptyExtend() {
 

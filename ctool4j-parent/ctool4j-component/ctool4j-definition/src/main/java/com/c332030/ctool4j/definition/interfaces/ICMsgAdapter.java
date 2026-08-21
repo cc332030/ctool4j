@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Description: ICMsgAdapter
  * </p>
  *
+ * @see doc/design/definition/ICMsgAdapter.adoc
  * @since 2025/12/30
  */
 public interface ICMsgAdapter extends ICMsg, ICMessage{

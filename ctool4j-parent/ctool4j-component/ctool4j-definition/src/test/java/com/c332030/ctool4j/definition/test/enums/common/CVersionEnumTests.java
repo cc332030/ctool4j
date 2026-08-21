@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CVersionEnumTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void values() {
 
@@ -20,6 +23,9 @@ public class CVersionEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void v1() {
 
@@ -28,6 +34,9 @@ public class CVersionEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void v2() {
 
@@ -36,6 +45,9 @@ public class CVersionEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void v3() {
 
@@ -44,6 +56,9 @@ public class CVersionEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void valueOf_normal() {
 
@@ -53,6 +68,9 @@ public class CVersionEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void valueOfUnknown() {
 

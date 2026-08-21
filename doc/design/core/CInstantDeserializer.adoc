@@ -1,0 +1,46 @@
+= CInstantDeserializer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.deserializer.CInstantDeserializer
+状态：已落地
+适用范围：Jackson Instant 反序列化（字符串/整型毫秒时间戳）
+
+== 1. 功能说明
+
+`CInstantDeserializer` 为 Jackson `Instant` 反序列化器，扩展 `JsonDeserializer<Instant>`，支持：
+
+- 字符串（含毫秒时间戳字符串）：`CDateUtils.parseInstantMaybeMills`
+- 整型毫秒时间戳：`CDateUtils.toInstant`
+- 其他 token：交给默认 `InstantDeserializer.INSTANT`
+
+提供单例 `INSTANCE`（私有构造）。
+
+== 2. 设计要点
+
+=== 2.1 token 分发
+
+- `ID_STRING`：字符串经 `parseInstantMaybeMills` 智能解析。
+- `ID_NUMBER_INT`：整型毫秒经 `toInstant` 转换。
+- 其他 token 回退默认实现。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要 Instant 字段同时支持字符串与整型毫秒时间戳反序列化。
+
+=== 4.2 不适用/边界场景
+
+- null 由默认实现处理（返回 null）。
+
+== 5. 已知限制与取舍
+
+- 委托 CDateUtils 统一解析语义。
+
+测试内容见 `doc/design/core/CInstantDeserializerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

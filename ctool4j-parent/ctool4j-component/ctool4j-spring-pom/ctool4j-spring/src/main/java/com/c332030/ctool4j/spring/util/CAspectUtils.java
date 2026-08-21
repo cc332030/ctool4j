@@ -17,6 +17,8 @@ import java.lang.reflect.UndeclaredThrowableException;
  *
  * @author c332030
  * @since 2024/5/6
+ * @see doc/design/spring/CAspectUtils.adoc
+ * @see doc/design/spring/CAspectUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

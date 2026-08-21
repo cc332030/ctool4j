@@ -23,11 +23,15 @@ import static org.mockito.Mockito.when;
  * <p>覆盖 CMethodArgumentNotValidExceptionHandler.handle：拼接全部字段错误信息</p>
  *
  * @since 2026/8/16
+ * <p>`com.c332030.ctool4j.web.exception.handler.CMethodArgumentNotValidExceptionHandler`（CMethodArgumentNotValidExceptionHandler）的测试用例</p>
  */
 public class CMethodArgumentNotValidExceptionHandlerTests {
 
     private final CMethodArgumentNotValidExceptionHandler handler = new CMethodArgumentNotValidExceptionHandler();
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void handle() throws NoSuchMethodException {
         val parameter = new MethodParameter(
@@ -46,6 +50,9 @@ public class CMethodArgumentNotValidExceptionHandlerTests {
         Assertions.assertEquals("name 不能为空，age 必须为正数", result.getMessage());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void handle_whenNoFieldError() throws NoSuchMethodException {
         val parameter = new MethodParameter(

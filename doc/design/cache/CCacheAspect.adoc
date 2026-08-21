@@ -1,0 +1,70 @@
+= CCacheAspect 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-cache
+类：com.c332030.ctool4j.cache.aop.CCacheAspect
+状态：已落地
+适用范围：@CCacheable 方法的缓存切面（本地缓存 + Redis 缓存）
+
+== 1. 功能说明
+
+`CCacheAspect`（`@Aspect` + `@Component`）拦截标注 `@CCacheable` 的方法，读缓存、未命中时执行原方法并写缓存。
+
+核心行为：
+
+- `cacheAspect(joinPoint)`：`@Around` 拦截；`local()` 为 true 走本地缓存，否则走 Redis 缓存。
+- `getCacheKey(object, cacheable)`：生成缓存 key（基于入参对象 + `@CCacheId` 字段 + idConverter）。
+- `getLocalCache(...)`：本地 Caffeine 缓存（按 namespace + expire 分组），`cache.get` 原子加载。
+- `getRedisCache(...)`：Redis 缓存（`namespace:cacheKey`），走 `CCacheService.getCache` 读-算-写。
+
+== 2. 设计要点
+
+=== 2.1 本地缓存组织
+
+- 二级缓存 `namespace → (expire → Cache)`：每个 namespace 下按不同 expire 各维护一个 Caffeine Cache。
+- 防御上限 `MAX_EXPIRE_CACHES_PER_NAMESPACE = 16`，超过时复用已有最长过期时间 Cache，防止无界增长。
+- `cache.get(cacheKey, ...)` 原子加载，单 key 并发只执行一次。
+
+=== 2.2 缓存 key 生成
+
+- 仅取方法第一个参数（`CArrUtils.get(args, 0)`）作为 key 来源；无参数不缓存。
+- `@CCacheId` 字段通过 MethodHandle（`CACHE_ID_HANDLE_CLASS_VALUE`）读取，替代反射提升性能。
+- JDK 类对象跳过 `@CCacheId` 读取；最终由 idConverter 生成缓存 ID。
+
+=== 2.3 异常语义
+
+- 读缓存/执行原方法异常不捕获，直接向上抛出；异常时缓存未写入，不污染缓存。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 入参 object 为 null | `getCacheKey` 返回 null，调用方不写缓存 |
+| 对象无 `@CCacheId` 字段 | cacheId 为 null，走默认 idConverter |
+| 方法无参数 | 跳过缓存直接执行原方法 |
+| expire 未配置（0） | 本地缓存不设过期时间 |
+| namespace 下 expire 数超上限 | 复用最长过期时间 Cache |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 标注 `@CCacheable` 的 Service 方法，按第一个入参对象做本地/Redis 缓存。
+
+=== 4.2 不适用/边界场景
+
+- 多参数方法仅取第一个参数做 key；复合 key 需自行封装入参对象并标注 `@CCacheId`。
+- 本地缓存为 JVM 内单机缓存，多实例部署需使用 Redis 模式。
+
+== 5. 已知限制与取舍
+
+- 仅支持第一个参数参与缓存 key，是已知简化取舍。
+- namespace 下 expire 超过 16 种时会复用最长过期时间缓存，可能与预期过期时间不一致（防御性兜底）。
+- `getRedisCache` 用 `namespace.getSimpleName()` 作为 key 前缀，不同包下同名类可能冲突。
+
+测试内容见 `doc/design/cache/CCacheAspectTests.adoc`、`doc/design/cache/CCacheAspectCacheKeyTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,28 @@
+= CVersionEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.enums.common.CVersionEnum
+状态：已落地
+适用范围：版本枚举（V1/V2/V3）
+
+== 1. 功能说明
+
+`CVersionEnum` 为版本枚举，定义 V1/V2/V3，各带描述 `text`。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 版本类型的标准化枚举。
+
+== 5. 已知限制与取舍
+
+- 描述与枚举名一致（V1/V2/V3）。
+
+测试内容见 `doc/design/core/CVersionEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

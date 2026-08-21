@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * <p>`com.c332030.ctool4j.web.util.CCommUtils`（web 工具类）请求日志拼接的测试用例，
  * 覆盖容易出错或出错后难发现的方法：headers 拼接、URL/Query 拼接、charset 解析、响应报文头、完整 HTTP 日志拼接等；
- * 测试用例分类与编号见 doc/design/web/CCommUtilsTests.adoc，各测试方法以行注释标注对应编号</p>
+ * 测试用例分类与编号见 doc/design/web/CCommUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号</p>
  *
  * @since 2026/8/14
  */
@@ -49,6 +49,9 @@ public class CCommUtilsTests {
 
     // ---------- contextTypeForm ----------
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void contextTypeForm() {
         // 正例：设置表单 content-type
@@ -57,6 +60,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals(MediaType.APPLICATION_FORM_URLENCODED, headers.getContentType());
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void contextTypeForm_nullHeaders_throws() {
         // 异常路径：null headers 抛出 NPE
@@ -68,6 +74,9 @@ public class CCommUtilsTests {
 
     // ---------- contextTypeJson ----------
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void contextTypeJson() {
         // 正例：设置 json content-type
@@ -76,6 +85,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals(MediaType.APPLICATION_JSON, headers.getContentType());
     }
 
+    /**
+     * 对应测试用例 3.4
+     */
     @Test
     public void contextTypeJson_nullHeaders_throws() {
         // 异常路径：null headers 抛出 NPE
@@ -87,6 +99,9 @@ public class CCommUtilsTests {
 
     // ---------- acceptJson ----------
 
+    /**
+     * 对应测试用例 3.5
+     */
     @Test
     public void acceptJson() {
         // 正例：设置 Accept: application/json
@@ -95,6 +110,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(headers.getAccept().contains(MediaType.APPLICATION_JSON));
     }
 
+    /**
+     * 对应测试用例 3.6
+     */
     @Test
     public void acceptJson_nullHeaders_throws() {
         // 异常路径：null headers 抛出 NPE
@@ -106,6 +124,9 @@ public class CCommUtilsTests {
 
     // ---------- getFullHeaderStr ----------
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void getFullHeaderStr() {
         // 正例：多个 header 以换行连接
@@ -115,6 +136,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("A: 1\nB: 2", CCommUtils.getFullHeaderStr(map));
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void getFullHeaderStr_null_returnsNull() {
         // 边界：null/空 map 返回 null
@@ -122,6 +146,9 @@ public class CCommUtilsTests {
         Assertions.assertNull(CCommUtils.getFullHeaderStr(Collections.emptyMap()));
     }
 
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     public void getFullHeaderStr_multiValue() {
         // 边界：同一 header 多个值用逗号连接
@@ -130,6 +157,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("A: 1,2", CCommUtils.getFullHeaderStr(map));
     }
 
+    /**
+     * 对应测试用例 4.4
+     */
     @Test
     public void getFullHeaderStr_withPredicate() {
         // 正例：predicate 过滤 header
@@ -142,6 +172,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("A: 1", result);
     }
 
+    /**
+     * 对应测试用例 4.5
+     */
     @Test
     public void getFullHeaderStr_predicateAllReject_returnsEmptyString() {
         // 边界：predicate 全部拒绝时返回空串（非 null）
@@ -151,6 +184,9 @@ public class CCommUtilsTests {
 
     // ---------- isTextBody ----------
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void isTextBody_json() {
         // 正例：application/json 视为文本 body
@@ -158,6 +194,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(CCommUtils.isTextBody(map));
     }
 
+    /**
+     * 对应测试用例 5.2
+     */
     @Test
     public void isTextBody_binary() {
         // 反例：application/octet-stream 非文本
@@ -165,12 +204,18 @@ public class CCommUtilsTests {
         Assertions.assertFalse(CCommUtils.isTextBody(map));
     }
 
+    /**
+     * 对应测试用例 5.3
+     */
     @Test
     public void isTextBody_emptyHeaders() {
         // 边界：无 Content-Type 时按非文本处理
         Assertions.assertFalse(CCommUtils.isTextBody(Collections.emptyMap()));
     }
 
+    /**
+     * 对应测试用例 5.4
+     */
     @Test
     public void isTextBody_nullHeaders_returnsFalse() {
         // 边界：null headers 按无 Content-Type 处理，返回 false
@@ -179,6 +224,9 @@ public class CCommUtilsTests {
 
     // ---------- getCharsetOrDefault ----------
 
+    /**
+     * 对应测试用例 6.1
+     */
     @Test
     public void getCharsetOrDefault_explicit() {
         // 正例：显式声明 charset 时按声明解析
@@ -186,6 +234,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("GBK", CCommUtils.getCharsetOrDefault(map).name());
     }
 
+    /**
+     * 对应测试用例 6.2
+     */
     @Test
     public void getCharsetOrDefault_defaultUtf8() {
         // 边界：未声明 charset 时默认 UTF-8
@@ -193,6 +244,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals(StandardCharsets.UTF_8, CCommUtils.getCharsetOrDefault(map));
     }
 
+    /**
+     * 对应测试用例 6.3
+     */
     @Test
     public void getCharsetOrDefault_invalidContentType() {
         // 边界：无法解析的 Content-Type 忽略并回退 UTF-8
@@ -200,12 +254,18 @@ public class CCommUtilsTests {
         Assertions.assertEquals(StandardCharsets.UTF_8, CCommUtils.getCharsetOrDefault(map));
     }
 
+    /**
+     * 对应测试用例 6.4
+     */
     @Test
     public void getCharsetOrDefault_emptyHeaders() {
         // 边界：无 Content-Type 时默认 UTF-8
         Assertions.assertEquals(StandardCharsets.UTF_8, CCommUtils.getCharsetOrDefault(Collections.emptyMap()));
     }
 
+    /**
+     * 对应测试用例 6.5
+     */
     @Test
     public void getCharsetOrDefault_nullHeaders_returnsUtf8() {
         // 边界：null headers 按无 Content-Type 处理，返回默认 UTF-8
@@ -214,6 +274,9 @@ public class CCommUtilsTests {
 
     // ---------- appendRequestUrl / appendUrl ----------
 
+    /**
+     * 对应测试用例 7.1
+     */
     @Test
     public void appendRequestUrl_getWithParams() {
         // 正例：GET 请求拼接 query string
@@ -227,6 +290,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("GET /api/test?a=1&b=2", sb.toString());
     }
 
+    /**
+     * 对应测试用例 7.2
+     */
     @Test
     public void appendRequestUrl_getNoParams() {
         // 边界：GET 无 params 时不拼 ?
@@ -236,6 +302,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("GET /api/test", sb.toString());
     }
 
+    /**
+     * 对应测试用例 7.3
+     */
     @Test
     public void appendUrl_postParamsNotAppended() {
         // 反例：POST 的 params 不拼到 URL
@@ -247,6 +316,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("/api/test", sb.toString());
     }
 
+    /**
+     * 对应测试用例 7.4
+     */
     @Test
     public void appendUrl_nullMethod() {
         // 边界：method 为 null/空时不拼接 query
@@ -258,6 +330,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("/api/test", sb.toString());
     }
 
+    /**
+     * 对应测试用例 7.5
+     */
     @Test
     public void appendUrl_multiValueParams() {
         // 边界：同一 key 多个 value 用 & 连接
@@ -270,6 +345,9 @@ public class CCommUtilsTests {
 
     // ---------- appendHeaderLine ----------
 
+    /**
+     * 对应测试用例 8.1
+     */
     @Test
     public void appendHeaderLine_string() {
         // 正例：拼接 key: value 且前置换行
@@ -278,6 +356,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("start\nKey: Value", sb.toString());
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void appendHeaderLine_emptyValue() {
         // 边界：value 为空时不做任何拼接
@@ -286,6 +367,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("start", sb.toString());
     }
 
+    /**
+     * 对应测试用例 8.3
+     */
     @Test
     public void appendHeaderLine_nullValue() {
         // 边界：value 为 null 时不做任何拼接
@@ -296,38 +380,49 @@ public class CCommUtilsTests {
 
     // ---------- getBodyText（feign 等 byte[] body 场景的真实转换节点） ----------
 
+    /**
+     * 对应测试用例 2.1：正例，文本 body 按 charset 解码
+     */
     @Test
     public void getBodyText_text() {
-        // 对应测试用例 2.1：正例，文本 body 按 charset 解码
         val body = "你好".getBytes(StandardCharsets.UTF_8);
         val map = headers(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
         Assertions.assertEquals("你好", CCommUtils.getBodyText(body, map, CCommUtils.NOT_TEXT_BODY));
     }
 
+    /**
+     * 对应测试用例 2.2：反例，非文本 body 输出占位符
+     */
     @Test
     public void getBodyText_binary() {
-        // 对应测试用例 2.2：反例，非文本 body 输出占位符
         val body = new byte[]{(byte) 0xFF, (byte) 0x00};
         val map = headers(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
         Assertions.assertEquals(CCommUtils.NOT_TEXT_BODY, CCommUtils.getBodyText(body, map, null));
     }
 
+    /**
+     * 对应测试用例 2.3：边界，空 body 返回传入占位符（feign 无请求体时输出 EMPTY_REQ/EMPTY_RSP，避免 [null]）
+     */
     @Test
     public void getBodyText_emptyBytes_returnsPlaceholder() {
-        // 对应测试用例 2.3：边界，空 body 返回传入占位符（feign 无请求体时输出 EMPTY_REQ/EMPTY_RSP，避免 [null]）
         Assertions.assertEquals("EMPTY", CCommUtils.getBodyText(new byte[0], null, "EMPTY"));
         Assertions.assertEquals("EMPTY", CCommUtils.getBodyText(null, null, "EMPTY"));
     }
 
+    /**
+     * 对应测试用例 2.4：边界，空 body 且未传占位符时返回 null（不输出）
+     */
     @Test
     public void getBodyText_emptyBytes_noPlaceholder_returnsNull() {
-        // 对应测试用例 2.4：边界，空 body 且未传占位符时返回 null（不输出）
         Assertions.assertNull(CCommUtils.getBodyText(new byte[0], null, null));
         Assertions.assertNull(CCommUtils.getBodyText(null, null, null));
     }
 
     // ---------- appendError ----------
 
+    /**
+     * 对应测试用例 9.1
+     */
     @Test
     public void appendError() {
         // 正例：拼接 error 信息
@@ -336,6 +431,9 @@ public class CCommUtilsTests {
         Assertions.assertEquals("start\n\nerror: boom", sb.toString());
     }
 
+    /**
+     * 对应测试用例 9.2
+     */
     @Test
     public void appendError_empty() {
         // 边界：空/null errorMessage 不拼接
@@ -347,6 +445,9 @@ public class CCommUtilsTests {
 
     // ---------- appendHttpLog（完整 HTTP 报文拼接） ----------
 
+    /**
+     * 对应测试用例 1.1.1
+     */
     @Test
     public void appendHttpLog_get() {
         // 正例：GET 完整拼接（请求行 + query + header + 业务数据）
@@ -360,6 +461,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("X-Trace-Id: trace-1"));
     }
 
+    /**
+     * 对应测试用例 1.1.1
+     */
     @Test
     public void appendHttpLog_source() {
         // 正例：设置 source 时，日志最前面输出 [来源] 独立行，请求行紧随其后
@@ -371,6 +475,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.startsWith("[feign]\nGET /api/test"));
     }
 
+    /**
+     * 对应测试用例 1.3.1
+     */
     @Test
     public void appendHttpLog_postFormAndBody() {
         // 正例：POST 有 params（form body）+ 请求体，两者均输出
@@ -388,6 +495,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("{\"y\":2}"));
     }
 
+    /**
+     * 对应测试用例 1.3.5
+     */
     @Test
     public void appendHttpLog_paramsEmptyReqOnly() {
         // 分支：params 为空但请求体有值，只输出 json 请求体（无 form body）
@@ -401,6 +511,9 @@ public class CCommUtilsTests {
         Assertions.assertFalse(result.contains("name="));
     }
 
+    /**
+     * 对应测试用例 1.3.6
+     */
     @Test
     public void appendHttpLog_reqNullRspPresent() {
         // 分支：请求体为 null（不输出）但响应体有值，只输出响应体
@@ -414,6 +527,9 @@ public class CCommUtilsTests {
         Assertions.assertFalse(result.contains("[null]"));
     }
 
+    /**
+     * 对应测试用例 1.7.4
+     */
     @Test
     public void appendHttpLog_allFields() {
         // 正例：所有选项都有值，验证最终完整打印格式
@@ -453,9 +569,11 @@ public class CCommUtilsTests {
         );
     }
 
+    /**
+     * 对应测试用例 1.4.1：正例，仅有响应状态码无响应头时输出状态行
+     */
     @Test
     public void appendHttpLog_responseStatusOnly() {
-        // 对应测试用例 1.4.1：正例，仅有响应状态码无响应头时输出状态行
         val log = requestLog();
         log.setResponseStatus(404);
         log.setRsp("not found");
@@ -465,9 +583,11 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("\n404 Not Found\n\nnot found"));
     }
 
+    /**
+     * 对应测试用例 1.4.2：边界，未知状态码不输出描述，仅输出数字
+     */
     @Test
     public void appendHttpLog_responseStatusUnknownCode() {
-        // 对应测试用例 1.4.2：边界，未知状态码不输出描述，仅输出数字
         val log = requestLog();
         log.setResponseStatus(599);
         val sb = new StringBuilder();
@@ -477,9 +597,11 @@ public class CCommUtilsTests {
         Assertions.assertFalse(result.contains("599 "));
     }
 
+    /**
+     * 对应测试用例 1.4.3：边界，未采集响应状态码/响应头时不输出响应报文头（向后兼容）
+     */
     @Test
     public void appendHttpLog_noResponseStatus() {
-        // 对应测试用例 1.4.3：边界，未采集响应状态码/响应头时不输出响应报文头（向后兼容）
         val log = requestLog();
         log.setRsp("{\"y\":2}");
         val sb = new StringBuilder();
@@ -489,9 +611,11 @@ public class CCommUtilsTests {
         Assertions.assertFalse(result.contains(" OK"));
     }
 
+    /**
+     * 对应测试用例 1.4.4：分支，无响应状态码但有响应头时仅输出响应头（无状态行）
+     */
     @Test
     public void appendHttpLog_responseHeadersOnlyNoStatus() {
-        // 对应测试用例 1.4.4：分支，无响应状态码但有响应头时仅输出响应头（无状态行）
         val log = requestLog();
         log.setResponseHeaders(headers("X-Trace-Id", "abc"));
         log.setRsp("{\"y\":2}");
@@ -502,9 +626,11 @@ public class CCommUtilsTests {
         Assertions.assertFalse(result.contains(" OK"));
     }
 
+    /**
+     * 对应测试用例 1.5.2：边界，响应头同一 header 多个值逐行输出（响应头复用 appendHeaderMap，与请求头一致）
+     */
     @Test
     public void appendHttpLog_responseHeadersMultipleValues() {
-        // 对应测试用例 1.5.2：边界，响应头同一 header 多个值逐行输出（响应头复用 appendHeaderMap，与请求头一致）
         val log = requestLog();
         log.setResponseHeaders(
             java.util.Collections.singletonMap("Set-Cookie", java.util.Arrays.asList("a=1", "b=2"))
@@ -516,6 +642,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("Set-Cookie: b=2"));
     }
 
+    /**
+     * 对应测试用例 1.6.3
+     */
     @Test
     public void appendHttpLog_noResponseBody() {
         // 边界：请求体/响应体为 null 时不输出占位（避免出现 [null]）
@@ -525,6 +654,9 @@ public class CCommUtilsTests {
         Assertions.assertFalse(sb.toString().contains("[null]"));
     }
 
+    /**
+     * 对应测试用例 1.7.5
+     */
     @Test
     public void appendHttpLog_errorAndRt() {
         // 正例：异常信息 + 耗时输出
@@ -539,6 +671,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("rt: 1000ms"));
     }
 
+    /**
+     * 对应测试用例 1.7.6
+     */
     @Test
     public void appendHttpLog_rtInvalidNotOutput() {
         // 边界：end 早于 begin 时不输出耗时
@@ -550,6 +685,9 @@ public class CCommUtilsTests {
         Assertions.assertFalse(sb.toString().contains("rt:"));
     }
 
+    /**
+     * 对应测试用例 1.5.2
+     */
     @Test
     public void appendHttpLog_headersMultipleValues() {
         // 边界：同一 header 多个值逐行输出
@@ -562,9 +700,11 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("Accept: b"));
     }
 
+    /**
+     * 对应测试用例 1.8.2：开关关闭，请求头/响应头不输出，但状态行与请求/响应体仍输出
+     */
     @Test
     public void appendHttpLog_enableHeaderFalse_skipHeaders() {
-        // 对应测试用例 1.8.2：开关关闭，请求头/响应头不输出，但状态行与请求/响应体仍输出
         val log = requestLog();
         log.setRequestHeaders(headers("Accept", "application/json"));
         log.setResponseStatus(200);
@@ -581,6 +721,9 @@ public class CCommUtilsTests {
         Assertions.assertTrue(result.contains("{\"y\":2}"));
     }
 
+    /**
+     * 对应测试用例 1.8.3
+     */
     @Test
     public void appendHttpLog_nullInfo() {
         // 异常路径：null info 抛出 NPE

@@ -18,6 +18,7 @@ import java.io.IOException;
  * </p>
  *
  * @since 2026/1/10
+ * @see doc/design/web/CCorsFilter.adoc
  */
 @CustomLog
 @Component

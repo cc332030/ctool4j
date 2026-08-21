@@ -29,6 +29,8 @@ import java.util.Collections;
  * Description: CRedisUtils
  * </p>
  *
+ * @see doc/design/redis/CRedisUtils.adoc
+ * @see doc/design/redis/CRedisUtilsTests.adoc
  * @since 2025/11/10
  */
 @CustomLog

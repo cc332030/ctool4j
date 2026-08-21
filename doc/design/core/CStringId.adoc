@@ -1,0 +1,28 @@
+= CStringId 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CStringId
+状态：已落地
+适用范围：String 类型 ID 实体（继承 CId<String>）
+
+== 1. 功能说明
+
+`CStringId` 为 String 类型 ID 实体，继承 `CId<String>` 并实现 `ICStringId`，固定主键为 String 类型。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 主键为 String 的实体基类。
+
+== 5. 已知限制与取舍
+
+- 固定 ID 类型为 String。
+
+测试内容见 `doc/design/core/CStringIdTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CComparatorUtilsTests {
 
+    /**
+     * 对应测试用例 1.1, 1.2
+     */
     @Test
     public void minCollection() {
 
@@ -29,6 +32,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3, 1.4
+     */
     @Test
     public void minVarargs() {
 
@@ -39,6 +45,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1, 2.2
+     */
     @Test
     public void maxCollection() {
 
@@ -49,6 +58,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3, 2.4
+     */
     @Test
     public void maxVarargs() {
 
@@ -58,6 +70,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void compareCollectionWithComparator() {
 
@@ -68,6 +83,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void minByFunction() {
 
@@ -77,6 +95,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void maxByFunction() {
 
@@ -86,6 +107,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void compareWithComparator() {
 
@@ -94,6 +118,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.2
+     */
     @Test
     public void compareNullHandling() {
 
@@ -103,6 +130,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.3
+     */
     @Test
     public void compareNatural() {
 
@@ -115,6 +145,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 6.1
+     */
     @Test
     public void minConsumer() {
 
@@ -128,6 +161,9 @@ public class CComparatorUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 6.2
+     */
     @Test
     public void maxConsumer() {
 

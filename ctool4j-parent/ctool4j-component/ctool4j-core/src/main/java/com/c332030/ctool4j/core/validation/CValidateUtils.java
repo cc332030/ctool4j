@@ -16,6 +16,8 @@ import java.util.Objects;
  * </p>
  *
  * @since 2026/1/20
+ * @see doc/design/core/CValidateUtils.adoc
+ * @see doc/design/core/CValidateUtilsTests.adoc
  */
 @Deprecated
 @UtilityClass

@@ -26,6 +26,7 @@ import java.lang.annotation.*;
  * 可标注在字段或 getter 方法（如接口 {@code ICUsername.getUsername()}）上。</p>
  *
  * @author c332030
+ * @see doc/design/web/CSchema.adoc
  */
 @Target({
     ElementType.FIELD,

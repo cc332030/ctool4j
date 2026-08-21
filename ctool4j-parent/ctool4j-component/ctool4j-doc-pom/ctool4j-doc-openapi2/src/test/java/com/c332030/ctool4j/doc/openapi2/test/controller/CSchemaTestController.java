@@ -17,7 +17,8 @@ import javax.validation.Valid;
  * </p>
  *
  * @author c332030
- */
+ * @see doc/design/openapi2/CSchemaTestController.adoc
+*/
 @Validated
 @RestController
 @Api(tags = "CSchema 集成测试")

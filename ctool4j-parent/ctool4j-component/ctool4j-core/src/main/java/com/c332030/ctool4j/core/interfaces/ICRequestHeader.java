@@ -12,6 +12,8 @@ import com.c332030.ctool4j.definition.interfaces.ICText;
  *
  * @author c332030
  * @since 2024/3/21
+ * @see doc/design/core/ICRequestHeader.adoc
+ * @see doc/design/core/ICRequestHeaderTests.adoc
  */
 public interface ICRequestHeader extends ICText, ICEnumName {
 

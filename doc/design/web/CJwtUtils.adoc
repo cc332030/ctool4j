@@ -1,0 +1,55 @@
+= CJwtUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.util.CJwtUtils
+状态：已落地
+适用范围：JWT 工具（创建/验证/解析）
+
+== 1. 功能说明
+
+`CJwtUtils` 为 JWT 工具类，基于 hutool JWTUtil，提供：
+
+- `create(body, secret)`：创建 jwt（body 可为对象或 Map）
+- `verify(jwt, secret)`：验证 jwt（secret 不能为空白，jwt 空返回 false）
+- `parseJwt(jwt)`：按点拆分 jwt 为三段（空返回 null）
+- `getJson(arr, index)` / `getHeaderJson(jwt)` / `getBodyJson(jwt)`：解码段内容
+
+== 2. 设计要点
+
+=== 2.1 创建/验证
+
+- `create` 校验 secret 非空白（`Assert.isTrue`），经 `JWTUtil.createToken` 创建。
+- `verify` 校验 secret 非空白；jwt 为空直接返回 false（不依赖底层库对空 jwt 的抛错）。
+
+=== 2.2 解析
+
+- `parseJwt` 按 `\.` 拆分为头部/载荷/签名三段。
+- `getJson` 解码指定段 Base64（无对应段/null 返回 null）。
+- 注意：头部/载荷解析仅 base64 解码不校验签名，未认证不可信；需先 `verify`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| secret 空白 | 抛 IllegalArgumentException |
+| verify jwt 空 | 返回 false |
+| parseJwt jwt 空 | 返回 null |
+| getJson 段不存在 | 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- JWT 创建、验证、解析（含未认证场景的头部/载荷查看）。
+
+== 5. 已知限制与取舍
+
+- 头部/载荷解析不校验签名，调用方需先 verify。
+
+测试内容见 `doc/design/web/CJwtUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

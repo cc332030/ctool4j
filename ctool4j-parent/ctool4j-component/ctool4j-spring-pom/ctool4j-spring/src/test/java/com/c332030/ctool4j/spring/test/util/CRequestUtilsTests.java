@@ -29,6 +29,9 @@ class CRequestUtilsTests {
 
     // ---------- getIp ----------
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testGetIp_forwardedFor_single() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -36,6 +39,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals("1.2.3.4", CRequestUtils.getIp(request));
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testGetIp_forwardedFor_multiple_takesFirst() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -43,6 +49,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals("1.2.3.4", CRequestUtils.getIp(request));
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testGetIp_noForwardedFor_remoteAddr() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -51,6 +60,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals("10.0.0.1", CRequestUtils.getIp(request));
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     void testGetIp_forwardedForWhitespace_kept() {
         // 易错：StrUtil.isNotEmpty 对纯空格返回 true，直接返回原头，不回退 remoteAddr
@@ -62,6 +74,9 @@ class CRequestUtilsTests {
 
     // ---------- getHeader / getHeaders ----------
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     void testGetHeader() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -69,6 +84,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals("abc", CRequestUtils.getHeader(request, "token"));
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     void testGetHeader_null() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -76,6 +94,9 @@ class CRequestUtilsTests {
         Assertions.assertNull(CRequestUtils.getHeader(request, "token"));
     }
 
+        /**
+     * 对应测试用例 1.7
+     */
     @Test
     void testGetHeaders() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -84,6 +105,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals(Arrays.asList("a", "b"), result);
     }
 
+        /**
+     * 对应测试用例 1.8
+     */
     @Test
     void testGetHeaders_null() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -93,6 +117,9 @@ class CRequestUtilsTests {
 
     // ---------- getAttrStr ----------
 
+        /**
+     * 对应测试用例 1.9
+     */
     @Test
     void testGetAttrStr_present() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -100,6 +127,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals("v", CRequestUtils.getAttrStr(request, "k"));
     }
 
+        /**
+     * 对应测试用例 1.10
+     */
     @Test
     void testGetAttrStr_nullAttribute_returnsNull() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -107,6 +137,9 @@ class CRequestUtilsTests {
         Assertions.assertNull(CRequestUtils.getAttrStr(request, "k"));
     }
 
+        /**
+     * 对应测试用例 1.11
+     */
     @Test
     void testGetAttrStr_nonStringAttribute() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -116,6 +149,9 @@ class CRequestUtilsTests {
 
     // ---------- getErrorStatusCode ----------
 
+        /**
+     * 对应测试用例 1.12
+     */
     @Test
     void testGetErrorStatusCode_present() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -123,6 +159,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals("500", CRequestUtils.getErrorStatusCode(request));
     }
 
+        /**
+     * 对应测试用例 1.13
+     */
     @Test
     void testGetErrorStatusCode_absent() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -132,6 +171,9 @@ class CRequestUtilsTests {
 
     // ---------- getHeaderThenDo ----------
 
+        /**
+     * 对应测试用例 1.14
+     */
     @Test
     void testGetHeaderThenDo_emptyCollection_noAction() {
         AtomicInteger count = new AtomicInteger();
@@ -139,6 +181,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals(0, count.get());
     }
 
+        /**
+     * 对应测试用例 1.15
+     */
     @Test
     void testGetHeaderThenDo_nullCollection_noAction() {
         AtomicInteger count = new AtomicInteger();
@@ -148,6 +193,9 @@ class CRequestUtilsTests {
 
     // ---------- getHeadersThenDo ----------
 
+        /**
+     * 对应测试用例 1.16
+     */
     @Test
     void testGetHeadersThenDo_emptyCollection_noAction() {
         AtomicInteger count = new AtomicInteger();
@@ -155,6 +203,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals(0, count.get());
     }
 
+        /**
+     * 对应测试用例 1.17
+     */
     @Test
     void testGetHeadersThenDo_nullCollection_noAction() {
         AtomicInteger count = new AtomicInteger();
@@ -164,6 +215,9 @@ class CRequestUtilsTests {
 
     // ---------- addPrepare / prepare ----------
 
+        /**
+     * 对应测试用例 1.18
+     */
     @Test
     void testAddPrepareAndPrepare() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -176,6 +230,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals(2, count.get());
     }
 
+        /**
+     * 对应测试用例 1.19
+     */
     @Test
     void testPrepare_exceptionSwallowed() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -187,6 +244,9 @@ class CRequestUtilsTests {
         Assertions.assertDoesNotThrow(() -> CRequestUtils.prepare(request, response));
     }
 
+        /**
+     * 对应测试用例 1.20
+     */
     @Test
     void testAddPrepare_nullConsumer_throwsNPE() {
         Assertions.assertThrowsExactly(NullPointerException.class, () -> CRequestUtils.addPrepare(null));
@@ -194,6 +254,9 @@ class CRequestUtilsTests {
 
     // ---------- addClear / clear ----------
 
+        /**
+     * 对应测试用例 1.21
+     */
     @Test
     void testAddClearAndClear() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -206,6 +269,9 @@ class CRequestUtilsTests {
         Assertions.assertEquals(2, count.get());
     }
 
+        /**
+     * 对应测试用例 1.22
+     */
     @Test
     void testClear_exceptionSwallowed() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -217,6 +283,9 @@ class CRequestUtilsTests {
         Assertions.assertDoesNotThrow(() -> CRequestUtils.clear(request, response));
     }
 
+        /**
+     * 对应测试用例 1.23
+     */
     @Test
     void testAddClear_nullConsumer_throwsNPE() {
         Assertions.assertThrowsExactly(NullPointerException.class, () -> CRequestUtils.addClear(null));

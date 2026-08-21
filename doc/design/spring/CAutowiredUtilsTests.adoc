@@ -1,0 +1,35 @@
+= CAutowiredUtilsTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.spring.util.CAutowiredUtils`（spring 模块自动注入工具）。
+
+对应测试类：`com.c332030.ctool4j.spring.test.util.CAutowiredUtilsTests`
+
+对应设计文档：`doc/design/spring/CAutowiredUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CAutowiredUtilsTests 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证字段映射的各条路径与边界。
+
+=== 设计依据
+
+- 依据功能设计对字段映射的约定。
+- 依据测试方法（等价类/边界/分支覆盖）。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：字段映射的正常、边界与异常路径。
+- 未覆盖：真实容器/框架集成场景。
+
+== 1. 自动注入工具
+
+- 1.1 验证字段映射（对应测试方法 1.1-1.1）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

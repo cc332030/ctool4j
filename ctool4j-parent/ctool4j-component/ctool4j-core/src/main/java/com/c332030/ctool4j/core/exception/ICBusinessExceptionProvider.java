@@ -12,6 +12,8 @@ import lombok.val;
  * </p>
  *
  * @since 2025/9/14
+ * @see doc/design/core/ICBusinessExceptionProvider.adoc
+ * @see doc/design/core/ICBusinessExceptionProviderTests.adoc
  */
 public interface ICBusinessExceptionProvider<T extends Throwable> {
 

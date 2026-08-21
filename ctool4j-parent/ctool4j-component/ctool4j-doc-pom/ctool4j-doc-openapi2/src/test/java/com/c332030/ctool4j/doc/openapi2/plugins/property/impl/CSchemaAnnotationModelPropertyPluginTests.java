@@ -17,11 +17,19 @@ import springfox.documentation.spi.schema.contexts.ModelPropertyContext;
  * </p>
  *
  * @author c332030
+ *
+ * <p>
+ * 是 {@link CSchemaAnnotationModelPropertyPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc</code>）。
+ * </p>
  */
 class CSchemaAnnotationModelPropertyPluginTests {
 
     private final CSchemaAnnotationModelPropertyPlugin plugin = new CSchemaAnnotationModelPropertyPlugin();
 
+    /**
+     * <p>
+     * 对应测试用例 1.1
+     */
     @Test
     void apply_fieldRequiredWithValue() throws NoSuchFieldException {
         // 正例：required=true + value，必填 + 描述
@@ -30,6 +38,10 @@ class CSchemaAnnotationModelPropertyPluginTests {
         Assertions.assertEquals("用户名", property.getDescription());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 1.2
+     */
     @Test
     void apply_fieldRequiredWithoutValue() throws NoSuchFieldException {
         // 边界：required=true 不带 value，仅必填，描述保持为空
@@ -38,6 +50,10 @@ class CSchemaAnnotationModelPropertyPluginTests {
         Assertions.assertNull(property.getDescription());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 1.3
+     */
     @Test
     void apply_fieldNotRequired() throws NoSuchFieldException {
         // 边界：required=false（默认），不标记必填，但 value 非空仍写入描述
@@ -46,6 +62,10 @@ class CSchemaAnnotationModelPropertyPluginTests {
         Assertions.assertEquals("备注", property.getDescription());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 1.4
+     */
     @Test
     void apply_unAnnotatedField() throws NoSuchFieldException {
         // 边界：未标注 @CSchema，不设置必填也不写描述
@@ -54,12 +74,20 @@ class CSchemaAnnotationModelPropertyPluginTests {
         Assertions.assertNull(property.getDescription());
     }
 
+    /**
+     * <p>
+     * 对应测试用例 2.1
+     */
     @Test
     void supports() {
         Assertions.assertTrue(plugin.supports(DocumentationType.SWAGGER_2));
         Assertions.assertTrue(plugin.supports(DocumentationType.SWAGGER_12));
     }
 
+    /**
+     * <p>
+     * 对应测试用例 2.2
+     */
     @Test
     void supports_null() {
         Assertions.assertTrue(plugin.supports(null));

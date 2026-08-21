@@ -21,6 +21,7 @@ import java.util.Objects;
  * </p>
  *
  * @since 2025/12/6
+ * @see doc/design/mybatisplus/ICBizService.adoc
  */
 public interface ICBizService<ENTITY extends BIZ, BIZ>
         extends ICService<ENTITY> {

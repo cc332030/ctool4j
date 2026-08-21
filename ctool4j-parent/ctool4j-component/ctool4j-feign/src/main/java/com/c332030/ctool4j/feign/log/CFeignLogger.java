@@ -30,6 +30,8 @@ import java.util.*;
  * </p>
  *
  * @since 2025/12/2
+ * @see doc/design/feign/CFeignLogger.adoc
+ * @see doc/design/feign/CFeignLoggerTests.adoc
  */
 @CustomLog
 @AllArgsConstructor

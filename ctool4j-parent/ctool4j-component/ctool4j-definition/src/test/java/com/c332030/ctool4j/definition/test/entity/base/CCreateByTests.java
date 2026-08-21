@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CCreateByTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
 
@@ -23,6 +26,9 @@ public class CCreateByTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void setterAndGetter() {
 
@@ -36,6 +42,9 @@ public class CCreateByTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void toStringNullSafe() {
 
@@ -50,6 +59,9 @@ public class CCreateByTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void toStringWithValues() {
 
@@ -64,6 +76,9 @@ public class CCreateByTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void equalsAndHashCode() {
 
@@ -85,6 +100,9 @@ public class CCreateByTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void equalsSameReference() {
 
@@ -93,6 +111,9 @@ public class CCreateByTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void builder() {
 

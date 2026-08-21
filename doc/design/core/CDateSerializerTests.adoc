@@ -1,0 +1,37 @@
+= CDateSerializer 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.jackson.serializer.CDateSerializer`（core jackson 类）——Date 序列化。
+
+对应测试类：`com.c332030.ctool4j.core.test.jackson.CDateSerializerTests`
+
+对应设计文档：`doc/design/core/CDateSerializer.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CDateSerializer 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「序列化输出 / 单例」两个维度组织。
+- 序列化用 StringWriter + JsonGenerator 断言输出日期时间字符串；单例断言非空。
+
+=== 设计依据
+
+- 依据功能设计对 `yyyy-MM-dd HH:mm:ss` 输出的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：序列化输出 `"2025-03-03 08:01:03"`；INSTANCE 非空。
+- 未覆盖：无（覆盖了核心行为）。
+
+== 1. 序列化
+
+- 1.1 serialize：输出 `"2025-03-03 08:01:03"`（serialize）
+- 1.2 INSTANCE 非空（instanceNotNull）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CIdUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void stringUUID() {
 
@@ -24,6 +27,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void stringUUIDNoHyphen() {
 
@@ -35,6 +41,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void nextId() {
 
@@ -47,6 +56,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void getPrefix() {
 
@@ -55,6 +67,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2 / 3.3
+     */
     @Test
     public void getPrefixByLength() {
 
@@ -64,6 +79,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void nextIdWithPrefix() {
 
@@ -74,6 +92,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void nextIdWithPrefixByClass() {
 
@@ -84,6 +105,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     public void nextIdWithPrefixByClassAndLength() {
 
@@ -94,6 +118,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.1 / 5.2 / 5.3 / 5.4 / 5.5
+     */
     @Test
     public void getPrefixFromId() {
 
@@ -105,6 +132,9 @@ public class CIdUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.6 / 5.7
+     */
     @Test
     public void getPrefixFromIdWithFunction() {
 

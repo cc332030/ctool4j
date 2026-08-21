@@ -19,6 +19,9 @@ import java.util.Date;
  */
 public class CDateSerializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void serialize() throws Exception {
 
@@ -33,6 +36,9 @@ public class CDateSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void instanceNotNull() {
 

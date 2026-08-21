@@ -19,11 +19,14 @@ import java.lang.reflect.Method;
  * </p>
  *
  * <p>`com.c332030.ctool4j.core.classes.CMethodHandleUtils`（core 工具类）的测试用例；
- * 测试用例分类与编号见 doc/design/core/CMethodHandleUtilsTests.adoc，各测试方法以行注释标注对应编号</p>
+ * 测试用例分类与编号见 doc/design/core/CMethodHandleUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号</p>
  *
  * @since 2025/12/12
  */
 public class CMethodHandleUtilsTests {
+    /**
+     * 对应测试用例 1.1.1
+    */
 
     @Test
     public void getterHandle() throws Throwable {
@@ -34,6 +37,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("tom", handle.invoke(person));
 
     }
+    /**
+     * 对应测试用例 1.2.1
+    */
 
     @Test
     public void setterHandle() throws Throwable {
@@ -45,6 +51,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("jerry", person.getName());
 
     }
+    /**
+     * 对应测试用例 1.1.3
+    */
 
     @Test
     public void getterSetterCache() throws Throwable {
@@ -55,6 +64,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertSame(h1, h2);
 
     }
+    /**
+     * 对应测试用例 2.1
+    */
 
     @Test
     public void methodHandle() throws Throwable {
@@ -65,6 +77,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("secret-tom", handle.invoke(person));
 
     }
+    /**
+     * 对应测试用例 2.2
+    */
 
     @Test
     public void methodHandleCache() {
@@ -79,6 +94,9 @@ public class CMethodHandleUtilsTests {
         }
 
     }
+    /**
+     * 对应测试用例 3.1
+    */
 
     @Test
     public void constructorHandle() throws Throwable {
@@ -90,6 +108,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals(18, person.getAge());
 
     }
+    /**
+     * 对应测试用例 3.2
+    */
 
     @Test
     public void constructorHandleCache() throws Throwable {
@@ -100,6 +121,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertSame(h1, h2);
 
     }
+    /**
+     * 对应测试用例 1.1.2
+    */
 
     @Test
     public void toGetterHandle() throws Throwable {
@@ -110,6 +134,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("tom", handle.invoke(person));
 
     }
+    /**
+     * 对应测试用例 1.2.2
+    */
 
     @Test
     public void toSetterHandle() throws Throwable {
@@ -121,6 +148,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("jerry", person.getName());
 
     }
+    /**
+     * 对应测试用例 1.3.1
+    */
 
     @Test
     public void getGetterHandleAsType() throws Throwable {
@@ -132,6 +162,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("tom", handle.invokeExact((Object) person));
 
     }
+    /**
+     * 对应测试用例 1.3.2
+    */
 
     @Test
     public void getGetterHandleAsTypePrimitive() throws Throwable {
@@ -144,6 +177,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals(18, handle.invokeExact((Object) holder));
 
     }
+    /**
+     * 对应测试用例 1.3.3
+    */
 
     @Test
     public void setGetterHandleAsType() throws Throwable {
@@ -155,6 +191,9 @@ public class CMethodHandleUtilsTests {
         Assertions.assertEquals("jerry", person.getName());
 
     }
+    /**
+     * 对应测试用例 1.3.4
+    */
 
     @Test
     public void setGetterHandleAsTypePrimitive() throws Throwable {

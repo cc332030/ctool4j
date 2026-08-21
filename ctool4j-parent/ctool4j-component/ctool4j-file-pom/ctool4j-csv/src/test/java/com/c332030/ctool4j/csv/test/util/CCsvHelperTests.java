@@ -13,6 +13,11 @@ import java.util.*;
  * Description: CCsvHelperTests
  * </p>
  *
+ * <p>
+ * 是 {@link CCsvHelper} 的测试用例（对应测试文档
+ * <code>doc/design/csv/CCsvHelperTests.adoc</code>）。
+ * </p>
+ *
  * @author c332030
  * @since 2026/8/14
  */
@@ -40,7 +45,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：skipHeaderRecord(true) 时表头被跳过，仅返回数据行
-     */
+ * <p>
+ * 对应测试用例 1.1
+ */
     @Test
     void doRead_skipHeaderDataRows() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -55,7 +62,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：默认配置下（setHeader() 自动识别表头）表头行被跳过，仅返回数据行
-     */
+ * <p>
+ * 对应测试用例 1.2
+ */
     @Test
     void doRead_defaultSkipsHeader() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -68,7 +77,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：字段值含逗号时使用引号包裹，解析后保留逗号
-     */
+ * <p>
+ * 对应测试用例 1.3
+ */
     @Test
     void doRead_quotedValueWithComma() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -80,7 +91,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：字段值含双引号时使用双引号转义
-     */
+ * <p>
+ * 对应测试用例 1.4
+ */
     @Test
     void doRead_quotedValueWithQuote() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -92,7 +105,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：自定义分隔符（分号）
-     */
+ * <p>
+ * 对应测试用例 1.5
+ */
     @Test
     void doRead_customDelimiter() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true).delimiter(";");
@@ -105,7 +120,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：单元格值为空白时 trim 后返回 null
-     */
+ * <p>
+ * 对应测试用例 1.6
+ */
     @Test
     void doRead_emptyCellBecomesNull() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -118,7 +135,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：空行被忽略
-     */
+ * <p>
+ * 对应测试用例 1.7
+ */
     @Test
     void doRead_emptyLineIgnored() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -129,7 +148,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：单元格值前后空格被 trim
-     */
+ * <p>
+ * 对应测试用例 1.8
+ */
     @Test
     void doRead_cellTrimmed() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -142,7 +163,9 @@ class CCsvHelperTests {
 
     /**
      * 异常路径：非法行（列数少于表头）在按表头索引取值时抛出越界异常（当前实现行为）
-     */
+ * <p>
+ * 对应测试用例 1.9
+ */
     @Test
     void doRead_missingColumnThrows() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -154,7 +177,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：超长单元格内容完整保留
-     */
+ * <p>
+ * 对应测试用例 1.10
+ */
     @Test
     void doRead_superLongCell() {
         String longValue = repeat("x", 50000);
@@ -167,7 +192,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：UTF-8 中文内容
-     */
+ * <p>
+ * 对应测试用例 1.11
+ */
     @Test
     void doRead_utf8Chinese() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -181,7 +208,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：doRead(InputStream) 按 UTF-8 解码中文内容（不依赖平台默认字符集）
-     */
+ * <p>
+ * 对应测试用例 1.12
+ */
     @Test
     void doRead_inputStreamUtf8Chinese() {
         CCsvHelper helper = CCsvHelper.builder().skipHeaderRecord(true);
@@ -197,7 +226,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：null 输入返回空集合，而非抛出异常（不依赖底层库对 null 的处理行为）
-     */
+ * <p>
+ * 对应测试用例 1.13
+ */
     @Test
     void doRead_nullInputReturnsEmpty() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -209,7 +240,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：指定表头与数据行，输出含表头和数据的 CSV
-     */
+ * <p>
+ * 对应测试用例 2.1
+ */
     @Test
     void doWrite_headersAndRows() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -229,7 +262,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：doWrite(List) 依据 bean 字段名生成表头并写入每行值（字段列顺序由反射决定，故按行内容断言）
-     */
+ * <p>
+ * 对应测试用例 2.2
+ */
     @Test
     void doWrite_listBean() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -264,7 +299,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：doWrite(List, OutputStream) 按 UTF-8 编码中文内容（不依赖平台默认字符集）
-     */
+ * <p>
+ * 对应测试用例 2.3
+ */
     @Test
     void doWrite_outputStreamUtf8Chinese() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -284,7 +321,9 @@ class CCsvHelperTests {
 
     /**
      * 正常路径：list 中的 null 元素被过滤，仅写入非空行
-     */
+ * <p>
+ * 对应测试用例 2.4
+ */
     @Test
     void doWrite_listNullFiltered() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -307,7 +346,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：表头为空时不输出任何内容
-     */
+ * <p>
+ * 对应测试用例 2.5
+ */
     @Test
     void doWrite_emptyHeadersNoOutput() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -324,7 +365,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：数据行为空时不输出任何内容
-     */
+ * <p>
+ * 对应测试用例 2.6
+ */
     @Test
     void doWrite_emptyRowsNoOutput() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -341,7 +384,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：list 为空时不输出任何内容
-     */
+ * <p>
+ * 对应测试用例 2.7
+ */
     @Test
     void doWrite_emptyListNoOutput() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -354,7 +399,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：list 为 null 时直接返回，不输出任何内容
-     */
+ * <p>
+ * 对应测试用例 2.8
+ */
     @Test
     void doWrite_nullListNoOutput() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -367,7 +414,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：list 为 null 时直接返回，不向字节流写入任何内容
-     */
+ * <p>
+ * 对应测试用例 2.9
+ */
     @Test
     void doWrite_nullListOutputStreamNoWrite() {
         CCsvHelper helper = CCsvHelper.builder();
@@ -380,7 +429,9 @@ class CCsvHelperTests {
 
     /**
      * 边界：list 为 null 时直接返回，不创建文件
-     */
+ * <p>
+ * 对应测试用例 2.10
+ */
     @Test
     void doWrite_nullListFileNotCreated() {
         CCsvHelper helper = CCsvHelper.builder();

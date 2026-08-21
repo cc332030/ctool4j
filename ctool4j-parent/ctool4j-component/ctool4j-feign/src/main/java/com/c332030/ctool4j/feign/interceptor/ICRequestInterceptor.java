@@ -9,6 +9,7 @@ import feign.RequestTemplate;
  * Description: ICRequestInterceptor
  * </p>
  *
+ * @see doc/design/feign/ICRequestInterceptor.adoc
  * @since 2025/12/26
  */
 @FunctionalInterface

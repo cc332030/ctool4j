@@ -1,0 +1,70 @@
+= CSchema 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.validation.annotation.CSchema
+状态：已落地
+
+== 1. 功能说明
+
+`CSchema` 为必填校验 + 文档描述注解，命名对应 OpenAPI3 `Schema`（前缀 c），
+可标注在字段、参数、getter 方法上，由 `CSchemaValidator` 校验。
+
+按被标注值类型自动选择校验逻辑（合并 notNull、notBlank（字符串）、notEmpty（集合/Map/数组）三类校验）：
+
+- `null` → 不通过（必填）
+- `CharSequence`（字符串）→ 按 notBlank（非空且非空白）
+- `Collection`/`Map` → 按 notEmpty
+- 数组 → 按 notEmpty（长度 > 0）
+- 其他对象 → 非 null 即通过
+
+属性：
+
+- `value()`：字段描述（对应文档属性描述，非空时由文档插件写入 description，不参与运行时校验），默认 ""
+- `required()`：是否必填（默认 false，不强制；true 时执行必填校验并在文档中标记必填）
+- `message()`：校验失败提示消息（默认 "不能为空"），字段名前缀由 `CMethodArgumentNotValidExceptionHandler` 拼接
+- `groups()`/`payload()`：Bean Validation 标准分组/载荷
+
+== 2. 设计要点
+
+=== 2.1 类型自动分发
+
+- 合并 notNull/notBlank/notEmpty 三类校验并按类型自动分发，避免开发者因类型选择错误注解而报错
+  （如对集合标 notBlank、对字符串标 notEmpty）。
+
+=== 2.2 必填可选
+
+- `required()` 控制是否必填（默认 false）；false 时不强制校验，仅提供描述。
+
+=== 2.3 文档联动
+
+- `value()` 作为文档描述，配合文档插件写入属性 description。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| `required=false`（默认） | 不执行必填校验 |
+| 各类型空值 | 按类型分别判定（字符串 blank、集合/Map/数组 empty、其他 null） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 接口字段/参数需必填校验 + 文档描述时标注 `@CSchema`。
+
+=== 4.2 不适用/边界场景
+
+- `value()` 仅用于文档，不参与校验。
+
+== 5. 已知限制与取舍
+
+- 类型自动分发依赖 CValidUtils 各类重载；`float[]`/`double[]`/`boolean[]` 等数组在
+  `CSchemaValidator.isValidArray` 中按长度判断兜底。
+
+测试内容见 `doc/design/web/CSchemaValidatorTests.adoc`（校验逻辑在 CSchemaValidator）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

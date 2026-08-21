@@ -17,6 +17,16 @@ import org.springframework.data.redis.core.ValueOperations;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>
+ * Description: CStringStringRedisServiceTests
+ * </p>
+ *
+ * <p>
+ * 是 {@link CStringStringRedisService} 的测试用例（对应测试文档
+ * <code>doc/design/redis/CStringStringRedisServiceTests.adoc</code>）。
+ * </p>
+ */
 public class CStringStringRedisServiceTests {
 
     private RedisTemplate<String, String> redisTemplate;
@@ -33,58 +43,66 @@ public class CStringStringRedisServiceTests {
         service.setRedisTemplate(redisTemplate);
     }
 
+    /** 对应测试用例 1.1 */
     @Test
-    public void isInvalidKey_blank_isInvalid() {
+    void isInvalidKey_blank_isInvalid() {
         Assertions.assertTrue(service.isInvalidKey(null));
         Assertions.assertTrue(service.isInvalidKey(""));
         Assertions.assertTrue(service.isInvalidKey(" "));
         Assertions.assertFalse(service.isInvalidKey("key"));
     }
 
+    /** 对应测试用例 2.1 */
     @Test
-    public void setValue_blankKey_shortCircuit() {
+    void setValue_blankKey_shortCircuit() {
         service.setValue("", "value");
 
         Mockito.verify(valueOps, Mockito.never()).set(Mockito.any(), Mockito.any());
     }
 
+    /** 对应测试用例 2.2 */
     @Test
-    public void setValue_nullValue_shortCircuit() {
+    void setValue_nullValue_shortCircuit() {
         service.setValue("key", null);
 
         Mockito.verify(valueOps, Mockito.never()).set(Mockito.any(), Mockito.any());
     }
 
+    /** 对应测试用例 2.3 */
     @Test
-    public void setValue_normal_serializesToJson() {
+    void setValue_normal_serializesToJson() {
         service.setValue("key", new TestUser("c332030"));
 
         Mockito.verify(valueOps).set("key", "{\"name\":\"c332030\"}");
     }
 
+    /** 对应测试用例 2.4 */
     @Test
-    public void setValue_timeout_nonPositive_shortCircuit() {
+    void setValue_timeout_nonPositive_shortCircuit() {
         service.setValue("key", new TestUser("c332030"), 0, TimeUnit.SECONDS);
 
         Mockito.verify(valueOps, Mockito.never()).set(Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.any());
     }
 
+    /** 对应测试用例 2.5 */
     @Test
-    public void setValue_timeout_positive_serializesToJson() {
+    void setValue_timeout_positive_serializesToJson() {
         service.setValue("key", new TestUser("c332030"), 10L, TimeUnit.SECONDS);
 
         Mockito.verify(valueOps).set("key", "{\"name\":\"c332030\"}", 10L, TimeUnit.SECONDS);
     }
 
+    /** 对应测试用例 2.6 */
     @Test
-    public void setValue_duration_serializesToJson() {
+    void setValue_duration_serializesToJson() {
         service.setValue("key", new TestUser("c332030"), Duration.ofSeconds(10));
 
         Mockito.verify(valueOps).set("key", "{\"name\":\"c332030\"}", Duration.ofSeconds(10));
     }
 
+    /** 对应测试用例 3.1 */
     @Test
-    public void getValue_invalidKey_returnsDefault() {
+    void getValue_invalidKey_returnsDefault() {
         TestUser defaultValue = new TestUser("default");
 
         TestUser result = service.getValue("", TestUser.class, defaultValue);
@@ -93,8 +111,9 @@ public class CStringStringRedisServiceTests {
         Mockito.verify(valueOps, Mockito.never()).get(Mockito.any());
     }
 
+    /** 对应测试用例 3.2 */
     @Test
-    public void getValue_normal_returnsDeserialized() {
+    void getValue_normal_returnsDeserialized() {
         Mockito.when(valueOps.get("key")).thenReturn("{\"name\":\"c332030\"}");
 
         TestUser result = service.getValue("key", TestUser.class);
@@ -103,8 +122,9 @@ public class CStringStringRedisServiceTests {
         Assertions.assertEquals("c332030", result.getName());
     }
 
+    /** 对应测试用例 3.3 */
     @Test
-    public void getValue_typeReference_normal_returnsDeserialized() {
+    void getValue_typeReference_normal_returnsDeserialized() {
         Mockito.when(valueOps.get("key")).thenReturn("{\"name\":\"c332030\"}");
 
         TestUser result = service.getValue("key", new TypeReference<TestUser>() {});
@@ -113,15 +133,17 @@ public class CStringStringRedisServiceTests {
         Assertions.assertEquals("c332030", result.getName());
     }
 
+    /** 对应测试用例 4.1 */
     @Test
-    public void getValueOpt_invalidKey_empty() {
+    void getValueOpt_invalidKey_empty() {
         Opt<String> opt = service.getValueOpt("");
 
         Assertions.assertTrue(opt.isEmpty());
     }
 
+    /** 对应测试用例 4.2 */
     @Test
-    public void getValueOpt_validKey_present() {
+    void getValueOpt_validKey_present() {
         Mockito.when(valueOps.get("key")).thenReturn("value");
 
         Opt<String> opt = service.getValueOpt("key");
@@ -130,8 +152,9 @@ public class CStringStringRedisServiceTests {
         Assertions.assertEquals("value", opt.get());
     }
 
+    /** 对应测试用例 5.1 */
     @Test
-    public void getValueWithTtl_delegatesToRedisCallback() {
+    void getValueWithTtl_delegatesToRedisCallback() {
         CValueWithTtl<String> expected = new CValueWithTtl<>("value", 100L);
         Mockito.when(redisTemplate.execute(Mockito.any(RedisCallback.class))).thenReturn(expected);
 

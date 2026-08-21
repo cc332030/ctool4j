@@ -29,6 +29,7 @@ public class CLambdaUtilsTests {
 
     /**
      * 测试获取字段的 getter lambda
+     * 对应测试用例 1.1
      */
     @Test
     public void getFieldGetLambda() {
@@ -54,6 +55,7 @@ public class CLambdaUtilsTests {
 
     /**
      * 测试获取字段的 setter lambda
+     * 对应测试用例 2.1
      */
     @Test
     public void getFieldSetLambda() {

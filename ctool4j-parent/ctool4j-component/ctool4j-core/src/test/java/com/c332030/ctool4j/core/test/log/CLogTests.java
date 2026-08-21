@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CLogTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void constructByName() {
 
@@ -21,6 +24,9 @@ public class CLogTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void constructByClass() {
 
@@ -29,6 +35,9 @@ public class CLogTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void levelEnabled() {
 
@@ -42,6 +51,9 @@ public class CLogTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void simpleLogs() {
 
@@ -54,6 +66,9 @@ public class CLogTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void throwableLogs() {
 
@@ -67,6 +82,9 @@ public class CLogTests {
 
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void argsLogs() {
 
@@ -78,6 +96,9 @@ public class CLogTests {
 
     }
 
+    /**
+     * 对应测试用例 3.4
+     */
     @Test
     public void supplierLogs() {
 

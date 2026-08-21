@@ -31,6 +31,9 @@ public class CRestTemplateUtilsTests {
                 .orElse(null);
     }
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void restTemplate() {
         // 正例：返回的 RestTemplate 非空，Jackson 转换器使用指定 ObjectMapper 并追加 json5
@@ -47,6 +50,9 @@ public class CRestTemplateUtilsTests {
                 .contains(CMimeTypeEnum.JSON5.getMimeType()));
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void restTemplate_withSharedObjectMapper() {
         // 正例：使用共享 ObjectMapper 时 Jackson 转换器使用同一实例
@@ -57,6 +63,9 @@ public class CRestTemplateUtilsTests {
         Assertions.assertSame(CJacksonUtils.OBJECT_MAPPER, jacksonConverter.getObjectMapper());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void restTemplate_nullObjectMapper() {
         // 反例：ObjectMapper 为 null 时，Spring 断言其非空并抛 IllegalArgumentException

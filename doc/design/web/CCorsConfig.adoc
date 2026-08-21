@@ -1,0 +1,63 @@
+= CCorsConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.cors.CCorsConfig
+状态：已落地
+
+== 1. 功能说明
+
+`CCorsConfig` 为跨域（CORS）配置属性类，`@ConfigurationProperties("cors")` + `@Data`，
+由 Spring Boot 绑定 `cors.*` 前缀的配置项。
+
+属性：
+
+- `enable`：跨域开关，默认 `false`（不开启跨域处理）
+- `allowedOrigins`：允许的来源集合，默认空集合
+- `allowedMethods`：允许的请求方法，默认 `CSet.of(ALL)`（即 `*`，允许全部）
+- `allowedHeaders`：额外允许的请求报文头，默认含 `Authorization`、`Content-Type`
+  （注释明确不支持 `application/json` 触发预检的场景，默认只支持
+  `application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`）
+
+常量 `ALL = "*"`：表示允许全部来源、方法或头。
+
+== 2. 设计要点
+
+=== 2.1 配置绑定
+
+- 使用 `@ConfigurationProperties("cors")` 前缀绑定，默认值即不开启跨域。
+
+=== 2.2 默认方法/头
+
+- 方法默认全部允许；头默认白名单方式（Authorization/Content-Type），需要更多头时在配置中追加。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 未配置 `allowedOrigins` | 空集合 → 无来源被允许，跨域实际不生效 |
+| 未配置 `allowedMethods` | 默认 `*` 全部允许 |
+| `enable=false` | 跨域处理直接跳过 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需跨域时通过 `cors.*` 配置开启并指定允许的来源/方法/头。
+
+=== 4.2 不适用/边界场景
+
+- 需要支持 `application/json` 跨域请求时，浏览器会先发 OPTIONS 预检，需在 allowedHeaders
+  中补充相应头（本类注释明确该限制）。
+
+== 5. 已知限制与取舍
+
+- `allowedHeaders` 默认不含自定义头，跨域请求带自定义头时需显式配置，否则预检失败。
+- `ALL` 常量与 Spring 的 `*` 通配语义对应。
+
+测试内容：无独立测试类（CCorsConfig 为配置模型，由 `CCorsUtils`/`CCorsFilter` 等使用方测试间接覆盖）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

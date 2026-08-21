@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @since 2025/9/14
+ * @see doc/design/mybatis/CToolMybatisConfiguration.adoc
  */
 @Configuration
 public class CToolMybatisConfiguration {

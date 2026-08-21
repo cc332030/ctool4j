@@ -17,6 +17,8 @@ import java.time.Duration;
  * Description: CLockUtils
  * </p>
  *
+ * @see doc/design/redis/CLockUtils.adoc
+ * @see doc/design/redis/CLockUtilsTests.adoc
  * @author c332030
  * @since 2024/3/20
  */

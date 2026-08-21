@@ -1,0 +1,38 @@
+= CTestUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CTestUtils`（core 工具类）——判断当前是否处于测试环境。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CTestUtilsTests`
+
+对应设计文档：`doc/design/core/CTestUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CTestUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「isTest / isNotTest」两个维度组织。
+- 测试环境 classpath 包含 JUnit，`CTool4jTestConstants.IS_TEST` 恒为 true，故断言 isTest() 为 true、
+  isNotTest() 为 false。
+
+=== 设计依据
+
+- 依据功能设计对判断依据（IS_TEST 常量）的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：isTest() 为 true、isNotTest() 为 false（测试环境下）。
+- 未覆盖：生产环境（非测试 classpath）下 isTest() 为 false 的分支（依赖运行环境，单测无法覆盖）。
+
+== 1. 环境判断
+
+- 1.1 isTest：测试环境为 true（isTest）
+- 1.2 isNotTest：测试环境为 false（isNotTest）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -10,6 +10,7 @@ import lombok.Getter;
  * </p>
  *
  * @author c332030
+ * @see doc/design/core/CLogSource.adoc
  */
 @Getter
 @AllArgsConstructor

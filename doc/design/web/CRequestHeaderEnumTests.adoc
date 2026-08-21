@@ -1,0 +1,47 @@
+= CRequestHeaderEnum 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.web.enums.CRequestHeaderEnum`（web 枚举类）——请求头枚举。
+
+对应测试类：`com.c332030.ctool4j.web.test.enums.CRequestHeaderEnumTests`
+
+对应设计文档：`doc/design/web/CRequestHeaderEnum.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CRequestHeaderEnum 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「Header 名 / 描述 / 枚举完整性」多个维度组织。
+- Header 名覆盖多段下划线、单段（无下划线）；描述覆盖文本；完整性覆盖数量/顺序/valueOf/非法抛异常。
+
+=== 设计依据
+
+- 依据功能设计对 Header 名推导与枚举元素的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：Header 名（多段/单段）；getText；枚举数量/顺序；valueOf 正常/非法抛异常。
+- 未覆盖：无。
+
+== 1. Header 名
+
+- 1.1 多段下划线：`X_TRACE_ID` → `X-Trace-Id` 等（getHeaderName）
+- 1.2 单段：`AUTHORIZATION` → `Authorization`（getHeaderName_singleWord）
+
+== 2. 描述
+
+- 2.1 getText：描述正确（getText）
+
+== 3. 枚举完整性
+
+- 3.1 enumValues：7 个枚举、顺序稳定（enumValues）
+- 3.2 valueOf：按名取枚举（valueOf）
+- 3.3 valueOf 非法：抛 IllegalArgumentException（valueOf_invalid_throws）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

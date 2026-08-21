@@ -12,6 +12,8 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/20
+ * @see doc/design/core/CBenchmarkReport.adoc
+ * @see doc/design/core/CBenchmarkReportTests.adoc
  */
 public class CBenchmarkReport {
 

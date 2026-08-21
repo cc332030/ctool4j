@@ -19,8 +19,12 @@ import java.util.Map;
  *
  * @since 2026/8/16
  */
+
 public class CRequestLogTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
         val log = new CRequestLog();
@@ -29,6 +33,9 @@ public class CRequestLogTests {
         Assertions.assertEquals(0L, log.getBeginTimeMillis());
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void allArgsConstructor() {
         Map<String, Collection<String>> headers = new HashMap<>();
@@ -59,6 +66,9 @@ public class CRequestLogTests {
         Assertions.assertEquals(200L, log.getEndTimeMillis());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void builderAndSetter() {
         val log = CRequestLog.builder()

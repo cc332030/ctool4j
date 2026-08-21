@@ -27,6 +27,9 @@ public class CAspectUtilsTests {
 
     // ---------- getMethod ----------
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getMethod() throws NoSuchMethodException {
         // 正例：返回切点签名对应的 Method
@@ -45,6 +48,9 @@ public class CAspectUtilsTests {
 
     // ---------- process ----------
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void process() throws Throwable {
         // 正例：返回切点方法执行结果
@@ -58,6 +64,9 @@ public class CAspectUtilsTests {
         Assertions.assertEquals("result", result);
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void process_whenUndeclaredThrowableException() throws Throwable {
         // 异常：切点抛出未声明异常时解包并抛出原异常
@@ -72,6 +81,9 @@ public class CAspectUtilsTests {
         Assertions.assertThrowsExactly(IOException.class, () -> CAspectUtils.process(joinPoint));
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void process_whenRuntimeException() throws Throwable {
         // 反例：普通运行时异常直接透传

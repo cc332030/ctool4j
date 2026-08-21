@@ -1,0 +1,61 @@
+= CCsvHelper 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.csv.util.CCsvHelper`（csv 模块）——CSV 读写工具。
+
+对应测试类：`com.c332030.ctool4j.csv.test.util.CCsvHelperTests`
+
+对应设计文档：`doc/design/csv/CCsvHelper.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CCsvHelper 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- doRead：覆盖默认跳过表头、显式 skipHeaderRecord、自定义分隔符、引号包裹/转义、空单元格转 null、空行忽略、单元格 trim、非法行、超长单元格、UTF-8 中文、null 输入。
+- doWrite：覆盖显式表头+行、对象列表（字段反射）、字节流 UTF-8 中文、null 行过滤、空表头/空行/空列表/null 列表不输出。
+
+=== 设计依据
+
+- 依据功能设计对"表头自动识别、null 返回空集合、空数据不输出、UTF-8 编码"的约定。
+- 依据白盒/黑盒原则：读写的各输入形态（流/字节流/文件）、分隔符、引号、空值、超长输入均覆盖。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：读取的各类单元格形态（引号、分隔符、trim、空、超长、中文）、null 输入；写入的显式/对象/流/文件、空数据与 null 保护。
+- 未覆盖：真实文件读写路径（File/String 重载）未直接断言文件内容；依赖底层库的极端 CSV 语法（跨行字段等）。
+
+== 1. doRead 读取
+
+- 1.1 skipHeaderRecord(true) 跳过表头仅返回数据行（doRead_skipHeaderDataRows）
+- 1.2 默认配置自动识别表头并跳过（doRead_defaultSkipsHeader）
+- 1.3 字段含逗号用引号包裹解析保留（doRead_quotedValueWithComma）
+- 1.4 字段含双引号转义解析（doRead_quotedValueWithQuote）
+- 1.5 自定义分隔符（分号）（doRead_customDelimiter）
+- 1.6 空单元格 trim 后返回 null（doRead_emptyCellBecomesNull）
+- 1.7 空行被忽略（doRead_emptyLineIgnored）
+- 1.8 单元格前后空格被 trim（doRead_cellTrimmed）
+- 1.9 非法行（列数少于表头）抛越界异常（doRead_missingColumnThrows）
+- 1.10 超长单元格完整保留（doRead_superLongCell）
+- 1.11 UTF-8 中文内容（doRead_utf8Chinese）
+- 1.12 字节流按 UTF-8 解码中文（doRead_inputStreamUtf8Chinese）
+- 1.13 null 输入返回空集合（doRead_nullInputReturnsEmpty）
+
+== 2. doWrite 写入
+
+- 2.1 显式表头与行数据输出（doWrite_headersAndRows）
+- 2.2 对象列表按字段反射生成表头并写入（doWrite_listBean）
+- 2.3 字节流按 UTF-8 编码中文（doWrite_outputStreamUtf8Chinese）
+- 2.4 对象列表 null 元素被过滤（doWrite_listNullFiltered）
+- 2.5 表头为空不输出（doWrite_emptyHeadersNoOutput）
+- 2.6 数据行为空不输出（doWrite_emptyRowsNoOutput）
+- 2.7 对象列表为空不输出（doWrite_emptyListNoOutput）
+- 2.8 对象列表 null 不输出（doWrite_nullListNoOutput）
+- 2.9 对象列表 null 不写字节流（doWrite_nullListOutputStreamNoWrite）
+- 2.10 对象列表 null 不创建文件（doWrite_nullListFileNotCreated）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -11,6 +11,7 @@ import java.util.Set;
  * </p>
  *
  * @since 2025/9/29
+ * @see doc/design/web/CRequestLogConfig.adoc
  */
 @Data
 @ConfigurationProperties("logging.request-log")

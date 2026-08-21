@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  *
  * @since 2024/4/7
+ * @see doc/design/core/CEnumUtils.adoc
+ * @see doc/design/core/CEnumUtilsTests.adoc
  */
 @UtilityClass
 public class CEnumUtils {

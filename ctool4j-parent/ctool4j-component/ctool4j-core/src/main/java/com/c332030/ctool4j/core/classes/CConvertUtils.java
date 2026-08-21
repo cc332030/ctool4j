@@ -24,6 +24,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </p>
  *
  * @since 2025/11/22
+ * @see doc/design/core/CConvertUtils.adoc
+ * @see doc/design/core/CConvertUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

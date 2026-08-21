@@ -1,0 +1,55 @@
+= CStreamUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CStreamUtils
+状态：已落地
+适用范围：Stream 按 key 去重谓词（并发安全）
+
+== 1. 功能说明
+
+`CStreamUtils` 为 Stream 工具类，提供：
+
+- `distinctByKey(CFunction<T, ?> keyExtractor)`：返回按 key 去重的谓词，可直接用于
+  `stream.filter(...)`。
+
+== 2. 设计要点
+
+=== 2.1 去重实现
+
+- 内部用 `ConcurrentHashMap<Object, Boolean>` 作为已见集合，谓词经
+  `seen.putIfAbsent(key, TRUE) == null` 判断是否首次出现（首次返回 true，重复返回 false）。
+- 并发安全（ConcurrentHashMap），可安全用于并行流。
+
+=== 2.2 null key 语义
+
+- key 经 `CObjUtils.convert(t, keyExtractor)` 提取，key 为 null 的元素返回 false（被过滤），
+  不参与去重集合——null key 无法稳定判断是否重复，故统一过滤。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 元素 key 为 null | 谓词返回 false，该元素被过滤 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对 Stream 元素按某字段/转换结果去重（如 `filter(distinctByKey(User::getId))`）。
+
+=== 4.2 不适用/边界场景
+
+- key 为 null 的元素会被过滤而非保留，与"去重"语义不同，需注意。
+
+== 5. 已知限制与取舍
+
+- 使用 ConcurrentHashMap 保证并发安全，牺牲少量内存。
+- null key 元素被过滤，避免无法判断重复的歧义。
+
+测试内容见 `doc/design/core/CStreamUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

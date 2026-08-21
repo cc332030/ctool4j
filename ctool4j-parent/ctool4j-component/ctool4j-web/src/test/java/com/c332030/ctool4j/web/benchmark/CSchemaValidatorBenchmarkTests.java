@@ -44,6 +44,10 @@ public class CSchemaValidatorBenchmarkTests {
      * 基准执行入口（显式运行：mvn test -Dtest=CSchemaValidatorBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
      */
+
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void benchmark() {
         CBenchmarkReport report = CBenchmarkRunner.run(cases(), "CSchema 校验性能对比");

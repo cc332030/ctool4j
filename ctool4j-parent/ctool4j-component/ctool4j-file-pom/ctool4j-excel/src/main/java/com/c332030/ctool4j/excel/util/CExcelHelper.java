@@ -18,6 +18,8 @@ import java.util.List;
  * Description: CExcelHelper
  * </p>
  *
+ * @see doc/design/excel/CExcelHelper.adoc
+ * @see doc/design/excel/CExcelHelperTests.adoc
  * @since 2026/1/14
  */
 @CustomLog

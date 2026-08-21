@@ -17,6 +17,9 @@ public class CIntMsgResultTests {
 
     private static final int ERROR_CODE = 500;
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
 
@@ -28,6 +31,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void allArgsConstructor() {
 
@@ -39,6 +45,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void newInstance() {
 
@@ -50,6 +59,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void newInstanceNullParams() {
 
@@ -61,6 +73,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void success() {
 
@@ -72,6 +87,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void successWithData() {
 
@@ -83,6 +101,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void errorWithMessage() {
 
@@ -94,6 +115,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void errorNullMessage() {
 
@@ -105,6 +129,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void errorWithCodeAndMessage() {
 
@@ -116,6 +143,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void builder() {
 
@@ -131,6 +161,9 @@ public class CIntMsgResultTests {
 
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void equalsAndHashCode() {
 

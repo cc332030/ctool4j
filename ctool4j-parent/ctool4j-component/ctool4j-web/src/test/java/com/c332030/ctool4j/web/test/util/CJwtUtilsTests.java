@@ -13,6 +13,7 @@ import java.util.Map;
  * <p>
  * Description: CJwtUtilsTests
  * </p>
+ * <p>`com.c332030.ctool4j.web.util.CJwtUtils`（CJwtUtils）的测试用例</p>
  *
  * <p>覆盖 jwt 创建、验证、解析（header/body/JSON 提取）等容易出错的方法</p>
  *
@@ -25,6 +26,9 @@ public class CJwtUtilsTests {
 
     // ---------- create ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void create_mapSecret() {
         // 正例：Map body 创建 jwt
@@ -35,6 +39,9 @@ public class CJwtUtilsTests {
         Assertions.assertTrue(CJwtUtils.verify(jwt, SECRET));
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void create_objectSecret() {
         // 正例：Object body 创建 jwt（经 CBeanUtils.toMap 转换）
@@ -43,6 +50,9 @@ public class CJwtUtilsTests {
         Assertions.assertTrue(CJwtUtils.verify(jwt, SECRET));
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void create_nullSecret_throws() {
         // 异常路径：null secret 快速失败（IllegalArgumentException）
@@ -52,6 +62,9 @@ public class CJwtUtilsTests {
         );
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void create_emptySecret_throws() {
         // 反例：空/纯空白 secret 快速失败（IllegalArgumentException）
@@ -67,6 +80,9 @@ public class CJwtUtilsTests {
 
     // ---------- verify ----------
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void verify_correctSecret() {
         // 正例：正确密钥验证通过
@@ -74,6 +90,9 @@ public class CJwtUtilsTests {
         Assertions.assertTrue(CJwtUtils.verify(jwt, SECRET));
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void verify_wrongSecret() {
         // 反例：错误密钥验证失败
@@ -81,6 +100,9 @@ public class CJwtUtilsTests {
         Assertions.assertFalse(CJwtUtils.verify(jwt, "wrong-secret"));
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void verify_invalidJwt() {
         // 反例：非法 jwt（段数不足）抛出 JWTException
@@ -90,6 +112,9 @@ public class CJwtUtilsTests {
         );
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void verify_emptyJwt_returnsFalse() {
         // 边界：null/空 jwt 不校验签名，直接返回 false
@@ -97,6 +122,9 @@ public class CJwtUtilsTests {
         Assertions.assertFalse(CJwtUtils.verify("", SECRET));
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void verify_nullSecret_throws() {
         // 异常路径：null secret 快速失败（IllegalArgumentException）
@@ -106,6 +134,9 @@ public class CJwtUtilsTests {
         );
     }
 
+    /**
+     * 对应测试用例 2.6
+     */
     @Test
     public void verify_emptySecret_throws() {
         // 反例：空/纯空白 secret 快速失败（IllegalArgumentException）
@@ -121,6 +152,9 @@ public class CJwtUtilsTests {
 
     // ---------- parseJwt ----------
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void parseJwt() {
         // 正例：jwt 按 . 拆分三段
@@ -130,6 +164,9 @@ public class CJwtUtilsTests {
         Assertions.assertEquals(3, arr.length);
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void parseJwt_empty_returnsNull() {
         // 边界：null/空 jwt 返回 null（纯空白串走 split 返回非空数组，不属于此场景）
@@ -137,6 +174,9 @@ public class CJwtUtilsTests {
         Assertions.assertNull(CJwtUtils.parseJwt(""));
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void parseJwt_noDot() {
         // 边界：无 . 的字符串拆分为单元素
@@ -147,6 +187,9 @@ public class CJwtUtilsTests {
 
     // ---------- getJson ----------
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void getJson() {
         // 正例：提取并 base64 解码第 index 段
@@ -157,6 +200,9 @@ public class CJwtUtilsTests {
         Assertions.assertTrue(headerJson.contains("alg"));
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void getJson_nullArr() {
         // 边界：null/空数组返回 null
@@ -164,6 +210,9 @@ public class CJwtUtilsTests {
         Assertions.assertNull(CJwtUtils.getJson(new String[0], 0));
     }
 
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     public void getJson_outOfIndex() {
         // 边界：越界 index 返回 null
@@ -174,6 +223,9 @@ public class CJwtUtilsTests {
 
     // ---------- getHeaderJson / getBodyJson ----------
 
+    /**
+     * 对应测试用例 4.4
+     */
     @Test
     public void getHeaderJson() {
         // 正例：jwt 字符串提取 header json
@@ -183,6 +235,9 @@ public class CJwtUtilsTests {
         Assertions.assertTrue(headerJson.contains("alg"));
     }
 
+    /**
+     * 对应测试用例 4.5
+     */
     @Test
     public void getHeaderJson_emptyJwt() {
         // 边界：null/空 jwt 返回 null
@@ -190,6 +245,9 @@ public class CJwtUtilsTests {
         Assertions.assertNull(CJwtUtils.getHeaderJson(""));
     }
 
+    /**
+     * 对应测试用例 4.6
+     */
     @Test
     public void getBodyJson() {
         // 正例：jwt 字符串提取 body json
@@ -199,6 +257,9 @@ public class CJwtUtilsTests {
         Assertions.assertTrue(bodyJson.contains("userId"));
     }
 
+    /**
+     * 对应测试用例 4.7
+     */
     @Test
     public void getBodyJson_emptyJwt() {
         // 边界：null/空 jwt 返回 null
@@ -206,6 +267,9 @@ public class CJwtUtilsTests {
         Assertions.assertNull(CJwtUtils.getBodyJson(""));
     }
 
+    /**
+     * 对应测试用例 4.8
+     */
     @Test
     public void getBodyJson_emptySegment_returnsNull() {
         // 边界：body 段为空时返回 null
@@ -214,6 +278,9 @@ public class CJwtUtilsTests {
 
     // ---------- parseHeader / parseBody ----------
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     @SuppressWarnings("unchecked")
     public void parseHeader() {
@@ -223,6 +290,9 @@ public class CJwtUtilsTests {
         Assertions.assertNotNull(header);
     }
 
+    /**
+     * 对应测试用例 5.2
+     */
     @Test
     public void parseHeader_emptyJwt_returnsNull() {
         // 边界：空 jwt 返回 null
@@ -230,6 +300,9 @@ public class CJwtUtilsTests {
         Assertions.assertNull(CJwtUtils.parseHeader(null, Map.class));
     }
 
+    /**
+     * 对应测试用例 6.1
+     */
     @Test
     @SuppressWarnings("unchecked")
     public void parseBody() {
@@ -242,6 +315,9 @@ public class CJwtUtilsTests {
         Assertions.assertEquals("tom", body.get("name"));
     }
 
+    /**
+     * 对应测试用例 6.2
+     */
     @Test
     public void parseBody_emptyJwt_returnsNull() {
         // 边界：空 jwt 返回 null
@@ -249,6 +325,9 @@ public class CJwtUtilsTests {
         Assertions.assertNull(CJwtUtils.parseBody(null, Map.class));
     }
 
+    /**
+     * 对应测试用例 6.3
+     */
     @Test
     public void parseBody_roundTrip() {
         // 正例：create 后 parseBody 能还原原始数据（仅用字符串值避免数值类型差异）

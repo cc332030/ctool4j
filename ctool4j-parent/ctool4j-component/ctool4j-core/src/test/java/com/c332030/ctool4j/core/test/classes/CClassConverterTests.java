@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CClassConverterTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void build() {
 
@@ -30,6 +33,9 @@ public class CClassConverterTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void allArgsConstructor() {
 
@@ -42,6 +48,9 @@ public class CClassConverterTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void noArgsConstructor() {
 

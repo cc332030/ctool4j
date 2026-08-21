@@ -1,0 +1,37 @@
+= CId 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CId
+状态：已落地
+适用范围：泛型 ID 实体基类（实现 ICId，mybatis-plus 主键）
+
+== 1. 功能说明
+
+`CId<ID extends Serializable>` 为泛型 ID 实体基类，实现 `ICId<ID>`，含 `id` 字段（标注 `@TableId`）。
+
+标注 `@Data`/`@SuperBuilder`/`@NoArgsConstructor`/`@AllArgsConstructor`。
+
+== 2. 设计要点
+
+=== 2.1 结构
+
+- 单一 `id` 字段，作为 mybatis-plus 主键（@TableId）。
+- Lombok 生成 getter/setter、builder、构造、equals/hashCode/toString。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要主键 ID 的实体基类；CIntegerId/CLongId/CStringId 继承它固定 ID 类型。
+
+== 5. 已知限制与取舍
+
+- ID 泛型化，子类可指定具体类型（Long/String/Integer）。
+
+测试内容见 `doc/design/core/CIdTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

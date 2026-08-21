@@ -9,6 +9,7 @@ import java.util.Date;
  * Description: ICUpdateTime
  * </p>
  *
+ * @see doc/design/definition/ICUpdateTime.adoc
  * @since 2025/5/26
  */
 public interface ICUpdateTime {

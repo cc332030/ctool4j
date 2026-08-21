@@ -19,6 +19,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *
  * @since 2026/8/16
  */
+
 public class CCorsInterceptorTests {
 
     private final CCorsInterceptor interceptor = new CCorsInterceptor();
@@ -39,6 +40,9 @@ public class CCorsInterceptorTests {
         CCorsUtils.setConfig(null);
     }
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void preHandle_whenNotEnabled() {
         // 未启用跨域时放行
@@ -47,6 +51,9 @@ public class CCorsInterceptorTests {
         Assertions.assertTrue(result);
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void preHandle_whenEnabledAndOptions() {
         // 启用跨域 + OPTIONS 预检：返回 false 且响应 204
@@ -60,6 +67,9 @@ public class CCorsInterceptorTests {
         Assertions.assertEquals(MockHttpServletResponse.SC_NO_CONTENT, response.getStatus());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void preHandle_whenEnabledAndGet() {
         // 启用跨域 + 普通 GET：放行

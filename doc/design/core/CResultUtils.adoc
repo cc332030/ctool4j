@@ -1,0 +1,67 @@
+= CResultUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CResultUtils
+状态：已落地
+适用范围：接口响应结果（ICBaseResult）成功判断、断言、数据获取
+
+== 1. 功能说明
+
+`CResultUtils` 为响应结果工具类，提供：
+
+- `SUCCESS_CODES`：成功状态码集合（`0`、`200`、`000000`，不可变）
+- `isSuccess` / `isNotSuccess`：判断结果是否成功
+- `assertSuccess`：断言成功，失败抛业务异常
+- `getData` / `getDataDefaultEmptyList`：断言成功并获取数据（可带默认值）
+
+== 2. 设计要点
+
+=== 2.1 成功判断
+
+- code 经 `Opt.ofNullable(result).map(getCode).map(toStringOrNull)` 提取并转为字符串。
+- code 为空白（null/空）返回 false；否则判断是否在 `SUCCESS_CODES` 集合中。
+- `isNotSuccess` = `!isSuccess`。
+
+=== 2.2 断言与异常
+
+- `assertSuccess`：result 为 null 抛业务异常（"未返回数据"）；isNotSuccess 时抛业务异常
+  （格式 `[code] message`）。
+- 异常构造经 `CExceptionUtils.newBusinessException(null, message)`（@SneakyThrows 上抛）。
+
+=== 2.3 数据获取
+
+- `getData(result, defaultValue)`：先 `assertSuccess`，再用
+  `ObjUtil.defaultIfNull(result.getData(), defaultValue)`——数据为 null 时返回默认值。
+- `getData(result)` = `getData(result, null)`；`getDataDefaultEmptyList` = `getData(result, CList.of())`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| isSuccess：result 为 null / code 为空 | 返回 false |
+| assertSuccess：result 为 null | 抛业务异常（"未返回数据"） |
+| assertSuccess：失败结果 | 抛业务异常（[code] message） |
+| getData：数据为 null | 返回默认值（无默认值返回 null） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 远程调用/接口返回结果统一判断成功与取数，避免分散判断。
+
+=== 4.2 不适用/边界场景
+
+- 仅支持 `ICBaseResult<?,?>` 类型结果；其他响应模型需适配。
+
+== 5. 已知限制与取舍
+
+- 成功码集合固定（0/200/000000），业务自定义成功码需扩展集合。
+- 断言失败抛业务异常，保证调用方明确感知失败。
+
+测试内容见 `doc/design/core/CResultUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

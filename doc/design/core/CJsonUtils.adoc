@@ -1,0 +1,68 @@
+= CJsonUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CJsonUtils
+状态：已落地
+适用范围：JSON 序列化/反序列化/对象转换（含驼峰-下划线、非空、Long 安全等语义）
+
+== 1. 功能说明
+
+`CJsonUtils` 为 JSON 工具类，基于 Jackson 封装，提供：
+
+- 序列化：`toJson` / `toJsonSnakeCase` / `toJsonNonNull` / `toJsonLog`
+- 反序列化：`fromJson(json, Class|TypeReference)` / `fromJsonSnakeCase` / `fromJsonList` /
+  `fromJsonStringValue`
+- 对象转换：`convert` / `convertSnakeCase`
+- 转 Map：`toMap` / `toMapSnakeCase` / `toMapStringValue` / `toMapStringValueSnakeCase`
+
+== 2. 设计要点
+
+=== 2.1 序列化语义
+
+- `toJson`：null 入参返回 null；**Long 序列化为字符串**（`"id":"1"`），避免前端溢出（易错点）。
+- `toJsonSnakeCase`：驼峰字段转下划线（`userName` → `user_name`）。
+- `toJsonNonNull`：null 字段不输出。
+
+=== 2.2 反序列化语义
+
+- `fromJson`：null/空/空白入参返回 null；非法结构抛 Jackson 异常（MismatchedInputException 等）。
+- `fromJsonSnakeCase`：下划线字段转驼峰。
+- `fromJsonList`：解析为 `List<Map<String,Object>>`；`fromJsonStringValue`：值为 String 的 Map。
+
+=== 2.3 对象转换与转 Map
+
+- `convert`：对象经 JSON 中转（bean→map/bean）。
+- `toMap`：对象转 `Map<String,Object>`，Long 保留数值类型（Q11 修复，不再经 JSON 转 String）。
+- `toMapStringValue`：值统一转 String（Long → `"1"`）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| toJson(null) | 返回 null |
+| fromJson null/空/空白 | 返回 null |
+| toJsonNonNull(null) | 返回 null |
+| toMap(null) | 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对象与 JSON 互转、驼峰/下划线互转、Long 安全序列化、日志输出（toJsonLog）。
+
+=== 4.2 不适用/边界场景
+
+- 基于 Jackson 默认/配置 ObjectMapper，复杂自定义序列化需传入 ObjectMapper 重载。
+
+== 5. 已知限制与取舍
+
+- Long 序列化为字符串防止前端精度丢失，是核心取舍。
+- toMap 保留 Long 数值类型（区别于 toMapStringValue 的字符串值）。
+
+测试内容见 `doc/design/core/CJsonUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

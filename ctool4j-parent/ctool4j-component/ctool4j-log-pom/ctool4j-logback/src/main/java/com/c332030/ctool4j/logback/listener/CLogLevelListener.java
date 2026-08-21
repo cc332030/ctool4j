@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
  * Description: CLogLevelListener
  * </p>
  *
+ * @see doc/design/log/CLogLevelListener.adoc
+ * @see doc/design/log/CLogLevelListenerTests.adoc
  * @since 2025/12/21
  */
 @CustomLog

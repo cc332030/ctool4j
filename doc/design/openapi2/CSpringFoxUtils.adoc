@@ -1,0 +1,57 @@
+= CSpringFoxUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils
+状态：已落地
+适用范围：springfox Docket 与全局参数构建工具
+
+== 1. 功能说明
+
+`CSpringFoxUtils`（`@UtilityClass`）提供 springfox（OpenAPI2）的工具能力：
+
+- `getDocketBuilder()`：构建 `Docket`（SWAGGER_2）。
+- `globalParameterList(Collection<ICRequestHeader>)`：请求头定义集合转 Swagger 全局参数列表（过滤 null 元素）。
+- `getHeaderParameter(ICRequestHeader)`：单个请求头定义转 Swagger `Parameter`。
+
+== 2. 设计要点
+
+=== 2.1 Docket 构建
+
+- `new Docket(DocumentationType.SWAGGER_2).forCodeGeneration(true)`。
+
+=== 2.2 参数转换
+
+- 请求头定义的 `headerName`、`dataType.getLowerCase()`、`isRequired()`、`text` 映射到 Parameter 的 name/modelRef/required/description。
+- `parameterType("header")`。
+- `globalParameterList` 先过滤 null 元素。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| globalParameterList 入参 null | 返回空列表 |
+| 集合含 null 元素 | 过滤 null 元素 |
+| getHeaderParameter 入参 null | 抛 NPE（访问 requestHeader.getHeaderName()） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- springfox Docket 构建、全局请求头参数配置。
+
+=== 4.2 不适用/边界场景
+
+- 基于 springfox 的 OpenAPI2，不适用于 OpenAPI3。
+
+== 5. 已知限制与取舍
+
+- getHeaderParameter 对 null 入参不防御，抛 NPE。
+- 依赖 springfox 的 Parameter/ModelRef 类型。
+
+测试内容见 `doc/design/openapi2/CSpringFoxUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

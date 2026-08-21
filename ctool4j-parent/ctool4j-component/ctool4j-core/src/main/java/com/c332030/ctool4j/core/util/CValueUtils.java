@@ -13,6 +13,8 @@ import lombok.val;
  * </p>
  *
  * @since 2025/12/4
+ * @see doc/design/core/CValueUtils.adoc
+ * @see doc/design/core/CValueUtilsTests.adoc
  */
 @UtilityClass
 public class CValueUtils {

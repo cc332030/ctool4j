@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
  * Description: CLogInit
  * </p>
  *
+ * @see doc/design/log/CLogInit.adoc
  * @since 2025/9/29
  */
 @Configuration

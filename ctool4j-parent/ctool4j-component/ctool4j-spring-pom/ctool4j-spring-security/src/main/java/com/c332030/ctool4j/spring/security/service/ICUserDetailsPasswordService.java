@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  * </p>
  *
  * @since 2026/2/1
+ * @see doc/design/spring/ICUserDetailsPasswordService.adoc
  */
 public interface ICUserDetailsPasswordService<T> extends UserDetailsPasswordService {
 

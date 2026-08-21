@@ -1,0 +1,61 @@
+= CReflectUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CReflectUtils
+状态：已落地
+适用范围：反射工具（字段/方法/构造器/注解缓存，MethodHandle 快速路径）
+
+== 1. 功能说明
+
+`CReflectUtils` 为反射工具类，提供：
+
+- 缓存：`FIELD_MAP_CLASS_VALUE` / `INSTANCE_FIELD_MAP_CLASS_VALUE` / `ALL_METHODS_CLASS_VALUE` 等
+- 构造器：`getAllConstructors` / `getConstructors` / `getNoArgConstructor` / `newInstance`
+- 方法：`getMethods` / `getAllMethods` / `getAllMethodsCached` / `getAllMethodsByName`
+- 字段：`getAllFieldMap` / `getInstanceFieldMap` / `getField` / `getFieldMap`
+- 读写：`getValue` / `setValue`（按字段或字段名，MethodHandle 快速路径）
+- 方法句柄：`getGetterHandleMap` / `getSetterHandleMap`
+- 注解：`getAnnotationCached` / `getFieldName`
+- 判断：`isStatic` / `isFinal`
+
+== 2. 设计要点
+
+=== 2.1 缓存
+
+- 各类元数据（字段/方法/方法句柄）按类缓存于 `CClassValue`，避免重复反射。
+
+=== 2.2 字段读写（getValue/setValue）
+
+- 实例字段走缓存的 MethodHandle 快速路径；静态字段回退 Field 原生路径。
+- final 字段 setValue 回退 Field.set（handle 缓存排除 final 字段）。
+- 父类声明字段可经子类实例读写；按字段名读写时字段不存在快速失败（抛 IllegalArgumentException）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 按字段名读写不存在字段 | 抛 IllegalArgumentException |
+| final 字段 setValue | 回退 Field.set |
+| 静态字段读写 | 回退 Field 原生路径 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 反射获取字段/方法/构造器、字段快速读写、注解查询。
+
+=== 4.2 不适用/边界场景
+
+- 按字段名读写不存在字段抛异常，调用方需预校验。
+
+== 5. 已知限制与取舍
+
+- 实例字段走 MethodHandle 快速路径提升性能，final/静态字段回退保证兼容。
+
+测试内容见 `doc/design/core/CReflectUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -16,6 +16,18 @@ import javax.lang.model.element.TypeElement;
 import java.lang.reflect.Field;
 import java.util.Collections;
 
+/**
+ * <p>
+ * Description: CAutowiredScanProcessorTests
+ * </p>
+ *
+ * <p>
+ * 是 {@link CAutowiredScanProcessor} 的测试用例（对应测试文档
+ * <code>doc/design/spring/CAutowiredScanProcessorTests.adoc</code>）。
+ * </p>
+ *
+ * @since 2026/8/14
+ */
 public class CAutowiredScanProcessorTests {
 
     private CAutowiredScanProcessor processor;
@@ -30,16 +42,25 @@ public class CAutowiredScanProcessorTests {
         roundEnv = Mockito.mock(RoundEnvironment.class);
     }
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void supportedSourceVersion_RELEASE8() {
         Assertions.assertEquals(SourceVersion.RELEASE_8, processor.getSupportedSourceVersion());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void supportedAnnotationTypes_containsAutowiredScan() {
         Assertions.assertTrue(processor.getSupportedAnnotationTypes().contains(CAutowiredScan.class.getName()));
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void init_loadsTemplate() throws Exception {
         processor.init(processingEnv);
@@ -52,11 +73,17 @@ public class CAutowiredScanProcessorTests {
         Assertions.assertFalse(template.isEmpty());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void process_beforeInit_returnsTrue() {
         Assertions.assertTrue(processor.process(Collections.emptySet(), roundEnv));
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void process_emptyAnnotations_returnsTrue() {
         processor.init(processingEnv);
@@ -64,6 +91,9 @@ public class CAutowiredScanProcessorTests {
         Assertions.assertTrue(processor.process(Collections.emptySet(), roundEnv));
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void process_fieldElement_skipsGeneration() {
         processor.init(processingEnv);

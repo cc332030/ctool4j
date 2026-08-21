@@ -1,0 +1,32 @@
+= CMimeTypeEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.enums.CMimeTypeEnum
+状态：已落地
+适用范围：媒体类型枚举（JSON5/XLS/XLSX，含 MediaType）
+
+== 1. 功能说明
+
+`CMimeTypeEnum` 为媒体类型枚举，实现 `ICText`，定义 JSON5/XLS/XLSX，各含：
+
+- `mimeTypeStr`：媒体类型字符串
+- `mimeType`：MediaType 对象（由字符串解析）
+- `text`：描述
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 统一媒体类型常量（JSON5/XLS/XLSX）。
+
+== 5. 已知限制与取舍
+
+- MediaType 由构造时解析字符串生成。
+
+测试内容见 `doc/design/core/CMimeTypeEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

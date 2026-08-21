@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CMinioConfig
  * </p>
  *
+ * @see doc/design/minio/CMinioConfig.adoc
  * @since 2026/7/15
  */
 @Data

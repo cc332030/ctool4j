@@ -28,18 +28,27 @@ class CSpringSecurityUtilsTests {
         SecurityContextHolder.clearContext();
     }
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testGetAuthentication_emptyContext_returnsNull() {
         SecurityContextHolder.clearContext();
         Assertions.assertNull(CSpringSecurityUtils.getAuthentication());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testGetPrincipal_emptyContext_returnsNull() {
         SecurityContextHolder.clearContext();
         Assertions.assertNull(CSpringSecurityUtils.getPrincipal());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testSetAndGetAuthentication() {
         Authentication auth = new UsernamePasswordAuthenticationToken("admin", null);
@@ -47,6 +56,9 @@ class CSpringSecurityUtilsTests {
         Assertions.assertEquals(auth, CSpringSecurityUtils.getAuthentication());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     void testGetPrincipal_stringPrincipal() {
         Authentication auth = new UsernamePasswordAuthenticationToken("admin", null);
@@ -54,6 +66,9 @@ class CSpringSecurityUtilsTests {
         Assertions.assertEquals("admin", CSpringSecurityUtils.getPrincipal());
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     void testGetPrincipal_userDetailsPrincipal() {
         UserDetails userDetails = new User("admin", "pass", Collections.emptyList());
@@ -62,6 +77,9 @@ class CSpringSecurityUtilsTests {
         Assertions.assertEquals(userDetails, CSpringSecurityUtils.getPrincipal());
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     void testGetPrincipal_nullPrincipal() {
         Authentication auth = new UsernamePasswordAuthenticationToken(null, null);
@@ -69,6 +87,9 @@ class CSpringSecurityUtilsTests {
         Assertions.assertNull(CSpringSecurityUtils.getPrincipal());
     }
 
+        /**
+     * 对应测试用例 1.7
+     */
     @Test
     void testGetUserDetails_userDetailsPrincipal() {
         // 正例：principal 为 UserDetails 时原样返回（anyType((Object)...) 消除重载歧义）
@@ -78,6 +99,9 @@ class CSpringSecurityUtilsTests {
         Assertions.assertEquals(userDetails, CSpringSecurityUtils.getUserDetails());
     }
 
+        /**
+     * 对应测试用例 1.8
+     */
     @Test
     void testGetUserDetails_stringPrincipal() {
         // 反例：principal 非 UserDetails（如字符串）时强转失败，运行期抛 ClassCastException
@@ -89,6 +113,9 @@ class CSpringSecurityUtilsTests {
         );
     }
 
+        /**
+     * 对应测试用例 1.9
+     */
     @Test
     void testGetUserDetails_emptyContext_returnsNull() {
         // 边界：空上下文时 getPrincipal 返回 null，anyType((Object)null) 返回 null

@@ -16,6 +16,9 @@ import java.util.function.BiFunction;
  */
 public class CBiFunctionTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void applyNormal() {
 
@@ -25,6 +28,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void applyNullInputs() {
 
@@ -34,6 +40,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void applySneakyThrowsCheckedException() {
 
@@ -48,6 +57,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void first() {
 
@@ -57,6 +69,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void second() {
 
@@ -66,6 +81,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticApplyNullFunction() {
 
@@ -73,6 +91,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void staticApplyNormal() {
 
@@ -82,6 +103,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convert() {
 
@@ -93,6 +117,9 @@ public class CBiFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.6
+     */
     @Test
     public void convertNullCBiFunction() {
 

@@ -1,0 +1,49 @@
+= CThreadUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CThreadUtils
+状态：已落地
+适用范围：创建守护线程（默认命名/自定义命名）
+
+== 1. 功能说明
+
+`CThreadUtils` 为线程工具类，提供：
+
+- `newDaemonThread(Runnable)`：创建守护线程，默认命名 `DaemonThread-{currentTimeMillis}`
+- `newDaemonThread(Runnable, String name)`：创建守护线程，自定义线程名
+
+== 2. 设计要点
+
+=== 2.1 守护线程约定
+
+- 创建的线程均设为 daemon（`setDaemon(true)`），不阻止 JVM 退出。
+- 默认命名用 `System.currentTimeMillis()` 保证基础唯一性。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 未命名重载 | 使用默认名 `DaemonThread-{currentTimeMillis}` |
+| 命名重载 | 使用调用方传入的线程名 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要后台执行、不应阻止 JVM 退出的辅助任务线程（如定时清理、异步非关键任务）。
+
+=== 4.2 不适用/边界场景
+
+- 仅创建线程，不负责启动（`start()`）；不提供线程池封装。
+
+== 5. 已知限制与取舍
+
+- 强制 daemon，避免未管理线程阻塞 JVM 退出；调用方需自行管理生命周期。
+
+测试内容见 `doc/design/core/CThreadUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

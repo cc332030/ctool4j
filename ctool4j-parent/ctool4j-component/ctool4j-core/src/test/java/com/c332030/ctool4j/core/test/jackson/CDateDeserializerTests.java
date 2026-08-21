@@ -18,6 +18,9 @@ import java.util.Date;
  */
 public class CDateDeserializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void stringDate() throws Exception {
 
@@ -26,6 +29,9 @@ public class CDateDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void millisDate() throws Exception {
 
@@ -34,6 +40,9 @@ public class CDateDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void numberIntDate() throws Exception {
 
@@ -42,6 +51,9 @@ public class CDateDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void emptyString() throws Exception {
 
@@ -50,6 +62,9 @@ public class CDateDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void nullValue() throws Exception {
 
@@ -58,6 +73,9 @@ public class CDateDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void missingField() throws Exception {
 

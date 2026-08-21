@@ -16,6 +16,9 @@ import java.util.function.Supplier;
  */
 public class CThreadLocalUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getThenRemove() {
 
@@ -28,6 +31,9 @@ public class CThreadLocalUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getThenRemoveEmpty() {
 
@@ -37,6 +43,9 @@ public class CThreadLocalUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getOrDefault() {
 
@@ -49,6 +58,9 @@ public class CThreadLocalUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void getOrDefaultWithSupplier() {
 

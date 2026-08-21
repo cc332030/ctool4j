@@ -1,0 +1,67 @@
+= CTransactional 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-transaction
+类：com.c332030.ctool4j.transaction.annotation.CTransactional
+状态：已落地
+适用范围：Spring 事务声明式注解的简化别名
+
+== 1. 功能说明
+
+`CTransactional` 是 Spring `@Transactional` 的元注解封装（`@AliasFor` 映射），
+为调用方提供默认值更友好的事务声明式注解。它本身被 `@Transactional` 标注，
+可通过 Spring 的 `AnnotatedElementUtils` 合并解析出等价的 `@Transactional` 语义。
+
+提供四个常用属性映射：
+
+- `propagation`：传播行为，默认 `Propagation.REQUIRED`
+- `isolation`：隔离级别，默认 `Isolation.DEFAULT`
+- `readOnly`：只读，默认 `false`
+- `rollbackFor`：回滚异常类型，默认 `Exception.class`
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 通过 `@AliasFor(annotation = Transactional.class)` 逐属性映射到 Spring 原注解，
+  使 `@CTransactional` 标注的类/方法可被 Spring 事务基础设施识别为事务性。
+- 默认值与 Spring `@Transactional` 的默认值保持一致，仅在 `rollbackFor` 上显式
+  声明默认 `Exception.class`（等价于 Spring 默认的全部异常回滚语义）。
+- `@Target` 支持类型与方法两级；`@Inherited` 使子类继承父类上的事务注解。
+
+=== 2.2 实现方式
+
+- 纯注解声明，无业务逻辑；通过标准 Spring 元注解机制实现语义等价。
+- 属性均通过 `@AliasFor` 显式指定映射目标，避免依赖隐式别名解析。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 不指定任何属性 | 使用默认值：REQUIRED / DEFAULT / false / Exception |
+| 类或方法任一层级标注 | 均可被 Spring 识别（`@Target` 含 TYPE 与 METHOD） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要声明式事务的 Service 类或方法，希望统一使用项目自定义的事务注解风格。
+
+=== 4.2 不适用/边界场景
+
+- 不新增 Spring `@Transactional` 之外的属性；需要更多事务配置（如 `noRollbackFor`、
+  `timeout`、`transactionManager`）时需直接使用 `@Transactional` 或扩展本注解。
+
+== 5. 已知限制与取舍
+
+- 仅封装了最常用的 4 个属性，其余 Spring 事务属性未透传，使用完整事务能力时需回退到
+  `@Transactional`。
+- `rollbackFor` 默认 `Exception.class`，与 Spring 默认行为（运行时异常回滚、受检异常
+  默认不回滚）在受检异常处理上有所不同——本注解默认对受检异常也回滚，调用方需注意。
+
+测试内容见 `doc/design/transaction/CTransactionalTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

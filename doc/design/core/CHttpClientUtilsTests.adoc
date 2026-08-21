@@ -1,0 +1,51 @@
+= CHttpClientUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CHttpClientUtils`（core 工具类）——HTTP 客户端全局配置（超时、连接池、长连接、Spring 请求工厂）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CHttpClientUtilsTests`
+
+对应设计文档：`doc/design/core/CHttpClientUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CHttpClientUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「超时常量 / 请求配置 / 连接池 / 客户端与工厂」多个维度组织。
+- 超时常量逐一断言数值；请求配置断言其内超时与常量一致；连接池断言最大连接数；
+  客户端/工厂/策略断言非空。
+
+=== 设计依据
+
+- 依据功能设计对各常量的约定。
+- 依据测试方法（黑盒等价类）：配置常量值与组成断言。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：五个超时常量值；REQUEST_CONFIG 三超时；CONNECTION_MANAGER 最大连接数；KEEP_ALIVE_STRATEGY/
+  HTTP_CLIENT/REQUEST_FACTORY 非空。
+- 未覆盖：真实 HTTP 请求往返、连接池并发行为（属集成行为，单测不构造网络请求）。
+
+== 1. 超时常量
+
+- 1.1 五个超时常量值正确（timeoutConstants）
+
+== 2. 请求配置
+
+- 2.1 REQUEST_CONFIG 非空且三超时与常量一致（requestConfig）
+
+== 3. 连接池
+
+- 3.1 CONNECTION_MANAGER 非空且最大连接数正确（connectionManager）
+
+== 4. 客户端与工厂
+
+- 4.1 KEEP_ALIVE_STRATEGY / HTTP_CLIENT / REQUEST_FACTORY 均非空（httpClientAndFactory）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

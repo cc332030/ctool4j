@@ -1,0 +1,51 @@
+= CLog 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.log.CLog`（core 日志类）——SLF4J 日志封装。
+
+对应测试类：`com.c332030.ctool4j.core.test.log.CLogTests`
+
+对应设计文档：`doc/design/core/CLog.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CLog 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「构造 / 级别判断 / 简单打印 / 异常打印 / 参数打印 / 延迟求值」多个维度组织。
+- 构造覆盖按名称与按类；级别判断断言返回 boolean 不抛异常（避免依赖具体级别配置）。
+- 打印覆盖各级别，参数与 Supplier 两种形态。
+
+=== 设计依据
+
+- 依据功能设计对各构造、级别判断与打印形态的约定。
+- 依据测试方法（等价类/边界值）：构造两入口、级别判断、打印各形态。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：按名称/按类构造；五级别 isEnabled；五级别简单打印；带 throwable 打印；Object 参数打印；
+  Supplier 延迟求值打印。
+- 未覆盖：CLogUtils 参数 JSON 化的具体内容（依赖日志 mapper，未在单测断言）。
+
+== 1. 构造
+
+- 1.1 按名称：`new CLog("test-logger")` 非空（constructByName）
+- 1.2 按类：`new CLog(CLogTests.class)` 非空（constructByClass）
+
+== 2. 级别判断
+
+- 2.1 五级别 isEnabled：返回 boolean 不抛异常（levelEnabled）
+
+== 3. 打印
+
+- 3.1 简单打印：五级别 msg 打印（simpleLogs）
+- 3.2 带异常打印：五级别 msg+throwable（throwableLogs）
+- 3.3 Object 参数打印：五级别 msg+args（argsLogs）
+- 3.4 Supplier 延迟求值：五级别 msg+Supplier（supplierLogs）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

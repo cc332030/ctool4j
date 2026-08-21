@@ -1,0 +1,60 @@
+= CRequestLogHandlerInterceptor 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-log
+类：com.c332030.ctool4j.log.interceptor.CRequestLogHandlerInterceptor
+状态：已落地
+适用范围：请求日志采集与链路追踪清理
+
+== 1. 功能说明
+
+`CRequestLogHandlerInterceptor`（`@Component`）实现 `ICHandlerInterceptor`，在请求前后处理请求日志：
+
+- `preHandle`：初始化链路追踪与请求日志上下文（`CTraceUtils.initTrace`、`CRequestLogUtils.init`）。
+- `afterCompletion`：打印请求日志、输出慢日志、清理链路追踪上下文。
+
+== 2. 设计要点
+
+=== 2.1 preHandle
+
+- 调用 `CTraceUtils.initTrace()` 与 `CRequestLogUtils.init()`。
+- 异常捕获后记录 error 日志，恒返回 true 继续处理。
+
+=== 2.2 afterCompletion
+
+- 获取并移除请求日志（`getOptThenRemove`），存在则：
+  - 受 enable 总开关控制，`setEndTimeMillis(当前时间)` 后 `logWrite` 打印请求日志（覆盖响应体采集时记录的时间，含视图渲染与响应写出耗时）。
+  - 慢日志开关（`slowLogEnable`）开启且耗时超过 `slowLogMillis` 时输出 warn 慢日志；未记录开始时间时耗时恒为 0。
+- 先清 MDC（`removeTraceId`）再清 ThreadLocal（`removeTraceInfo`）——removeTraceId 内部依赖当前 ThreadLocal 的 traceInfo。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| preHandle 初始化异常 | 捕获记录 error 日志，继续处理 |
+| 请求日志未启用 | 跳过日志打印 |
+| 慢日志开关关闭 | 直接跳过，不做耗时计算 |
+| 未记录开始时间 | 耗时恒为 0 |
+| afterCompletion 清理异常 | 捕获记录 error 日志 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- Web 请求的访问日志采集、链路追踪清理。
+
+=== 4.2 不适用/边界场景
+
+- 依赖 `ICHandlerInterceptor` 调用链与请求日志配置（web 模块）。
+
+== 5. 已知限制与取舍
+
+- 清理顺序依赖（先 MDC 后 ThreadLocal）有强约束，改动需谨慎。
+- 慢日志耗时计算以实际完成时间为准，包含视图渲染与响应写出耗时。
+
+无测试类，测试相关能力由 web 模块请求日志链路覆盖。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

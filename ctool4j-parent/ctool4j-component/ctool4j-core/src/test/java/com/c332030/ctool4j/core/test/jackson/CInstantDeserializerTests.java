@@ -18,6 +18,9 @@ import java.time.Instant;
  */
 public class CInstantDeserializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void stringInstant() throws Exception {
 
@@ -27,6 +30,9 @@ public class CInstantDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void numberIntInstant() throws Exception {
 
@@ -36,6 +42,9 @@ public class CInstantDeserializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void nullValue() throws Exception {
 

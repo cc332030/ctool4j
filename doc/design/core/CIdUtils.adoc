@@ -1,0 +1,66 @@
+= CIdUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CIdUtils
+状态：已落地
+适用范围：UUID / 雪花 ID 生成、类 ID 前缀计算、带前缀雪花 ID、ID 前缀解析
+
+== 1. 功能说明
+
+`CIdUtils` 为 ID 生成与解析工具类，提供：
+
+- `stringUUID` / `stringUUIDNoHyphen`：生成带/不带 '-' 的 UUID 字符串
+- `nextId`：生成雪花 ID（Long）
+- `getPrefix(Class)` / `getPrefix(Class, length)`：计算类的 ID 前缀（优先 `@CBizId` 注解值，
+  否则取类名大写字母去 `DO`）
+- `nextIdWithPrefix`：生成带前缀（字符串/类前缀）的雪花 ID
+- `getPrefixFromId`：从 ID 中解析前缀（数字前的字符）
+
+== 2. 设计要点
+
+=== 2.1 前缀计算规则（CLASS_PREFIX）
+
+- 优先取 `@CBizId` 注解的 `value`（非空白时）。
+- 无注解值回退取类简单名的所有大写字母并去除 `DO` 子串（如 `CIdUtilsTests` → `CIUT`）。
+- 按类缓存（`CClassValue`，基于 `java.lang.ClassValue`，线程安全、按类弱关联），避免重复计算。
+
+=== 2.2 前缀截取（getPrefix(Class, length)）
+
+- 取 `prefix.substring(0, min(length, prefix.length()))`：length 超前缀长度时返回完整前缀。
+
+=== 2.3 前缀解析（getPrefixFromId）
+
+- 从 ID 开头扫描到第一个数字字符，取之前的字符为前缀；无前缀（ID 以数字开头或为空）返回 null。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| getPrefixFromId 空 ID/null | 返回 null |
+| getPrefixFromId 无前缀（ID 以数字开头） | 返回 null |
+| getPrefixFromId(String, convert) 无前缀 | 返回 null，不调用 convert |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要 UUID / 雪花 ID 作为主键/业务 ID。
+- 需要按类生成带稳定前缀的雪花 ID（`@CBizId` 注解或类名约定）。
+
+=== 4.2 不适用/边界场景
+
+- 前缀解析只识别"数字前的字符"；ID 中后续数字不影响前缀解析。
+- getPrefix 按类缓存，运行期类上加/改 `@CBizId` 注解不会刷新（转换器静态注册，无动态需求）。
+
+== 5. 已知限制与取舍
+
+- 前缀缓存无失效机制：`@CBizId` 注解理论上静态不可变，风险低（沿用 CClassValue 约定）。
+- `getPrefixFromId` 语义简单（数字前字符），不做复杂的前缀分隔规则。
+
+测试内容见 `doc/design/core/CIdUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

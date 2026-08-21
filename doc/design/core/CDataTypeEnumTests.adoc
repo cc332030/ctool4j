@@ -1,0 +1,47 @@
+= CDataTypeEnum 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.enums.CDataTypeEnum`（core 枚举类）——数据类型枚举（含日期类型集合、描述、小写名）。
+
+对应测试类：`com.c332030.ctool4j.core.test.enums.CDataTypeEnumTests`
+
+对应设计文档：`doc/design/core/CDataTypeEnum.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CDataTypeEnum 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「枚举值与描述 / 小写名 / 日期类型集合」三个维度组织。
+- 枚举值逐一断言数量与各枚举的中文描述。
+- 小写名覆盖避开含字母 I 的枚举（规避 Turkish locale 陷阱）。
+- 日期类型集合断言大小、包含日期相关类型、不包含 INT。
+
+=== 设计依据
+
+- 依据功能设计对 13 种类型、描述、DATE_TYPES 集合的约定。
+- 依据测试方法（等价类/边界值）：全部枚举、小写名、集合成员判断。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：13 个枚举值数量与描述；getLowerCase 小写名；DATE_TYPES 大小与成员（含/不含）。
+- 未覆盖：含字母 I 的枚举（INT/TIMESTAMP 等）的 getLowerCase（因 locale 陷阱有意避开，未断言）。
+
+== 1. 枚举值与描述
+
+- 1.1 values：13 个枚举，各枚举中文描述正确（values）
+
+== 2. 小写名
+
+- 2.1 getLowerCase：非 I 字母枚举的小写名正确（getLowerCase）
+
+== 3. 日期类型集合
+
+- 3.1 DATE_TYPES：大小 4，含 DATE/TIME/DATETIME/TIMESTAMP，不含 INT（dateTypes）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

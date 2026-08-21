@@ -11,6 +11,7 @@ import java.io.IOException;
  * </p>
  *
  * @since 2025/9/25
+ * @see doc/design/web/ICFilter.adoc
  */
 public interface ICFilter extends Filter {
 

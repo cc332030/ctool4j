@@ -20,6 +20,8 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/4/17
+ * @see doc/design/core/CClassConvert.adoc
+ * @see doc/design/core/CClassConvertTests.adoc
  */
 @CustomLog
 @UtilityClass

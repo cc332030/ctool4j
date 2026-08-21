@@ -1,0 +1,42 @@
+= CXxlJobConfiguration 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-xxl-job
+类：com.c332030.ctool4j.job.xxljob.configuation.CXxlJobConfiguration
+状态：已落地
+适用范围：xxl-job 执行器自动配置
+
+== 1. 功能说明
+
+`CXxlJobConfiguration`（`@Configuration` + `@ConditionalOnProperty(xxl.job.enable=true, matchIfMissing=true)`）注册 xxl-job 执行器 Bean。
+
+== 2. 设计要点
+
+=== 2.1 执行器 Bean
+
+- `@ConditionalOnMissingBean(XxlJobExecutor.class)`。
+- 用 `XxlJobSpringExecutor` 按 admin/executor 配置初始化（accessToken、addresses、timeout、appname、address、ip、port、logPath、logRetentionDays）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| xxl.job.enable 未配置 | matchIfMissing 默认开启 |
+| 已有 XxlJobExecutor Bean | 跳过 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- xxl-job 执行器的自动装配。
+
+== 5. 已知限制与取舍
+
+- 依赖 admin/executor 配置。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

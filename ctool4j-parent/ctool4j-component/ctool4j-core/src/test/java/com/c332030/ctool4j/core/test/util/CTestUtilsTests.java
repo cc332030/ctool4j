@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CTestUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void isTest() {
 
@@ -21,6 +24,9 @@ public class CTestUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void isNotTest() {
 

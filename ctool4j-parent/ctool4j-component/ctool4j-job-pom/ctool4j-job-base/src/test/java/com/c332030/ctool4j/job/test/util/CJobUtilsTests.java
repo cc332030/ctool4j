@@ -15,6 +15,11 @@ import java.time.temporal.ChronoUnit;
  * Description: CJobUtilsTests
  * </p>
  *
+ * <p>
+ * 是 {@link CJobUtils} 的测试用例（对应测试文档
+ * <code>doc/design/job/CJobUtilsTests.adoc</code>）。
+ * </p>
+ *
  * @author c332030
  * @since 2026/8/14
  */
@@ -37,7 +42,9 @@ class CJobUtilsTests {
 
     /**
      * 正常路径：param 合法时，endTime 为参数所在日次日零点，startTime 为 endTime 减 1 小时再减 days 天
-     */
+ * <p>
+ * 对应测试用例 1.1
+ */
     @Test
     void dayJobTime_validParamDays1() {
         CJobUtils.dayJobTime("2026-08-14 10:00:00", 1, consumer);
@@ -51,7 +58,9 @@ class CJobUtilsTests {
 
     /**
      * 正常路径：days 大于 1 时 startTime 相应前移
-     */
+ * <p>
+ * 对应测试用例 1.2
+ */
     @Test
     void dayJobTime_validParamDays3() {
         CJobUtils.dayJobTime("2026-08-14 10:00:00", 3, consumer);
@@ -65,7 +74,9 @@ class CJobUtilsTests {
 
     /**
      * 正常路径：param 为空时使用当前时间，仍满足 endTime 为次日零点、startTime 为 endTime 减 1 小时再减 days 天
-     */
+ * <p>
+ * 对应测试用例 1.3
+ */
     @Test
     void dayJobTime_nullParamUsesNow() {
         // 与 CJobUtils 内部一致，按系统默认时区的日边界截断，避免 UTC 截断导致跨时区偏差
@@ -89,7 +100,9 @@ class CJobUtilsTests {
 
     /**
      * 边界：param 为纯空白时按当前时间处理
-     */
+ * <p>
+ * 对应测试用例 1.4
+ */
     @Test
     void dayJobTime_blankParamUsesNow() {
         CJobUtils.dayJobTime("   ", 1, consumer);
@@ -101,7 +114,9 @@ class CJobUtilsTests {
 
     /**
      * 异常路径：param 格式非法时抛异常，不静默兜底
-     */
+ * <p>
+ * 对应测试用例 1.5
+ */
     @Test
     void dayJobTime_invalidParamThrows() {
         Assertions.assertThrowsExactly(

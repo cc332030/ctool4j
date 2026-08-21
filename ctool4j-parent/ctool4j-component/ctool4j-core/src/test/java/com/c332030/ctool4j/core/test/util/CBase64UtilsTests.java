@@ -15,6 +15,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class CBase64UtilsTests {
 
+    /**
+     * 对应测试用例 1.1 / 1.2 / 1.3
+     */
     @Test
     public void encode() {
 
@@ -26,6 +29,9 @@ public class CBase64UtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1 / 2.2 / 2.3
+     */
     @Test
     public void decode() {
 
@@ -37,6 +43,9 @@ public class CBase64UtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void roundTrip() {
 

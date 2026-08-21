@@ -9,6 +9,11 @@ import org.junit.jupiter.api.Test;
  * Description: CCsvUtilsTests
  * </p>
  *
+ * <p>
+ * 是 {@link CCsvUtils} 的测试用例（对应测试文档
+ * <code>doc/design/csv/CCsvUtilsTests.adoc</code>）。
+ * </p>
+ *
  * @author c332030
  * @since 2026/8/14
  */
@@ -18,6 +23,8 @@ class CCsvUtilsTests {
 
     /**
      * 正常路径：普通字符串去除首尾空白
+     * <p>
+     * 对应测试用例 1.1
      */
     @Test
     void trim_normal() {
@@ -26,6 +33,8 @@ class CCsvUtilsTests {
 
     /**
      * 正常路径：字符串内部空格保留
+     * <p>
+     * 对应测试用例 1.2
      */
     @Test
     void trim_innerSpaceKept() {
@@ -34,6 +43,8 @@ class CCsvUtilsTests {
 
     /**
      * 正常路径：含退格字符时移除退格
+     * <p>
+     * 对应测试用例 1.3
      */
     @Test
     void trim_backspaceRemoved() {
@@ -42,6 +53,8 @@ class CCsvUtilsTests {
 
     /**
      * 边界：null 返回 null
+     * <p>
+     * 对应测试用例 1.4
      */
     @Test
     void trim_null() {
@@ -50,6 +63,8 @@ class CCsvUtilsTests {
 
     /**
      * 边界：空串返回 null
+     * <p>
+     * 对应测试用例 1.5
      */
     @Test
     void trim_empty() {
@@ -58,6 +73,8 @@ class CCsvUtilsTests {
 
     /**
      * 边界：纯空白串返回 null
+     * <p>
+     * 对应测试用例 1.6
      */
     @Test
     void trim_blank() {
@@ -66,6 +83,8 @@ class CCsvUtilsTests {
 
     /**
      * 边界：仅退格字符的串被 isBlank 判定为空白，返回 null
+     * <p>
+     * 对应测试用例 1.7
      */
     @Test
     void trim_onlyBackspace() {
@@ -74,6 +93,8 @@ class CCsvUtilsTests {
 
     /**
      * 边界：超长字符串正常处理
+     * <p>
+     * 对应测试用例 1.8
      */
     @Test
     void trim_superLong() {

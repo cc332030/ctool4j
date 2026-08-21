@@ -24,6 +24,7 @@ import java.util.Map;
  * Description: CFeignClient
  * </p>
  *
+ * @see doc/design/feign/CFeignClient.adoc
  * @since 2025/9/21
  */
 @CustomLog

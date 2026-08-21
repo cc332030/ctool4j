@@ -1,0 +1,56 @@
+= CSpiUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CSpiUtils`（core 工具类）——SPI 服务加载（获取全部实现、首实现、自定义实现优先）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CSpiUtilsTests`
+
+对应设计文档：`doc/design/core/CSpiUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CSpiUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 以 `ICBusinessExceptionProvider`（有 `CBusinessExceptionProvider` 实现）与 `String`（无实现）两类
+  接口，覆盖"有实现 / 无实现"两条路径。
+- 覆盖 getImpls（有/无实现）、getFirstImpl（有实现/无实现抛异常）、getFirstCustomImplOrDefault、
+  getImplsSorted 各入口。
+
+=== 设计依据
+
+- 依据功能设计对无实现抛异常、自定义优先的约定。
+- 依据测试方法（等价类/边界值/异常路径）：有/无实现、异常、排序。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：getImpls 有实现（1 个且类型正确）与无实现（空）；getFirstImpl 命中与无实现抛
+  IllegalStateException；getFirstCustomImplOrDefault 无自定义时返回默认实现；getImplsSorted
+  排序后结果。
+- 未覆盖：存在多个实现（含自定义）时自定义优先、Comparable 自然序排序（当前测试环境仅 1 个实现，
+  属环境依赖的可选扩展）。
+
+== 1. 获取全部实现（getImpls）
+
+- 1.1 有实现：返回 1 个 `CBusinessExceptionProvider`（getImpls）
+- 1.2 无实现：`String` 返回空列表（getImplsNoProvider）
+
+== 2. 获取首实现（getFirstImpl）
+
+- 2.1 有实现：返回 `CBusinessExceptionProvider`（getFirstImpl）
+- 2.2 无实现：抛 IllegalStateException（getFirstImplNoProviderThrows）
+
+== 3. 自定义优先（getFirstCustomImplOrDefault）
+
+- 3.1 无自定义：返回默认实现 `CBusinessExceptionProvider`（getFirstCustomImplOrDefault）
+
+== 4. 排序（getImplsSorted）
+
+- 4.1 排序：返回 1 个 `CBusinessExceptionProvider`（getImplsSorted）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

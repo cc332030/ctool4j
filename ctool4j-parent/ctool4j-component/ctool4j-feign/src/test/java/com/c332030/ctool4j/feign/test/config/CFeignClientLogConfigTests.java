@@ -7,10 +7,21 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * <p>
+ * Description: CFeignClientLogConfigTests
+ * </p>
+ *
+ * <p>
+ * 是 {@link CFeignClientLogConfig} 的测试用例（对应测试文档
+ * <code>doc/design/feign/CFeignClientLogConfigTests.adoc</code>）。
+ * </p>
+ */
 public class CFeignClientLogConfigTests {
 
+    /** 对应测试用例 1.1 */
     @Test
-    public void defaultValues() {
+    void defaultValues() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
 
         Assertions.assertFalse(config.getEnable());
@@ -21,8 +32,9 @@ public class CFeignClientLogConfigTests {
         Assertions.assertTrue(config.getApiBlackList().isEmpty());
     }
 
+    /** 对应测试用例 1.2 */
     @Test
-    public void settersAndGetters() {
+    void settersAndGetters() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
 
         config.setEnable(true);
@@ -36,8 +48,9 @@ public class CFeignClientLogConfigTests {
         Assertions.assertTrue(config.getLogAll());
     }
 
+    /** 对应测试用例 2.1 */
     @Test
-    public void apiWhiteList_replaceReadable() {
+    void apiWhiteList_replaceReadable() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
 
         config.setApiWhiteList(new HashSet<>(Arrays.asList("api1", "api2")));
@@ -47,8 +60,9 @@ public class CFeignClientLogConfigTests {
         Assertions.assertTrue(config.getApiWhiteList().contains("api2"));
     }
 
+    /** 对应测试用例 2.2 */
     @Test
-    public void apiWhiteList_defaultImmutable() {
+    void apiWhiteList_defaultImmutable() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
 
         Assertions.assertThrowsExactly(
@@ -56,8 +70,9 @@ public class CFeignClientLogConfigTests {
             () -> config.getApiWhiteList().add("api3"));
     }
 
+    /** 对应测试用例 3.1 */
     @Test
-    public void toString_containsFields() {
+    void toString_containsFields() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
         config.setEnable(true);
 

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @since 2025/9/11
+ * @see doc/design/spring/CToolSpringCloudConfiguration.adoc
  */
 @Configuration
 public class CToolSpringCloudConfiguration {

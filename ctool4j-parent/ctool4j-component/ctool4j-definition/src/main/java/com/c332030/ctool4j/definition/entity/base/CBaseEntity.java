@@ -17,6 +17,8 @@ import java.io.Serializable;
  * 由使用方决定，多版本兼容），javac 的"未知枚举常量"警告已知且接受</p>
  *
  * @since 2025/12/6
+ * @see doc/design/core/CBaseEntity.adoc
+ * @see doc/design/core/CBaseEntityTests.adoc
  */
 @Data
 @SuperBuilder

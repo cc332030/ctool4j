@@ -1,0 +1,43 @@
+= CEnumDeserializer 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer`（core jackson 类）——枚举反序列化。
+
+对应测试类：`com.c332030.ctool4j.core.test.jackson.CEnumDeserializerTests`
+
+对应设计文档：`doc/design/core/CEnumDeserializer.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CEnumDeserializer 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「枚举反序列化 / 空白边界 / 未知枚举异常 / 实例」多个维度组织。
+- 用 EnumBean（CDbOperateEnum.operate）验证按名反序列化、trim、空白/null/空返回 null、未知抛异常。
+
+=== 设计依据
+
+- 依据功能设计对按名反序列化、空白返回 null、未知抛异常的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：按名反序列化；trim 容忍空格；空白/null/空返回 null；未知名抛 JsonMappingException；getEnumClass；
+  EMPTY_INSTANCE 非空。
+- 未覆盖：createContextual 非枚举字段校验分支（未单列）。
+
+== 1. 枚举反序列化
+
+- 1.1 按名：`"INSERT"` → INSERT（deserializeEnum）
+- 1.2 trim：`" INSERT "` → INSERT（deserializeTrim）
+- 1.3 空白：`"  "` → null（deserializeBlank）
+- 1.4 空字符串：`""` → null（deserializeEmptyString）
+- 1.5 未知枚举：`"XXX"` 抛 JsonMappingException（deserializeUnknown_throws）
+- 1.6 getEnumClass：返回绑定枚举类型（getEnumClass）
+- 1.7 EMPTY_INSTANCE 非空（emptyInstanceNotNull）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

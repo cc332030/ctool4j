@@ -1,0 +1,74 @@
+= CComparatorUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CComparatorUtils
+状态：已落地
+适用范围：集合最值比较（min/max）、字段取值最值、null 视为最大的双值比较
+
+== 1. 功能说明
+
+`CComparatorUtils` 为比较工具类，提供：
+
+- `min` / `max`：取集合或可变参数中的最小/最大值（过滤 null 元素，空集合返回 null）
+- `compareCollection`：按自定义比较器或字段取值后取集合最值
+- `compare`：比较两个值（null 视为最大）
+- `minConsumer` / `maxConsumer`：取最值后消费（最值为 null 时不消费）
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 最值类方法（min/max/compareCollection）均**过滤 null 元素**，对全部为 null 或空集合
+  返回 null，而非抛异常。
+- `compare` 将 null 视为最大：`compare(null, x)` 返回正数、`compare(x, null)` 返回负数、
+  `compare(null, null)` 返回 0，便于将 null 值排序到末尾。
+- `minConsumer` / `maxConsumer` 基于 `Optional.ofNullable(最值).ifPresent(consumer)`，
+  最值为 null（空集合/全 null）时不调用 consumer。
+
+=== 2.2 实现方式
+
+- 基础最值复用 `compareCollection(collection, comparator)`：`stream.filter(Objects::nonNull)`
+  后按比较器 `min/max`，`.orElse(null)`。
+- `min` = `compareCollection(collection, Comparable::compareTo)`；
+  `max` = `compareCollection(collection, Comparator.reverseOrder())`。
+- 字段取值最值 `compareCollection(collection, function, comparator)`：过滤元素与取值双非空
+  （`e != null && function.apply(e) != null`），再按取值的比较器取最值。
+- 可变参数重载委托集合重载：`min(T... os)` 内部 `Arrays.asList(os)` 后走集合路径。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| min/max/compareCollection 空集合 | 返回 null |
+| min/max/compareCollection 全部元素为 null | 返回 null（null 元素被过滤） |
+| 字段取值最值：元素或字段值为 null | 该元素被过滤，不参与最值 |
+| minConsumer/maxConsumer 最值为 null | 不调用 consumer |
+| compare 双 null | 返回 0 |
+| compare(null, x) | 返回正数（null 视为最大） |
+| compare(x, null) | 返回负数 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对可能含 null 元素的集合取最值，避免手写 null 判空。
+- 按对象某字段取最值（如 `min(list, Item::getPrice)`）。
+- 将 null 排序到末尾的双值比较（`compare`）。
+
+=== 4.2 不适用/边界场景
+
+- 最值类方法依赖元素 `Comparable` 或显式比较器，非 `Comparable` 类型需传比较器。
+- 字段取值最值对字段值为 null 的元素直接过滤，无法表达"null 字段参与排序"。
+
+== 5. 已知限制与取舍
+
+- 最值过滤 null 元素，牺牲"null 参与比较"能力换取无异常取最值便利。
+- 可变参数重载与集合重载语义一致（null 过滤），调用方无需区分。
+
+测试内容见 `doc/design/core/CComparatorUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

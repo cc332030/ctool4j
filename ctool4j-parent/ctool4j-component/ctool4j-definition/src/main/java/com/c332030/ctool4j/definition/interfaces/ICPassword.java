@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Description: ICPassword
  * </p>
  *
+ * @see doc/design/definition/ICPassword.adoc
  * @since 2026/1/24
  */
 public interface ICPassword {

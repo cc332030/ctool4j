@@ -42,6 +42,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * 基准执行入口（显式运行：mvn test -Dtest=CBeanUtilsBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
+     * 对应测试用例 6.1
      */
     @Test
     public void benchmark() {

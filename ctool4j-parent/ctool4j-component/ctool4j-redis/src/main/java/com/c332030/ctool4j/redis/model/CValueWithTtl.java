@@ -11,6 +11,8 @@ import lombok.experimental.SuperBuilder;
  * Description: CValueWithTtl
  * </p>
  *
+ * @see doc/design/redis/CValueWithTtl.adoc
+ * @see doc/design/redis/CValueWithTtlTests.adoc
  * @since 2026/3/25
  */
 @Data

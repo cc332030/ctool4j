@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CPageConfigTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
 
@@ -22,6 +25,9 @@ public class CPageConfigTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void setterAndGetter() {
 
@@ -32,6 +38,9 @@ public class CPageConfigTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void toStringContainsFields() {
 

@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2026/2/9
+ * @see doc/design/spring/CSpringJacksonConfig.adoc
  */
 @Data
 @ConfigurationProperties("spring.jackson")

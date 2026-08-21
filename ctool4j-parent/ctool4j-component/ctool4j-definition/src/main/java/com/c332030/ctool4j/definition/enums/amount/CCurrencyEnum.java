@@ -9,6 +9,8 @@ import lombok.Getter;
  * </p>
  *
  * @since 2026/5/12
+ * @see doc/design/core/CCurrencyEnum.adoc
+ * @see doc/design/core/CCurrencyEnumTests.adoc
  */
 @Getter
 @AllArgsConstructor

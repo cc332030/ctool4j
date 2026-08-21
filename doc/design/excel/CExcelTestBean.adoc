@@ -1,0 +1,26 @@
+= CExcelTestBean 设计文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-excel
+类：com.c332030.ctool4j.excel.test.util.CExcelTestBean
+状态：已落地
+适用范围：Excel 测试辅助实体
+
+== 1. 功能说明
+
+`CExcelTestBean` 为 Excel 测试辅助实体（`@Data`），含 `id`/`name`/`desc` 字段，供 Excel 读写测试（`CExcelUtilsTests` 等）作为测试数据载体。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- Excel 功能测试的辅助数据实体。
+
+== 5. 已知限制与取舍
+
+- 测试辅助类；字段简单。
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

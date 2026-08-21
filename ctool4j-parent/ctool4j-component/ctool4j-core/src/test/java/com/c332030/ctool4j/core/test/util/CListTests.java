@@ -17,6 +17,9 @@ import java.util.List;
  */
 public class CListTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void ofEmpty() {
 
@@ -24,6 +27,9 @@ public class CListTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void ofSingle() {
 
@@ -32,6 +38,9 @@ public class CListTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void ofVarargs() {
 
@@ -42,6 +51,9 @@ public class CListTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void ofVarargsUnmodifiable() {
 

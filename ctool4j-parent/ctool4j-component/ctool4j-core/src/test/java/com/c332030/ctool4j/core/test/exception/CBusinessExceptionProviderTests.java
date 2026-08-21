@@ -18,6 +18,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CBusinessExceptionProviderTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getExceptionFunction() {
 
@@ -33,6 +36,9 @@ public class CBusinessExceptionProviderTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getExceptionFunction_nullExtend() {
 

@@ -1,0 +1,47 @@
+= CList 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CList`（core 工具类）——构造空/单元素/元素 List（过滤 null）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CListTests`
+
+对应设计文档：`doc/design/core/CList.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CList 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「空 List / 单元素 / 可变参数」三个维度组织。
+- 单元素：正例、单元素 null 返回空。
+- 可变参数：正例、null 过滤、全 null 返回空、空参、不可变断言。
+
+=== 设计依据
+
+- 依据功能设计对 null 过滤、不可变返回的约定。
+- 依据测试方法（等价类/边界值）：单元素、可变参数、null 过滤、全 null、不可变。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：of() 空；of(t) 单元素与单元素 null；of(T...) 正例、null 过滤、全 null、空参、不可变。
+- 未覆盖：无（覆盖了全部入口与边界）。
+
+== 1. 空 List
+
+- 1.1 of()：返回空 List（ofEmpty）
+
+== 2. 单元素 List
+
+- 2.1 正例：`of("a")` → `[a]`；单元素 null → 空（ofSingle）
+
+== 3. 可变参数 List
+
+- 3.1 正例：`of("a","b")` → `[a,b]`；`of(null,"b",null)` → `[b]`；全 null → 空；空参 → 空（ofVarargs）
+- 3.2 不可变：add 抛 UnsupportedOperationException（ofVarargsUnmodifiable）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

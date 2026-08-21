@@ -22,6 +22,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/12/23
+ * @see doc/design/spring/CAutowiredUtils.adoc
+ * @see doc/design/spring/CAutowiredUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

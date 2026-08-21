@@ -18,6 +18,8 @@ import java.io.InputStream;
  * </p>
  *
  * @since 2025/9/28
+ * @see doc/design/web/CWebUtils.adoc
+ * @see doc/design/web/CWebUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

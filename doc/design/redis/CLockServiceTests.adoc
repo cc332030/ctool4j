@@ -1,0 +1,50 @@
+= CLockService 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.redis.service.impl.CLockService`（redis 模块）——分布式锁。
+
+对应测试类：`com.c332030.ctool4j.redis.service.impl.CLockServiceTests`
+
+对应设计文档：`doc/design/redis/CLockService.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CLockService 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 通过 mock RedissonClient/RLock 隔离外部 Redis，覆盖 lock 格式化 key、execute（成功/失败）、
+  tryLock（毫秒/秒/空 waitDuration）。
+
+=== 设计依据
+
+- 依据功能设计对 lock 构建器、execute 加锁-执行-解锁、tryLock 语义的约定。
+- 依据白盒/黑盒原则：execute 锁成功/失败、tryLock 各时间单位、空 waitDuration 异常路径均覆盖。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：lock 格式化 key、execute 锁成功执行并解锁、锁失败触发 onLockFail、execute 有返回值、
+  锁失败返回 null、tryLock 毫秒/秒/空 waitDuration 抛异常。
+- 未覆盖：真实 Redisson 分布式锁在 Redis 上的竞争行为（依赖环境）；unlockDelay 延迟释放细节。
+
+== 1. lock 构建器
+
+- 1.1 格式化 key（lock_formattedKey）
+
+== 2. execute 加锁-执行-解锁
+
+- 2.1 锁成功：执行业务并解锁（execute_lockSuccess_runsAndUnlocks）
+- 2.2 锁失败：触发 onLockFail 回调（execute_lockFail_invokesOnLockFail）
+- 2.3 有返回值：返回业务结果（execute_supplier_returnsValue）
+- 2.4 锁失败有返回值：返回 null（execute_supplier_lockFail_returnsNull）
+
+== 3. tryLock
+
+- 3.1 毫秒级 waitTime（tryLock_duration_millis）
+- 3.2 秒级 waitTime（tryLock_duration_seconds）
+- 3.3 空 waitDuration 抛异常（tryLock_duration_null_throws）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

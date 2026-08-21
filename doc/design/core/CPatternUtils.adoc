@@ -1,0 +1,63 @@
+= CPatternUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CPatternUtils
+状态：已落地
+适用范围：正则表达式缓存、URL 通配符转正则（含缓存）
+
+== 1. 功能说明
+
+`CPatternUtils` 为正则工具类，提供：
+
+- `getCache(String regex)` / `getCache(String regex, CFunction<String,Pattern> toPattern)`：按正则表达式缓存 Pattern
+- `getUrlCache(String regex)`：URL 通配符转正则并缓存（支持 `**`、`*`、`.` 通配符）
+
+== 2. 设计要点
+
+=== 2.1 普通正则缓存
+
+- `REGEX_PATTERNS`（ConcurrentHashMap）按 regex 键缓存，`computeIfAbsent` 保证单次编译。
+- `getCache(regex, toPattern)` 允许自定义编译函数。
+
+=== 2.2 URL 通配符转换（getUrlCache）
+
+- 独立缓存 `URL_REGEX_PATTERNS`，避免拼接键与普通正则冲突。
+- 通配符规则：
+  - `.` → `\.`（转义点号）
+  - `**/` → `[\s\S]*/`（匹配任意字符含换行，后跟 /）
+  - `**` → `[\s\S]*`（匹配任意字符含换行）
+  - `*` → `[^/]*`（匹配非 / 的任意字符）
+- 采用**占位符替换**避免链式替换相互污染：先将各通配符替换为 URL 中不可能出现的控制字符
+  （`\u0000S`/`\u0000D`/`\u0000A`），再统一替换为正则，避免 `**` 替换出的 `[\s\S]*` 里的 `*`
+  被后续 `*` 规则误改。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 同一 regex 重复获取 | 返回缓存的同一 Pattern 实例（getCacheCached 验证） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 反复编译同一正则的场景（编译开销大，缓存提升性能）。
+- URL 路径通配符匹配（如 `/api/**`、`/api/*`），将通配符表达式转为正则。
+
+=== 4.2 不适用/边界场景
+
+- getUrlCache 仅支持 `.`/`*`/`**` 三类通配符，URL 中其他正则特殊字符需自行转义。
+- `**` 匹配含 `/`（`[\s\S]*`），`*` 不匹配 `/`（`[^/]*`），语义需按需选用。
+
+== 5. 已知限制与取舍
+
+- 缓存无失效机制：正则表达式静态不可变，风险低。
+- 占位符替换保证通配符语义互不污染，是核心实现取舍。
+
+测试内容见 `doc/design/core/CPatternUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

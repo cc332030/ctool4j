@@ -10,6 +10,8 @@ import java.lang.annotation.*;
  * Description: CCacheable
  * </p>
  *
+ * @see doc/design/cache/CCacheable.adoc
+ * @see doc/design/cache/CCacheAspectTests.adoc
  * @since 2025/9/27
  */
 @Documented

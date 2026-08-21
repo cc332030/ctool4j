@@ -6,6 +6,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * </p>
  *
  * @author c332030
+ * @see doc/design/definition/ICEnumName.adoc
  * @since 2024/3/21
  */
 public interface ICEnumName {

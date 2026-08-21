@@ -1,0 +1,55 @@
+= CSchemaAnnotationModelPropertyPlugin 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin
+状态：已落地
+适用范围：@CSchema → model 属性必填与描述
+
+== 1. 功能说明
+
+`CSchemaAnnotationModelPropertyPlugin` 实现 `ModelPropertyBuilderPlugin`，识别 model 字段/getter 上的 `@CSchema` 注解：
+
+- `required=true` 时标记属性必填。
+- `value` 非空时写入字段描述（为空则保留已有描述）。
+- 替代 `@ApiModelProperty + @NotNull` 两个注解。
+
+== 2. 设计要点
+
+=== 2.1 注解查找
+
+- 优先从 `context.getAnnotatedElement()` 取 `@CSchema`，其次从 `getBeanPropertyDefinition()` 查找。
+
+=== 2.2 处理
+
+- `required=true` 时 `required(true)`。
+- `value` 有内容时 `description(value)`；为空时保留已有描述，避免空串覆盖。
+
+=== 2.3 supports
+
+- 默认支持全部文档类型（含 null）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| required=false | 不标记必填 |
+| value 为空 | 不写描述（保留已有） |
+| 未标注 @CSchema | 不处理 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- springfox 文档生成时用 `@CSchema` 标注 model 属性必填与描述。
+
+== 5. 已知限制与取舍
+
+- 依赖 `@CSchema`（web 模块）注解定义。
+
+测试内容见 `doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

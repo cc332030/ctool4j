@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2025/9/28
+ * @see doc/design/web/CCorsInterceptor.adoc
  */
 @CustomLog
 //@Component

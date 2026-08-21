@@ -17,6 +17,9 @@ import java.util.function.Consumer;
  */
 public class CConsumerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void acceptNormal() {
 
@@ -30,6 +33,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void acceptNullInput() {
 
@@ -43,6 +49,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void acceptSneakyThrowsCheckedException() {
 
@@ -57,6 +66,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void empty() {
 
@@ -66,6 +78,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void staticAcceptNullConsumer() {
 
@@ -73,6 +88,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticAcceptNormal() {
 
@@ -86,6 +104,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void convert() {
 
@@ -101,6 +122,9 @@ public class CConsumerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convertNullCConsumer() {
 

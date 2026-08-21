@@ -34,6 +34,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * </p>
  *
  * @since 2026/1/22
+ * @see doc/design/spring/CSecurityConfiguration.adoc
  */
 @Configuration
 @EnableWebSecurity

@@ -1,5 +1,7 @@
 = CFeignLogger 设计文档
 
+Version: 1.0
+LastModified: 2026-08-21
 模块：ctool4j-feign
 类：com.c332030.ctool4j.feign.log.CFeignLogger
 状态：已落地
@@ -19,3 +21,7 @@
 - 采集响应状态码与响应头，供输出响应报文头（与 MVC 对称）
 
 测试内容见 `doc/design/feign/CFeignLoggerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

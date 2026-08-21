@@ -29,6 +29,8 @@ import java.util.function.Supplier;
 
 /**
  * 处理并记录日志文件
+ * @see doc/design/core/CLogUtils.adoc
+ * @see doc/design/core/CLogUtilsTests.adoc
  */
 @Slf4j
 @UtilityClass

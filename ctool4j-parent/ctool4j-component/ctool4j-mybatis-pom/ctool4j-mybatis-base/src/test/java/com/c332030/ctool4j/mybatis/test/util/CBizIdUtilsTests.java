@@ -42,6 +42,9 @@ public class CBizIdUtilsTests {
 
     }
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getBizIdFromEntity() {
         BizEntity entity = new BizEntity();
@@ -49,6 +52,9 @@ public class CBizIdUtilsTests {
         Assertions.assertEquals("BIZ-001", CBizIdUtils.getBizId(entity));
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getBizIdFromEntityNullField() {
         // @CBizId 字段为 null 时返回 null
@@ -56,6 +62,9 @@ public class CBizIdUtilsTests {
         Assertions.assertNull(CBizIdUtils.getBizId(entity));
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getBizIdFromEntityNoAnnotation() {
         // 实体无 @CBizId 字段时返回 null
@@ -63,6 +72,9 @@ public class CBizIdUtilsTests {
         Assertions.assertNull(CBizIdUtils.getBizId(entity));
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void getBizIdFromClass() {
         // 根据类生成业务 ID，前缀取自类名大写字母 + 雪花 ID
@@ -72,6 +84,9 @@ public class CBizIdUtilsTests {
         Assertions.assertTrue(bizId.startsWith("BE"));
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void getBizIdFromClassWithLength() {
         // 指定前缀长度

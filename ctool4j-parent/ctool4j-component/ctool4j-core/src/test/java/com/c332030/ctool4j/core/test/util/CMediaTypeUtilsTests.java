@@ -19,6 +19,9 @@ import java.util.Set;
  */
 public class CMediaTypeUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void textKeys() {
 
@@ -35,6 +38,7 @@ public class CMediaTypeUtilsTests {
     /**
      * 判断文本类型：各匹配分支正例
      * <p>匹配规则：完整匹配 / 以 key+"/" 开头 / 含 "/"+key / 含 "+"+key / 含 "-"+key</p>
+     * 对应测试用例 1.2 / 1.3 / 1.4 / 1.5 / 1.6
      */
     @Test
     public void isTextPositive() {
@@ -70,6 +74,7 @@ public class CMediaTypeUtilsTests {
     /**
      * 判断文本类型：非文本类型反例，异常输入不限定范围
      * <p>覆盖笔误值（vldeo）、随意捏造且不在关键字范围内的值（txso）等任意非法输入</p>
+     * 对应测试用例 1.7 / 1.8 / 1.9
      */
     @Test
     public void isTextNegative() {
@@ -100,6 +105,7 @@ public class CMediaTypeUtilsTests {
     /**
      * 判断文本类型：子串不误匹配（Q39 修复核心回归）
      * <p>关键字出现在子串中但无 /、+、- 分隔时，不应误判为文本类型</p>
+     * 对应测试用例 1.10
      */
     @Test
     public void isTextNoSubstringFalseMatch() {
@@ -115,6 +121,7 @@ public class CMediaTypeUtilsTests {
 
     /**
      * 判断文本类型：大小写不敏感
+     * 对应测试用例 1.11
      */
     @Test
     public void isTextCaseInsensitive() {
@@ -128,6 +135,7 @@ public class CMediaTypeUtilsTests {
 
     /**
      * 判断文本类型：带 charset 等参数仍可识别
+     * 对应测试用例 1.12
      */
     @Test
     public void isTextWithParameter() {
@@ -140,6 +148,7 @@ public class CMediaTypeUtilsTests {
 
     /**
      * 判断文本类型：空白输入返回 false
+     * 对应测试用例 1.13
      */
     @Test
     public void isTextBlank() {
@@ -151,6 +160,9 @@ public class CMediaTypeUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getSetWithJson5() {
 
@@ -163,6 +175,9 @@ public class CMediaTypeUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void getListWithJson5() {
 

@@ -16,6 +16,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class CThreadUtilsTests {
 
+    /**
+
+     * 对应测试用例 1.1
+
+    */
     @Test
     public void newDaemonThreadWithName() {
 
@@ -27,6 +32,11 @@ public class CThreadUtilsTests {
 
     }
 
+    /**
+
+     * 对应测试用例 1.2
+
+    */
     @Test
     public void newDaemonThreadDefaultName() {
 
@@ -37,6 +47,9 @@ public class CThreadUtilsTests {
         Assertions.assertTrue(thread.isDaemon());
 
     }
+    /**
+     * 对应测试用例 1.3
+    */
 
     @Test
     public void newDaemonThreadRunnableExecutes() throws Exception {

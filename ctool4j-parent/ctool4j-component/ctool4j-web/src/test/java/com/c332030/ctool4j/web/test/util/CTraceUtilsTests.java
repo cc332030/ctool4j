@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CTraceUtilsTests
  * </p>
+ * <p>`com.c332030.ctool4j.web.util.CTraceUtils`（CTraceUtils）的测试用例</p>
  *
  * <p>补充覆盖 generateTraceId/setTraceId/getTraceId/removeTraceId/removeTraceInfo 等
  * 不依赖 Spring 容器的链路追踪方法；initTrace 依赖容器请求对象，不在本测试覆盖范围</p>
@@ -22,6 +23,9 @@ public class CTraceUtilsTests {
 
     // ---------- generateTraceId ----------
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void generateTraceId() {
         // 正例：生成形如 objectId + "-1" 的 traceId
@@ -32,6 +36,9 @@ public class CTraceUtilsTests {
         Assertions.assertTrue(traceId.length() > "-1".length());
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void generateTraceId_unique() {
         // 正例：连续生成不重复
@@ -42,6 +49,9 @@ public class CTraceUtilsTests {
 
     // ---------- setTraceId / getTraceId ----------
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void setTraceId_getTraceId() {
         // 正例：设置后能读回
@@ -51,6 +61,9 @@ public class CTraceUtilsTests {
         CTraceUtils.removeTraceId();
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void setTraceId_null() {
         // 边界：设置 null 后 getTraceId 返回 null
@@ -61,6 +74,9 @@ public class CTraceUtilsTests {
 
     // ---------- removeTraceId ----------
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void removeTraceId() {
         // 正例：移除后 getTraceId 为 null
@@ -71,6 +87,9 @@ public class CTraceUtilsTests {
 
     // ---------- getTraceInfo / removeTraceInfo ----------
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getTraceInfo() {
         // 正例：返回 CTraceInfo 类型
@@ -79,6 +98,9 @@ public class CTraceUtilsTests {
         Assertions.assertEquals(CTraceInfo.class, traceInfo.getClass());
     }
 
+    /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void removeTraceInfo() {
         // 边界：移除后再次 getTraceInfo 仍能获取默认实例（withInitial 提供者）

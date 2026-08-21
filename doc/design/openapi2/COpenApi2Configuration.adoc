@@ -1,0 +1,64 @@
+= COpenApi2Configuration 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.configuration.COpenApi2Configuration
+状态：已落地
+适用范围：OpenAPI2（springfox）文档自动配置
+
+== 1. 功能说明
+
+`COpenApi2Configuration`（`@Configuration`）提供 OpenAPI2（springfox）文档的自动配置：
+
+- 注册 `@NotEmpty`、`@CSchema` 等参数/属性插件 Bean。
+- 注册 Swagger `Docket`（收集标注 `@Api` 注解的接口）。
+- 注册 BeanPostProcessor 修复 springfox 的 handlerMappings 空指针问题。
+
+== 2. 设计要点
+
+=== 2.1 插件 Bean
+
+- `cExpanderNotEmpty`、`cExpanderCSchema`、`cModelPropertyCSchema` 三个 Bean。
+
+=== 2.2 Docket
+
+- `@ConditionalOnMissingBean(Docket.class)`，`cDocket(config)` 通过 `CSpringFoxUtils` 构建。
+- 收集标注 `Api.class` 注解的接口；全局参数含 `AUTHORIZATION` 请求头。
+
+=== 2.3 springfox 空指针修复
+
+- `cSpringfoxHandlerProviderBeanPostProcessor`：对 `WebMvcRequestHandlerProvider` 过滤掉含 `PatternParser` 的 mapping，避免空指针。
+
+=== 2.4 技术选型
+
+- 基于 springfox（OpenAPI2），springfox 已停止维护；Knife4j 4.x 建议迁移 OpenAPI3（springdoc-openapi）。保留此实现为兼容老项目，不重复造轮子，新项目建议用 OpenAPI3。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| handlerMappings 修复异常 | 捕获记录 debug 日志 |
+| handlerMappings 字段不存在 | 返回空列表 |
+| 已有 Docket Bean | `@ConditionalOnMissingBean` 跳过 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 老项目 OpenAPI2 文档生成。
+
+=== 4.2 不适用/边界场景
+
+- 新项目建议迁移 OpenAPI3，迁移属大工程需排期。
+
+== 5. 已知限制与取舍
+
+- springfox 已停维护，长期需迁移 OpenAPI3。
+- 空指针修复依赖反射访问私有字段 `handlerMappings`。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

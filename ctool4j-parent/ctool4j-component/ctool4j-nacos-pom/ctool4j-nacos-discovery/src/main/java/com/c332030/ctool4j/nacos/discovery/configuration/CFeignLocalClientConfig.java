@@ -12,6 +12,7 @@ import java.util.Map;
  * Description: CFeignLocalClientConfig
  * </p>
  *
+ * @see doc/design/nacos/CFeignLocalClientConfig.adoc
  * @since 2024/12/9
  */
 @Data

@@ -1,0 +1,44 @@
+= CBiClassValue 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.cache.impl.CBiClassValue`（core 缓存类）——按双类缓存值。
+
+对应测试类：`com.c332030.ctool4j.core.test.cache.impl.CBiClassValueTests`
+
+对应设计文档：`doc/design/core/CBiClassValue.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CBiClassValue 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「取值 / 缓存 / 独立计算」三个维度组织。
+- 取值验证组合结果；缓存用计数验证同一组合只计算一次；独立计算验证不同组合分别计算。
+
+=== 设计依据
+
+- 依据功能设计对双类组合惰性计算与缓存的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：get 组合值；同一组合缓存；不同组合独立计算。
+- 未覆盖：remove 后重新计算（未单列）。
+
+== 1. 取值
+
+- 1.1 get：返回双类名组合（get）
+
+== 2. 缓存
+
+- 2.1 同一组合缓存：多次 get 只计算一次（cached）
+
+== 3. 独立计算
+
+- 3.1 不同组合：各自独立计算（differentPairComputeSeparately）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

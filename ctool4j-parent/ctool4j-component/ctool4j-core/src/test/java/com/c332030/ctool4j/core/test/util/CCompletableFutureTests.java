@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2026/8/14
  */
 public class CCompletableFutureTests {
+    /**
+     * 对应测试用例 1.1
+    */
 
     @Test
     public void runAsyncNormal() throws Exception {
@@ -28,6 +31,9 @@ public class CCompletableFutureTests {
         Assertions.assertEquals(1, run.get());
 
     }
+    /**
+     * 对应测试用例 2.1
+    */
 
     @Test
     public void runAsyncExceptionPropagated() throws Exception {

@@ -1,0 +1,51 @@
+= CXxlJobAspect 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-xxl-job
+类：com.c332030.ctool4j.job.xxljob.aspect.CXxlJobAspect
+状态：已落地
+适用范围：@XxlJob 任务拦截与日志
+
+== 1. 功能说明
+
+`CXxlJobAspect`（`@Aspect`）拦截标注 `@XxlJob` 的方法：
+
+- 参数为空且方法首参为 String 时，用 `CXxlJobUtils.getJobParam()` 填充（jobParam 非空时）。
+- 可按配置打印执行耗时（logCost）与捕获错误（logCatchError）。
+
+== 2. 设计要点
+
+=== 2.1 参数填充
+
+- 当首参类型为 String 且为空时，用 xxl-job 的任务参数填充。
+
+=== 2.2 环绕逻辑
+
+- logCost 开启时记录开始时间，finally 打印耗时。
+- logCatchError 开启时 catch 记录错误并继续抛出。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 首参为空但 jobParam 为空 | 不填充 |
+| 异常 | 记录后继续抛出 |
+| logCost 关闭 | 不打印耗时 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- xxl-job 任务的统一拦截、参数注入与耗时日志。
+
+== 5. 已知限制与取舍
+
+- 仅对首参为 String 的方法注入参数。
+- 依赖 `CXxlJobExecutorLogConfig` 配置。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

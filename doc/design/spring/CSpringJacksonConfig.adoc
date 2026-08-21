@@ -1,0 +1,38 @@
+= CSpringJacksonConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-spring
+类：com.c332030.ctool4j.spring.config.CSpringJacksonConfig
+状态：已落地
+适用范围：Jackson 配置
+
+== 1. 功能说明
+
+`CSpringJacksonConfig`：Jackson 配置。
+
+== 2. 设计要点
+
+- 配置 Jackson 序列化/反序列化行为
+
+== 3. 兜底设计
+
+默认配置
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+JSON 行为配置
+
+=== 4.2 不适用/边界场景
+
+供消息转换器使用
+
+== 5. 已知限制与取舍
+
+供消息转换器使用
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

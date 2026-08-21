@@ -19,6 +19,9 @@ import java.util.Set;
  */
 public class CSetTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void ofEmpty() {
 
@@ -26,6 +29,9 @@ public class CSetTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void ofGeneric() {
 
@@ -34,6 +40,9 @@ public class CSetTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void ofGenericNullFiltered() {
 
@@ -44,6 +53,9 @@ public class CSetTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void ofGenericUnmodifiable() {
 
@@ -52,6 +64,9 @@ public class CSetTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void ofEnum() {
 
@@ -62,6 +77,9 @@ public class CSetTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void ofEnumUnmodifiable() {
 

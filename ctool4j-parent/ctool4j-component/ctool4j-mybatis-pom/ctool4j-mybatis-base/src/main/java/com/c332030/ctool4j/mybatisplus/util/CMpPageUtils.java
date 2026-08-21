@@ -20,6 +20,8 @@ import java.util.List;
  * </p>
  *
  * @since 2025/12/9
+ * @see doc/design/mybatisplus/CMpPageUtils.adoc
+ * @see doc/design/mybatisplus/CMpPageUtilsTests.adoc
  */
 @UtilityClass
 public class CMpPageUtils {

@@ -19,6 +19,9 @@ import java.util.Map;
  */
 public class CConvertUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void convert_toInt() {
 
@@ -26,6 +29,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void convert_toLong() {
 
@@ -33,6 +39,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void convert_toDouble() {
 
@@ -40,6 +49,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void convert_toString() {
 
@@ -47,6 +59,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void convert_sameType() {
 
@@ -54,6 +69,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void convert_null() {
 
@@ -61,6 +79,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void convert_collectionFrom() {
 
@@ -70,6 +91,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void convert_mapFrom() {
 
@@ -79,6 +103,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void convert_arrayFrom() {
 
@@ -87,6 +114,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void convert_enum() {
 
@@ -94,6 +124,9 @@ public class CConvertUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void convertOpt() {
 
@@ -105,6 +138,7 @@ public class CConvertUtilsTests {
 
     /**
      * 测试注册无参方法为转换器：不抛异常并跳过注册（Q16）
+     * 对应测试用例 5.1
      */
     @Test
     public void addConverterNoArgMethod() throws NoSuchMethodException {

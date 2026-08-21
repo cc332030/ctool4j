@@ -17,6 +17,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试 long 溢出校验
+     * 对应测试用例 1.1
      */
     @Test
     public void assertOverflowLong() {
@@ -34,6 +35,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试 double 溢出校验
+     * 对应测试用例 1.2
      */
     @Test
     public void assertOverflowDouble() {
@@ -49,6 +51,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试数值转 int（溢出时返回 null）
+     * 对应测试用例 2.1
      */
     @Test
     public void toInt() {
@@ -67,6 +70,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试数值转 Base62 字符串
+     * 对应测试用例 2.2
      */
     @Test
     public void to62() {
@@ -94,6 +98,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试取最大值
+     * 对应测试用例 3.1
      */
     @Test
     public void max() {
@@ -114,6 +119,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试取最小值
+     * 对应测试用例 3.2
      */
     @Test
     public void min() {
@@ -134,6 +140,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试百分比计算
+     * 对应测试用例 4.1
      */
     @Test
     public void percent() {
@@ -150,6 +157,7 @@ public class CNumUtilsTests {
 
     /**
      * 测试百分比计算：total 为 0 时返回 null
+     * 对应测试用例 4.2
      */
     @Test
     public void percentTotalZero() {

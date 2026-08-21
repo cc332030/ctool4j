@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CCurrencyEnumTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void values() {
 
@@ -20,6 +23,9 @@ public class CCurrencyEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void cny() {
 
@@ -28,6 +34,9 @@ public class CCurrencyEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void usd() {
 
@@ -36,6 +45,9 @@ public class CCurrencyEnumTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void valueOfUnknown() {
 

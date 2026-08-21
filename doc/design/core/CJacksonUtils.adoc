@@ -1,0 +1,61 @@
+= CJacksonUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.CJacksonUtils
+状态：已落地
+适用范围：Jackson ObjectMapper 配置与实例管理
+
+== 1. 功能说明
+
+`CJacksonUtils` 为 Jackson 配置工具类，提供多个预配置的 ObjectMapper 实例：
+
+- `OBJECT_MAPPER`：默认 mapper（Long/BigDecimal 序列化为字符串防前端溢出）
+- `OBJECT_MAPPER_NON_NULL`：不序列化 null 值
+- `OBJECT_MAPPER_SNAKE_CASE`：驼峰转下划线
+- `OBJECT_MAPPER_LOG`：日志专用（不序列化 null + @CLogBlob 占位符 + @CLogSensitive 脱敏）
+- `OBJECT_MAPPER_NATIVE`：保留原生数字类型（反序列化整数为 Long、浮点为 BigDecimal）
+- 工具：`getDefinedModule` / `configure` / `getRawClass`
+
+== 2. 设计要点
+
+=== 2.1 模块注册
+
+- 自定义模块注册：Long/BigDecimal 序列化为字符串（防前端溢出）、Date/Instant 统一格式、
+  枚举反序列化（CEnumDeserializer）。
+- `getDefinedModule(numberToString)` 可控制 Long/BigDecimal 是否转字符串。
+
+=== 2.2 mapper 派生
+
+- `OBJECT_MAPPER_NATIVE` 为构建源头（通用配置仅构建一次），其余 mapper 基于其 `copy()` 派生并调整：
+  - OBJECT_MAPPER 关闭 NATIVE 特化数值反序列化、重新注册 Long→String。
+  - OBJECT_MAPPER_NON_NULL 设 `NON_NULL` 包含。
+  - OBJECT_MAPPER_SNAKE_CASE 设下划线命名策略。
+  - OBJECT_MAPPER_LOG 基于 NON_NULL 派生并注册两个字段序列化修改器。
+
+=== 2.3 通用 feature
+
+- 配置关闭时间戳/空 bean 失败/未知属性失败，开启 json5 宽松解析（字段名不加引号、尾随逗号、单引号、
+  反斜杠转义、java/yaml 注释）。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- JSON 序列化/反序列化的统一 mapper 配置，日志脱敏、Long 防溢出等。
+
+=== 4.2 不适用/边界场景
+
+- 需保留数值类型用 NATIVE；需日志脱敏用 LOG。
+
+== 5. 已知限制与取舍
+
+- copy() 为深拷贝，mapper 间修改互不影响。
+- 通过 NATIVE 单一源头构建避免多套配置漂移。
+
+测试内容见 `doc/design/core/CJacksonUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

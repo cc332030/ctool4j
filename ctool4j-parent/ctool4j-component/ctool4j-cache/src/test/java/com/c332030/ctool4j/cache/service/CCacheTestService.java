@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @since 2026/6/16
- */
+ * @see doc/design/cache/CCacheTestService.adoc
+*/
 @Service
 public class CCacheTestService {
 

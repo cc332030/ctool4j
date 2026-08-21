@@ -10,6 +10,8 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @since 2025/5/26
+ * @see doc/design/core/CIntegerId.adoc
+ * @see doc/design/core/CIntegerIdTests.adoc
  */
 @Data
 @SuperBuilder

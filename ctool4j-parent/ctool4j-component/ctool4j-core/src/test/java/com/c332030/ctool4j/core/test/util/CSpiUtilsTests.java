@@ -18,6 +18,9 @@ import java.util.List;
  */
 public class CSpiUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getImpls() {
 
@@ -28,6 +31,9 @@ public class CSpiUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getImplsNoProvider() {
 
@@ -35,6 +41,9 @@ public class CSpiUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getFirstImpl() {
 
@@ -43,6 +52,9 @@ public class CSpiUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void getFirstImplNoProviderThrows() {
 
@@ -51,6 +63,9 @@ public class CSpiUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void getFirstCustomImplOrDefault() {
 
@@ -61,6 +76,9 @@ public class CSpiUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void getImplsSorted() {
 

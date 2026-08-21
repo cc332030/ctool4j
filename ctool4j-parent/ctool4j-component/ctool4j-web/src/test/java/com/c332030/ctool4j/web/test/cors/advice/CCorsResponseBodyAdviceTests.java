@@ -26,6 +26,7 @@ import java.util.HashSet;
  *
  * @since 2026/8/16
  */
+
 public class CCorsResponseBodyAdviceTests {
 
     private final CCorsResponseBodyAdvice advice = new CCorsResponseBodyAdvice();
@@ -50,6 +51,9 @@ public class CCorsResponseBodyAdviceTests {
         CCorsUtils.setConfig(null);
     }
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void beforeBodyWrite_whenNotEnabled() {
         // 未启用跨域时原样返回响应体
@@ -62,6 +66,9 @@ public class CCorsResponseBodyAdviceTests {
         Assertions.assertSame(body, result);
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void beforeBodyWrite_whenEnabled() {
         // 启用跨域时设置响应头并原样返回响应体；

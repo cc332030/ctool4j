@@ -1,0 +1,61 @@
+= CSchemaValidator 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.validation.validator.CSchemaValidator
+状态：已落地
+
+== 1. 功能说明
+
+`CSchemaValidator` 为 `@CSchema` 注解的校验器，实现 `ConstraintValidator<CSchema, Object>`，
+校验规则按值类型自动分发，复用 `CValidUtils`。
+
+核心方法：
+
+- `initialize(CSchema)`：读取 `required` 与 `message`
+- `isValid(Object, ConstraintValidatorContext)`：`required=false` 直接通过；否则按类型分发校验
+- `isValidValue(Object)`：按类型分发（null 不通过、CharSequence→notBlank、Collection→notEmpty、
+  Map→notEmpty、数组→notEmpty、其他对象→notNull）
+- `isValidArray(Object)`：按数组类型分发到 CValidUtils 数组重载；未覆盖类型（float[]/double[]/boolean[]）
+  按 `Array.getLength > 0` 判断
+
+校验失败时应用注解声明的 `message`（`disableDefaultConstraintViolation` + 自定义模板）。
+
+== 2. 设计要点
+
+=== 2.1 类型自动分发
+
+- 合并 notNull/notBlank/notEmpty 校验按值类型自动分发，复用 `CValidUtils` 各类重载。
+
+=== 2.2 自定义消息
+
+- 校验失败时禁用默认约束消息，改用注解声明的 `message`（供异常处理器拼接字段名前缀）。
+
+=== 2.3 分组/载荷
+
+- `groups()`/`payload()` 由 Bean Validation 框架按标准约定自动处理，validator 无需读取。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| `required=false` | 不校验，直接通过 |
+| 值类型不在明确分支 | 数组未覆盖类型按长度判断；其他对象非 null 即通过 |
+| `CValidUtils` 对 null 的判定 | null 返回 false，必填场景 null 不通过 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- `@CSchema(required=true)` 标注字段/参数时执行必填校验。
+
+== 5. 已知限制与取舍
+
+- `float[]`/`double[]`/`boolean[]` 未走 CValidUtils 重载，按长度判断（CValidUtils 未覆盖）。
+
+测试内容见 `doc/design/web/CSchemaValidatorTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

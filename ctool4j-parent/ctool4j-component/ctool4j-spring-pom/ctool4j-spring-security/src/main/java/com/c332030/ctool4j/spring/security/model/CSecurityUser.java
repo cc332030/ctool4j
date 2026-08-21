@@ -13,6 +13,7 @@ import java.util.Collection;
  * </p>
  *
  * @since 2026/1/24
+ * @see doc/design/spring/CSecurityUser.adoc
  */
 @Getter
 public class CSecurityUser<T> extends User {

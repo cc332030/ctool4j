@@ -17,6 +17,8 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/4/14
+ * @see doc/design/core/CDateDeserializer.adoc
+ * @see doc/design/core/CDateDeserializerTests.adoc
  */
 @CustomLog
 public class CDateDeserializer extends JsonDeserializer<Date> {

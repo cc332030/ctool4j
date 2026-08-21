@@ -7,6 +7,8 @@ import java.lang.annotation.*;
  * Description: CCacheId
  * </p>
  *
+ * @see doc/design/cache/CCacheId.adoc
+ * @see doc/design/cache/CCacheAspectCacheKeyTests.adoc
  * @since 2026/6/16
  */
 @Documented

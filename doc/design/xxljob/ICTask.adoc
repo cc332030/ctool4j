@@ -1,0 +1,44 @@
+= ICTask 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-xxl-job
+类：com.c332030.ctool4j.job.xxljob.task.ICTask
+状态：已落地
+适用范围：xxl-job 任务接口
+
+== 1. 功能说明
+
+`ICTask<T extends ICTask<T>>`（extends `ICProxyService<T>`）定义任务执行接口：
+
+- `execute()`：无参执行，内部调用 `execute(null)`。
+- `execute(String param)`：默认抛出 `UnsupportedOperationException`，由子类实现。
+
+== 2. 设计要点
+
+=== 2.1 默认行为
+
+- `execute()` 经 `currentProxy()` 调用 `execute(null)`。
+- `execute(String)` 默认抛异常，提示子类实现。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 子类未实现 execute(String) | 抛 UnsupportedOperationException |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 定义统一的 xxl-job 任务执行契约。
+
+== 5. 已知限制与取舍
+
+- 依赖 ICProxyService 的代理机制。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

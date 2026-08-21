@@ -1,0 +1,43 @@
+= CCsvUtils 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.csv.util.CCsvUtils`（csv 模块）——CSV 单元格字符串处理工具。
+
+对应测试类：`com.c332030.ctool4j.csv.test.util.CCsvUtilsTests`
+
+对应设计文档：`doc/design/csv/CCsvUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CCsvUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 覆盖 trim 的正常路径：普通字符串去两端空白、内部空格保留、退格字符移除。
+- 覆盖边界：null、空串、纯空白、仅退格、超长字符串。
+- 依据白盒/黑盒原则与错误推测法：空白形态（空/纯空白/仅退格）、退格内嵌、超长输入均覆盖。
+
+=== 设计依据
+
+- 依据功能设计对"去两端空白、空白返 null、退格移除"的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：正常去空白、内部空格保留、退格移除、null/空/纯空白/仅退格返回 null、超长字符串。
+- 未覆盖：Unicode 特殊空白字符（如 `\u00A0`）——当前依赖 `StrUtil.isBlank`，其空白判定范围未逐项验证。
+
+== 1. trim 去空白与退格
+
+- 1.1 普通字符串去除首尾空白（trim_normal）
+- 1.2 字符串内部空格保留（trim_innerSpaceKept）
+- 1.3 含退格字符时移除退格（trim_backspaceRemoved）
+- 1.4 null 返回 null（trim_null）
+- 1.5 空串返回 null（trim_empty）
+- 1.6 纯空白串返回 null（trim_blank）
+- 1.7 仅退格字符返回 null（trim_onlyBackspace）
+- 1.8 超长字符串正常处理（trim_superLong）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

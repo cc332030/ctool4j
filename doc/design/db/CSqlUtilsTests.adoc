@@ -1,0 +1,71 @@
+= CSqlUtils 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.db.util.CSqlUtils`（db 模块）——SQL 片段拼接与字段名转换工具。
+
+对应测试类：`com.c332030.ctool4j.db.test.util.CSqlUtilsTests`（主）、`com.c332030.ctool4j.db.test.util.CSqlUtilsTest`（`toColumnName(String)` 补充）
+
+对应设计文档：`doc/design/db/CSqlUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CSqlUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按功能分组覆盖：limit 语句、行锁语句、表别名、列名转换（lambda 与字符串）、多列拼接、
+  大于条件、等值条件（单对/多对/别名/空集合）。
+- 覆盖正例、边界（0、null、空白别名、空集合）、反例（`limitSql(null)` 抛异常）。
+
+=== 设计依据
+
+- 依据功能设计对 limitSql 默认值/空值抛异常、别名空白返回空串、空集合返回空串的约定。
+- 依据白盒/黑盒原则：各方法取典型值与边界值覆盖；`limitSql(null)` 验证异常路径；
+  布尔字段列验证不加别名前缀的兜底逻辑。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：limit（默认/指定/0/1/null）、行锁、表别名（非空/空/空白）、列名（lambda/字符串/复合字段）、
+  多列拼接（含别名、布尔字段、空集合）、大于条件（含别名）、等值条件（单对/多对/别名/空集合）。
+- 未覆盖：非空校验之外的非法入参（如非法字段名）；SQL 注入转义（本类不负责）。
+
+== 1. limit 语句
+
+- 1.1 默认/指定大小：limit 10 / limit 5 / limit 0 / limit 1，及 LIMIT_ONE 常量（limitSql）
+- 1.2 空值异常：`limitSql(null)` 抛 `IllegalArgumentException`（limitSqlNull）
+
+== 2. 行锁语句
+
+- 2.1 返回 `for update`（forUpdate）
+
+== 3. 表别名
+
+- 3.1 非空白别名：`t.` / `t1.` / `t2.`（getTableAliasSql）
+- 3.2 空/空白别名：返回空串（getTableAliasSqlBlank）
+
+== 4. 列名转换
+
+- 4.1 lambda 字段名转列名：id / user_name / user_first_name（toColumnNameFunc）
+- 4.2 字符串转列名：id / user_id（含 UserId）/ user_first_name（CSqlUtilsTest.toColumnName）
+
+== 5. 多列拼接
+
+- 5.1 多列：id,user_name / t.id,t.user_name（getColumnsSql）
+- 5.2 布尔字段带别名：t.deleted,t.user_name（getColumnsSqlBooleanFieldAlias）
+- 5.3 空/null 集合：返回空串（getColumnsSqlEmpty）
+
+== 6. 大于条件
+
+- 6.1 无别名/带别名：age > 18 / t.age > 18 / 数值 0 边界（getGreaterSql）
+
+== 7. 等值条件
+
+- 7.1 单对（无/带/空别名）：id = user_name / t1.id = t2.user_name / 空别名（getEqualsSqlTwoFunc）
+- 7.2 多对按分隔符拼接：COMMA / AND / OR（getEqualsSqlPairs）
+- 7.3 多对带左右别名：t1.id = t2.user_name（getEqualsSqlPairsWithAlias）
+- 7.4 空集合：返回空串（getEqualsSqlPairsEmpty）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

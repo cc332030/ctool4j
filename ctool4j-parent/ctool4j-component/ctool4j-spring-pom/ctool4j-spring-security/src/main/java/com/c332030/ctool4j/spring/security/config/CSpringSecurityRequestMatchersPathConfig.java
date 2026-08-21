@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2026/1/24
+ * @see doc/design/spring/CSpringSecurityRequestMatchersPathConfig.adoc
  */
 
 @Data

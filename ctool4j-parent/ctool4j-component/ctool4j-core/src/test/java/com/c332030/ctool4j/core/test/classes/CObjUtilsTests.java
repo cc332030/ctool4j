@@ -20,6 +20,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void emptyObject() {
 
@@ -29,6 +32,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void to() {
 
@@ -44,6 +50,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void convertClass() {
 
@@ -61,6 +70,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void convertFunction() {
 
@@ -88,6 +100,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void equals() {
 
@@ -99,6 +114,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void merge() {
 
@@ -126,6 +144,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void defaultIfNull() {
 
@@ -134,6 +155,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void ifThenGet() {
 
@@ -142,6 +166,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.2
+     */
     @Test
     public void equalsThenGet() {
 
@@ -150,6 +177,9 @@ public class CObjUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 5.3
+     */
     @Test
     public void notNullThenGet() {
 

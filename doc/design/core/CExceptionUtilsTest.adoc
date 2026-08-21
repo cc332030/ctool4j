@@ -1,0 +1,35 @@
+= CExceptionUtils 测试用例文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-core
+被测类：com.c332030.ctool4j.core.exception.CExceptionUtils
+状态：已落地
+
+本文档为 CExceptionUtilsTest 的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 白盒原则：围绕 `newBusinessException`（创建业务异常）与 `getMessageWithCause`（获取异常链信息）设计用例：
+  - `newBusinessException`：返回 `CBusinessException` 类型
+  - `getMessageWithCause`：异常为 null 返回 null；含 cause 时拼接展示
+- 边界：覆盖异常为 null 的边界场景。
+
+=== 覆盖场景
+
+== 分类编号索引
+
+=== 1. 创建业务异常
+
+- 1.1 newBusinessException：创建 CBusinessException
+
+=== 2. 获取异常链信息
+
+- 2.1 getMessageWithCauseNull：异常为 null 返回 null
+- 2.2 getMessageWithCause：含 cause 时拼接展示
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

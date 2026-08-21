@@ -13,6 +13,8 @@ import java.util.List;
  * </p>
  *
  * @since 2024/11/12
+ * @see doc/design/core/CList.adoc
+ * @see doc/design/core/CListTests.adoc
  */
 @UtilityClass
 public class CList {

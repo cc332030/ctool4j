@@ -16,6 +16,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2024/12/3
+ * @see doc/design/core/CMap.adoc
+ * @see doc/design/core/CMapTests.adoc
  */
 @UtilityClass
 public class CMap {

@@ -16,6 +16,8 @@ import java.util.ServiceLoader;
  * </p>
  *
  * @since 2025/9/14
+ * @see doc/design/core/CSpiUtils.adoc
+ * @see doc/design/core/CSpiUtilsTests.adoc
  */
 @UtilityClass
 public class CSpiUtils {

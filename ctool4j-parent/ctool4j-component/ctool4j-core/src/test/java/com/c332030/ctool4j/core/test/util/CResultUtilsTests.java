@@ -18,6 +18,9 @@ import java.util.Collections;
  */
 public class CResultUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void successCodes() {
 
@@ -27,6 +30,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void isSuccess() {
 
@@ -36,6 +42,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void isNotSuccess() {
 
@@ -45,6 +54,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void assertSuccessOk() {
 
@@ -52,6 +64,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void assertSuccessErrorThrows() {
 
@@ -60,6 +75,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void assertSuccessNullThrows() {
 
@@ -68,6 +86,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void getData() {
 
@@ -75,6 +96,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void getDataWithDefault() {
 
@@ -83,6 +107,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     public void getDataErrorThrows() {
 
@@ -91,6 +118,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.4
+     */
     @Test
     public void getDataNullThrows() {
 
@@ -99,6 +129,9 @@ public class CResultUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 4.5
+     */
     @Test
     public void getDataDefaultEmptyList() {
 

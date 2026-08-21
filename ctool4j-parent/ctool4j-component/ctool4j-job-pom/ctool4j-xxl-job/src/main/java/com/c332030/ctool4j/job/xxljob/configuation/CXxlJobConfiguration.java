@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * Description: CXxlJobConfiguration
  * </p>
  *
+ * @see doc/design/xxljob/CXxlJobConfiguration.adoc
  * @since 2025/11/29
  */
 @CustomLog

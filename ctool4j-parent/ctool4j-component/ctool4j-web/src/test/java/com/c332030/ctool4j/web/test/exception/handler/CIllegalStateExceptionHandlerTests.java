@@ -13,11 +13,15 @@ import org.junit.jupiter.api.Test;
  * <p>覆盖 CIllegalStateExceptionHandler.handle：统一返回默认 500 与异常消息</p>
  *
  * @since 2026/8/16
+ * <p>`com.c332030.ctool4j.web.exception.handler.CIllegalStateExceptionHandler`（CIllegalStateExceptionHandler）的测试用例</p>
  */
 public class CIllegalStateExceptionHandlerTests {
 
     private final CIllegalStateExceptionHandler handler = new CIllegalStateExceptionHandler();
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void handle() {
         CStrResult<Void> result = handler.handle(new IllegalStateException("illegal state"));

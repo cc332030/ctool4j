@@ -9,6 +9,7 @@ import com.c332030.ctool4j.spring.security.service.ICUserDetailsService;
  * </p>
  *
  * @since 2026/4/9
+ * @see doc/design/spring/CEmptyUserDetailService.adoc
  */
 public class CEmptyUserDetailService implements ICUserDetailsService<Void> {
 

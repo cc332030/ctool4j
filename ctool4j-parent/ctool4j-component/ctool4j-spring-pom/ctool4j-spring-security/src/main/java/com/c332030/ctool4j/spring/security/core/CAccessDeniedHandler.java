@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2026/1/28
+ * @see doc/design/spring/CAccessDeniedHandler.adoc
+ * @see doc/design/spring/CAccessDeniedHandlerTests.adoc
  */
 @CustomLog
 public class CAccessDeniedHandler implements AccessDeniedHandler {

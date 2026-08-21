@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Description: ICUsername
  * </p>
  *
+ * @see doc/design/definition/ICUsername.adoc
  * @since 2026/1/24
  */
 public interface ICUsername {

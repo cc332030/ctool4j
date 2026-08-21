@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2025/3/15
+ * @see doc/design/web/CCommUtils.adoc
+ * @see doc/design/web/CCommUtilsTests.adoc
  */
 @UtilityClass
 public class CCommUtils {

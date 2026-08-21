@@ -1,0 +1,29 @@
+= CTraceInfoProvider 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.spi.CTraceInfoProvider
+状态：已落地
+适用范围：默认追踪信息提供者（实现 ICTraceInfoProvider<CTraceInfo>）
+
+== 1. 功能说明
+
+`CTraceInfoProvider` 为默认追踪信息提供者，实现 `ICTraceInfoProvider<CTraceInfo>`，`getTraceInfo()`
+返回新的 `CTraceInfo` 实例。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 作为 CTraceUtils 的默认追踪信息提供者（无自定义 SPI 时）。
+
+== 5. 已知限制与取舍
+
+- 返回空 traceId 的 CTraceInfo，由调用方后续设置。
+
+说明：本类由 CTraceUtils 使用，无独立测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

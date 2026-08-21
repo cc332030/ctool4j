@@ -1,0 +1,56 @@
+= ICRequestHeader 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.interfaces.ICRequestHeader
+状态：已落地
+适用范围：请求报文头定义接口（含默认数据类型/必输/报文头名）
+
+== 1. 功能说明
+
+`ICRequestHeader` 为请求报文头定义接口，继承 `ICText`（描述）与 `ICEnumName`（枚举名），提供默认行为：
+
+- `getDataType()`：数据类型，默认 `CDataTypeEnum.STRING`
+- `isRequired()`：是否必输，默认 false
+- `getHeaderName()`：报文头名，默认 `CStrUtils.upperUnderscoreToHeaderName(name())`（大写下划线转 Header 风格）
+
+实现类可覆盖 dataType/required。
+
+== 2. 设计要点
+
+=== 2.1 报文头名推导
+
+- 基于枚举 `name()`（如 `TRACE_ID`）经 `upperUnderscoreToHeaderName` 转 `Trace-Id`、`X_TOKEN` → `X-Token`。
+
+=== 2.2 默认语义
+
+- 数据类型默认 STRING、必输默认 false，多数报文头直接继承默认值，仅需覆盖有特殊需求的字段。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 未覆盖 getDataType | 返回 STRING |
+| 未覆盖 isRequired | 返回 false |
+| 未覆盖 getHeaderName | 由 name() 推导 Header 名 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 定义请求报文头枚举，统一描述、数据类型、必输、Header 名。
+
+=== 4.2 不适用/边界场景
+
+- 依赖 `name()` 推导 Header 名，枚举名需为大写下划线风格。
+
+== 5. 已知限制与取舍
+
+- 默认 STRING 非必输，覆盖需要时再定制，减少重复声明。
+
+测试内容见 `doc/design/core/ICRequestHeaderTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

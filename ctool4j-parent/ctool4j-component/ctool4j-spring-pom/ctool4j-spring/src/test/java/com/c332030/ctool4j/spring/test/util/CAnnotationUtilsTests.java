@@ -35,6 +35,9 @@ public class CAnnotationUtilsTests {
 
     // ---------- getAnnotationValue ----------
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getAnnotationValue() {
         // 正例：存在注解且含 value 属性时返回属性值
@@ -47,6 +50,9 @@ public class CAnnotationUtilsTests {
         Assertions.assertEquals("hello", value);
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getAnnotationValue_whenAttributeAbsent() {
         // 边界：存在注解但无 value 属性时返回 null
@@ -59,6 +65,9 @@ public class CAnnotationUtilsTests {
         Assertions.assertNull(value);
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getAnnotationValue_whenNoAnnotation() {
         // 反例：无该注解时返回 null
@@ -72,6 +81,9 @@ public class CAnnotationUtilsTests {
 
     // ---------- getAnnotationAttributeValue ----------
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void getAnnotationAttributeValue() {
         // 正例：存在注解且含指定属性时返回属性值
@@ -84,6 +96,9 @@ public class CAnnotationUtilsTests {
         Assertions.assertEquals("world", value);
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void getAnnotationAttributeValue_whenNoAnnotation() {
         // 反例：无该注解时返回 null

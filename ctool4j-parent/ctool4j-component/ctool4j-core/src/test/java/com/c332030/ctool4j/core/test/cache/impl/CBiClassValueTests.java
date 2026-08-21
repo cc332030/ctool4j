@@ -15,6 +15,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CBiClassValueTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void get() {
 
@@ -23,6 +26,9 @@ public class CBiClassValueTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void cached() {
 
@@ -38,6 +44,9 @@ public class CBiClassValueTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void differentPairComputeSeparately() {
 

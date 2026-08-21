@@ -15,6 +15,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CLocalCacheUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void cacheBuilder() {
 
@@ -28,6 +31,9 @@ public class CLocalCacheUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void buildCache() {
 

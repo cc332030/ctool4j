@@ -20,6 +20,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试获取 URL 的路径部分
+     * 对应测试用例 1.1
      */
     @Test
     public void getPath() {
@@ -31,6 +32,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试提取 http(s) 协议开始的 URL：协议开头时原样返回
+     * 对应测试用例 2.1
      */
     @Test
     public void getUrl() {
@@ -42,6 +44,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试提取 http(s) 协议开始的 URL：协议前有垃圾内容时从协议处截取
+     * 对应测试用例 2.2
      */
     @Test
     public void getUrlFromProtocolStart() {
@@ -53,6 +56,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试提取 http(s) 协议开始的 URL：不含协议时返回 null
+     * 对应测试用例 2.3
      */
     @Test
     public void getUrlNoProtocol() {
@@ -64,6 +68,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试提取 http(s) 协议开始的 URL：空值与 null 返回 null
+     * 对应测试用例 2.4
      */
     @Test
     public void getUrlEmpty() {
@@ -76,6 +81,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试替换 URL 中的域名
+     * 对应测试用例 3.1
      */
     @Test
     public void replaceDomain() {
@@ -85,6 +91,9 @@ public class CUrlUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void replaceDomainKeepQueryAndFragment() {
 
@@ -95,6 +104,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试替换 URL 中的域名：URL 无路径时仅返回新域名
+     * 对应测试用例 3.3
      */
     @Test
     public void replaceDomainNoPath() {
@@ -105,6 +115,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试替换 URL 中的域名：URL 为空时返回 null
+     * 对应测试用例 3.4
      */
     @Test
     public void replaceDomainEmptyUrl() {
@@ -116,6 +127,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试替换 URL 中的域名：新域名为空时原样返回原 URL
+     * 对应测试用例 3.5
      */
     @Test
     public void replaceDomainEmptyNewDomain() {
@@ -128,6 +140,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试解析 URL 查询参数：空值、无参数返回不可变空 Map
+     * 对应测试用例 4.1
      */
     @Test
     public void getParamMapEmpty() {
@@ -140,6 +153,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试解析 URL 查询参数：基本参数
+     * 对应测试用例 4.2
      */
     @Test
     public void getParamMap() {
@@ -150,6 +164,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试解析 URL 查询参数：参数值含 = 时保留完整
+     * 对应测试用例 4.3
      */
     @Test
     public void getParamMapValueContainsEquals() {
@@ -160,6 +175,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试解析 URL 查询参数：fragment 不混入参数
+     * 对应测试用例 4.4
      */
     @Test
     public void getParamMapIgnoreFragment() {
@@ -186,6 +202,7 @@ public class CUrlUtilsTests {
 
     /**
      * 测试解析 URL 查询参数：编码值正确解码
+     * 对应测试用例 4.5
      */
     @Test
     public void getParamMapDecode() {

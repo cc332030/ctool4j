@@ -18,6 +18,11 @@ import java.lang.reflect.Method;
  * 不依赖 Spring 容器与 Redis。
  * </p>
  *
+ * <p>
+ * 是 {@link CCacheAspect#getCacheKey} 的测试用例（对应测试文档
+ * <code>doc/design/cache/CCacheAspectCacheKeyTests.adoc</code>）。
+ * </p>
+ *
  * @since 2026/8/14
  */
 class CCacheAspectCacheKeyTests {
@@ -61,6 +66,7 @@ class CCacheAspectCacheKeyTests {
     public void annotatedMethod() {
     }
 
+    /** 对应测试用例 1.1：JDK 类 String 作 key */
     @Test
     void testGetCacheKey_jdkClassString() {
         CCacheable cacheable = cacheable();
@@ -68,6 +74,7 @@ class CCacheAspectCacheKeyTests {
         Assertions.assertEquals("hello", key);
     }
 
+    /** 对应测试用例 1.2：JDK 类 Integer 作 key */
     @Test
     void testGetCacheKey_jdkClassInteger() {
         CCacheable cacheable = cacheable();
@@ -75,6 +82,7 @@ class CCacheAspectCacheKeyTests {
         Assertions.assertEquals("123", key);
     }
 
+    /** 对应测试用例 1.3：POJO 带 @CCacheId 取字段值 */
     @Test
     void testGetCacheKey_pojoWithCacheId() {
         CCacheable cacheable = cacheable();
@@ -84,6 +92,7 @@ class CCacheAspectCacheKeyTests {
         Assertions.assertEquals("42", key);
     }
 
+    /** 对应测试用例 1.4：POJO 无 @CCacheId 取 toString */
     @Test
     void testGetCacheKey_pojoWithoutCacheId_cacheIdNull() {
         CCacheable cacheable = cacheable();
@@ -93,6 +102,7 @@ class CCacheAspectCacheKeyTests {
         Assertions.assertEquals(user.toString(), key);
     }
 
+    /** 对应测试用例 1.5：object 为 null 返回 null */
     @Test
     void testGetCacheKey_cacheIdNullButObjectNull_returnsNull() {
         // getCacheKey 对 null object 返回 null（由调用方保证不写入缓存）

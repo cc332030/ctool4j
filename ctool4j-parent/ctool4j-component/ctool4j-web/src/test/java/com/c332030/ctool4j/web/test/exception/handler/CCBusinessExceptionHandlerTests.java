@@ -19,11 +19,15 @@ import org.junit.jupiter.api.Test;
  * error 非 null 时透传业务错误码并拼接扩展信息</p>
  *
  * @since 2026/8/16
+ * <p>`com.c332030.ctool4j.web.exception.handler.CCBusinessExceptionHandler`（CCBusinessExceptionHandler）的测试用例</p>
  */
 public class CCBusinessExceptionHandlerTests {
 
     private final CCBusinessExceptionHandler handler = new CCBusinessExceptionHandler();
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void handle_whenErrorNull() {
         // 边界：error 为 null 时返回默认 500
@@ -35,6 +39,9 @@ public class CCBusinessExceptionHandlerTests {
         Assertions.assertEquals("only-extend", result.getMessage());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void handle_whenErrorWithoutMsgExtend() {
         // 正例：error 非 null 且无扩展信息，message 取错误消息本身
@@ -46,6 +53,9 @@ public class CCBusinessExceptionHandlerTests {
         Assertions.assertEquals("boom", result.getMessage());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void handle_whenErrorWithMsgExtend() {
         // 正例：error 非 null 且有扩展信息，message 追加扩展

@@ -22,6 +22,7 @@ public class CEntityUtilsTests {
 
     /**
      * 测试清空 CBaseEntity 的公共字段
+     * 对应测试用例 1.1
      */
     @Test
     public void clearCBaseEntity() {
@@ -60,6 +61,7 @@ public class CEntityUtilsTests {
 
     /**
      * 测试清空 CBaseTimeEntity 的公共字段
+     * 对应测试用例 1.2
      */
     @Test
     public void clearBaseTimeEntity() {
@@ -85,6 +87,7 @@ public class CEntityUtilsTests {
 
     /**
      * 测试清空 CLongId 的 id 字段
+     * 对应测试用例 1.3
      */
     @Test
     public void clearLongId() {
@@ -104,6 +107,7 @@ public class CEntityUtilsTests {
 
     /**
      * 测试清空无公共字段的普通对象
+     * 对应测试用例 1.4
      */
     @Test
     public void clearNone() {
@@ -115,6 +119,7 @@ public class CEntityUtilsTests {
     /**
      * 测试无自身 clear 的子类，通过遍历父类/父接口链命中最近的清除方法
      * <p>验证按继承距离查找"最近" clear，而非依赖方法声明顺序</p>
+     * 对应测试用例 2.1
      */
     @Test
     public void clearSubClass() {
@@ -138,6 +143,7 @@ public class CEntityUtilsTests {
      * <p>XChild 类链（XChild、XParent）均无类级 clear，只能走接口；getInterfaces 按类继承
      * 由近及远取直接接口（子类接口在前），应命中子类接口 {@code ICCreateUpdateBy}（只清 by），
      * 而非父类接口 {@code ICCreateUpdateTime}（清 time）</p>
+     * 对应测试用例 2.2
      */
     @Test
     public void clearChildInterfaceFirst() {
@@ -167,6 +173,7 @@ public class CEntityUtilsTests {
      * 测试直接实现深层接口的类命中该接口的 clear，清空其全部字段
      * <p>XByAndTime 类链仅自身、无类级 clear，走接口命中 {@code ICCreateUpdateByAndTime}，
      * 该 clear 级联清 by 与 time 全字段</p>
+     * 对应测试用例 2.3
      */
     @Test
     public void clearByAndTimeInterface() {

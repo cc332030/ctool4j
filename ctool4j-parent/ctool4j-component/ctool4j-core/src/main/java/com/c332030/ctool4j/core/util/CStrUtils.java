@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/3/15
+ * @see doc/design/core/CStrUtils.adoc
+ * @see doc/design/core/CStrUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass
@@ -239,7 +241,7 @@ public class CStrUtils {
     }
 
     /**
-     * 大写下划线 转 驼峰-首字母大写
+     * 大写下划线 转 驼峰-首字母小写
      * @param value 待转换值
      * @return 转换结果
      */

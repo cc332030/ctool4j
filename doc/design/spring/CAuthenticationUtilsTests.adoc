@@ -1,0 +1,35 @@
+= CAuthenticationUtilsTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.spring.security.util.CAuthenticationUtils`（spring 模块认证工具）。
+
+对应测试类：`com.c332030.ctool4j.spring.security.util.CAuthenticationUtilsTests`
+
+对应设计文档：`doc/design/spring/CAuthenticationUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CAuthenticationUtilsTests 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证密码编码与校验的各条路径与边界。
+
+=== 设计依据
+
+- 依据功能设计对密码编码与校验的约定。
+- 依据测试方法（等价类/边界/分支覆盖）。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：密码编码与校验的正常、边界与异常路径。
+- 未覆盖：真实容器/框架集成场景。
+
+== 1. 认证工具
+
+- 1.1 验证密码编码与校验（对应测试方法 1.1-1.6）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -21,6 +21,9 @@ public class CClassConvertTests {
 
     // ---- toBoolean ----
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void toBoolean() {
 
@@ -38,6 +41,9 @@ public class CClassConvertTests {
 
     // ---- toInt ----
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void toInt() {
 
@@ -50,6 +56,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void toInt_error() {
 
@@ -64,6 +73,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void toInt_long() {
 
@@ -74,6 +86,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void toInt_int() {
 
@@ -83,6 +98,9 @@ public class CClassConvertTests {
 
     // ---- intValue ----
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void intValue() {
 
@@ -94,6 +112,9 @@ public class CClassConvertTests {
 
     // ---- toLong ----
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void toLong() {
 
@@ -104,6 +125,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void toLong_error() {
 
@@ -116,6 +140,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void toLong_int() {
 
@@ -127,6 +154,9 @@ public class CClassConvertTests {
 
     // ---- longValue ----
 
+    /**
+     * 对应测试用例 3.4
+     */
     @Test
     public void longValue() {
 
@@ -138,6 +168,9 @@ public class CClassConvertTests {
 
     // ---- toFloat / floatValue ----
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void toFloat() {
 
@@ -146,6 +179,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     public void floatValue() {
 
@@ -158,6 +194,9 @@ public class CClassConvertTests {
 
     // ---- toDouble / doubleValue ----
 
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     public void toDouble() {
 
@@ -166,6 +205,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 4.4
+     */
     @Test
     public void doubleValue() {
 
@@ -180,6 +222,9 @@ public class CClassConvertTests {
 
     // ---- toBigDecimal ----
 
+    /**
+     * 对应测试用例 5.1
+     */
     @Test
     public void toBigDecimal() {
 
@@ -193,6 +238,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 5.2
+     */
     @Test
     public void toBigDecimal_float() {
 
@@ -201,6 +249,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 5.3
+     */
     @Test
     public void toBigDecimal_double() {
 
@@ -209,6 +260,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 5.4
+     */
     @Test
     public void toBigDecimal_long() {
 
@@ -217,6 +271,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 5.5
+     */
     @Test
     public void toBigDecimal_int() {
 
@@ -227,6 +284,9 @@ public class CClassConvertTests {
 
     // ---- toEnumIntegerValue / toEnumStringValue ----
 
+    /**
+     * 对应测试用例 7.1
+     */
     @Test
     public void toEnumIntegerValue() {
 
@@ -241,6 +301,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 7.2
+     */
     @Test
     public void toEnumStringValue() {
 
@@ -257,6 +320,9 @@ public class CClassConvertTests {
 
     // ---- Date / Instant / Mills ----
 
+    /**
+     * 对应测试用例 6.1
+     */
     @Test
     public void parseDateTime() {
 
@@ -264,6 +330,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 6.2
+     */
     @Test
     public void formatDateTime() {
 
@@ -272,6 +341,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 6.3
+     */
     @Test
     public void toMills() {
 
@@ -281,6 +353,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 6.4
+     */
     @Test
     public void fromMills() {
 
@@ -289,6 +364,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 6.5
+     */
     @Test
     public void toInstant() {
 
@@ -298,6 +376,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 6.6
+     */
     @Test
     public void toDate() {
 
@@ -309,6 +390,9 @@ public class CClassConvertTests {
 
     // ---- objectStr 系列 ----
 
+    /**
+     * 对应测试用例 8.1
+     */
     @Test
     public void objectStr() {
 
@@ -318,6 +402,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void booleanStr() {
 
@@ -326,6 +413,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void intStr() {
 
@@ -334,6 +424,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void longStr() {
 
@@ -342,6 +435,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void floatStr() {
 
@@ -350,6 +446,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void doubleStr() {
 
@@ -358,6 +457,9 @@ public class CClassConvertTests {
 
     }
 
+    /**
+     * 对应测试用例 8.2
+     */
     @Test
     public void bigDecimalStr() {
 

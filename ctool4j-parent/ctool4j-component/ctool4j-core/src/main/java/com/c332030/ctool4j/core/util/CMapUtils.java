@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/2/26
+ * @see doc/design/core/CMapUtils.adoc
+ * @see doc/design/core/CMapUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

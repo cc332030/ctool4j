@@ -1,0 +1,65 @@
+= CUrlUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CUrlUtils`（core 工具类）——URL 解析、查询参数解析、域名替换。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CUrlUtilsTests`
+
+对应设计文档：`doc/design/core/CUrlUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CUrlUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「路径 / 协议提取 / 域名替换 / 参数解析」多个维度组织。
+- 用固定测试域名 `https://c332030.com` 验证各方法。
+- 协议提取覆盖协议开头、协议前有垃圾、不含协议、空值。
+- 域名替换覆盖带路径/查询/fragment、无路径、空 URL、空新域名。
+- 参数解析覆盖基本参数、值含 `=`、fragment 不混入、编码解码、空/无参数。
+
+=== 设计依据
+
+- 依据功能设计对协议提取、参数解析（fragment 剥离、第一个 `=`、解码）、域名替换语义的约定。
+- 依据测试方法（等价类/边界值/分支覆盖）：协议有无、垃圾前缀、空值、fragment、编码值、无路径。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：getPath；getUrl（协议开头/垃圾前缀/无协议/空值）；replaceDomain（带路径/查询/fragment、
+  无路径、空 URL、空新域名）；getParamMap（基本/值含等号/fragment 隔离/解码/空与无参数）。
+- 未覆盖：`getURI`/`getScheme`/`getHost`/`getPort`/`splitToPath`/`firstPath`/`lastPath` 等其余入口
+  （当前测试聚焦核心路径，其余入口行为可后续批次补充）。
+
+== 1. 路径
+
+- 1.1 getPath：`https://c332030.com/ip` → `/ip`（getPath）
+
+== 2. 协议提取（getUrl）
+
+- 2.1 协议开头：原样返回（getUrl）
+- 2.2 协议前有垃圾：从协议处截取（getUrlFromProtocolStart）
+- 2.3 不含协议：返回 null（getUrlNoProtocol）
+- 2.4 空/null/空白：返回 null（getUrlEmpty）
+
+== 3. 域名替换（replaceDomain）
+
+- 3.1 基本替换：`/ip` 路径域名替换（replaceDomain）
+- 3.2 保留查询与 fragment：`?x=1&y=2#frag` 保留（replaceDomainKeepQueryAndFragment）
+- 3.3 无路径：仅返回新域名（replaceDomainNoPath）
+- 3.4 空 URL：返回 null（replaceDomainEmptyUrl）
+- 3.5 空新域名：原样返回原 URL（replaceDomainEmptyNewDomain）
+
+== 4. 参数解析（getParamMap）
+
+- 4.1 空/无参数：返回空 Map（getParamMapEmpty）
+- 4.2 基本参数：`?a=1` → `{a:1}`（getParamMap）
+- 4.3 值含 `=`：`?a=b=c` → `{a:"b=c"}`（getParamMapValueContainsEquals）
+- 4.4 fragment 不混入：`#frag` 及其后内容不作为参数（getParamMapIgnoreFragment）
+- 4.5 编码解码：`b%3Dc` → `b=c`、`1%23frag` → `1#frag`（getParamMapDecode）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
  */
 class UserTests {
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void noArgsConstructor() {
         User user = new User();
@@ -21,6 +24,9 @@ class UserTests {
         Assertions.assertNull(user.getAge());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void allArgsConstructor() {
         User user = new User("admin", "pwd", 18);
@@ -29,6 +35,9 @@ class UserTests {
         Assertions.assertEquals(18, user.getAge());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void superBuilder() {
         User user = User.builder()
@@ -41,6 +50,9 @@ class UserTests {
         Assertions.assertEquals(18, user.getAge());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     void builder_omitOptionalField() {
         User user = User.builder()
@@ -51,6 +63,9 @@ class UserTests {
         Assertions.assertNull(user.getAge());
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     void equals_sameValues() {
         User a = User.builder().userName("admin").password("pwd").age(18).build();
@@ -59,6 +74,9 @@ class UserTests {
         Assertions.assertEquals(a.hashCode(), b.hashCode());
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     void equals_differentValue() {
         User a = User.builder().userName("admin").password("pwd").age(18).build();
@@ -66,6 +84,9 @@ class UserTests {
         Assertions.assertNotEquals(a, b);
     }
 
+        /**
+     * 对应测试用例 1.7
+     */
     @Test
     void equals_null() {
         User a = User.builder().userName("admin").build();

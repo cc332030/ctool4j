@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  *
  * @param <A> 注解类型
  * @since 2026/8/16
+ * @see doc/design/core/CLogFieldSerializerModifier.adoc
  */
 public abstract class CLogFieldSerializerModifier<A extends Annotation> extends BeanSerializerModifier {
 

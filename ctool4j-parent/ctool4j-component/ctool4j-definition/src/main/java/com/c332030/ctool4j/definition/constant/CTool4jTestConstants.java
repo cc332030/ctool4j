@@ -10,6 +10,7 @@ import java.util.function.Supplier;
  * Description: CTool4jTestConstants
  * </p>
  *
+ * @see doc/design/definition/CTool4jTestConstants.adoc
  * @since 2025/11/21
  */
 @Slf4j

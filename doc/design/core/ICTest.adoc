@@ -1,0 +1,40 @@
+= ICTest 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.interfaces.ICTest
+状态：已落地
+适用范围：测试环境判断接口（默认方法）
+
+== 1. 功能说明
+
+`ICTest` 为测试环境判断接口，提供默认方法：
+
+- `isTest()`：是否处于测试环境（委托 `CTestUtils.isTest()`）
+
+== 2. 设计要点
+
+=== 2.1 默认实现
+
+- `isTest()` 直接委托 `CTestUtils.isTest()`，基于 classpath 常量判断（测试环境含 JUnit 时为 true）。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要判断测试环境的接口/类，实现 `ICTest` 即获得统一 isTest 语义。
+
+=== 4.2 不适用/边界场景
+
+- 判断依赖 `CTestUtils.isTest()`，无法细分环境类型。
+
+== 5. 已知限制与取舍
+
+- 统一委托 CTestUtils，保证环境判断语义一致。
+
+测试内容见 `doc/design/core/ICTestTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

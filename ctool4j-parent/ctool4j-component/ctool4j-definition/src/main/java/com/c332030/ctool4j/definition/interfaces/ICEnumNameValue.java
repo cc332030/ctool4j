@@ -5,6 +5,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * Description: ICEnumNameValue
  * </p>
  *
+ * @see doc/design/definition/ICEnumNameValue.adoc
  * @since 2025/12/23
  */
 public interface ICEnumNameValue extends ICEnumName, ICValue<String> {

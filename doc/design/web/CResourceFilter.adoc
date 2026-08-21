@@ -1,0 +1,47 @@
+= CResourceFilter 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.filter.impl.CResourceFilter
+状态：已落地
+
+== 1. 功能说明
+
+`CResourceFilter` 为静态资源忽略过滤器，`@Component` + `ICFilter` + `PriorityOrdered`，
+`getOrder()` 返回 `Integer.MIN_VALUE`（最高优先级，最先执行）。
+
+核心方法 `doFilter(request, response, chain)`：
+
+- 取 `request.getRequestURI()`
+- 命中 `ResourceUrlConstants.IGNORE_RESOURCE_URLS` 时，记录 debug 日志、以 204 状态码结束请求并返回
+- 否则 `chain.doFilter` 继续请求链
+
+== 2. 设计要点
+
+=== 2.1 忽略静态资源
+
+- 对 favicon 等无需处理的静态资源直接以 204 结束，避免进入业务处理。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| uri 不在忽略集合 | 放行到后续过滤器链 |
+| 命中忽略集合 | 记录 debug 日志，返回 204 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要忽略 favicon 等静态资源请求的 web 应用。
+
+== 5. 已知限制与取舍
+
+- 忽略资源集合来自 `ResourceUrlConstants` 常量，新增忽略资源需改常量。
+
+测试内容见 `doc/design/web/CResourceFilterTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

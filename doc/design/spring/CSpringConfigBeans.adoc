@@ -1,0 +1,38 @@
+= CSpringConfigBeans 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-spring
+类：com.c332030.ctool4j.spring.bean.CSpringConfigBeans
+状态：已落地
+适用范围：Spring 配置 Bean 集合
+
+== 1. 功能说明
+
+`CSpringConfigBeans`：Spring 配置 Bean 集合。
+
+== 2. 设计要点
+
+- 集中管理 Spring 相关配置 Bean（由 Spring 注入）
+
+== 3. 兜底设计
+
+依赖容器注入
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+Spring 配置Bean
+
+=== 4.2 不适用/边界场景
+
+需容器装配
+
+== 5. 已知限制与取舍
+
+需容器装配
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

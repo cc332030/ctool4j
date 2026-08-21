@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.injector.AbstractMethod;
  *
  * @author c332030
  * @since 2024/5/7
+ * @see doc/design/mybatisplus/CAbstractMpMethod.adoc
  */
 public abstract class CAbstractMpMethod extends AbstractMethod implements ICMpMethod {
 

@@ -5,6 +5,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * Description: ICMessage
  * </p>
  *
+ * @see doc/design/definition/ICMessage.adoc
  * @since 2025/12/30
  */
 public interface ICMessage {

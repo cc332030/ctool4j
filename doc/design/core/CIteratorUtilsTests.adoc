@@ -1,0 +1,52 @@
+= CIteratorUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CIteratorUtils`（core 工具类）——遍历集合/迭代器并忽略异常执行消费。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CIteratorUtilsTests`
+
+对应设计文档：`doc/design/core/CIteratorUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CIteratorUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「遍历消费 / null 处理 / 异常忽略 / 空集合」多个维度组织。
+- 遍历消费：正常逐元素收集。
+- null 处理：null iterable 不执行、集合中 null 元素被跳过。
+- 异常忽略：consumer 抛异常被忽略，其他元素继续处理。
+- 空集合：无元素收集为空。
+
+=== 设计依据
+
+- 依据功能设计对忽略异常、null 跳过的约定。
+- 依据测试方法（等价类/边界值/分支覆盖）：正常遍历、null 输入、null 元素、异常、空集合。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：Iterable 正常遍历；null iterable 不执行；null 元素跳过；consumer 异常忽略且继续；
+  空集合无消费。
+- 未覆盖：Iterator 入口（Iterable 重载内部委托，行为一致）、异常被 debug 日志记录的具体断言
+  （日志不易断言，未单列）。
+
+== 1. 遍历消费
+
+- 1.1 正常遍历：`[a,b,c]` 全部收集（forEachIgnoreExceptionByIterable）
+- 1.2 空集合：无元素收集（forEachIgnoreExceptionEmpty）
+
+== 2. null 处理
+
+- 2.1 null iterable：直接返回，consumer 不执行（forEachIgnoreExceptionNullIterable）
+- 2.2 null 元素：`[a,null,b]` → 收集 `[a,b]`（forEachIgnoreExceptionNullValueSkipped）
+
+== 3. 异常忽略
+
+- 3.1 consumer 抛异常：`"b"` 抛异常被忽略，`a`/`c` 继续处理（forEachIgnoreExceptionConsumerExceptionSwallowed）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

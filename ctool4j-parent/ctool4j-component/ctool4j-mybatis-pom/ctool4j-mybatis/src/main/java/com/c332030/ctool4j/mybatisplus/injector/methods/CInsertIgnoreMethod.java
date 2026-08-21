@@ -13,6 +13,7 @@ import org.apache.ibatis.session.Configuration;
  *
  * @author c332030
  * @since 2024/5/7
+ * @see doc/design/mybatisplus/CInsertIgnoreMethod.adoc
  */
 public class CInsertIgnoreMethod extends Insert implements ICMpMethod {
 

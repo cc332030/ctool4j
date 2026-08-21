@@ -1,0 +1,56 @@
+= CMinioService 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-minio
+类：com.c332030.ctool4j.minio.service.CMinioService
+状态：已落地
+适用范围：MinIO 对象存储操作封装
+
+== 1. 功能说明
+
+`CMinioService`（`@Service` + `@AllArgsConstructor`）封装 MinIO 客户端常用操作：
+
+- `statObject`：获取对象元数据（HEAD，不下载内容）。
+- `getObject`：下载对象返回输入流。
+- `getObjectThenWrite`：下载对象并写入输出流，返回字节数。
+- `write`：上传字节数组或输入流到 MinIO。
+
+== 2. 设计要点
+
+=== 2.1 下载
+
+- `getObjectThenWrite` 用 try-with-resources 关闭输入流，`IOUtils.copy` 复制到输出流。
+
+=== 2.2 上传
+
+- 字节数组经 `ByteArrayInputStream` 转流。
+- 输入流大小未知时分片大小设为 5MB。
+
+=== 2.3 异常
+
+- 所有方法标注 `@SneakyThrows`，底层异常直接抛出。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 流大小未知 | 分片大小设为 5MB |
+| 底层异常 | 由 @SneakyThrows 抛出 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 基于 MinIO 的对象存取（stat/get/put）。
+
+== 5. 已知限制与取舍
+
+- 未做 bucket/object 存在性校验，异常直接抛出。
+- 调用方负责关闭传入的输出流。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

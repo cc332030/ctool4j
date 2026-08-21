@@ -1,0 +1,50 @@
+= CPageUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CPageUtils`（core 工具类）——分页查询并执行逻辑，默认分页大小常量。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CPageUtilsTests`
+
+对应设计文档：`doc/design/core/CPageUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CPageUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「默认常量 / pageThenDo / pageThenEach」三个维度组织。
+- 默认常量断言三个分页大小值。
+- pageThenDo 覆盖两个终止条件分支：queryFunction 返回 null、doSth 返回 false。
+- pageThenEach 覆盖正常逐页处理（含空集合作为末页终止）与首页即空的情况。
+
+=== 设计依据
+
+- 依据功能设计对终止条件（null 结果 / doSth false / 空集合）的约定。
+- 依据测试方法（分支覆盖/边界值）：两种终止分支、末页空集合、首页空。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：默认常量；pageThenDo null 结果终止、doSth false 终止；pageThenEach 正常分页消费、
+  首页空即终止。
+- 未覆盖：doSth 返回 null 导致结束的分支（与 false 语义一致，未单列）。
+
+== 1. 默认分页常量
+
+- 1.1 默认值：10 / 100 / 1000（defaultPageSizes）
+
+== 2. 分页执行（pageThenDo）
+
+- 2.1 终止分支：queryFunction 返回 null 结束（页号 1,2,3）（pageThenDoStopsWhenResultNull）
+- 2.2 终止分支：doSth 返回 false 结束（页号 1,2）（pageThenDoStopsWhenDoSthFalse）
+
+== 3. 分页逐元素执行（pageThenEach）
+
+- 3.1 正常分页：逐页消费 `[a,b]`、`[c]`，空集合作为末页终止（页号 1,2,3）（pageThenEach）
+- 3.2 首页空：首页返回空集合即终止，无消费（pageThenEachFirstPageEmpty）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

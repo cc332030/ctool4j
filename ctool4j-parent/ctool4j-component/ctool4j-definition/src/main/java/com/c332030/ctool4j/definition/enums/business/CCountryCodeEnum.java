@@ -10,6 +10,8 @@ import lombok.Getter;
  * </p>
  *
  * @since 2026/3/17
+ * @see doc/design/core/CCountryCodeEnum.adoc
+ * @see doc/design/core/CCountryCodeEnumTests.adoc
  */
 @Getter
 @AllArgsConstructor

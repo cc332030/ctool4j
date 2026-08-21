@@ -1,0 +1,62 @@
+= CSqlSeparatorEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-db
+类：com.c332030.ctool4j.db.enums.CSqlSeparatorEnum
+状态：已落地
+适用范围：SQL 拼接时的分隔符（逗号 / AND / OR）与对应 Joining Collector
+
+== 1. 功能说明
+
+`CSqlSeparatorEnum` 为 SQL 片段拼接分隔符枚举，定义三种分隔符：
+
+- `COMMA`：`,`（逗号，文本"逗号"），用于字段/值列表
+- `AND`：`AND`（文本"且"），用于多条件"且"连接
+- `OR`：`OR`（文本"或"），用于多条件"或"连接
+
+每个枚举项同时携带一个 `joiningCollector`（`Collectors.joining(" <分隔符> ")`），
+可直接用于 `Stream.collect` 将多个 SQL 片段按对应分隔符拼接。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- `separator` 为原始分隔符串（`,`、`AND`、`OR`）；`text` 为中文描述。
+- `joiningCollector` 采用 `Collectors.joining(" " + separator + " ")`，即片段间以
+  `" 分隔符 "`（前后各一空格）连接；单元素/空集合时与 `Collectors.joining` 行为一致
+  （单元素原样返回、空集合返回空串）。
+
+=== 2.2 实现方式
+
+- lombok `@Getter` + `@AllArgsConstructor` 生成 getter 与全参构造器。
+- 显式声明带 3 参的自定义构造器（构造 `joiningCollector`）供三个枚举项调用。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 空集合 collect | 返回空串 `""` |
+| 单元素集合 collect | 原样返回该元素 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 配合 `CSqlUtils` 等方法，用于生成以逗号/AND/OR 连接的 SQL 片段。
+
+=== 4.2 不适用/边界场景
+
+- 分隔符仅固定为逗号/AND/OR；其他分隔符场景不适用。
+- 拼接结果带固定前后空格（` a , b ` 风格），对拼接结果有精确空格要求的场景需注意。
+
+== 5. 已知限制与取舍
+
+- 枚举值固定不可扩展，新增分隔符需修改枚举本身。
+- `text` 仅为描述性文案，不参与 SQL 生成逻辑。
+
+测试内容见 `doc/design/db/CSqlSeparatorEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

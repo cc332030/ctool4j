@@ -5,6 +5,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * Description: ICCode
  * </p>
  *
+ * @see doc/design/definition/ICCode.adoc
  * @since 2025/12/30
  */
 public interface ICCode<T> {

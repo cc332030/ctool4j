@@ -26,6 +26,9 @@ public class CValueUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getValueFromICValue() {
 
@@ -34,6 +37,9 @@ public class CValueUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void getValueFromObj() {
 
@@ -47,6 +53,9 @@ public class CValueUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void setValueConsumesWhenNonNull() {
 
@@ -57,6 +66,9 @@ public class CValueUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void setValueNullICValueNoOp() {
 

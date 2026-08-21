@@ -26,6 +26,8 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/12/7
+ * @see doc/design/core/CDateUtils.adoc
+ * @see doc/design/core/CDateUtilsTests.adoc
  */
 @CustomLog
 @UtilityClass

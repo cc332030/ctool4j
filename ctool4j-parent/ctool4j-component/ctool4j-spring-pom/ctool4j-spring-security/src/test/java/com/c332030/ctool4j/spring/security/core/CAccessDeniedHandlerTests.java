@@ -23,6 +23,9 @@ class CAccessDeniedHandlerTests {
 
     private final CAccessDeniedHandler handler = new CAccessDeniedHandler();
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testHandle_write403WithReasonAndUrl() throws Exception {
         // 正例：输出 403，文案为默认 ReasonPhrase + 请求路径
@@ -39,6 +42,9 @@ class CAccessDeniedHandlerTests {
         Assertions.assertTrue(content.contains("/api/user"));
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testHandle_withQueryStringUsesRequestUri() throws Exception {
         // 边界：带查询串时仍以 requestURI 作为路径

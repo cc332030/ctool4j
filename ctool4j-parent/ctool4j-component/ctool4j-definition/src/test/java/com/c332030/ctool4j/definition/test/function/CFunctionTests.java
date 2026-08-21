@@ -16,6 +16,9 @@ import java.util.function.Function;
  */
 public class CFunctionTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void applyNormal() {
 
@@ -25,6 +28,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void applyNullInput() {
 
@@ -34,6 +40,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void applySneakyThrowsCheckedException() {
 
@@ -48,6 +57,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void applySneakyThrowsRuntimeException() {
 
@@ -62,6 +74,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void self() {
 
@@ -72,6 +87,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void empty() {
 
@@ -81,6 +99,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticApplyNullFunction() {
 
@@ -88,6 +109,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticApplyNullFunctionWithNullInput() {
 
@@ -95,6 +119,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void staticApplyNormal() {
 
@@ -104,6 +131,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convert() {
 
@@ -115,6 +145,9 @@ public class CFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.6
+     */
     @Test
     public void convertNullCFunction() {
 

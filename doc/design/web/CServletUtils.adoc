@@ -1,0 +1,55 @@
+= CServletUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.util.CServletUtils
+状态：已落地
+
+== 1. 功能说明
+
+`CServletUtils`（`@UtilityClass`）为 Servlet 响应写出工具类。
+
+核心方法：
+
+- `writeJson(response, httpStatus, body)`：将对象序列化为 JSON 后写出
+- `writeJson(response, httpStatus, jsonBody)`：以 JSON 形式写出响应
+
+`writeJson` 实现：
+
+- 设置 `Content-Type: application/json`、UTF-8 字符编码
+- 设置 HTTP 状态码
+- 写入 JSON 体并 flush/close
+
+== 2. 设计要点
+
+=== 2.1 统一 JSON 响应
+
+- 便捷地以 JSON + 指定状态码写出响应，供过滤器/拦截器等场景复用。
+
+=== 2.2 @SneakyThrows
+
+- 用 `@SneakyThrows` 处理 IO 异常，调用方无需捕获。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 序列化异常 / IO 异常 | 被 `@SneakyThrows` 抛出（包装为运行时异常） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 过滤器、拦截器等非 Controller 场景需要直接写出 JSON 响应。
+
+== 5. 已知限制与取舍
+
+- `writer.close()` 在写出后立即关闭，调用方不应再写响应。
+- 依赖 `CJsonUtils.toJson` 序列化。
+
+测试内容见 `doc/design/web/CServletUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

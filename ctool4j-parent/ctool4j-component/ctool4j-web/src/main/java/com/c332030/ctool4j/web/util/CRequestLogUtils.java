@@ -33,6 +33,7 @@ import java.util.*;
  *
  * @author c332030
  * @since 2024/3/6
+ * @see doc/design/web/CRequestLogUtils.adoc
  */
 @CustomLog
 @UtilityClass

@@ -16,6 +16,9 @@ import java.io.IOException;
  */
 public class StringFunctionTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void applyNormal() {
 
@@ -25,6 +28,9 @@ public class StringFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void applyNullInput() {
 
@@ -34,6 +40,9 @@ public class StringFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void applySneakyThrowsCheckedException() {
 
@@ -48,6 +57,9 @@ public class StringFunctionTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void convert() {
 

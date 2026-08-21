@@ -18,6 +18,9 @@ public class CIntResultTests {
 
     private static final int ERROR_CODE = 500;
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void noArgsConstructor() {
 
@@ -29,6 +32,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void allArgsConstructor() {
 
@@ -40,6 +46,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void newInstance() {
 
@@ -51,6 +60,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void newInstanceNullParams() {
 
@@ -62,6 +74,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void success() {
 
@@ -73,6 +88,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void successWithData() {
 
@@ -84,6 +102,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void successWithHttpStatus() {
 
@@ -95,6 +116,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     public void errorWithMessage() {
 
@@ -106,6 +130,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     public void errorNullMessage() {
 
@@ -117,6 +144,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.3
+     */
     @Test
     public void errorWithCodeAndMessage() {
 
@@ -128,6 +158,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.4
+     */
     @Test
     public void errorWithHttpStatusAndMessage() {
 
@@ -139,6 +172,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 3.5
+     */
     @Test
     public void errorWithHttpStatusOnly() {
 
@@ -150,6 +186,9 @@ public class CIntResultTests {
 
     }
 
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     public void builder() {
 

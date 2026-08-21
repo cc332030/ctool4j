@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
  * Description: CStringStringRedisService
  * </p>
  *
+ * @see doc/design/redis/CStringStringRedisService.adoc
+ * @see doc/design/redis/CStringStringRedisServiceTests.adoc
  * @since 2025/11/4
  */
 @Service

@@ -11,6 +11,8 @@ import lombok.Getter;
  *
  * @author c332030
  * @since 2024/3/21
+ * @see doc/design/web/CRequestHeaderEnum.adoc
+ * @see doc/design/web/CRequestHeaderEnumTests.adoc
  */
 @Getter
 @AllArgsConstructor

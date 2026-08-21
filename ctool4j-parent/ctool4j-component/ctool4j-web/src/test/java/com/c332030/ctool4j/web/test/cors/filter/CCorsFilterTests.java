@@ -23,6 +23,7 @@ import static org.mockito.Mockito.*;
  *
  * @since 2026/8/16
  */
+
 public class CCorsFilterTests {
 
     private final CCorsFilter filter = new CCorsFilter();
@@ -45,6 +46,9 @@ public class CCorsFilterTests {
         CCorsUtils.setConfig(null);
     }
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void doFilter_whenNotEnabled() throws Exception {
         // 未启用跨域时原样放行
@@ -53,6 +57,9 @@ public class CCorsFilterTests {
         verify(chain).doFilter(request, response);
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void doFilter_whenEnabledAndOptions() throws Exception {
         // 启用跨域 + OPTIONS 预检：设置 204 且不继续链
@@ -66,6 +73,9 @@ public class CCorsFilterTests {
         verify(chain, never()).doFilter(request, response);
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void doFilter_whenEnabledAndGet() throws Exception {
         // 启用跨域 + 普通 GET：继续链

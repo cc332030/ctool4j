@@ -18,6 +18,9 @@ import java.util.Collections;
  */
 public class CPageTests {
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void defaultValues() {
         CPage page = new CPage();
@@ -27,6 +30,9 @@ public class CPageTests {
         Assertions.assertEquals(0, page.getOrders().size());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void builder() {
         CPage page = CPage.builder()
@@ -39,6 +45,9 @@ public class CPageTests {
         Assertions.assertEquals(1, page.getOrders().size());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getStart() {
         Assertions.assertEquals(0, CPage.builder().pageNum(1).pageSize(10).build().getStart());
@@ -46,6 +55,9 @@ public class CPageTests {
         Assertions.assertEquals(99, CPage.builder().pageNum(10).pageSize(11).build().getStart());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void getStartPageNumOne() {
         // 第一页 start 为 0
@@ -53,6 +65,9 @@ public class CPageTests {
         Assertions.assertEquals(0, page.getStart());
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void getLimitSql() {
         // MySQL 方言 LIMIT offset, count 格式
@@ -61,6 +76,9 @@ public class CPageTests {
         Assertions.assertEquals("limit 0,20", CPage.builder().pageNum(1).pageSize(20).build().getLimitSql());
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void getPage() {
         CPage cPage = CPage.builder().pageNum(2).pageSize(5).build();

@@ -19,6 +19,9 @@ import java.util.stream.Stream;
  */
 public class CStreamUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void distinctByKey() {
 
@@ -30,6 +33,9 @@ public class CStreamUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void distinctByKeyNullKeyExcluded() {
 
@@ -41,6 +47,9 @@ public class CStreamUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void distinctByKeySingleElement() {
 

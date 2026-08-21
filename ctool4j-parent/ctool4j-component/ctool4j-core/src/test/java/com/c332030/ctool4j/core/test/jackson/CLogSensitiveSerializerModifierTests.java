@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CLogSensitiveSerializerModifierTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void sensitiveFieldMaskedInLogMapper() throws Exception {
 
@@ -27,6 +30,9 @@ public class CLogSensitiveSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void globalMapperOutputsRealContent() throws Exception {
 
@@ -37,6 +43,9 @@ public class CLogSensitiveSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void customKeepApplied() throws Exception {
 
@@ -47,6 +56,9 @@ public class CLogSensitiveSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void nonSensitiveFieldNotAffected() throws Exception {
 
@@ -55,6 +67,9 @@ public class CLogSensitiveSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void logMapperSkipsNullSensitiveField() throws Exception {
 
@@ -64,6 +79,9 @@ public class CLogSensitiveSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void blobAndSensitiveCoexist() throws Exception {
 
@@ -76,6 +94,9 @@ public class CLogSensitiveSerializerModifierTests {
 
     }
 
+    /**
+     * 对应测试用例 1.7
+     */
     @Test
     public void logMapperDeepCopyDoesNotAffectOthers() throws Exception {
 

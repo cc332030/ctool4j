@@ -15,6 +15,9 @@ import java.util.*;
  */
 class UserDtoTests {
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     void noArgsConstructor() {
         UserDto dto = new UserDto();
@@ -23,6 +26,9 @@ class UserDtoTests {
         Assertions.assertNull(dto.getSex());
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     void superBuilder_inheritanceWiring() {
         Map<String, String> tags = new HashMap<>();
@@ -58,6 +64,9 @@ class UserDtoTests {
         Assertions.assertEquals(tags, dto.getTags());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     void superBuilder_defaultNullFields() {
         UserDto dto = UserDto.builder().userName("admin").build();
@@ -69,6 +78,9 @@ class UserDtoTests {
         Assertions.assertNull(dto.getTags());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     void equals_sameValues() {
         UserDto a = UserDto.builder().userName("admin").sex(1).build();
@@ -77,6 +89,9 @@ class UserDtoTests {
         Assertions.assertEquals(a.hashCode(), b.hashCode());
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     void equals_differentField() {
         UserDto a = UserDto.builder().userName("admin").sex(1).build();
@@ -84,12 +99,18 @@ class UserDtoTests {
         Assertions.assertNotEquals(a, b);
     }
 
+        /**
+     * 对应测试用例 1.6
+     */
     @Test
     void equals_null() {
         UserDto a = UserDto.builder().userName("admin").build();
         Assertions.assertNotEquals(a, null);
     }
 
+        /**
+     * 对应测试用例 1.7
+     */
     @Test
     void equals_otherType() {
         UserDto dto = UserDto.builder().userName("admin").sex(1).build();
@@ -98,6 +119,9 @@ class UserDtoTests {
         Assertions.assertNotEquals(dto, "string");
     }
 
+        /**
+     * 对应测试用例 1.8
+     */
     @Test
     void equals_rolesCollection() {
         UserDto a = UserDto.builder().userName("admin").roles(Arrays.asList("r1", "r2")).build();
@@ -105,6 +129,9 @@ class UserDtoTests {
         Assertions.assertEquals(a, b);
     }
 
+        /**
+     * 对应测试用例 1.9
+     */
     @Test
     void equals_emptyRolesVsNull() {
         UserDto a = UserDto.builder().userName("admin").roles(Collections.emptyList()).build();

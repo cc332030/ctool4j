@@ -10,6 +10,8 @@ import lombok.Getter;
  * </p>
  *
  * @since 2025/9/14
+ * @see doc/design/core/CBusinessException.adoc
+ * @see doc/design/core/CBusinessExceptionTests.adoc
  */
 @Getter
 public class CBusinessException extends CException {

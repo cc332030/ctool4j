@@ -11,6 +11,8 @@ import java.util.concurrent.CompletableFuture;
  * </p>
  *
  * @since 2024/12/18
+ * @see doc/design/core/CCompletableFuture.adoc
+ * @see doc/design/core/CCompletableFutureTests.adoc
  */
 @CustomLog
 @UtilityClass

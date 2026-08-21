@@ -12,6 +12,7 @@ import java.lang.annotation.*;
  * <p>保留位数可通过 {@link #prefixKeep()} / {@link #suffixKeep()} 自定义；
  * 长度不足以同时保留前后缀时全部打码（安全优先）</p>
  *
+ * @see doc/design/definition/CLogSensitive.adoc
  * @since 2026/8/16
  */
 @Documented

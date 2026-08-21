@@ -15,8 +15,12 @@ import org.junit.jupiter.api.Test;
  *
  * @since 2026/8/16
  */
+
 public class CTraceInfoProviderTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getTraceInfo() {
         ICTraceInfoProvider<CTraceInfo> provider = () -> new CTraceInfo("trace-1");

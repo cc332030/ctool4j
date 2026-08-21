@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CRunnableTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void runNormal() {
 
@@ -29,6 +32,9 @@ public class CRunnableTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void runSneakyThrowsCheckedException() {
 
@@ -43,6 +49,9 @@ public class CRunnableTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void empty() {
 
@@ -52,6 +61,9 @@ public class CRunnableTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void staticRunNullRunnable() {
 
@@ -59,6 +71,9 @@ public class CRunnableTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void staticRunNormal() {
 
@@ -70,6 +85,9 @@ public class CRunnableTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void convert() {
 
@@ -85,6 +103,9 @@ public class CRunnableTests {
 
     }
 
+    /**
+     * 对应测试用例 2.5
+     */
     @Test
     public void convertNullCRunnable() {
 

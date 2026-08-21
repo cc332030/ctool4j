@@ -1,0 +1,72 @@
+= CClassUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CClassUtils
+状态：已落地
+适用范围：类工具（JDK 类判断/继承链/接口/包扫描/注解判断）
+
+== 1. 功能说明
+
+`CClassUtils` 为类工具类，提供：
+
+- 判断：`isJdkClass` / `isBasicClass` / `isExistClass` / `isAnnotationPresent`（字段/方法/类）
+- 包名：`getFirstPackage` / `BASE_PACKAGES`
+- 继承链：`getSuperClasses` / `getInterfaces`
+- 层级元素：`getMap` / `getMap`（List）
+- 包扫描：`findClasses` / `listSubClass` / `listAnnotatedClass` / `listAnnotatedClassThenDo`
+- 字段对比：`compareField`
+
+== 2. 设计要点
+
+=== 2.1 JDK 类判断（isJdkClass）
+
+- 结果按类缓存（`CClassValue`）：基本类型或类名以 `BASE_PACKAGES_START`（java./javax./sun./jdk. 等）开头
+  即为 JDK 类。
+
+=== 2.2 继承链
+
+- `getSuperClasses`：do-while 收集类及其父类（不含 Object），顺序由子至父；Object 自身仅返回自身；
+  接口无父类仅返回接口自身。
+- `getInterfaces`：按父类链由子至父遍历各层直接接口，LinkedHashSet 去重保序；**不递归接口继承**
+  （仅收集直接实现接口）。
+
+=== 2.3 包扫描
+
+- `findClasses`：基于 Spring `ClassPathScanningCandidateComponentProvider` + TypeFilter 扫描包下类。
+- `listSubClass` / `listAnnotatedClass`：分别用 AssignableTypeFilter / AnnotationTypeFilter。
+
+=== 2.4 注解判断
+
+- `isAnnotationPresent(Class)`：类自身或其直接接口标注注解即返回 true。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| isAnnotationPresent(字段/方法为 null) | 返回 false |
+| getSuperClasses(Object) | 返回仅含 Object 自身 |
+| getSuperClasses(接口) | 返回仅含接口自身 |
+| isJdkClass | 基本类型或基础包前缀匹配 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- JDK 类判断、继承链/接口遍历、包下子类/注解类扫描。
+
+=== 4.2 不适用/边界场景
+
+- getInterfaces 不递归接口继承，仅收集直接实现接口。
+
+== 5. 已知限制与取舍
+
+- isJdkClass 按类缓存，消除热路径前缀匹配开销。
+- getInterfaces 去重保序（LinkedHashSet），按父类链由子至父。
+
+测试内容见 `doc/design/core/CClassUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

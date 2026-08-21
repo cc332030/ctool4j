@@ -14,6 +14,8 @@ import java.util.function.Predicate;
  * </p>
  *
  * @since 2025/9/10
+ * @see doc/design/core/CStreamUtils.adoc
+ * @see doc/design/core/CStreamUtilsTests.adoc
  */
 @UtilityClass
 public class CStreamUtils {

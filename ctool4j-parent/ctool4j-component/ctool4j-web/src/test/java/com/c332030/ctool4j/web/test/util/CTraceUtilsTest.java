@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CTraceUtilsTest
  * </p>
+ * <p>`com.c332030.ctool4j.web.util.CTraceUtils`（CTraceUtils）的测试用例</p>
  *
  * @since 2025/9/14
  */
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test;
 public class CTraceUtilsTest {
 
     /**
-     * 测试获取默认追踪信息
+     * 对应测试用例 1.1
      */
     @Test
     public void getTraceInfo() {

@@ -1,0 +1,58 @@
+= CPageUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CPageUtils
+状态：已落地
+适用范围：分页查询并执行逻辑（pageThenDo / pageThenEach），默认分页大小常量
+
+== 1. 功能说明
+
+`CPageUtils` 为分页工具类，提供：
+
+- `pageThenDo(CFunction<Integer,T> queryFunction, CFunction<T,Boolean> doSth)`：逐页查询并执行逻辑
+- `pageThenEach(CFunction<Integer,List<T>> queryFunction, CConsumer<T> doSth)`：逐页查询并对每元素执行逻辑
+- 分页大小常量：`DEFAULT_PAGE_SIZE=10`、`DEFAULT_JOB_PAGE_SIZE=100`、`DEFAULT_EXPORT_PAGE_SIZE=1000`
+
+== 2. 设计要点
+
+=== 2.1 终止条件（pageThenDo）
+
+- 从页号 1 开始循环，`queryFunction.apply(page)` 返回 null，或 `doSth.apply(result)` 非 true
+  （CBoolUtils.isNotTrue）时终止循环，页号自增。
+- 适用于返回自定义分页对象（非集合）的场景：无数据时业务返回 null，或让 doSth 返回 false 结束。
+
+=== 2.2 pageThenEach 语义
+
+- 委托 pageThenDo：`queryFunction` 返回的 list 为空（`CollUtil.isEmpty`）时返回 false 结束，
+  否则逐元素执行 `doSth` 并返回 true 继续。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| pageThenDo：queryFunction 返回 null | 结束循环 |
+| pageThenDo：doSth 返回 false | 结束循环 |
+| pageThenEach：返回空集合 | 结束循环 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 分批处理大数据量（定时任务、导出等），逐页查询避免一次加载全量。
+
+=== 4.2 不适用/边界场景
+
+- pageThenDo 的 doSth 返回 null 时（CBoolUtils.isNotTrue(null)=true）会结束循环，业务需注意返回 Boolean 而非 null。
+
+== 5. 已知限制与取舍
+
+- 使用简单页号自增，无并发/游标支持；超大结果集建议按时间游标。
+- 页号从 1 开始，与常见"第 1 页"语义一致。
+
+测试内容见 `doc/design/core/CPageUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

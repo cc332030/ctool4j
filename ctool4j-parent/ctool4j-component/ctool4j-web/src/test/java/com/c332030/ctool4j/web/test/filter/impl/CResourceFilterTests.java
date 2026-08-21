@@ -20,10 +20,14 @@ import static org.mockito.Mockito.*;
  *
  * @since 2026/8/16
  */
+
 public class CResourceFilterTests {
 
     private final CResourceFilter filter = new CResourceFilter();
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void doFilter_whenIgnoreResource() throws Exception {
         // 命中忽略资源 URL：返回 204 且不继续链
@@ -38,6 +42,9 @@ public class CResourceFilterTests {
         verify(chain, never()).doFilter(request, response);
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void doFilter_whenNormalResource() throws Exception {
         // 未命中忽略资源 URL：放行

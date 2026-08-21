@@ -1,0 +1,59 @@
+= CAmountUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CAmountUtils
+状态：已落地
+适用范围：金额单位换算（分 → 元）
+
+== 1. 功能说明
+
+`CAmountUtils` 为金额单位换算工具类，提供"分 → 元"的换算，支持 `Integer` / `Long` /
+`BigDecimal` 三种入参形态，统一返回 `BigDecimal`（元，四舍五入保留 2 位小数）。
+
+- `toYuan(Integer)`：整数分 → 元
+- `toYuan(Long)`：长整型分 → 元
+- `toYuan(BigDecimal)`：BigDecimal 分 → 元（支持带小数的"分"，如 123.456 分）
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 换算规则：元 = 分 ÷ 100，结果四舍五入（HALF_UP）保留 2 位小数（复用 `CNumUtils.divide`）。
+- 入参为 null 返回 null，调用方据此可安全判断"金额为空"。
+- 三种入参形态重载，内部统一转为 `BigDecimal` 走同一换算路径，避免重复实现。
+
+=== 2.2 实现方式
+
+- `Integer`/`Long` 重载先判空，再经 `new BigDecimal(value)` 转 `BigDecimal`，委托 `toYuan(BigDecimal)`。
+- `toYuan(BigDecimal)` 判空后委托 `CNumUtils.divide(value, ONE_HUNDRED, 2)` 完成除 100 与 2 位小数
+  四舍五入。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 任一入参形态为 null | 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 数据库/接口以"分"为单位存储金额、展示层需换算为"元"的场景。
+
+=== 4.2 不适用/边界场景
+
+- 仅支持"分 → 元"单向换算，不提供"元 → 分"反向换算。
+- 结果为 BigDecimal，精度固定 2 位小数；不适合对元金额做超 2 位小数的精确运算（会四舍五入）。
+
+== 5. 已知限制与取舍
+
+- 四舍五入采用 HALF_UP 语义，与金融系统常见的四舍五入一致；需要其他舍入模式时不适用本类。
+- 入参 null 返回 null，与"空金额"语义保持一致。
+
+测试内容见 `doc/design/core/CAmountUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

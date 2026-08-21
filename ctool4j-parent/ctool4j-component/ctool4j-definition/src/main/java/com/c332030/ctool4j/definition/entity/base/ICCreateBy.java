@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
  * Description: ICCreateBy
  * </p>
  *
+ * @see doc/design/definition/ICCreateBy.adoc
  * @since 2025/12/6
  */
 public interface ICCreateBy {

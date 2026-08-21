@@ -17,6 +17,9 @@ import java.io.StringWriter;
  */
 public class CSensitiveSerializerTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void maskDefaultKeepPrefix3Suffix4() {
 
@@ -26,6 +29,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void maskCustomKeep() {
 
@@ -34,6 +40,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void maskNull() {
 
@@ -41,6 +50,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void maskEmptyString() {
 
@@ -48,6 +60,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void maskShortValueAllMasked() {
 
@@ -57,6 +72,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 1.6
+     */
     @Test
     public void maskArbitraryIllegalInput() {
 
@@ -68,6 +86,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void serializeNullContent() throws Exception {
 
@@ -79,6 +100,9 @@ public class CSensitiveSerializerTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void serializeContent() throws Exception {
 

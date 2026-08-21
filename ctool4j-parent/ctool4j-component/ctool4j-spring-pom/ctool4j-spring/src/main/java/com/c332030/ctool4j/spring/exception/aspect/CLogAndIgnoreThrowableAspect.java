@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
  * </p>
  *
  * @since 2025/12/21
+ * @see doc/design/spring/CLogAndIgnoreThrowableAspect.adoc
  */
 @CustomLog
 @Aspect

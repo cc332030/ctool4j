@@ -23,6 +23,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性复制时合并已有对象
+     * 对应测试用例 1.3.4
      */
     @Test
     public void copyMerge() {
@@ -51,6 +52,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性类型不匹配时的复制行为
+     * 对应测试用例 1.3.5
      */
     @Test
     public void copyTypeUnmatched() {
@@ -75,6 +77,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性复制时的类型转换
+     * 对应测试用例 4.13
      */
     @Test
     public void copyTypeConvert() {
@@ -107,6 +110,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性复制时跳过集合与 Map
+     * 对应测试用例 1.3.6
      */
     @Test
     public void copySkipCollectionAndMap() {

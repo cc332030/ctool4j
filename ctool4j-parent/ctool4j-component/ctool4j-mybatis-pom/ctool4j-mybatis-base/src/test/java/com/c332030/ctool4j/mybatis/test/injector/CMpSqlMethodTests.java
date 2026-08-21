@@ -13,11 +13,17 @@ import org.junit.jupiter.api.Test;
  */
 public class CMpSqlMethodTests {
 
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void values() {
         Assertions.assertEquals(2, CMpSqlMethod.values().length);
     }
 
+        /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void getMethod() {
         // 枚举名转驼峰
@@ -25,12 +31,18 @@ public class CMpSqlMethodTests {
         Assertions.assertEquals("updateAllById", CMpSqlMethod.UPDATE_ALL_BY_ID.getMethod());
     }
 
+        /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void getDesc() {
         Assertions.assertEquals("插入一条数据（如果存在则忽略）", CMpSqlMethod.INSERT_IGNORE.getDesc());
         Assertions.assertEquals("根据ID 选择修改数据，数据为空则设置为空", CMpSqlMethod.UPDATE_ALL_BY_ID.getDesc());
     }
 
+        /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void insertIgnoreSql() {
         // INSERT_IGNORE 基于 MyBatis-Plus INSERT_ONE 的 SQL，将 INSERT 替换为 INSERT IGNORE
@@ -41,6 +53,9 @@ public class CMpSqlMethodTests {
         Assertions.assertFalse(sql.startsWith("INSERT "));
     }
 
+        /**
+     * 对应测试用例 1.5
+     */
     @Test
     public void updateAllByIdSql() {
         // UPDATE_ALL_BY_ID 未提供 sql

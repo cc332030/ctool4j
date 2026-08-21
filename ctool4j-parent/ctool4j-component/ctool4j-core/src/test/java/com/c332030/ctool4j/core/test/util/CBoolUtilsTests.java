@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CBoolUtilsTests {
 
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void isTrue() {
 
@@ -23,6 +26,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     public void isNotTrue() {
 
@@ -32,6 +38,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     public void isFalse() {
 
@@ -41,6 +50,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     public void isNotFalse() {
 
@@ -50,6 +62,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     public void isTrueByFunction() {
 
@@ -59,6 +74,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     public void isNotTrueByFunction() {
 
@@ -68,6 +86,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.3
+     */
     @Test
     public void isFalseByFunction() {
 
@@ -77,6 +98,9 @@ public class CBoolUtilsTests {
 
     }
 
+    /**
+     * 对应测试用例 2.4
+     */
     @Test
     public void isNotFalseByFunction() {
 

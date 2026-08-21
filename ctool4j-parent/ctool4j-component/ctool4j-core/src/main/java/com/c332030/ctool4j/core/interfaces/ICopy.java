@@ -8,6 +8,8 @@ import com.c332030.ctool4j.core.classes.CBeanUtils;
  * </p>
  *
  * @since 2025/11/6
+ * @see doc/design/core/ICopy.adoc
+ * @see doc/design/core/ICopyTests.adoc
  */
 public interface ICopy {
 
