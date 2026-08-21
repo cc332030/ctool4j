@@ -6,7 +6,7 @@
 
 == 1. 功能说明
 
-`CCommUtils` 为 HTTP 请求日志拼接工具类，将请求日志信息（`ICHttpLogInfo`）拼接为类似 HTTP 请求+响应的完整报文 dump，输出格式：
+`CCommUtils` 为 HTTP 请求日志拼接工具类，将请求日志信息（`CRequestLog`）拼接为类似 HTTP 请求+响应的完整报文 dump，输出格式：
 
 ```
 [source]              日志来源标识（独立一行）

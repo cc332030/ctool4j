@@ -7,7 +7,6 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.enums.CLogSource;
-import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
@@ -294,7 +293,7 @@ public class CRequestLogUtils {
      * @param info         请求日志信息
      * @param enableHeader 是否打印请求头/响应头（打印层开关，采集层总是采集存储）
      */
-    public void logWrite(ICHttpLogInfo info, boolean enableHeader) {
+    public void logWrite(CRequestLog info, boolean enableHeader) {
 
         val sb = new StringBuilder();
         CCommUtils.appendHttpLog(sb, info, enableHeader);

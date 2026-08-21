@@ -32,7 +32,7 @@ import java.util.Map;
 public class CCommUtilsTests {
 
     /**
-     * 构造一个可复用的 ICHttpLogInfo 实现，复用 CRequestLog（@Data 提供 public setter）
+     * 构造一个可复用的 CRequestLog 实例（@Data 提供 public setter）
      */
     private CRequestLog requestLog() {
         val log = new CRequestLog();

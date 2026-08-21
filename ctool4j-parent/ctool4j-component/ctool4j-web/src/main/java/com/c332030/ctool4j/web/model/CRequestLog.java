@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.web.model;
 
-import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
 import com.c332030.ctool4j.core.interfaces.ICSource;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -22,7 +22,7 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CRequestLog implements ICHttpLogInfo {
+public class CRequestLog {
 
     /**
      * 日志来源（如 feign、mvc 等），用于日志最前面标识请求来源
@@ -102,13 +102,15 @@ public class CRequestLog implements ICHttpLogInfo {
     String errorMessage;
 
     /**
-     * 请求开始时间（毫秒时间戳），用于计算耗时
+     * 请求开始时间（毫秒时间戳），用于计算耗时；未测量时默认 0
      */
-    long beginTimeMillis;
+    @Builder.Default
+    Long beginTimeMillis = 0L;
 
     /**
-     * 请求结束时间（毫秒时间戳），用于计算耗时
+     * 请求结束时间（毫秒时间戳），用于计算耗时；未测量时默认 0
      */
-    long endTimeMillis;
+    @Builder.Default
+    Long endTimeMillis = 0L;
 
 }
