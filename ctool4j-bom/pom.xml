@@ -50,31 +50,31 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
+                <version>${mybatis-plus-boot-starter.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
-                <version>${mybatis-plus.version}</version>
+                <version>${mybatis-plus-jsqlparser-4.9.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-                <version>${dynamic-datasource.version}</version>
+                <version>${dynamic-datasource-spring-boot-starter.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.yulichang</groupId>
                 <artifactId>mybatis-plus-join-boot-starter</artifactId>
-                <version>${mybatis-plus-join.version}</version>
+                <version>${mybatis-plus-join-boot-starter.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>${redisson.version}</version>
+                <version>${redisson-spring-boot-starter.version}</version>
             </dependency>
 
             <dependency>
@@ -86,13 +86,13 @@
             <dependency>
                 <groupId>com.alicp.jetcache</groupId>
                 <artifactId>jetcache-starter-redis-lettuce</artifactId>
-                <version>${jetcache.version}</version>
+                <version>${jetcache-starter-redis-lettuce.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
+                <version>${knife4j-openapi2-spring-boot-starter.version}</version>
             </dependency>
 
             <dependency>
