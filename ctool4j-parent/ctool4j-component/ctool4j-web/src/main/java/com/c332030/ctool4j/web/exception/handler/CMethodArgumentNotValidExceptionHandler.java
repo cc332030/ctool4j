@@ -26,6 +26,8 @@ public class CMethodArgumentNotValidExceptionHandler {
     /**
      * 处理参数校验异常，拼接全部字段错误信息
      *
+     * <p>每个字段错误展示为"字段名 + 校验消息"（如 "name 不能为空"），多个字段错误以"，"分隔。</p>
+     *
      * @param e 参数校验异常
      * @return 错误结果
      */

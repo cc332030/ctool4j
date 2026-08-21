@@ -3,7 +3,8 @@ package com.c332030.ctool4j.doc.openapi2.configuration;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
-import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CRequiredAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CSchemaAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import io.swagger.annotations.Api;
@@ -59,13 +60,23 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * 必填注解插件（@CRequired）
+     * 必填注解插件（@CSchema，方法参数）
      *
      * @return 插件
      */
     @Bean
-    public CRequiredAnnotationPlugin cExpanderCRequired() {
-        return new CRequiredAnnotationPlugin();
+    public CSchemaAnnotationPlugin cExpanderCSchema() {
+        return new CSchemaAnnotationPlugin();
+    }
+
+    /**
+     * 必填注解 model 属性插件（@CSchema，字段/getter 描述与必填标记）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CSchemaAnnotationModelPropertyPlugin cModelPropertyCSchema() {
+        return new CSchemaAnnotationModelPropertyPlugin();
     }
 
     /**
