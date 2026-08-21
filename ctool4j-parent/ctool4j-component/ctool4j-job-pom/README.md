@@ -64,7 +64,7 @@ public class OrderJob implements ICTask {
 
     @XxlJob("order-stat")
     public void stat(String param) {
-        Map<String, String> params = CXxlJobUtils.parseParams(param);
+        Map<String, String> params = CXxlJobUtils.parseJobParam(param);
         // 业务处理
     }
 }
