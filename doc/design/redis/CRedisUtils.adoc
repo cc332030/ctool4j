@@ -34,7 +34,8 @@ LastModified: 2026-08-21
 === 2.3 实现方式
 
 - Lua 脚本通过 `DefaultRedisScript` 执行，保证原子性。
-- `compareAndSet` 用字符串序列化模板执行，避免对象模板（JSON 引号）与字符串字节不一致导致比较恒失败。
+- `compareAndSet`/`setIfNotEquals` 用字符串序列化模板执行，避免对象模板（JSON 引号）与字符串字节不一致导致比较恒失败。
+- `setIfNotEquals` 脚本按 `ARGV[1]`=新值（比较）、`ARGV[2]`=新值（写入）、`ARGV[3]`=TTL 传参，保证写入的是新值而非 TTL。
 
 == 3. 兜底设计
 
@@ -52,7 +53,7 @@ LastModified: 2026-08-21
 
 === 4.2 不适用/边界场景
 
-- `compareAndSet` 期望值与存储值需由字符串序列化模板写入，否则比较结果不受保证。
+- `compareAndSet`/`setIfNotEquals` 期望值/新值与存储值需由字符串序列化模板写入，否则比较结果不受保证。
 - Lua 脚本依赖 Redis 服务器支持。
 
 == 5. 已知限制与取舍
@@ -64,4 +65,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-08-22 | 修复 `setIfNotEquals` Lua 脚本参数错位（原将 TTL 当值写入、未设过期）；改用字符串序列化模板
 - 1.0 | 2026-08-21 | 初始落地
