@@ -76,7 +76,7 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
                 // 覆盖 beforeBodyWrite 记录响应体时的时间，包含视图渲染与响应写出耗时
                 if (CRequestLogUtils.isEnable()) {
                     requestLog.setEndTimeMillis(System.currentTimeMillis());
-                    CRequestLogUtils.logWrite(requestLog);
+                    CRequestLogUtils.logWrite(requestLog, config.getEnableHeader());
                 }
 
                 // 慢日志开关关闭时直接跳过，不做耗时计算，避免浪费 CPU

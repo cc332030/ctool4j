@@ -2,6 +2,7 @@ package com.c332030.ctool4j.web.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
@@ -23,6 +24,7 @@ import lombok.val;
 import org.springframework.http.HttpHeaders;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -139,15 +141,14 @@ public class CRequestLogUtils {
             return null;
         }
         val traceId = CTraceUtils.getTraceId();
-        // 按开关采集完整请求头（默认关闭，避免日志泄露敏感头），先在 builder 外计算，避免 builder 设置值处出现复杂逻辑
-        val headers = CObjUtils.ifThenGet(requestLogConfig.getEnableHeader(), () -> collectHeaders(request));
         return CRequestLog.builder()
             .traceId(traceId)
             .source(CLogSource.MVC)
             .method(request.getMethod())
             .path(request.getRequestURI())
             .token(CRequestUtils.getHeader(HttpHeaders.AUTHORIZATION))
-            .headers(headers)
+            // 总是采集请求头存储，是否输出由打印层 enableHeader 开关控制
+            .requestHeaders(collectHeaders(request))
             // Servlet 的 getParameterMap 返回 Map<String, String[]>，统一转换为集合类型
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
             .req(EMPTY_REQ)
@@ -230,12 +231,15 @@ public class CRequestLogUtils {
     }
 
     /**
-     * 记录响应体到请求日志（只记录不打印，打印由拦截器 afterCompletion 统一出口 logWrite 执行）
+     * 记录响应侧信息到请求日志：响应体、异常信息、响应状态码与响应头（只记录不打印，
+     * 打印由拦截器 afterCompletion 统一出口 logWrite 执行）。
+     * <p>一次取回 requestLog 统一设置，避免多次 getOpt 重复开销</p>
      *
-     * @param rsp       响应对象
+     * @param rsp       响应对象，无则传 null
      * @param throwable 异常，无则传 null
+     * @param response  HTTP 响应（用于采集响应状态码与响应头），无则传 null
      */
-    public void setRsp(Object rsp, Throwable throwable) {
+    public void setRsp(Object rsp, Throwable throwable, HttpServletResponse response) {
 
         val requestLogOpt = getOpt();
         if (!requestLogOpt.isPresent()) {
@@ -244,13 +248,41 @@ public class CRequestLogUtils {
         }
         val requestLog = requestLogOpt.get();
 
-        if(null != rsp) {
+        if (null != rsp) {
             requestLog.setRsp(rsp);
         }
         if (null != throwable) {
             requestLog.setErrorMessage(throwable.getMessage());
         }
+        if (null != response) {
+            requestLog.setResponseStatus(response.getStatus());
+            val responseHeaders = collectResponseHeaders(response);
+            if (MapUtil.isNotEmpty(responseHeaders)) {
+                requestLog.setResponseHeaders(responseHeaders);
+            }
+        }
+    }
 
+    /**
+     * 采集全部响应头：Servlet 的响应头视图遍历拷贝为独立 Map，避免日志模型持有响应对象的内部结构
+     *
+     * @param response HTTP 响应
+     * @return 响应头 map（headerName → 值列表），无响应头时返回 null
+     */
+    private Map<String, Collection<String>> collectResponseHeaders(HttpServletResponse response) {
+        val headerNames = response.getHeaderNames();
+        if (CollUtil.isEmpty(headerNames)) {
+            return null;
+        }
+        val headerMap = new LinkedHashMap<String, Collection<String>>();
+        for (val headerName : headerNames) {
+            val headerValues = response.getHeaders(headerName);
+            if (CollUtil.isEmpty(headerValues)) {
+                continue;
+            }
+            headerMap.put(headerName, new ArrayList<>(headerValues));
+        }
+        return headerMap;
     }
 
     /**
@@ -259,12 +291,13 @@ public class CRequestLogUtils {
      * <p>所有请求方式（服务端 MVC、feign、resttemplate、httpclient 等）构造 {@link CRequestLog} 后
      * 均可调用本方法统一打印，后续新增请求方式无需各自实现拼接逻辑</p>
      *
-     * @param info 请求日志信息
+     * @param info         请求日志信息
+     * @param enableHeader 是否打印请求头/响应头（打印层开关，采集层总是采集存储）
      */
-    public void logWrite(ICHttpLogInfo info) {
+    public void logWrite(ICHttpLogInfo info, boolean enableHeader) {
 
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, info);
+        CCommUtils.appendHttpLog(sb, info, enableHeader);
 
         // HTTP 报文本身不自带头部换行，logback 输出时以换行开头，使报文从新行开始打印
         REQUEST_LOG.info("\n{}", sb);

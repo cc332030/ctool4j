@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.feign.log;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.enums.CLogSource;
@@ -167,10 +166,8 @@ public class CFeignLogger extends Logger {
         requestLog.setSource(CLogSource.FEIGN);
         requestLog.setMethod(request.httpMethod().name());
         setPathAndParams(requestLog, request);
-        if (BooleanUtil.isTrue(config.getEnableHeader())) {
-            // feign 请求头为外部可变对象，深拷贝为不可变后再保存，避免日志模型被外部修改
-            requestLog.setHeaders(toImmutableHeaders(request.headers()));
-        }
+        // 总是采集请求头存储（深拷贝为不可变避免外部修改），是否输出由打印层 enableHeader 开关控制
+        requestLog.setRequestHeaders(toImmutableHeaders(request.headers()));
         // 请求体文本放入 req，与 MVC 场景记录位置一致，拼接时统一从 req 取请求体；
         // 空请求体输出 EMPTY_REQ 占位，与 MVC 无 body 时一致，避免 [null]
         requestLog.setReq(CCommUtils.getBodyText(request.body(), request.headers(), CRequestLogUtils.EMPTY_REQ));
@@ -254,7 +251,7 @@ public class CFeignLogger extends Logger {
                 // 统一出口同步打印，与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
                 // 日志打印失败不影响业务结果（避免 finally 抛异常覆盖返回值导致请求失败）
                 try {
-                    CRequestLogUtils.logWrite(requestLog);
+                    CRequestLogUtils.logWrite(requestLog, config.getEnableHeader());
                 } catch (Throwable e) {
                     log.error("日志写入失败", e);
                 }
@@ -275,6 +272,9 @@ public class CFeignLogger extends Logger {
         val responseBodyBytes = getBodyBytes(response);
         // 空响应体输出 EMPTY_RSP 占位，与 MVC 无 body 时一致，避免 [null]
         requestLog.setRsp(CCommUtils.getBodyText(responseBodyBytes, response.headers(), CRequestLogUtils.EMPTY_RSP));
+        // 采集响应状态码与响应头，与 MVC 一致输出响应报文头
+        requestLog.setResponseStatus(response.status());
+        requestLog.setResponseHeaders(response.headers());
         return CFeignUtils.newResponse(response, responseBodyBytes);
     }
 

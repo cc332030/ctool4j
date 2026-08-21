@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.web.test.util;
 
 import com.c332030.ctool4j.core.enums.CLogSource;
-import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import com.c332030.ctool4j.web.util.CCommUtils;
 import lombok.CustomLog;
@@ -23,7 +22,9 @@ import java.util.Map;
  * Description: CCommUtilsTests
  * </p>
  *
- * <p>覆盖容易出错或出错后难发现的方法：headers 拼接、URL/Query 拼接、charset 解析、完整 HTTP 日志拼接等</p>
+ * <p>`com.c332030.ctool4j.web.util.CCommUtils`（web 工具类）请求日志拼接的测试用例，
+ * 覆盖容易出错或出错后难发现的方法：headers 拼接、URL/Query 拼接、charset 解析、响应报文头、完整 HTTP 日志拼接等；
+ * 测试用例分类与编号见 doc/test/CCommUtils.adoc，各测试方法以行注释标注对应编号</p>
  *
  * @since 2026/8/14
  */
@@ -101,35 +102,6 @@ public class CCommUtilsTests {
             NullPointerException.class,
             () -> CCommUtils.acceptJson(null)
         );
-    }
-
-    // ---------- getFullHttp ----------
-
-    @Test
-    public void getFullHttp() {
-        // 正例：method + url + headers + requestBody + responseBody 完整拼接
-        val headers = headers("Content-Type", "application/json");
-        val result = CCommUtils.getFullHttp(
-            HttpMethod.POST, "/api", headers, "{\"a\":1}", "{\"b\":2}"
-        );
-        Assertions.assertTrue(result.startsWith("POST /api"));
-        Assertions.assertTrue(result.contains("Content-Type: application/json"));
-        Assertions.assertTrue(result.contains("{\"a\":1}"));
-        Assertions.assertTrue(result.contains("{\"b\":2}"));
-    }
-
-    @Test
-    public void getFullHttp_noHeader_noBody() {
-        // 正例：无 headers、无 body 时仅输出请求行
-        val result = CCommUtils.getFullHttp(HttpMethod.GET, "/api", null, null, null);
-        Assertions.assertEquals("GET /api", result);
-    }
-
-    @Test
-    public void getFullHttp_nullMethod() {
-        // 边界：method 为 null 时 toString 输出 "null"
-        val result = CCommUtils.getFullHttp(null, "/api", null, null, null);
-        Assertions.assertEquals("null /api", result);
     }
 
     // ---------- getFullHeaderStr ----------
@@ -296,24 +268,6 @@ public class CCommUtilsTests {
         Assertions.assertEquals("/api/test?a=1&a=2", sb.toString());
     }
 
-    // ---------- appendRequestLine ----------
-
-    @Test
-    public void appendRequestLine() {
-        // 正例：拼接 METHOD URL
-        val sb = new StringBuilder();
-        CCommUtils.appendRequestLine(sb, "POST", "/api");
-        Assertions.assertEquals("POST /api", sb.toString());
-    }
-
-    @Test
-    public void appendRequestLine_nullMethod() {
-        // 边界：method 为 null 时输出 "null"
-        val sb = new StringBuilder();
-        CCommUtils.appendRequestLine(sb, null, "/api");
-        Assertions.assertEquals("null /api", sb.toString());
-    }
-
     // ---------- appendHeaderLine ----------
 
     @Test
@@ -340,38 +294,11 @@ public class CCommUtilsTests {
         Assertions.assertEquals("start", sb.toString());
     }
 
-    @Test
-    public void appendHeaderLine_enum() {
-        // 正例：通过 ICRequestHeader 拼接 header 名
-        val sb = new StringBuilder();
-        CCommUtils.appendHeaderLine(sb, CRequestHeaderEnum.AUTHORIZATION, "Bearer abc");
-        Assertions.assertTrue(sb.toString().contains("Authorization: Bearer abc"));
-    }
-
-    // ---------- appendHeaderBlock ----------
-
-    @Test
-    public void appendHeaderBlock() {
-        // 正例：拼接 header 块
-        val map = headers("A", "1");
-        val sb = new StringBuilder("start");
-        CCommUtils.appendHeaderBlock(sb, map);
-        Assertions.assertEquals("start\nA: 1", sb.toString());
-    }
-
-    @Test
-    public void appendHeaderBlock_empty() {
-        // 边界：null/空 headers 不拼接
-        val sb = new StringBuilder("start");
-        CCommUtils.appendHeaderBlock(sb, null);
-        Assertions.assertEquals("start", sb.toString());
-    }
-
     // ---------- getBodyText（feign 等 byte[] body 场景的真实转换节点） ----------
 
     @Test
     public void getBodyText_text() {
-        // 正例：文本 body 按 charset 解码
+        // 对应测试用例 2.1：正例，文本 body 按 charset 解码
         val body = "你好".getBytes(StandardCharsets.UTF_8);
         val map = headers(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
         Assertions.assertEquals("你好", CCommUtils.getBodyText(body, map, CCommUtils.NOT_TEXT_BODY));
@@ -379,7 +306,7 @@ public class CCommUtilsTests {
 
     @Test
     public void getBodyText_binary() {
-        // 反例：非文本 body 输出占位符
+        // 对应测试用例 2.2：反例，非文本 body 输出占位符
         val body = new byte[]{(byte) 0xFF, (byte) 0x00};
         val map = headers(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
         Assertions.assertEquals(CCommUtils.NOT_TEXT_BODY, CCommUtils.getBodyText(body, map, null));
@@ -387,14 +314,14 @@ public class CCommUtilsTests {
 
     @Test
     public void getBodyText_emptyBytes_returnsPlaceholder() {
-        // 边界：空 body 返回传入占位符（feign 无请求体时输出 EMPTY_REQ/EMPTY_RSP，避免 [null]）
+        // 对应测试用例 2.3：边界，空 body 返回传入占位符（feign 无请求体时输出 EMPTY_REQ/EMPTY_RSP，避免 [null]）
         Assertions.assertEquals("EMPTY", CCommUtils.getBodyText(new byte[0], null, "EMPTY"));
         Assertions.assertEquals("EMPTY", CCommUtils.getBodyText(null, null, "EMPTY"));
     }
 
     @Test
     public void getBodyText_emptyBytes_noPlaceholder_returnsNull() {
-        // 边界：空 body 且未传占位符时返回 null（不输出）
+        // 对应测试用例 2.4：边界，空 body 且未传占位符时返回 null（不输出）
         Assertions.assertNull(CCommUtils.getBodyText(new byte[0], null, null));
         Assertions.assertNull(CCommUtils.getBodyText(null, null, null));
     }
@@ -427,7 +354,7 @@ public class CCommUtilsTests {
         log.setTraceId("trace-1");
         log.setParams(Collections.singletonMap("a", Collections.singletonList("1")));
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.startsWith("GET /api/test?a=1"));
         Assertions.assertTrue(result.contains("X-Trace-Id: trace-1"));
@@ -439,7 +366,7 @@ public class CCommUtilsTests {
         val log = requestLog();
         log.setSource(CLogSource.FEIGN);
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.startsWith("[feign]\nGET /api/test"));
     }
@@ -454,7 +381,7 @@ public class CCommUtilsTests {
         log.setReq("{\"x\":1}");
         log.setRsp("{\"y\":2}");
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.contains("name=张三"));
         Assertions.assertTrue(result.contains("{\"x\":1}"));
@@ -468,7 +395,7 @@ public class CCommUtilsTests {
         log.setMethod(HttpMethod.POST.name());
         log.setReq("{\"x\":1}");
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.startsWith("POST /api/test\n\n{\"x\":1}"));
         Assertions.assertFalse(result.contains("name="));
@@ -481,7 +408,7 @@ public class CCommUtilsTests {
         log.setMethod(HttpMethod.POST.name());
         log.setRsp("{\"y\":2}");
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.contains("{\"y\":2}"));
         Assertions.assertFalse(result.contains("[null]"));
@@ -494,10 +421,12 @@ public class CCommUtilsTests {
         log.setSource(CLogSource.MVC);
         log.setMethod(HttpMethod.POST.name());
         log.setPath("/api/submit");
-        log.setHeaders(headers("Content-Type", "application/json"));
+        log.setRequestHeaders(headers("Content-Type", "application/json"));
         log.setParams(Collections.singletonMap("name", Collections.singletonList("张三")));
         log.setReq("{\"x\":1}");
         log.setRsp("{\"y\":2}");
+        log.setResponseStatus(200);
+        log.setResponseHeaders(headers("Content-Type", "application/json"));
         log.setErrorMessage("boom");
         log.setTraceId("trace-1");
         log.setTenantId("tenant-1");
@@ -505,13 +434,15 @@ public class CCommUtilsTests {
         log.setBeginTimeMillis(1000L);
         log.setEndTimeMillis(1100L);
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         Assertions.assertEquals(
             "[mvc]\n"
                 + "POST /api/submit\n"
                 + "Content-Type: application/json\n\n"
                 + "name=张三\n\n"
                 + "{\"x\":1}\n\n"
+                + "200 OK\n"
+                + "Content-Type: application/json\n\n"
                 + "{\"y\":2}\n\n"
                 + "error: boom\n\n"
                 + "X-Trace-Id: trace-1\n"
@@ -523,11 +454,74 @@ public class CCommUtilsTests {
     }
 
     @Test
+    public void appendHttpLog_responseStatusOnly() {
+        // 对应测试用例 1.4.1：正例，仅有响应状态码无响应头时输出状态行
+        val log = requestLog();
+        log.setResponseStatus(404);
+        log.setRsp("not found");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        Assertions.assertTrue(result.contains("\n404 Not Found\n\nnot found"));
+    }
+
+    @Test
+    public void appendHttpLog_responseStatusUnknownCode() {
+        // 对应测试用例 1.4.2：边界，未知状态码不输出描述，仅输出数字
+        val log = requestLog();
+        log.setResponseStatus(599);
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        Assertions.assertTrue(result.contains("\n599"));
+        Assertions.assertFalse(result.contains("599 "));
+    }
+
+    @Test
+    public void appendHttpLog_noResponseStatus() {
+        // 对应测试用例 1.4.3：边界，未采集响应状态码/响应头时不输出响应报文头（向后兼容）
+        val log = requestLog();
+        log.setRsp("{\"y\":2}");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        Assertions.assertTrue(result.contains("{\"y\":2}"));
+        Assertions.assertFalse(result.contains(" OK"));
+    }
+
+    @Test
+    public void appendHttpLog_responseHeadersOnlyNoStatus() {
+        // 对应测试用例 1.4.4：分支，无响应状态码但有响应头时仅输出响应头（无状态行）
+        val log = requestLog();
+        log.setResponseHeaders(headers("X-Trace-Id", "abc"));
+        log.setRsp("{\"y\":2}");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        Assertions.assertTrue(result.contains("X-Trace-Id: abc"));
+        Assertions.assertFalse(result.contains(" OK"));
+    }
+
+    @Test
+    public void appendHttpLog_responseHeadersMultipleValues() {
+        // 对应测试用例 1.5.2：边界，响应头同一 header 多个值逐行输出（响应头复用 appendHeaderMap，与请求头一致）
+        val log = requestLog();
+        log.setResponseHeaders(
+            java.util.Collections.singletonMap("Set-Cookie", java.util.Arrays.asList("a=1", "b=2"))
+        );
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        Assertions.assertTrue(result.contains("Set-Cookie: a=1"));
+        Assertions.assertTrue(result.contains("Set-Cookie: b=2"));
+    }
+
+    @Test
     public void appendHttpLog_noResponseBody() {
         // 边界：请求体/响应体为 null 时不输出占位（避免出现 [null]）
         val log = requestLog();
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         Assertions.assertFalse(sb.toString().contains("[null]"));
     }
 
@@ -539,7 +533,7 @@ public class CCommUtilsTests {
         log.setBeginTimeMillis(1000L);
         log.setEndTimeMillis(2000L);
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.contains("error: bad request"));
         Assertions.assertTrue(result.contains("rt: 1000ms"));
@@ -552,7 +546,7 @@ public class CCommUtilsTests {
         log.setBeginTimeMillis(2000L);
         log.setEndTimeMillis(1000L);
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         Assertions.assertFalse(sb.toString().contains("rt:"));
     }
 
@@ -560,12 +554,31 @@ public class CCommUtilsTests {
     public void appendHttpLog_headersMultipleValues() {
         // 边界：同一 header 多个值逐行输出
         val log = requestLog();
-        log.setHeaders(java.util.Collections.singletonMap("Accept", java.util.Arrays.asList("a", "b")));
+        log.setRequestHeaders(java.util.Collections.singletonMap("Accept", java.util.Arrays.asList("a", "b")));
         val sb = new StringBuilder();
-        CCommUtils.appendHttpLog(sb, log);
+        CCommUtils.appendHttpLog(sb, log, true);
         val result = sb.toString();
         Assertions.assertTrue(result.contains("Accept: a"));
         Assertions.assertTrue(result.contains("Accept: b"));
+    }
+
+    @Test
+    public void appendHttpLog_enableHeaderFalse_skipHeaders() {
+        // 对应测试用例 1.8.2：开关关闭，请求头/响应头不输出，但状态行与请求/响应体仍输出
+        val log = requestLog();
+        log.setRequestHeaders(headers("Accept", "application/json"));
+        log.setResponseStatus(200);
+        log.setResponseHeaders(headers("Content-Type", "application/json"));
+        log.setReq("{\"x\":1}");
+        log.setRsp("{\"y\":2}");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, false);
+        val result = sb.toString();
+        Assertions.assertFalse(result.contains("Accept"));
+        Assertions.assertFalse(result.contains("Content-Type"));
+        Assertions.assertTrue(result.contains("200 OK"));
+        Assertions.assertTrue(result.contains("{\"x\":1}"));
+        Assertions.assertTrue(result.contains("{\"y\":2}"));
     }
 
     @Test
@@ -573,7 +586,7 @@ public class CCommUtilsTests {
         // 异常路径：null info 抛出 NPE
         Assertions.assertThrowsExactly(
             NullPointerException.class,
-            () -> CCommUtils.appendHttpLog(new StringBuilder(), null)
+            () -> CCommUtils.appendHttpLog(new StringBuilder(), null, true)
         );
     }
 

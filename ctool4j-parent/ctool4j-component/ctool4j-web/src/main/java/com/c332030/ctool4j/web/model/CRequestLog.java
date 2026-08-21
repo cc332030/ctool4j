@@ -68,7 +68,7 @@ public class CRequestLog implements ICHttpLogInfo {
      * 完整请求头（headerName → 一个或多个 headerValue），
      * 供 feign 等客户端请求日志使用，仅包含真实请求头；token/traceId 等应用业务数据见 CCommUtils.appendHttpLog
      */
-    Map<String, Collection<String>> headers;
+    Map<String, Collection<String>> requestHeaders;
 
     /**
      * query 参数（仅 GET 时拼接到 URL）
@@ -85,6 +85,16 @@ public class CRequestLog implements ICHttpLogInfo {
      * 响应体：拼接时经 getPrintAble 可打印处理后输出（见 CCommUtils.appendHttpLog）
      */
     Object rsp;
+
+    /**
+     * 响应状态码（如 200、404），用于输出响应状态行；未采集时为 null（不输出状态行）
+     */
+    Integer responseStatus;
+
+    /**
+     * 响应头（headerName → 一个或多个 headerValue），用于输出响应报文头；为空时不输出
+     */
+    Map<String, Collection<String>> responseHeaders;
 
     /**
      * 异常信息

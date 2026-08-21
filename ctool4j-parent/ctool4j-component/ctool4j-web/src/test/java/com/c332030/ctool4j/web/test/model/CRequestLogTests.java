@@ -15,7 +15,7 @@ import java.util.Map;
  * Description: CRequestLogTests
  * </p>
  *
- * <p>覆盖 CRequestLog 数据类：各构造方式与读写</p>
+ * <p>`com.c332030.ctool4j.web.model.CRequestLog`（请求日志数据类）的测试用例，覆盖各构造方式与读写</p>
  *
  * @since 2026/8/16
  */
@@ -37,7 +37,7 @@ public class CRequestLogTests {
 
         val log = new CRequestLog(
             CLogSource.MVC, "GET", "/path", "token", "trace-1", "tenant-1", "user-1", "127.0.0.1",
-            headers, params, req, "rsp", "boom", 100L, 200L
+            headers, params, req, "rsp", 200, headers, "boom", 100L, 200L
         );
 
         Assertions.assertEquals(CLogSource.MVC, log.getSource());
@@ -48,10 +48,12 @@ public class CRequestLogTests {
         Assertions.assertEquals("tenant-1", log.getTenantId());
         Assertions.assertEquals("user-1", log.getUserId());
         Assertions.assertEquals("127.0.0.1", log.getIp());
-        Assertions.assertSame(headers, log.getHeaders());
+        Assertions.assertSame(headers, log.getRequestHeaders());
         Assertions.assertSame(params, log.getParams());
         Assertions.assertSame(req, log.getReq());
         Assertions.assertEquals("rsp", log.getRsp());
+        Assertions.assertEquals(200, log.getResponseStatus());
+        Assertions.assertSame(headers, log.getResponseHeaders());
         Assertions.assertEquals("boom", log.getErrorMessage());
         Assertions.assertEquals(100L, log.getBeginTimeMillis());
         Assertions.assertEquals(200L, log.getEndTimeMillis());

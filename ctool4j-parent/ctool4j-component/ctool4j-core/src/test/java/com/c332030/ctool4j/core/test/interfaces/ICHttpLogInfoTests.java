@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
  * Description: ICHttpLogInfoTests
  * </p>
  *
+ * <p>`com.c332030.ctool4j.core.interfaces.ICHttpLogInfo`（HTTP 请求日志信息接口）的测试用例</p>
+ *
  * @since 2025/12/12
  */
 public class ICHttpLogInfoTests {
@@ -57,9 +59,11 @@ public class ICHttpLogInfoTests {
         Assertions.assertNull(info.getErrorMessage());
         Assertions.assertNull(info.getSource());
 
-        Assertions.assertTrue(info.getHeaders().isEmpty());
+        Assertions.assertTrue(info.getRequestHeaders().isEmpty());
         Assertions.assertTrue(info.getParams().isEmpty());
         Assertions.assertNull(info.getReq());
+        Assertions.assertNull(info.getResponseStatus());
+        Assertions.assertTrue(info.getResponseHeaders().isEmpty());
 
         Assertions.assertEquals(0L, info.getBeginTimeMillis());
         Assertions.assertEquals(0L, info.getEndTimeMillis());

@@ -18,10 +18,11 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * CFeignLogger 测试
+ * `com.c332030.ctool4j.feign.log.CFeignLogger`（feign 请求日志）的测试用例
  *
  * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/req）、
- * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回
+ * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回；
+ * 测试用例分类与编号见 doc/test/CFeignLogger.adoc，各测试方法以行注释标注对应编号
  *
  * @author c332030
  */
@@ -224,24 +225,29 @@ class CFeignLoggerTests {
 
         logger.logRequest("cfg", Logger.Level.FULL, request);
 
-        Map<String, Collection<String>> headers = currentRequestLog().getHeaders();
+        Map<String, Collection<String>> headers = currentRequestLog().getRequestHeaders();
         Assertions.assertNotNull(headers);
         Assertions.assertEquals(Collections.singletonList("abc"), headers.get("X-Trace"));
         Assertions.assertThrowsExactly(UnsupportedOperationException.class, headers::clear);
     }
 
     @Test
-    void testSetRequestLogHeadersNullWhenDisabled() throws Exception {
+    void testSetRequestLogHeadersAlwaysCollectedEvenDisabled() throws Exception {
 
         config.setEnable(true);
         config.setLogAll(true);
+        // 对应测试用例 2.3.2：enableHeader 为打印层开关，采集层总是采集请求头存储，是否输出由打印层控制
         config.setEnableHeader(false);
 
         Request request = buildRequest("http://api.example.com/foo", "X-Trace", Collections.singletonList("abc"));
 
         logger.logRequest("cfg", Logger.Level.FULL, request);
 
-        Assertions.assertNull(currentRequestLog().getHeaders());
+        Assertions.assertNotNull(currentRequestLog().getRequestHeaders());
+        Assertions.assertEquals(
+            Collections.singletonList("abc"),
+            currentRequestLog().getRequestHeaders().get("X-Trace")
+        );
     }
 
     // ==================== logAndRebufferResponse ====================
@@ -263,6 +269,12 @@ class CFeignLoggerTests {
         Assertions.assertArrayEquals("{\"result\":1}".getBytes(StandardCharsets.UTF_8),
             Util.toByteArray(rebuilt.body().asInputStream()));
         Assertions.assertEquals("{\"result\":1}", requestLog.getRsp());
+        // 对应测试用例 3.1.2：采集响应状态码与响应头，供 appendHttpLog 输出响应报文头
+        Assertions.assertEquals(200, requestLog.getResponseStatus());
+        // feign 的 Response.headers() 统一为小写 header 名（HTTP 头不区分大小写），值为 Collection 实现
+        Assertions.assertNotNull(requestLog.getResponseHeaders());
+        Assertions.assertTrue(requestLog.getResponseHeaders()
+            .get("content-type").contains("application/json"));
         // dealResponse 已清除线程标记，避免线程复用泄漏
         Assertions.assertNull(currentRequestLog());
     }

@@ -4,21 +4,20 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.interfaces.ICHttpLogInfo;
-import com.c332030.ctool4j.core.interfaces.ICRequestHeader;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.*;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -57,30 +56,6 @@ public class CCommUtils {
      */
     public void acceptJson(HttpHeaders headers) {
         headers.setAccept(CList.of(MediaType.APPLICATION_JSON));
-    }
-
-    /**
-     * 拼接完整 HTTP 报文（请求行、请求头、请求体、响应体）
-     *
-     * @param method       请求方法
-     * @param url          请求地址
-     * @param headers      请求头
-     * @param requestBody  请求体
-     * @param responseBody 响应体
-     * @return HTTP 报文
-     */
-    public String getFullHttp(
-            HttpMethod method,
-            String url, Map<String, Collection<String>> headers,
-            Object requestBody, Object responseBody
-    ) {
-
-        val headerStr = getFullHeaderStr(headers);
-        return method + " " + url
-                + (StrUtil.isEmpty(headerStr) ? "" : "\n" + headerStr)
-                + (Objects.isNull(requestBody) ? "" : "\n\n" + requestBody)
-                + (Objects.isNull(responseBody) ? "" : "\n\n" + responseBody)
-                ;
     }
 
     /**
@@ -180,19 +155,6 @@ public class CCommUtils {
     }
 
     /**
-     * 拼接请求行：METHOD URL
-     *
-     * @param sb     日志拼接器
-     * @param method HTTP 方法
-     * @param url    URL
-     */
-    public void appendRequestLine(StringBuilder sb, String method, String url) {
-        sb.append(method);
-        sb.append(" ");
-        sb.append(url);
-    }
-
-    /**
      * 拼接 URL 路径 + Query 参数
      *
      * @param sb   日志拼接器
@@ -208,29 +170,7 @@ public class CCommUtils {
         }
 
         sb.append("?");
-        boolean first = true;
-        for (val entry : params.entrySet()) {
-            for (val value : entry.getValue()) {
-                if (!first) {
-                    sb.append("&");
-                }
-                sb.append(entry.getKey());
-                sb.append("=");
-                sb.append(value);
-                first = false;
-            }
-        }
-    }
-
-    /**
-     * 拼接单个 header 行：Key: Value
-     *
-     * @param sb            日志拼接器
-     * @param requestHeader 请求头枚举
-     * @param value         值
-     */
-    public void appendHeaderLine(StringBuilder sb, ICRequestHeader requestHeader, String value) {
-        appendHeaderLine(sb, requestHeader.getHeaderName(), value);
+        appendParams(sb, params);
     }
 
     /**
@@ -246,20 +186,6 @@ public class CCommUtils {
             sb.append(key);
             sb.append(": ");
             sb.append(value);
-        }
-    }
-
-    /**
-     * 拼接完整的 header 块
-     *
-     * @param sb      日志拼接器
-     * @param headers 请求头 map
-     */
-    public void appendHeaderBlock(StringBuilder sb, Map<String, Collection<String>> headers) {
-        val headerStr = getFullHeaderStr(headers);
-        if (StrUtil.isNotEmpty(headerStr)) {
-            sb.append("\n");
-            sb.append(headerStr);
         }
     }
 
@@ -313,10 +239,15 @@ public class CCommUtils {
      * <p>全部数据直接取自 {@link ICHttpLogInfo} 属性，派生逻辑（请求体取 req、响应体可打印转换、
      * 耗时计算、业务数据组装）均在本方法内处理，调用方无需传入任何派生参数</p>
      *
-     * @param sb   日志拼接器
-     * @param info 请求日志信息（请求行、请求头、params、请求体、响应体、业务数据等）
+     * @param sb           日志拼接器
+     * @param info         请求日志信息（请求行、请求头、params、请求体、响应体、业务数据等）
+     * @param enableHeader 是否打印请求头/响应头（打印层开关，采集层总是采集存储）
      */
-    public void appendHttpLog(StringBuilder sb, ICHttpLogInfo info) {
+    public void appendHttpLog(
+            StringBuilder sb,
+            ICHttpLogInfo info,
+            boolean enableHeader
+    ) {
 
         // 日志来源标识置于整个日志最前面（独立一行）；请求行等 HTTP 报文结构紧随其后
         val source = info.getSource();
@@ -327,19 +258,16 @@ public class CCommUtils {
         // 请求行
         appendRequestUrl(sb, info);
 
-        // 请求头：同一 header 多个值时逐行输出
-        val headers = info.getHeaders();
-        if (MapUtil.isNotEmpty(headers)) {
-            headers.forEach((key, values) -> {
-                if (null == values) {
-                    return;
-                }
-                values.forEach(value -> appendHeaderLine(sb, key, value));
-            });
+        // 请求头：开关开启时输出（同一 header 多个值逐行输出）
+        if (enableHeader) {
+            appendHeaderMap(sb, info.getRequestHeaders());
         }
 
         // 请求体：POST 且无 body 但 params 有值时，将 params 作为 form-urlencoded body
         appendRequestBody(sb, info);
+
+        // 响应报文头：状态行 + 响应头（与请求侧对称），空行分隔由 appendBodyObject 统一处理
+        appendResponseBlock(sb, info, enableHeader);
 
         // 响应体：可打印处理后输出，未设置时输出占位符
         appendBodyObject(sb, info.getRsp());
@@ -408,17 +336,76 @@ public class CCommUtils {
             // form body 前补空行，与请求行/请求头分隔，符合 HTTP 报文"headers 与 body 间空行"格式要求；
             // form body 后不加，由 appendBodyObject 统一处理与 req body 间的分隔
             sb.append("\n\n");
-            appendFormBody(sb, params);
+            appendParams(sb, params);
         }
 
         appendBodyObject(sb, info.getReq());
     }
 
     /**
-     * 拼接 form-urlencoded body
+     * 拼接响应报文头：状态行 + 响应头（与请求侧对称），与响应体间的空行由 appendBodyObject 统一处理。
+     * <p>状态码未采集（null）时不输出状态行；响应头为空时不输出响应头，均向后兼容</p>
+     *
+     * @param sb           日志拼接器
+     * @param info         请求日志信息（响应状态码、响应头）
+     * @param enableHeader 是否输出响应头（状态行不受开关控制，总是输出）
      */
-    private void appendFormBody(StringBuilder sb, Map<String, Collection<String>> params) {
-        boolean first = true;
+    private void appendResponseBlock(
+            StringBuilder sb,
+            ICHttpLogInfo info,
+            boolean enableHeader
+    ) {
+
+        val status = info.getResponseStatus();
+        val responseHeaders = info.getResponseHeaders();
+        val showStatus = null != status;
+        val showHeaders = enableHeader && MapUtil.isNotEmpty(responseHeaders);
+        if (!showStatus && !showHeaders) {
+            // 无可输出的响应报文头（状态行 + 开关控制的响应头），不输出
+            return;
+        }
+        // 响应报文头与请求体间空行分隔（对称于请求侧 appendBodyObject 的 \n\n）
+        sb.append("\n\n");
+        if (showStatus) {
+            // 状态行：code 描述（如 200 OK）；未知状态码仅输出数字，不输出描述
+            sb.append(status);
+            val httpStatus = HttpStatus.resolve(status);
+            if (null != httpStatus) {
+                sb.append(" ").append(httpStatus.getReasonPhrase());
+            }
+        }
+        if (showHeaders) {
+            // 响应头首行以状态行后的换行开始，后续行由 appendHeaderLine 前置换行
+            appendHeaderMap(sb, responseHeaders);
+        }
+    }
+
+    /**
+     * 拼接 header map：同一 header 多个值逐行输出（请求头与响应头共用）
+     *
+     * @param sb      日志拼接器
+     * @param headers header map（headerName → 一个或多个 headerValue），为空时不输出
+     */
+    private void appendHeaderMap(StringBuilder sb, Map<String, Collection<String>> headers) {
+        if (MapUtil.isEmpty(headers)) {
+            return;
+        }
+        headers.forEach((key, values) -> {
+            if (null == values) {
+                return;
+            }
+            values.forEach(value -> appendHeaderLine(sb, key, value));
+        });
+    }
+
+    /**
+     * 拼接 key=value 参数：多个参数用 &amp; 连接，同一 key 多个 value 时重复输出 key（URL query 与 form body 共用）
+     *
+     * @param sb     日志拼接器
+     * @param params 参数 map（参数名 → 一个或多个参数值）
+     */
+    private void appendParams(StringBuilder sb, Map<String, Collection<String>> params) {
+        var first = true;
         for (val entry : params.entrySet()) {
             for (val value : entry.getValue()) {
                 if (!first) {
@@ -430,17 +417,6 @@ public class CCommUtils {
                 first = false;
             }
         }
-    }
-
-    /**
-     * 是否为 form body 类型方法（POST/PUT/PATCH，参数在 body 中）
-     */
-    private boolean isFormBodyMethod(String method) {
-        if (StrUtil.isEmpty(method)) {
-            return false;
-        }
-        return !"GET".equalsIgnoreCase(method)
-            && !"DELETE".equalsIgnoreCase(method);
     }
 
     /**

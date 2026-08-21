@@ -78,7 +78,7 @@ public interface ICHttpLogInfo {
      * 需要输出的请求头：headerName → 一个或多个 headerValue
      * @return 请求头 map
      */
-    default Map<String, Collection<String>> getHeaders() {
+    default Map<String, Collection<String>> getRequestHeaders() {
         return CMap.of();
     }
 
@@ -104,6 +104,22 @@ public interface ICHttpLogInfo {
      */
     default Object getRsp() {
         return null;
+    }
+
+    /**
+     * 响应状态码（如 200、404），用于输出响应状态行；未采集时为 null（不输出状态行）
+     * @return 响应状态码
+     */
+    default Integer getResponseStatus() {
+        return null;
+    }
+
+    /**
+     * 需要输出的响应头：headerName → 一个或多个 headerValue，用于输出响应报文头；为空时不输出
+     * @return 响应头 map
+     */
+    default Map<String, Collection<String>> getResponseHeaders() {
+        return CMap.of();
     }
 
     /**

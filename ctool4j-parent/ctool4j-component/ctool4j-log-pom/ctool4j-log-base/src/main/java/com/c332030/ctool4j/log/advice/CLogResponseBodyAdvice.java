@@ -49,7 +49,8 @@ public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> 
 
         if(BooleanUtil.isTrue(CRequestLogUtils.isEnable())) {
             try {
-                CRequestLogUtils.setRsp(body, null);
+                // 一次采集响应体 + 响应状态码 + 响应头，供输出响应报文头
+                CRequestLogUtils.setRsp(body, null, response);
             } catch (Throwable e) {
                 log.error("setRsp failure", e);
             }
