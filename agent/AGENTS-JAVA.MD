@@ -6,8 +6,7 @@
 - 强制优先使用 lombok：能用 lombok 代替的绝不手写——getter/setter（@Getter/@Setter/@Data）、构造器（@NoArgsConstructor/@RequiredArgsConstructor/@AllArgsConstructor）、builder（@SuperBuilder）、toString/equals/hashCode（@ToString/@EqualsAndHashCode）等一律用 lombok 生成，反例：手写 get/set；禁止移除 lombok 的使用
 - 局部变量强制使用 lombok val、var（硬性要求）：局部变量声明必须且一律使用 `val`/`var`（类型由初始化表达式推断，`val` 不可变、`var` 可变），不得为显式写出类型而放弃 val/var（如 `String name = ...` 必须写 `val name = ...`，`StringBuilder sb = ...` 必须写 `var sb = ...`）；val/var 仅适用于局部变量，字段不得使用；唯一例外：类型推断结果不清晰（复杂泛型、联合类型推断等）等确需显式类型提示的场景可写显式类型，此类例外须克制使用
 - lombok.config 实时读取：lombok.config 内容可能调整，规范不固化具体配置项；使用 lombok 或涉及 lombok 默认行为时，实时读取项目根目录 `lombok.config`，按当前配置执行（如字段默认访问级别、@ToString/@EqualsAndHashCode 的 callSuper、@NonNull 异常类型、自定义日志注解等），不得在规范或代码注释中固化其具体配置内容
-- 实体类使用 @Data、@SuperBuilder（优先 SuperBuilder 而非 @Builder，支持继承场景）、@NoArgsConstructor、@AllArgsConstructor
-- 严禁手写构造方法：无参、必参、全参构造方法一律使用 lombok 注解生成（@NoArgsConstructor/@RequiredArgsConstructor/@AllArgsConstructor），禁止手写任何构造器；禁止 `new Xxx(参数...)` 创建对象，创建一律使用 builder（优先 @SuperBuilder 而非 @Builder，生成的 builder 链式赋值，如 `CClassConverter.<From, To>builder().fromClass(...).build()`）；@AllArgsConstructor 等 lombok 构造注解仅用于框架注入或序列化等特殊场景（如 Spring 构造器注入，见 AGENTS-SPRING.MD），业务创建对象不得依赖其生成的构造器
+- 对象创建统一用 builder、构造器统一用 lombok：禁止 `new Xxx(参数...)` 创建对象，创建一律使用 builder（优先 @SuperBuilder 而非 @Builder，支持继承场景，链式赋值如 `CClassConverter.<From, To>builder().fromClass(...).build()`）；无参、必参、全参构造方法一律用 lombok 注解生成（@NoArgsConstructor/@RequiredArgsConstructor/@AllArgsConstructor），禁止手写任何构造器；实体类用 @Data、@NoArgsConstructor、@AllArgsConstructor；@AllArgsConstructor 等构造注解仅用于框架注入（如 Spring 构造器注入，见 AGENTS-SPRING.MD）或序列化等特殊场景，业务创建对象不得依赖其生成的构造器
 - 定义方法时参数换行：多参数且整行宽度（含缩进）临近或超过 80 字符时，参数需换行——左括号 `(` 紧跟方法名后换行，每个参数单独一行，右括号 `)` 单独一行收尾；参数较少或整行宽度未达阈值时保持单行
 
 ```java
@@ -21,7 +20,7 @@ public void doSomething(
 ```
 - JSON 处理全局统一使用 Jackson，禁止引入其他 JSON 库（如 Gson、fastjson）
 - 反射操作优先使用 MethodHandle：访问字段（getter/setter）、调用方法、构造对象等反射操作一律优先使用 `CMethodHandleUtils` 提供的现成方法句柄（字段 getter/setter、方法、构造器），避免直接使用 `Field#get/set`、`Method#invoke`、`Constructor#newInstance` 等原生反射调用；`CMethodHandleUtils` 没有现成的方法时，可在其中补充后再使用。识别特征：代码中出现 `field.get/set`、`method.invoke`、`constructor.newInstance` 等直接反射调用，应改用 `CMethodHandleUtils` 对应方法句柄（如 `getGetterHandle/getSetterHandle/getHandle`），再用 `handle.invoke/invokeExact` 执行
-- 日志打印：静态文本（无参）如 `log.info("初始化完成")` 不属占位符参数化约束范围，合规；异常日志不得拼 `e.getMessage()`，须将 throwable 作为最后一个参数传入（如 `log.error("msg: {}", arg, e)`）
+- 日志打印（禁 println、统一 slf4j 见 AGENTS-CODING.MD）：静态文本（无参）如 `log.info("初始化完成")` 不属占位符参数化约束范围，合规；异常日志不得拼 `e.getMessage()`，须将 throwable 作为最后一个参数传入（如 `log.error("msg: {}", arg, e)`）
 
 ## 健壮性
 
