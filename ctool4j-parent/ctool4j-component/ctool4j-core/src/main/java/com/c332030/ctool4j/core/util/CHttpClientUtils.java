@@ -24,7 +24,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 public class CHttpClientUtils {
 
     /**
-     * 请求超时
+     * 从连接池获取连接的超时时间（毫秒）
      */
     public final int CONNECTION_REQUEST_TIMEOUT = 3 * 1000;
 
@@ -34,7 +34,7 @@ public class CHttpClientUtils {
     public final int CONNECT_TIMEOUT = 3 * 1000;
 
     /**
-     * 请求超时
+     * socket 读取数据的超时时间（毫秒）
      */
     public final int SOCKET_TIMEOUT = 30 * 1000;
 

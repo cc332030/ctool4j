@@ -27,12 +27,12 @@ public enum CMimeTypeEnum implements ICText {
     ;
 
     /**
-     * 描述
+     * MIME 类型字符串（如 application/json5）
      */
     final String mimeTypeStr;
 
     /**
-     * 描述
+     * MIME 类型对应的 Spring MediaType
      */
     final MediaType mimeType;
 

@@ -22,7 +22,7 @@ public enum CCountryCodeEnum implements ICValue<Integer> {
     ;
 
     /**
-     * 描述
+     * 国家/地区电话区号（如中国为 86）
      */
     final Integer value;
 
