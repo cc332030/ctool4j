@@ -7,11 +7,6 @@ LastModified: 2026-08-21
 状态：已落地（2026-08-16，计划预计算 + fallback 全预热）
 适用范围：JavaBean 属性复制、对象转 Map、Map 转对象
 
-== 变更日志
-
-- 1.1 | 2026-08-21 | 源码 `CBeanUtils` 类 javadoc 增加 `@see` 双向引用（指向本设计文档与对应测试文档），落实"代码与文档互相引用"规范；补充 Version/LastModified 头部字段
-- 1.0 | 2026-08-16 | 初始落地（计划预计算 + fallback 全预热，对应源码与设计文档已对齐）
-
 == 1. 功能设计
 
 === 1.1 功能目标
@@ -164,5 +159,10 @@ fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValue
   字段经 Map 丢失问题已解决（`ClassUtil.isAssignable` 支持原始/包装等价），
   与直接路径行为一致（兼容性用例 `copySupplierViaMapConsistency` 锁定）
 - 值动作/计划缓存无失效机制：转换器静态注册，无动态需求，风险低（已备注）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 源码 `CBeanUtils` 类 javadoc 增加 `@see` 双向引用（指向本设计文档与对应测试文档），落实"代码与文档互相引用"规范；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-16 | 初始落地（计划预计算 + fallback 全预热，对应源码与设计文档已对齐）
 
 
