@@ -117,7 +117,7 @@ public class CRedisUtils {
         );
     }
 
-    private final String SET_IF_LAGER = "local current = redis.call('GET',  KEYS[1])\n" +
+    private final String SET_IF_LARGER = "local current = redis.call('GET',  KEYS[1])\n" +
         "local currentNum = 0  -- 默认值\n" +
         "if current ~= false then  -- 判断非空 [3]()\n" +
         "    currentNum = tonumber(current)  -- 显式转换 [2]()\n" +
@@ -128,7 +128,7 @@ public class CRedisUtils {
         "end\n" +
         "return 0";
 
-    private final RedisScript<Long> SET_IF_LAGER_SCRIPT = new DefaultRedisScript<>(SET_IF_LAGER, Long.class);
+    private final RedisScript<Long> SET_IF_LARGER_SCRIPT = new DefaultRedisScript<>(SET_IF_LARGER, Long.class);
 
     /**
      * 仅当新值大于当前值时设置，原子操作
@@ -144,7 +144,7 @@ public class CRedisUtils {
         }
 
         val result = getRedisTemplate().execute(
-            SET_IF_LAGER_SCRIPT,
+            SET_IF_LARGER_SCRIPT,
             Collections.singletonList(key),
             value
         );
