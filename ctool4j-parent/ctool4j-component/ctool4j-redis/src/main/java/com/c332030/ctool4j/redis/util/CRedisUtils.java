@@ -229,8 +229,12 @@ public class CRedisUtils {
     /**
      * 仅当当前值与新值不相等时设置，可指定过期时长，原子操作
      *
+     * <p>新值统一按字符串比较（String.valueOf 转字符串），使用字符串序列化模板执行脚本，
+     * 避免对象模板（JSON 带引号）与字符串存储字节不一致导致比较恒失败；
+     * 存储的 key 需由字符串序列化模板（stringStringRedisService）写入，否则比较结果不受保证</p>
+     *
      * @param key      key
-     * @param newValue 新值
+     * @param newValue 新值（按字符串比较）
      * @param ttl      过期时长（秒），小于等于 0 表示不设置过期
      * @return true 表示设置成功
      */
@@ -240,10 +244,11 @@ public class CRedisUtils {
             return false;
         }
 
-        val result = getRedisTemplate().execute(
+        val result = getStringStringRedisTemplate().execute(
             SET_IF_NOT_EQUALS_SETSCRIPT,
             Collections.singletonList(key),
-            newValue,
+            String.valueOf(newValue),
+            String.valueOf(newValue),
             String.valueOf(ttl)
         );
         return result == 1;

@@ -27,6 +27,7 @@ LastModified: 2026-08-21
 
 - 覆盖：前缀获取（含 config null 抛 NPE）、key 生成（各 key 段形态）、原子操作 null 短路。
 - 未覆盖：Lua 脚本在真实 Redis 上的执行结果（依赖 Redis 环境，未单测）。
+- 脚本契约验证：`setIfNotEquals` 的 Lua 脚本参数约定（`ARGV[1]`=新值（比较）、`ARGV[2]`=新值（写入）、`ARGV[3]`=TTL）已在实现修复时用 Lua 解释器模拟验证——修复前写入的是 TTL 字符串、且未设置过期。
 
 == 1. getApplicationPrefix 应用前缀
 
@@ -55,4 +56,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-08-22 | 补充 `setIfNotEquals` Lua 脚本参数错位修复的验证说明（原将 TTL 当值写入）
 - 1.0 | 2026-08-21 | 初始落地
