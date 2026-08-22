@@ -91,13 +91,13 @@ ctool4j-nacos-discovery（依赖 spring）
 
 除 Maven 模块外，项目根下还有以下支撑目录：
 
-- *agent/*：项目规范目录。入口为根 +AGENTS.md+（总纲与规范索引），具体规范按主题拆分在 +agent/*.MD+（如 +AGENTS-JAVA.MD+、+AGENTS-DOC.MD+、+AGENTS-TEST.MD+、+AGENTS-GIT.MD+ 等）。涉及某主题操作前须先加载对应规范文件确认规则。
-- *doc/*：各模块的设计文档与测试文档（AsciiDoc，按模块分子目录，如 +doc/design/core/CBeanUtils.adoc+）。设计文档记录功能设计、测试设计、已知缺陷与性能瓶颈；测试文档记录用例设计与分类编号。配套规范见 +agent/AGENTS-DOC.MD+。
+- *agent/*：项目规范目录。规范以远端统一规范（+http://agent.c332030.com/AGENTS.adoc+，含 `specs/` 分层规范）为基准，入口为根 +AGENTS.md+；项目特有规范集中在 +agent/AGENTS-PROJECT.MD+。涉及某主题操作前须按加载调度规则加载对应规范文件确认规则。
+- *doc/*：各模块的设计文档与测试文档（AsciiDoc，按模块分子目录，如 +doc/design/core/CBeanUtils.adoc+）。设计文档记录功能设计、测试设计、已知缺陷与性能瓶颈；测试文档记录用例设计与分类编号。配套规范见远端统一规范的文档规范。
 - *script/*：项目级脚本
   - +clean-tmp.py+：清理 +tmp/+ 下的临时产物（扫描中间结果、日志等），仅限 +tmp/+ 目录，带路径穿越防护。
   - +push-origins.bat+：推送所有 origin 远端。
 - *tmp/*：临时产物目录（扫描中间结果、日志、临时规划等），不纳入版本管理、不提交；由 +script/clean-tmp.py+ 清理，故不单独登记。
-- 根级文档：+TODO.adoc+ 为项目待办清单；+AGENTS.md+ 为规范总纲（见 +agent/+）。
+- 根级文档：+TODO.adoc+ 为项目待办清单；+AGENTS.md+ 为规范入口（引用远端统一规范 + 项目特有规范，见 +agent/+）。
 
 == 使用说明
 
