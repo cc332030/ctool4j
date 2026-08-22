@@ -1,13 +1,20 @@
 = CSet 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-08-22
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CSet
 状态：已落地
 适用范围：构造空/元素 Set（过滤 null），枚举 Set
 
 == 1. 功能说明
+
+[NOTE]
+====
+JDK 版本兼容：`CSet` 是 `Set.of`（JDK 9+）在低版本 JDK 的替代实现。当运行环境 JDK ≥ 9 时，
+优先使用 JDK 自带的 `Set.of`；仅当 JDK 不支持（如 JDK 8 目标）时才使用本类。
+语义差异：`Set.of` 不允许 null 元素（抛 `NullPointerException`），本类自动过滤 null 元素。
+====
 
 `CSet` 为 Set 构造工具类，提供：
 
@@ -57,4 +64,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-08-22 | 补充 JDK 版本兼容声明（JDK ≥ 9 优先用 `Set.of`，JDK 8 才用本类）
 - 1.0 | 2026-08-21 | 初始落地

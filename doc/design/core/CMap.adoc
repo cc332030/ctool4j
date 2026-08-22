@@ -1,13 +1,21 @@
 = CMap 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-08-22
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CMap
 状态：已落地
 适用范围：构造空/单/双/三键值 Map、复制 Map（不可变）
 
 == 1. 功能说明
+
+[NOTE]
+====
+JDK 版本兼容：`CMap` 是 `Map.of`（JDK 9+）在低版本 JDK 的替代实现。当运行环境 JDK ≥ 9 时，
+优先使用 JDK 自带的 `Map.of`；仅当 JDK 不支持（如 JDK 8 目标）时才使用本类。
+语义差异：`Map.of` 不允许 null 键/值（抛 `NullPointerException`），本类不做此限制；
+本类额外提供复制 Map、指定容器类型能力。
+====
 
 `CMap` 为 Map 构造工具类，提供：
 
@@ -55,4 +63,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-08-22 | 补充 JDK 版本兼容声明（JDK ≥ 9 优先用 `Map.of`，JDK 8 才用本类）
 - 1.0 | 2026-08-21 | 初始落地

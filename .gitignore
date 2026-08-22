@@ -5,6 +5,8 @@
 .codebuddy/*
 !.codebuddy/AGENTS-CNB.MD
 
+.codeartsdoer*
+
 .gradle
 
 .m2/

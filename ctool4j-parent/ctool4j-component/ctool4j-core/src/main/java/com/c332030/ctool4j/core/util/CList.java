@@ -9,8 +9,12 @@ import java.util.List;
 
 /**
  * <p>
- * Description: CList
+ * Description: CList，{@code List.of}（JDK 9+）在低版本 JDK 的替代构造工具。
  * </p>
+ *
+ * <p><b>JDK 版本兼容：</b>当运行环境 JDK ≥ 9 时，优先使用 JDK 自带的 {@link List#of}；
+ * 仅当 JDK 不支持（如 JDK 8 目标）时才使用本类。语义差异：{@code List.of} 不允许 null 元素
+ * （抛 {@link NullPointerException}），本类自动过滤 null 元素。</p>
  *
  * @since 2024/11/12
  * @see "doc/design/core/CList.adoc"

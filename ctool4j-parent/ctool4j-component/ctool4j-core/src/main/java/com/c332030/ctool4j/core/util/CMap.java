@@ -12,8 +12,12 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: CMap
+ * Description: CMap，{@code Map.of}（JDK 9+）在低版本 JDK 的替代构造工具。
  * </p>
+ *
+ * <p><b>JDK 版本兼容：</b>当运行环境 JDK ≥ 9 时，优先使用 JDK 自带的 {@link Map#of}；
+ * 仅当 JDK 不支持（如 JDK 8 目标）时才使用本类。语义差异：{@code Map.of} 不允许 null 键/值
+ * （抛 {@link NullPointerException}），本类不做此限制；本类额外提供复制 Map、指定容器类型能力。</p>
  *
  * @since 2024/12/3
  * @see "doc/design/core/CMap.adoc"
