@@ -1,0 +1,43 @@
+= CBiConsumer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.function.CBiConsumer
+状态：已落地
+适用范围：可抛受检异常的双参消费者接口（扩展 JDK BiConsumer）
+
+== 1. 功能说明
+
+`CBiConsumer<T, U>` 为双参消费者接口，扩展 `BiConsumer`，支持受检异常：
+
+- `accept`：默认方法，@SneakyThrows 包装后调用 `acceptThrowable`
+- `acceptThrowable`：抽象方法，可抛 Throwable
+- 工具：`EMPTY`/`empty()`、`accept(consumer, t, u)`、`convert(consumer)`
+
+== 2. 设计要点
+
+=== 2.1 受检异常包装
+
+- `accept` 内部 @SneakyThrows 包装（设计取舍）。
+
+=== 2.2 工具方法
+
+- `empty()`：空实现；`accept(consumer, t, u)`：consumer 为 null 时不做处理；`convert`：转 JDK BiConsumer。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| accept(consumer=null, t, u) | 不做处理 |
+| empty() | 空实现 |
+
+== 5. 已知限制与取舍
+
+- 用 @SneakyThrows 简化受检异常处理。
+
+测试内容见 `doc/design/core/CBiConsumerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

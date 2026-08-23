@@ -9,9 +9,10 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: CFeignClientLogConfig
+ * Description: CFeignClientHeaderConfig
  * </p>
  *
+ * @see "doc/design/feign/CFeignClientHeaderConfig.adoc"
  * @since 2025/9/21
  */
 @Data

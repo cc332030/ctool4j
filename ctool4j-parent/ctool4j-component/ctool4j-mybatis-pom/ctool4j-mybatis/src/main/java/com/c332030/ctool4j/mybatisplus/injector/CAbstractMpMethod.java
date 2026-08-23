@@ -9,13 +9,22 @@ import com.baomidou.mybatisplus.core.injector.AbstractMethod;
  *
  * @author c332030
  * @since 2024/5/7
+ * @see "doc/design/mybatisplus/CAbstractMpMethod.adoc"
  */
 public abstract class CAbstractMpMethod extends AbstractMethod implements ICMpMethod {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 注入的 SQL 方法枚举
+     */
     protected final ICMpSqlMethod sqlMethod;
 
+    /**
+     * 构造方法
+     *
+     * @param sqlMethodEnum 注入的 SQL 方法枚举
+     */
     public CAbstractMpMethod(ICMpSqlMethod sqlMethodEnum) {
         super(sqlMethodEnum.getMethod());
         sqlMethod = sqlMethodEnum;

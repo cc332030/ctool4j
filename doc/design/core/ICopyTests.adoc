@@ -1,0 +1,40 @@
+= ICopy 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.interfaces.ICopy`（core 接口类）——对象拷贝接口。
+
+对应测试类：`com.c332030.ctool4j.core.test.interfaces.ICopyTests`
+
+对应设计文档：`doc/design/core/ICopy.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 ICopy 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「拷贝到类型 / 拷贝到实例」两个入口组织。
+- 用 Source（实现 ICopy，name/age）与 Target（同名字段）验证拷贝正确。
+
+=== 设计依据
+
+- 依据功能设计对两个拷贝入口的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：copyTo(Class) 创建新实例拷贝；copyTo(instance) 拷贝到已有实例。
+- 未覆盖：无（覆盖了两个入口）。
+
+== 1. 拷贝到类型
+
+- 1.1 copyToClass：Source → Target 新实例，name/age 正确（copyToClass）
+
+== 2. 拷贝到实例
+
+- 2.1 copyToInstance：Source → 已有 Target 实例，name/age 正确（copyToInstance）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

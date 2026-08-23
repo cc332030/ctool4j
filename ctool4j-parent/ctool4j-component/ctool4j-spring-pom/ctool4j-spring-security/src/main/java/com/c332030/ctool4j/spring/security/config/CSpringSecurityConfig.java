@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2026/1/24
+ * @see "doc/design/spring/CSpringSecurityConfig.adoc"
  */
 @Data
 @ConfigurationProperties("spring.security")

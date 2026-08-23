@@ -1,0 +1,34 @@
+= CTool4jConstants 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.constant.CTool4jConstants
+状态：已落地
+适用范围：definition 模块 CTool4jConstants
+
+== 1. 功能说明
+
+`CTool4jConstants` 为项目基础常量。
+
+`BASE_PACKAGE`：基础包名 `com.c332030.ctool4j`。
+
+== 2. 设计要点
+
+- 注解类为声明式标记；常量类为静态常量。
+
+== 3. 兜底设计
+
+- 注解无默认兜底；常量有默认值。
+
+== 4. 适用范围
+
+- 供业务代码/日志序列化/测试环境判断使用。
+
+== 5. 已知限制与取舍
+
+- 注解仅声明，实际行为由消费方（如 CJsonUtils、日志序列化器）实现。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -11,11 +11,15 @@ import com.c332030.ctool4j.mybatisplus.util.CMpFieldUtils;
  * </p>
  *
  * @since 2026/1/6
+ * @see "doc/design/mybatisplus/CUpdateAllByIdMethod.adoc"
  */
 public class CUpdateAllByIdMethod extends AlwaysUpdateSomeColumnById implements ICMpMethod {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 构造方法，指定使用 UPDATE_ALL_BY_ID 方法
+     */
     public CUpdateAllByIdMethod() {
         super(
             CMpSqlMethod.UPDATE_ALL_BY_ID.getMethod(),

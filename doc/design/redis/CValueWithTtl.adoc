@@ -1,0 +1,54 @@
+= CValueWithTtl 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-redis
+类：com.c332030.ctool4j.redis.model.CValueWithTtl
+状态：已落地
+适用范围：Redis 值与其剩余存活时间（TTL）的载体
+
+== 1. 功能说明
+
+`CValueWithTtl<T>` 为携带值及其剩余存活时间的简单数据载体，实现 `ICValue<T>`。
+
+- `value`：缓存值
+- `ttl`：剩余存活时间（秒）；`-1` 表示 key 存在但无过期时间，`-2` 表示 key 不存在
+
+由 lombok `@Data`/`@SuperBuilder`/`@NoArgsConstructor`/`@AllArgsConstructor` 生成。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- `ttl` 单位固定为秒，语义与 Redis TTL 命令一致。
+- 泛型 `T` 承载值的类型。
+
+=== 2.2 实现方式
+
+- 纯数据类，配合 `ICRedisService.getValueWithTtl` 返回值与剩余 TTL。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 值不存在 | value 为 null，ttl 反映 Redis TTL（-2 等） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要同时读取缓存值与其剩余过期时间的场景（如按 TTL 分流刷新）。
+
+=== 4.2 不适用/边界场景
+
+- 仅承载数据，无业务逻辑；不校验 value/ttl 的一致性。
+
+== 5. 已知限制与取舍
+
+- `ttl` 数值语义依赖调用方对 Redis TTL 约定的理解，本类不解释。
+
+测试内容见 `doc/design/redis/CValueWithTtlTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

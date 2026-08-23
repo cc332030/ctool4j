@@ -1,0 +1,26 @@
+= CRedisTestConfiguration 设计文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-cache
+类：com.c332030.ctool4j.redis.CRedisTestConfiguration
+状态：已落地
+适用范围：Redis 测试辅助配置
+
+== 1. 功能说明
+
+`CRedisTestConfiguration` 为 Redis 测试辅助配置（`@Configuration`），提供 mock 的 `RedissonClient`（`@Bean @Primary`），避免测试依赖真实 Redis。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- Redis/cache 功能测试，用 mock 的 `RedissonClient` 替代真实 Redis。
+
+== 5. 已知限制与取舍
+
+- 测试辅助配置；mock 实现不验证真实 Redis 行为。
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

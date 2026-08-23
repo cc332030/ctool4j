@@ -9,6 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2025/12/9
+ * @see "doc/design/core/CPageConfig.adoc"
+ * @see "doc/design/core/CPageConfigTests.adoc"
  */
 @Data
 @ConfigurationProperties("page")

@@ -1,0 +1,52 @@
+= CLocalCacheUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CLocalCacheUtils
+状态：已落地
+适用范围：基于 Caffeine 的本地缓存构建（内存不足时释放缓存）
+
+== 1. 功能说明
+
+`CLocalCacheUtils` 为本地缓存工具类，基于 Caffeine 提供：
+
+- `cacheBuilder()`：获取本地缓存构建器，配置 `softValues()`（值软引用，内存不足时释放）
+- `buildCache()`：直接构建本地缓存
+
+== 2. 设计要点
+
+=== 2.1 内存友好
+
+- 构建器配置 `softValues()`，缓存值使用软引用，内存不足时 JVM 可回收缓存值，避免缓存导致 OOM。
+
+=== 2.2 构建器泛型
+
+- `cacheBuilder()` 返回 `Caffeine<K, V>` 泛型构建器，调用方按需指定键值类型。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 内存不足 | 软引用值被 JVM 回收（softValues） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要可被内存压力回收的本地缓存（值可重建的缓存场景）。
+
+=== 4.2 不适用/边界场景
+
+- 值必须常驻（不可回收）时不适用；需显式 TTL/容量策略时用原生 Caffeine 构建器配置。
+
+== 5. 已知限制与取舍
+
+- 采用 softValues 而非强引用，牺牲缓存命中稳定性换取内存安全；值重建成本高时不建议。
+- 未配置 TTL/最大容量，仅做基础内存友好缓存；复杂策略由调用方扩展构建器。
+
+测试内容见 `doc/design/core/CLocalCacheUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

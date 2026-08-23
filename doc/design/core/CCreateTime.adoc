@@ -1,0 +1,30 @@
+= CCreateTime 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CCreateTime
+状态：已落地
+适用范围：创建时间实体（实现 ICCreateTime）
+
+== 1. 功能说明
+
+`CCreateTime` 为创建时间实体，实现 `ICCreateTime`，含 `createTime` 字段（@TableField 不可更新）。
+
+标注 `@Data`/`@SuperBuilder`/`@NoArgsConstructor`/`@AllArgsConstructor`。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要创建时间字段的实体。
+
+== 5. 已知限制与取舍
+
+- createTime 不可更新（insert/update strategy NEVER）。
+
+测试内容见 `doc/design/core/CCreateTimeTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

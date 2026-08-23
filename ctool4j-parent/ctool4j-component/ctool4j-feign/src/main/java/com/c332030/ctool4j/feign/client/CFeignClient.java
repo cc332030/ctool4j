@@ -2,10 +2,11 @@ package com.c332030.ctool4j.feign.client;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.core.util.CCommUtils;
+import com.c332030.ctool4j.core.util.CCharsets;
 import com.c332030.ctool4j.core.util.CThreadLocalUtils;
 import com.c332030.ctool4j.feign.config.CFeignClientLogConfig;
 import com.c332030.ctool4j.feign.util.CFeignUtils;
+import com.c332030.ctool4j.web.util.CCommUtils;
 import feign.Client;
 import feign.Request;
 import feign.Response;
@@ -15,7 +16,6 @@ import lombok.CustomLog;
 import lombok.val;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 
@@ -24,6 +24,7 @@ import java.util.Map;
  * Description: CFeignClient
  * </p>
  *
+ * @see "doc/design/feign/CFeignClient.adoc"
  * @since 2025/9/21
  */
 @CustomLog
@@ -34,6 +35,13 @@ public class CFeignClient implements Client {
 
     final CFeignClientLogConfig feignLogConfig;
 
+    /**
+     * 执行请求：开启日志时记录响应日志并重新缓冲响应体，否则透传默认客户端
+     *
+     * @param request 请求
+     * @param options 请求选项
+     * @return 响应
+     */
     @Override
     public Response execute(Request request, Request.Options options) throws IOException {
 
@@ -84,7 +92,7 @@ public class CFeignClient implements Client {
 
             if(CCommUtils.isTextBody(headers)) {
 
-                val responseBody = new String(bodyBytes, StandardCharsets.UTF_8);
+                val responseBody = new String(bodyBytes, CCharsets.UTF_8);
                 httpLog.append(responseBody);
             } else {
                 httpLog.append("[no response text body]");

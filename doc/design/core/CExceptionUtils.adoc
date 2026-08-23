@@ -1,0 +1,67 @@
+= CExceptionUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.exception.CExceptionUtils
+状态：已落地
+适用范围：业务异常创建/抛出、异常忽略执行、异常链信息
+
+== 1. 功能说明
+
+`CExceptionUtils` 为异常工具类，提供：
+
+- 业务异常提供者：`BUSINESS_EXCEPTION_PROVIDER`（优先取自定义 SPI 实现，默认 CBusinessExceptionProvider）
+- 创建：`newBusinessException`（多重载：error/message/cause）
+- 抛出：`throwBusinessException`（多重载，@SneakyThrows）
+- 忽略执行：`ignore`（runnable/supplier，失败记录日志返回 null）
+- 异常链信息：`getMessageWithCause`（拼接异常及其 cause 消息）
+
+== 2. 设计要点
+
+=== 2.1 SPI 提供者
+
+- `BUSINESS_EXCEPTION_PROVIDER` 经 `CSpiUtils.getFirstCustomImplOrDefault` 取自定义 SPI 实现，
+  默认 `CBusinessExceptionProvider`，可通过 SPI 扩展自定义业务异常类型。
+
+=== 2.2 创建与抛出
+
+- `newBusinessException` 委托 `getBusinessExceptionFunction()`（error/msgExtend/cause 三元构造）。
+- `throwBusinessException` 经 @SneakyThrows 抛出业务异常。
+
+=== 2.3 忽略执行
+
+- `ignore(runnable/supplier)`：try-catch(Throwable) 记录 error 日志；supplier 失败返回 null。
+
+=== 2.4 异常链信息
+
+- `getMessageWithCause`：用 LinkedHashSet 遍历异常链（防环），拼接各层 `getMessage`（`\ncause by` 分隔）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| ignore 执行失败 | 记录 error 日志；supplier 返回 null |
+| getMessageWithCause(null) | 返回 null |
+| getMessageWithCause 异常链成环 | 去重停止，避免死循环 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 业务异常统一创建/抛出、非关键操作忽略异常、异常链信息展示。
+
+=== 4.2 不适用/边界场景
+
+- ignore 会吞掉异常（仅记录日志），需要失败处理时不适用。
+
+== 5. 已知限制与取舍
+
+- ignore 吞异常换取不中断，牺牲失败可见性。
+- SPI 提供者支持自定义业务异常类型，灵活可扩展。
+
+测试内容见 `doc/design/core/CExceptionUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,52 @@
+= CSensitiveSerializer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.CSensitiveSerializer
+状态：已落地
+适用范围：敏感字段序列化器（脱敏：保留前后缀，中间以 `*` 填充）
+
+== 1. 功能说明
+
+`CSensitiveSerializer` 为敏感字段序列化器，扩展 `JsonSerializer<Object>`，序列化时脱敏输出。
+
+- 默认保留前 `DEFAULT_PREFIX_KEEP=3` 位、后 `DEFAULT_SUFFIX_KEEP=4` 位，中间以 `*` 填充。
+- `mask(value)`：脱敏字符串；长度不足以同时保留前后缀时全部打码（安全优先）；null 返回 null。
+- 支持自定义保留位数构造。
+
+== 2. 设计要点
+
+=== 2.1 脱敏规则
+
+- 长度 `len <= prefixKeep + suffixKeep` 时全部打码（安全优先，避免短敏感值泄露）。
+- 否则保留前 prefixKeep、后 suffixKeep，中间补 `*`。
+
+=== 2.2 序列化
+
+- value 为 null 输出 `null`；否则输出 `mask(value.toString())`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| mask(null) | 返回 null |
+| mask(空串) | 返回空串 |
+| mask 长度不足保留前后缀 | 全部打码 |
+| serialize(null) | 输出 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 敏感字段（手机号/身份证等）日志/响应脱敏。
+
+== 5. 已知限制与取舍
+
+- 短值全部打码，牺牲部分可读性换取安全。
+
+测试内容见 `doc/design/core/CSensitiveSerializerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

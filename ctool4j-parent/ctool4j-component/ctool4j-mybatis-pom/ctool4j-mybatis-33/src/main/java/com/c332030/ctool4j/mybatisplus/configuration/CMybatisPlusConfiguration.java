@@ -11,10 +11,16 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @since 2025/12/29
+ * @see "doc/design/mybatisplus/CMybatisPlusConfiguration.adoc"
  */
 @Configuration
 public class CMybatisPlusConfiguration {
 
+    /**
+     * 创建分页拦截器
+     *
+     * @return 分页拦截器
+     */
     @Bean
     @ConditionalOnMissingBean(PaginationInterceptor.class)
     public PaginationInterceptor cPaginationInterceptor() {

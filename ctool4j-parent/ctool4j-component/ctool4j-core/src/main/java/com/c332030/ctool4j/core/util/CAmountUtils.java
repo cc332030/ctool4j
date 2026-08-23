@@ -10,6 +10,8 @@ import java.math.BigDecimal;
  * </p>
  *
  * @since 2025/12/18
+ * @see "doc/design/core/CAmountUtils.adoc"
+ * @see "doc/design/core/CAmountUtilsTests.adoc"
  */
 @UtilityClass
 public class CAmountUtils {

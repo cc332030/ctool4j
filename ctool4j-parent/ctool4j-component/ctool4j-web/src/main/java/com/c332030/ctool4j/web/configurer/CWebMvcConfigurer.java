@@ -19,6 +19,7 @@ import java.util.List;
  * </p>
  *
  * @since 2025/9/28
+ * @see "doc/design/web/CWebMvcConfigurer.adoc"
  */
 @Configuration
 @AllArgsConstructor
@@ -28,11 +29,21 @@ public class CWebMvcConfigurer implements WebMvcConfigurer {
 
     CSpringJacksonConfig jacksonConfig;
 
+    /**
+     * 注册所有处理器拦截器
+     *
+     * @param registry 拦截器注册器
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         CCollUtils.forEach(icHandlerInterceptors, registry::addInterceptor);
     }
 
+    /**
+     * 扩展消息转换器：配置 Jackson 后统一转换器
+     *
+     * @param converters 消息转换器列表
+     */
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         CSpringHttpUtils.setJacksonConfig(jacksonConfig);

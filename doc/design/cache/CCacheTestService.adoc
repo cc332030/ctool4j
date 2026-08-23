@@ -1,0 +1,31 @@
+= CCacheTestService 设计文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-cache
+类：com.c332030.ctool4j.cache.service.CCacheTestService
+状态：已落地
+适用范围：缓存测试辅助 Service
+
+== 1. 功能说明
+
+`CCacheTestService` 为缓存测试辅助 Service（`@Service`），提供带 `@CCacheable` 注解的测试方法：
+
+- `time(Integer id)`：按 id 缓存，返回当前时间戳
+- `time(CCacheUser cacheUser)`：按对象缓存，返回当前时间戳
+
+命名空间均为 `CCacheAspectTests.class`，expire=1，供缓存切面测试验证缓存生效与过期。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 缓存切面测试（`CCacheAspectTests`）的辅助 Service，验证 `@CCacheable` 注解行为。
+
+== 5. 已知限制与取舍
+
+- 测试辅助类；缓存过期时间为 1，避免测试数据残留。
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

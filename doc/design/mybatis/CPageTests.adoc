@@ -1,0 +1,40 @@
+= CPageTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.mybatis.model.impl.CPage`（mybatis 模块分页模型）。
+
+对应测试类：`com.c332030.ctool4j.mybatis.test.model.impl.CPageTests`
+
+对应设计文档：`doc/design/mybatis/CPage.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CPage 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证 CPage 的默认值、builder 构建、起始位置计算、limit SQL 生成与分页对象获取。
+
+=== 设计依据
+
+- 依据功能设计对 pageNum/pageSize/orders 默认值及 getStart/getLimitSql/getPage 的约定。
+- 依据测试方法（等价类/边界）：默认值、builder、起始位置、limit SQL、分页对象。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：默认值、builder 构建、getStart 起始位置、getLimitSql 生成、getPage 分页对象。
+- 未覆盖：真实 MyBatis 分页拦截器集成场景。
+
+== 1. 分页模型行为
+
+- 1.1 默认值（`defaultValues`）
+- 1.2 builder 构建（`builder`）
+- 1.3 起始位置 getStart（`getStart`）
+- 1.4 pageNum 为 1 的起始位置（`getStartPageNumOne`）
+- 1.5 limit SQL 生成（`getLimitSql`）
+- 1.6 分页对象获取（`getPage`）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

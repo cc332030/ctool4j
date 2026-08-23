@@ -1,0 +1,50 @@
+= CCacheBuilder 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.cache.service.CCacheService.CCacheBuilder`（cache 模块）——缓存构建器。
+
+对应测试类：`com.c332030.ctool4j.cache.service.CCacheBuilderTests`
+
+对应设计文档：`doc/design/cache/CCacheService.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CCacheBuilder 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 用 Mockito mock `CLockService`/`CStringStringRedisService` 构造 `CCacheService` 与 builder，隔离外部依赖。
+- 覆盖链式配置方法的可链性（返回 this）与字段赋值；覆盖 `computeIfAbsent` 的永久缓存直接返回与
+  过期后读-算-写两条核心路径。
+
+=== 设计依据
+
+- 依据功能设计对 builder 链式配置与 TTL 分流的约定（永久缓存直接返回、已过期阻塞加锁读-算-写）。
+- 依据白盒原则：验证字段默认值、各配置方法链式返回与字段写入、核心 computeIfAbsent 分支。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：默认值、waitTime/onLockFail/expireDuration/refreshWindow 链式配置、key/tClass 存储、
+  永久缓存直接返回（不抢锁）、过期后读-算-写。
+- 未覆盖：快到期异步刷新分支（依赖真实 Redis/并发环境，由集成场景验证）；锁竞争失败回调实际执行。
+
+== 1. 链式配置
+
+- 1.1 默认值：waitTime=1s、refreshWindow=5m、expireDuration=23h、onLockFail 非空（defaultValues）
+- 1.2 waitTime(long)：链式 + 秒转 Duration（waitTime_long_chainable）
+- 1.3 waitTime(Duration)：链式 + 赋值（waitTime_duration_chainable）
+- 1.4 onLockFail：链式 + 赋值（onLockFail_chainable）
+- 1.5 expireDuration(Duration)：链式 + 赋值（expireDuration_duration_chainable）
+- 1.6 expireDuration(Function)：链式 + 赋值（expireDuration_function_chainable）
+- 1.7 refreshWindow：链式 + 赋值（refreshWindow_chainable）
+- 1.8 key/tClass 存储：构造参数正确保存（keyAndTClass_stored）
+
+== 2. computeIfAbsent 缓存策略
+
+- 2.1 永久缓存（TTL=-1）：直接返回缓存值，不抢锁（computeIfAbsent_permanentCache_returnsDirectly）
+- 2.2 已过期：阻塞加锁读-算-写，写缓存并返回值（computeIfAbsent_expired_computesAndWrites）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

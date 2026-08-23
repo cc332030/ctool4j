@@ -1,0 +1,38 @@
+= CSqlInjector 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-mybatisplus
+类：com.c332030.ctool4j.mybatisplus.injector.CSqlInjector
+状态：已落地
+适用范围：SQL 注入器
+
+== 1. 功能说明
+
+`CSqlInjector`：SQL 注入器。
+
+== 2. 设计要点
+
+- 继承 DefaultSqlInjector，注入自定义方法列表
+
+== 3. 兜底设计
+
+默认方法 + 自定义
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+SQL 注入器扩展
+
+=== 4.2 不适用/边界场景
+
+继承 DefaultSqlInjector
+
+== 5. 已知限制与取舍
+
+继承 DefaultSqlInjector
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

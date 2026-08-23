@@ -13,11 +13,20 @@ import java.util.Iterator;
  * </p>
  *
  * @since 2025/9/28
+ * @see "doc/design/core/CIteratorUtils.adoc"
+ * @see "doc/design/core/CIteratorUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass
 public class CIteratorUtils {
 
+    /**
+     * 遍历集合并忽略异常执行消费
+     *
+     * @param iterable 集合
+     * @param consumer 消费函数
+     * @param <T>      元素类型
+     */
     public <T> void forEachIgnoreException(Iterable<T> iterable, CConsumer<T> consumer) {
 
         if(iterable == null) {
@@ -28,6 +37,13 @@ public class CIteratorUtils {
 
     }
 
+    /**
+     * 遍历迭代器并忽略异常执行消费（跳过 null 元素）
+     *
+     * @param iterator 迭代器
+     * @param consumer 消费函数
+     * @param <T>      元素类型
+     */
     public <T> void forEachIgnoreException(Iterator<T> iterator, CConsumer<T> consumer) {
 
         if(iterator == null) {

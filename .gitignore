@@ -2,7 +2,14 @@
 .idea
 *.iml
 
+.codebuddy/*
+!.codebuddy/AGENTS-CNB.MD
+
+.codeartsdoer*
+
 .gradle
+
+.m2/
 
 target*
 
@@ -12,3 +19,5 @@ release.properties
 *.versionsBackup
 
 logs*
+
+tmp*

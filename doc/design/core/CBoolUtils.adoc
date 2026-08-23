@@ -1,0 +1,62 @@
+= CBoolUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CBoolUtils
+状态：已落地
+适用范围：布尔值判断（含 null 语义）与对象经函数取值的布尔判断
+
+== 1. 功能说明
+
+`CBoolUtils` 为布尔判断工具类，提供布尔值（含 null）的四种判断：
+
+- `isTrue` / `isNotTrue`：是否等于 true / 是否不等于 true
+- `isFalse` / `isNotFalse`：是否等于 false / 是否不等于 false
+
+并提供对象经取值函数后做布尔判断的重载（`isTrue(T, function)` 等）。
+
+== 2. 设计要点
+
+=== 2.1 语义约定（null 处理）
+
+- null 布尔值视为 false：`isTrue(null)` 返回 false、`isFalse(null)` 返回 false、`isNotTrue(null)`
+  返回 true、`isNotFalse(null)` 返回 true。
+- `isNotTrue` = `!isTrue`，`isNotFalse` = `!isFalse`，均基于对应的正向判断取反，语义自洽。
+
+=== 2.2 实现方式
+
+- 基础判断委托 hutool `BooleanUtil.isTrue/isFalse`（其 null 视为 false 的语义一致），
+  `isNotTrue/isNotFalse` 对正向判断取反。
+- 对象重载经 `CObjUtils.convert(t, function)` 取值（t 为 null 时得到 null 默认值），再走同一
+  布尔判断，保证 null 语义与基础判断一致。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 布尔入参为 null | 视为 false（isTrue/isFalse 返回 false） |
+| 对象入参为 null（重载） | 取值为 null 默认值，视为 false |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对可能为 null 的布尔值做统一判断，避免手写 null 判空。
+- 对对象某属性取值后做布尔判断（如 `isTrue(user, User::isEnabled)`）。
+
+=== 4.2 不适用/边界场景
+
+- `isFalse(null)` 返回 false（null 视为 false，而非"是 false"），需注意 null 与显式 false 的语义
+  区分——若需区分"null"与"false"应直接比较 `Boolean.FALSE.equals(value)`。
+
+== 5. 已知限制与取舍
+
+- null 视为 false 与 hutool `BooleanUtil` 语义一致，统一处理避免分散判断。
+- `isNotTrue`/`isNotFalse` 为便捷方法，避免调用方自行取反产生误用。
+
+测试内容见 `doc/design/core/CBoolUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

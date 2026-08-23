@@ -1,0 +1,30 @@
+= CDataDict 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.model.data.CDataDict
+状态：已落地
+适用范围：数据字典（value/text，实现 ICDataDict）
+
+== 1. 功能说明
+
+`CDataDict<T>` 为数据字典，实现 `ICDataDict<T>`，含 `value` 与 `text` 字段。
+
+标注 `@Data`/`@SuperBuilder`/`@NoArgsConstructor`/`@AllArgsConstructor`。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 数据字典项（值 + 展示文本）。
+
+== 5. 已知限制与取舍
+
+- 简单数据载体。
+
+测试内容见 `doc/design/core/CDataDictTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

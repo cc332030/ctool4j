@@ -12,10 +12,17 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * </p>
  *
  * @since 2026/1/28
+ * @see "doc/design/spring/CSessionInformationExpiredStrategy.adoc"
+ * @see "doc/design/spring/CSessionInformationExpiredStrategyTests.adoc"
  */
 @CustomLog
 public class CSessionInformationExpiredStrategy implements SessionInformationExpiredStrategy {
 
+    /**
+     * 会话过期处理：输出 401 错误响应
+     *
+     * @param event 会话过期事件
+     */
     @Override
     public void onExpiredSessionDetected(
         SessionInformationExpiredEvent event

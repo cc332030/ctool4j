@@ -11,14 +11,24 @@ import org.springframework.lang.NonNull;
  * </p>
  *
  * @since 2025/10/31
+ * @see "doc/design/spring/ICApplicationListener.adoc"
  */
 @FunctionalInterface
 public interface ICApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E>, ICEvent<E> {
 
+    /**
+     * 是否支持处理该事件
+     * @param event 事件
+     * @return 是否支持
+     */
     default boolean supports(E event) {
         return true;
     }
 
+    /**
+     * 处理事件（支持时委托给 onEvent）
+     * @param event 事件
+     */
     @Override
     default void onApplicationEvent(@NonNull E event) {
         if(supports(event)) {
@@ -26,6 +36,10 @@ public interface ICApplicationListener<E extends ApplicationEvent> extends Appli
         }
     }
 
+    /**
+     * 处理事件
+     * @param event 事件
+     */
     void onEvent(E event);
 
 }

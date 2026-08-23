@@ -1,0 +1,42 @@
+= CJacksonUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.jackson.CJacksonUtils`（core jackson 类）——ObjectMapper 配置与实例。
+
+对应测试类：`com.c332030.ctool4j.core.test.jackson.CJacksonUtilsTests`
+
+对应设计文档：`doc/design/core/CJacksonUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CJacksonUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「实例非空 / Long 序列化 / Date 格式 / null 处理 / 下划线 / json5」多个维度组织。
+- 用 LongBean/DateBean/NullableBean/SnakeBean 验证各 mapper 行为差异。
+
+=== 设计依据
+
+- 依据功能设计对各 mapper（Long 转字符串、NON_NULL、snake_case、json5）的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：各 mapper 非空；OBJECT_MAPPER Long 转字符串；Date 统一格式；NON_NULL 忽略 null（LOG 派生同样）；
+  OBJECT_MAPPER 默认序列化 null；snake_case；json5 无引号/单引号解析。
+- 未覆盖：NATIVE mapper 的数值保留行为、getDefinedModule(numberToString=false) 分支（依赖内部行为，未单列）。
+
+== 1. 实例与序列化行为
+
+- 1.1 mappersNotNull：各 mapper 非空（mappersNotNull）
+- 1.2 Long 转字符串：`id` 序列化为 `"123"`（longToJsonString）
+- 1.3 Date 格式：统一 `yyyy-MM-dd HH:mm:ss`（dateToFormattedString）
+- 1.4 null 处理：NON_NULL/LOG 忽略 null、OBJECT_MAPPER 默认序列化 null（nonNullOmitsNull）
+- 1.5 下划线：`userName` → `user_name`（snakeCase）
+- 1.6 json5：无引号字段名与单引号解析（json5UnquotedAndSingleQuotes）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,53 @@
+= CObjectValueRedisService 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-redis
+类：com.c332030.ctool4j.redis.service.impl.CObjectValueRedisService
+状态：已落地
+适用范围：Object 键值 Redis Service
+
+== 1. 功能说明
+
+`CObjectValueRedisService`（`@Service`）实现 `ICRedisService<Object, Object>`，
+RedisTemplate 兼容 String 和 Object 类型的 key。
+
+- `getRedisTemplate()`：返回泛型 `RedisTemplate<Object, Object>`。
+- `getValueForGenericType(key)`：按泛型类型获取值。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- RedisTemplate 声明为 `RedisTemplate<? super String, Object>`，兼容 String 和 Object key。
+- `getValueForGenericType` 用 `CObjUtils.anyType` 做泛型强转。
+
+=== 2.2 实现方式
+
+- 构造器注入 `RedisTemplate<? super String, Object>`；`getValueForGenericType` 返回 anyType(getValue(key))。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| key 无效 | 由 `ICRedisService.isInvalidKey`（Objects.isNull）判定，getValue 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- key/value 为任意 Object 的 Redis 读写，如对象缓存。
+
+=== 4.2 不适用/边界场景
+
+- key/value 需精确 String 类型时使用 `CStringStringRedisService`。
+
+== 5. 已知限制与取舍
+
+- `getValueForGenericType` 依赖 anyType 强转，调用方需保证返回类型正确，否则运行期可能 ClassCastException。
+
+测试内容见 `doc/design/redis/CObjectValueRedisServiceTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

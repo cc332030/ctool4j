@@ -10,16 +10,20 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: CORSConfig
+ * Description: CCorsConfig
  * </p>
  *
  * @author c332030
  * @since 2024/5/8
+ * @see "doc/design/web/CCorsConfig.adoc"
  */
 @Data
 @ConfigurationProperties("cors")
 public class CCorsConfig {
 
+    /**
+     * 通配符，表示允许全部来源、方法或头
+     */
     public static final String ALL = "*";
 
     Boolean enable = false;

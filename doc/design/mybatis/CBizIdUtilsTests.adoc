@@ -1,0 +1,39 @@
+= CBizIdUtilsTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.mybatis.util.CBizIdUtils`（mybatis 模块业务ID工具）。
+
+对应测试类：`com.c332030.ctool4j.mybatis.test.util.CBizIdUtilsTests`
+
+对应设计文档：`doc/design/mybatis/CBizIdUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CBizIdUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证从实体/类获取业务ID，覆盖 null 字段、无 @CBizId 注解、指定长度等场景。
+
+=== 设计依据
+
+- 依据功能设计对 @CBizId 字段查找、String 类型校验、ID 生成与补零的约定。
+- 依据测试方法（等价类/边界）：实体获取、null 字段、无注解、类获取、指定长度。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：从实体/类获取业务ID；null 字段；无 @CBizId 注解；指定长度补零。
+- 未覆盖：非 String 类型 @CBizId 字段（校验抛异常）场景。
+
+== 1. 业务ID获取
+
+- 1.1 从实体获取（`getBizIdFromEntity`）
+- 1.2 实体字段为 null（`getBizIdFromEntityNullField`）
+- 1.3 实体无 @CBizId 注解（`getBizIdFromEntityNoAnnotation`）
+- 1.4 从类获取（`getBizIdFromClass`）
+- 1.5 从类获取并指定长度（`getBizIdFromClassWithLength`）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

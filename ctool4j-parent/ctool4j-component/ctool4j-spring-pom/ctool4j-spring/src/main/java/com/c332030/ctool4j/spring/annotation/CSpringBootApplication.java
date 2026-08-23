@@ -12,6 +12,7 @@ import java.lang.annotation.*;
  * </p>
  *
  * @since 2025/11/10
+ * @see "doc/design/spring/CSpringBootApplication.adoc"
  */
 @Documented
 @Inherited

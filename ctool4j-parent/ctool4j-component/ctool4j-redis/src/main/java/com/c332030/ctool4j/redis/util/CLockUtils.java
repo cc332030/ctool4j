@@ -6,6 +6,7 @@ import com.c332030.ctool4j.definition.interfaces.ICOperate;
 import com.c332030.ctool4j.redis.service.impl.CLockService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
+import lombok.CustomLog;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
 
@@ -13,16 +14,22 @@ import java.time.Duration;
 
 /**
  * <p>
- * Description: LockUtils
+ * Description: CLockUtils
  * </p>
  *
+ * @see "doc/design/redis/CLockUtils.adoc"
+ * @see "doc/design/redis/CLockUtilsTests.adoc"
  * @author c332030
  * @since 2024/3/20
  */
+@CustomLog
 @UtilityClass
 @CAutowiredScan
 public class CLockUtils {
 
+    /**
+     * 锁 key 的后缀标识
+     */
     public static final String LOCK_STR = "lock";
 
     @Setter
@@ -34,7 +41,7 @@ public class CLockUtils {
      * @param key 业务 key
      * @return 锁 key
      */
-    public static String getLockKey(String key) {
+    public String getLockKey(String key) {
         return key
                 + CRedisUtils.KEY_SEPARATOR
                 +  LOCK_STR;
@@ -47,7 +54,7 @@ public class CLockUtils {
      * @param key 业务 key
      * @return 锁 key
      */
-    public static String getLockKey(Class<?> clazz, ICOperate icOperate, Object key) {
+    public String getLockKey(Class<?> clazz, ICOperate icOperate, Object key) {
         return getLockKey(CRedisUtils.getKey(clazz, icOperate, key));
     }
 
@@ -59,6 +66,7 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
+    @Deprecated
     public <T> T tryLockThenRun(String key, int waitSeconds, CSupplier<T> valueSupplier) {
         return tryLockThenRun(key, Duration.ofSeconds(waitSeconds), valueSupplier);
     }
@@ -71,6 +79,7 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
+    @Deprecated
     public <T> T tryLockThenRun(String key, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
         return tryLockThenRun(key, null, valueSupplier, failureRunnable);
     }
@@ -84,6 +93,7 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
+    @Deprecated
     public <T> T tryLockThenRun(String key, int waitSeconds, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
         return tryLockThenRun(key, Duration.ofSeconds(waitSeconds), valueSupplier, failureRunnable);
     }
@@ -96,6 +106,7 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
+    @Deprecated
     public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier) {
         return tryLockThenRun(key, waitDuration, valueSupplier, null);
     }
@@ -109,6 +120,7 @@ public class CLockUtils {
      * @return 锁成功操作结果
      * @param <T> 返回结果类型
      */
+    @Deprecated
     public <T> T tryLockThenRun(String key, Duration waitDuration, CSupplier<T> valueSupplier, CRunnable failureRunnable) {
         return lockService.tryLockThenRun(key, waitDuration, valueSupplier, failureRunnable);
     }
@@ -119,6 +131,7 @@ public class CLockUtils {
      * @param waitSeconds 等锁秒数
      * @param runnable 锁成功操作
      */
+    @Deprecated
     public void tryLockThenRun(String key, int waitSeconds, CRunnable runnable) {
         tryLockThenRun(key, Duration.ofSeconds(waitSeconds), runnable);
     }
@@ -129,6 +142,7 @@ public class CLockUtils {
      * @param runnable 锁成功操作
      * @param failureRunnable 锁失败操作
      */
+    @Deprecated
     public void tryLockThenRun(String key, CRunnable runnable, CRunnable failureRunnable) {
         tryLockThenRun(key, null, runnable, failureRunnable);
     }
@@ -140,6 +154,7 @@ public class CLockUtils {
      * @param runnable 锁成功操作
      * @param failureRunnable 锁失败操作
      */
+    @Deprecated
     public void tryLockThenRun(String key, int waitSeconds, CRunnable runnable, CRunnable failureRunnable) {
         tryLockThenRun(key, Duration.ofSeconds(waitSeconds), runnable, failureRunnable);
     }
@@ -150,6 +165,7 @@ public class CLockUtils {
      * @param waitDuration 等待时长
      * @param runnable 锁成功操作
      */
+    @Deprecated
     public void tryLockThenRun(String key, Duration waitDuration, CRunnable runnable) {
         tryLockThenRun(key, waitDuration, runnable, null);
     }
@@ -161,8 +177,30 @@ public class CLockUtils {
      * @param runnable 锁成功操作
      * @param failureRunnable 锁失败操作
      */
+    @Deprecated
     public void tryLockThenRun(String key, Duration waitDuration, CRunnable runnable, CRunnable failureRunnable) {
         lockService.tryLockThenRun(key, waitDuration, runnable, failureRunnable);
+    }
+
+    /**
+     * 创建锁构建器
+     *
+     * @param lockKey 锁 key
+     * @return 锁构建器
+     */
+    public CLockService.CLockBuilder lock(String lockKey) {
+        return lockService.lock(lockKey);
+    }
+
+    /**
+     * 创建锁构建器，支持 StrUtil.format 格式化 lockKey
+     *
+     * @param format 格式串，如 "sign:report:{}:{}"
+     * @param args   格式化参数
+     * @return 锁构建器
+     */
+    public CLockService.CLockBuilder lock(String format, Object... args) {
+        return lockService.lock(format, args);
     }
 
 }

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
  * Description: CObjectValueRedisService
  * </p>
  *
+ * @see "doc/design/redis/CObjectValueRedisService.adoc"
+ * @see "doc/design/redis/CObjectValueRedisServiceTests.adoc"
  * @since 2025/11/4
  */
 @Service
@@ -32,6 +34,13 @@ public class CObjectValueRedisService implements ICRedisService<Object, Object> 
         return CObjUtils.anyType(redisTemplate);
     }
 
+    /**
+     * 按泛型类型获取值
+     *
+     * @param key key
+     * @param <T> 返回类型
+     * @return 值，转换为目标泛型类型
+     */
     public <T> T getValueForGenericType(Object key) {
         return CObjUtils.anyType(getValue(key));
     }

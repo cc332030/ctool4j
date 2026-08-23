@@ -25,6 +25,7 @@ import java.util.Objects;
  * </p>
  *
  * @since 2026/1/9
+ * @see "doc/design/web/CCorsUtils.adoc"
  */
 @CustomLog
 @UtilityClass
@@ -35,6 +36,16 @@ public class CCorsUtils {
     @CAutowired
     CCorsConfig config;
 
+    /**
+     * 处理 OPTIONS 预检请求，直接返回 204
+     *
+     * <p>预检请求的 CORS 响应头由 {@link #handle} / {@link #handleDo} 在处理链中先行设置，
+     * 此处仅负责以 204 状态码结束预检请求，不再重复设置响应头（有意设计）</p>
+     *
+     * @param request  请求
+     * @param response 响应
+     * @return true 表示本次为预检请求且已处理
+     */
     public boolean handleOptions(HttpServletRequest request, HttpServletResponse response) {
         try {
             if (CBoolUtils.isTrue(config.getEnable())) {
@@ -51,6 +62,12 @@ public class CCorsUtils {
         return false;
     }
 
+    /**
+     * 处理跨域请求，开启跨域时设置响应头
+     *
+     * @param request  请求
+     * @param response 响应
+     */
     public void handle(HttpServletRequest request, HttpServletResponse response) {
         try {
             if (CBoolUtils.isTrue(config.getEnable())) {
@@ -62,6 +79,12 @@ public class CCorsUtils {
 
     }
 
+    /**
+     * 按配置校验并设置跨域响应头
+     *
+     * @param request  请求
+     * @param response 响应
+     */
     public void handleDo(HttpServletRequest request, HttpServletResponse response) {
 
         val origin = request.getHeader(HttpHeaders.ORIGIN);
@@ -96,7 +119,8 @@ public class CCorsUtils {
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, headers);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-        response.setHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, method);
+        // 允许当前请求方法类型
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, method);
 
     }
 

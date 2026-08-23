@@ -1,13 +1,12 @@
 package com.c332030.ctool4j.mybatisplus.processor;
 
+import com.c332030.ctool4j.base.processor.CAbstractProcessor;
 import lombok.val;
 import lombok.var;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
@@ -23,27 +22,35 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: CAutoBizService 注解处理器
+ * Description: CAutoBizServiceProcessor 注解处理器
  * </p>
  *
  * @since 2025/05/16
+ * @see "doc/design/mybatisplus/CAutoBizServiceProcessor.adoc"
  */
 @SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService")
-public class CAutoBizServiceProcessor extends AbstractProcessor {
+public class CAutoBizServiceProcessor extends CAbstractProcessor {
 
     private String template;
 
+    /**
+     * 初始化：加载 biz-service 模板
+     *
+     * @param processingEnv 处理环境
+     */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.template = loadTemplate("/templates/biz-service.ftl");
     }
 
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_8;
-    }
-
+    /**
+     * 处理注解：为标注 @CAutoBizService 的接口生成对应 Service 接口
+     *
+     * @param annotations 注解集合
+     * @param roundEnv    轮次环境
+     * @return true
+     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (template == null) {
@@ -169,14 +176,14 @@ public class CAutoBizServiceProcessor extends AbstractProcessor {
     private String capitalize(String str) {
         if (str == null || str.isEmpty()) {
             return str;
-        };
+        }
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     private String uncapitalize(String str) {
         if (str == null || str.isEmpty()) {
             return str;
-        };
+        }
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
 

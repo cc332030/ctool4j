@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @since 2025/12/16
+ * @see "doc/design/mybatis/CDeleted.adoc"
  */
 @Data
 @SuperBuilder

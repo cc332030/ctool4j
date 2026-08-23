@@ -1,0 +1,62 @@
+= CConvertUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.classes.CConvertUtils`（core 对象类）——类型转换器注册与对象类型转换。
+
+对应测试类：`com.c332030.ctool4j.core.test.classes.CConvertUtilsTests`
+
+对应设计文档：`doc/design/core/CConvertUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CConvertUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「基础转换 / 特殊源类型 / 枚举 / Opt / 注册」多个维度组织。
+- 基础转换覆盖 String→Integer/Long/Double、Integer→String、同类型、null。
+- 特殊源类型（Collection/Map/数组）验证返回 null；枚举转 String 验证 toString 回退。
+- Opt 包装验证 present/empty；addConverter 无入参方法跳过注册不抛异常（Q16）。
+
+=== 设计依据
+
+- 依据功能设计对默认转换器（CClassConvert）与 null/无转换器语义的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：String→Integer/Long/Double；Integer→String；同类型；null；Collection/Map/数组源返回 null；
+  枚举→String；convertOpt present/empty；addConverter 无入参方法跳过注册。
+- 未覆盖：自定义 addConverter 注册后的实际转换（依赖默认转换器行为，未单列自定义注册场景）。
+
+== 1. 基础转换
+
+- 1.1 String→Integer：`"123"` → 123（convert_toInt）
+- 1.2 String→Long：`"123"` → 123L（convert_toLong）
+- 1.3 String→Double：`"1.5"` → 1.5d（convert_toDouble）
+- 1.4 Integer→String：`123` → `"123"`（convert_toString）
+- 1.5 同类型：`"abc"` → `"abc"`（convert_sameType）
+- 1.6 null：返回 null（convert_null）
+
+== 2. 特殊源类型
+
+- 2.1 Collection 源：返回 null（convert_collectionFrom）
+- 2.2 Map 源：返回 null（convert_mapFrom）
+- 2.3 数组源：返回 null（convert_arrayFrom）
+
+== 3. 枚举
+
+- 3.1 枚举→String：`INSERT` → `"INSERT"`（convert_enum）
+
+== 4. Opt 包装
+
+- 4.1 convertOpt：可转换 present、不可转换/空 empty（convertOpt）
+
+== 5. 注册
+
+- 5.1 addConverter 无入参方法：跳过注册不抛异常（addConverterNoArgMethod，Q16）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

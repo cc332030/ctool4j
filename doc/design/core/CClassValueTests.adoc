@@ -1,0 +1,44 @@
+= CClassValue 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.cache.impl.CClassValue`（core 缓存类）——按类缓存值。
+
+对应测试类：`com.c332030.ctool4j.core.test.cache.impl.CClassValueTests`
+
+对应设计文档：`doc/design/core/CClassValue.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CClassValue 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「取值 / 缓存 / 独立计算」三个维度组织。
+- 取值验证返回类名；缓存用 AtomicInteger 计数验证同一类只计算一次；独立计算验证不同类分别计算。
+
+=== 设计依据
+
+- 依据功能设计对惰性计算与按类缓存的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：get 返回值；同一类缓存（只计算一次）；不同类独立计算。
+- 未覆盖：remove 后重新计算（依赖缓存弱关联行为，未单列）。
+
+== 1. 取值
+
+- 1.1 get：返回类简单名（get）
+
+== 2. 缓存
+
+- 2.1 同一类缓存：多次 get 值函数只执行一次（cached）
+
+== 3. 独立计算
+
+- 3.1 不同类：各自计算（differentClassComputeSeparately）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

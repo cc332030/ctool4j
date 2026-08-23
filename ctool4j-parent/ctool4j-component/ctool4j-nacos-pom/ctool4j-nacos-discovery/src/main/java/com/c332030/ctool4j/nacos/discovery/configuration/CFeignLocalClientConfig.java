@@ -9,9 +9,10 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: FeignConfig
+ * Description: CFeignLocalClientConfig
  * </p>
  *
+ * @see "doc/design/nacos/CFeignLocalClientConfig.adoc"
  * @since 2024/12/9
  */
 @Data

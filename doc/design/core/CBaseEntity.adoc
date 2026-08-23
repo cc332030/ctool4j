@@ -1,0 +1,29 @@
+= CBaseEntity 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CBaseEntity
+状态：已落地
+适用范围：完整基础实体（继承 CBaseTimeEntity，实现 ICCreateUpdateByAndTime）
+
+== 1. 功能说明
+
+`CBaseEntity<ID>` 为完整基础实体，继承 `CBaseTimeEntity<ID>` 并实现 `ICCreateUpdateByAndTime`，
+在时间字段基础上增加 `createById`/`createBy`/`updateById`/`updateBy` 创建人/更新人字段。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要主键 + 时间 + 创建/更新人完整审计字段的实体基类。
+
+== 5. 已知限制与取舍
+
+- 创建人字段不可更新（strategy NEVER）；更新人字段可更新。
+
+测试内容见 `doc/design/core/CBaseEntityTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

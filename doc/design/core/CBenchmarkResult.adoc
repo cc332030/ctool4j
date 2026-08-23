@@ -1,0 +1,39 @@
+= CBenchmarkResult 设计文档
+
+Version: 1.1
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.benchmark.CBenchmarkResult
+状态：已落地
+适用范围：基准执行结果（单次基准的耗时数据）
+
+== 1. 功能说明
+
+`CBenchmarkResult` 为基准执行结果，含用例名、迭代次数、总耗时（纳秒），提供：
+
+- `avgNanos()`：平均耗时（纳秒/次）
+- `opsPerSecond()`：每秒执行次数
+
+== 2. 设计要点
+
+=== 2.1 指标计算
+
+- `avgNanos = elapsedNanos / iterations`
+- `opsPerSecond = iterations / (elapsedNanos / 1e9)`
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 保存并计算单个基准用例的执行指标，供 `CBenchmarkReport` 汇总展示。
+
+== 5. 已知限制与取舍
+
+- 通过 @RequiredArgsConstructor 生成全参构造，字段只读（@Getter）。
+
+测试用例见 `doc/design/core/CBenchmarkResultTests.adoc`。
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 补充对应测试用例与测试文档（doc/design/core/CBenchmarkResultTests.adoc）
+- 1.0 | 2026-08-21 | 初始落地

@@ -34,6 +34,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * </p>
  *
  * @since 2026/1/22
+ * @see "doc/design/spring/CSecurityConfiguration.adoc"
  */
 @Configuration
 @EnableWebSecurity
@@ -42,12 +43,23 @@ public class CSecurityConfiguration {
 
     CSpringSecurityConfig config;
 
+    /**
+     * 创建密码编码器
+     *
+     * @return BCrypt 密码编码器
+     */
     @Bean
     @ConditionalOnMissingBean(PasswordEncoder.class)
     public PasswordEncoder cPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * 创建认证管理器
+     *
+     * @param authConfig 认证配置
+     * @return 认证管理器
+     */
     @Bean
     @SneakyThrows
     @ConditionalOnMissingBean(AuthenticationManager.class)
@@ -55,31 +67,65 @@ public class CSecurityConfiguration {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * 创建认证入口
+     *
+     * @return 认证入口
+     */
     @Bean
     @ConditionalOnMissingBean(AuthenticationEntryPoint.class)
     public AuthenticationEntryPoint cAuthenticationEntryPoint() {
         return new CAuthenticationEntryPoint();
     }
 
+    /**
+     * 创建访问拒绝处理器
+     *
+     * @return 访问拒绝处理器
+     */
     @Bean
     @ConditionalOnMissingBean(AccessDeniedHandler.class)
     public AccessDeniedHandler cAccessDeniedHandler() {
         return new CAccessDeniedHandler();
     }
 
+    /**
+     * 创建会话过期策略
+     *
+     * @return 会话过期策略
+     */
     @Bean
     @ConditionalOnMissingBean(SessionInformationExpiredStrategy.class)
     public SessionInformationExpiredStrategy cSessionInformationExpiredStrategy() {
         return new CSessionInformationExpiredStrategy();
     }
 
+    /**
+     * 创建空用户详情服务，供无自定义实现时兜底
+     *
+     * @return 空用户详情服务
+     */
     @Bean
     @ConditionalOnMissingBean(UserDetailsService.class)
     public UserDetailsService cUserDetailsService() {
         return new CEmptyUserDetailService();
     }
 
+    /**
+     * 创建安全过滤器链，配置认证、授权、异常处理与会话管理
+     *
+     * @param http                            HttpSecurity
+     * @param authenticationEntryPoint        认证入口
+     * @param accessDeniedHandler             访问拒绝处理器
+     * @param sessionInformationExpiredStrategy 会话过期策略
+     * @param requestMatchersPathConfig       请求匹配路径配置
+     * @param jwtFilter                       JWT 过滤器
+     * @return 安全过滤器链
+     * @throws Exception 构建过滤器链失败时抛出
+     */
     @Bean
+    // 安全过滤链绑定了 permit/deny 等安全路径配置（CSpringSecurityRequestMatchersPathConfig），
+    // 该配置可来自配置中心（如 Nacos/Spring Cloud Config），使用 @RefreshScope 使安全规则变更即时生效，无需重启应用
     @RefreshScope
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain cFilterChain(

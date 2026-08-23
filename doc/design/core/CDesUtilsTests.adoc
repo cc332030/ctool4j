@@ -1,0 +1,46 @@
+= CDesUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CDesUtils`（core 工具类）——DES 对称加解密（字节数组/Base64/Base62）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CDesUtilsTests`
+
+对应设计文档：`doc/design/core/CDesUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CDesUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「加密 / 解密」两个维度、再按输出形态（Base64 / Base62）组织。
+- 加密验证确定性结果：以固定 key + 明文断言固定的 Base64/Base62 密文，确保加密结果稳定。
+- 解密以加密得到的固定密文还原明文，验证加解密互为逆操作。
+
+=== 设计依据
+
+- 依据功能设计对空入参返回 null 的约定（本批测试用例未单列空入参，见覆盖场景说明）。
+- 依据测试方法（黑盒等价类）：固定样本的确定性加解密结果。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：Base64 加密/解密、Base62 加密/解密四组确定性的加解密往返。
+- 未覆盖：`getDES`、`encrypt`（字节数组入口）、`decrypt`（字节数组入口）、空入参返回 null 分支；
+  这些入口行为由确定性样本间接保证（字符串入口内部走字节入口），空入参分支与设计约定一致，
+  属可选扩展用例，后续批次可补充。
+
+== 1. 加密
+
+- 1.1 Base64：`KEY + "332030"` 加密得到 `NIAMvCzxs+A=`（encryptStr64）
+- 1.2 Base62：`KEY + "332030"` 加密得到 `4VSLrykWrrM`（encryptStr62）
+
+== 2. 解密
+
+- 2.1 Base64：`KEY + NIAMvCzxs+A=` 解密还原 `332030`（decryptStr64）
+- 2.2 Base62：`KEY + 4VSLrykWrrM` 解密还原 `332030`（decryptStr62）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

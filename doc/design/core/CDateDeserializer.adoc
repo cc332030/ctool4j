@@ -1,0 +1,46 @@
+= CDateDeserializer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.deserializer.CDateDeserializer
+状态：已落地
+适用范围：Jackson Date 反序列化（字符串/整型毫秒时间戳）
+
+== 1. 功能说明
+
+`CDateDeserializer` 为 Jackson `Date` 反序列化器，扩展 `JsonDeserializer<Date>`，支持：
+
+- 字符串（含毫秒时间戳字符串）：`CDateUtils.parseMaybeMills`
+- 整型毫秒时间戳：`CDateUtils.toDate`
+- 其他 token：交给默认 `DateDeserializers.DateDeserializer.instance`
+
+提供单例 `INSTANCE`。
+
+== 2. 设计要点
+
+=== 2.1 token 分发
+
+- `ID_STRING`：字符串经 `parseMaybeMills` 智能解析（日期/时间/日期时间/毫秒/秒时间戳）。
+- `ID_NUMBER_INT`：整型毫秒经 `toDate` 转换。
+- 其他 token 回退默认实现。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要 Date 字段同时支持字符串与整型毫秒时间戳反序列化。
+
+=== 4.2 不适用/边界场景
+
+- 空字符串/null/缺失字段由默认实现处理（返回 null）。
+
+== 5. 已知限制与取舍
+
+- 委托 CDateUtils 统一解析语义，保证字符串/时间戳兼容。
+
+测试内容见 `doc/design/core/CDateDeserializerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

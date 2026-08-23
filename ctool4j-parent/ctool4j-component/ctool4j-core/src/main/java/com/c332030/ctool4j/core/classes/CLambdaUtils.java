@@ -2,14 +2,9 @@ package com.c332030.ctool4j.core.classes;
 
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.CFunction;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 
 /**
@@ -19,68 +14,37 @@ import java.lang.reflect.Field;
  *
  * @author c332030
  * @since 2025/12/20
+ * @see "doc/design/core/CLambdaUtils.adoc"
+ * @see "doc/design/core/CLambdaUtilsTests.adoc"
  */
 @UtilityClass
 public class CLambdaUtils {
 
     /**
-     * JDK 9+需注意模块访问权限，这里兼容JDK 8
+     * 获取字段读取 Lambda
+     * <p>JDK 8 的 LambdaMetafactory 不支持 getField/putField 类直接方法句柄
+     * （抛 "Unsupported MethodHandle kind: getField"），故委托 MethodHandle.invoke 调用，
+     * 每次调用做参数适配与装箱（JDK 8 兼容性取舍，避免直接反射 Field.get）。
+     * 使用 {@link CMethodHandleUtils#getGetterHandleAsType}（setAccessible 语义，不受跨包访问级别限制）</p>
+     *
+     * @param field 字段
+     * @return 字段读取 Lambda
      */
-    final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
-
-    public MethodHandles.Lookup getLookup(Class<?> clazz) {
-        return LOOKUP.in(clazz);
+    public CFunction<Object, Object> getFieldGetLambda(Field field) {
+        val handle = CMethodHandleUtils.getGetterHandleAsType(field);
+        return handle::invoke;
     }
 
-    @SneakyThrows
-    public MethodHandle getGetterMethodHandle(Class<?> clazz, Field field) {
-        return getLookup(clazz).unreflectGetter(field);
-    }
-
-    @SneakyThrows
-    public MethodHandle getSetterMethodHandle(Class<?> clazz, Field field) {
-        return getLookup(clazz).unreflectSetter(field);
-    }
-
-    @SneakyThrows
-    public <T> T getLambda(
-            MethodHandle methodHandle,
-            Class<T> lambdaClass,
-            String lambdaMethodName
-    ) {
-
-        val callSite = LambdaMetafactory.metafactory(
-                LOOKUP,
-                lambdaMethodName, // 函数式接口的方法名（Getter继承Function，方法名是apply）
-                MethodType.methodType(lambdaClass), // 生成的 Lambda 类型（Getter<T,R>）
-                methodHandle.type().generic(), // 方法类型的泛型签名（T -> R）
-                methodHandle, // 实际执行的方法句柄（字段读取）
-                methodHandle.type() // 实际方法类型（具体的T -> R，比如User -> String）
-        );
-
-        val invokeExact = callSite.getTarget().invokeExact();
-        return CObjUtils.anyType(invokeExact);
-    }
-
-    @SneakyThrows
-    public CFunction<Object, Object> getFieldGetLambda(Class<?> clazz, Field field) {
-        val lambda = getLambda(
-                getGetterMethodHandle(clazz, field),
-                CFunction.class,
-                CFunction.APPLY
-        );
-        return CObjUtils.anyType(lambda);
-    }
-
-    @SneakyThrows
-    public CBiConsumer<Object, Object> getFieldSetLambda(Class<?> clazz, Field field) {
-        val lambda = getLambda(
-                getSetterMethodHandle(clazz, field),
-                CBiConsumer.class,
-                CBiConsumer.ACCEPT
-        );
-        return CObjUtils.anyType(lambda);
-
+    /**
+     * 获取字段写入 Lambda
+     * <p>同 {@link #getFieldGetLambda}，委托 MethodHandle.invoke 调用</p>
+     *
+     * @param field 字段
+     * @return 字段写入 Lambda
+     */
+    public CBiConsumer<Object, Object> getFieldSetLambda(Field field) {
+        val handle = CMethodHandleUtils.getSetterHandleAsType(field);
+        return handle::invoke;
     }
 
 }

@@ -1,0 +1,28 @@
+= CBiFunction 测试用例文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-core
+被测类：com.c332030.ctool4j.definition.function.CBiFunction
+状态：已落地
+
+本文档为 CBiFunctionTest 的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 2.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 白盒原则：围绕 CBiFunction 内置常量 `FIRST`/`SECOND`（取第一/第二个参数）的行为设计用例，覆盖不同参数类型（Integer/String）。
+
+=== 覆盖场景
+
+== 分类编号索引
+
+=== 2. 内置函数常量
+
+- 2.1 first：取第一个参数（Integer/String）
+- 2.2 second：取第二个参数（Integer/String）
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

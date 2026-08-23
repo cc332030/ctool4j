@@ -1,0 +1,29 @@
+= CUpdateBy 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CUpdateBy
+状态：已落地
+适用范围：更新人实体（继承 CCreateBy，实现 ICCreateUpdateBy）
+
+== 1. 功能说明
+
+`CUpdateBy` 为更新人实体，继承 `CCreateBy` 并实现 `ICCreateUpdateBy`，在创建人基础上增加 `updateById` 与
+`updateBy` 字段。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要创建/更新人字段的实体。
+
+== 5. 已知限制与取舍
+
+- 创建人字段不可更新；更新人字段可更新。
+
+测试内容见 `doc/design/core/CUpdateByTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

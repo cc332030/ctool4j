@@ -1,0 +1,32 @@
+= CSchemaTestDTO 设计文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.test.model.CSchemaTestDTO
+状态：已落地
+适用范围：CSchema 集成测试辅助 DTO
+
+== 1. 功能说明
+
+`CSchemaTestDTO` 为 `CSchema` 集成测试辅助 DTO，字段用 `@CSchema` 标注：
+
+- `username`：必填字段（`@CSchema(required=true)`，含描述）
+- `remark`：非必填字段（含描述）
+- `other`：无描述的非必填字段
+
+用于验证接口必填/非必填、字段文档生成、字段必填校验生效。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- `CSchemaIntegrationTests` 集成测试，验证 `@CSchema` 注解在真实接口（`CSchemaTestController`）上的必填校验与字段文档。
+
+== 5. 已知限制与取舍
+
+- 测试辅助类；字段设计覆盖必填/非必填/有描述/无描述多种形态。
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

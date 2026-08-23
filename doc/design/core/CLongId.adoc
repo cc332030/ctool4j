@@ -1,0 +1,28 @@
+= CLongId 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CLongId
+状态：已落地
+适用范围：Long 类型 ID 实体（继承 CId<Long>）
+
+== 1. 功能说明
+
+`CLongId` 为 Long 类型 ID 实体，继承 `CId<Long>` 并实现 `ICLongId`，固定主键为 Long 类型。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 主键为 Long 的实体基类。
+
+== 5. 已知限制与取舍
+
+- 固定 ID 类型为 Long。
+
+测试内容见 `doc/design/core/CLongIdTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

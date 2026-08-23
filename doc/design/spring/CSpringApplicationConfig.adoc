@@ -1,0 +1,38 @@
+= CSpringApplicationConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-spring
+类：com.c332030.ctool4j.spring.config.CSpringApplicationConfig
+状态：已落地
+适用范围：应用配置
+
+== 1. 功能说明
+
+`CSpringApplicationConfig`：应用配置。
+
+== 2. 设计要点
+
+- 绑定应用 group/name 等配置，供各工具读取前缀
+
+== 3. 兜底设计
+
+未配置时取空
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+应用标识配置
+
+=== 4.2 不适用/边界场景
+
+供 CRedisUtils 等使用
+
+== 5. 已知限制与取舍
+
+供 CRedisUtils 等使用
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

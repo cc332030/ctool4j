@@ -1,0 +1,52 @@
+= ICBaseResponseBodyAdvice 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice
+状态：已落地
+
+== 1. 功能说明
+
+`ICBaseResponseBodyAdvice<T>` 为响应体处理的基类接口，继承 Spring `ResponseBodyAdvice<T>`，
+提供默认空实现（不做任何处理、原样透传），并暴露一个基于 `HttpServletRequest`/`HttpServletResponse`
+的便捷抽象方法。
+
+默认方法：
+
+- `supports(...)`：默认返回 true
+- `beforeBodyWrite(...)`（ServerHttpRequest 版本）：从 `ServletServerHttpRequest`/`ServletServerHttpResponse`
+  解包出 `HttpServletRequest`/`HttpServletResponse`，转发给抽象 HTTP 版本
+
+抽象方法：
+
+- `beforeBodyWrite(body, returnType, selectedContentType, selectedConverterType, request, response)`
+  （HTTP 版本）：实现类只需处理 HTTP 请求/响应
+
+== 2. 设计要点
+
+=== 2.1 解包转发
+
+- 基类处理 Servlet 解包，实现类无需关心 ServerHttpRequest 转换，直接处理 HTTP 版本。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 未覆写抽象方法 | 实现类必须实现 HTTP 版本抽象方法 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要介入响应体写出的 Advice 实现继承本接口。
+
+== 5. 已知限制与取舍
+
+- `supports` 默认 true；实现类必须实现 HTTP 版本 `beforeBodyWrite`。
+
+测试内容见 `doc/design/web/CCorsResponseBodyAdviceTests.adoc`（经实现类间接覆盖）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

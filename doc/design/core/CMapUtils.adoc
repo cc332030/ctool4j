@@ -1,0 +1,81 @@
+= CMapUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CMapUtils
+状态：已落地
+适用范围：Map 操作（写入/空兜底/创建/键值映射/过滤/合并/对比/computeIfAbsent）
+
+== 1. 功能说明
+
+`CMapUtils` 为 Map 工具类，提供：
+
+- 写入与兜底：`put`（空入参不写入）、`defaultEmpty`、`toStringValueMap`
+- 创建：`newMap`、`newEnumMap`、`newIgnoreCaseMap`
+- 键值映射：`mapKey`、`mapValue`、`map`（null key/value 过滤）
+- 过滤：`filter`、`filterKey`、`filterValue`
+- 合并：`merge`（冲突取第一或自定义合并）
+- 其他：`toAvailableStrMap`、`compare`（打印差异表格）、`computeIfAbsent`
+- TypeReference 常量：`MAP_STRING_OBJECT`、`LIST_MAP_STRING_OBJECT`、`MAP_STRING_STRING`
+
+== 2. 设计要点
+
+=== 2.1 空入参语义
+
+- `put`：map/key/value 任一为 null 时不写入，返回 null。
+- `defaultEmpty`：空/null Map 返回空 Map（非 null）。
+- `map`/`merge`/`filter`：空 Map 返回空 Map；转换后 key/value 为 null 的条目被过滤。
+
+=== 2.2 Map 创建
+
+- `newMap(type, size)`：type 为枚举返回 EnumMap，否则返回 LinkedHashMap。
+- `newEnumMap`：非枚举抛 IllegalArgumentException。
+- `newIgnoreCaseMap`：返回 `TreeMap(String.CASE_INSENSITIVE_ORDER)`，忽略大小写。
+
+=== 2.3 映射与过滤
+
+- `map(map, keyMapper, valueMapper)`：逐条转换，key/value 任一转换结果为 null 时跳过该条目。
+- `filter`：按 `CBiPredicate` 过滤，返回收集结果（Collectors.toMap）。
+
+=== 2.4 合并
+
+- `merge`：合并多个 Map，空/全 null value 条目过滤；默认冲突取第一个（`(e1,e2)->e1`），
+  可传 mergeFunction；返回不可变 LinkedHashMap。
+
+=== 2.5 computeIfAbsent
+
+- 先 `map.get(key)`，非 null 直接返回；否则 `map.computeIfAbsent(key, mappingFunction)`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| put 任一入参为 null | 不写入，返回 null |
+| defaultEmpty 空/null Map | 返回空 Map |
+| map 空 Map / 转换后 key/value 为 null | 返回空 Map / 跳过该条目 |
+| merge 空数组/null | 返回空 Map |
+| merge 冲突 key | 默认取第一个（可自定义 merge） |
+| computeIfAbsent 已有值 | 直接返回，不调用 supplier |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- Map 创建、键值映射/过滤/合并、空值安全写入等通用 Map 操作。
+
+=== 4.2 不适用/边界场景
+
+- newMap 需传非 null object/type；EnumMap 需枚举类型。
+- map/filter 依赖转换函数，转换结果为 null 的条目被丢弃。
+
+== 5. 已知限制与取舍
+
+- null key/value 过滤保证结果 Map 无 null 条目，牺牲"保留 null"能力换取安全。
+- merge 返回不可变 LinkedHashMap，保证合并结果不被修改。
+
+测试内容见 `doc/design/core/CMapUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

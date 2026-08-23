@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
  * Description: CXxlJobAspect
  * </p>
  *
+ * @see "doc/design/xxljob/CXxlJobAspect.adoc"
  * @since 2025/11/28
  */
 @CustomLog
@@ -46,7 +47,7 @@ public class CXxlJobAspect {
     public Object around(ProceedingJoinPoint joinPoint) {
 
         val method = CAspectUtils.getMethod(joinPoint);
-        val jobName = CReflectUtils.getAnnotationValue(method, XxlJob.class, XxlJob::value);
+        val jobName = CReflectUtils.getAnnotationValueCached(method, XxlJob.class, XxlJob::value);
 
         val args = joinPoint.getArgs();
         log.debug("jobName: {}, args: {}", jobName, args);

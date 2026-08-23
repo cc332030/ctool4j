@@ -13,12 +13,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </p>
  *
  * @since 2026/4/9
+ * @see "doc/design/web/CIllegalStateExceptionHandler.adoc"
  */
 @CustomLog
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(IllegalStateException.class)
 public class CIllegalStateExceptionHandler {
 
+    /**
+     * 处理非法状态异常
+     *
+     * @param e 非法状态异常
+     * @return 错误结果
+     */
     @ExceptionHandler(IllegalStateException.class)
     public CStrResult<Void> handle(IllegalStateException e) {
 

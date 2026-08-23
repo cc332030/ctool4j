@@ -1,0 +1,45 @@
+= CThreadLocalUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CThreadLocalUtils`（core 工具类）——ThreadLocal 取值（取后移除、默认值）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CThreadLocalUtilsTests`
+
+对应设计文档：`doc/design/core/CThreadLocalUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CThreadLocalUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「取后移除 / 默认值」两个维度组织。
+- 取后移除：有值取后 remove，再 get 为 null；空 ThreadLocal 取后为 null。
+- 默认值：直默认值重载（有值用值、无值用默认值）；supplier 重载验证惰性（有值不调用 supplier）。
+
+=== 设计依据
+
+- 依据功能设计对取后移除与默认值、supplier 惰性的约定。
+- 依据测试方法（等价类/边界值/惰性验证）：有值/无值、remove 副作用、supplier 调用次数。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：getThenRemove 有值取后移除、空 ThreadLocal；getOrDefault 有值/无值；getOrDefault(supplier)
+  有值不调用 supplier、无值调用 supplier。
+- 未覆盖：无（覆盖了全部入口与分支）。
+
+== 1. 取后移除（getThenRemove）
+
+- 1.1 有值：取到值且 remove 后再次 get 为 null（getThenRemove）
+- 1.2 空：空 ThreadLocal 返回 null 且 remove 无副作用（getThenRemoveEmpty）
+
+== 2. 默认值（getOrDefault）
+
+- 2.1 直默认值：有值用值、无值用默认值（getOrDefault）
+- 2.2 supplier：有值不调用 supplier、无值调用 supplier（getOrDefaultWithSupplier）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

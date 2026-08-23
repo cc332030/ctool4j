@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * Description: CXxlJobConfiguration
  * </p>
  *
+ * @see "doc/design/xxljob/CXxlJobConfiguration.adoc"
  * @since 2025/11/29
  */
 @CustomLog
@@ -24,6 +25,14 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "xxl.job", name = "enable", havingValue = "true", matchIfMissing = true)
 public class CXxlJobConfiguration {
 
+    /**
+     * 创建 xxl-job 执行器，按配置初始化 admin 与执行器参数
+     *
+     * @param config         执行器配置
+     * @param adminConfig    admin 配置
+     * @param executorConfig 执行器参数配置
+     * @return 初始化完成的 XxlJobExecutor
+     */
     @Bean
     @ConditionalOnMissingBean(XxlJobExecutor.class)
     public XxlJobExecutor cXxlJobExecutor(

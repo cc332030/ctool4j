@@ -11,15 +11,14 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>使用示例：</p>
- * <pre>
- * {@code
- * @AutoBizService
+ * <pre>{@code
+ * &#64;CAutoBizService
  * public interface IOrderNo {
  *     String getOrderNo();
- * }
- * </pre>
+ * }}</pre>
  *
  * @since 2025/05/16
+ * @see "doc/design/mybatisplus/CAutoBizService.adoc"
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)

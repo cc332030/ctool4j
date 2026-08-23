@@ -1,0 +1,54 @@
+= CStrUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CStrUtils`（core 工具类）——字符串工具（格式化/自增/中文提取/可用性处理）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CStrUtilsTest`
+
+对应设计文档：`doc/design/core/CStrUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CStrUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「格式化 / 自增 / 中文提取 / 可用性处理」多个维度组织。
+- 格式化验证缺失参数以空串兜底。
+- 自增验证 `前缀-数字` 末尾数字 +1。
+- 中文提取覆盖中文、混合、纯数字、纯字母、含特殊字符等多样本。
+- 可用性处理（toAvailable）覆盖单侧/双侧引号、引号全覆盖、空值边界（Q16 回归）。
+
+=== 设计依据
+
+- 依据功能设计对格式化兜底、自增规则、中文提取正则、toAvailable 引号语义的约定。
+- 依据测试方法（等价类/边界值/分支覆盖/回归）：引号各种形态、自增、中文混合、格式化缺失参数。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：format 缺失参数空串兜底；incrLastNum 自增；chineseOnly 多种样本（纯中文/混合/纯数字/纯字母）；
+  toAvailable 单侧/双侧引号、全引号、空值。
+- 未覆盖：`splitToList`/`join`/`concat`/`repeat`/`fillAfter` 等其余入口（当前测试聚焦格式化/自增/中文/
+  可用性核心路径，其余入口可后续批次补充）。
+
+== 1. 格式化
+
+- 1.1 format 缺失参数：`${name}` 缺失时以空串兜底（formatNullToEmpty）
+
+== 2. 末尾数字自增
+
+- 2.1 incrLastNum：`c332030-1` → `c332030-2`（incrLastNum）
+
+== 3. 中文提取
+
+- 3.1 chineseOnly：中文/混合/纯数字/纯字母/特殊字符等多样本（chineseOnly）
+
+== 4. 可用性处理（toAvailable）
+
+- 4.1 引号处理：单侧/双侧引号保留非引号字符；`''`/`'`/空返回 null（toAvailableSingleQuote，Q16 回归）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

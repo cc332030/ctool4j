@@ -1,0 +1,70 @@
+= CDesUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CDesUtils
+状态：已落地
+适用范围：DES 对称加解密（字节数组/Base64/Base62），按 key 缓存 DES 实例
+
+== 1. 功能说明
+
+`CDesUtils` 为 DES 加解密工具类，基于 hutool `SecureUtil`/`DES` 封装，提供：
+
+- `getDES(key)`：获取指定 key 的 DES 实例（带缓存）
+- `encrypt(key, plainText)`：加密为密文字节数组
+- `encryptStr64` / `encryptStr62`：加密后分别编码为 Base64 / Base62 字符串
+- `decrypt(key, cipherBytes)`：解密密文字节数组为明文
+- `decryptStr64` / `decryptStr62`：分别解密 Base64 / Base62 密文
+
+== 2. 设计要点
+
+=== 2.1 DES 实例缓存（DES_MAP）
+
+- 按 key 用 `ConcurrentHashMap.computeIfAbsent` 缓存 DES 实例，避免重复创建。
+- 实例构建：`SecureUtil.des(key.getBytes(CCharsets.UTF_8))`，key 使用全局统一 UTF-8 编码。
+
+=== 2.2 空入参约定
+
+- key 或明文/密文为空时统一返回 null，而非抛异常：
+  - `encrypt`：key 或 plainText 空白 → null
+  - `decrypt`：key 或 cipherBytes 空 → null
+- 字符串加解密通过 `CBase64Utils`/`CBase62Utils` 编解码，空入参语义由底层工具类保持一致（返回 null）。
+
+=== 2.3 加解密语义
+
+- `encrypt` 返回 hutool `DES.encrypt(plainText)` 的密文字节数组。
+- `decrypt` 委托 `DES.decryptStr(cipherBytes)` 还原明文。
+- `encryptStr64` = `CBase64Utils.encode(encrypt(key, plainText))`，`decryptStr64` 为其逆操作，其余同理。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| encrypt：key 或明文为空白 | 返回 null |
+| decrypt：key 或密文为空 | 返回 null |
+| 加密字符串入口：key/明文空白 | 返回 null（经 encrypt 前置判断） |
+| 解密字符串入口：key/密文空白 | 返回 null（经 decrypt 前置判断） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要对短文本做对称加解密（如 ID、敏感字段的传输加密）。
+- 需要 Base64 / Base62 文本形态的密文（便于存储/传输）。
+
+=== 4.2 不适用/边界场景
+
+- DES 密钥较短（56 位有效密钥），安全性弱于 AES；不适合高强度敏感数据加密。
+- 采用 ECB/默认模式，未显式指定 IV/填充；跨系统互操作时需对齐 hutool 默认行为。
+
+== 5. 已知限制与取舍
+
+- DES 实例按 key 缓存，key 理论上静态不可变，风险低。
+- 空入参返回 null，与"加密为空"语义一致；调用方需注意对 null 结果的判空。
+
+测试内容见 `doc/design/core/CDesUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

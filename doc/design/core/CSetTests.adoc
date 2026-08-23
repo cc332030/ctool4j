@@ -1,0 +1,50 @@
+= CSet 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CSet`（core 工具类）——构造空/元素 Set（过滤 null），枚举 Set。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CSetTests`
+
+对应设计文档：`doc/design/core/CSet.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CSet 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「空 Set / 普通元素 / 枚举」三个维度组织。
+- 空 Set：of() 为空。
+- 普通元素：正例去重、null 过滤（含全 null 返回空）、不可变（add 抛异常）。
+- 枚举：正例元素齐全、不可变（add 抛异常）。
+
+=== 设计依据
+
+- 依据功能设计对 null 过滤、不可变返回、枚举构造的约定。
+- 依据测试方法（等价类/边界值）：去重、null 过滤、全 null、不可变断言。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：of() 空；普通元素去重、null 过滤、不可变；枚举正例与不可变。
+- 未覆盖：HashSet 无序性验证（非语义要点，未断言顺序）。
+
+== 1. 空 Set
+
+- 1.1 of()：返回空 Set（ofEmpty）
+
+== 2. 普通元素 Set
+
+- 2.1 正例：`["a","b","a"]` 去重 → `{a,b}`（ofGeneric）
+- 2.2 null 过滤：`[null,"b",null]` → `{b}`；全 null → 空（ofGenericNullFiltered）
+- 2.3 不可变：add 抛 UnsupportedOperationException（ofGenericUnmodifiable）
+
+== 3. 枚举 Set
+
+- 3.1 正例：`{INSERT, DELETE}` 大小为 2 且包含两元素（ofEnum）
+- 3.2 不可变：add 抛 UnsupportedOperationException（ofEnumUnmodifiable）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

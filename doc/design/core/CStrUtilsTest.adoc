@@ -1,0 +1,44 @@
+= CStrUtils 测试用例文档
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-core
+被测类：com.c332030.ctool4j.core.util.CStrUtils
+状态：已落地
+
+本文档为 CStrUtilsTest 的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 白盒原则：围绕 CStrUtils 的关键字符串处理能力设计用例：
+  - `format`：模板格式化，缺失参数格式化为空字符串（默认替换值）
+  - `incrLastNum`：字符串末尾数字自增
+  - `chineseOnly`：提取字符串中的中文（覆盖纯中文、纯英文/数字、混合、特殊字符边界）
+  - `toAvailable`：单侧引号处理（Q16 修复：start == end 时保留该非引号字符）
+- 边界：`chineseOnly` 覆盖无中文、含特殊字符、混合等；`toAvailable` 覆盖单引号/双引号/空串/仅引号等边界。
+
+=== 覆盖场景
+
+== 分类编号索引
+
+=== 1. 模板格式化
+
+- 1.1 formatNullToEmpty：模板缺失参数格式化为空字符串
+
+=== 2. 数字自增
+
+- 2.1 incrLastNum：字符串末尾数字自增
+
+=== 3. 提取中文
+
+- 3.1 chineseOnly：提取字符串中的中文（覆盖多种边界）
+
+=== 4. 单侧引号处理
+
+- 4.1 toAvailableSingleQuote：单侧引号处理（Q16 修复）
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

@@ -1,0 +1,42 @@
+= ConditionalOnMissingExceptionHandler 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler
+状态：已落地
+
+== 1. 功能说明
+
+`ConditionalOnMissingExceptionHandler` 为条件装配注解，
+`@Conditional(ConditionalOnMissingExceptionHandlerCondition.class)`，
+标注在类型或方法上，指定要检查的异常类型 `value()`。
+
+== 2. 设计要点
+
+=== 2.1 条件装配
+
+- 当容器中无任何 `ControllerAdvice` 处理指定异常类型时，被标注的 Handler 才生效
+  （判断逻辑见 `ConditionalOnMissingExceptionHandlerCondition`）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 无 | 注解元数据，行为在 Condition 中 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 框架内置异常处理器标注该注解，避免与业务方自定义处理器冲突。
+
+== 5. 已知限制与取舍
+
+- 需配合 `ConditionalOnMissingExceptionHandlerCondition` 才生效。
+
+测试内容：无独立测试类（注解，行为由 Condition 的测试覆盖，见 `ConditionalOnMissingExceptionHandlerCondition`）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

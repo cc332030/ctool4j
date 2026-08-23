@@ -1,0 +1,71 @@
+= CObjUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CObjUtils
+状态：已落地
+适用范围：对象工具（类型转换/转换器/条件取值/合并/null 兜底）
+
+== 1. 功能说明
+
+`CObjUtils` 为对象工具类，提供：
+
+- 类型：`emptyObject` / `anyType` / `toSupplier`
+- 转换：`to`（类型匹配）/ `convert`（Class 转换器）/ `convert`（函数转换，多版本）
+- 条件取值：`ifThenGet` / `equalsThenGet` / `notNullThenGet`
+- 比较合并：`equals` / `merge`
+- 兜底：`defaultIfNull`
+
+== 2. 设计要点
+
+=== 2.1 类型转换
+
+- `to(o, tClass)`：目标类型实例直接返回；null 返回 null；类型不匹配抛 IllegalStateException。
+- `convert(from, toClass)`：类型匹配直接返回；否则经 `CConvertUtils.getConverter` 转换器转换，
+  无转换器返回 null。
+
+=== 2.2 函数转换
+
+- `convert(o, function, defaultValue)`：null 返回默认值；函数结果 null 返回默认值。
+- 双对象版本：依次尝试两个对象，返回第一个非 null 结果。
+
+=== 2.3 条件取值
+
+- `ifThenGet(bool, supplier)`：条件成立返回结果，否则 null。
+- `equalsThenGet` / `notNullThenGet`：基于相等/非 null 条件。
+
+=== 2.4 合并（merge）
+
+- v1 不可用返回 v2，v2 不可用返回 v1；两者可用且 merge 为 null 抛 IllegalStateException；
+  否则执行 merge。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| to 类型不匹配 | 抛 IllegalStateException |
+| convert 无转换器 / null 入参 | 返回 null |
+| convert 函数结果 null | 返回默认值 |
+| merge v1/v2 不可用 | 返回可用方 |
+| merge 双可用且 merge null | 抛 IllegalStateException |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对象类型转换、条件取值、字段取值（`convert(t, function)`）、合并兜底。
+
+=== 4.2 不适用/边界场景
+
+- `to` 类型不匹配抛异常，需要安全转换用 `convert`。
+
+== 5. 已知限制与取舍
+
+- convert 依赖 CConvertUtils 注册的转换器；null 语义统一（返回 null/默认值/跳过）。
+
+测试内容见 `doc/design/core/CObjUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,47 @@
+= CBenchmarkRunner 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.benchmark.CBenchmarkRunner
+状态：已落地
+适用范围：轻量性能基准运行器（预热 + 计时）
+
+== 1. 功能说明
+
+`CBenchmarkRunner` 为轻量性能基准运行器，提供 `run(List<CBenchmarkCase>, String title)`：
+
+- 预热：`WARMUP_ITERATIONS=50000` 次（触发 JIT 编译）
+- 计时：`MEASURE_ITERATIONS=100000` 次
+- 返回 `CBenchmarkReport`（含控制台打印）
+
+== 2. 设计要点
+
+=== 2.1 两轮执行
+
+- 第一轮对所有用例预热，触发全部实现方式初始化/加载（初始化干扰不计入结果）。
+- 第二轮在全部初始化完成后再次预热并正式计时。
+
+=== 2.2 防止 JIT 消除
+
+- `run()` 返回值经 `System.identityHashCode` 累计到 blackhole，防止 JIT 将无副作用的循环体消除。
+
+=== 2.3 结果排序
+
+- 结果按 `avgNanos` 升序排序，首项为基线。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 各模块性能基准用例的执行（基准用例放测试源码目录，由测试方法触发）。
+
+== 5. 已知限制与取舍
+
+- 轻量级基准，非 JMH 级精度；用于横向对比实现方式耗时。
+
+说明：本类为基准运行框架，无独立测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

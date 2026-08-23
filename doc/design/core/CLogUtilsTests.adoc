@@ -1,0 +1,37 @@
+= CLogUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.log.CLogUtils`（core 日志类）——日志工具（是否转 JSON 判断）。
+
+对应测试类：`com.c332030.ctool4j.core.test.log.CLogUtilsTest`
+
+对应设计文档：`doc/design/core/CLogUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CLogUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证 `isJsonLog` 的正反判断：命中转 JSON 集合（CResult 实现 ICBaseResult）为 true；
+  JDK 基本类（String）与命中不转集合（DataSource）为 false。
+
+=== 设计依据
+
+- 依据功能设计对 JSON 化判断规则（转集合命中 / JDK 类 / 不转集合）的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：isJsonLog 转 JSON 类型（CResult）、JDK 类（String）、不转类型（DataSource）。
+- 未覆盖：包名匹配、注解匹配、setJsonLog 动态配置等其余规则分支（当前测试聚焦基础判断，
+  其余分支可后续批次补充）。
+
+== 1. JSON 化判断（isJsonLog）
+
+- 1.1 正反判断：CResult 为 true、String/DataSource 为 false（isJsonLog）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

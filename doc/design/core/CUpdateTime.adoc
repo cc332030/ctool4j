@@ -1,0 +1,29 @@
+= CUpdateTime 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.entity.base.CUpdateTime
+状态：已落地
+适用范围：更新时间实体（继承 CCreateTime，实现 ICCreateUpdateTime）
+
+== 1. 功能说明
+
+`CUpdateTime` 为更新时间实体，继承 `CCreateTime` 并实现 `ICCreateUpdateTime`，在 createTime 基础上增加
+`updateTime` 字段。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要创建/更新时间的实体。
+
+== 5. 已知限制与取舍
+
+- updateTime 不可插入/更新（strategy NEVER）。
+
+测试内容见 `doc/design/core/CUpdateTimeTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,17 +1,16 @@
 package com.c332030.ctool4j.log.interceptor;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.log.config.CRequestLogConfig;
-import com.c332030.ctool4j.log.util.CRequestLogUtils;
-import com.c332030.ctool4j.log.util.CTraceUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.web.config.CRequestLogConfig;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
+import com.c332030.ctool4j.web.util.CRequestLogUtils;
+import com.c332030.ctool4j.web.util.CTraceUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * Description: CRequestLogHandlerInterceptor
  * </p>
  *
+ * @see "doc/design/log/CRequestLogHandlerInterceptor.adoc"
  * @since 2025/9/28
  */
 @CustomLog
@@ -30,6 +30,14 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
 
     CRequestLogConfig config;
 
+    /**
+     * 请求前处理：初始化链路追踪与请求日志上下文
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param handler  处理器
+     * @return 是否继续处理，恒为 true
+     */
     @Override
     public boolean preHandle(
         HttpServletRequest request,
@@ -45,24 +53,54 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
         return true;
     }
 
+    /**
+     * 请求完成后处理：打印请求日志、输出慢日志并清理链路追踪上下文
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param handler  处理器
+     * @param ex       处理异常
+     */
     @Override
-    public void postHandle(
+    public void afterCompletion(
         HttpServletRequest request,
         HttpServletResponse response,
         Object handler,
-        @Nullable ModelAndView modelAndView
+        @Nullable Exception ex
     ) {
         try {
 
             val requestLogOpt = CRequestLogUtils.getOptThenRemove();
             requestLogOpt.ifPresent(requestLog -> {
-                val rt = requestLog.getRt();
-                if (BooleanUtil.isTrue(config.getSlowLogEnable())
-                    && rt > config.getSlowLogMillis()) {
+
+                // 请求日志打印（受 enable 总开关控制）：endTimeMillis 以实际完成时间为准，
+                // 覆盖 beforeBodyWrite 记录响应体时的时间，包含视图渲染与响应写出耗时
+                if (CRequestLogUtils.isEnable()) {
+                    requestLog.setEndTimeMillis(System.currentTimeMillis());
+                    CRequestLogUtils.logWrite(requestLog, config.getEnableHeader());
+                }
+
+                // 慢日志开关关闭时直接跳过，不做耗时计算，避免浪费 CPU
+                if (!BooleanUtil.isTrue(config.getSlowLogEnable())) {
+                    return;
+                }
+
+                // 完整耗时：以实际完成时间为准，包含视图渲染与响应写出耗时；
+                // 未记录开始时间时耗时恒为 0（beginTimeMillis 未设置时兜底即 0）
+                long rt;
+                if (requestLog.getBeginTimeMillis() > 0) {
+                    rt = System.currentTimeMillis() - requestLog.getBeginTimeMillis();
+                } else {
+                    rt = 0L;
+                }
+                if (rt > config.getSlowLogMillis()) {
                     log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), rt);
                 }
             });
 
+            // 先清 MDC 再清 ThreadLocal：removeTraceId 内部依赖当前 ThreadLocal 的 traceInfo，
+            // 若先 removeTraceInfo 会触发 withInitial 重建实例导致残留
+            CTraceUtils.removeTraceId();
             CTraceUtils.removeTraceInfo();
         } catch (Throwable e) {
             log.error("removeTraceInfo failure", e);

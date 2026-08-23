@@ -9,11 +9,13 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: DataTypeEnum
+ * Description: CDataTypeEnum
  * </p>
  *
  * @author c332030
  * @since 2024/3/21
+ * @see "doc/design/core/CDataTypeEnum.adoc"
+ * @see "doc/design/core/CDataTypeEnumTests.adoc"
  */
 @Getter
 @AllArgsConstructor
@@ -47,6 +49,9 @@ public enum CDataTypeEnum implements ICText {
 
     ;
 
+    /**
+     * 日期相关类型集合
+     */
     public static final Set<CDataTypeEnum> DATE_TYPES = CSet.of(
         DATE,
         TIME,
@@ -59,6 +64,11 @@ public enum CDataTypeEnum implements ICText {
      */
     private final String text;
 
+    /**
+     * 获取枚举名的小写形式
+     *
+     * @return 枚举名的小写形式
+     */
     public String getLowerCase() {
         return name().toLowerCase();
     }

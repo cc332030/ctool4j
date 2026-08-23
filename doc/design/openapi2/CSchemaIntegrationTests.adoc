@@ -1,0 +1,37 @@
+= CSchema 集成测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.web.validation.annotation.CSchema` 在 openapi2 模块的集成场景——接口必填/非必填校验生效、字段文档生效。
+
+对应测试类：`com.c332030.ctool4j.doc.openapi2.test.CSchemaIntegrationTests`
+
+对应设计文档：`doc/design/web/CSchema.adoc`、`doc/design/openapi2/CSchemaAnnotationPlugin.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CSchema 集成测试的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 用 `@CTool4jSpringBootTest` + `@AutoConfigureMockMvc` 启动真实 Spring 容器与 springfox，通过 MockMvc 调接口/访问 `/v2/api-docs`，验证 CSchema 注解的端到端行为（校验 + 文档生成），贴近真实使用场景。
+- 覆盖必填字段的三种失败形态（缺失/空白/空串）与校验成功路径、字段文档生成。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：@RequestBody @Valid 字段必填生效、@CSchema 必填字段缺失/空白/空串、非必填字段缺失放行、全字段提供、/v2/api-docs 字段 description 与 required 生成。
+- 未覆盖：非 web 环境下的纯校验（由 CSchemaValidatorTests 单测覆盖）。
+
+== 1. CSchema 集成校验与文档
+
+- 1.1 直接 Validator 校验：username 缺失产生校验错误（directValidator）
+- 1.2 必填字段缺失 → 校验失败（requiredField_missing）
+- 1.3 必填字段空白 → 校验失败（requiredField_blank）
+- 1.4 必填字段空串 → 校验失败（requiredField_empty）
+- 1.5 非必填字段缺失 → 放行（optionalField_missing）
+- 1.6 必填+非必填均提供 → 200（allFields_present）
+- 1.7 字段文档生效：/v2/api-docs 生成 description 与 required（fieldDocumentation）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

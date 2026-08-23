@@ -11,6 +11,7 @@ import java.io.Serializable;
  * </p>
  *
  * @since 2025/9/15
+ * @see "doc/design/mybatisplus/ICMpValue.adoc"
  */
 public interface ICMpValue<T extends Serializable> extends ICValue<T>, IEnum<T> {
 

@@ -9,6 +9,8 @@ import com.c332030.ctool4j.definition.function.CBiFunction;
  * </p>
  *
  * @since 2025/11/20
+ * @see "doc/design/core/CBiClassValue.adoc"
+ * @see "doc/design/core/CBiClassValueTests.adoc"
  */
 public class CBiClassValue<T> implements ICBiClassValue<T> {
 
@@ -29,6 +31,15 @@ public class CBiClassValue<T> implements ICBiClassValue<T> {
     @Override
     public T get(Class<?> type1, Class<?> type2) {
         return classValue.get(type1).get(type2);
+    }
+
+    /**
+     * 移除缓存值，下次 get 时重新计算
+     * @param type1 类1
+     * @param type2 类2
+     */
+    public void remove(Class<?> type1, Class<?> type2) {
+        classValue.get(type1).remove(type2);
     }
 
     /**

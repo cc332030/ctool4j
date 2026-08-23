@@ -9,13 +9,22 @@ import java.io.Serializable;
  * Description: ICId
  * </p>
  *
+ * @see "doc/design/definition/ICId.adoc"
  * @since 2025/5/26
  */
 public interface ICId<T extends Serializable> {
 
+    /**
+     * 获取主键
+     * @return 主键
+     */
     @ApiModelProperty("主键")
     T getId();
 
+    /**
+     * 设置主键
+     * @param id 主键
+     */
     void setId(T id);
 
 }

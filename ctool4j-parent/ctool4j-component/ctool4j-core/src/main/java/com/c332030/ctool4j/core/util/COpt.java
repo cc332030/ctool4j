@@ -25,10 +25,15 @@ import java.util.Objects;
  * </p>
  *
  * @since 2025/12/6
+ * @see "doc/design/core/COpt.adoc"
+ * @see "doc/design/core/COptTests.adoc"
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class COpt<T> {
 
+    /**
+     * 空 COpt
+     */
     public static final COpt<?> EMPTY = new COpt<>(null);
 
     private final T value;
@@ -163,7 +168,10 @@ public final class COpt<T> {
      * @return 值
      */
     public T orElseGet(CSupplier<T> supplier) {
-        return orElse(supplier.get());
+        if(isPresent()) {
+            return value;
+        }
+        return supplier.get();
     }
 
     /**

@@ -1,0 +1,71 @@
+= CEntityUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CEntityUtils
+状态：已落地
+适用范围：清空实体公共字段（按类/接口继承距离查找最近的清除方法）
+
+== 1. 功能说明
+
+`CEntityUtils` 为实体清理工具类，提供按具体实体类型清空其公共字段的能力：
+
+- `clear(Object entity)`：按实体类型动态查找最近的清除方法并清空
+- 其余 `clear(...)` 重载：分别清空各类接口/基类声明的公共字段（ICId、ICCreateTime、
+  ICUpdateTime、ICCreateUpdateTime、ICCreateBy、ICUpdateBy、ICCreateUpdateBy、
+  ICCreateUpdateByAndTime、CBaseTimeEntity、CBaseEntity）
+
+== 2. 设计要点
+
+=== 2.1 清除方法句柄与映射
+
+- 启动时收集本类所有名为 `clear` 的方法句柄（`CReflectUtils.getAllMethodsByName` →
+  `CMethodHandleUtils.getHandle`），排除 `Object` 参数重载，构建「参数类型 → 清除函数」映射
+  `CLEAR_METHOD_MAP`。
+
+=== 2.2 最近清除查找（findNearestClear）
+
+- 按继承距离（自身、父类、父接口由近及远）在 `CLEAR_METHOD_MAP` 中查找 type 最近的清除函数。
+- 优先查父类链（`CClassUtils.getSuperClasses`），再查接口链（`CClassUtils.getInterfaces`，
+  按继承距离由近及远且去重）。
+- 未匹配时返回空函数 `CConsumer.empty()`。
+
+=== 2.3 按类缓存
+
+- 清除函数按类缓存于 `CLEAN_ENTITY_CONSUMER`（`CClassValue`，基于 `java.lang.ClassValue`，
+  线程安全、按类弱关联），避免每次查找。
+
+=== 2.4 重载级联
+
+- `CBaseEntity.clear` 级联 `ICId` + `ICCreateUpdateByAndTime`；`ICCreateUpdateByAndTime.clear`
+  级联 `ICCreateUpdateBy` + `ICCreateUpdateTime`，逐级清空。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| clear(Object) 类型无匹配清除方法 | 调用空函数，无操作（不抛异常） |
+| 无公共字段的普通对象 | clear 为空函数，无操作 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对实体公共字段统一清空（如数据脱敏、对象复用前清理）。
+
+=== 4.2 不适用/边界场景
+
+- 仅清空框架约定的公共字段（id/createBy/updateBy/createTime/updateTime 等），业务私有字段
+  不受影响。
+
+== 5. 已知限制与取舍
+
+- 按继承距离查找而非方法声明顺序，可确定性命中"最近" clear，不依赖反射顺序（核心取舍）。
+- 清除函数按类缓存无失效机制：接口/基类静态不变，风险低。
+
+测试内容见 `doc/design/core/CEntityUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

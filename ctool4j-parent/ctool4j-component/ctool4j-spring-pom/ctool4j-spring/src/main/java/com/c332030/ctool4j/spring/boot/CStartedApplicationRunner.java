@@ -12,9 +12,14 @@ import org.springframework.boot.ApplicationRunner;
  * </p>
  *
  * @since 2026/5/12
+ * @see "doc/design/spring/CStartedApplicationRunner.adoc"
  */
 public interface CStartedApplicationRunner extends ApplicationRunner {
 
+    /**
+     * 应用启动后输出启动成功日志
+     * @param args 启动参数
+     */
     @Override
     default void run(ApplicationArguments args) {
 

@@ -1,0 +1,60 @@
+= CNumUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CNumUtils`（core 工具类）——数值工具（溢出校验/转换/最值/百分比等）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CNumUtilsTests`
+
+对应设计文档：`doc/design/core/CNumUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CNumUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「溢出校验 / 转 int / 转 62 进制 / 最值 / 百分比」多个维度组织。
+- 溢出校验覆盖 int 边界（MIN/MAX 不抛）、超 int 边界抛、long 极值抛，以及 double→float 溢出。
+- 转 int 覆盖正常值、溢出返回 null。
+- 转 62 进制覆盖各类型值、进位边界（62/63）、负数抛异常。
+- 最值覆盖正负混合、单/多值。
+- 百分比覆盖三种入参（Integer/Long/BigDecimal）、scale、total 为 0 返回 null。
+
+=== 设计依据
+
+- 依据功能设计对溢出抛异常、toInt 溢出返回 null、to62 负数抛异常、percent total=0 返回 null 的约定。
+- 依据测试方法（等价类/边界值/异常路径）：int/float 边界、62 进位、负数、total=0。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：assertOverflow(long) int 边界与溢出；assertOverflow(double) float 边界与溢出；toInt 正常与溢出；
+  to62 各类型与边界（0/62/63）与负数异常；max/min 正负混合；percent 三种入参、scale、total=0 返回 null。
+- 未覆盖：`defaultZero`/`greaterThanZero`/`lessThanZero`/`sum`/`divide`/`scale`/`compare`/
+  `parseInt`/`parseLong`/`toStringThenParseInt` 等其余入口（当前测试聚焦溢出/转换/最值/百分比核心路径，
+  其余入口行为可后续批次补充）。
+
+== 1. 溢出校验
+
+- 1.1 long 校验：int MIN/MAX 不抛；超 int 边界抛 ArithmeticException；long 极值抛（assertOverflowLong）
+- 1.2 double 校验：float 极值不抛；Double.MAX_VALUE 抛 ArithmeticException；Double.MIN_VALUE 不抛（assertOverflowDouble）
+
+== 2. 数值转换
+
+- 2.1 toInt：正常值返回；溢出（超出 int）返回 null（toInt）
+- 2.2 to62：各类型值正确；0→"0"；62→"10"、63→"11"进位；负数抛 IllegalArgumentException（to62）
+
+== 3. 最值
+
+- 3.1 max：正负混合取最大（max）
+- 3.2 min：正负混合取最小（min）
+
+== 4. 百分比
+
+- 4.1 percent：Integer/Long/BigDecimal 三种入参；默认 scale 与显式 scale（percent）
+- 4.2 percent total=0：三种入参均返回 null（percentTotalZero）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

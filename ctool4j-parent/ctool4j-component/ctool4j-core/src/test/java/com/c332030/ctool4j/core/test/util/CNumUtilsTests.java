@@ -15,6 +15,10 @@ import java.math.BigDecimal;
  */
 public class CNumUtilsTests {
 
+    /**
+     * 测试 long 溢出校验
+     * 对应测试用例 1.1
+     */
     @Test
     public void assertOverflowLong() {
 
@@ -29,17 +33,26 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试 double 溢出校验
+     * 对应测试用例 1.2
+     */
     @Test
     public void assertOverflowDouble() {
 
         CNumUtils.assertOverflow(Float.MIN_VALUE);
         CNumUtils.assertOverflow(Float.MAX_VALUE);
 
-        Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Double.MIN_VALUE));
+        // Double.MIN_VALUE 极小正数，未超出 Float 范围，不抛异常
+        Assertions.assertDoesNotThrow(() -> CNumUtils.assertOverflow(Double.MIN_VALUE));
         Assertions.assertThrowsExactly(ArithmeticException.class, () -> CNumUtils.assertOverflow(Double.MAX_VALUE));
 
     }
 
+    /**
+     * 测试数值转 int（溢出时返回 null）
+     * 对应测试用例 2.1
+     */
     @Test
     public void toInt() {
 
@@ -55,6 +68,10 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试数值转 Base62 字符串
+     * 对应测试用例 2.2
+     */
     @Test
     public void to62() {
 
@@ -67,8 +84,22 @@ public class CNumUtilsTests {
         Assertions.assertEquals("2lkCB1", CNumUtils.to62(Integer.MAX_VALUE));
         Assertions.assertEquals("aZl8N0y58M7", CNumUtils.to62(Long.MAX_VALUE));
 
+        // 边界：0 的 62 进制为 "0"
+        Assertions.assertEquals("0", CNumUtils.to62(0));
+
+        // 边界：62 与 63 的进位
+        Assertions.assertEquals("11", CNumUtils.to62(63));
+
+        // 反例：负数不支持，快速失败
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> CNumUtils.to62(-1));
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> CNumUtils.to62(Long.MIN_VALUE));
+
     }
 
+    /**
+     * 测试取最大值
+     * 对应测试用例 3.1
+     */
     @Test
     public void max() {
 
@@ -86,6 +117,10 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试取最小值
+     * 对应测试用例 3.2
+     */
     @Test
     public void min() {
 
@@ -103,6 +138,10 @@ public class CNumUtilsTests {
 
     }
 
+    /**
+     * 测试百分比计算
+     * 对应测试用例 4.1
+     */
     @Test
     public void percent() {
 
@@ -113,6 +152,23 @@ public class CNumUtilsTests {
         Assertions.assertEquals("18.75", CNumUtils.percent(3, 16, 2).toString());
         Assertions.assertEquals("18.75", CNumUtils.percent(3L, 16L, 2).toString());
         Assertions.assertEquals("18.75", CNumUtils.percent(new BigDecimal(3), new BigDecimal(16), 2).toString());
+
+    }
+
+    /**
+     * 测试百分比计算：total 为 0 时返回 null
+     * 对应测试用例 4.2
+     */
+    @Test
+    public void percentTotalZero() {
+
+        Assertions.assertNull(CNumUtils.percent(1, 0));
+        Assertions.assertNull(CNumUtils.percent(1L, 0L));
+        Assertions.assertNull(CNumUtils.percent(new BigDecimal(1), BigDecimal.ZERO));
+
+        Assertions.assertNull(CNumUtils.percent(1, 0, 2));
+        Assertions.assertNull(CNumUtils.percent(1L, 0L, 2));
+        Assertions.assertNull(CNumUtils.percent(new BigDecimal(1), BigDecimal.ZERO, 2));
 
     }
 

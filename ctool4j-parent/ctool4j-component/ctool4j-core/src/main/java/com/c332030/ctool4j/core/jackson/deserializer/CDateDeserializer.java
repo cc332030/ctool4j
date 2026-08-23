@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers;
 import lombok.CustomLog;
 
 import java.io.IOException;
@@ -16,12 +17,24 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/4/14
+ * @see "doc/design/core/CDateDeserializer.adoc"
+ * @see "doc/design/core/CDateDeserializerTests.adoc"
  */
 @CustomLog
 public class CDateDeserializer extends JsonDeserializer<Date> {
 
+    /**
+     * 单例实例
+     */
     public static final CDateDeserializer INSTANCE = new CDateDeserializer();
 
+    /**
+     * 反序列化日期：字符串（含毫秒）与整型毫秒时间戳均支持，其余 token 交给默认实现
+     *
+     * @param parser  解析器
+     * @param context 反序列化上下文
+     * @return 日期
+     */
     @Override
     public Date deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 
@@ -31,7 +44,7 @@ public class CDateDeserializer extends JsonDeserializer<Date> {
             case JsonTokenId.ID_NUMBER_INT:
                 return CDateUtils.toDate(parser.getLongValue());
         }
-        return null;
+        return DateDeserializers.DateDeserializer.instance.deserialize(parser, context);
     }
 
 }

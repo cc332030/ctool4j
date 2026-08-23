@@ -13,12 +13,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </p>
  *
  * @since 2026/4/9
+ * @see "doc/design/web/CClientAbortExceptionHandler.adoc"
  */
 @CustomLog
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(ClientAbortException.class)
 public class CClientAbortExceptionHandler {
 
+    /**
+     * 处理客户端连接中断异常，仅记录日志
+     *
+     * @param e 客户端连接中断异常
+     */
     @ExceptionHandler(ClientAbortException.class)
     public void handle(ClientAbortException e) {
         log.debug("handle ClientAbortException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);

@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2026/1/24
+ * @see "doc/design/spring/CSpringSecurityRequestMatchersPathConfig.adoc"
  */
 
 @Data
@@ -19,11 +20,11 @@ public class CSpringSecurityRequestMatchersPathConfig implements ICRequestMatche
     /**
      * 允许的地址
      */
-    String[] permits = CArrUtils.EMPAY_STR_ARR;
+    String[] permits = CArrUtils.EMPTY_STR_ARR;
 
     /**
      * 禁止的地址
      */
-    String[] denies = CArrUtils.EMPAY_STR_ARR;
+    String[] denies = CArrUtils.EMPTY_STR_ARR;
 
 }

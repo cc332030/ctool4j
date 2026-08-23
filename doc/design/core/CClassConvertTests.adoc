@@ -1,0 +1,91 @@
+= CClassConvert 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.classes.CClassConvert`（core 对象类）——类型转换（字符串/数值/日期/枚举值互转）。
+
+对应测试类：`com.c332030.ctool4j.core.test.classes.CClassConvertTests`
+
+对应设计文档：`doc/design/core/CClassConvert.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CClassConvert 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「布尔 / 整数 / 长整数 / 浮点 / 大数 / 日期 / 枚举值 / 字符串」多个类型维度组织。
+- 数值转换覆盖正例、空/null 返回 null、非法值抛异常、溢出返回 null、原语默认值 0。
+- 布尔覆盖 true/false/null/大小写/数字 "1"/"0"（Q24）。
+- 日期覆盖 parse/format/mills/instant 互转；字符串系列覆盖 objectStr 及各类 xxxStr null 返回 null。
+
+=== 设计依据
+
+- 依据功能设计对各转换语义与空值/异常兜底的约定。
+- 依据测试方法（等价类/边界值/异常路径）：空/null、非法值、溢出、默认 0。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：toBoolean（true/false/null/大小写/数字）；toInt（正/负/null/非法/溢出/long/int）与 intValue；
+  toLong 与 longValue；toFloat/floatValue、toDouble/doubleValue；toBigDecimal（string/float/double/long/
+  int）与 null；toEnumIntegerValue/toEnumStringValue；parseDateTime/formatDateTime/toMills/fromMills/
+  toInstant/toDate；objectStr 系列（boolean/int/long/float/double/bigDecimal）。
+- 未覆盖：无（覆盖了全部公开转换方法）。
+
+== 1. 布尔转换
+
+- 1.1 toBoolean：true/false/null/大小写/数字 `1`/`0`（Q24）（toBoolean）
+
+== 2. 整数转换
+
+- 2.1 toInt：正/负/null/空（toInt）
+- 2.2 toInt 非法值：抛 NumberFormatException（toInt_error）
+- 2.3 toInt(Long)：溢出返回 null（toInt_long）
+- 2.4 toInt(int)：返回自身（toInt_int）
+- 2.5 intValue：null 返回 0（intValue）
+
+== 3. 长整数转换
+
+- 3.1 toLong：正/null/空（toLong）
+- 3.2 toLong 非法值：抛 NumberFormatException（toLong_error）
+- 3.3 toLong(int/Integer/Long)：各形态（toLong_int）
+- 3.4 longValue：null 返回 0（longValue）
+
+== 4. 浮点转换
+
+- 4.1 toFloat：正例/null（toFloat）
+- 4.2 floatValue：null 返回 0、String/BigDecimal 形态（floatValue）
+- 4.3 toDouble：正例/null（toDouble）
+- 4.4 doubleValue：null 返回 0、String/Float/BigDecimal 形态（doubleValue）
+
+== 5. 大数转换
+
+- 5.1 toBigDecimal：String 正例/空 null/非法抛异常（toBigDecimal）
+- 5.2 toBigDecimal(float)：含 null（toBigDecimal_float）
+- 5.3 toBigDecimal(double)：含 null（toBigDecimal_double）
+- 5.4 toBigDecimal(long)：含 null（toBigDecimal_long）
+- 5.5 toBigDecimal(int)：含 null（toBigDecimal_int）
+
+== 6. 日期转换
+
+- 6.1 parseDateTime：解析非空（parseDateTime）
+- 6.2 formatDateTime：格式化正确（formatDateTime）
+- 6.3 toMills：含 null（toMills）
+- 6.4 fromMills：含 null（fromMills）
+- 6.5 toInstant：含 null（toInstant）
+- 6.6 toDate：含 null（toDate）
+
+== 7. 枚举值转换
+
+- 7.1 toEnumIntegerValue：取值含 null（toEnumIntegerValue）
+- 7.2 toEnumStringValue：取值含 null（toEnumStringValue）
+
+== 8. 字符串转换
+
+- 8.1 objectStr：含 null（objectStr）
+- 8.2 booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

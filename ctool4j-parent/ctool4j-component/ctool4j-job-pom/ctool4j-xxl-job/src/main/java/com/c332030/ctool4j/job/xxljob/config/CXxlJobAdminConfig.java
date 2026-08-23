@@ -5,9 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>
- * Description: CXxlJobExecutorConfig
+ * Description: CXxlJobAdminConfig
  * </p>
  *
+ * @see "doc/design/xxljob/CXxlJobAdminConfig.adoc"
  * @since 2025/11/29
  */
 @Data
@@ -28,7 +29,7 @@ public class CXxlJobAdminConfig {
     String accessToken;
 
     /**
-     * 调度中心通讯超时时间[选填]，单位秒；默认3s；
+     * 调度中心通讯超时时间[选填]，单位秒；未配置时使用字段默认值
      */
     Integer timeout = 3;
 

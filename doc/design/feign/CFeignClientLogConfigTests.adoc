@@ -1,0 +1,31 @@
+= CFeignClientLogConfig 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.feign.config.CFeignClientLogConfig`（feign 模块）——Feign 日志配置。
+
+对应测试类：`com.c332030.ctool4j.feign.test.config.CFeignClientLogConfigTests`
+
+对应设计文档：`doc/design/feign/CFeignClientLogConfig.adoc`（功能设计，测试内容以本文档为准）。
+
+== 用例设计思路与依据
+
+- 验证 lombok @Data 生成的默认值、setter/getter、toString，以及白名单集合的读写与默认不可变性。
+
+== 1. 默认值与访问器
+
+- 1.1 默认值（defaultValues）
+- 1.2 setter/getter（settersAndGetters）
+
+== 2. 白名单集合
+
+- 2.1 apiWhiteList 可替换可读（apiWhiteList_replaceReadable）
+- 2.2 apiWhiteList 默认不可变（apiWhiteList_defaultImmutable）
+
+== 3. toString
+
+- 3.1 toString 含字段（toString_containsFields）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

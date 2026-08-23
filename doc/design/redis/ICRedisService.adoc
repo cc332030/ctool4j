@@ -1,0 +1,56 @@
+= ICRedisService 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-redis
+类：com.c332030.ctool4j.redis.service.ICRedisService
+状态：已落地
+适用范围：Redis 键值操作统一抽象（默认方法模板）
+
+== 1. 功能说明
+
+`ICRedisService<K, V>` 为 Redis 键值操作的统一抽象接口，基于 Spring Data Redis `RedisTemplate`，
+提供大量默认方法：增删改查、判断 key 存在、setIfAbsent、值 + 剩余 TTL 读取、自增等。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- `isInvalidKey`/`isInvalidValue` 用于判空，默认用 `Objects.isNull`；子类可重写（如 String 场景按空白判断）。
+- `setValue` 系列在 key/value 无效或 timeout<=0 时静默返回（不写、不抛）。
+- `getValueWithTtl` 用 Redis 管道（pipeline）一次往返获取 GET + TTL，避免两次网络调用。
+
+=== 2.2 实现方式
+
+- 默认方法基于 `getRedisTemplate()` 抽象方法，子类提供模板。
+- `getValueWithTtl` 通过 `RedisCallback` + `openPipeline` 串行执行 GET/TTL，结果按命令顺序解析。
+- `getValue(key, convert, default)` 在值无效时返回 defaultValue。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| key/value 无效 | setValue 静默返回，getValue 返回 null |
+| timeout<=0 | setValue(带超时) 不写入 |
+| 值无效 + convert | getValue(key, convert, default) 返回 default |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 各种 Redis 键值读写统一封装，作为 `CAbstractRedisService` 及具体 Service 的基础。
+
+=== 4.2 不适用/边界场景
+
+- 不涉及 hash/list/set 等复杂结构；仅字符串值操作。
+
+== 5. 已知限制与取舍
+
+- 管道解析假设 GET/TTL 返回顺序固定（值字节、TTL），依赖 Redis 版本行为一致。
+- key 序列化要求（`getValueWithTtl`）依赖模板的 keySerializer 能 serialize 出非空字节。
+
+测试内容见 `doc/design/redis/CObjectValueRedisServiceTests.adoc`、`doc/design/redis/CStringStringRedisServiceTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

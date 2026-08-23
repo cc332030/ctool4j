@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
  * Description: CStringStringRedisService
  * </p>
  *
+ * @see "doc/design/redis/CStringStringRedisService.adoc"
+ * @see "doc/design/redis/CStringStringRedisServiceTests.adoc"
  * @since 2025/11/4
  */
 @Service
@@ -38,6 +40,12 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         return CJsonUtils.toJson(value);
     }
 
+    /**
+     * 获取值，空白值返回空 Opt
+     *
+     * @param key key
+     * @return 值的 Opt
+     */
     public Opt<String> getValueOpt(String key){
         return Opt.ofBlankAble(getValue(key));
     }
@@ -60,6 +68,12 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         return StrUtil.isBlank(value);
     }
 
+    /**
+     * 设置值，对象序列化为 JSON 存储
+     *
+     * @param key   key
+     * @param value 值
+     */
     public void setValue(String key, Object value) {
         if(isInvalidKey(key)
             || Objects.isNull(value)
@@ -69,6 +83,13 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         setValue(key, toValueStr(value));
     }
 
+    /**
+     * 设置值并指定过期时长，对象序列化为 JSON 存储
+     *
+     * @param key      key
+     * @param value    值
+     * @param duration 过期时长
+     */
     public void setValue(String key, Object value, Duration duration) {
         if(isInvalidKey(key)
             || Objects.isNull(value)
@@ -97,24 +118,82 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
         opsForValue().set(key, toValueStr(value), timeout, unit);
     }
 
+    /**
+     * 获取值并反序列化为指定类型
+     *
+     * @param key        key
+     * @param valueClass 目标类型
+     * @param <T>        目标类型
+     * @return 反序列化后的值
+     */
     public <T> T getValue(String key, Class<T> valueClass) {
-        if(isInvalidKey(key)) {
-            return null;
-        }
-        return getValue(key, value -> getValueObj(value, valueClass));
+        return getValue(key, valueClass, null);
     }
 
+    /**
+     * 获取值并反序列化为指定类型，无值时返回默认值
+     *
+     * @param key          key
+     * @param valueClass   目标类型
+     * @param defaultValue 默认值
+     * @param <T>          目标类型
+     * @return 反序列化后的值；key 无效时返回默认值
+     */
+    public <T> T getValue(String key, Class<T> valueClass, T defaultValue) {
+        if(isInvalidKey(key)) {
+            return defaultValue;
+        }
+        return getValue(key, value -> getValueObj(value, valueClass), defaultValue);
+    }
+
+    /**
+     * 获取值并反序列化为指定泛型类型
+     *
+     * @param key           key
+     * @param typeReference 泛型类型引用
+     * @param <T>           目标类型
+     * @return 反序列化后的值
+     */
     public <T> T getValue(String key, TypeReference<T> typeReference) {
-        if(isInvalidKey(key)) {
-            return null;
-        }
-        return getValue(key, value -> getValueObj(value, typeReference));
+        return getValue(key, typeReference, null);
     }
 
+    /**
+     * 获取值并反序列化为指定泛型类型
+     *
+     * @param key           key
+     * @param typeReference 泛型类型引用
+     * @param defaultValue  默认值
+     * @param <T>           目标类型
+     * @return 反序列化后的值
+     */
+    public <T> T getValue(String key, TypeReference<T> typeReference, T defaultValue) {
+        if(isInvalidKey(key)) {
+            return defaultValue;
+        }
+        return getValue(key, value -> getValueObj(value, typeReference), defaultValue);
+    }
+
+    /**
+     * 获取值及其剩余过期时间，反序列化为指定类型
+     *
+     * @param key        key
+     * @param valueClass 目标类型
+     * @param <T>        目标类型
+     * @return 值及剩余过期时间
+     */
     public <T> CValueWithTtl<T> getValueWithTtl(String key, Class<T> valueClass) {
         return getValueWithTtl(key, value -> getValueObj(value, valueClass));
     }
 
+    /**
+     * 获取值及其剩余过期时间，反序列化为指定泛型类型
+     *
+     * @param key           key
+     * @param typeReference 泛型类型引用
+     * @param <T>           目标类型
+     * @return 值及剩余过期时间
+     */
     public <T> CValueWithTtl<T> getValueWithTtl(String key, TypeReference<T> typeReference) {
         return getValueWithTtl(key, value -> getValueObj(value, typeReference));
     }

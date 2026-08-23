@@ -17,6 +17,8 @@ import java.util.Map;
  *
  * @author c332030
  * @since 2024/3/4
+ * @see "doc/design/core/CJsonUtils.adoc"
+ * @see "doc/design/core/CJsonUtilsTests.adoc"
  */
 @UtilityClass
 public class CJsonUtils {
@@ -72,6 +74,17 @@ public class CJsonUtils {
      */
     public String toJsonNonNull(Object object) {
         return toJson(object, CJacksonUtils.OBJECT_MAPPER_NON_NULL);
+    }
+
+    /**
+     * 转 json（日志专用）
+     * <p>不序列化 null 值；标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符，避免长文本刷屏日志。
+     * 仅日志打印链路使用（CLogUtils.toLogArgs），全局 mapper 无该行为</p>
+     * @param object 源对象
+     * @return json
+     */
+    public String toJsonLog(Object object) {
+        return toJson(object, CJacksonUtils.OBJECT_MAPPER_LOG);
     }
 
     /**
@@ -182,17 +195,31 @@ public class CJsonUtils {
     public <T> T convert(Object object, Class<T> tClass) {
         return fromJson(toJson(object), tClass);
     }
+
+    /**
+     * 对象转换，驼峰转下划线
+     * @param object 源对象
+     * @param tClass 目标类型
+     * @param <T> 目标泛型
+     * @return 目标对象
+     */
     public <T> T convertSnakeCase(Object object, Class<T> tClass) {
         return fromJsonSnakeCase(toJsonSnakeCase(object), tClass);
     }
 
     /**
      * 转 map
+     * <p>使用 OBJECT_MAPPER_NATIVE：Long/BigDecimal 保留数值类型，避免经 JSON 中转后变 String
+     * （与 CBeanUtils.toMap 的类型语义一致）；其余 JSON 语义（属性名、@JsonIgnore、日期格式）与 OBJECT_MAPPER 一致</p>
      * @param object 源对象
      * @return map
      */
     public Map<String, Object> toMap(Object object) {
-        return fromJson(toJson(object));
+        return fromJson(
+            toJson(object, CJacksonUtils.OBJECT_MAPPER_NATIVE),
+            CMapUtils.MAP_STRING_OBJECT_TYPE_REFERENCE,
+            CJacksonUtils.OBJECT_MAPPER_NATIVE
+        );
     }
 
     /**

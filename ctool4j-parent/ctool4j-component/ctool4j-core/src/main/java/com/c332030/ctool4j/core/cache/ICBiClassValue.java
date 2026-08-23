@@ -6,6 +6,7 @@ package com.c332030.ctool4j.core.cache;
  * </p>
  *
  * @since 2025/11/21
+ * @see "doc/design/core/ICBiClassValue.adoc"
  */
 public interface ICBiClassValue<T> {
 

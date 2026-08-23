@@ -8,11 +8,13 @@ import com.c332030.ctool4j.core.enums.CProfileEnum;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
+import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
@@ -28,6 +30,8 @@ import java.util.function.Consumer;
  * </p>
  *
  * @since 2025/9/10
+ * @see "doc/design/spring/CSpringUtils.adoc"
+ * @see "doc/design/spring/CSpringUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass
@@ -114,6 +118,11 @@ public class CSpringUtils {
         }
     }
 
+    /**
+     * 获取启动类所在的基础包集合
+     *
+     * @return 基础包集合
+     */
     public Set<String> getBasePackages() {
 
         val springApplicationMap = getBeansWithAnnotation(SpringBootApplication.class);
@@ -126,7 +135,7 @@ public class CSpringUtils {
             CAssert.notNull(mainApplicationClass, "mainApplicationClass 不能为空");
 
             val springBootAppAnnotation = mainApplicationClass.getAnnotation(SpringBootApplication.class);
-            CAssert.notNull(springApplication, "mainApplicationClass 未标识 @SpringBootApplication");
+            CAssert.notNull(springBootAppAnnotation, "mainApplicationClass 未标识 @SpringBootApplication");
 
             val scanBasePackages = springBootAppAnnotation.scanBasePackages();
             if(ArrayUtil.isNotEmpty(scanBasePackages)) {
@@ -143,6 +152,13 @@ public class CSpringUtils {
         return basePackages;
     }
 
+    /**
+     * 通过参数最多的构造方法创建实例，参数从容器中获取
+     *
+     * @param type 实例类型
+     * @param <T>  实例类型
+     * @return 创建好的实例
+     */
     @SneakyThrows
     public <T> T newInstance(Class<T> type) {
 
@@ -167,10 +183,20 @@ public class CSpringUtils {
         return CReflectUtils.newInstance(constructor, params);
     }
 
+    /**
+     * 获取当前激活的环境
+     *
+     * @return 当前激活的环境
+     */
     public CProfileEnum getActiveProfile() {
         return CProfileEnum.of(SpringUtil.getActiveProfile());
     }
 
+    /**
+     * 获取当前激活的环境，获取失败时返回 null
+     *
+     * @return 当前激活的环境；获取失败时返回 null
+     */
     public CProfileEnum getActiveProfileDefaultNull() {
         try {
             return getActiveProfile();
@@ -180,14 +206,30 @@ public class CSpringUtils {
         }
     }
 
+    /**
+     * 获取当前激活环境的文本
+     *
+     * @return 当前激活环境的文本
+     */
     public String getActiveProfileText() {
         return getActiveProfile().getText();
     }
 
+    /**
+     * 获取当前激活环境的文本，获取失败时返回 null
+     *
+     * @return 当前激活环境的文本；获取失败时返回 null
+     */
     public String getActiveProfileTextDefaultNull() {
         return CObjUtils.convert(getActiveProfileDefaultNull(), CProfileEnum::getText);
     }
 
+    /**
+     * 为消息追加当前环境文本后缀
+     *
+     * @param message 原始消息
+     * @return 追加环境文本后缀后的消息；无环境文本时返回原始消息
+     */
     public String profileTextSuffix(String message) {
 
         val profileText = getActiveProfileTextDefaultNull();
@@ -199,20 +241,60 @@ public class CSpringUtils {
     }
 
     /**
+     * 根据配置进行处理
+     * @param dealFunction 根据配置的处理
+     * @param excludeProfiles 不加前缀的配置
+     * @return 带配置的文本
+     */
+    public String dealByProfileExclude(
+        ToStringFunction<CProfileEnum> dealFunction,
+        Set<CProfileEnum> excludeProfiles
+    ) {
+
+        var profile = getActiveProfileDefaultNull();
+        if(profile == null
+            || excludeProfiles.contains(profile)
+        ) {
+            return dealFunction.apply(null);
+        }
+
+        return dealFunction.apply(profile);
+    }
+
+    /**
      * 配置前缀，特定配置不加前缀
      * @param text 文本
      * @param excludeProfiles 不加前缀的配置
      * @return 带配置前缀的文本
      */
     public String profilePrefixExclude(String text, Set<CProfileEnum> excludeProfiles) {
+        return dealByProfileExclude(
+            profile -> {
+                if(null == profile) {
+                    return text;
+                }
+                return profile.name() + text;
+            },
+            excludeProfiles
+        );
+    }
 
-        val profile = getActiveProfileDefaultNull();
-        if(profile == null
-            || excludeProfiles.contains(profile)
-        ) {
-            return text;
-        }
-        return profile.name() + text;
+    /**
+     * 配置后缀，特定配置不加后缀
+     * @param text 文本
+     * @param excludeProfiles 不加前缀的配置
+     * @return 带配置前缀的文本
+     */
+    public String profileSuffixExclude(String text, Set<CProfileEnum> excludeProfiles) {
+        return dealByProfileExclude(
+            profile -> {
+                if(null == profile) {
+                    return text;
+                }
+                return text + profile.name();
+            },
+            excludeProfiles
+        );
     }
 
     /**
@@ -231,6 +313,24 @@ public class CSpringUtils {
      */
     public String profilePrefixExcludeProd(String text) {
         return profilePrefixExclude(text, CProfileEnum.PROD_PROFILES);
+    }
+
+    /**
+     * 配置后缀
+     * @param text 文本
+     * @return 带配置前缀的文本
+     */
+    public String profileSuffix(String text) {
+        return profileSuffixExclude(text, Collections.emptySet());
+    }
+
+    /**
+     * 配置后缀，PROD 不加后缀
+     * @param text 文本
+     * @return 带配置前缀的文本
+     */
+    public String profileSuffixExcludeProd(String text) {
+        return profileSuffixExclude(text, CProfileEnum.PROD_PROFILES);
     }
 
 }

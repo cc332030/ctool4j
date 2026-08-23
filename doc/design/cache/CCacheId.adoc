@@ -1,0 +1,55 @@
+= CCacheId 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-cache
+类：com.c332030.ctool4j.cache.annotation.CCacheId
+状态：已落地
+适用范围：标记对象上作为缓存 ID 的字段
+
+== 1. 功能说明
+
+`CCacheId` 为字段级标记注解，标注在对象的一个字段上，表示该字段作为缓存 ID 来源
+（配合 `@CCacheable` 使用，由 `CCacheAspect` 通过 MethodHandle 读取该字段值作为缓存 key 一部分）。
+
+无任何属性，纯标记。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 仅作用于字段（`@Target(ElementType.FIELD)`），运行时保留（`RUNTIME`）、可继承、可被文档记录。
+- 一个对象上通常只标注一个 `@CCacheId` 字段；`CCacheAspect.CACHE_ID_HANDLE_CLASS_VALUE`
+  只取第一个带该注解的字段（经 `getAllFieldMap` 值流 `findFirst`）。
+
+=== 2.2 实现方式
+
+- 纯注解声明，无业务逻辑；由切面在运行时反射读取注解与字段值。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 对象上没有 `@CCacheId` 字段 | `CCacheAspect` 取不到 handle，cacheId 为 null，走默认 idConverter 兜底 |
+| JDK 类对象 | 跳过 `@CCacheId` 字段读取，cacheId 为 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要以对象某字段值作为缓存 key 的缓存方法入参对象。
+
+=== 4.2 不适用/边界场景
+
+- 仅单个字段可作为缓存 ID；复合 ID 场景需自行在 idConverter 中组装。
+
+== 5. 已知限制与取舍
+
+- 同一对象多 `@CCacheId` 字段时只取第一个，语义由调用方保证。
+- 不提供 key 前缀/格式配置，具体缓存 key 由 idConverter 生成。
+
+测试内容见 `doc/design/cache/CCacheAspectCacheKeyTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

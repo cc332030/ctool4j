@@ -8,9 +8,14 @@ import org.springframework.aop.framework.AopContext;
  * </p>
  *
  * @since 2024/3/15
+ * @see "doc/design/spring/ICProxyService.adoc"
  */
 public interface ICProxyService<T> {
 
+    /**
+     * 获取当前代理对象
+     * @return 当前代理对象
+     */
     @SuppressWarnings("unchecked")
     default T currentProxy() {
         return (T)AopContext.currentProxy();

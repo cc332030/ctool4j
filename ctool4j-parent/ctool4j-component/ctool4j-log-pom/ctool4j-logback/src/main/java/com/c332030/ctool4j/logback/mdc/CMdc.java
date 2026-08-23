@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentMap;
  * Description: CMdc
  * </p>
  *
+ * @see "doc/design/log/CMdc.adoc"
+ * @see "doc/design/log/CMdcTests.adoc"
  * @since 2025/9/26
  */
 public class CMdc implements MDCAdapter {
@@ -25,31 +27,61 @@ public class CMdc implements MDCAdapter {
         return MDC_MAP_THREAD_LOCAL.get();
     }
 
+    /**
+     * 放入键值
+     *
+     * @param key 键
+     * @param val 值
+     */
     @Override
     public void put(String key, String val) {
         getMdcMap().put(key, val);
     }
 
+    /**
+     * 获取键对应值
+     *
+     * @param key 键
+     * @return 值
+     */
     @Override
     public String get(String key) {
         return getMdcMap().get(key);
     }
 
+    /**
+     * 移除键
+     *
+     * @param key 键
+     */
     @Override
     public void remove(String key) {
         getMdcMap().remove(key);
     }
 
+    /**
+     * 清空当前线程上下文
+     */
     @Override
     public void clear() {
         MDC_MAP_THREAD_LOCAL.remove();
     }
 
+    /**
+     * 获取上下文副本
+     *
+     * @return 上下文副本
+     */
     @Override
     public Map<String, String> getCopyOfContextMap() {
         return new LinkedHashMap<>(getMdcMap());
     }
 
+    /**
+     * 设置上下文，null 时清空
+     *
+     * @param contextMap 上下文
+     */
     @Override
     public void setContextMap(Map<String, String> contextMap) {
 

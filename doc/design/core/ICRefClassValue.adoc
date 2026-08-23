@@ -1,0 +1,38 @@
+= ICRefClassValue 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.cache.ICRefClassValue
+状态：已落地
+适用范围：可设置的按类缓存值接口
+
+== 1. 功能说明
+
+`ICRefClassValue<T>` 为可设置的按类缓存接口，继承 `ICClassValue<T>`，在 get 基础上增加 `set(Class<?>, T)`。
+
+== 2. 设计要点
+
+=== 2.1 语义
+
+- 在按类缓存基础上支持覆盖值；实现类 `CRefClassValue` 基于 `AtomicReference` 存储。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要按类缓存且运行期可覆盖值的场景（实现类提供）。
+
+=== 4.2 不适用/边界场景
+
+- 仅需一次性计算缓存时用 `ICClassValue`。
+
+== 5. 已知限制与取舍
+
+- 通过可设置接口扩展按类缓存，兼顾缓存与覆盖。
+
+说明：本接口由 `CRefClassValue` 实现并测试，无独立测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

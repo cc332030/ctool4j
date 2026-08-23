@@ -10,6 +10,8 @@ import lombok.Getter;
  * </p>
  *
  * @since 2026/3/17
+ * @see "doc/design/core/CCountryCodeEnum.adoc"
+ * @see "doc/design/core/CCountryCodeEnumTests.adoc"
  */
 @Getter
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public enum CCountryCodeEnum implements ICValue<Integer> {
     ;
 
     /**
-     * 描述
+     * 国家/地区电话区号（如中国为 86）
      */
     final Integer value;
 

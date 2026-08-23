@@ -10,14 +10,21 @@ import java.util.function.Supplier;
  * Description: CTool4jTestConstants
  * </p>
  *
+ * @see "doc/design/definition/CTool4jTestConstants.adoc"
  * @since 2025/11/21
  */
 @Slf4j
 @UtilityClass
 public class CTool4jTestConstants {
 
+    /**
+     * JUnit 测试类名
+     */
     public final String JUNIT_TEST_CLASS_NAME = "org.junit.jupiter.api.Test";
 
+    /**
+     * 是否为测试环境（通过能否加载 JUnit 判断）
+     */
     public final boolean IS_TEST = ((Supplier<Boolean>) () -> {
         try {
 

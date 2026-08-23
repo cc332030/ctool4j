@@ -8,6 +8,7 @@ import com.c332030.ctool4j.mybatisplus.mapper.CBaseMapper;
  * </p>
  *
  * @since 2025/11/27
+ * @see "doc/design/mybatisplus/CServiceImpl.adoc"
  */
 public abstract class CServiceImpl<M extends CBaseMapper<T>, T>
         extends CBaseServiceImpl<M, T> {

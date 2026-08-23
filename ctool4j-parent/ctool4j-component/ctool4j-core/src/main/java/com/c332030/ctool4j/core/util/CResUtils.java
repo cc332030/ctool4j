@@ -11,6 +11,8 @@ import lombok.val;
  * </p>
  *
  * @since 2025/10/24
+ * @see "doc/design/core/CResUtils.adoc"
+ * @see "doc/design/core/CResUtilsTests.adoc"
  */
 @UtilityClass
 public class CResUtils {

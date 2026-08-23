@@ -8,6 +8,8 @@ import lombok.Getter;
  * Description: CFeignClientHeaderPropagationModeEnum 客户端请求头传播模式
  * </p>
  *
+ * @see "doc/design/feign/CFeignClientHeaderPropagationModeEnum.adoc"
+ * @see "doc/design/feign/CFeignClientHeaderPropagationModeEnumTests.adoc"
  * @since 2025/12/6
  */
 @Getter

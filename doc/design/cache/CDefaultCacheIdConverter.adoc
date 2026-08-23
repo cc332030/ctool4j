@@ -1,0 +1,57 @@
+= CDefaultCacheIdConverter 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-cache
+类：com.c332030.ctool4j.cache.aop.CDefaultCacheIdConverter
+状态：已落地
+适用范围：默认缓存 ID 生成实现
+
+== 1. 功能说明
+
+`CDefaultCacheIdConverter` 实现 `ICCacheIdConverter<Object, Object>`，为默认缓存 ID 生成器。
+
+`applyThrowable(Object key, Object object)` 的生成规则：
+
+- key 与 object 都为 null → 返回 null
+- key 为 null → 返回 `object` 的字符串形式（`StrUtil.toStringOrNull`）
+- key 非 null → 返回 `key` 的字符串形式（`StrUtil.toStringOrNull`）
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 优先级：key 优先于 object；key 为 null 时才退到 object。
+- 均为 null 返回 null，由调用方保证不写入缓存（避免缓存空 key）。
+
+=== 2.2 实现方式
+
+- 用 hutool `StrUtil.toStringOrNull` 转字符串，null 安全。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| key 与 object 均为 null | 返回 null |
+| key 为 null | 返回 object 字符串形式 |
+| object 为 null（key 非空） | 返回 key 字符串形式 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 缓存入参为简单类型（key 直接可用）或 `@CCacheId` 字段值已被切面提取为 cacheId 的默认场景。
+
+=== 4.2 不适用/边界场景
+
+- 需要复合/带前缀缓存 ID 时需自定义 idConverter。
+
+== 5. 已知限制与取舍
+
+- 仅取 key 或 object 的字符串形式，不做拼接；复合 key 不适用。
+
+测试内容见 `doc/design/cache/CDefaultCacheIdConverterTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

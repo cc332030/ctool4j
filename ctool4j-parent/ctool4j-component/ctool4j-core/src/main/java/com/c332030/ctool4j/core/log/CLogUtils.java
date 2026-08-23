@@ -29,19 +29,33 @@ import java.util.function.Supplier;
 
 /**
  * 处理并记录日志文件
+ * @see "doc/design/core/CLogUtils.adoc"
+ * @see "doc/design/core/CLogUtilsTests.adoc"
  */
 @Slf4j
 @UtilityClass
 public class CLogUtils {
 
+    /**
+     * 日志级别配置前缀
+     */
     public final String LOGGING_LEVEL = "logging.level";
 
+    /**
+     * 日志级别配置完整前缀
+     */
     public final String LOGGING_LEVEL_PREFIX = LOGGING_LEVEL + ".";
 
     /**
      * 日志缓存
      */
     private static final ClassValue<CLog> LOGS = new ClassValue<CLog>() {
+        /**
+         * 为类创建日志对象
+         *
+         * @param type 类
+         * @return 日志对象
+         */
         @Override
         protected CLog computeValue(@NonNull Class<?> type) {
             return new CLog(type);
@@ -243,24 +257,20 @@ public class CLogUtils {
     }
 
     /**
-     * 处理参数
-     * @param args args
+     * 转为日志可打印参数（默认不打印 null）
+     * <p>将可 json 化的参数元素替换为 JSON 字符串（日志专用 mapper：不序列化 null +
+     * 标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符），返回新数组，不修改调用方入参；null 元素保持不动</p>
+     *
+     * @param args 源参数
+     * @return 新数组
      */
-    public void dealArgs(Object[] args) {
-        dealArgs(args, false);
-    }
-
-    /**
-     * 处理参数
-     * @param args args
-     * @param nonNull 是否不打印 null
-     */
-    public void dealArgs(Object[] args, boolean nonNull) {
+    public Object[] toLogArgs(Object[] args) {
 
         if (ArrayUtil.isEmpty(args)) {
-            return;
+            return args;
         }
 
+        val result = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
 
             var arg = args[i];
@@ -268,16 +278,19 @@ public class CLogUtils {
                 val argType = arg.getClass();
                 if (isJsonLog(argType)) {
                     try {
-                        args[i] = nonNull
-                                ? CJsonUtils.toJsonNonNull(arg)
-                                : CJsonUtils.toJson(arg);
+                        arg = CJsonUtils.toJsonLog(arg);
                     } catch (Exception e) {
+                        // 不少类型不支持转 json，虽已适配一部分但仍无法穷尽；
+                        // 转 json 失败即禁用该类型的 json 转换（改由手动兼容），
+                        // 避免每次日志都触发异常报错，属有意设计取舍
                         setJsonLog(argType, false);
                         log.error("转 json 失败，禁用 json 转换：{}", argType, e);
                     }
                 }
             }
+            result[i] = arg;
         }
+        return result;
     }
 
     /**
@@ -358,6 +371,21 @@ public class CLogUtils {
 
         return PRINT_ABLE_CONVERT_FUNCTION.get(argType)
             .apply(value);
+    }
+
+    /**
+     * 获取可打印的字符串
+     * @param value 源数据
+     * @return 字符串
+     */
+    public String getPrintAbleString(Object value) {
+
+        value = getPrintAble(value);
+        if(String.class == value.getClass()) {
+            return (String) value;
+        }
+
+        return CJsonUtils.toJsonLog(value);
     }
 
 }

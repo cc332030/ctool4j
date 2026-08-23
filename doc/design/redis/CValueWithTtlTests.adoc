@@ -1,0 +1,39 @@
+= CValueWithTtl 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.redis.model.CValueWithTtl`（redis 模块）——Redis 值与剩余 TTL 载体。
+
+对应测试类：`com.c332030.ctool4j.redis.model.CValueWithTtlTests`
+
+对应设计文档：`doc/design/redis/CValueWithTtl.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CValueWithTtl 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证 lombok 生成的构造器/Builder/Setter 对 value、ttl 字段的读写，以及 toString 包含字段。
+
+=== 设计依据
+
+- 依据功能设计对纯数据类（lombok 生成）的约定：全参/无参构造、Builder、setter、toString。
+- 依据白盒原则：各构造/赋值路径均取代表性值验证。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：全参构造、无参构造、Builder、setter、toString。
+- 未覆盖：equals/hashCode（lombok @Data 生成，未单测）；TTL 数值语义（由 Redis 端决定）。
+
+== 1. 字段读写
+
+- 1.1 全参构造赋值（allArgsConstructor_setsFields）
+- 1.2 无参构造为空（noArgsConstructor_createsEmpty）
+- 1.3 Builder 赋值（builder_setsFields）
+- 1.4 setter 更新字段（setters_updateFields）
+- 1.5 toString 含字段（toString_containsFields）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

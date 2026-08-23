@@ -1,0 +1,71 @@
+= CComparatorUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CComparatorUtils`（core 工具类）——集合最值比较（min/max）、字段取值最值、null 视为最大的双值比较。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CComparatorUtilsTests`
+
+对应设计文档：`doc/design/core/CComparatorUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CComparatorUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「最值取法（min/max）」「入口形态（集合/可变参数）」「字段取值」「双值比较」「消费」多个维度组织。
+- min/max 均覆盖：正例（含 null 元素被过滤）、空集合、全 null 集合、可变参数空参/全 null。
+- 字段取值覆盖正例与字段为 null 元素被过滤的场景。
+- compare 覆盖双 null、单 null、自然序大小，以及显式比较器分支。
+- minConsumer/maxConsumer 覆盖非空最值消费与空集合不消费（初始值保持不变）。
+
+=== 设计依据
+
+- 依据功能设计对最值过滤 null、空集合返回 null、compare null 视为最大的约定。
+- 依据测试方法（等价类/边界值/分支覆盖）：正例、空集合、全 null、单 null、字段 null。
+- compare 的 null 三分支（双 null/左 null/右 null）为判定覆盖重点。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：min/max 集合与可变参数的正例、空、全 null、含 null；compareCollection 自定义比较器；字段取值最值（正例+字段 null 过滤）；compare 双值（含显式比较器与自然序，null 三分支）；min/maxConsumer 消费与空集合不消费。
+- 未覆盖：自定义比较器与字段取值组合的极端边界（如比较器异常场景），非关键路径未单列。
+
+== 1. 最小值（min）
+
+- 1.1 集合正例：`[3,1,2]` → 1；含 null `[3,null,1,2]` → 1（minCollection）
+- 1.2 边界：空集合 → null；全 null → null（minCollection）
+- 1.3 可变参数正例：`min(3,1,2)` → 1；含 null `min(3,null,1,2)` → 1（minVarargs）
+- 1.4 边界：无参 `min()` → null；单 null `min((Integer)null)` → null（minVarargs）
+
+== 2. 最大值（max）
+
+- 2.1 集合正例：`[3,1,2]` → 3；含 null `[3,null,1,2]` → 3（maxCollection）
+- 2.2 边界：空集合 → null；全 null → null（maxCollection）
+- 2.3 可变参数正例：`max(3,1,2)` → 3；含 null `max(3,null,1,2)` → 3（maxVarargs）
+- 2.4 边界：无参 `max()` → null（maxVarargs）
+
+== 3. 自定义比较器最值（compareCollection）
+
+- 3.1 正例：自然序 → `"a"`、反序 → `"ccc"`；空集合 → null（compareCollectionWithComparator）
+
+== 4. 字段取值最值
+
+- 4.1 min 按字段：按 `String::length` 取最短 `"a"`（minByFunction）
+- 4.2 max 按字段：按 `String::length` 取最长 `"ccc"`（maxByFunction）
+
+== 5. 双值比较（compare）
+
+- 5.1 显式比较器：相等/大于/小于分支（compareWithComparator）
+- 5.2 显式比较器：null 视为最大（双 null → 0、null 左 → 1、null 右 → -1）（compareNullHandling）
+- 5.3 自然序：相等/大于/小于三分支，及 null 视为最大的三分支（compareNatural）
+
+== 6. 消费（minConsumer / maxConsumer）
+
+- 6.1 minConsumer：`[3,1,2]` 消费最小值 1；空集合不消费（初始值保持 100）（minConsumer）
+- 6.2 maxConsumer：`[3,1,2]` 消费最大值 3；空集合不消费（初始值保持 100）（maxConsumer）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

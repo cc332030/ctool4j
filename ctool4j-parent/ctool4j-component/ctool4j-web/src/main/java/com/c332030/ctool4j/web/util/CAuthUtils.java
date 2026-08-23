@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2026/3/16
+ * @see "doc/design/web/CAuthUtils.adoc"
+ * @see "doc/design/web/CAuthUtilsTests.adoc"
  */
 @UtilityClass
 public class CAuthUtils {
@@ -22,7 +24,7 @@ public class CAuthUtils {
     /**
      * token 前缀
      */
-    public String TOKEN_PREFIX = "Bearer";
+    public final String TOKEN_PREFIX = "Bearer";
 
     /**
      * 移除前缀
@@ -77,9 +79,14 @@ public class CAuthUtils {
      */
     public String getToken(HttpServletRequest request, String prefix) {
 
+        if(null == request) {
+            return null;
+        }
+
         val authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(StrUtil.isEmpty(authorization)
             || !authorization.startsWith(prefix)
+            ||  authorization.length() <= prefix.length()
         ) {
             return null;
         }

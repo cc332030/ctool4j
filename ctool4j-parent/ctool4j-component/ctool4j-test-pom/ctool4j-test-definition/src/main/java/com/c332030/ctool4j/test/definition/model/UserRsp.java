@@ -17,6 +17,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/11/21
+ * @see "doc/design/test/UserRsp.adoc"
+ * @see "doc/design/test/UserRspTests.adoc"
  */
 @Data
 @SuperBuilder

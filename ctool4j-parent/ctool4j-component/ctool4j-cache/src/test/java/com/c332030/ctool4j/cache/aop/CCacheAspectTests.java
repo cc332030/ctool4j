@@ -1,0 +1,94 @@
+package com.c332030.ctool4j.cache.aop;
+
+import com.c332030.ctool4j.cache.model.CCacheUser;
+import com.c332030.ctool4j.cache.service.CCacheTestService;
+import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.concurrent.TimeUnit;
+
+/**
+ * <p>
+ * Description: CCacheAspectTests
+ * </p>
+ *
+ * <p>
+ * 是 {@link CCacheAspect} 的测试用例（对应测试文档
+ * <code>doc/design/cache/CCacheAspectTests.adoc</code>）。
+ * </p>
+ *
+ * @since 2026/6/16
+ */
+@CTool4jSpringBootTest
+public class CCacheAspectTests {
+
+    @Autowired
+    CCacheTestService cacheTestService;
+
+    /**
+     * 测试缓存切面的生效、命中与过期
+     *
+     * <p>对应测试用例 1.1：本地缓存命中/未命中/过期</p>
+     */
+    @Test
+    @SneakyThrows
+    public void cacheAspect() {
+
+        val idA = 1;
+        val idB = 2;
+
+        val a1 = cacheTestService.time(idA);
+        val b1 = cacheTestService.time(idB);
+
+        val cacheUser = CCacheUser.builder()
+            .id(System.currentTimeMillis())
+            .build();
+        val uA1 = cacheTestService.userCache(cacheUser);
+
+        TimeUnit.MILLISECONDS.sleep(10);
+        val a2 = cacheTestService.time(idA);
+        val uA2 = cacheTestService.userCache(cacheUser);
+
+        TimeUnit.SECONDS.sleep(1);
+        val a3 = cacheTestService.time(idA);
+        val uA3 = cacheTestService.userCache(cacheUser);
+
+        Assertions.assertEquals(a1, a2);
+        Assertions.assertEquals(uA1, uA2);
+
+        Assertions.assertNotEquals(a1, b1);
+
+        Assertions.assertNotEquals(a1, a3);
+        Assertions.assertNotEquals(uA1, uA3);
+
+    }
+
+    /**
+     * 测试缓存方法抛异常时向上传播，不返回 null（Q28 修复）
+     * <p>注意：缓存 key 仅由参数生成（不含方法名），需用独立 id 避免与 cacheAspect() 中 time(id) 串 key</p>
+     *
+     * <p>对应测试用例 1.2：异常传播，异常不写缓存</p>
+     */
+    @Test
+    public void cacheErrorPropagates() {
+
+        val errorId = 999;
+        val ex = Assertions.assertThrowsExactly(
+            IllegalStateException.class,
+            () -> cacheTestService.error(errorId)
+        );
+        Assertions.assertTrue(ex.getMessage().contains("cache error: " + errorId));
+
+        // 异常未写入缓存：再次调用仍抛异常（而非命中缓存返回）
+        Assertions.assertThrowsExactly(
+            IllegalStateException.class,
+            () -> cacheTestService.error(errorId)
+        );
+
+    }
+
+}

@@ -19,16 +19,29 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @author c332030
+ * @see "doc/design/openapi2/CSpringFoxUtils.adoc"
+ * @see "doc/design/openapi2/CSpringFoxUtilsTests.adoc"
  * @since 2024/8/27
  */
 @UtilityClass
 public class CSpringFoxUtils {
 
+    /**
+     * 获取 Docket 构建器
+     *
+     * @return Docket
+     */
     public Docket getDocketBuilder() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .forCodeGeneration(true);
     }
 
+    /**
+     * 构建全局参数列表（过滤 null）
+     *
+     * @param headers 请求头定义集合
+     * @return 参数列表
+     */
     public List<Parameter> globalParameterList(Collection<? extends ICRequestHeader> headers) {
 
         headers = CCollUtils.filterNull(headers);
@@ -37,6 +50,12 @@ public class CSpringFoxUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 请求头定义转 Swagger 参数
+     *
+     * @param requestHeader 请求头定义
+     * @return 参数
+     */
     public Parameter getHeaderParameter(ICRequestHeader requestHeader) {
         return new ParameterBuilder().name(requestHeader.getHeaderName())
                 .modelRef(new ModelRef(requestHeader.getDataType().getLowerCase()))

@@ -15,18 +15,30 @@ import org.apache.ibatis.mapping.SqlSource;
 
 /**
  * <p>
- * Description: MySQLInsertIgnore
+ * Description: CInsertIgnoreMethod
  * </p>
  *
  * @author c332030
  * @since 2024/5/7
+ * @see "doc/design/mybatisplus/CInsertIgnoreMethod.adoc"
  */
 public class CInsertIgnoreMethod extends CAbstractMpMethod {
 
+    /**
+     * 构造方法，指定使用 INSERT_IGNORE 方法
+     */
     public CInsertIgnoreMethod() {
         super(CMpSqlMethod.INSERT_IGNORE);
     }
 
+    /**
+     * 注入 INSERT IGNORE 映射语句（支持自增主键回填）
+     *
+     * @param mapperClass Mapper 类
+     * @param modelClass  模型类
+     * @param tableInfo   表信息
+     * @return 映射语句
+     */
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         KeyGenerator keyGenerator = new NoKeyGenerator();
@@ -40,7 +52,7 @@ public class CInsertIgnoreMethod extends CAbstractMpMethod {
         // 表包含主键处理逻辑,如果不包含主键当普通字段处理
         if (StringUtils.isNotBlank(tableInfo.getKeyProperty())) {
             if (tableInfo.getIdType() == IdType.AUTO) {
-                /** 自增主键 */
+                // 自增主键
                 keyGenerator = new Jdbc3KeyGenerator();
                 keyProperty = tableInfo.getKeyProperty();
                 keyColumn = tableInfo.getKeyColumn();

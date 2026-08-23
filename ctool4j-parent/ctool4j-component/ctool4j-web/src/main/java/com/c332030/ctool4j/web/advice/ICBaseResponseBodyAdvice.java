@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @since 2025/9/28
+ * @see "doc/design/web/ICBaseResponseBodyAdvice.adoc"
  */
 public interface ICBaseResponseBodyAdvice<T> extends ResponseBodyAdvice<T> {
 

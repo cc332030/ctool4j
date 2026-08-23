@@ -1,0 +1,55 @@
+= CValidUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.validation.CValidUtils`（core 校验类）——按类型判断值是否有效/无效。
+
+对应测试类：`com.c332030.ctool4j.core.test.validation.CValidUtilsTests`
+
+对应设计文档：`doc/design/core/CValidUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CValidUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「对象 / 字符串 / 集合 / Map / 数组」多个类型维度组织，每类覆盖 isValid 与 isNotValid 的正反分支。
+- 对象验证非 null；字符串验证空白；集合/Map/数组验证非空。
+
+=== 设计依据
+
+- 依据功能设计对按类型（notNull/notBlank/notEmpty）的校验约定。
+- 依据测试方法（等价类/边界值）：正反分支、空/null/空白。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：对象（非 null/null）；字符串（非空白/空/空白/null）；集合（非空/空）；Map（非空/空）；
+  九种数组（byte/short/char/int/long/float/double/boolean/Object 非空/空）。
+- 未覆盖：Iterable 独立入参（被 Collection 重载语义覆盖）；各数组的 isNotValid 反例分支
+  （arrays 测试覆盖 isValid 与 isNotValid 空分支，非空分支由 isValid 覆盖）。
+
+== 1. 对象（非 null）
+
+- 1.1 isValid/isNotValid：非 null 有效、null 无效（object）
+
+== 2. 字符串（notBlank）
+
+- 2.1 isValid/isNotValid：非空白有效、空/空白/null 无效（charSequence）
+
+== 3. 集合（notEmpty）
+
+- 3.1 isValid/isNotValid：非空有效、空无效（collection）
+
+== 4. Map（notEmpty）
+
+- 4.1 isValid/isNotValid：非空有效、空无效（map）
+
+== 5. 数组（notEmpty）
+
+- 5.1 九种数组：非空有效、空无效（arrays）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

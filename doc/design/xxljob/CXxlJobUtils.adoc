@@ -1,0 +1,45 @@
+= CXxlJobUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-xxl-job
+类：com.c332030.ctool4j.job.xxljob.util.CXxlJobUtils
+状态：已落地
+适用范围：xxl-job 任务参数工具
+
+== 1. 功能说明
+
+`CXxlJobUtils`（`@UtilityClass`）提供 xxl-job 任务参数获取与解析：
+
+- `getJobParam()`：获取原始任务参数字符串（`XxlJobHelper.getJobParam`）。
+- `parseJobParam(Class)` / `parseJobParam(TypeReference)`：解析为对象。
+- `jobParamSplit(...)`：按分隔符拆分任务参数为列表（支持转换函数）。
+
+== 2. 设计要点
+
+=== 2.1 解析
+
+- 经 `CJsonUtils.fromJson` 解析 JSON。
+- `jobParamSplit` 经 `CStrUtils.splitToList` 拆分，支持分隔符与转换函数。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 任务参数为空 | 由 CJsonUtils/CStrUtils 相应兜底（null/空） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- xxl-job 任务参数获取、解析与拆分。
+
+== 5. 已知限制与取舍
+
+- 依赖 xxl-job 运行时上下文（XxlJobHelper）。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,56 @@
+= CWebMvcConfigurer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.configurer.CWebMvcConfigurer
+状态：已落地
+
+== 1. 功能说明
+
+`CWebMvcConfigurer` 为 web MVC 配置，`@Configuration` + `@AllArgsConstructor` + 实现 `WebMvcConfigurer`，
+构造注入 `Collection<ICHandlerInterceptor>` 与 `CSpringJacksonConfig`。
+
+核心方法：
+
+- `addInterceptors(InterceptorRegistry registry)`：将全部 `ICHandlerInterceptor` 注册到拦截器链
+- `extendMessageConverters(List<HttpMessageConverter<?>> converters)`：
+  `CSpringHttpUtils.setJacksonConfig(jacksonConfig)` 配置 Jackson，
+  `CSpringHttpUtils.configureMessageConverters(converters)` 统一消息转换器
+
+== 2. 设计要点
+
+=== 2.1 拦截器注册
+
+- 收集容器中所有 `ICHandlerInterceptor` bean，统一注册。
+
+=== 2.2 Jackson 消息转换器
+
+- 通过 `CSpringHttpUtils` 配置 Jackson 后统一消息转换器，保证序列化行为一致。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 无 `ICHandlerInterceptor` | `CCollUtils.forEach` 空集合不执行，无拦截器注册 |
+| `converters` 为空 | `configureMessageConverters` 处理空列表 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要自动注册项目拦截器与统一 Jackson 序列化的 web 应用。
+
+=== 4.2 不适用/边界场景
+
+- 业务方自定义 `WebMvcConfigurer` 时需注意与框架约定的配置合并语义。
+
+== 5. 已知限制与取舍
+
+- 拦截器与 Jackson 配置集中在框架层，业务方无需各自实现。
+
+测试内容：无独立测试类（CWebMvcConfigurer 依赖 Spring MVC 容器装配，由集成场景间接覆盖）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -17,6 +17,8 @@ import java.lang.reflect.UndeclaredThrowableException;
  *
  * @author c332030
  * @since 2024/5/6
+ * @see "doc/design/spring/CAspectUtils.adoc"
+ * @see "doc/design/spring/CAspectUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass
@@ -32,6 +34,12 @@ public class CAspectUtils {
         return signature.getMethod();
     }
 
+    /**
+     * 执行切点方法并解包未声明异常
+     *
+     * @param joinPoint 切点
+     * @return 切点方法的返回值
+     */
     @SneakyThrows
     public Object process(ProceedingJoinPoint joinPoint) {
         try {

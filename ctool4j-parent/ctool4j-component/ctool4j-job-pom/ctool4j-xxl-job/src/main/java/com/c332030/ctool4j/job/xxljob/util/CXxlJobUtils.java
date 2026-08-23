@@ -14,6 +14,7 @@ import java.util.List;
  * Description: CXxlJobUtils
  * </p>
  *
+ * @see "doc/design/xxljob/CXxlJobUtils.adoc"
  * @since 2025/11/27
  */
 @UtilityClass

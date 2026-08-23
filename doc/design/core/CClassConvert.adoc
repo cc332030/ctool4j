@@ -1,0 +1,77 @@
+= CClassConvert 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CClassConvert
+状态：已落地
+适用范围：类型转换（字符串/数值/日期/枚举值互转），供 MapStruct 与 CConvertUtils 使用
+
+== 1. 功能说明
+
+`CClassConvert` 为类型转换工具类，提供字符串、数值、日期、枚举值之间的转换方法，供
+`CConvertUtils` 默认注册及 MapStruct 使用：
+
+- 布尔：`toBoolean`
+- 整数：`toInt`（多重载）/`intValue`/`intStr`
+- 长整数：`toLong`/`longValue`/`longStr`
+- 浮点：`toFloat`/`floatValue`/`floatStr`、`toDouble`/`doubleValue`/`doubleStr`
+- 大数：`toBigDecimal`（多重载）/`bigDecimalStr`
+- 日期：`parseDateTime`/`formatDateTime`/`toMills`/`fromMills`/`toDate`/`toInstant`
+- 枚举：`toEnumIntegerValue`/`toEnumStringValue`
+- 通用字符串：`objectStr`
+
+== 2. 设计要点
+
+=== 2.1 数值转换
+
+- `toInt(String)`：委托 `CNumUtils.parseInt`，空/null 返回 null、非法抛 NumberFormatException。
+- `toInt(Long)`：溢出返回 null（经 `CNumUtils.toInt`）。
+- `intValue(Long)`：null 返回 0。
+- `toBigDecimal`：字符串/float/double/long/int 多形态；空串返回 null、非法抛 NumberFormatException。
+
+=== 2.2 布尔转换
+
+- `toBoolean(String)`：兼容 `"true"/"TRUE"` 与数字 `"1"`（Q24 修复），其余（null/空白/其他）为 false。
+
+=== 2.3 日期转换
+
+- `toMills`/`fromMills`：Date 与毫秒互转，null 返回 null。
+- `toDate`/`toInstant`：委托 CDateUtils。
+
+=== 2.4 字符串转换
+
+- `objectStr`：任意对象转字符串，null 返回 null；`booleanStr`/`intStr`/`longStr`/`floatStr`/
+  `doubleStr`/`bigDecimalStr` 均委托 objectStr。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| toInt/toLong/toFloat 空/null | 返回 null |
+| toInt/toLong 非法值 | 抛 NumberFormatException |
+| toInt(Long) 溢出 | 返回 null |
+| intValue/longValue/floatValue 等 null | 返回 0 |
+| toBoolean 非 true/1 | 返回 false |
+| objectStr 系列 null | 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 数值/日期/字符串/枚举值互转，供 MapStruct 映射与 CConvertUtils 类型转换。
+
+=== 4.2 不适用/边界场景
+
+- 数值字符串非法（如 "1,000"、"abc"）抛 NumberFormatException，调用方需处理或预校验。
+
+== 5. 已知限制与取舍
+
+- 数值转换委托 CNumUtils 统一语义；布尔兼容 "1"/"0" 数字形式（Q24）。
+- toBoolean 对 "true "（带空格）返回 false，严格匹配。
+
+测试内容见 `doc/design/core/CClassConvertTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,4 +1,4 @@
-# AutoBizService 注解处理器
+# CAutoBizService 注解处理器
 
 基于 Java 注解处理器，编译时自动生成业务 Service 接口。
 
@@ -38,7 +38,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AutoBizService(bizIdField = "orderNo", bizIdColumn = "order_no")
+@CAutoBizService
 public class Order extends CBaseEntity<Long> {
 
     private String orderNo;
@@ -111,47 +111,10 @@ public class OrderServiceImpl<M extends CBaseMapper<Order>>
 }
 ```
 
-### 5. 自动生成实现类（可选）
-
-如果设置 `generateImpl = true`：
-
-```java
-@AutoBizService(bizIdField = "orderNo", bizIdColumn = "order_no", generateImpl = true)
-public class Order extends CBaseEntity<Long> {
-    // ...
-}
-```
-
-会额外自动生成 `OrderServiceImpl` 实现类。
-
-## 注解参数
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `bizIdField` | String | 是 | 业务ID字段名（Java字段名，如 `orderNo`） |
-| `bizIdColumn` | String | 否 | 业务ID数据库列名，默认使用 `bizIdField` 的下划线形式 |
-| `serviceSuffix` | String | 否 | 生成的接口名后缀，默认 `Service` |
-| `generateImpl` | boolean | 否 | 是否生成实现类，默认 `false` |
-
-## 多个业务ID示例
-
-如果实体有多个业务ID，可以使用多次（但建议拆分为多个实体）：
-
-```java
-@Data
-@AutoBizService(bizIdField = "voucherNo", bizIdColumn = "voucher_no")
-public class Voucher extends CBaseEntity<Long> {
-
-    private String voucherNo;
-
-    private String voucherName;
-}
-```
-
 ## 原理
 
 - 使用 Java 注解处理器（Annotation Processor）
-- 编译时扫描 `@AutoBizService` 注解
+- 编译时扫描 `@CAutoBizService` 注解
 - 根据实体类名和业务ID字段自动生成 Service 接口
 - 生成的代码与手写代码完全一致，IDE 完全支持
 

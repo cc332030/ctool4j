@@ -1,0 +1,41 @@
+= CMpPageUtilsTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.mybatisplus.util.CMpPageUtils`（mybatisplus 模块分页工具）。
+
+对应测试类：`com.c332030.ctool4j.mybatis.test.mybatisplus.util.CMpPageUtilsTests`
+
+对应设计文档：`doc/design/mybatisplus/CMpPageUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CMpPageUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 验证创建 Page 的各路径：默认大小、查询/任务/导出的单次大小、由 ICPage 创建、null orders 边界。
+
+=== 设计依据
+
+- 依据功能设计对不同场景单次分页大小的约定。
+- 依据测试方法（等价类/边界）：默认大小、各场景大小、ICPage 转换、null orders。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：getPage 默认大小；getPageForQuery/Job/Export 各大小；由 ICPage 创建；null orders 边界。
+- 未覆盖：真实 MyBatis-Plus 分页拦截器集成。
+
+== 1. 分页创建
+
+- 1.1 getPage 默认大小（`getPageDefaultSize`）
+- 1.2 getPage（`getPage`）
+- 1.3 查询分页（`getPageForQuery`）
+- 1.4 任务分页（`getPageForJob`）
+- 1.5 导出版分页（`getPageForExport`）
+- 1.6 由 ICPage 创建（`getPageByICPage`）
+- 1.7 ICPage null orders 边界（`getPageByICPageNullOrders`）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

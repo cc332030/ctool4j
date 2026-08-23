@@ -1,0 +1,34 @@
+= ToStringFunction 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.function.ToStringFunction
+状态：已落地
+适用范围：转字符串函数接口（扩展 CFunction<T, String>）
+
+== 1. 功能说明
+
+`ToStringFunction<T>` 为转字符串函数接口，扩展 `CFunction<T, String>`，返回类型固定为 String。
+
+== 2. 设计要点
+
+=== 2.1 语义
+
+- 继承 CFunction 的受检异常包装与工具方法，返回类型固定为 String。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 对象转字符串的函数式处理（如显示转换）。
+
+== 5. 已知限制与取舍
+
+- 仅为 CFunction<T, String> 的类型别名。
+
+测试内容见 `doc/design/core/ToStringFunctionTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

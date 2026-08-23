@@ -1,0 +1,59 @@
+= CStringStringRedisService 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-redis
+类：com.c332030.ctool4j.redis.service.impl.CStringStringRedisService
+状态：已落地
+适用范围：String 键 String 值 Redis Service（对象序列化为 JSON 存储）
+
+== 1. 功能说明
+
+`CStringStringRedisService`（`@Service`）继承 `CAbstractRedisService<String, String>`，
+针对 String key/value 场景提供对象 JSON 序列化读写：
+
+- key 无效按空白（`StrUtil.isBlank`）判断。
+- `setValue(key, Object, ...)`：对象序列化为 JSON 字符串存储。
+- `getValue(key, Class/TypeReference, ...)`：反序列化指定类型。
+- `getValueWithTtl(key, Class/TypeReference)`：值 + 剩余 TTL，反序列化指定类型。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- key/value 空白视为无效（重写 `isInvalidKey`/`isInvalidValue`）。
+- 对象值统一经 `CJsonUtils.toJson` 序列化存储，读取时按目标类型反序列化。
+- 无效 key/value 或 timeout<=0 时静默返回，不写不抛。
+
+=== 2.2 实现方式
+
+- 基于 `ICRedisService` 默认方法 + JSON 序列化；`getValue(key, valueClass, default)` 复用父接口默认方法做 convert。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| key 空白/无效 | getValue 返回 defaultValue，setValue 不写入 |
+| value null | setValue 不写入 |
+| timeout<=0 | setValue(带超时) 不写入 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要存储对象（JSON）到 Redis、且 key 为字符串的场景，如缓存服务、业务 id 自增。
+
+=== 4.2 不适用/边界场景
+
+- key/value 需非 String 类型时使用 `CObjectValueRedisService`。
+
+== 5. 已知限制与取舍
+
+- 依赖 Jackson（`CJsonUtils`）JSON 序列化，反序列化类型需匹配存储时的实际结构。
+- 空白值按无效处理，无法缓存空白字符串（由 toJson 后 JSON 串通常非空白，实际影响有限）。
+
+测试内容见 `doc/design/redis/CStringStringRedisServiceTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

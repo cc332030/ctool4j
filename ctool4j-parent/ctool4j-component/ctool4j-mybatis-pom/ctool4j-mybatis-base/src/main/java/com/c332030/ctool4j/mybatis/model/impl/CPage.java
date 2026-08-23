@@ -18,6 +18,7 @@ import java.util.List;
  * </p>
  *
  * @since 2025/12/2
+ * @see "doc/design/mybatis/CPage.adoc"
  */
 @Data
 @SuperBuilder

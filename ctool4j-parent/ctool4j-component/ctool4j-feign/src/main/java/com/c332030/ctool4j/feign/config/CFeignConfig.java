@@ -11,6 +11,7 @@ import java.util.Map;
  * Description: CFeignConfig
  * </p>
  *
+ * @see "doc/design/feign/CFeignConfig.adoc"
  * @since 2025/9/21
  */
 @Data
@@ -28,9 +29,15 @@ public class CFeignConfig {
 
 }
 
+/**
+ * 客户端配置
+ */
 @Data
 class ClientConfig {
 
+    /**
+     * 客户端地址
+     */
     String url;
 
 }

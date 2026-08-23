@@ -1,0 +1,28 @@
+= CPlatformTypeEnum 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.enums.client.CPlatformTypeEnum
+状态：已落地
+适用范围：平台类型枚举（WEB/安卓/iOS/HarmonyOS/Windows/MacOS/Linux/Wearable）
+
+== 1. 功能说明
+
+`CPlatformTypeEnum` 为平台类型枚举，定义 WEB/ANDROID/IOS/HARMONY_OS/WINDOWS/MAC_OS/LINUX/WEARABLE，各带描述 `text`。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 平台类型的标准化枚举。
+
+== 5. 已知限制与取舍
+
+- 描述为文本。
+
+测试内容见 `doc/design/core/CPlatformTypeEnumTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

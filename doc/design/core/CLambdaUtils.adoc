@@ -1,0 +1,50 @@
+= CLambdaUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CLambdaUtils
+状态：已落地
+适用范围：字段读取/写入 Lambda（基于 MethodHandle）
+
+== 1. 功能说明
+
+`CLambdaUtils` 为字段 Lambda 工具类，提供：
+
+- `getFieldGetLambda(Field)`：获取字段读取 Lambda（CFunction<Object,Object>）
+- `getFieldSetLambda(Field)`：获取字段写入 Lambda（CBiConsumer<Object,Object>）
+
+== 2. 设计要点
+
+=== 2.1 MethodHandle 实现
+
+- JDK 8 的 `LambdaMetafactory` 不支持 getField/putField 直接方法句柄（抛
+  "Unsupported MethodHandle kind: getField"），故委托 `MethodHandle.invoke` 调用。
+- 使用 `CMethodHandleUtils#getGetterHandleAsType`/`getSetterHandleAsType`（setAccessible 语义，
+  不受跨包访问级别限制），每次调用做参数适配与装箱（JDK 8 兼容性取舍，避免直接反射 Field.get）。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 基本类型字段 get/set | 经 MethodHandle 自动装箱/拆箱 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要字段级函数式读取/写入（配合流式/链式处理）。
+
+=== 4.2 不适用/边界场景
+
+- 依赖反射 Field，需字段可访问（setAccessible 语义）。
+
+== 5. 已知限制与取舍
+
+- 委托 MethodHandle 保证 JDK 8 兼容且避免直接反射开销；基本类型经装箱处理。
+
+测试内容见 `doc/design/core/CLambdaUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

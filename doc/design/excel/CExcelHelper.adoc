@@ -1,0 +1,58 @@
+= CExcelHelper 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-excel
+类：com.c332030.ctool4j.excel.util.CExcelHelper
+状态：已落地
+适用范围：Excel 读写工具（基于 EasyExcel）
+
+== 1. 功能说明
+
+`CExcelHelper` 提供基于 EasyExcel 的 Excel 读写能力，采用 builder 模式：
+
+- 读取（doRead）：从字节流/文件/路径将 Excel 读为指定类型列表。
+- 写入（doWrite）：将对象列表写入字节流/文件/路径。
+- 统一以 `tClass`（首元素类型）作为表头与转换模型。
+
+== 2. 设计要点
+
+=== 2.1 读取（doRead）
+
+- 底层使用 EasyExcel `read(inputStream).head(tClass).sheet(0).doReadSync()`。
+- `doRead(File)` 经 `Files.newInputStream` 转字节流；`doRead(String)` 转 `File`。
+
+=== 2.2 写入（doWrite）
+
+- 底层使用 EasyExcel `write(outputStream).head(tClass).sheet(0).doWrite(list)`。
+- 过滤 null 元素；list 为空（含过滤后为空）时不写入，直接返回。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| doWrite 对象列表为空/null | 不写入，直接返回 |
+| 读取不存在的文件 | 抛 `NoSuchFileException`（依赖 `Files.newInputStream`） |
+| 写入 null 输出流 | 抛 `ExcelGenerateException`（easyexcel 包装 NPE） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 基于 EasyExcel 的简单 Excel 导入导出，对象字段与表头对应。
+
+=== 4.2 不适用/边界场景
+
+- 复杂 Excel（合并单元格、样式、多 sheet 自定义）需直接使用 EasyExcel API。
+- 依赖 EasyExcel 底层库行为。
+
+== 5. 已知限制与取舍
+
+- 写入以首元素类型推断 `tClass`，list 元素类型不一致时以首元素为准。
+- null 输出流写入会抛出 easyexcel 包装的异常，属底层行为，未额外校验。
+
+测试内容见 `doc/design/excel/CExcelHelperTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

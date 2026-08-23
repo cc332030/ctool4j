@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @since 2026/4/8
+ * @see "doc/design/spring/CJacksonInit.adoc"
  */
 @Configuration
 @AllArgsConstructor
@@ -23,6 +24,9 @@ public class CJacksonInit implements ICSpringInit {
 
     ObjectMapper objectMapper;
 
+    /**
+     * Spring 启动初始化回调：开启 json5 时配置 ObjectMapper
+     */
     @Override
     public void onInit() {
 

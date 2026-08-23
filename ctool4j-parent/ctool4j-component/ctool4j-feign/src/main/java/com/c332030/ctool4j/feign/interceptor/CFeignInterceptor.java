@@ -11,12 +11,18 @@ import lombok.CustomLog;
  * Description: CFeignInterceptor
  * </p>
  *
+ * @see "doc/design/feign/CFeignInterceptor.adoc"
  * @since 2025/9/21
  */
 @CustomLog
 @AllArgsConstructor
 public class CFeignInterceptor implements RequestInterceptor {
 
+    /**
+     * 拦截请求：命中拦截规则时跳过，否则透传请求头
+     *
+     * @param template 请求模板
+     */
     @Override
     public void apply(RequestTemplate template) {
         try {

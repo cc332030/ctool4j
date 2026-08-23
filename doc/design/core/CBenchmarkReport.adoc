@@ -1,0 +1,43 @@
+= CBenchmarkReport 设计文档
+
+Version: 1.1
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.benchmark.CBenchmarkReport
+状态：已落地
+适用范围：性能基准报告（标题 + 各用例结果，支持导出 markdown）
+
+== 1. 功能说明
+
+`CBenchmarkReport` 为性能基准报告，含标题与按耗时升序的结果列表（首项为基线），提供：
+
+- `getTitle()` / `getResults()`
+- `toMarkdown()`：导出为 markdown 表格
+- `writeTo(Path)`：写为 markdown 文件（自动创建父目录，UTF-8）
+
+== 2. 设计要点
+
+=== 2.1 markdown 导出
+
+- 表格含「实现方式 / Avg(ns/op) / ops/s / 相对基线」列，相对基线为各结果与基线（首项）耗时比。
+
+=== 2.2 文件写出
+
+- `writeTo` 自动创建父目录并以 UTF-8 写出，IO 异常包装为 RuntimeException。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 汇总基准结果并导出 markdown 报告文件。
+
+== 5. 已知限制与取舍
+
+- 相对基线假设 results 按耗时升序（首项为基线），由 CBenchmarkRunner 保证。
+
+测试用例见 `doc/design/core/CBenchmarkReportTests.adoc`。
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 补充对应测试用例与测试文档（doc/design/core/CBenchmarkReportTests.adoc）
+- 1.0 | 2026-08-21 | 初始落地

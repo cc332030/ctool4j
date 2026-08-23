@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * </p>
  *
  * @author c332030
+ * @see "doc/design/log/CLogConfiguration.adoc"
  * @since 2025/12/20
  */
 @Configuration

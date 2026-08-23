@@ -1,0 +1,40 @@
+= CMapStructConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.mapstruct.CMapStructConfig
+状态：已落地
+适用范围：MapStruct 全局映射配置
+
+== 1. 功能说明
+
+`CMapStructConfig` 为 MapStruct 全局映射配置接口，标注 `@MapperConfig`：
+
+- `componentModel = "spring"`：生成 Spring 组件模型
+- `uses = CClassConvert.class`：复用 `CClassConvert` 的转换方法
+- `nullValuePropertyMappingStrategy = IGNORE`：忽略 null 属性映射
+
+== 2. 设计要点
+
+=== 2.1 全局约定
+
+- 组件模型为 Spring，映射器作为 Spring Bean 注入。
+- 复用 CClassConvert 提供类型转换能力。
+- 源属性为 null 时不映射到目标（忽略），避免覆盖目标既有值。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 其他 Mapper 通过 `@Mapper(config = CMapStructConfig.class)` 复用全局映射配置。
+
+== 5. 已知限制与取舍
+
+- 全局配置对所有引用它的 Mapper 生效，具体 Mapper 可局部覆盖。
+
+说明：本类为纯配置接口，无独立测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

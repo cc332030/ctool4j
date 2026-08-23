@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
  * Description: CLogLevelListener
  * </p>
  *
+ * @see "doc/design/log/CLogLevelListener.adoc"
+ * @see "doc/design/log/CLogLevelListenerTests.adoc"
  * @since 2025/12/21
  */
 @CustomLog
@@ -31,6 +33,11 @@ public class CLogLevelListener implements ICApplicationListener<EnvironmentChang
 
     Environment environment;
 
+    /**
+     * 监听环境变更事件，更新 logging.level 相关配置的日志级别
+     *
+     * @param event 环境变更事件
+     */
     @Override
     public void onEvent(EnvironmentChangeEvent event) {
 
@@ -47,6 +54,11 @@ public class CLogLevelListener implements ICApplicationListener<EnvironmentChang
 
     }
 
+    /**
+     * 按配置键更新对应类的 logback 日志级别
+     *
+     * @param key 形如 "logging.level.类名" 的配置键
+     */
     @CLogAndIgnoreThrowable
     public void updateLogLevel(String key) {
 

@@ -1,0 +1,57 @@
+= CClassUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.classes.CClassUtils`（core 对象类）——类工具（JDK 类判断/继承链/接口/包扫描）。
+
+对应测试类：`com.c332030.ctool4j.core.test.classes.CClassUtilsTests`
+
+对应设计文档：`doc/design/core/CClassUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CClassUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「字段对比 / 包名 / JDK 类判断 / 继承链 / 接口」多个维度组织。
+- 用 JDK 内部类（sun.misc.Unsafe、com.sun.beans.TypeResolver 等）验证包名与 JDK 判断逻辑。
+- 继承链用 `CBaseEntity → CBaseTimeEntity → CBaseCreateTimeEntity → CId` 多层级验证顺序（由子至父，不含 Object）。
+- 接口用 CBaseEntity 各类直接实现接口验证去重保序且不递归接口继承。
+
+=== 设计依据
+
+- 依据功能设计对继承链顺序、接口去重保序、JDK 类判断的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：compareField 不抛异常；getFirstPackage 各包前缀；isJdkClass（java/javax/jdk/sun/com.sun/com.oracle）；
+  getSuperClasses（多层/中间层/Object 父类/接口/自身上）；getInterfaces（多层级接口顺序/接口继承不递归/
+  单层/无接口）。
+- 未覆盖：`isExistClass`/`getMap`/`findClasses`/`listSubClass`/`listAnnotatedClass`/`compareField` 内容
+  （部分依赖容器/类路径扫描，未在单测覆盖）。
+
+== 1. 字段对比
+
+- 1.1 compareField：多类字段对比不抛异常（compareField）
+
+== 2. 包名
+
+- 2.1 getFirstPackage：java/javax/jdk/sun 各包前缀（getFirstPackage）
+
+== 3. JDK 类判断
+
+- 3.1 isJdkClass：java/javax/jdk/sun/com.sun/com.oracle 各类均为 true（isJdkClass）
+
+== 4. 继承链
+
+- 4.1 getSuperClasses：多层/中间层/父类为 Object/接口自身 各场景顺序正确（getSuperClasses）
+
+== 5. 接口
+
+- 5.1 getInterfaces：多层接口顺序去重保序、接口继承不递归、单层、无接口（getInterfaces）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

@@ -16,6 +16,10 @@ import org.junit.jupiter.api.Test;
  */
 public class COptTests {
 
+    /**
+     * 测试 of 对 null 抛 NPE
+     * 对应测试用例 1.1
+     */
     @Test
     public void of() {
 
@@ -23,6 +27,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试 empty 与 ofNullable(null) 等价
+     * 对应测试用例 1.2
+     */
     @Test
     public void empty() {
 
@@ -31,6 +39,10 @@ public class COptTests {
     }
 
 
+    /**
+     * 测试空集合、空 Map、空字符串视为空值
+     * 对应测试用例 1.3
+     */
     @Test
     public void ofEmptyAble() {
 
@@ -45,6 +57,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试空白字符串视为空值
+     * 对应测试用例 1.4
+     */
     @Test
     public void ofBlankAble() {
 
@@ -53,6 +69,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试值存在判断
+     * 对应测试用例 2.1
+     */
     @Test
     public void isPresent() {
 
@@ -61,6 +81,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试获取值
+     * 对应测试用例 3.1
+     */
     @Test
     public void get() {
 
@@ -71,6 +95,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试空值时返回默认值
+     * 对应测试用例 3.2
+     */
     @Test
     public void orElse() {
 
@@ -81,6 +109,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试空值时通过供应商获取默认值
+     * 对应测试用例 3.3
+     */
     @Test
     public void orElseGet() {
 
@@ -89,8 +121,23 @@ public class COptTests {
                 ;
         Assertions.assertEquals(33, result);
 
+        // 值存在时 supplier 不应执行（惰性语义）
+        val called = new boolean[] {false};
+        val presentResult = COpt.of(7)
+                .orElseGet(() -> {
+                    called[0] = true;
+                    return 33;
+                })
+                ;
+        Assertions.assertEquals(7, presentResult);
+        Assertions.assertFalse(called[0]);
+
     }
 
+    /**
+     * 测试空值时抛出指定异常
+     * 对应测试用例 3.4
+     */
     @Test
     public void orElseThrow() {
 
@@ -100,6 +147,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试值转换
+     * 对应测试用例 4.1
+     */
     @Test
     public void map() {
 
@@ -111,6 +162,10 @@ public class COptTests {
 
     }
 
+    /**
+     * 测试扁平化值转换
+     * 对应测试用例 4.2
+     */
     @Test
     public void flatMap() {
 

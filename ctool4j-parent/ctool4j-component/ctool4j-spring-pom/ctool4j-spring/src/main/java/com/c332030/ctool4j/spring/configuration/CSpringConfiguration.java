@@ -16,12 +16,18 @@ import org.springframework.web.client.RestTemplate;
  * </p>
  *
  * @since 2025/9/11
+ * @see "doc/design/spring/CSpringConfiguration.adoc"
  */
 @Configuration
 @ComponentScan(CTool4jConstants.BASE_PACKAGE)
 @ConfigurationPropertiesScan(CTool4jConstants.BASE_PACKAGE)
 public class CSpringConfiguration {
 
+    /**
+     * 创建懒加载的 RestTemplate
+     *
+     * @return 共享的 RestTemplate 实例
+     */
     @Lazy
     @Bean
     @ConditionalOnMissingBean(RestTemplate.class)

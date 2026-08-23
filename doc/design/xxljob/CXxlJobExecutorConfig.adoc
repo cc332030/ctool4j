@@ -1,0 +1,47 @@
+= CXxlJobExecutorConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-xxl-job
+类：com.c332030.ctool4j.job.xxljob.config.CXxlJobExecutorConfig
+状态：已落地
+适用范围：xxl-job 执行器参数配置
+
+== 1. 功能说明
+
+`CXxlJobExecutorConfig`（`@Data` + `@ConfigurationProperties("xxl.job.executor")`）承载 xxl-job 执行器参数：
+
+- `appname`：执行器 AppName（为空关闭自动注册）。
+- `address`：执行器注册地址（优先使用，为空用内嵌 IP:PORT）。
+- `ip`：执行器 IP（默认为空自动获取）。
+- `port`：执行器端口（默认 9999，<=0 自动获取）。
+- `logpath`：执行器日志路径（默认 ./logs/xxl-job/jobhandler）。
+- `logretentiondays`：日志保存天数（默认 30，>=3 生效，-1 关闭自动清理）。
+
+== 2. 设计要点
+
+=== 2.1 默认值
+
+- port 默认 9999，logpath 默认 `./logs/xxl-job/jobhandler`，logretentiondays 默认 30。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 未配置 | 使用默认值 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- xxl-job 执行器参数来源。
+
+== 5. 已知限制与取舍
+
+- 未做校验，依赖 xxl-job 框架行为。
+
+无测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -1,0 +1,38 @@
+= CSpringSecurityConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-spring
+类：com.c332030.ctool4j.spring.security.config.CSpringSecurityConfig
+状态：已落地
+适用范围：Spring Security 配置
+
+== 1. 功能说明
+
+`CSpringSecurityConfig`：Spring Security 配置。
+
+== 2. 设计要点
+
+- 配置安全规则、放行路径等
+
+== 3. 兜底设计
+
+无
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+Web 安全配置
+
+=== 4.2 不适用/边界场景
+
+@Configuration
+
+== 5. 已知限制与取舍
+
+@Configuration
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

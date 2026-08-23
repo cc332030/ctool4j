@@ -1,0 +1,43 @@
+= CExceptionUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.exception.CExceptionUtils`（core 异常类）——业务异常创建/抛出、忽略执行、异常链信息。
+
+对应测试类：`com.c332030.ctool4j.core.test.exception.CExceptionUtilsTest`
+
+对应设计文档：`doc/design/core/CExceptionUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CExceptionUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「创建业务异常 / 异常链信息」两个维度组织。
+- 创建验证默认提供者返回 CBusinessException。
+- 异常链覆盖 null（返回 null，Q17）与含 cause 的拼接展示。
+
+=== 设计依据
+
+- 依据功能设计对默认提供者类型与异常链拼接的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：newBusinessException 返回 CBusinessException；getMessageWithCause null 返回 null；含 cause 拼接。
+- 未覆盖：`ignore`/`throwBusinessException`/SPI 自定义提供者（当前测试聚焦创建与异常链核心路径，
+  其余入口可后续批次补充）。
+
+== 1. 创建业务异常
+
+- 1.1 newBusinessException：返回 CBusinessException（newBusinessException）
+
+== 2. 异常链信息
+
+- 2.1 null 异常：返回 null（getMessageWithCauseNull，Q17）
+- 2.2 含 cause：消息含 main 与 cause（getMessageWithCause）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

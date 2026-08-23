@@ -1,0 +1,78 @@
+= CRequestLogUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.util.CRequestLogUtils
+状态：已落地
+
+== 1. 功能说明
+
+`CRequestLogUtils`（`@UtilityClass` + `@CAutowiredScan` + `@CustomLog`）为请求日志采集/打印的静态工具类，
+持有 `@CAutowired` 注入的 `CRequestLogConfig requestLogConfig`，并以 `ThreadLocal<CRequestLog>` 保存当前线程请求日志。
+
+核心方法：
+
+- `isEnable()`：判断请求日志功能是否开启（`requestLogConfig.enable`，未注入时按 false）
+- `isExcludeUri(uri)`：判断 uri 是否命中排除规则（支持 `*` 通配，经 `CPatternUtils.getUrlCache` 预编译匹配）
+- `getOpt()` / `getOptThenRemove()`：获取当前线程请求日志（Opt），后者取出并移除
+- `genRequestLog()`：根据当前请求生成请求日志；uri 命中排除规则返回 null
+- `collectHeaders`：采集全部请求头（拷贝为独立 Map，避免持有请求对象内部结构）
+- `init()`：生成并绑定请求日志到当前线程
+- `remove()`：移除当前线程请求日志
+- `setRequestBodyReq(req)` / `setPrintAbleReq(req)` / `setReq(req)`：设置请求体
+- `setRsp(rsp, throwable, response)`：记录响应体、异常信息、响应状态码与响应头
+- `collectResponseHeaders`：采集全部响应头
+- `logWrite(info, enableHeader)`：记录请求日志、设置属性、打印日志的统一出口，输出 HTTP 报文格式 dump
+
+常量：
+
+- `REQUEST_LOG_STR = "request-log"`：请求日志 logger 名称
+- `EMPTY_REQ = "[no request body]"`：无请求体占位
+- `EMPTY_RSP = "[no response body]"`：无响应体占位
+
+== 2. 设计要点
+
+=== 2.1 ThreadLocal 传递
+
+- 用 `ThreadLocal<CRequestLog>` 在请求处理链中传递请求日志，避免参数逐层传递。
+
+=== 2.2 采集与打印解耦
+
+- 采集层总是采集请求头存储；是否输出由打印层 `enableHeader` 开关控制。
+
+=== 2.3 统一打印出口
+
+- `logWrite` 统一输出 HTTP 报文格式 dump，后续新增请求方式（resttemplate/httpclient 等）
+  无需各自实现拼接逻辑。
+
+=== 2.4 独立 Map 拷贝
+
+- `collectHeaders`/`collectResponseHeaders` 将 Servlet 请求/响应头视图遍历拷贝为独立 Map，
+  避免日志模型持有请求对象内部结构。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| `requestLogConfig` 未注入 | `isEnable`/`isExcludeUri` 经 `CObjUtils.convert` 判空，按默认值（false）处理 |
+| `excludeUriPatterns` 为空 | `isExcludeUri` 返回 false（不排除任何 uri） |
+| uri 命中排除规则 | `genRequestLog` 返回 null，`init` 不绑定 |
+| 无当前请求日志 | `setReq`/`setRsp` 直接跳过（debug 日志提示） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 服务端 MVC、feign、resttemplate、httpclient 等请求方式构造并打印统一格式请求日志。
+
+== 5. 已知限制与取舍
+
+- ThreadLocal 需在请求结束时 `remove`，避免线程复用导致日志串线程；由拦截器 afterCompletion 统一处理。
+- `EMPTY_REQ`/`EMPTY_RSP` 占位字符串所有请求共享，req 统一为 Object 直接存字符串与 feign 场景语义一致。
+
+测试内容见 `doc/design/web/CRequestLogUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

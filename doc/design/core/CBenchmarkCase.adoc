@@ -1,0 +1,39 @@
+= CBenchmarkCase 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.benchmark.CBenchmarkCase
+状态：已落地
+适用范围：性能基准用例接口
+
+== 1. 功能说明
+
+`CBenchmarkCase` 为性能基准用例接口，定义基准用例的三要素：
+
+- `name()`：用例名称（结果对比展示用）
+- `prepare()`：全局准备（执行前调用一次，创建源数据等）
+- `run()`：单次执行被测操作，返回值用于防止 JIT 消除死代码
+
+== 2. 设计要点
+
+=== 2.1 基准用例约定
+
+- 基准代码放于测试源码目录（不匹配 surefire 测试类命名、无 @Test 方法），不随 mvn test 执行、
+  不参与打包；仅通过 exec-maven-plugin 显式运行。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 实现性能基准用例，供 `CBenchmarkRunner.run` 执行。
+
+== 5. 已知限制与取舍
+
+- 通过返回值（blackhole 累计）防止 JIT 消除死代码。
+
+说明：本接口由基准用例类实现，无独立测试类。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

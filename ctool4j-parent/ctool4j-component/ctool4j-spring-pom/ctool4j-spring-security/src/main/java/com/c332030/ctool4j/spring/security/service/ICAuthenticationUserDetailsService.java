@@ -13,10 +13,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * </p>
  *
  * @since 2026/2/1
+ * @see "doc/design/spring/ICAuthenticationUserDetailsService.adoc"
  */
 public interface ICAuthenticationUserDetailsService<U, T extends Authentication>
     extends AuthenticationUserDetailsService<T> {
 
+    /**
+     * 根据令牌加载用户（用户不存在时抛出异常）
+     * @param token 认证令牌
+     * @return 用户详情
+     * @throws UsernameNotFoundException 用户不存在
+     */
     @Override
     default UserDetails loadUserDetails(T token) throws UsernameNotFoundException {
 
@@ -27,6 +34,12 @@ public interface ICAuthenticationUserDetailsService<U, T extends Authentication>
         return user;
     }
 
+    /**
+     * 根据令牌加载用户
+     * @param token 认证令牌
+     * @return 用户详情
+     * @throws UsernameNotFoundException 用户不存在
+     */
     CSecurityUser<U> loadTokenDetail(T token) throws UsernameNotFoundException;
 
 }

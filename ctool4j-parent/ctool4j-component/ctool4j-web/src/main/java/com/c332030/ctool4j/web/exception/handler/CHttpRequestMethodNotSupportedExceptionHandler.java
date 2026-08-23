@@ -14,12 +14,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </p>
  *
  * @since 2026/4/9
+ * @see "doc/design/web/CHttpRequestMethodNotSupportedExceptionHandler.adoc"
  */
 @CustomLog
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(HttpRequestMethodNotSupportedException.class)
 public class CHttpRequestMethodNotSupportedExceptionHandler {
 
+    /**
+     * 处理请求方法不支持异常
+     *
+     * @param e 请求方法不支持异常
+     * @return 错误结果
+     */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public CStrResult<Void> handle(HttpRequestMethodNotSupportedException e) {
 

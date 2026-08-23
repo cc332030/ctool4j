@@ -1,0 +1,30 @@
+= CTraceInfo 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.model.model.CTraceInfo
+状态：已落地
+适用范围：跟踪信息实体（实现 ICTraceInfo，含 traceId）
+
+== 1. 功能说明
+
+`CTraceInfo` 为跟踪信息实体，实现 `ICTraceInfo`，含 `traceId` 字段。
+
+标注 `@Data`/`@SuperBuilder`/`@NoArgsConstructor`/`@AllArgsConstructor`。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 请求链路跟踪信息（traceId）的默认实现。
+
+== 5. 已知限制与取舍
+
+- 仅含 traceId 单字段，可扩展。
+
+测试内容见 `doc/design/web/CTraceInfoTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

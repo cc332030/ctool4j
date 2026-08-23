@@ -1,0 +1,45 @@
+= CRedisConfiguration 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-redis
+类：com.c332030.ctool4j.redis.configuration.CRedisConfiguration
+状态：已落地
+适用范围：Redis 配置标记类
+
+== 1. 功能说明
+
+`CRedisConfiguration` 为 `@Configuration` 配置标记类，当前无任何 Bean/逻辑，
+作为 Redis 模块的 Spring 配置入口占位。
+
+== 2. 设计要点
+
+=== 2.1 语义约定
+
+- 通过 `@Configuration` 声明，被 Spring 扫描识别为配置类。
+
+=== 2.2 实现方式
+
+- 空类，仅作配置标记；后续可扩展 Redis 相关 Bean。
+
+== 3. 兜底设计
+
+- 无（当前无逻辑）。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- Redis 模块 Spring 配置扩展入口。
+
+=== 4.2 不适用/边界场景
+
+- 当前无实际配置行为。
+
+== 5. 已知限制与取舍
+
+- 空实现，无运行时影响；如有需要可在类内补充 Redis Bean 配置。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

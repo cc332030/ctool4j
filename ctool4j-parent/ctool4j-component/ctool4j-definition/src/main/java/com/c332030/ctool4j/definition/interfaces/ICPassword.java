@@ -7,13 +7,22 @@ import io.swagger.annotations.ApiModelProperty;
  * Description: ICPassword
  * </p>
  *
+ * @see "doc/design/definition/ICPassword.adoc"
  * @since 2026/1/24
  */
 public interface ICPassword {
 
-    @ApiModelProperty("用户名")
+    /**
+     * 获取密码
+     * @return 密码
+     */
+    @ApiModelProperty("密码")
     String getPassword();
 
+    /**
+     * 设置密码
+     * @param password 密码
+     */
     void setPassword(String password);
 
 }

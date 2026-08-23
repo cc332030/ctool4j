@@ -8,6 +8,7 @@ import java.lang.annotation.*;
  * </p>
  *
  * @since 2025/12/21
+ * @see "doc/design/spring/CLogAndIgnoreThrowable.adoc"
  */
 @Documented
 @Inherited

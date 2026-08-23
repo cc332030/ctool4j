@@ -1,10 +1,25 @@
-
 # 规范
 
-严格使用本规范
+严格使用本规范。遵守《阿里巴巴Java开发手册》；与本项目规范冲突时，以本项目定义规范为准。
 
-## 具体规范
+## 规范引用（基准）
 
-- java 规范：[AGENTS-JAVA.MD](agent/AGENTS-JAVA.MD)
-- spring 规范：[AGENTS-SPRING.MD](agent/AGENTS-SPRING.MD)
-- maven 规范：[AGENTS-MAVEN.MD](agent/AGENTS-MAVEN.MD)
+本仓库的规范以**远端统一规范**为基准，引用入口：
+
+- 远端规范入口：`https://agent.c332030.com/AGENTS.adoc`
+
+该入口为"分类与懒加载（加载调度器）"结构，按**必加载层 / 通用层 / 技术栈层 / 平台层**分层存储于 `specs/` 下，按需懒加载。文中 `specs/...` 均为**相对该入口文件所在目录**的路径，经 https 访问时解析为 `https://agent.c332030.com/specs/...`。
+
+**加载要求**：执行任务前须按远端入口 `AGENTS.adoc` 的加载调度规则，加载对应主题的规范文件（执行原则、规范管理为必加载层；编写代码、写文档、git 操作、code review、agent 协作、验证按活动加载通用层；Java/Spring/Maven 等按项目技术特征加载技术栈层；CNB 平台操作加载平台层）。禁止仅凭本入口文件猜测执行，凡工作涉及对应主题或项目具备对应技术特征，必须加载对应规范文件，不得因「规范文件不在常驻上下文」而跳过其要求。
+
+## 项目特有规范
+
+远端统一规范之外的**项目特有规范**见 [agent/AGENTS-PROJECT.MD](agent/AGENTS-PROJECT.MD)（如类 `C`/接口 `IC` 命名前缀、Spring `@Bean` 方法名 `c` 前缀、C 工具类语法糖、`CMethodHandleUtils` 反射、Java 8 语言目标等）。与远端规范冲突时，以本项目特有规范为准。
+
+## 规范管理
+
+远端统一规范已涵盖本项目通用规范（通用编码、文档、git、code review、验证、agent 协作、Java/Spring/Maven/测试/语法糖、CNB 等），本项目不再重复维护。新增或调整规范时：
+
+- 通用规则优先补充到远端统一规范，避免在本仓库重复维护
+- 项目特有规则补充到 `agent/AGENTS-PROJECT.MD`，遵循"归纳总结、分组分类、合并去重"原则
+- 调整规范时保证规范完整性（不因调整丢失规则），调整完成后在隔离的上下文中验证要点是否全保留

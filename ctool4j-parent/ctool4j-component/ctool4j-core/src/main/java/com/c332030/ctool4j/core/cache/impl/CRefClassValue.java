@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * </p>
  *
  * @since 2025/11/21
+ * @see "doc/design/core/CRefClassValue.adoc"
+ * @see "doc/design/core/CRefClassValueTests.adoc"
  */
 public class CRefClassValue<T> implements ICRefClassValue<T> {
 
@@ -20,11 +22,23 @@ public class CRefClassValue<T> implements ICRefClassValue<T> {
         classValue = CClassValue.of(type -> new AtomicReference<>(function.apply(type)));
     }
 
+    /**
+     * 获取类型缓存值
+     *
+     * @param type 类型
+     * @return 缓存值
+     */
     @Override
     public T get(Class<?> type) {
         return classValue.get(type).get();
     }
 
+    /**
+     * 设置类型缓存值
+     *
+     * @param type  类型
+     * @param value 值
+     */
     @Override
     public void set(Class<?> type, T value) {
         classValue.get(type).set(value);

@@ -7,10 +7,16 @@ import org.slf4j.event.Level;
  * Description: ICLogLevelTrace
  * </p>
  *
+ * @see "doc/design/log/ICLogLevelTrace.adoc"
+ * @see "doc/design/log/ICLogLevelTests.adoc"
  * @since 2026/3/20
  */
 public interface ICLogLevelTrace extends ICLogLevel {
 
+    /**
+     * 获取日志级别
+     * @return 日志级别
+     */
     @Override
     default Level getLevel() {
         return Level.TRACE;

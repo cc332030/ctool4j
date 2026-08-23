@@ -1,0 +1,44 @@
+= CPageConfig 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.config.CPageConfig`（core 配置类）——分页配置属性。
+
+对应测试类：`com.c332030.ctool4j.core.test.config.CPageConfigTests`
+
+对应设计文档：`doc/design/core/CPageConfig.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CPageConfig 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「默认值 / 设置取值 / toString」三个维度组织。
+- 默认值验证无参构造 defaultPageSize=100；设置取值验证 setter/getter；toString 验证字段输出。
+
+=== 设计依据
+
+- 依据功能设计对默认值与 Lombok @Data 行为的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：无参构造默认值；setDefaultPageSize/getDefaultPageSize；toString 含类名与字段。
+- 未覆盖：Spring 配置绑定（依赖容器，单测直接构造对象验证）。
+
+== 1. 默认值
+
+- 1.1 无参构造：defaultPageSize 默认 100（noArgsConstructor）
+
+== 2. 设置与取值
+
+- 2.1 setter/getter：设置 50 后取回 50（setterAndGetter）
+
+== 3. toString
+
+- 3.1 toString：含类名与 `defaultPageSize=50`（toStringContainsFields）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

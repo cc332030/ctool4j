@@ -5,12 +5,19 @@
     <parent>
         <groupId>com.c332030</groupId>
         <artifactId>ctool4j-spring-pom</artifactId>
-        <version>${revision}</version>
+        <version>1.1.20260730-SNAPSHOT</version>
     </parent>
 
     <artifactId>ctool4j-spring</artifactId>
 
     <dependencies>
+
+        <!-- core 的 httpmime 声明为 provided 不传递，CHttpClientUtils 运行时需要 httpclient（版本由 spring-boot BOM 管理） -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>

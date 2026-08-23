@@ -1,0 +1,60 @@
+= CIteratorUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CIteratorUtils
+状态：已落地
+适用范围：遍历集合/迭代器并忽略异常执行消费
+
+== 1. 功能说明
+
+`CIteratorUtils` 为迭代遍历工具类，提供：
+
+- `forEachIgnoreException(Iterable<T>, CConsumer<T>)`：遍历集合并忽略异常执行消费
+- `forEachIgnoreException(Iterator<T>, CConsumer<T>)`：遍历迭代器并忽略异常执行消费（跳过 null 元素）
+
+== 2. 设计要点
+
+=== 2.1 忽略异常语义
+
+- 元素消费过程中抛出任意 `Throwable` 都被捕获并记录 debug 日志，**不中断**后续元素处理。
+
+=== 2.2 null 语义
+
+- iterable / iterator 为 null 时直接返回（无操作）。
+- 遍历过程中元素为 null 时跳过（不调用 consumer），避免 consumer 对 null 处理异常。
+
+=== 2.3 实现方式
+
+- Iterable 重载委托 Iterator 重载（`iterable.iterator()`）。
+- Iterator 重载：`while(iterator.hasNext())` 内 try-catch(Throwable) 包裹取值与消费，null 元素 continue。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| iterable/iterator 为 null | 直接返回，无操作 |
+| 元素为 null | 跳过，不调用 consumer |
+| consumer 抛异常 | 记录 debug 日志，继续处理后续元素 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 批量处理元素时希望单元素失败不影响整体（如日志记录、非关键数据同步）。
+
+=== 4.2 不适用/边界场景
+
+- 需要严格失败语义（任一元素失败即中断）时不适用，应捕获异常自行处理。
+
+== 5. 已知限制与取舍
+
+- 忽略异常换取遍历不中断，牺牲单元素失败的可见性（仅 debug 日志）。
+- null 元素被跳过，与"容错遍历"语义一致。
+
+测试内容见 `doc/design/core/CIteratorUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

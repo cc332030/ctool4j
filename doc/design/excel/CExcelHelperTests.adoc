@@ -1,0 +1,48 @@
+= CExcelHelper 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.excel.util.CExcelHelper`（excel 模块）——基于 EasyExcel 的 Excel 读写工具。
+
+对应测试类：`com.c332030.ctool4j.excel.test.util.CExcelHelperTests`
+
+对应设计文档：`doc/design/excel/CExcelHelper.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CExcelHelper 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 覆盖读写往返一致：写入临时文件后再读回（含普通值、中文、超长字符串）。
+- 覆盖写入空值保护：null 元素过滤、空 list 不写入。
+- 覆盖异常路径：读取不存在文件抛异常、写入 null 输出流抛异常。
+
+=== 设计依据
+
+- 依据功能设计对"对象列表写入并按类读回、空 list 不写入"的约定。
+- 依据白盒/黑盒原则与错误推测法：读写往返、中文/超长、null/空、不存在文件、null 输出流均覆盖。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：往返一致（普通/中文/超长）、null 过滤、空 list、不存在文件、null 输出流。
+- 未覆盖：字节流（InputStream/OutputStream）直连读写往返、复杂 Excel 结构（多 sheet/合并单元格）。
+
+== 1. 读写往返（doWrite 后 doRead）
+
+- 1.1 往返一致（doWriteThenDoRead_roundTrip）
+- 1.2 中文与超长字符串往返一致（doWriteThenDoRead_chineseAndLongValue）
+
+== 2. 写入边界保护
+
+- 2.1 null 元素被过滤（doWrite_nullFiltered）
+- 2.2 空 list 不写入（doWrite_emptyList）
+
+== 3. 异常路径
+
+- 3.1 读取不存在的文件抛异常（doRead_nonExistentFileThrows）
+- 3.2 写入 null 输出流抛异常（doWrite_nullOutputStreamThrows）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -14,12 +14,23 @@ import org.springframework.web.client.RestTemplate;
  * </p>
  *
  * @since 2025/12/1
+ * @see "doc/design/spring/CRestTemplateUtils.adoc"
+ * @see "doc/design/spring/CRestTemplateUtilsTests.adoc"
  */
 @UtilityClass
 public class CRestTemplateUtils {
 
+    /**
+     * 使用默认 ObjectMapper 创建的共享 RestTemplate
+     */
     public final RestTemplate REST_TEMPLATE = restTemplate(CJacksonUtils.OBJECT_MAPPER);
 
+    /**
+     * 创建 RestTemplate 并替换 Jackson 转换器的 ObjectMapper
+     *
+     * @param objectMapper ObjectMapper
+     * @return 配置完成的 RestTemplate
+     */
     public RestTemplate restTemplate(ObjectMapper objectMapper) {
 
         val restTemplate = new RestTemplate(CHttpClientUtils.REQUEST_FACTORY);

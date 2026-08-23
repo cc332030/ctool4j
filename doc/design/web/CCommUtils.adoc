@@ -1,0 +1,35 @@
+= CCommUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.util.CCommUtils
+状态：已落地
+
+== 1. 功能说明
+
+`CCommUtils` 为 HTTP 请求日志拼接工具类，将请求日志信息（`CRequestLog`）拼接为类似 HTTP 请求+响应的完整报文 dump，输出格式：
+
+```
+[source]              日志来源标识（独立一行）
+POST /api/submit      请求行（METHOD URL，URL 含 query 参数）
+Content-Type: ...     请求头（同一 header 多值逐行）
+name=张三             请求体（POST 无 body 有 params 时输出 form-urlencoded body）
+{"x":1}               请求体
+200 OK                响应状态行（code 描述）
+Content-Type: ...     响应头（同一 header 多值逐行）
+{"y":2}               响应体
+error: boom           异常信息
+X-Trace-Id: ...       业务数据（traceId/tenantId/userId）
+rt: 100ms             耗时
+```
+
+- 各段空行分隔；请求头/响应头输出由打印层 `enableHeader` 开关控制（采集层总是采集，见 `CRequestLogUtils`）
+- `getBodyText` 为 byte[] body → 可打印文本的统一转换节点：空 body 返回占位符（EMPTY_REQ/EMPTY_RSP）、文本 body 按 Content-Type charset 解码、非文本 body 输出占位符
+- 状态行未知状态码（不在 HttpStatus 枚举）仅输出数字、不输出描述
+
+测试内容见 `doc/design/web/CCommUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地：CCommUtils HTTP 请求日志拼接功能说明与输出格式、getBodyText 转换节点、开关控制与未知状态码约定

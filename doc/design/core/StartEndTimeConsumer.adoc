@@ -1,0 +1,36 @@
+= StartEndTimeConsumer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-definition
+类：com.c332030.ctool4j.definition.function.StartEndTimeConsumer
+状态：已落地
+适用范围：起止时间消费者接口（扩展 CBiConsumer<Instant, Instant>）
+
+== 1. 功能说明
+
+`StartEndTimeConsumer` 为起止时间消费者接口，扩展 `CBiConsumer<Instant, Instant>`，专门消费起止时间：
+
+- `acceptThrowable(Instant startTime, Instant endTime)`：可抛受检异常
+
+== 2. 设计要点
+
+=== 2.1 语义
+
+- 固定参数为起止时间（Instant），复用 CBiConsumer 的受检异常包装与工具方法，重声明 acceptThrowable。
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 消费起止时间范围（如分页时间区间处理）。
+
+== 5. 已知限制与取舍
+
+- 为 CBiConsumer<Instant, Instant> 的类型化别名。
+
+测试内容见 `doc/design/core/StartEndTimeConsumerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

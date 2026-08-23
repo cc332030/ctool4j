@@ -1,0 +1,50 @@
+= CUpdateBy 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.definition.entity.base.CUpdateBy`（definition 实体类）——更新人实体。
+
+对应测试类：`com.c332030.ctool4j.definition.test.entity.base.CUpdateByTests`
+
+对应设计文档：`doc/design/core/CUpdateBy.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CUpdateBy 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「构造 / 设置取值 / toString / equals/hashCode / builder」多个维度组织，验证 Lombok @Data/@SuperBuilder 行为。
+
+=== 设计依据
+
+- 依据功能设计对 @Data/@SuperBuilder 生成方法的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：无参构造；setter/getter；toString null 安全与有值；equals/hashCode；同引用相等；builder。
+- 未覆盖：无。
+
+== 1. 构造与取值
+
+- 1.1 无参构造：字段为 null（noArgsConstructor）
+- 1.2 setter/getter：设置与读取（setterAndGetter）
+
+== 2. toString
+
+- 2.1 null 安全（toStringNullSafe）
+- 2.2 有值含字段（toStringWithValues）
+
+== 3. equals/hashCode
+
+- 3.1 同值相等（equalsAndHashCode）
+- 3.2 同引用相等（equalsSameReference）
+
+== 4. builder
+
+- 4.1 builder 构造（builder）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

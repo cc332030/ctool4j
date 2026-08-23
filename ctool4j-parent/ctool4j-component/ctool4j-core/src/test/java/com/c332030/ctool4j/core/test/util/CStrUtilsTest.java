@@ -12,12 +12,17 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CStrUtilsTest
  * </p>
+ * <p>`com.c332030.ctool4j.core.util.CStrUtils`（CStrUtils）的测试用例</p>
  *
  * @since 2025/9/16
  */
 @CustomLog
 public class CStrUtilsTest {
 
+    /**
+     * 测试模板中缺失参数格式化为空字符串
+     * 对应测试用例 1.1
+     */
     @Test
     public void formatNullToEmpty() {
 
@@ -31,6 +36,10 @@ public class CStrUtilsTest {
 
     }
 
+    /**
+     * 测试字符串末尾数字自增
+     * 对应测试用例 2.1
+     */
     @Test
     public void incrLastNum() {
 
@@ -41,6 +50,10 @@ public class CStrUtilsTest {
 
     }
 
+    /**
+     * 测试提取字符串中的中文
+     * 对应测试用例 3.1
+     */
     @Test
     public void chineseOnly() {
 
@@ -52,6 +65,23 @@ public class CStrUtilsTest {
         Assertions.assertEquals("", CStrUtils.chineseOnly("123456"));
         Assertions.assertEquals("", CStrUtils.chineseOnly("ABCdef"));
         Assertions.assertEquals("混合中文", CStrUtils.chineseOnly("a混合123ABC中文test"));
+
+    }
+
+    /**
+     * 测试 toAvailable 对单侧引号的处理（Q16 修复：start == end 时保留该非引号字符）
+     * 对应测试用例 4.1
+     */
+    @Test
+    public void toAvailableSingleQuote() {
+
+        Assertions.assertEquals("a", CStrUtils.toAvailable("'a"));
+        Assertions.assertEquals("a", CStrUtils.toAvailable("'a'"));
+        Assertions.assertEquals("ab", CStrUtils.toAvailable("'ab'"));
+        Assertions.assertEquals("a", CStrUtils.toAvailable("a'"));
+        Assertions.assertNull(CStrUtils.toAvailable("''"));
+        Assertions.assertNull(CStrUtils.toAvailable("'"));
+        Assertions.assertNull(CStrUtils.toAvailable(""));
 
     }
 

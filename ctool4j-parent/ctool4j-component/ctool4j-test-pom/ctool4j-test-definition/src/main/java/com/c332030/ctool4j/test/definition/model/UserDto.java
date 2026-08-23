@@ -16,6 +16,8 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/11/21
+ * @see "doc/design/test/UserDto.adoc"
+ * @see "doc/design/test/UserDtoTests.adoc"
  */
 @Data
 @SuperBuilder

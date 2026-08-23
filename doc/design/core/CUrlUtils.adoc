@@ -1,0 +1,73 @@
+= CUrlUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.util.CUrlUtils
+状态：已落地
+适用范围：URL 解析（协议/主机/端口/路径）、查询参数解析、域名替换
+
+== 1. 功能说明
+
+`CUrlUtils` 为 URL 工具类，提供：
+
+- URI/URL 解析：`getURI`、`getScheme`、`getHost`、`getPort`、`getHostWithPort`
+- 路径：`getPath`、`splitToPath`、`firstPath`、`lastPath`
+- 查询参数：`getParamMap`、`getParam`、`getParams`
+- 其他：`getUrl`（提取 http(s) 协议起始部分）、`decode`、`replaceDomain`
+
+== 2. 设计要点
+
+=== 2.1 协议提取（getUrl）
+
+- 用正则 `https?://` 查找协议起始位置，截取到 URL 末尾。
+- 空/不含协议返回 null；协议前有垃圾内容时从协议处截取。
+
+=== 2.2 参数解析（getParamMap）
+
+- 未解码前剥离 fragment（`#` 后部分，`%23` 编码不受影响）。
+- 按 `?` 拆参数区，再按 `&` 拆参数；每个参数按第一个 `=` 分割（值含 `=` 时保留完整）。
+- 参数 key/value 均 URL 解码；无值参数（解码后空串）按 null 处理不放入结果 Map。
+- 返回不可变 LinkedHashMap。
+
+=== 2.3 域名替换（replaceDomain）
+
+- URL 为空返回 null；新域名为空原样返回。
+- 基于 URI 的 rawPath/rawQuery/rawFragment 拼接 `newDomain + path + ?query + #fragment`。
+
+=== 2.4 端口语义
+
+- `getPort`：URI 端口为 -1（未指定）时返回 null。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| getUrl 空/不含协议 | 返回 null |
+| getParamMap 空 URL / 无参数 | 返回空 Map |
+| getParamMap 无值参数（解码空串） | 不放入结果 Map |
+| replaceDomain URL 为空 | 返回 null |
+| replaceDomain 新域名为空 | 原样返回原 URL |
+| getPort 未指定端口 | 返回 null |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- URL 组件解析、查询参数提取、域名替换等 URL 处理场景。
+
+=== 4.2 不适用/边界场景
+
+- getParamMap 无值参数被丢弃（视为无该参数），需要保留空值参数时不适用。
+- 基于 `new URL`/`new URI` 解析，非法 URL 抛异常（@SneakyThrows）。
+
+== 5. 已知限制与取舍
+
+- fragment 剥离、按第一个 `=` 分割、无值参数丢弃等均为明确的参数解析取舍。
+- 返回不可变 Map，保证解析结果不被外部修改。
+
+测试内容见 `doc/design/core/CUrlUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

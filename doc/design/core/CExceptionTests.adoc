@@ -1,0 +1,39 @@
+= CException 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.exception.CException`（core 异常类）——项目基础运行时异常基类。
+
+对应测试类：`com.c332030.ctool4j.core.test.exception.CExceptionTests`
+
+对应设计文档：`doc/design/core/CException.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CException 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「无参 / 消息 / 原因 / 消息+原因」四种构造覆盖。
+- 无参断言 message/cause 为 null；消息构造断言消息；原因构造断言 cause 引用；组合构造断言两者。
+
+=== 设计依据
+
+- 依据功能设计对 @StandardException 生成构造的约定。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：四种标准构造。
+- 未覆盖：无（覆盖了全部构造）。
+
+== 1. 构造
+
+- 1.1 无参：message/cause 为 null（defaultConstructor）
+- 1.2 消息：message 正确（messageConstructor）
+- 1.3 原因：cause 引用正确（causeConstructor）
+- 1.4 消息+原因：两者正确（messageAndCauseConstructor）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

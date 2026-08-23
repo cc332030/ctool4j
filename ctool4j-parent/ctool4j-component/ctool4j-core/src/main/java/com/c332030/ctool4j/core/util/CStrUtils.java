@@ -28,30 +28,56 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @since 2024/3/15
+ * @see "doc/design/core/CStrUtils.adoc"
+ * @see "doc/design/core/CStrUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass
 public class CStrUtils {
 
+    /**
+     * "null" 字符串常量
+     */
     public static final String NULL = "null";
 
+    /**
+     * "undefined" 字符串常量
+     */
     public static final String UNDEFINED = "undefined";
 
+    /**
+     * 单引号字符
+     */
     public static final Character SINGLE_QUOTATION = '\'';
 
+    /**
+     * 双引号字符
+     */
     public static final Character DOUBLE_QUOTATION = '"';
 
+    /**
+     * 默认分隔符
+     */
     public static final String DEFAULT_SEPARATOR = ",";
 
 
+    /**
+     * 不可用字符集合（引号）
+     */
     public static final Set<Character> NOT_AVAILABLE_CHARACTERS = CSet.of(
             SINGLE_QUOTATION, DOUBLE_QUOTATION
     );
 
+    /**
+     * 不可用字符串集合
+     */
     public static final Set<String> NOT_AVAILABLE_STRINGS = CSet.of(
             NULL, UNDEFINED
     );
 
+    /**
+     * UTF-8 BOM
+     */
     public static final String UTF8_BOM = "\uFEFF";
 
     /**
@@ -215,7 +241,7 @@ public class CStrUtils {
     }
 
     /**
-     * 大写下划线 转 驼峰-首字母大写
+     * 大写下划线 转 驼峰-首字母小写
      * @param value 待转换值
      * @return 转换结果
      */
@@ -483,6 +509,7 @@ public class CStrUtils {
             str = str.trim();
             if(!str.isEmpty()) {
 
+                // 有意设计：不考虑值中含分隔符，按第一个分隔符切分键值对，值中后续分隔符内容忽略
                 val keyValueArr = str.split(separatorKeyValue);
                 if(keyValueArr.length >= 2) {
                     val key = keyValueArr[0].trim();
@@ -698,7 +725,8 @@ public class CStrUtils {
         }
 
         if(needSubString) {
-            if(start >= end) {
+            // start == end 时仍保留该字符（该字符已确认非引号），仅当前后引号完全覆盖（start > end）时视为无可用内容
+            if(start > end) {
                 return null;
             }
             string = StrUtil.sub(string, start, end + 1);
@@ -796,7 +824,7 @@ public class CStrUtils {
     }
 
     /**
-     * 字符串最好一个数字自增
+     * 字符串最后一个数字自增
      * @param str 待自增字符串
      * @return 自增后的字符串
      */
@@ -826,14 +854,37 @@ public class CStrUtils {
         return str;
     }
 
+    /**
+     * 重复字符串
+     *
+     * @param str   字符串
+     * @param count 重复次数
+     * @return 重复后的字符串
+     */
     public String repeat(String str, int count) {
         return repeat(str, count, "");
     }
 
+    /**
+     * 重复字符串并用分隔符连接
+     *
+     * @param str       字符串
+     * @param count     重复次数
+     * @param separator 分隔符
+     * @return 重复后的字符串
+     */
     public String repeat(String str, int count, String separator) {
         return String.join(separator, Collections.nCopies(count, str));
     }
 
+    /**
+     * 在字符串后填充字符至指定打印宽度
+     *
+     * @param str      字符串
+     * @param fillChar 填充字符
+     * @param length   打印宽度
+     * @return 填充后的字符串
+     */
     public String fillAfter(String str, char fillChar, int length) {
         if(StrUtil.isEmpty(str)) {
             return repeat(String.valueOf(fillChar), length);
@@ -847,6 +898,14 @@ public class CStrUtils {
         return str + repeat(String.valueOf(fillChar), restWidth);
     }
 
+    /**
+     * 在字符串两侧填充字符至指定打印宽度
+     *
+     * @param str      字符串
+     * @param fillChar 填充字符
+     * @param length   打印宽度
+     * @return 填充后的字符串
+     */
     public String fillSide(String str, char fillChar, int length) {
 
         if(StrUtil.isEmpty(str)) {
@@ -865,9 +924,15 @@ public class CStrUtils {
                 ;
     }
 
+    /**
+     * 生成指定长度的随机字符串（62 进制字符集）
+     *
+     * @param length 长度
+     * @return 随机字符串
+     */
     public String generateRandomString(int length) {
 
-        String characters = CNumUtils.CHARTSET_62;
+        val characters = CNumUtils.CHARSET_62;
         val sb = new StringBuilder(length);
         val secureRandom = new SecureRandom();
         for (int i = 0; i < length; i++) {
@@ -877,6 +942,12 @@ public class CStrUtils {
         return sb.toString();
     }
 
+    /**
+     * 获取字符串打印宽度（中文字符按 2 计）
+     *
+     * @param str 字符串
+     * @return 打印宽度
+     */
     public int getPrintWidth(String str) {
         var width = 0;
         for (var i = 0; i < str.length(); i++) {
@@ -885,6 +956,12 @@ public class CStrUtils {
         return width;
     }
 
+    /**
+     * 获取字符打印宽度（ASCII 按 1，其余按 2）
+     *
+     * @param ch 字符
+     * @return 打印宽度
+     */
     public int getPrintWidth(char ch) {
         if(ch <= 255) {
             return 1;
@@ -892,6 +969,12 @@ public class CStrUtils {
         return 2;
     }
 
+    /**
+     * 只保留中文字符
+     *
+     * @param str 字符串
+     * @return 中文字符串，原字符串为空时原样返回
+     */
     public String chineseOnly(String str) {
         if(StrUtil.isEmpty(str)) {
             return str;

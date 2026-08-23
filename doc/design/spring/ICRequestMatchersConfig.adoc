@@ -1,0 +1,38 @@
+= ICRequestMatchersConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-spring
+类：com.c332030.ctool4j.spring.security.config.ICRequestMatchersConfig
+状态：已落地
+适用范围：放行路径配置接口
+
+== 1. 功能说明
+
+`ICRequestMatchersConfig`：放行路径配置接口。
+
+== 2. 设计要点
+
+- 定义 getPermitAllPaths 等
+
+== 3. 兜底设计
+
+无
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+放行路径扩展
+
+=== 4.2 不适用/边界场景
+
+接口定义
+
+== 5. 已知限制与取舍
+
+接口定义
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

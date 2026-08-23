@@ -1,0 +1,168 @@
+= CBeanUtils 设计文档
+
+Version: 1.1
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CBeanUtils
+状态：已落地（2026-08-16，计划预计算 + fallback 全预热）
+适用范围：JavaBean 属性复制、对象转 Map、Map 转对象
+
+== 1. 功能设计
+
+=== 1.1 功能目标
+
+- 属性复制 `copy` 直连目标字段（避免 toMap 中转），性能接近手工 setter
+- 对象转 Map `toMap` 瓶颈仅在 map 写入
+- 所有校验、转换查找在预热（计划）阶段完成，运行期仅遍历字段数组 + null 判断
+
+=== 1.2 总体方案：计划预计算
+
+按 (源类, 目标类) / 按类预计算复制计划 `CopyPlan` / 转 Map 计划 `ToMapPlan`，缓存于
+`CClassValue` / `CBiClassValue`（基于 `java.lang.ClassValue`，线程安全、按类弱关联）：
+
+- `COPY_PLAN_BI_CLASS_VALUE`：按 (源类, 目标类) 缓存 `CopyPlan`
+- `TO_MAP_PLAN_CLASS_VALUE`：按类缓存 `ToMapPlan`
+- `VALUE_ACTION_BI_CLASS_VALUE`：按 (实际值类型, 目标类型) 缓存 fallback 处理动作
+
+计划缓存键为 Class，被类加载器持有，无泄漏问题；转换器均在 `CConvertUtils` 静态块注册，
+无运行期动态注册需求，缓存无需失效机制（若未来支持运行期 `addConverter`，需调用
+`CBiClassValue.remove` 同步清理）。
+
+=== 1.3 计划结构
+
+[source,java]
+----
+/**
+ * @param fastEntries  计划期已解析动作：SELF 直接写 / 转换器转换后写
+ * @param fallbackEntries  计划期未解析：运行期按实际值类型分派  */ @Builder
+private record CopyPlan(CopyEntry[] fastEntries,CopyEntry[] fallbackEntries) {
+
+    }
+
+/**
+ * @param converter  SELF 直接写；具体转换器转换后写；null 走回退路径
+ * @param toType  目标字段声明类型（回退路径分派用）  */ @Builder
+private record CopyEntry(MethodHandle getterHandle,MethodHandle setterHandle,CFunction<Object,?> converter,Class<?> toType) {
+
+    }
+
+/**
+ * @param entries  含 final 与集合字段，不剔除  */ @Builder
+private record ToMapPlan(ToMapEntry[] entries) {
+
+    }
+
+@Builder
+private record ToMapEntry(Field field,MethodHandle getterHandle) {
+
+    }
+----
+
+getter/setter 统一适配为 Object 签名 MethodHandle（`Object -> Object`、`(Object, Object) -> void`），
+运行期 `invokeExact` 无签名适配开销；原始类型字段由 `asType` 适配器自动装箱/拆箱。
+handle 全部经 `CMethodHandleUtils`（Caffeine 弱 key 缓存）获取，newInstance 按类缓存
+无参构造器 handle（`NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE`）。
+
+=== 1.4 计划期解析规则（getCopyPlan）
+
+对目标类每个实例字段，按序判定：
+
+1. JDK 源类 → 返回空计划常量 `EMPTY_COPY_PLAN`（热路径零判断）
+2. 目标 final 字段 → 剔除（不可写）
+3. 源对象无同名字段 → 剔除
+4. 源声明集合/Map/数组 → 剔除（值必为集合，旧语义一律跳过）
+5. `Object.class != fromType && ClassUtil.isAssignable(toType, fromType)`（目标在前、源在后，支持原始/包装等价）→ fast 条目（SELF 直接写）
+6. Object 声明，或 `getConverterNoObjectFallback` 为 null（仅 Object 源兜底可匹配）→ fallback 条目
+7. 否则 → fast 条目（转换后写）
+
+Object 声明字段运行期实际类型不可预知（如持有 Date 时计划期命中 Object→String 的 toString，
+而旧实现命中 Date→String 的格式化），统一回退运行期按实际值类型分派，保证语义一致。
+
+=== 1.5 运行期热路径
+
+- fast 循环：getter 取值 → null 判断 → SELF 直接写 / 转换器 apply → 非空则 setter 写入
+- fallback 循环：getter 取值 → null 判断 → `VALUE_ACTION_BI_CLASS_VALUE.get(实际值类型, toType).apply` → 非空则 setter 写入
+
+fallback 的集合判断、可赋值判断、转换器查找均在 `resolveValueAction` 中，于该 (值类型, 目标类型)
+首次出现时（预热）完成并缓存，热路径仅剩 null 判断 + 一次查表。
+
+`resolveValueAction` 规则：
+
+1. 实际值是集合/Map/数组 → `CFunction.EMPTY`（o -> null，跳过）
+2. `ClassUtil.isAssignable(toClass, valueClass)`（目标在前、源在后，支持原始/包装等价）→ `CFunction.SELF`（直接写）
+3. 否则 `getConverter`（完整查找，含 Object 兜底）→ 无则 EMPTY
+
+注意：fallback 动作解析必须用完整 `getConverter`（含 Object 兜底）——Object→String 兜底
+已在 `CConvertUtils.findConverter` 中降为最低优先级，完整查找仍优先命中 Date→String 等
+特殊转换，语义正确。
+
+=== 1.6 objectStr 优先级最低（CConvertUtils.findConverter）
+
+匹配规则：`getFromClass().isAssignableFrom(fromClass) && getToClass().isAssignableFrom(toClass)`
+（父类型匹配，非精确匹配）。循环注册表时：
+
+- `getFromClass() == Object.class` 的转换器（如 Object→String）：只记录不返回，循环继续找更精确的
+- 其余命中即返回
+- 循环结束返回 `includeObjectFallback ? objectFallback : null`
+
+由此保证：运行期按实际值类型精确查找时，只要存在更精确的转换器，objectStr 绝不抢占；
+计划期按声明类型（宽类型，如 Object/Serializable）解析时，用 `getConverterNoObjectFallback`
+排除兜底，使"仅 Object 兜底可匹配"的字段回退运行期，避免 objectStr 抢占 Date→String 等
+更精确转换。
+
+=== 1.7 备选方案及不选原因
+
+| 方案 | 不选原因 |
+|------|---------|
+| 字节码生成（如动态生成复制类） | 用户明确排除字节码方向（AGENTS.md 无此约束，为项目决策） |
+| 所有字段统一走 VALUE_ACTION 查表分派 | 行为等价但每个字段运行期多一次 map 查表开销，浪费计划期已解析成果，性能回退 |
+| fast/fallback 合并为单数组 + 分支标记 | 循环体需分支判断，污染 fast 热路径（每迭代多一次判断），反向优化 |
+| Object 声明字段计划期按声明类型解析 | 命中 objectStr 抢占 Date→String，与旧实现运行期按实际值类型查找语义不一致（违反 objectStr 优先级最低约束） |
+| 运行期保留集合 instanceof / isAssignableFrom 判断 | 用户要求"所有检查都预热做，为 null 除外"，不满足预热要求 |
+
+== 2. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| copy 源/目标为 null | 原样返回（copy 返回 to） |
+| toMap 源为 null | 返回空 map（`CMap.of()`） |
+| 目标 final 字段 | 计划期剔除，不可写 |
+| 值转换后为 null | 运行期判空跳过（转换器可能返回 null） |
+| fallback 动作解析为 EMPTY | apply 返回 null，跳过写入 |
+| JDK 源类 | 空计划常量，copy 返回原目标、toMap 返回空 map（旧语义"JDK 类不拷贝"） |
+| Map 源 | 保留老流程（遍历 map、按字段名查表、转换后写入，无法预设字段） |
+| 无参构造器缺失 | `CAssert.notNull` 抛异常；ClassValue 计算失败自动清理重算 |
+| key 冲突（toMap） | 抛 IllegalStateException（与 merge 语义一致） |
+
+== 3. 适用范围
+
+=== 3.1 适用场景
+
+- 同名字段 JavaBean 属性复制（含类型转换、可赋值直接写）
+- 对象转 Map（含 json 名/下划线/注解 key 命名）
+- Map 转对象、集合复制（copyList/copyListFromMap）、数组反序覆盖（copyFromArr）
+
+=== 3.2 不适用/边界场景
+
+- JDK 类源：不拷贝（copy 返回目标原对象、toMap 返回空 map）
+- 目标 final 字段：不可写
+- 集合/Map/数组字段：一律跳过（Map 源除外，走老流程）
+- 无转换器的字段类型：跳过
+
+=== 3.3 已知限制与取舍
+
+- 源字段声明类型为集合父类型（Iterable/Serializable 等）且实际持有集合：旧实现"跳过"、
+  新实现"直接写入"（消除运行期 instanceof 的必要取舍，javadoc 已注明）
+- 原始类型同型字段（int→int 等）：旧实现无转换器跳过、新实现 SELF 直接写入（旧缺口修复）
+- Object 声明字段回退运行期分派：无法计划期确定动作，fallback 路径保留
+- `copy(Object, CSupplier)` / `copyList(Collection, CSupplier)` 经 Map 中转：原始类型同型
+  字段经 Map 丢失问题已解决（`ClassUtil.isAssignable` 支持原始/包装等价），
+  与直接路径行为一致（兼容性用例 `copySupplierViaMapConsistency` 锁定）
+- 值动作/计划缓存无失效机制：转换器静态注册，无动态需求，风险低（已备注）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 源码 `CBeanUtils` 类 javadoc 增加 `@see` 双向引用（指向本设计文档与对应测试文档），落实"代码与文档互相引用"规范；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-16 | 初始落地（计划预计算 + fallback 全预热，对应源码与设计文档已对齐）
+
+

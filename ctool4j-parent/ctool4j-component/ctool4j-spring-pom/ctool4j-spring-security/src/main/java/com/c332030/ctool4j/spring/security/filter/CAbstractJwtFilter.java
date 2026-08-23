@@ -8,6 +8,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * </p>
  *
  * @since 2026/3/19
+ * @see "doc/design/spring/CAbstractJwtFilter.adoc"
  */
 public abstract class CAbstractJwtFilter extends OncePerRequestFilter {
 

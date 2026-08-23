@@ -1,0 +1,42 @@
+= CLocalCacheUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.util.CLocalCacheUtils`（core 工具类）——基于 Caffeine 的本地缓存构建（内存不足时释放缓存）。
+
+对应测试类：`com.c332030.ctool4j.core.test.util.CLocalCacheUtilsTests`
+
+对应设计文档：`doc/design/core/CLocalCacheUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CLocalCacheUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「构建器 / 直接构建」两个维度组织。
+- cacheBuilder：验证返回非空构建器，且 build 后能正常 put/get。
+- buildCache：验证返回可用缓存，put 后 getIfPresent 命中、缺失键返回 null。
+
+=== 设计依据
+
+- 依据功能设计对缓存可用的约定。
+- 依据测试方法（等价类/边界值）：缓存读写、缺失键。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：cacheBuilder 可构建可用缓存；buildCache 读写与缺失键返回 null。
+- 未覆盖：内存不足时软引用的实际回收行为（依赖 JVM GC，单测不构造内存压力）。
+
+== 1. 构建器（cacheBuilder）
+
+- 1.1 构建器可用：build 后 put/get 正常（cacheBuilder）
+
+== 2. 直接构建（buildCache）
+
+- 2.1 缓存可用：put 后命中，缺失键返回 null（buildCache）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

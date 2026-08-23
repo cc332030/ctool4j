@@ -1,0 +1,38 @@
+= CMpController 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-mybatisplus
+类：com.c332030.ctool4j.mybatisplus.controller.CMpController
+状态：已落地
+适用范围：基础控制器抽象类
+
+== 1. 功能说明
+
+`CMpController`：基础控制器抽象类。
+
+== 2. 设计要点
+
+- 提供分页查询、按ID查询等公共接口
+
+== 3. 兜底设计
+
+实体简单名称初始化
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+控制器基类
+
+=== 4.2 不适用/边界场景
+
+抽象类
+
+== 5. 已知限制与取舍
+
+抽象类
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

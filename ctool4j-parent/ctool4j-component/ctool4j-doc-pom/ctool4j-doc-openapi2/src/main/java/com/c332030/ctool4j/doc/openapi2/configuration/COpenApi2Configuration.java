@@ -3,6 +3,8 @@ package com.c332030.ctool4j.doc.openapi2.configuration;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CSchemaAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import io.swagger.annotations.Api;
@@ -32,6 +34,13 @@ import java.util.stream.Collectors;
  * Description: COpenApi2Configuration
  * </p>
  *
+ * <p>
+ * 本模块基于 springfox（OpenAPI2/Swagger 注解形态）实现。springfox 已停止维护，Knife4j 4.x 建议迁移 OpenAPI3
+ * （springdoc-openapi + Knife4j 4.x），保留此实现是为兼容老项目对 OpenAPI2 的依赖，不重复造轮子，
+ * 新项目建议直接使用 OpenAPI3；迁移属大工程需排期
+ * </p>
+ *
+ * @see "doc/design/openapi2/COpenApi2Configuration.adoc"
  * @since 2025/12/16
  */
 @CustomLog
@@ -41,11 +50,42 @@ import java.util.stream.Collectors;
 })
 public class COpenApi2Configuration {
 
+    /**
+     * 非空注解插件
+     *
+     * @return 插件
+     */
     @Bean
     public CNotEmptyAnnotationPlugin cExpanderNotEmpty() {
         return new CNotEmptyAnnotationPlugin();
     }
 
+    /**
+     * 必填注解插件（@CSchema，方法参数）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CSchemaAnnotationPlugin cExpanderCSchema() {
+        return new CSchemaAnnotationPlugin();
+    }
+
+    /**
+     * 必填注解 model 属性插件（@CSchema，字段/getter 描述与必填标记）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CSchemaAnnotationModelPropertyPlugin cModelPropertyCSchema() {
+        return new CSchemaAnnotationModelPropertyPlugin();
+    }
+
+    /**
+     * Swagger Docket（收集标注 Api 注解的接口）
+     *
+     * @param config 配置
+     * @return Docket
+     */
     @Bean
     @ConditionalOnMissingBean(Docket.class)
     public Docket cDocket(CDocOpenApi2Config config) {
@@ -63,11 +103,20 @@ public class COpenApi2Configuration {
 
     /**
      * 避免 springfox 报空指针
+     *
+     * @return BeanPostProcessor
      */
     @Bean
     public static BeanPostProcessor cSpringfoxHandlerProviderBeanPostProcessor() {
         return new BeanPostProcessor() {
 
+            /**
+             * 初始化后处理：修复 springfox 的 handlerMappings 空指针问题
+             *
+             * @param bean     后置处理对象
+             * @param beanName Bean 名称
+             * @return 处理后的对象
+             */
             @Override
             public Object postProcessAfterInitialization(@NonNull Object bean, @NonNull String beanName) throws BeansException {
                 if (bean instanceof WebMvcRequestHandlerProvider) {

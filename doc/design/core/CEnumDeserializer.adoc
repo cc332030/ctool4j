@@ -1,0 +1,53 @@
+= CEnumDeserializer 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.jackson.deserializer.CEnumDeserializer
+状态：已落地
+适用范围：Jackson 枚举反序列化（按枚举名，空白返回 null）
+
+== 1. 功能说明
+
+`CEnumDeserializer` 为 Jackson 枚举反序列化器，实现 `ContextualDeserializer`：
+
+- 按枚举名反序列化（trim 后按名匹配）
+- 空白值（空/空白）返回 null
+- `createContextual` 按字段类型绑定具体枚举类型
+
+提供空实例 `EMPTY_INSTANCE`（未绑定枚举类型）。
+
+== 2. 设计要点
+
+=== 2.1 反序列化
+
+- 值经 `StrUtil.trim` 后，空白返回 null；否则 `CEnumUtils.nameOf(enumClass, value)` 按枚举名反查。
+- 未知枚举名抛 IllegalArgumentException（Jackson 包装为 JsonMappingException）。
+
+=== 2.2 上下文绑定
+
+- `createContextual` 经 `CJacksonUtils.getRawClass(property)` 取字段类型，`CAssert.isTrue(rawClass.isEnum())`
+  校验枚举后绑定。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 空白/null 值 | 返回 null |
+| 未知枚举名 | 抛 IllegalArgumentException（包装为 JsonMappingException） |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 枚举字段按名称反序列化，容忍前后空格。
+
+== 5. 已知限制与取舍
+
+- 按枚举名精确匹配（忽略大小写由 CEnumUtils 决定）；空白返回 null 与设计一致。
+
+测试内容见 `doc/design/core/CEnumDeserializerTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -11,12 +11,19 @@ import java.util.Set;
  * </p>
  *
  * @since 2026/1/28
+ * @see "doc/design/web/ResourceUrlConstants.adoc"
  */
 @UtilityClass
 public class ResourceUrlConstants {
 
+    /**
+     * favicon 图标地址
+     */
     public final String FAVICON_ICO_URL = "/favicon.ico";
 
+    /**
+     * 需要忽略的静态资源地址集合
+     */
     public final Set<String> IGNORE_RESOURCE_URLS = CSet.of(
         FAVICON_ICO_URL
     );

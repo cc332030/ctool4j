@@ -1,0 +1,64 @@
+= CObjUtils 测试用例文档
+
+Version: 1.1
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.core.classes.CObjUtils`（core 对象类）——对象工具（类型转换/条件取值/合并/null 兜底）。
+
+对应测试类：`com.c332030.ctool4j.core.test.classes.CObjUtilsTests`
+
+对应设计文档：`doc/design/core/CObjUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CObjUtils 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1`），文档与代码互相定位，便于检查覆盖是否有遗漏。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按「类型 / 转换 / 条件取值 / 合并 / 兜底」多个维度组织。
+- 类型覆盖 emptyObject 单例、to 类型匹配/null/不匹配抛异常。
+- 转换覆盖 Class 转换器与函数转换（null/默认值/双对象回退）。
+- 合并覆盖 v1/v2 不可用、双可用 merge null 抛异常、正常 merge、key/谓词版本。
+
+=== 设计依据
+
+- 依据功能设计对类型转换、null 语义、合并分支的约定。
+- 依据测试方法（等价类/边界值/异常路径/分支覆盖）：类型匹配/不匹配、null、双对象回退、merge 各分支。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：emptyObject 单例；to 匹配/null/不匹配抛异常；convert(Class) null/匹配/转换器/无转换器；
+  convert(函数) 正常/null/结果 null/双对象回退；equals 转换比较；merge 各分支；defaultIfNull；
+  ifThenGet/equalsThenGet/notNullThenGet。
+- 未覆盖：anyType/toSupplier/notNullThenGet(函数) 已覆盖；anyType 强转与 toSupplier 未单列
+  （内部实现细节，行为间接覆盖）。
+
+== 1. 类型
+
+- 1.1 emptyObject：返回同一单例（emptyObject）
+- 1.2 to：类型匹配返回原对象；null 返回 null；不匹配抛 IllegalStateException（to）
+
+== 2. 转换
+
+- 2.1 convert(Class)：null 返回 null；匹配直接返回；有转换器转换；无转换器返回 null（convertClass）
+- 2.2 convert(函数)：正常；null/结果 null 返回默认值；双对象回退；均为 null 返回 null（convertFunction）
+
+== 3. 比较与合并
+
+- 3.1 equals：转换后相等判断（equals）
+- 3.2 merge：v1 不可用返回 v2；v2 不可用返回 v1；双可用 merge null 抛异常；正常 merge；key 版本；
+  谓词版本；全参数版本（merge）
+
+== 4. 兜底
+
+- 4.1 defaultIfNull：非 null 用对象、null 用默认值（defaultIfNull）
+
+== 5. 条件取值
+
+- 5.1 ifThenGet：条件成立取值、否则 null（ifThenGet）
+- 5.2 equalsThenGet：相等取值、否则 null（equalsThenGet）
+- 5.3 notNullThenGet：非 null 取值（值/函数版本）、否则 null（notNullThenGet）
+
+== 变更日志
+
+- 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
+- 1.0 | 2026-08-21 | 初始落地

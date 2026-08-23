@@ -19,12 +19,20 @@ import java.util.List;
  *
  * @author c332030
  * @since 2024/5/7
+ * @see "doc/design/mybatisplus/CSqlInjector.adoc"
  */
 @CustomLog
 @Component
 @AllArgsConstructor
 public class CSqlInjector extends DefaultSqlInjector {
 
+    /**
+     * 获取方法列表：默认方法基础上追加 INSERT_IGNORE、UPDATE_ALL_BY_ID
+     *
+     * @param mapperClass Mapper 类
+     * @param tableInfo   表信息
+     * @return 方法列表
+     */
     @Override
     public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
         val methods = super.getMethodList(mapperClass, tableInfo);

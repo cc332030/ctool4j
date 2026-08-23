@@ -7,6 +7,7 @@ import java.lang.annotation.*;
  * Description: CJsonLog
  * </p>
  *
+ * @see "doc/design/definition/CJsonLog.adoc"
  * @since 2025/9/14
  */
 @Documented

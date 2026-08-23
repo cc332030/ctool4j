@@ -1,0 +1,40 @@
+= ICHandlerInterceptor 设计文档
+
+Version: 1.0
+LastModified: 2026-08-21
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor
+状态：已落地
+
+== 1. 功能说明
+
+`ICHandlerInterceptor` 为项目统一的服务端处理器拦截器接口，继承 Spring `HandlerInterceptor`，
+无额外方法（空接口标记）。
+
+== 2. 设计要点
+
+=== 2.1 统一标记
+
+- 作为项目内拦截器的统一类型标记，便于 `CWebMvcConfigurer` 收集容器中所有实现并统一注册。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 无 | 空接口标记，无行为 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 项目内所有处理器拦截器实现该接口，由 `CWebMvcConfigurer` 自动收集注册。
+
+== 5. 已知限制与取舍
+
+- 继承 `HandlerInterceptor` 默认三个方法均可按需覆写。
+
+测试内容：无独立测试类（接口，由实现类测试间接覆盖）。
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

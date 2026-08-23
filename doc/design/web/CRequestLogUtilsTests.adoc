@@ -1,0 +1,36 @@
+= CRequestLogUtils 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.web.test.util` 对应 CRequestLogUtils：请求日志采集与常量。
+
+对应测试类：`com.c332030.ctool4j.web.test.util.CRequestLogUtilsTests`
+
+对应设计文档：`doc/design/web/CRequestLogUtils.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CRequestLogUtilsTests 的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 按 CRequestLogUtils：请求日志采集与常量 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。
+- 使用 MockHttpServletRequest/MockHttpServletResponse/MockMvc 构造真实请求场景，贴近真实使用，不依赖外部服务。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：见下方编号索引。
+- 未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。
+
+== 1. CRequestLogUtils：请求日志采集与常量
+
+- 1.1 emptyReqs（emptyReqs）
+- 1.2 emptyRsp（emptyRsp）
+- 1.3 getOpt_empty（getOpt_empty）
+- 1.4 getOptThenRemove_empty（getOptThenRemove_empty）
+- 1.5 remove_idempotent（remove_idempotent）
+- 1.6 constants（constants）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

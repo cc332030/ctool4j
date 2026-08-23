@@ -1,0 +1,84 @@
+= CBeanUtils 测试用例文档（CBeanUtilsMoreTests）
+
+Version: 1.0
+LastModified: $DATE
+模块：ctool4j-core
+被测类：com.c332030.ctool4j.core.classes.CBeanUtils
+状态：已落地
+
+本文档为 CBeanUtilsMoreTests 的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号（如 `对应测试用例 1.1.1`），文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 白盒原则：围绕 CBeanUtils 对象复制/转 Map/类型转换的核心能力，按"复制来源形态、复制边界、列表、转 Map、类型转换"维度组织分类：
+  - 1.x 对象复制：1.1 对象→对象、1.2 Map→对象、1.3 边界（null、JDK 类）
+  - 2.x 列表/数组复制
+  - 3.x 转 Map（基础/下划线/JSON 名/冲突/空/null/含 final/JDK 类）
+  - 4.x 类型转换（包装↔基本、数字/字符串/日期/BigDecimal/枚举/数值互转）
+- 覆盖正常路径、边界（null、空集合、final 字段）与类型转换分支。
+
+=== 覆盖场景
+
+== 分类编号索引
+
+=== 1. 对象复制
+
+==== 1.1 对象→对象
+
+- 1.1.1 copyObjectToObject：对象间复制
+- 1.1.2 copyObjectToObjectSkipCollectionAndArray：复制跳过集合与数组
+- 1.1.3 copyObjectToObjectSkipFinal：复制跳过 final 字段
+- 1.1.4 copyNoConverterSkip：无转换器时跳过
+- 1.1.5 copyParentDeclaredTypeFallback：父类声明类型兜底
+- 1.1.6 copyUserDtoToRsp：UserDto→UserRsp 复制
+
+==== 1.2 Map→对象
+
+- 1.2.1 copyMapToObject：Map 复制到对象
+- 1.2.2 copyMapToObjectSkipNull：Map→对象跳过 null
+- 1.2.3 copyMapToObjectTypeConvert：Map→对象类型转换
+- 1.2.4 copyMapUnmodifiable：不可变 Map 复制
+- 1.2.5 copyClassEntrySkipCollectionAndArray：复制跳过集合与数组
+
+==== 1.3 边界
+
+- 1.3.1 copyNullEdge：null 边界
+- 1.3.2 copyJdkClassSource：JDK 类作为源
+
+=== 2. 列表/数组复制
+
+- 2.1 copyList：列表复制
+- 2.2 copyListFromMap：从 Map 复制列表
+- 2.3 copyFromArr：从数组复制
+
+=== 3. 转 Map
+
+- 3.1 toMapBasic：基础转 Map
+- 3.2 toMapUnderline：下划线命名转 Map
+- 3.3 toMapJsonName：JSON 名转 Map
+- 3.4 toMapConflict：冲突字段转 Map
+- 3.5 toMapEmpty：空对象转 Map
+- 3.6 toMapNull：null 转 Map
+- 3.7 toMapIncludesFinal：含 final 字段转 Map
+- 3.8 toMapJdkClass：JDK 类转 Map
+
+=== 4. 类型转换
+
+- 4.1 copyWrapperToPrimitive：包装类型→基本类型
+- 4.2 copyLongToInt：Long→Integer
+- 4.3 copyIntToLong：Integer→Long
+- 4.4 copyNumberToStr：数值→字符串
+- 4.5 copyDateConvert：日期转换
+- 4.6 copyToBigDecimal：转 BigDecimal
+- 4.7 copyDecimalToFloatDouble：Decimal→Float/Double
+- 4.8 copyNumConvert：数值转换
+- 4.9 copyStrToPrimitiveFloatDouble：字符串→基本 Float/Double
+- 4.10 copyEnumToValue：枚举→值
+- 4.11 copyObjectStrLowestPriority：对象转字符串最低优先级
+- 4.12 copyStrToNumber：字符串→数值
+
+== 变更日志
+
+- 1.0 | $DATE | 初始落地

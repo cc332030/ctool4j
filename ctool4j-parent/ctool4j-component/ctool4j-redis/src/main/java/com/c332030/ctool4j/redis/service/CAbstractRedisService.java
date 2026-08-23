@@ -10,6 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
  * Description: CAbstractRedisService
  * </p>
  *
+ * @see "doc/design/redis/CAbstractRedisService.adoc"
+ * @see "doc/design/redis/CStringStringRedisServiceTests.adoc"
  * @since 2024/3/8
  */
 public abstract class CAbstractRedisService<K, V> implements ICRedisService<K, V> {

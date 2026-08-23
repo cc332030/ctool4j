@@ -5,9 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * <p>
- * Description: CXxlJobExecutorConfig
+ * Description: CXxlJobConfig
  * </p>
  *
+ * @see "doc/design/xxljob/CXxlJobConfig.adoc"
  * @since 2025/11/29
  */
 @Data

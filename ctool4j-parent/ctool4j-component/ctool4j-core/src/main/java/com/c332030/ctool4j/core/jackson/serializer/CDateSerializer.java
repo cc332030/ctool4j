@@ -14,11 +14,23 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/4/14
+ * @see "doc/design/core/CDateSerializer.adoc"
+ * @see "doc/design/core/CDateSerializerTests.adoc"
  */
 public class CDateSerializer extends JsonSerializer<Date> {
 
+    /**
+     * 单例实例
+     */
     public static final CDateSerializer INSTANCE = new CDateSerializer();
 
+    /**
+     * 序列化为日期时间字符串
+     *
+     * @param value       日期
+     * @param gen         生成器
+     * @param serializers 序列化提供者
+     */
     @Override
     public void serialize(Date value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeString(DateUtil.formatDateTime(value));

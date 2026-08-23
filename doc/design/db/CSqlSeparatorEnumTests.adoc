@@ -1,0 +1,44 @@
+= CSqlSeparatorEnum 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-21
+所属功能：`com.c332030.ctool4j.db.enums.CSqlSeparatorEnum`（db 模块）——SQL 分隔符枚举（逗号 / AND / OR）。
+
+对应测试类：`com.c332030.ctool4j.db.test.enums.CSqlSeparatorEnumTests`
+
+对应设计文档：`doc/design/db/CSqlSeparatorEnum.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CSqlSeparatorEnum 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 分别验证三个枚举项的 `text`（描述）、`separator`（分隔符）、`joiningCollector`（拼接行为）。
+- joiningCollector 覆盖多元素、单元素、空集合三种集合形态（对应 `Collectors.joining` 的分隔符连接、
+  单元素原样返回、空集合空串语义）。
+
+=== 设计依据
+
+- 依据功能设计对三个枚举项及其字段语义（separator/text/joiningCollector）的约定。
+- 依据黑盒原则：枚举数量、各字段取值、拼接结果（多/单/空）均取代表性值覆盖。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：枚举数量、三个枚举项的描述/分隔符/拼接 collector（多元素、单元素、空集合）。
+- 未覆盖：新增枚举项（本类固定 3 项）；非此三种分隔符的拼接（本枚举不提供）。
+
+== 1. 枚举定义
+
+- 1.1 枚举数量与描述：3 个枚举项，text 分别为"逗号/且/或"（values）
+- 1.2 分隔符：COMMA=`,`、AND=`AND`、OR=`OR`（separator）
+
+== 2. joiningCollector 拼接行为
+
+- 2.1 多元素拼接：`a , b , c`（COMMA）、`a AND b`（AND）、`a OR b`（OR）（joiningCollector）
+- 2.2 单元素：原样返回 `a`（joiningCollectorSingle）
+- 2.3 空集合：返回空串 `""`（joiningCollectorEmpty）
+
+== 变更日志
+
+- 1.0 | 2026-08-21 | 初始落地

@@ -16,6 +16,12 @@ import org.junit.jupiter.api.Test;
  */
 public class CAutowiredUtilsTests {
 
+    /**
+     * 测试获取 CAutowired 注解字段映射
+     */
+        /**
+     * 对应测试用例 1.1
+     */
     @Test
     public void getFieldMap() {
 
