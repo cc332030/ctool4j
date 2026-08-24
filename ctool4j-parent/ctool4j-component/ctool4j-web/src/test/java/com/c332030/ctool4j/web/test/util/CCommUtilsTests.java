@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.test.util;
 
 import com.c332030.ctool4j.core.enums.CLogSource;
+import com.c332030.ctool4j.web.config.CRequestLogBaseConfig;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import com.c332030.ctool4j.web.util.CCommUtils;
 import lombok.CustomLog;
@@ -722,6 +723,52 @@ public class CCommUtilsTests {
     }
 
     /**
+     * 对应测试用例 1.8.4：开关关闭时请求头不输出，业务数据区仍输出 token/ip，保证鉴权与来源信息可见
+     */
+    @Test
+    public void appendHttpLog_enableHeaderFalse_tokenIpInBusinessData() {
+        val log = requestLog();
+        log.setRequestHeaders(headers(HttpHeaders.AUTHORIZATION, "Bearer abc"));
+        log.setToken("Bearer abc");
+        log.setIp("1.2.3.4");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, false);
+        val result = sb.toString();
+        // 请求头不输出，token/ip 仅在业务数据区各出现一次（避免完全看不到鉴权与来源信息）
+        Assertions.assertEquals(1, countOccurrences(result, "Bearer abc"));
+        Assertions.assertTrue(result.contains(HttpHeaders.AUTHORIZATION + ": Bearer abc"));
+        Assertions.assertTrue(result.contains("ip: 1.2.3.4"));
+    }
+
+    /**
+     * 对应测试用例 1.8.5：开关开启时请求头已输出 Authorization/ip，业务数据区不重复打印
+     */
+    @Test
+    public void appendHttpLog_enableHeaderTrue_tokenIpNotDuplicated() {
+        val log = requestLog();
+        log.setRequestHeaders(headers(HttpHeaders.AUTHORIZATION, "Bearer abc"));
+        log.setToken("Bearer abc");
+        log.setIp("1.2.3.4");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        // Authorization 仅在请求头区出现一次，业务数据区不重复打印
+        Assertions.assertEquals(1, countOccurrences(result, "Bearer abc"));
+        Assertions.assertFalse(result.contains(HttpHeaders.AUTHORIZATION + ": Bearer abc\n"));
+        Assertions.assertFalse(result.contains("ip: 1.2.3.4"));
+    }
+
+    private int countOccurrences(String str, String sub) {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(sub, index)) != -1) {
+            count++;
+            index += sub.length();
+        }
+        return count;
+    }
+
+    /**
      * 对应测试用例 1.8.3
      */
     @Test
@@ -731,6 +778,54 @@ public class CCommUtilsTests {
             NullPointerException.class,
             () -> CCommUtils.appendHttpLog(new StringBuilder(), null, true)
         );
+    }
+
+    // ---------- logSlowRequest（慢请求日志，web/feign 共用） ----------
+
+    private CRequestLog slowLogInfo(String sourceText, String path, long begin, long end) {
+        val info = new CRequestLog();
+        info.setSource(() -> sourceText);
+        info.setPath(path);
+        info.setBeginTimeMillis(begin);
+        info.setEndTimeMillis(end);
+        return info;
+    }
+
+    private CRequestLogBaseConfig slowLogConfig(boolean enable, int millis) {
+        val config = new CRequestLogBaseConfig();
+        config.setSlowLogEnable(enable);
+        config.setSlowLogMillis(millis);
+        return config;
+    }
+
+    /**
+     * 对应测试用例 6.1.1：耗时（end-begin）超过 slowLogMillis 时输出慢日志，带来源标识（中括号置于最前）
+     */
+    @Test
+    public void logSlowRequest_exceeded() {
+        CCommUtils.logSlowRequest(slowLogConfig(true, 1000), slowLogInfo("feign", "/api/test", 1000, 3000));
+        // 输出到统一慢日志 logger（SLOW_LOG），无异常即视为通过（耗时超阈值分支）
+        Assertions.assertTrue(CCommUtils.SLOW_LOG.isWarnEnabled());
+    }
+
+    /**
+     * 对应测试用例 6.1.2：慢日志开关关闭时不输出（不抛异常，开关生效）
+     */
+    @Test
+    public void logSlowRequest_disabled() {
+        // 开关关闭时直接跳过，不应抛出任何异常
+        Assertions.assertDoesNotThrow(() ->
+            CCommUtils.logSlowRequest(slowLogConfig(false, 1000), slowLogInfo("feign", "/api/test", 1000, 3000)));
+    }
+
+    /**
+     * 对应测试用例 6.1.3：耗时未超过阈值时不输出（不抛异常，阈值判断生效）
+     */
+    @Test
+    public void logSlowRequest_notExceeded() {
+        // 耗时不足时直接跳过，不应抛出任何异常
+        Assertions.assertDoesNotThrow(() ->
+            CCommUtils.logSlowRequest(slowLogConfig(true, 1000), slowLogInfo("feign", "/api/test", 1000, 1500)));
     }
 
 }

@@ -25,7 +25,7 @@ LastModified: 2026-08-21
 
 - 获取并移除请求日志（`getOptThenRemove`），存在则：
   - 受 enable 总开关控制，`setEndTimeMillis(当前时间)` 后 `logWrite` 打印请求日志（覆盖响应体采集时记录的时间，含视图渲染与响应写出耗时）。
-  - 慢日志开关（`slowLogEnable`）开启且耗时超过 `slowLogMillis` 时输出 warn 慢日志；未记录开始时间时耗时恒为 0。
+  - 慢日志：不受 enable 控制，由 `slowLogEnable`/`slowLogMillis`（继承自 `CRequestLogBaseConfig`）独立控制，耗时以实际完成时间为准，统一走 `CCommUtils.logSlowRequest`；未记录开始时间时耗时恒为 0。
 - 先清 MDC（`removeTraceId`）再清 ThreadLocal（`removeTraceInfo`）——removeTraceId 内部依赖当前 ThreadLocal 的 traceInfo。
 
 == 3. 兜底设计
@@ -33,8 +33,8 @@ LastModified: 2026-08-21
 | 场景 | 兜底行为 |
 |------|---------|
 | preHandle 初始化异常 | 捕获记录 error 日志，继续处理 |
-| 请求日志未启用 | 跳过日志打印 |
-| 慢日志开关关闭 | 直接跳过，不做耗时计算 |
+| 请求日志未启用 | 跳过日志打印（慢日志仍判断，不受 enable 控制） |
+| 慢日志开关关闭 | `CCommUtils.logSlowRequest` 直接跳过，不做耗时计算 |
 | 未记录开始时间 | 耗时恒为 0 |
 | afterCompletion 清理异常 | 捕获记录 error 日志 |
 
@@ -57,4 +57,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-08-24 | 慢日志改走统一出口 CCommUtils.logSlowRequest（web/feign 共用，不受 enable 控制）
 - 1.0 | 2026-08-21 | 初始落地

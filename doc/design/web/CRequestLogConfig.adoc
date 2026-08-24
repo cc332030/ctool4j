@@ -8,17 +8,20 @@ LastModified: 2026-08-21
 
 == 1. 功能说明
 
-`CRequestLogConfig` 为请求日志配置属性类，`@ConfigurationProperties("logging.request-log")` + `@Data`，
-由 Spring Boot 绑定 `logging.request-log.*` 前缀配置项。
+`CRequestLogConfig` 为服务端 MVC 请求日志配置属性类，`@ConfigurationProperties("logging.request-log")` + `@Data`，
+由 Spring Boot 绑定 `logging.request-log.*` 前缀配置项。公共属性（`enable`/`enableHeader`/`slowLogEnable`/`slowLogMillis`）继承自
+`CRequestLogBaseConfig`（见 `doc/design/web/CRequestLogBaseConfig.adoc`），本类维护服务端特有属性：
 
-属性：
+- `excludeUriPatterns`：排除的 URI 列表（支持通配符 `*`）
+
+继承自基类的属性：
 
 - `enable`：请求日志开关，默认 `false`
 - `enableHeader`：请求头日志开关，默认 `false`（请求头可能含 Authorization、Cookie 等敏感信息，
-  需时显式开启；token 等业务数据不受此开关影响，仍由业务数据区输出）
-- `slowLogEnable`：慢请求日志开关，默认 `true`
+  需时显式开启；traceId/tenantId/userId 等业务数据不受此开关影响，仍由业务数据区输出；
+  token/ip 与开关联动：开关开启时请求头已输出 Authorization/ip 不重复打印，开关关闭时业务数据区输出 token/ip 保证可见）
+- `slowLogEnable`：慢请求日志开关，默认 `true`（默认启用，不受 enable 控制）
 - `slowLogMillis`：慢请求日志毫秒数，默认 3000
-- `excludeUriPatterns`：排除的 URI 列表（支持通配符 `*`）
 
 == 2. 设计要点
 
@@ -26,10 +29,14 @@ LastModified: 2026-08-21
 
 - 使用 `logging.request-log` 前缀绑定，默认值即按安全默认（enable=false、enableHeader=false）。
 
-=== 2.2 安全默认
+=== 2.2 公共属性继承
 
-- `enableHeader` 默认关闭，避免敏感请求头（Authorization/Cookie）泄露；业务数据区（token 等）
-  不受该开关影响。
+- `enable`/`enableHeader`/`slowLogEnable`/`slowLogMillis` 上移至 `CRequestLogBaseConfig`，本类仅保留服务端特有属性（排除 URI）。
+
+=== 2.3 安全默认
+
+- `enableHeader` 默认关闭，避免敏感请求头（Authorization/Cookie）泄露；业务数据区（token/ip）
+  与开关联动：开关关闭时仍输出 token/ip，保证鉴权与来源信息可见。
 
 == 3. 兜底设计
 
@@ -51,11 +58,13 @@ LastModified: 2026-08-21
 
 == 5. 已知限制与取舍
 
-- `enableHeader` 与业务数据（token）解耦：业务数据区输出不受开关影响（有意设计）。
+- `enableHeader` 与业务数据（token/ip）联动：开关开启时请求头已输出 Authorization/ip，业务数据区不重复打印；开关关闭时业务数据区输出 token/ip 保证可见（有意设计）。
 - `excludeUriPatterns` 支持 `*` 通配，通过 `CPatternUtils.getUrlCache` 预编译匹配。
 
 测试内容：无独立测试类（CRequestLogConfig 为配置模型，由 `CRequestLogUtils` 等使用方测试间接覆盖）。
 
 == 变更日志
 
+- 1.2 | 2026-08-24 | slowLogEnable/slowLogMillis 上移至 CRequestLogBaseConfig 公共配置基类（web/feign 均需慢日志）
+- 1.1 | 2026-08-24 | enable/enableHeader 上移至 CRequestLogBaseConfig 公共配置基类，本类仅保留服务端特有属性
 - 1.0 | 2026-08-21 | 初始落地

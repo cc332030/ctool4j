@@ -3,8 +3,12 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.*;
+import com.c332030.ctool4j.definition.interfaces.ICText;
+import com.c332030.ctool4j.web.config.CRequestLogBaseConfig;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import lombok.experimental.UtilityClass;
@@ -18,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -278,7 +283,7 @@ public class CCommUtils {
         appendError(sb, info.getErrorMessage());
 
         // 业务数据区（traceId、tenantId、userId、耗时等应用业务数据）：统一以空行与正文分隔，无数据时不追加
-        val businessData = getBusinessData(info);
+        val businessData = getBusinessData(info, enableHeader);
         if (MapUtil.isNotEmpty(businessData)) {
             sb.append("\n\n");
             businessData.forEach((key, value) -> {
@@ -291,16 +296,23 @@ public class CCommUtils {
     }
 
     /**
-     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：traceId、tenantId、userId、耗时；
+     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：token、ip、traceId、tenantId、userId、耗时；
      * 有值才放入，耗时以起止时间能否计算判定：未测量不输出（避免无意义的 rt: 0ms 噪音），
      * 真实测量为 0ms 的快速请求仍会输出
      *
-     * @param info 请求日志信息
+     * @param info         请求日志信息
+     * @param enableHeader 请求头打印开关：开启时 Authorization/ip 已在请求头区输出，业务数据区不重复打印；
+     *                     关闭时请求头不输出，此处仍打印 token/ip，保证鉴权与来源信息可见
      * @return 业务数据 map
      */
-    private Map<String, String> getBusinessData(CRequestLog info) {
+    private Map<String, String> getBusinessData(CRequestLog info, boolean enableHeader) {
 
         val businessDataMap = new LinkedHashMap<String, String>();
+        // 请求头开关开启时 Authorization/ip 已在请求头区输出，避免重复打印；开关关闭时请求头不输出，此处输出 token/ip 保证仍可见
+        if (!enableHeader) {
+            CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, info.getToken());
+            CMapUtils.put(businessDataMap, "ip", info.getIp());
+        }
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), info.getTraceId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), info.getTenantId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), info.getUserId());
@@ -445,6 +457,46 @@ public class CCommUtils {
             sb.append("error: ");
             sb.append(errorMessage);
         }
+    }
+
+    /**
+     * 慢请求日志 logger 名称
+     */
+    public static final String SLOW_LOG_STR = "request-slow-log";
+
+    /**
+     * 慢请求日志记录器（统一出口，web/feign 共用）
+     */
+    public final CLog SLOW_LOG = CLogUtils.getLog(SLOW_LOG_STR);
+
+    /**
+     * 统一输出慢请求日志：耗时（endTimeMillis - beginTimeMillis）超过 slowLogMillis 时输出 warn 慢日志。
+     * <p>慢日志不受请求日志 enable/logAll 总开关控制（由 slowLogEnable 独立控制，默认启用）；
+     * 耗时从 {@link CRequestLog} 的起止时间计算，调用方需保证 beginTimeMillis/endTimeMillis 已设置（有值）；
+     * 输出带来源标识（[mvc]/[feign]）置于最前，便于区分慢请求来源；开关关闭或耗时不足时不输出，避免 CPU 浪费</p>
+     *
+     * @param config 请求日志配置（slowLogEnable/slowLogMillis，继承自 {@link CRequestLogBaseConfig}）
+     * @param info   请求日志信息（source 来源、path url、beginTimeMillis/endTimeMillis 起止时间）
+     */
+    public void logSlowRequest(
+            CRequestLogBaseConfig config,
+            CRequestLog info
+    ) {
+        val slowLogMillis = CObjUtils.convert(config, CRequestLogBaseConfig::getSlowLogMillis);
+        if (null == slowLogMillis
+            || !CBoolUtils.isTrue(CObjUtils.convert(config, CRequestLogBaseConfig::getSlowLogEnable))
+        ) {
+            return;
+        }
+        val costMillis = info.getEndTimeMillis() - info.getBeginTimeMillis();
+        if (costMillis <= slowLogMillis) {
+            return;
+        }
+        val sourceText = Optional.ofNullable(info.getSource())
+            .map(ICText::getText)
+            .orElse("unknown")
+            ;
+        SLOW_LOG.warn("[{}] slow request, url: {}, cost: {}", sourceText, info.getPath(), costMillis);
     }
 
 }
