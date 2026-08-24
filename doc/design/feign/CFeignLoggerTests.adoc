@@ -36,14 +36,14 @@ LastModified: 2026-08-21
 
 == 1. logRequest 开关与白名单/黑名单判定
 
-=== 1.1 名单命中判定
-- 1.1.1 host 白名单命中时记录（testLogRequestHostWhiteListHit）
-- 1.1.2 path 白名单命中时记录（testLogRequestPathWhiteListHit）
-- 1.1.3 api 白名单命中时记录（testLogRequestApiWhiteListHit）
-- 1.1.4 白名单优先于黑名单（同时命中时记录）（testLogRequestWhiteListWinsOverBlackList）
-- 1.1.5 无任何名单且 logAll=true 时记录（testLogRequestNoListLogAllTrue）
-- 1.1.6 黑名单命中且未命中白名单时不记录（testLogRequestHostBlackListHit）
-- 1.1.7 无任何名单且 logAll=false 时不记录（testLogRequestNoListLogAllFalse）
+=== 1.1 名单命中判定（采集层总是采集，白名单/黑名单/logAll 仅控制完整日志打印）
+- 1.1.1 host 白名单命中时打印标志为 true（testLogRequestHostWhiteListHit）
+- 1.1.2 path 白名单命中时打印标志为 true（testLogRequestPathWhiteListHit）
+- 1.1.3 api 白名单命中时打印标志为 true（testLogRequestApiWhiteListHit）
+- 1.1.4 白名单优先于黑名单（同时命中时打印标志为 true）（testLogRequestWhiteListWinsOverBlackList）
+- 1.1.5 无任何名单且 logAll=true 时打印标志为 true（testLogRequestNoListLogAllTrue）
+- 1.1.6 黑名单命中且未命中白名单时不打印完整日志（打印标志 false），但采集仍进行（testLogRequestHostBlackListHit）
+- 1.1.7 无任何名单且 logAll=false 时不打印完整日志（打印标志 false），但采集仍进行（testLogRequestNoListLogAllFalse，慢日志不受 logAll 控制）
 
 == 2. 请求日志模型构建（setRequestLog）
 
@@ -77,10 +77,19 @@ LastModified: 2026-08-21
 
 == 5. 未记录时的降级返回
 
-- 5.1.1 未开启时响应/异常走降级返回，不抛异常（testLogRequestDisabledDoesNothing/testLogAndRebufferResponseNoRequestLogReturnsSame/testLogIOExceptionNoRequestLogReturnsSame）
+- 5.1.1 enable 只控制打印完整日志，不控制采集：enable=false 且 logAll=true 时请求日志仍被采集（testLogRequestDisabledStillCollects）
+- 5.1.2 无进行中请求日志时响应/异常走降级返回，不抛异常（testLogAndRebufferResponseNoRequestLogReturnsSame/testLogIOExceptionNoRequestLogReturnsSame）
+
+== 6. 慢请求日志
+
+- 6.1 慢日志统一出口 `CCommUtils.logSlowRequest` 的用例（耗时超过阈值输出/开关关闭不输出/耗时不足不输出）见 `doc/design/web/CCommUtilsTests.adoc`（1.9.x）
+- 6.2 feign 侧验证：采集层无条件采集（黑名单/logAll 仅控制完整日志打印标志），保证慢日志所需的 source/path/起止时间始终有值（对应 1.1.6/1.1.7/5.1.1）
 
 == 变更日志
 
+- 1.5 | 2026-08-24 | 慢日志耗时改为从 CRequestLog 起止时间计算（统一出口），feign 侧采集保证慢日志数据有值；更新 6.x 慢日志用例说明
+- 1.4 | 2026-08-24 | 采集层无条件采集（不受 enable/logAll 控制）；黑名单/logAll 仅控制完整日志打印标志（1.1.6/1.1.7/5.1.1 语义调整，慢日志不受 logAll 控制）
+- 1.3 | 2026-08-24 | 采集层总是采集（enable 只控制打印，5.1.1 语义调整）；新增慢日志用例（6.1.x，不受 enable 控制）
 - 1.2 | 2026-08-21 | 补充黑名单/无名单判定用例编号（1.1.6-1.1.7），补全各编号对应方法名
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地：按请求生命周期时序组织 CFeignLogger 用例（名单判定/模型构建/响应重缓冲/异常/降级）与分类编号索引

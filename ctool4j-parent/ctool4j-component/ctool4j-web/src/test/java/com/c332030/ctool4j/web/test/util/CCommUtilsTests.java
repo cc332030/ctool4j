@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.test.util;
 
 import com.c332030.ctool4j.core.enums.CLogSource;
+import com.c332030.ctool4j.web.config.CRequestLogBaseConfig;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import com.c332030.ctool4j.web.util.CCommUtils;
 import lombok.CustomLog;
@@ -777,6 +778,54 @@ public class CCommUtilsTests {
             NullPointerException.class,
             () -> CCommUtils.appendHttpLog(new StringBuilder(), null, true)
         );
+    }
+
+    // ---------- logSlowRequest（慢请求日志，web/feign 共用） ----------
+
+    private CRequestLog slowLogInfo(String sourceText, String path, long begin, long end) {
+        val info = new CRequestLog();
+        info.setSource(() -> sourceText);
+        info.setPath(path);
+        info.setBeginTimeMillis(begin);
+        info.setEndTimeMillis(end);
+        return info;
+    }
+
+    private CRequestLogBaseConfig slowLogConfig(boolean enable, int millis) {
+        val config = new CRequestLogBaseConfig();
+        config.setSlowLogEnable(enable);
+        config.setSlowLogMillis(millis);
+        return config;
+    }
+
+    /**
+     * 对应测试用例 6.1.1：耗时（end-begin）超过 slowLogMillis 时输出慢日志，带来源标识（中括号置于最前）
+     */
+    @Test
+    public void logSlowRequest_exceeded() {
+        CCommUtils.logSlowRequest(slowLogConfig(true, 1000), slowLogInfo("feign", "/api/test", 1000, 3000));
+        // 输出到统一慢日志 logger（SLOW_LOG），无异常即视为通过（耗时超阈值分支）
+        Assertions.assertTrue(CCommUtils.SLOW_LOG.isWarnEnabled());
+    }
+
+    /**
+     * 对应测试用例 6.1.2：慢日志开关关闭时不输出（不抛异常，开关生效）
+     */
+    @Test
+    public void logSlowRequest_disabled() {
+        // 开关关闭时直接跳过，不应抛出任何异常
+        Assertions.assertDoesNotThrow(() ->
+            CCommUtils.logSlowRequest(slowLogConfig(false, 1000), slowLogInfo("feign", "/api/test", 1000, 3000)));
+    }
+
+    /**
+     * 对应测试用例 6.1.3：耗时未超过阈值时不输出（不抛异常，阈值判断生效）
+     */
+    @Test
+    public void logSlowRequest_notExceeded() {
+        // 耗时不足时直接跳过，不应抛出任何异常
+        Assertions.assertDoesNotThrow(() ->
+            CCommUtils.logSlowRequest(slowLogConfig(true, 1000), slowLogInfo("feign", "/api/test", 1000, 1500)));
     }
 
 }

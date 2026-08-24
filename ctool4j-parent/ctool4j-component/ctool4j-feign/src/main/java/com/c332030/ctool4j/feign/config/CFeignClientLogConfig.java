@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.feign.config;
 
 import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.web.config.CRequestLogBaseConfig;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -17,22 +18,7 @@ import java.util.Set;
  */
 @Data
 @ConfigurationProperties("feign.client.log")
-public class CFeignClientLogConfig {
-
-    /**
-     * 日志开关
-     */
-    Boolean enable = false;
-
-    /**
-     * 请求头日志开关
-     */
-    Boolean enableHeader = false;
-
-    /**
-     * 耗时日志开关
-     */
-    Boolean enableCost = true;
+public class CFeignClientLogConfig extends CRequestLogBaseConfig {
 
     /**
      * 全部日志开关

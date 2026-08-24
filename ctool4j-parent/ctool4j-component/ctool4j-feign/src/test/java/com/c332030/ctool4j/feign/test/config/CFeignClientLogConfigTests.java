@@ -26,7 +26,6 @@ public class CFeignClientLogConfigTests {
 
         Assertions.assertFalse(config.getEnable());
         Assertions.assertFalse(config.getEnableHeader());
-        Assertions.assertTrue(config.getEnableCost());
         Assertions.assertFalse(config.getLogAll());
         Assertions.assertTrue(config.getApiWhiteList().isEmpty());
         Assertions.assertTrue(config.getApiBlackList().isEmpty());
@@ -39,12 +38,10 @@ public class CFeignClientLogConfigTests {
 
         config.setEnable(true);
         config.setEnableHeader(true);
-        config.setEnableCost(false);
         config.setLogAll(true);
 
         Assertions.assertTrue(config.getEnable());
         Assertions.assertTrue(config.getEnableHeader());
-        Assertions.assertFalse(config.getEnableCost());
         Assertions.assertTrue(config.getLogAll());
     }
 
@@ -79,7 +76,6 @@ public class CFeignClientLogConfigTests {
         String str = config.toString();
 
         Assertions.assertTrue(str.contains("enable=true"));
-        Assertions.assertTrue(str.contains("enableCost"));
     }
 
 }

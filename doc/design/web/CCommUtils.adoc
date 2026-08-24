@@ -29,9 +29,15 @@ rt: 100ms             耗时
 - `getBodyText` 为 byte[] body → 可打印文本的统一转换节点：空 body 返回占位符（EMPTY_REQ/EMPTY_RSP）、文本 body 按 Content-Type charset 解码、非文本 body 输出占位符
 - 状态行未知状态码（不在 HttpStatus 枚举）仅输出数字、不输出描述
 
+`logSlowRequest` 为 web/feign 共用的慢请求日志统一出口：耗时（`endTimeMillis - beginTimeMillis`）超过 `slowLogMillis` 时输出 warn 慢日志；
+慢日志不受请求日志 `enable`/`logAll` 总开关控制（由 `slowLogEnable` 独立控制，默认启用），耗时从 `CRequestLog` 起止时间计算（调用方保证有值），输出带来源标识（`[mvc]`/`[feign]`）置于最前。
+
 测试内容见 `doc/design/web/CCommUtilsTests.adoc`。
 
 == 变更日志
 
+- 1.4 | 2026-08-24 | logSlowRequest 耗时改为从 CRequestLog 起止时间计算（参数简化为 config+info），慢日志带来源标识（[mvc]/[feign]）置于最前
+- 1.3 | 2026-08-24 | logSlowRequest 参数简化为 config+info；慢日志带来源标识（[mvc]/[feign]）置于最前
+- 1.2 | 2026-08-24 | 新增慢请求日志统一出口 logSlowRequest（web/feign 共用，不受 enable 控制）
 - 1.1 | 2026-08-24 | 业务数据区 token/ip 与 enableHeader 开关联动：开关关闭时输出保证鉴权与来源可见，开关开启时不重复打印
 - 1.0 | 2026-08-21 | 初始落地：CCommUtils HTTP 请求日志拼接功能说明与输出格式、getBodyText 转换节点、开关控制与未知状态码约定

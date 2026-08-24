@@ -3,8 +3,12 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.*;
+import com.c332030.ctool4j.definition.interfaces.ICText;
+import com.c332030.ctool4j.web.config.CRequestLogBaseConfig;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import lombok.experimental.UtilityClass;
@@ -18,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -452,6 +457,46 @@ public class CCommUtils {
             sb.append("error: ");
             sb.append(errorMessage);
         }
+    }
+
+    /**
+     * 慢请求日志 logger 名称
+     */
+    public static final String SLOW_LOG_STR = "request-slow-log";
+
+    /**
+     * 慢请求日志记录器（统一出口，web/feign 共用）
+     */
+    public final CLog SLOW_LOG = CLogUtils.getLog(SLOW_LOG_STR);
+
+    /**
+     * 统一输出慢请求日志：耗时（endTimeMillis - beginTimeMillis）超过 slowLogMillis 时输出 warn 慢日志。
+     * <p>慢日志不受请求日志 enable/logAll 总开关控制（由 slowLogEnable 独立控制，默认启用）；
+     * 耗时从 {@link CRequestLog} 的起止时间计算，调用方需保证 beginTimeMillis/endTimeMillis 已设置（有值）；
+     * 输出带来源标识（[mvc]/[feign]）置于最前，便于区分慢请求来源；开关关闭或耗时不足时不输出，避免 CPU 浪费</p>
+     *
+     * @param config 请求日志配置（slowLogEnable/slowLogMillis，继承自 {@link CRequestLogBaseConfig}）
+     * @param info   请求日志信息（source 来源、path url、beginTimeMillis/endTimeMillis 起止时间）
+     */
+    public void logSlowRequest(
+            CRequestLogBaseConfig config,
+            CRequestLog info
+    ) {
+        val slowLogMillis = CObjUtils.convert(config, CRequestLogBaseConfig::getSlowLogMillis);
+        if (null == slowLogMillis
+            || !CBoolUtils.isTrue(CObjUtils.convert(config, CRequestLogBaseConfig::getSlowLogEnable))
+        ) {
+            return;
+        }
+        val costMillis = info.getEndTimeMillis() - info.getBeginTimeMillis();
+        if (costMillis <= slowLogMillis) {
+            return;
+        }
+        val sourceText = Optional.ofNullable(info.getSource())
+            .map(ICText::getText)
+            .orElse("unknown")
+            ;
+        SLOW_LOG.warn("[{}] slow request, url: {}, cost: {}", sourceText, info.getPath(), costMillis);
     }
 
 }

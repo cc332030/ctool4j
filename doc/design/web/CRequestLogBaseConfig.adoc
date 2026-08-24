@@ -1,0 +1,57 @@
+= CRequestLogBaseConfig 设计文档
+
+Version: 1.0
+LastModified: 2026-08-24
+模块：ctool4j-web
+类：com.c332030.ctool4j.web.config.CRequestLogBaseConfig
+状态：已落地
+
+== 1. 功能说明
+
+`CRequestLogBaseConfig` 为请求日志公共配置基类，抽取 web/feign 等请求日志共用的开关属性：
+- `enable`：请求日志总开关，默认 `false`
+- `enableHeader`：请求头日志开关，默认 `false`（请求头可能含 Authorization、Cookie 等敏感信息，需时显式开启）
+- `slowLogEnable`：慢请求日志开关，默认 `true`（默认启用，不受 enable 总开关控制）
+- `slowLogMillis`：慢请求日志毫秒数，默认 3000
+
+各场景特有属性由子类各自维护：
+- `CRequestLogConfig`（web）：`excludeUriPatterns`
+- `CFeignClientLogConfig`（feign）：`logAll`、`apiWhiteList`/`apiBlackList`、`hostWhiteList`/`hostBlackList`、`pathWhiteList`/`pathBlackList`
+
+== 2. 设计要点
+
+=== 2.1 公共属性上移
+
+- 将两个具体配置类共有的 `enable`/`enableHeader`/`slowLogEnable`/`slowLogMillis` 上移到基类，子类通过 `extends` 继承，避免重复声明。
+- 子类各自保留 `@ConfigurationProperties` 绑定各自前缀（web：`logging.request-log`，feign：`feign.client.log`），基类不声明 `@ConfigurationProperties`。
+
+=== 2.2 lombok 生成访问器与 toString
+
+- 基类标注 `@Data` 生成公共字段的 getter/setter。
+- 项目 `lombok.config` 全局配置 `lombok.toString.callSuper=call`、`lombok.equalsAndHashCode.callSuper=call`：子类 `@Data` 自动在 toString/equals/hashCode 中包含父类公共字段（保证调试可见完整配置），子类**无需**再显式标注 `@ToString(callSuper=true)`/`@EqualsAndHashCode(callSuper=true)`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 未配置 `enable` | 默认 false，不记录请求日志 |
+| 未配置 `enableHeader` | 默认 false，不输出请求头 |
+| 未配置 `slowLogEnable` | 默认 true，慢日志启用 |
+| 未配置 `slowLogMillis` | 默认 3000 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 服务端 MVC、feign 等请求日志配置共用的开关属性统一维护。
+
+== 5. 已知限制与取舍
+
+- 基类仅抽取真正公共的属性（enable/enableHeader/slowLogEnable/slowLogMillis）；`enableCost` 在 feign 中未被任何业务代码使用，已随重构删除（仅测试引用，见变更日志）。
+- 集合型特有属性（白/黑名单）仍留在 feign 子类，不因抽象基类而上移。
+
+== 变更日志
+
+- 1.2 | 2026-08-24 | 说明 lombok 全局配置 callSuper=call（子类无需显式标注）；慢日志耗时改为从 CRequestLog 起止时间计算
+- 1.1 | 2026-08-24 | 慢日志开关 slowLogEnable/slowLogMillis 上移为公共属性（web/feign 均需慢日志）
+- 1.0 | 2026-08-24 | 初始落地：抽取请求日志公共配置基类（enable/enableHeader），web/feign 配置继承复用

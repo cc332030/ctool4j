@@ -10,12 +10,14 @@ LastModified: 2026-08-21
 
 `CFeignLogger` 为 feign 请求日志拦截器，按请求生命周期拦截 feign 请求并输出统一格式的 HTTP 请求日志：
 
-- `logRequest`：判定是否记录（开关 + 白名单/黑名单 + logAll），构建请求日志模型（method/path/query/请求头/请求体）
+- `logRequest`：无条件采集请求日志（不受 enable/logAll 控制），按白名单/黑名单 + logAll 判定完整日志打印标志，构建请求日志模型（method/path/query/请求头/请求体）
 - `logAndRebufferResponse`：重缓冲响应体（可再读）、构建响应日志模型（响应体/响应状态码/响应头）
 - `logIOException`：记录异常信息
+- 慢日志：不受 enable/logAll 控制，由 `slowLogEnable`/`slowLogMillis`（继承自 `CRequestLogBaseConfig`）独立控制，耗时用 feign 框架的 `elapsedTime`，统一走 `CCommUtils.logSlowRequest`
 - 打印统一走 `CRequestLogUtils.logWrite` → `CCommUtils.appendHttpLog`
 
 关键约定：
+- 采集层无条件采集（不受 enable/logAll 控制）；白名单/黑名单/logAll 仅控制完整日志打印标志（`PRINT_LOG_THREAD_LOCAL`），与 MVC 对齐
 - 请求头/响应头采集层总是采集（深拷贝为不可变），是否输出由打印层 `enableHeader` 开关控制（与 MVC 采集解耦）
 - 空请求体输出 EMPTY_REQ、空响应体输出 EMPTY_RSP 占位（避免 `[null]`，与 MVC 一致）
 - 采集响应状态码与响应头，供输出响应报文头（与 MVC 对称）
@@ -24,4 +26,6 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.2 | 2026-08-24 | 采集层无条件采集（不受 enable/logAll 控制），白名单/黑名单/logAll 仅控制完整日志打印；慢日志不受 enable/logAll 控制，慢日志带来源标识
+- 1.1 | 2026-08-24 | 采集层总是采集（enable 只控制打印完整日志）；新增慢日志（不受 enable 控制，统一走 CCommUtils.logSlowRequest）
 - 1.0 | 2026-08-21 | 初始落地：CFeignLogger 请求日志拦截功能说明与关键约定（采集与打印解耦、空 body 占位、响应报文头采集）

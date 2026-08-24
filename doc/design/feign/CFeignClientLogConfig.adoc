@@ -1,7 +1,7 @@
 = CFeignClientLogConfig 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-08-24
 模块：ctool4j-feign
 类：com.c332030.ctool4j.feign.config.CFeignClientLogConfig
 状态：已落地
@@ -9,25 +9,32 @@ LastModified: 2026-08-21
 
 == 1. 功能说明
 
-`CFeignClientLogConfig`（`@ConfigurationProperties("feign.client.log")`）为 Feign 日志配置：
+`CFeignClientLogConfig`（`@ConfigurationProperties("feign.client.log")`）为 Feign 日志配置，
+公共属性（`enable`/`enableHeader`/`slowLogEnable`/`slowLogMillis`）继承自 `CRequestLogBaseConfig`
+（见 `doc/design/web/CRequestLogBaseConfig.adoc`），本类维护 Feign 特有属性：
 
-- `enable`：日志开关（默认 false）；`enableHeader`：请求头日志开关；`enableCost`：耗时日志开关（默认 true）。
 - `logAll`：全部日志开关；`apiWhiteList`/`apiBlackList`：接口白/黑名单。
 - `hostWhiteList`/`hostBlackList`：host 白/黑名单；`pathWhiteList`/`pathBlackList`：path 白/黑名单。
+
+继承自基类的属性：
+
+- `enable`：日志开关（默认 false）；`enableHeader`：请求头日志开关（默认 false）。
+- `slowLogEnable`：慢请求日志开关（默认 true，不受 enable 控制）；`slowLogMillis`：慢请求日志毫秒数（默认 3000）。
 
 == 2. 设计要点
 
 - 前缀 `feign.client.log`，供配置文件绑定。
 - 集合默认 `CSet.of()`（空不可变集合）。
+- 公共属性（enable/enableHeader/slowLogEnable/slowLogMillis）上移至 `CRequestLogBaseConfig`，避免与 web 配置重复声明。
 
 == 3. 兜底设计
 
-- 未配置时用默认值（enable=false、enableCost=true、空名单）。
+- 未配置时用默认值（enable=false、slowLogEnable=true、空名单）。
 
 == 4. 适用范围
 
 === 4.1 适用场景
-- 配置 Feign 日志开关、耗时与白/黑名单过滤。
+- 配置 Feign 日志开关与白/黑名单过滤。
 
 === 4.2 不适用/边界场景
 - 仅配置载体；实际日志行为由 `CFeignLogger`/`CFeignClient` 使用。
@@ -35,9 +42,12 @@ LastModified: 2026-08-21
 == 5. 已知限制与取舍
 
 - 集合默认不可变，动态修改需重新 set。
+- 原 `enableCost`（耗时日志开关）经确认在业务代码中从未被使用，重构时已删除。
 
 测试内容见 `doc/design/feign/CFeignClientLogConfigTests.adoc`。
 
 == 变更日志
 
+- 1.2 | 2026-08-24 | slowLogEnable/slowLogMillis 继承自公共基类，feign 支持慢日志（不受 enable 控制）
+- 1.1 | 2026-08-24 | enable/enableHeader 上移至 CRequestLogBaseConfig 公共配置基类；删除未使用的 enableCost 配置
 - 1.0 | 2026-08-21 | 初始落地

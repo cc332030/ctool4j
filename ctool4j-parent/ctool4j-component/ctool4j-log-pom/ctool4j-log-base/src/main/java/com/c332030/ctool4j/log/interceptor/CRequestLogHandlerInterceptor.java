@@ -1,9 +1,8 @@
 package com.c332030.ctool4j.log.interceptor;
 
-import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.config.CRequestLogConfig;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
+import com.c332030.ctool4j.web.util.CCommUtils;
 import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import com.c332030.ctool4j.web.util.CTraceUtils;
 import lombok.AllArgsConstructor;
@@ -80,22 +79,10 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
                     CRequestLogUtils.logWrite(requestLog, config.getEnableHeader());
                 }
 
-                // 慢日志开关关闭时直接跳过，不做耗时计算，避免浪费 CPU
-                if (!BooleanUtil.isTrue(config.getSlowLogEnable())) {
-                    return;
-                }
-
-                // 完整耗时：以实际完成时间为准，包含视图渲染与响应写出耗时；
-                // 未记录开始时间时耗时恒为 0（beginTimeMillis 未设置时兜底即 0）
-                long rt;
-                if (requestLog.getBeginTimeMillis() > 0) {
-                    rt = System.currentTimeMillis() - requestLog.getBeginTimeMillis();
-                } else {
-                    rt = 0L;
-                }
-                if (rt > config.getSlowLogMillis()) {
-                    log.warn("slow request, url: {}, cost: {}", CRequestUtils.getRequestURIDefaultNull(), rt);
-                }
+                // 慢日志：不受 enable 总开关控制，由 slowLogEnable 独立控制（默认启用）；
+                // endTimeMillis 以实际完成时间为准，供 logSlowRequest 计算耗时（不受 enable 影响，保证有值）
+                requestLog.setEndTimeMillis(System.currentTimeMillis());
+                CCommUtils.logSlowRequest(config, requestLog);
             });
 
             // 先清 MDC 再清 ThreadLocal：removeTraceId 内部依赖当前 ThreadLocal 的 traceInfo，

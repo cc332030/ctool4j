@@ -38,6 +38,7 @@ class CFeignLoggerTests {
     @AfterEach
     void clearThreadLocal() throws Exception {
         requestLogThreadLocal().remove();
+        printLogThreadLocal().remove();
     }
 
     @SuppressWarnings("unchecked")
@@ -47,25 +48,37 @@ class CFeignLoggerTests {
         return (ThreadLocal<CRequestLog>) field.get(logger);
     }
 
+    @SuppressWarnings("unchecked")
+    private ThreadLocal<Boolean> printLogThreadLocal() throws Exception {
+        Field field = CFeignLogger.class.getDeclaredField("PRINT_LOG_THREAD_LOCAL");
+        field.setAccessible(true);
+        return (ThreadLocal<Boolean>) field.get(logger);
+    }
+
     private CRequestLog currentRequestLog() throws Exception {
         return requestLogThreadLocal().get();
+    }
+
+    private Boolean currentPrintLog() throws Exception {
+        return printLogThreadLocal().get();
     }
 
     // ==================== enableLog 判定（logRequest 写入 REQUEST_THREAD_LOCAL） ====================
 
     /**
-     * 对应测试用例 5.1.1
+     * 对应测试用例 5.1.1：enable 只控制打印完整日志，不控制采集（采集层总是采集，不受 enable/logAll 影响）
      */
     @Test
-    void testLogRequestDisabledDoesNothing() throws Exception {
+    void testLogRequestDisabledStillCollects() throws Exception {
 
         config.setEnable(false);
-        requestLogThreadLocal().set(new CRequestLog());
+        config.setLogAll(false);
 
         logger.logRequest("cfg", Logger.Level.FULL, buildRequest("http://api.example.com/foo"));
 
-        // enable=false 时不覆盖/写入本次标记，保留原值
+        // enable=false 且 logAll=false 时采集仍进行（始终采集），打印完整日志由 dealResponse 中 enable 与打印标志控制
         Assertions.assertNotNull(currentRequestLog());
+        Assertions.assertNotEquals(Boolean.TRUE, currentPrintLog());
     }
 
     /**
@@ -113,7 +126,7 @@ class CFeignLoggerTests {
     }
 
     /**
-     * 对应测试用例 1.1.6
+     * 对应测试用例 1.1.6：命中黑名单且未命中白名单 -> 不打印完整日志（打印标志 false），但采集仍进行
      */
     @Test
     void testLogRequestHostBlackListHit() throws Exception {
@@ -123,8 +136,9 @@ class CFeignLoggerTests {
 
         logger.logRequest("cfg", Logger.Level.FULL, buildRequest("http://api.example.com/foo"));
 
-        // 命中黑名单且未命中白名单 -> 写入 null 覆盖
-        Assertions.assertNull(currentRequestLog());
+        // 黑名单只控制完整日志打印，采集层总是采集（慢日志不受黑名单影响）
+        Assertions.assertNotNull(currentRequestLog());
+        Assertions.assertNotEquals(Boolean.TRUE, currentPrintLog());
     }
 
     /**
@@ -144,7 +158,7 @@ class CFeignLoggerTests {
     }
 
     /**
-     * 对应测试用例 1.1.7
+     * 对应测试用例 1.1.7：无名单且 logAll=false -> 不打印完整日志（打印标志 false），但采集仍进行（慢日志不受 logAll 控制）
      */
     @Test
     void testLogRequestNoListLogAllFalse() throws Exception {
@@ -154,7 +168,9 @@ class CFeignLoggerTests {
 
         logger.logRequest("cfg", Logger.Level.FULL, buildRequest("http://api.example.com/foo"));
 
-        Assertions.assertNull(currentRequestLog());
+        // 慢日志不受 logAll 控制：采集层总是采集，logAll 仅控制完整日志打印
+        Assertions.assertNotNull(currentRequestLog());
+        Assertions.assertNotEquals(Boolean.TRUE, currentPrintLog());
     }
 
     /**

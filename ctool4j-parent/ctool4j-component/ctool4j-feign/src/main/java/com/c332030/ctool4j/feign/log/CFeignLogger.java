@@ -62,10 +62,20 @@ public class CFeignLogger extends Logger {
      */
     final ThreadLocal<CRequestLog> REQUEST_THREAD_LOCAL = new ThreadLocal<>();
 
+    /**
+     * 本次请求是否打印完整请求日志（enableLog 判定结果：白名单/黑名单 + logAll）。
+     * <p>采集层总是采集请求日志（含慢日志），完整日志是否打印由本标志结合 enable 决定；
+     * 因 dealResponse 回调无 request 参数，无法重判白名单/黑名单，故在 logRequest 时预判存入</p>
+     */
+    final ThreadLocal<Boolean> PRINT_LOG_THREAD_LOCAL = new ThreadLocal<>();
+
     CFeignClientLogConfig config;
 
     /**
-     * 记录请求日志：开启日志时写入本次请求标记
+     * 记录请求日志：总是写入本次请求标记（不受 enable/logAll 控制，采集层总是采集）。
+     * <p>请求日志始终采集（含慢日志所需 source/path），完整日志是否打印由 {@link #PRINT_LOG_THREAD_LOCAL}
+     * 结合 enable 在 dealResponse 决定；无条件写入覆盖上次异常残留，保证回调 get 到的一定是本次请求的标记，
+     * 避免日志错配</p>
      *
      * @param configKey 配置键
      * @param logLevel  日志级别
@@ -73,11 +83,8 @@ public class CFeignLogger extends Logger {
      */
     @Override
     protected void logRequest(String configKey, Level logLevel, Request request) {
-        if (CBoolUtils.isTrue(config.getEnable())) {
-            // 无条件写入本次请求的日志标记：记录请求时存入 CRequestLog，未记录（黑名单等）时存入 null，
-            // 覆盖上次异常残留，保证回调 get 到的一定是本次请求的标记，避免日志错配
-            REQUEST_THREAD_LOCAL.set(enableLog(request) ? setRequestLog(request) : null);
-        }
+        REQUEST_THREAD_LOCAL.set(setRequestLog(request));
+        PRINT_LOG_THREAD_LOCAL.set(enableLog(request));
     }
 
     /**
@@ -233,11 +240,26 @@ public class CFeignLogger extends Logger {
      */
     private <T> T dealResponse(T t, long elapsedTime, CBiFunction<T, CRequestLog, T> function) {
 
-        // 取回并清除本线程进行中的请求日志，无论后续是否打印都先清理，避免线程复用泄漏
+        // 取回并清除本线程进行中的请求日志与打印标志，无论后续是否打印都先清理，避免线程复用泄漏
         val requestLog = REQUEST_THREAD_LOCAL.get();
         REQUEST_THREAD_LOCAL.remove();
+        val printLog = Boolean.TRUE.equals(PRINT_LOG_THREAD_LOCAL.get());
+        PRINT_LOG_THREAD_LOCAL.remove();
 
-        if (CBoolUtils.isTrue(config.getEnable())) {
+        // 设置起止时间：供 logSlowRequest 计算耗时与 logWrite 输出 rt，不受 enable 影响保证有值
+        if (null != requestLog && StrUtil.isNotEmpty(requestLog.getMethod())) {
+            val now = System.currentTimeMillis();
+            requestLog.setBeginTimeMillis(now - elapsedTime);
+            requestLog.setEndTimeMillis(now);
+        }
+
+        // 慢日志：不受 enable/logAll 总开关控制，由 slowLogEnable 独立控制（默认启用）；
+        // 耗时由 logSlowRequest 按起止时间计算，采集层总是采集故请求日志必存在
+        if (null != requestLog && StrUtil.isNotEmpty(requestLog.getMethod())) {
+            CCommUtils.logSlowRequest(config, requestLog);
+        }
+
+        if (CBoolUtils.isTrue(config.getEnable()) && printLog) {
             if (null == requestLog || StrUtil.isEmpty(requestLog.getMethod())) {
                 return t;
             }
@@ -247,11 +269,7 @@ public class CFeignLogger extends Logger {
                 log.error("处理响应日志失败", e);
                 return t;
             } finally {
-                // 设置属性：耗时由 CCommUtils.appendHttpLog 按起止时间计算，业务数据区恒输出 rt（elapsedTime 为 0 的快速请求输出 rt: 0ms）
-                val now = System.currentTimeMillis();
-                requestLog.setBeginTimeMillis(now - elapsedTime);
-                requestLog.setEndTimeMillis(now);
-                // 统一出口同步打印，与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
+                // 统一出口同步打印（起止时间已设置），与服务端日志一致不丢数据；如需异步请在日志配置中使用 AsyncAppender
                 // 日志打印失败不影响业务结果（避免 finally 抛异常覆盖返回值导致请求失败）
                 try {
                     CRequestLogUtils.logWrite(requestLog, config.getEnableHeader());
