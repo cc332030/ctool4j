@@ -6,7 +6,7 @@
 
 本仓库的规范以**远端统一规范**为基准，引用入口：
 
-- 远端规范入口：`https://agent.c332030.com/AGENTS.adoc`
+- 远端规范入口：`https://agent.c332030.com/AGENTS_COMMON.adoc`
 
 该入口为"分类与懒加载（加载调度器）"结构，按**必加载层 / 通用层 / 技术栈层 / 平台层**分层存储于 `specs/` 下，按需懒加载。文中 `specs/...` 均为**相对该入口文件所在目录**的路径，经 https 访问时解析为 `https://agent.c332030.com/specs/...`。
 
