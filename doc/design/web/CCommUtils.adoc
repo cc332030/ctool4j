@@ -25,6 +25,7 @@ rt: 100ms             耗时
 ```
 
 - 各段空行分隔；请求头/响应头输出由打印层 `enableHeader` 开关控制（采集层总是采集，见 `CRequestLogUtils`）
+- 业务数据区 token（Authorization）/ip 输出与 `enableHeader` 联动：开关关闭时请求头不输出，业务数据区输出 token/ip 保证鉴权与来源信息可见；开关开启时 Authorization/ip 已在请求头区输出，业务数据区不重复打印
 - `getBodyText` 为 byte[] body → 可打印文本的统一转换节点：空 body 返回占位符（EMPTY_REQ/EMPTY_RSP）、文本 body 按 Content-Type charset 解码、非文本 body 输出占位符
 - 状态行未知状态码（不在 HttpStatus 枚举）仅输出数字、不输出描述
 
@@ -32,4 +33,5 @@ rt: 100ms             耗时
 
 == 变更日志
 
+- 1.1 | 2026-08-24 | 业务数据区 token/ip 与 enableHeader 开关联动：开关关闭时输出保证鉴权与来源可见，开关开启时不重复打印
 - 1.0 | 2026-08-21 | 初始落地：CCommUtils HTTP 请求日志拼接功能说明与输出格式、getBodyText 转换节点、开关控制与未知状态码约定

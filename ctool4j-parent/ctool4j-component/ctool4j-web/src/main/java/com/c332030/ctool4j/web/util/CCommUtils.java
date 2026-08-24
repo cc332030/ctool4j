@@ -278,7 +278,7 @@ public class CCommUtils {
         appendError(sb, info.getErrorMessage());
 
         // 业务数据区（traceId、tenantId、userId、耗时等应用业务数据）：统一以空行与正文分隔，无数据时不追加
-        val businessData = getBusinessData(info);
+        val businessData = getBusinessData(info, enableHeader);
         if (MapUtil.isNotEmpty(businessData)) {
             sb.append("\n\n");
             businessData.forEach((key, value) -> {
@@ -291,16 +291,23 @@ public class CCommUtils {
     }
 
     /**
-     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：traceId、tenantId、userId、耗时；
+     * 组装业务数据（非 HTTP 请求头，仅用于日志末尾展示）：token、ip、traceId、tenantId、userId、耗时；
      * 有值才放入，耗时以起止时间能否计算判定：未测量不输出（避免无意义的 rt: 0ms 噪音），
      * 真实测量为 0ms 的快速请求仍会输出
      *
-     * @param info 请求日志信息
+     * @param info         请求日志信息
+     * @param enableHeader 请求头打印开关：开启时 Authorization/ip 已在请求头区输出，业务数据区不重复打印；
+     *                     关闭时请求头不输出，此处仍打印 token/ip，保证鉴权与来源信息可见
      * @return 业务数据 map
      */
-    private Map<String, String> getBusinessData(CRequestLog info) {
+    private Map<String, String> getBusinessData(CRequestLog info, boolean enableHeader) {
 
         val businessDataMap = new LinkedHashMap<String, String>();
+        // 请求头开关开启时 Authorization/ip 已在请求头区输出，避免重复打印；开关关闭时请求头不输出，此处输出 token/ip 保证仍可见
+        if (!enableHeader) {
+            CMapUtils.put(businessDataMap, HttpHeaders.AUTHORIZATION, info.getToken());
+            CMapUtils.put(businessDataMap, "ip", info.getIp());
+        }
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TRACE_ID.getHeaderName(), info.getTraceId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_TENANT_ID.getHeaderName(), info.getTenantId());
         CMapUtils.put(businessDataMap, CRequestHeaderEnum.X_USER_ID.getHeaderName(), info.getUserId());

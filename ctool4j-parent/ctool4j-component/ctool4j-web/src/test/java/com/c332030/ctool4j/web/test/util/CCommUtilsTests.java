@@ -722,6 +722,52 @@ public class CCommUtilsTests {
     }
 
     /**
+     * 对应测试用例 1.8.4：开关关闭时请求头不输出，业务数据区仍输出 token/ip，保证鉴权与来源信息可见
+     */
+    @Test
+    public void appendHttpLog_enableHeaderFalse_tokenIpInBusinessData() {
+        val log = requestLog();
+        log.setRequestHeaders(headers(HttpHeaders.AUTHORIZATION, "Bearer abc"));
+        log.setToken("Bearer abc");
+        log.setIp("1.2.3.4");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, false);
+        val result = sb.toString();
+        // 请求头不输出，token/ip 仅在业务数据区各出现一次（避免完全看不到鉴权与来源信息）
+        Assertions.assertEquals(1, countOccurrences(result, "Bearer abc"));
+        Assertions.assertTrue(result.contains(HttpHeaders.AUTHORIZATION + ": Bearer abc"));
+        Assertions.assertTrue(result.contains("ip: 1.2.3.4"));
+    }
+
+    /**
+     * 对应测试用例 1.8.5：开关开启时请求头已输出 Authorization/ip，业务数据区不重复打印
+     */
+    @Test
+    public void appendHttpLog_enableHeaderTrue_tokenIpNotDuplicated() {
+        val log = requestLog();
+        log.setRequestHeaders(headers(HttpHeaders.AUTHORIZATION, "Bearer abc"));
+        log.setToken("Bearer abc");
+        log.setIp("1.2.3.4");
+        val sb = new StringBuilder();
+        CCommUtils.appendHttpLog(sb, log, true);
+        val result = sb.toString();
+        // Authorization 仅在请求头区出现一次，业务数据区不重复打印
+        Assertions.assertEquals(1, countOccurrences(result, "Bearer abc"));
+        Assertions.assertFalse(result.contains(HttpHeaders.AUTHORIZATION + ": Bearer abc\n"));
+        Assertions.assertFalse(result.contains("ip: 1.2.3.4"));
+    }
+
+    private int countOccurrences(String str, String sub) {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(sub, index)) != -1) {
+            count++;
+            index += sub.length();
+        }
+        return count;
+    }
+
+    /**
      * 对应测试用例 1.8.3
      */
     @Test
