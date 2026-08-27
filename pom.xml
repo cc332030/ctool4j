@@ -48,6 +48,7 @@
 
         <guava.version>33.4.8-jre</guava.version>
         <mapstruct.version>1.6.3</mapstruct.version>
+        <fasterxml.java-uuid-generator.version>5.2.0</fasterxml.java-uuid-generator.version>
         <lombok.version>1.18.38</lombok.version>
 
         <spring-cloud-alibaba.version>2021.1</spring-cloud-alibaba.version>

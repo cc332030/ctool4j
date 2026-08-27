@@ -7,11 +7,11 @@ import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.definition.function.StringFunction;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
-
-import java.util.UUID;
 
 /**
  * <p>
@@ -26,12 +26,20 @@ import java.util.UUID;
 public class CIdUtils {
 
     /**
+     * UUID v7 生成器：线程安全，类级复用避免每次调用重复创建生成器实例
+     */
+    private final TimeBasedEpochGenerator UUID_V7_GENERATOR =
+        Generators.timeBasedEpochGenerator();
+
+    /**
      * 生成 UUID 字符串
      *
      * @return UUID 字符串
      */
-    public String stringUUID() {
-        return UUID.randomUUID().toString();
+    public String UUID() {
+        return UUID_V7_GENERATOR.generate()
+            .toString()
+            ;
     }
 
     /**
@@ -39,8 +47,10 @@ public class CIdUtils {
      *
      * @return 没有 '-' 的 UUID 字符串
      */
-    public String stringUUIDNoHyphen() {
-        return stringUUID().replace("-", "");
+    public String simpleUUID() {
+        return UUID()
+            .replace("-", "")
+            ;
     }
 
     /**

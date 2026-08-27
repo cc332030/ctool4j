@@ -1,7 +1,7 @@
 = CIdUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-08-27
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CIdUtils
 状态：已落地
@@ -11,7 +11,7 @@ LastModified: 2026-08-21
 
 `CIdUtils` 为 ID 生成与解析工具类，提供：
 
-- `stringUUID` / `stringUUIDNoHyphen`：生成带/不带 '-' 的 UUID 字符串
+- `UUID` / `simpleUUID`：生成带/不带 '-' 的 UUID 字符串（UUID v7，时间有序）
 - `nextId`：生成雪花 ID（Long）
 - `getPrefix(Class)` / `getPrefix(Class, length)`：计算类的 ID 前缀（优先 `@CBizId` 注解值，
   否则取类名大写字母去 `DO`）
@@ -20,17 +20,25 @@ LastModified: 2026-08-21
 
 == 2. 设计要点
 
-=== 2.1 前缀计算规则（CLASS_PREFIX）
+=== 2.1 UUID 生成（UUID / simpleUUID）
+
+- 使用 `com.fasterxml.uuid.Generators.timeBasedEpochGenerator()` 生成 **UUID v7**（时间有序），
+  相比 v4 随机 UUID，索引友好、可排序，且无需维护状态即可保证全局唯一。
+- 生成器以类级字段 `UUID_V7_GENERATOR` 缓存复用，避免每次调用重复创建实例；
+  该生成器本身**线程安全**（内部 `synchronized` 保护时间戳/熵状态），可安全并发共享。
+- 输出为带 '-' 的标准 UUID 字符串（36 位）；`simpleUUID` 在其基础上去除 '-'（32 位）。
+
+=== 2.2 前缀计算规则（CLASS_PREFIX）
 
 - 优先取 `@CBizId` 注解的 `value`（非空白时）。
 - 无注解值回退取类简单名的所有大写字母并去除 `DO` 子串（如 `CIdUtilsTests` → `CIUT`）。
 - 按类缓存（`CClassValue`，基于 `java.lang.ClassValue`，线程安全、按类弱关联），避免重复计算。
 
-=== 2.2 前缀截取（getPrefix(Class, length)）
+=== 2.3 前缀截取（getPrefix(Class, length)）
 
 - 取 `prefix.substring(0, min(length, prefix.length()))`：length 超前缀长度时返回完整前缀。
 
-=== 2.3 前缀解析（getPrefixFromId）
+=== 2.4 前缀解析（getPrefixFromId）
 
 - 从 ID 开头扫描到第一个数字字符，取之前的字符为前缀；无前缀（ID 以数字开头或为空）返回 null。
 
@@ -63,4 +71,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-08-27 | UUID 生成由 v4 随机改为 UUID v7（`Generators.timeBasedEpochGenerator()`），方法 `stringUUID`/`stringUUIDNoHyphen` 重命名为 `UUID`/`simpleUUID`；生成器以类级字段 `UUID_V7_GENERATOR` 缓存复用（线程安全）；新增 2.1 设计要点，章节编号顺延
 - 1.0 | 2026-08-21 | 初始落地
