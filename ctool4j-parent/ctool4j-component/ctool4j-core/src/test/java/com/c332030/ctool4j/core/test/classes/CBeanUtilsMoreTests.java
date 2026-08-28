@@ -330,7 +330,7 @@ public class CBeanUtilsMoreTests {
         Assertions.assertEquals("v", ((Map<?, ?>) map.get("tags")).get("k"));
         Assertions.assertFalse(map.containsKey("name"));
         Assertions.assertFalse(map.containsKey("age"));
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> map.put("x", 1));
+        Assertions.assertThrowsExactly(UnsupportedOperationException.class, () -> map.put("x", 1));
     }
 
     /**
@@ -370,7 +370,7 @@ public class CBeanUtilsMoreTests {
 
         val from = newFrom();
 
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
                 () -> CBeanUtils.toMap(from, field -> "conflict"));
     }
 
@@ -412,7 +412,7 @@ public class CBeanUtilsMoreTests {
         val map = CBeanUtils.toMap(new EmptyBean());
 
         Assertions.assertTrue(map.isEmpty());
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> map.put("x", 1));
+        Assertions.assertThrowsExactly(UnsupportedOperationException.class, () -> map.put("x", 1));
     }
 
     /**
