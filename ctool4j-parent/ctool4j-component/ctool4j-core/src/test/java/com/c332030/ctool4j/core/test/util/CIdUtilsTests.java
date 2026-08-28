@@ -34,6 +34,10 @@ public class CIdUtilsTests {
         Assertions.assertEquals(36, uuid.length());
         Assertions.assertTrue(uuid.contains("-"));
 
+        // UUID v7 格式特征：版本位（下标14）为 '7'，variant 位（下标19）为 8/9/a/b
+        Assertions.assertEquals('7', uuid.charAt(14));
+        Assertions.assertTrue("89ab".indexOf(uuid.charAt(19)) >= 0);
+
     }
 
     /**

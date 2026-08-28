@@ -1,0 +1,38 @@
+= CLockMode 功能设计
+
+Version: 1.0
+LastModified: 2026-08-28
+模块：ctool4j-cache
+类：com.c332030.ctool4j.cache.enums.CLockMode
+状态：已落地
+适用范围：缓存构建器（`CCacheBuilder`）的并发控制范围配置。
+
+== 1. 功能说明
+
+`CLockMode` 为缓存构建器的锁模式枚举，用于指定并发控制范围：
+
+- `LOCAL`：当前实例内互斥——使用 JVM 内按 key 的本地锁，轻量、不依赖 Redis，仅保证单实例不并发。
+- `DISTRIBUTED`：多实例互斥——使用 Redis 分布式锁，多实例间全局互斥（默认）。
+
+每个枚举常量携带 `text` 描述字段。
+
+== 2. 设计要点
+
+=== 2.1 两种锁模式
+
+- `LOCAL`：JVM 内本地锁，适用于单实例部署、无跨进程并发场景，无外部依赖、开销低。
+- `DISTRIBUTED`：Redis 分布式锁，适用于多实例部署、需全局互斥的场景，依赖 Redis。
+
+=== 2.2 描述字段
+
+- `text`：供日志、提示等场景使用的中文描述。
+
+== 3. 已知缺陷与不足
+
+- 无（纯枚举常量，无状态与副作用）。
+
+测试内容见 `doc/design/cache/CLockModeTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-28 | 初始落地
