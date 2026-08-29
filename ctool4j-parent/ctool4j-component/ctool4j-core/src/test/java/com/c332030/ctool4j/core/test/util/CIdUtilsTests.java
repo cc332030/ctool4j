@@ -4,6 +4,15 @@ import com.c332030.ctool4j.core.util.CIdUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * <p>
  * Description: CIdUtilsTests
@@ -17,13 +26,17 @@ public class CIdUtilsTests {
      * 对应测试用例 1.1
      */
     @Test
-    public void stringUUID() {
+    public void UUID() {
 
-        String uuid = CIdUtils.stringUUID();
+        String uuid = CIdUtils.UUID();
 
         Assertions.assertNotNull(uuid);
         Assertions.assertEquals(36, uuid.length());
         Assertions.assertTrue(uuid.contains("-"));
+
+        // UUID v7 格式特征：版本位（下标14）为 '7'，variant 位（下标19）为 8/9/a/b
+        Assertions.assertEquals('7', uuid.charAt(14));
+        Assertions.assertTrue("89ab".indexOf(uuid.charAt(19)) >= 0);
 
     }
 
@@ -31,14 +44,57 @@ public class CIdUtilsTests {
      * 对应测试用例 1.2
      */
     @Test
-    public void stringUUIDNoHyphen() {
+    public void simpleUUID() {
 
-        String uuid = CIdUtils.stringUUIDNoHyphen();
+        String uuid = CIdUtils.simpleUUID();
 
         Assertions.assertNotNull(uuid);
         Assertions.assertEquals(32, uuid.length());
         Assertions.assertFalse(uuid.contains("-"));
 
+    }
+
+    /**
+     * 对应测试用例 1.3
+     */
+    @Test
+    public void UUID_concurrent_unique() throws InterruptedException {
+
+        int threadCount = 8;
+        int perThread = 100;
+        ExecutorService pool = Executors.newFixedThreadPool(threadCount);
+        // 需与主线程/各任务线程同步，用并发安全的 Set 收集结果
+        Set<String> uuids = Collections.synchronizedSet(new HashSet<>());
+        AtomicBoolean duplicate = new AtomicBoolean(false);
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threadCount);
+
+        try {
+            for (int i = 0; i < threadCount; i++) {
+                pool.submit(() -> {
+                    try {
+                        start.await();
+                        for (int j = 0; j < perThread; j++) {
+                            if (!uuids.add(CIdUtils.UUID())) {
+                                duplicate.set(true);
+                            }
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        done.countDown();
+                    }
+                });
+            }
+            start.countDown();
+            Assertions.assertTrue(done.await(10, TimeUnit.SECONDS),
+                "UUID 并发生成超时");
+        } finally {
+            pool.shutdownNow();
+        }
+
+        Assertions.assertFalse(duplicate.get(), "并发生成出现重复 UUID");
+        Assertions.assertEquals(threadCount * perThread, uuids.size());
     }
 
     /**

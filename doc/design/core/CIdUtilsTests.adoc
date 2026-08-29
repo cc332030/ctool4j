@@ -1,8 +1,8 @@
 = CIdUtils 测试用例文档
 
-Version: 1.1
-LastModified: 2026-08-21
-所属功能：`com.c332030.ctool4j.core.util.CIdUtils`（core 工具类）——UUID/雪花 ID 生成、类 ID 前缀计算、带前缀雪花 ID、ID 前缀解析。
+Version: 1.3
+LastModified: 2026-08-28
+所属功能：`com.c332030.ctool4j.core.util.CIdUtils`（core 工具类）——UUID v7/雪花 ID 生成、类 ID 前缀计算、带前缀雪花 ID、ID 前缀解析。
 
 对应测试类：`com.c332030.ctool4j.core.test.util.CIdUtilsTests`
 
@@ -27,14 +27,15 @@ LastModified: 2026-08-21
 
 === 覆盖场景与未覆盖
 
-- 覆盖：UUID 带/不带连字符形态；雪花 ID 正数且递增；类前缀（含注解优先、类名大写去 DO）、前缀截取边界；
+- 覆盖：UUID v7 带/不带连字符形态（`UUID`/`simpleUUID`）、并发多线程下无重复（验证生成器缓存复用后仍线程安全）；雪花 ID 正数且递增；类前缀（含注解优先、类名大写去 DO）、前缀截取边界；
   带前缀雪花 ID（字符串/类/类+长度三种入口）；前缀解析（含前缀、纯字母、数字开头、空、null、转换函数）。
 - 未覆盖：`@CBizId` 注解优先路径（测试类无注解，仅覆盖类名回退路径；注解路径依赖注解声明，未在单测中构造）。
 
 == 1. UUID 生成
 
-- 1.1 stringUUID：36 位且含 '-'（stringUUID）
-- 1.2 stringUUIDNoHyphen：32 位且不含 '-'（stringUUIDNoHyphen）
+- 1.1 UUID：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）（UUID）
+- 1.2 simpleUUID：32 位且不含 '-'（simpleUUID）
+- 1.3 并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确（UUID_concurrent_unique）
 
 == 2. 雪花 ID 生成
 
@@ -64,5 +65,7 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.3 | 2026-08-28 | 用例 1.1 补充 UUID v7 格式特征验证（版本位为 7、variant 位为 8/9/a/b）
+- 1.2 | 2026-08-27 | UUID 方法由 `stringUUID`/`stringUUIDNoHyphen` 重命名为 `UUID`/`simpleUUID`（用例 1.1/1.2 同步更新）；新增用例 1.3 并发唯一性（验证生成器缓存复用后仍线程安全）
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地
