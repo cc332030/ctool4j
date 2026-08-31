@@ -1,7 +1,7 @@
 = CTool4jTestConstants 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-08-31
 模块：ctool4j-definition
 类：com.c332030.ctool4j.definition.constant.CTool4jTestConstants
 状态：已落地
@@ -28,7 +28,11 @@ LastModified: 2026-08-21
 == 5. 已知限制与取舍
 
 - 注解仅声明，实际行为由消费方（如 CJsonUtils、日志序列化器）实现。
+- 本类使用 slf4j 原生 `@Slf4j` 而非 `@CustomLog`：本类位于 `ctool4j-definition` 基础模块，
+  `ctool4j-core` 依赖本模块，`@CustomLog` 生成的 `CLog` 位于 core 会形成反向依赖（循环依赖），
+  故保留 `@Slf4j`。
 
 == 变更日志
 
+- 1.1 | 2026-08-31 | 补充本类保留 @Slf4j 的原因说明（模块循环依赖）
 - 1.0 | 2026-08-21 | 初始落地

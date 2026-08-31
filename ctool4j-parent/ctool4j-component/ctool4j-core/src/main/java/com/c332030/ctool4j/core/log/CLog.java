@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.util.function.Supplier;
 
@@ -298,6 +299,99 @@ public class CLog {
     public final void error(String msg, Supplier<Object> ... args) {
         if(isErrorEnabled()) {
             error(msg, CLogUtils.getSupplierArgs(args));
+        }
+    }
+
+    /**
+     * 按指定级别打印日志
+     *
+     * @param level 日志级别
+     * @param msg   日志信息
+     */
+    public void log(Level level, String msg) {
+        log(level,
+            () -> trace(msg),
+            () -> debug(msg),
+            () -> info(msg),
+            () -> warn(msg),
+            () -> error(msg)
+        );
+    }
+
+    /**
+     * 按指定级别打印日志
+     *
+     * @param level 日志级别
+     * @param msg   日志信息
+     * @param args  参数
+     */
+    public void log(Level level, String msg, Object... args) {
+        log(level,
+            () -> trace(msg, args),
+            () -> debug(msg, args),
+            () -> info(msg, args),
+            () -> warn(msg, args),
+            () -> error(msg, args)
+        );
+    }
+
+    /**
+     * 按指定级别打印日志
+     *
+     * @param level     日志级别
+     * @param msg       日志信息
+     * @param throwable 异常
+     */
+    public void log(Level level, String msg, Throwable throwable) {
+        log(level,
+            () -> trace(msg, throwable),
+            () -> debug(msg, throwable),
+            () -> info(msg, throwable),
+            () -> warn(msg, throwable),
+            () -> error(msg, throwable)
+        );
+    }
+
+    /**
+     * 按指定级别选择并执行对应日志动作（级别为 null 时兜底按 error 处理）
+     *
+     * @param level       日志级别
+     * @param traceAction  trace 动作
+     * @param debugAction  debug 动作
+     * @param infoAction   info 动作
+     * @param warnAction   warn 动作
+     * @param errorAction  error 动作
+     */
+    private void log(
+        Level level,
+        Runnable traceAction,
+        Runnable debugAction,
+        Runnable infoAction,
+        Runnable warnAction,
+        Runnable errorAction
+    ) {
+
+        if(level == null) {
+            errorAction.run();
+            return;
+        }
+
+        switch (level) {
+            case TRACE:
+                traceAction.run();
+                break;
+            case DEBUG:
+                debugAction.run();
+                break;
+            case INFO:
+                infoAction.run();
+                break;
+            case WARN:
+                warnAction.run();
+                break;
+            default:
+                errorAction.run();
+                break;
         }
     }
 

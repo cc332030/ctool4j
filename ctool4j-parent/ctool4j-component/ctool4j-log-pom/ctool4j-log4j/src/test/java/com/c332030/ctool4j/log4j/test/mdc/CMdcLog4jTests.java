@@ -1,34 +1,31 @@
-package com.c332030.ctool4j.logback.test.mdc;
+package com.c332030.ctool4j.log4j.test.mdc;
 
-import com.c332030.ctool4j.logback.mdc.CMdc;
+import com.c332030.ctool4j.log4j.mdc.CMdcLog4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
- * Description: CMdcTests
+ * Description: CMdcLog4jTests
  * </p>
  *
  * <p>
- * 是 {@link CMdc} 的测试用例（对应测试文档
- * <code>doc/design/log/CMdcTests.adoc</code>）。
+ * 是 {@link CMdcLog4j} 的测试用例（对应测试文档
+ * <code>doc/design/log4j/CMdcLog4jTests.adoc</code>）。
  * </p>
  *
- * @author c332030
- * @since 2026/8/14
+ * @since 2026/8/31
  */
-class CMdcTests {
+class CMdcLog4jTests {
 
-    private CMdc mdc;
+    private CMdcLog4j mdc;
 
     @BeforeEach
     void setUp() {
-        mdc = new CMdc();
+        mdc = new CMdcLog4j();
         mdc.clear();
     }
 
@@ -92,72 +89,71 @@ class CMdcTests {
     }
 
     /**
-     * 正常路径：getCopyOfContextMap 返回副本，修改副本不影响原 MDC
+     * 正常路径：containsKey 判断键是否存在
  * <p>
  * 对应测试用例 2.1
  */
     @Test
-    void getCopyOfContextMapIsCopy() {
+    void containsKey() {
         mdc.put("a", "1");
-        Map<String, String> copy = mdc.getCopyOfContextMap();
+        Assertions.assertTrue(mdc.containsKey("a"));
+        Assertions.assertFalse(mdc.containsKey("not-exist"));
+    }
+
+    /**
+     * 正常路径：getCopy 返回副本，修改副本不影响原 MDC
+ * <p>
+ * 对应测试用例 3.1
+ */
+    @Test
+    void getCopyIsCopy() {
+        mdc.put("a", "1");
+        Map<String, String> copy = mdc.getCopy();
         copy.put("b", "2");
         Assertions.assertNull(mdc.get("b"));
         Assertions.assertEquals("1", mdc.get("a"));
     }
 
     /**
-     * 边界：空 MDC 时 getCopyOfContextMap 返回空 map 而非 null
+     * 边界：空 MDC 时 getImmutableMapOrNull 返回 null
  * <p>
- * 对应测试用例 2.2
+ * 对应测试用例 4.1
  */
     @Test
-    void getCopyOfContextMapEmpty() {
-        Assertions.assertNotNull(mdc.getCopyOfContextMap());
-        Assertions.assertTrue(mdc.getCopyOfContextMap().isEmpty());
+    void getImmutableMapOrNullEmpty() {
+        Assertions.assertNull(mdc.getImmutableMapOrNull());
     }
 
     /**
-     * 正常路径：setContextMap(ConcurrentMap) 直接设置并生效
+     * 正常路径：非空 MDC 时 getImmutableMapOrNull 返回不可变副本
  * <p>
- * 对应测试用例 3.1
+ * 对应测试用例 4.2
  */
     @Test
-    void setContextMapConcurrent() {
-        Map<String, String> map = new ConcurrentHashMap<>();
-        map.put("k", "v");
-        mdc.setContextMap(map);
-        Assertions.assertEquals("v", mdc.get("k"));
+    void getImmutableMapOrNullNonEmpty() {
+        mdc.put("a", "1");
+        Map<String, String> map = mdc.getImmutableMapOrNull();
+        Assertions.assertNotNull(map);
+        Assertions.assertEquals("1", map.get("a"));
+        Assertions.assertThrowsExactly(UnsupportedOperationException.class, () -> map.put("b", "2"));
     }
 
     /**
-     * 正常路径：setContextMap(普通 Map) 包装后生效
+     * 边界：isEmpty 判断是否为空
  * <p>
- * 对应测试用例 3.2
+ * 对应测试用例 5.1
  */
     @Test
-    void setContextMapNormal() {
-        Map<String, String> map = new HashMap<>();
-        map.put("k", "v");
-        mdc.setContextMap(map);
-        Assertions.assertEquals("v", mdc.get("k"));
-    }
-
-    /**
-     * 边界：setContextMap(null) 相当于清空
- * <p>
- * 对应测试用例 3.3
- */
-    @Test
-    void setContextMapNullClears() {
-        mdc.put("k", "v");
-        mdc.setContextMap(null);
-        Assertions.assertNull(mdc.get("k"));
+    void isEmpty() {
+        Assertions.assertTrue(mdc.isEmpty());
+        mdc.put("a", "1");
+        Assertions.assertFalse(mdc.isEmpty());
     }
 
     /**
      * 异常路径：put(null, val) 抛空指针异常
  * <p>
- * 对应测试用例 4.1
+ * 对应测试用例 6.1
  */
     @Test
     void putNullKeyThrows() {
@@ -167,20 +163,10 @@ class CMdcTests {
     /**
      * 异常路径：put(key, null) 抛空指针异常（ConcurrentHashMap 不允许 null 值）
  * <p>
- * 对应测试用例 4.2
+ * 对应测试用例 6.2
  */
     @Test
     void putNullValueThrows() {
         Assertions.assertThrowsExactly(NullPointerException.class, () -> mdc.put("k", null));
-    }
-
-    /**
-     * 异常路径：get(null) 抛空指针异常
- * <p>
- * 对应测试用例 4.3
- */
-    @Test
-    void getNullKeyThrows() {
-        Assertions.assertThrowsExactly(NullPointerException.class, () -> mdc.get(null));
     }
 }

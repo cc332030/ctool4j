@@ -1,7 +1,7 @@
 = CLogUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-08-31
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.log.CLogUtils
 状态：已落地
@@ -65,9 +65,14 @@ LastModified: 2026-08-21
 
 - 转 JSON 失败即禁用该类型转换，避免重复异常（核心取舍）。
 - 各类集合基于 CopyOnWriteArraySet 线程安全，支持运行期扩展规则。
+- 本类自身使用 slf4j 原生 `@Slf4j` 而非 `@CustomLog`：`@CustomLog` 生成的 `log` 字段初始化会调用
+  `getLog(CLogUtils.class)`，而 `getLog` 依赖本类 `LOGS`（ClassValue）静态字段，静态字段按声明顺序
+  初始化，`log` 先于 `LOGS` 就绪时触发自引用 NPE。故本类（CLog 的底层实现）保留 `@Slf4j`，
+  不影响后端无关性（CLog 内部本就使用 slf4j 门面）。
 
 测试内容见 `doc/design/core/CLogUtilsTests.adoc`。
 
 == 变更日志
 
+- 1.1 | 2026-08-31 | 补充本类保留 @Slf4j 的原因说明（@CustomLog 静态初始化自引用）
 - 1.0 | 2026-08-21 | 初始落地

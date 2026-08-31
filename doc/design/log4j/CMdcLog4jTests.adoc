@@ -1,0 +1,63 @@
+= CMdcLog4j 测试用例文档
+
+Version: 1.0
+LastModified: 2026-08-31
+所属功能：`com.c332030.ctool4j.log4j.mdc.CMdcLog4j`（log4j 模块）——log4j2 后端的 MDC 适配器。
+
+对应测试类：`com.c332030.ctool4j.log4j.test.mdc.CMdcLog4jTests`
+
+对应设计文档：`doc/design/log4j/CMdcLog4j.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CMdcLog4j 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 覆盖 put/get 基本读写、重复 put 覆盖、remove、clear。
+- 覆盖 containsKey、isEmpty、getCopy 副本隔离、getImmutableMapOrNull 空与非空形态。
+- 覆盖异常路径：put/get 的 null key/value 抛 NPE。
+
+=== 设计依据
+
+- 依据功能设计对"TTL 存储、副本隔离、不可变副本"的约定。
+- 依据白盒/黑盒原则与错误推测法：读写覆盖、空值、副本隔离、null 入参、ConcurrentHashMap null 限制均覆盖。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：put/get/overwrite/remove/clear、containsKey、isEmpty、副本隔离、不可变副本、null key/value 抛 NPE。
+- 未覆盖：TTL 跨线程传递行为（依赖 TTL 机制，未在单测断言跨线程）。
+
+== 1. 基本读写
+
+- 1.1 put 后可 get 到对应值（putAndGet）
+- 1.2 重复 put 覆盖旧值（putOverwrite）
+- 1.3 remove 后 get 返回 null（remove）
+- 1.4 未 put 过的 key 返回 null（getNonExistentReturnsNull）
+- 1.5 clear 清空所有值（clearEmpties）
+
+== 2. 键判断
+
+- 2.1 containsKey 判断键是否存在（containsKey）
+
+== 3. 上下文副本
+
+- 3.1 getCopy 返回副本，修改不影响原 MDC（getCopyIsCopy）
+
+== 4. 不可变副本
+
+- 4.1 空 MDC 时 getImmutableMapOrNull 返回 null（getImmutableMapOrNullEmpty）
+- 4.2 非空时返回不可变副本（getImmutableMapOrNullNonEmpty）
+
+== 5. 空判断
+
+- 5.1 isEmpty 判断是否为空（isEmpty）
+
+== 6. 异常路径
+
+- 6.1 put(null, val) 抛 NPE（putNullKeyThrows）
+- 6.2 put(key, null) 抛 NPE（putNullValueThrows）
+
+== 变更日志
+
+- 1.0 | 2026-08-31 | 初始落地

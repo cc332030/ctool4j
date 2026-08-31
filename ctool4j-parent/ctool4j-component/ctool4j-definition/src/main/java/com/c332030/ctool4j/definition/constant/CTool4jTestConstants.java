@@ -10,6 +10,10 @@ import java.util.function.Supplier;
  * Description: CTool4jTestConstants
  * </p>
  *
+ * <p>
+ * 本类保留 slf4j 原生 @Slf4j 而非 @CustomLog（原因详见设计文档）
+ * </p>
+ *
  * @see "doc/design/definition/CTool4jTestConstants.adoc"
  * @since 2025/11/21
  */

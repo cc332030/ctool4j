@@ -1,7 +1,7 @@
 = CLog 测试用例文档
 
-Version: 1.1
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-08-31
 所属功能：`com.c332030.ctool4j.core.log.CLog`（core 日志类）——SLF4J 日志封装。
 
 对应测试类：`com.c332030.ctool4j.core.test.log.CLogTests`
@@ -45,7 +45,15 @@ LastModified: 2026-08-21
 - 3.3 Object 参数打印：五级别 msg+args（argsLogs）
 - 3.4 Supplier 延迟求值：五级别 msg+Supplier（supplierLogs）
 
+== 4. 动态级别打印
+
+- 4.1 简单打印：五级别 log(Level, msg) 打印（levelSimpleLogs）
+- 4.2 Object 参数打印：五级别 log(Level, msg, args) 打印（levelArgsLogs）
+- 4.3 带异常打印：五级别 log(Level, msg, throwable) 打印（levelThrowableLogs）
+- 4.4 null 级别兜底：log(null, msg) 按 error 处理不抛异常（levelNullFallback）
+
 == 变更日志
 
+- 1.2 | 2026-08-31 | 新增动态级别打印（log(Level, ...)）用例
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地

@@ -1,10 +1,10 @@
 = CMdc 测试用例文档
 
 Version: 1.0
-LastModified: 2026-08-21
-所属功能：`com.c332030.ctool4j.logback.mdc.CMdc`（log 模块）——基于 TransmittableThreadLocal 的 MDC 适配器。
+LastModified: 2026-08-31
+所属功能：`com.c332030.ctool4j.log.mdc.CMdc`（log 模块）——基于 TransmittableThreadLocal 的 MDC 上下文存储基类。
 
-对应测试类：`com.c332030.ctool4j.logback.test.mdc.CMdcTests`
+对应测试类：`com.c332030.ctool4j.log.test.mdc.CMdcTests`
 
 对应设计文档：`doc/design/log/CMdc.adoc`（功能设计，测试内容以本文档为准）。
 
@@ -15,18 +15,17 @@ LastModified: 2026-08-21
 === 设计思路
 
 - 覆盖 put/get 基本读写、重复 put 覆盖、remove、clear。
-- 覆盖 getCopyOfContextMap 副本隔离、空 MDC 返回空 map。
-- 覆盖 setContextMap 的 ConcurrentMap/普通 Map/null 三种形态。
-- 覆盖异常路径：put/get 的 null key/value 抛 NPE。
+- 覆盖 containsKey、isEmpty 键判断与空判断。
+- 覆盖异常路径：put 的 null key/value 抛 NPE。
 
 === 设计依据
 
-- 依据功能设计对"TTL 存储、setContextMap 三种形态、null 清空"的约定。
-- 依据白盒/黑盒原则与错误推测法：读写覆盖、空值、副本隔离、null 入参、ConcurrentHashMap null 限制均覆盖。
+- 依据功能设计对「TTL 存储、基础读写、键判断、空判断」的约定。
+- 依据白盒/黑盒原则与错误推测法：读写覆盖、空值、null 入参、ConcurrentHashMap null 限制均覆盖。
 
 === 覆盖场景与未覆盖
 
-- 覆盖：put/get/overwrite/remove/clear、副本隔离、空 map、setContextMap 三形态、null key/value 抛 NPE。
+- 覆盖：put/get/overwrite/remove/clear、containsKey、isEmpty、null key/value 抛 NPE。
 - 未覆盖：TTL 跨线程传递行为（依赖 TTL 机制，未在单测断言跨线程）。
 
 == 1. 基本读写
@@ -37,23 +36,16 @@ LastModified: 2026-08-21
 - 1.4 未 put 过的 key 返回 null（getNonExistentReturnsNull）
 - 1.5 clear 清空所有值（clearEmpties）
 
-== 2. 上下文副本
+== 2. 键与空判断
 
-- 2.1 getCopyOfContextMap 返回副本，修改不影响原 MDC（getCopyOfContextMapIsCopy）
-- 2.2 空 MDC 时返回空 map 而非 null（getCopyOfContextMapEmpty）
+- 2.1 containsKey 判断键是否存在（containsKey）
+- 2.2 isEmpty 判断是否为空（isEmpty）
 
-== 3. setContextMap
+== 3. 异常路径
 
-- 3.1 ConcurrentMap 直接设置（setContextMapConcurrent）
-- 3.2 普通 Map 包装后生效（setContextMapNormal）
-- 3.3 null 相当于清空（setContextMapNullClears）
-
-== 4. 异常路径
-
-- 4.1 put(null, val) 抛 NPE（putNullKeyThrows）
-- 4.2 put(key, null) 抛 NPE（putNullValueThrows）
-- 4.3 get(null) 抛 NPE（getNullKeyThrows）
+- 3.1 put(null, val) 抛 NPE（putNullKeyThrows）
+- 3.2 put(key, null) 抛 NPE（putNullValueThrows）
 
 == 变更日志
 
-- 1.0 | 2026-08-21 | 初始落地
+- 1.0 | 2026-08-31 | 初始落地

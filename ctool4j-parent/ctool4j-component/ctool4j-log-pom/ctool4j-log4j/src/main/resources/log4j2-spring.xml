@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Description: log4j2-spring.xml
+  User: c332030
+  Version 1.0
+-->
+<Configuration status="info" monitorInterval="30">
+
+    <Properties>
+        <Property name="APP_NAME">${spring:spring.application.name:-app}</Property>
+        <Property name="LOG_LEVEL_ROOT">${spring:logging.level.root:-info}</Property>
+        <Property name="LOG_FILE_PATH">${spring:logging.file.path:-logs}</Property>
+        <Property name="LOG_PATTERN">%d{HH:mm:ss.SSS} [%thread] [%X{c-trace-id}] %-5level %logger{64} - %msg%n</Property>
+        <Property name="LOG_CHARSET">utf-8</Property>
+        <Property name="LOG_FILE_MAX_SIZE">${spring:logging.logback.rollingpolicy.max-file-size:-1gb}</Property>
+        <Property name="LOG_FILE_MAX_HISTORY">${spring:logging.logback.rollingpolicy.max-history:-32}</Property>
+    </Properties>
+
+    <Appenders>
+
+        <!-- 控制台输出 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="${LOG_CHARSET}"/>
+        </Console>
+
+        <!-- 常规文件输出 -->
+        <RollingFile name="file" fileName="${LOG_FILE_PATH}/${APP_NAME}/${LOG_LEVEL_ROOT}.log"
+                     filePattern="${LOG_FILE_PATH}/${APP_NAME}/${LOG_LEVEL_ROOT}.log-%d{yyyy-MM-dd}.%i.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="${LOG_CHARSET}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${LOG_FILE_MAX_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${LOG_FILE_MAX_HISTORY}"/>
+        </RollingFile>
+
+        <!-- 错误文件输出 -->
+        <RollingFile name="file-error" fileName="${LOG_FILE_PATH}/${APP_NAME}/error.log"
+                     filePattern="${LOG_FILE_PATH}/${APP_NAME}/error.log-%d{yyyy-MM-dd}.%i.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="${LOG_CHARSET}"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${LOG_FILE_MAX_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${LOG_FILE_MAX_HISTORY}"/>
+        </RollingFile>
+
+        <!-- 请求日志输出 -->
+        <RollingFile name="request-log" fileName="${LOG_FILE_PATH}/${APP_NAME}/request.log"
+                     filePattern="${LOG_FILE_PATH}/${APP_NAME}/request.log-%d{yyyy-MM-dd}.%i.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="${LOG_CHARSET}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${LOG_FILE_MAX_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${LOG_FILE_MAX_HISTORY}"/>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+
+        <Logger name="request-log" level="info" additivity="false">
+            <AppenderRef ref="request-log"/>
+        </Logger>
+
+        <Logger name="file" level="info" additivity="false">
+            <AppenderRef ref="file"/>
+        </Logger>
+
+        <Logger name="file-error" level="error" additivity="false">
+            <AppenderRef ref="file-error"/>
+        </Logger>
+
+        <!-- 忽略-received push data -->
+        <Logger name="com.alibaba.nacos.client.naming" level="warn"/>
+
+        <!-- 忽略-文档接口路径冲突（无影响） -->
+        <Logger name="springfox.documentation.spring.web.readers.operation.CachingOperationNameGenerator" level="warn"/>
+
+        <Root level="${LOG_LEVEL_ROOT}">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+            <AppenderRef ref="file-error"/>
+        </Root>
+
+    </Loggers>
+
+</Configuration>

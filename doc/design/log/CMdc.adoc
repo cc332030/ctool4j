@@ -1,56 +1,62 @@
 = CMdc 设计文档
 
 Version: 1.0
-LastModified: 2026-08-21
-模块：ctool4j-log
-类：com.c332030.ctool4j.logback.mdc.CMdc
+LastModified: 2026-08-31
+模块：ctool4j-log-base
+类：com.c332030.ctool4j.log.mdc.CMdc
 状态：已落地
-适用范围：基于 TransmittableThreadLocal 的 MDC 适配器（可跨线程传递）
+适用范围：MDC 上下文存储基类（基于 TransmittableThreadLocal，供各日志后端 MDC 适配器继承）
 
 == 1. 功能说明
 
-`CMdc` 实现 SLF4J `MDCAdapter`，用 `TransmittableThreadLocal` 存放 MDC 上下文，实现日志上下文在线程间传递。
+`CMdc` 是各日志后端 MDC 适配器的公共存储基类，用 `TransmittableThreadLocal` 存放 MDC 上下文，屏蔽后端差异，提供：
 
 - `put/get/remove/clear`：操作当前线程上下文。
-- `getCopyOfContextMap`：返回上下文副本（`LinkedHashMap`）。
-- `setContextMap(Map)`：设置整个上下文，null 时清空。
+- `containsKey/isEmpty`：键判断与空判断。
+- `getMdcMap`：获取可变实例（供子类读写）。
+- `getImmutableMap`：获取不可变视图（零构建，供子类读不可变副本）。
+
+logback 版 `CMdcLogback`（实现 slf4j `MDCAdapter`）与 log4j2 版 `CMdcLog4j`（实现 log4j2 `ThreadContextMap`）均继承本类，各自补充后端 SPI 特有方法。
 
 == 2. 设计要点
 
-=== 2.1 存储结构
+=== 2.1 存储结构（可变实例 + 不可变视图）
 
-- `TransmittableThreadLocal.withInitial(ConcurrentHashMap::new)` 存键值。
-- 用 TransmittableThreadLocal 支持跨线程（如线程池、异步任务）上下文传递。
+- `CMapView`（core 通用容器）同时持有「可变实例」与「不可变视图」两实例：
+  - 可变实例：`ConcurrentHashMap`，承载写操作（put/remove）。
+  - 不可变视图：`Collections.unmodifiableMap(可变实例)`，可变实例的只读视图（live view），
+    底层修改实时反映，无需每次重新构建。
+- `TransmittableThreadLocal.withInitial(CMapView::new)` 存上下文，支持跨线程（线程池、异步任务）传递。
 
-=== 2.2 setContextMap
+=== 2.2 抽象边界
 
-- `ConcurrentMap` 直接设置；普通 `Map` 用 `Collections.synchronizedMap` 包装；null 时清空。
+- 本类只承载「存储 + 基础读写」通用逻辑；后端 SPI 特有语义（如 slf4j 的 `setContextMap`、log4j2 的 `getImmutableMapOrNull`）由子类实现。
 
 == 3. 兜底设计
 
 | 场景 | 兜底行为 |
 |------|---------|
-| setContextMap(null) | 清空上下文 |
-| setContextMap(普通 Map) | synchronizedMap 包装后设置 |
-| getCopyOfContextMap | 返回新 LinkedHashMap 副本，修改不影响原 MDC |
+| clear | 移除当前线程上下文 |
+| put/get/remove 传入 null key/value | 依赖 ConcurrentHashMap 抛 NPE（不静默吞） |
 
 == 4. 适用范围
 
 === 4.1 适用场景
 
-- 需要跨线程传递 MDC 上下文（异步任务、线程池）的日志场景。
+- 作为各日志后端 MDC 适配器的公共父类，统一 TTL 存储与基础读写。
 
 === 4.2 不适用/边界场景
 
-- `ConcurrentHashMap` 不允许 null key/value，put(null, val) 等会抛 NPE。
+- 不直接面向业务使用，需通过各后端的 `CMdcLogback` / `CMdcLog4j` 子类间接使用。
 
 == 5. 已知限制与取舍
 
 - 基于 TransmittableThreadLocal，需配合 TTL 依赖与跨线程包装使用。
-- 依赖 `ConcurrentHashMap` 的 null 限制。
+- 依赖 `ConcurrentHashMap` 的 null 限制（不允许 null key/value）。
+- 不可变视图为只读视图（非快照），持有方需知晓底层可变实例被修改后视图内容随之变化。
 
 测试内容见 `doc/design/log/CMdcTests.adoc`。
 
 == 变更日志
 
-- 1.0 | 2026-08-21 | 初始落地
+- 1.0 | 2026-08-31 | 初始落地（自 logback/log4j2 两处 CMdc 抽公共存储逻辑；含可变实例 + 不可变视图双实例，存储容器用 CMapView）
