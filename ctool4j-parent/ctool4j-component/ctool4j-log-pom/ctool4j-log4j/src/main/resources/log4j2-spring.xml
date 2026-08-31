@@ -12,8 +12,8 @@
         <Property name="LOG_FILE_PATH">${spring:logging.file.path:-logs}</Property>
         <Property name="LOG_PATTERN">%d{HH:mm:ss.SSS} [%thread] [%X{c-trace-id}] %-5level %logger{64} - %msg%n</Property>
         <Property name="LOG_CHARSET">utf-8</Property>
-        <Property name="LOG_FILE_MAX_SIZE">${spring:logging.logback.rollingpolicy.max-file-size:-1gb}</Property>
-        <Property name="LOG_FILE_MAX_HISTORY">${spring:logging.logback.rollingpolicy.max-history:-32}</Property>
+        <Property name="LOG_FILE_MAX_SIZE">${spring:logging.log4j2.rollingpolicy.max-file-size:-1gb}</Property>
+        <Property name="LOG_FILE_MAX_HISTORY">${spring:logging.log4j2.rollingpolicy.max-history:-32}</Property>
     </Properties>
 
     <Appenders>

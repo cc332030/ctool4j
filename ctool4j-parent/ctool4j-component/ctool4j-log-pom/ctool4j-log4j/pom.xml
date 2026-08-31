@@ -17,8 +17,8 @@
             <artifactId>ctool4j-log-base</artifactId>
         </dependency>
 
-        <!-- 覆盖 parent 继承的 spring-boot-starter-logging（provided），排除其 logback 与反向桥接，
-             避免与 log4j-slf4j-impl 冲突 -->
+        <!-- 覆盖 parent 继承的 spring-boot-starter-logging（provided），改为 compile 传递到使用项目；
+             排除 logback 与 log4j-to-slf4j（反向桥接），避免与 log4j-slf4j-impl 冲突 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
@@ -34,12 +34,11 @@
             </exclusions>
         </dependency>
 
-        <!-- log4j2 后端：slf4j 桥接实现 + 核心（替代 spring-boot-starter-logging 的 logback） -->
+        <!-- log4j2 后端：compile 传递到使用项目，提供 log4j2 核心与 slf4j 桥接实现 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-
 
     </dependencies>
 
