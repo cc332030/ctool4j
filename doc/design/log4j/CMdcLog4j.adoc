@@ -1,0 +1,57 @@
+= CMdcLog4j 设计文档
+
+Version: 1.0
+LastModified: 2026-08-31
+模块：ctool4j-log4j
+类：com.c332030.ctool4j.log4j.mdc.CMdcLog4j
+状态：已落地
+适用范围：log4j2 后端的 MDC 适配器（继承 CMdc，实现 log4j2 ThreadContextMap）
+
+== 1. 功能说明
+
+`CMdcLog4j` 实现 log4j2 `ThreadContextMap`，继承公共存储基类 `CMdc`，实现日志上下文在线程间传递。
+
+- 基础读写（`put/get/remove/clear`、`containsKey/isEmpty`）：继承自 `CMdc`。
+- `getCopy`：返回上下文副本（`HashMap`）。
+- `getImmutableMapOrNull`：返回不可变上下文，空时返回 null（零构建，直接返回父类不可变视图）。
+
+== 2. 设计要点
+
+=== 2.1 存储结构
+
+- 存储与基础读写下沉至父类 `CMdc`（可变实例 + 不可变视图），本类只补充 log4j2 特有语义。
+
+=== 2.2 接口语义
+
+- 实现 log4j2 `ThreadContextMap`，作为 log4j2 `ThreadContext` 的底层存储，替换默认 InheritableThreadLocal 实现以支持线程池透传。
+- `getImmutableMapOrNull` 为日志输出热点，直接返回父类不可变视图（零构建），避免每次复制。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| clear | 移除当前线程上下文 |
+| getImmutableMapOrNull | 空时返回 null；非空返回不可变视图 |
+| getCopy | 返回新 HashMap 副本，修改不影响原 MDC |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 需要跨线程传递 MDC 上下文（异步任务、线程池）的 log4j2 日志场景。
+
+=== 4.2 不适用/边界场景
+
+- `ConcurrentHashMap` 不允许 null key/value，put(null, val) 等会抛 NPE。
+- 与 logback 版 `CMdcLogback`（`com.c332030.ctool4j.logback.mdc`）互斥使用。
+
+== 5. 已知限制与取舍
+
+- 基于 TransmittableThreadLocal，需配合 TTL 依赖与跨线程包装使用。
+- 依赖 `ConcurrentHashMap` 的 null 限制。
+
+测试内容见 `doc/design/log4j/CMdcLog4jTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-08-31 | 初始落地（log4j2 后端 MDC 适配器，继承 CMdc，getImmutableMapOrNull 零构建）

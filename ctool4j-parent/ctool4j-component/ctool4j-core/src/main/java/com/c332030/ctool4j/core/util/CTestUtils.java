@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.core.util;
 
 import com.c332030.ctool4j.definition.constant.CTool4jTestConstants;
+import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
  * @see "doc/design/core/CTestUtils.adoc"
  * @see "doc/design/core/CTestUtilsTests.adoc"
  */
-@Slf4j
+@CustomLog
 @UtilityClass
 public class CTestUtils {
 
