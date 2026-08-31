@@ -1,6 +1,6 @@
 # ctool4j-log-pom
 
-> 日志聚合模块：请求日志自动埋点（log-base）、logback 适配（logback）、log4j 适配（log4j）。
+> 日志聚合模块：请求日志自动埋点（log-base）、logback 适配（logback）、log4j2 适配（log4j）。
 
 ## 简介
 
@@ -52,13 +52,13 @@
 |----|------|------|
 | `CMdcLogback` | 适配器 | slf4j MDCAdapter 适配器（继承 CMdc） |
 
-### 依赖
+### 依赖（传递到使用项目）
 
 | 依赖 | 说明 |
 |------|------|
 | `ctool4j-core` | 核心工具 |
 | `ctool4j-spring` | 事件监听、代理 |
-| `logback` | 日志后端 |
+| `spring-boot-starter-logging` | logback 日志后端（compile，覆盖父级 provided，传递到使用项目） |
 
 ---
 
@@ -76,17 +76,55 @@
 |----|------|------|
 | `CMdcLog4j` | 适配器 | log4j2 ThreadContextMap 适配器（继承 CMdc） |
 
-### 依赖
+### 依赖（传递到使用项目）
 
 | 依赖 | 说明 |
 |------|------|
 | `ctool4j-core` | 核心工具 |
 | `ctool4j-spring` | 事件监听、代理 |
-| `log4j-core` / `log4j-slf4j-impl` | log4j2 日志后端（与 logback 互斥） |
+| `spring-boot-starter-logging` | 覆盖父级 provided 并排除 logback / log4j-to-slf4j，避免与 log4j2 冲突 |
+| `spring-boot-starter-log4j2` | log4j2 日志后端（compile，传递到使用项目） |
+
+---
 
 ## 模块选择建议
 
-- 需要请求日志自动埋点（拦截器/advice）→ 引入 `ctool4j-log-base`
-- 使用 logback → 引入 `ctool4j-log-base` + `ctool4j-logback`
-- 使用 log4j2 → 引入 `ctool4j-log-base` + `ctool4j-log4j`
-- logback 与 log4j2 模块互斥，按需二选一引入（底层实现不同，slf4j 门面统一）
+| 日志后端 | 引入模块 |
+|---------|---------|
+| logback（默认） | `ctool4j-log-base` + `ctool4j-logback` |
+| log4j2 | `ctool4j-log-base` + `ctool4j-log4j` |
+
+> logback 与 log4j2 模块互斥，按需二选一引入（底层实现不同，slf4j 门面统一）。
+> 仅需请求日志自动埋点（拦截器/advice），可只引入 `ctool4j-log-base`。
+
+## 快速上手
+
+### 使用 logback
+
+```xml
+<dependency>
+    <groupId>com.c332030</groupId>
+    <artifactId>ctool4j-log-base</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.c332030</groupId>
+    <artifactId>ctool4j-logback</artifactId>
+</dependency>
+```
+
+引入后自动获得 `spring-boot-starter-logging`（logback 后端），MDC 跨线程透传开箱即用。
+
+### 使用 log4j2
+
+```xml
+<dependency>
+    <groupId>com.c332030</groupId>
+    <artifactId>ctool4j-log-base</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.c332030</groupId>
+    <artifactId>ctool4j-log4j</artifactId>
+</dependency>
+```
+
+引入后自动获得 `spring-boot-starter-log4j2`（log4j2 后端，含 slf4j 桥接实现），同时自动排除 `spring-boot-starter-logging` 中的 logback 与反向桥接，避免冲突。模块内置 `log4j2-spring.xml` 配置模板。

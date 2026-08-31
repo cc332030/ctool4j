@@ -66,6 +66,12 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-log4j</artifactId>
+                <version>1.1.20260730-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mq-base</artifactId>
                 <version>1.1.20260730-SNAPSHOT</version>
             </dependency>
@@ -79,12 +85,6 @@
             <dependency>
                 <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-rabbitmq</artifactId>
-                <version>1.1.20260730-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.c332030</groupId>
-                <artifactId>ctool4j-log4j</artifactId>
                 <version>1.1.20260730-SNAPSHOT</version>
             </dependency>
 
