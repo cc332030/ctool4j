@@ -58,18 +58,6 @@ public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {
     }
 
     /**
-     * 转换为 JDK BiFunction
-     * @param function 自定义函数
-     * @param <O1> 第一个参数类型
-     * @param <O2> 第二个参数类型
-     * @param <U> 结果类型
-     * @return JDK BiFunction
-     */
-    static <O1, O2, U> BiFunction<O1, O2, U> convert(CBiFunction<O1, O2, U> function) {
-        return (o1, o2) -> apply(function, o1, o2);
-    }
-
-    /**
      * 取第一个参数函数常量
      */
     CBiFunction<Object, Object, Object> FIRST = (o1, o2) -> o1;
@@ -81,8 +69,8 @@ public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {
      * @return 取第一个参数函数
      */
     @SuppressWarnings("unchecked")
-    static <O1, O2> BiFunction<O1, O2, O1> first() {
-        return (BiFunction<O1, O2, O1>)FIRST;
+    static <O1, O2> CBiFunction<O1, O2, O1> first() {
+        return (CBiFunction<O1, O2, O1>)FIRST;
     }
 
     /**
@@ -97,8 +85,8 @@ public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {
      * @return 取第二个参数函数
      */
     @SuppressWarnings("unchecked")
-    static <O1, O2> BiFunction<O1, O2, O2> second() {
-        return (BiFunction<O1, O2, O2>)SECOND;
+    static <O1, O2> CBiFunction<O1, O2, O2> second() {
+        return (CBiFunction<O1, O2, O2>)SECOND;
     }
 
 }

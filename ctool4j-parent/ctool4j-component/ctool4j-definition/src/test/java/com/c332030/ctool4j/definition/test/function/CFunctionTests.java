@@ -131,30 +131,4 @@ public class CFunctionTests {
 
     }
 
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convert() {
-
-        CFunction<String, Integer> cFunction = Integer::valueOf;
-
-        Function<String, Integer> function = CFunction.convert(cFunction);
-
-        Assertions.assertEquals(Integer.valueOf(456), function.apply("456"));
-
-    }
-
-    /**
-     * 对应测试用例 2.6
-     */
-    @Test
-    public void convertNullCFunction() {
-
-        Function<String, Integer> function = CFunction.convert(null);
-
-        Assertions.assertNull(function.apply("456"));
-
-    }
-
 }

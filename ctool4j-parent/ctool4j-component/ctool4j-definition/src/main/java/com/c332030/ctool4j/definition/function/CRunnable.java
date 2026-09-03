@@ -48,13 +48,4 @@ public interface CRunnable extends Runnable {
         runnable.run();
     }
 
-    /**
-     * 转换为 JDK Runnable
-     * @param runnable 自定义任务
-     * @return JDK Runnable
-     */
-    static Runnable convert(CRunnable runnable) {
-        return () -> run(runnable);
-    }
-
 }

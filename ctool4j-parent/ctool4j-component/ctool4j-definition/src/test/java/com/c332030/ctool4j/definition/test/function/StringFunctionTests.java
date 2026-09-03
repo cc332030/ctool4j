@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.definition.test.function;
 
-import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,20 +53,6 @@ public class StringFunctionTests {
             IOException.class,
             () -> function.apply("input")
         );
-
-    }
-
-    /**
-     * 对应测试用例 2.1
-     */
-    @Test
-    public void convert() {
-
-        StringFunction<Integer> cFunction = Integer::valueOf;
-
-        java.util.function.Function<String, Integer> function = CFunction.convert(cFunction);
-
-        Assertions.assertEquals(Integer.valueOf(789), function.apply("789"));
 
     }
 

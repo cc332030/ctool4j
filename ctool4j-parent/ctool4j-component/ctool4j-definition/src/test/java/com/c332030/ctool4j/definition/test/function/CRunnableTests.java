@@ -85,34 +85,4 @@ public class CRunnableTests {
 
     }
 
-    /**
-     * 对应测试用例 2.4
-     */
-    @Test
-    public void convert() {
-
-        AtomicBoolean flag = new AtomicBoolean(false);
-
-        CRunnable cRunnable = () -> flag.set(true);
-
-        Runnable runnable = CRunnable.convert(cRunnable);
-
-        runnable.run();
-
-        Assertions.assertTrue(flag.get());
-
-    }
-
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convertNullCRunnable() {
-
-        Runnable runnable = CRunnable.convert(null);
-
-        Assertions.assertDoesNotThrow(runnable::run);
-
-    }
-
 }

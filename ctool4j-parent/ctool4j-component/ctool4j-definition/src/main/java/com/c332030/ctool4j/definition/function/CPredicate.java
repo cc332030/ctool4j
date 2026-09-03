@@ -82,15 +82,5 @@ public interface CPredicate<T> extends Predicate<T> {
         return predicate.test(t);
     }
 
-    /**
-     * 转换为 JDK Predicate
-     * @param predicate 自定义断言
-     * @param <T> 参数类型
-     * @return JDK Predicate
-     */
-    static <T> Predicate<T> convert(CPredicate<T> predicate) {
-        return t -> test(predicate, t);
-    }
-
 
 }

@@ -103,30 +103,4 @@ public class CBiFunctionTests {
 
     }
 
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convert() {
-
-        CBiFunction<Integer, Integer, Integer> cFunction = Integer::sum;
-
-        BiFunction<Integer, Integer, Integer> function = CBiFunction.convert(cFunction);
-
-        Assertions.assertEquals(Integer.valueOf(5), function.apply(2, 3));
-
-    }
-
-    /**
-     * 对应测试用例 2.6
-     */
-    @Test
-    public void convertNullCBiFunction() {
-
-        BiFunction<Integer, Integer, Integer> function = CBiFunction.convert(null);
-
-        Assertions.assertNull(function.apply(2, 3));
-
-    }
-
 }

@@ -107,31 +107,4 @@ public class CPredicateTests {
 
     }
 
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convert() {
-
-        CPredicate<Integer> cPredicate = i -> i > 0;
-
-        Predicate<Integer> predicate = CPredicate.convert(cPredicate);
-
-        Assertions.assertTrue(predicate.test(1));
-        Assertions.assertFalse(predicate.test(-1));
-
-    }
-
-    /**
-     * 对应测试用例 2.6
-     */
-    @Test
-    public void convertNullCPredicate() {
-
-        Predicate<Integer> predicate = CPredicate.convert(null);
-
-        Assertions.assertFalse(predicate.test(1));
-
-    }
-
 }

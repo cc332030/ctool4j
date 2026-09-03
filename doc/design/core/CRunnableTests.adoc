@@ -1,7 +1,7 @@
 = CRunnable 测试用例文档
 
-Version: 1.1
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-03
 所属功能：`com.c332030.ctool4j.definition.function.CRunnable`（definition 函数接口）——可抛受检异常的任务接口。
 
 对应测试类：`com.c332030.ctool4j.definition.test.function.CRunnableTests`
@@ -15,7 +15,7 @@ LastModified: 2026-08-21
 === 设计思路
 
 - 按「run / 工具方法」两个维度组织。
-- run 覆盖正常、受检异常；工具覆盖 EMPTY、静态 run（null/正常）、convert（null/正常）。
+- run 覆盖正常、受检异常；工具覆盖 EMPTY、静态 run（null/正常）。
 
 === 设计依据
 
@@ -23,7 +23,7 @@ LastModified: 2026-08-21
 
 === 覆盖场景与未覆盖
 
-- 覆盖：run 正常/受检异常；EMPTY；静态 run null/正常；convert null/正常。
+- 覆盖：run 正常/受检异常；EMPTY；静态 run null/正常。
 - 未覆盖：无。
 
 == 1. run
@@ -36,10 +36,9 @@ LastModified: 2026-08-21
 - 2.1 EMPTY：不抛异常（empty）
 - 2.2 静态 run null：不抛异常（staticRunNullRunnable）
 - 2.3 静态 run 正常：执行生效（staticRunNormal）
-- 2.4 convert：转 JDK Runnable（convert）
-- 2.5 convert null：不抛异常（convertNullCRunnable）
 
 == 变更日志
 
+- 1.2 | 2026-09-03 | 移除 convert 相关用例（CRunnable 已移除冗余的 convert）
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地

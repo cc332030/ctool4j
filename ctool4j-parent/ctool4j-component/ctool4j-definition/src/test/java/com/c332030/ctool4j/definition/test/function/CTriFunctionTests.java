@@ -114,30 +114,4 @@ public class CTriFunctionTests {
 
     }
 
-    /**
-     * 对应测试用例 2.6
-     */
-    @Test
-    public void convert() {
-
-        CTriFunction<Integer, Integer, Integer, Integer> cFunction = (a, b, c) -> a + b + c;
-
-        CTriFunction<Integer, Integer, Integer, Integer> function = CTriFunction.convert(cFunction);
-
-        Assertions.assertEquals(Integer.valueOf(9), function.apply(2, 3, 4));
-
-    }
-
-    /**
-     * 对应测试用例 2.7
-     */
-    @Test
-    public void convertNullCTriFunction() {
-
-        CTriFunction<Integer, Integer, Integer, Integer> function = CTriFunction.convert(null);
-
-        Assertions.assertNull(function.apply(2, 3, 4));
-
-    }
-
 }

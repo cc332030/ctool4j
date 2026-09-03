@@ -1,7 +1,7 @@
 = CBiFunction 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-03
 模块：ctool4j-definition
 类：com.c332030.ctool4j.definition.function.CBiFunction
 状态：已落地
@@ -13,7 +13,7 @@ LastModified: 2026-08-21
 
 - `apply`：默认方法，@SneakyThrows 包装后调用 `applyThrowable`
 - `applyThrowable`：抽象方法，可抛 Throwable
-- 工具：`apply(function, o1, o2)`、`convert(function)`、`first()`/`second()`
+- 工具：`apply(function, o1, o2)`、`first()`/`second()`
 
 == 2. 设计要点
 
@@ -23,7 +23,7 @@ LastModified: 2026-08-21
 
 === 2.2 工具方法
 
-- `apply(function, o1, o2)`：function 为 null 返回 null；`convert`：转 JDK BiFunction。
+- `apply(function, o1, o2)`：function 为 null 返回 null。
 - `first()`/`second()`：分别返回取第一/第二参数的函数。
 
 == 3. 兜底设计
@@ -40,4 +40,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-03 | 移除冗余的 convert（CBiFunction 继承 JDK BiFunction，可当作 JDK BiFunction 直接使用）
 - 1.0 | 2026-08-21 | 初始落地

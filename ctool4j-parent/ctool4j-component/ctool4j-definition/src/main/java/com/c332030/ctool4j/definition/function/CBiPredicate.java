@@ -88,16 +88,5 @@ public interface CBiPredicate<T, U> extends BiPredicate<T, U> {
         return predicate.test(t, u);
     }
 
-    /**
-     * 转换为 JDK BiPredicate
-     * @param predicate 自定义断言
-     * @param <T> 第一个参数类型
-     * @param <U> 第二个参数类型
-     * @return JDK BiPredicate
-     */
-    static <T, U> BiPredicate<T, U> convert(CBiPredicate<T, U> predicate) {
-        return (t, u) -> test(predicate, t, u);
-    }
-
 
 }

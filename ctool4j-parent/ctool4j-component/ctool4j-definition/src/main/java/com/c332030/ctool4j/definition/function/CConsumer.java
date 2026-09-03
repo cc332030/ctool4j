@@ -64,14 +64,4 @@ public interface CConsumer<T> extends Consumer<T> {
         consumer.accept(t);
     }
 
-    /**
-     * 转换为 JDK Consumer
-     * @param consumer 自定义消费者
-     * @param <T> 参数类型
-     * @return JDK Consumer
-     */
-    static <T> Consumer<T> convert(CConsumer<T> consumer) {
-        return t -> accept(consumer, t);
-    }
-
 }

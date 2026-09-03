@@ -104,34 +104,4 @@ public class CConsumerTests {
 
     }
 
-    /**
-     * 对应测试用例 2.4
-     */
-    @Test
-    public void convert() {
-
-        AtomicInteger holder = new AtomicInteger(0);
-
-        CConsumer<Integer> cConsumer = holder::set;
-
-        Consumer<Integer> consumer = CConsumer.convert(cConsumer);
-
-        consumer.accept(9);
-
-        Assertions.assertEquals(9, holder.get());
-
-    }
-
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convertNullCConsumer() {
-
-        Consumer<Integer> consumer = CConsumer.convert(null);
-
-        Assertions.assertDoesNotThrow(() -> consumer.accept(1));
-
-    }
-
 }

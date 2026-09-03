@@ -107,31 +107,4 @@ public class CBiPredicateTests {
 
     }
 
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convert() {
-
-        CBiPredicate<Integer, Integer> cPredicate = (a, b) -> a > b;
-
-        BiPredicate<Integer, Integer> predicate = CBiPredicate.convert(cPredicate);
-
-        Assertions.assertTrue(predicate.test(2, 1));
-        Assertions.assertFalse(predicate.test(1, 2));
-
-    }
-
-    /**
-     * 对应测试用例 2.6
-     */
-    @Test
-    public void convertNullCBiPredicate() {
-
-        BiPredicate<Integer, Integer> predicate = CBiPredicate.convert(null);
-
-        Assertions.assertFalse(predicate.test(1, 2));
-
-    }
-
 }

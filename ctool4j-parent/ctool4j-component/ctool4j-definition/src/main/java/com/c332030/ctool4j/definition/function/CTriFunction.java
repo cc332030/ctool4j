@@ -59,19 +59,6 @@ public interface CTriFunction<O1, O2, O3, R> {
     }
 
     /**
-     * 转换为 CTriFunction 形式（function 为空时返回 null）
-     * @param function 函数
-     * @param <O1> 第一个参数类型
-     * @param <O2> 第二个参数类型
-     * @param <O3> 第三个参数类型
-     * @param <R> 结果类型
-     * @return CTriFunction
-     */
-    static <O1, O2, O3, R> CTriFunction<O1, O2, O3, R> convert(CTriFunction<O1, O2, O3, R> function) {
-        return (o1, o2, o3) -> apply(function, o1, o2, o3);
-    }
-
-    /**
      * 取第一个参数函数常量
      */
     CTriFunction<Object, Object, Object, Object> FIRST = (o1, o2, o3) -> o1;

@@ -89,15 +89,4 @@ public interface CFunction<O, R> extends Function<O, R> {
         return function.apply(o);
     }
 
-    /**
-     * 转换为 JDK Function
-     * @param function 自定义函数
-     * @param <O> 参数类型
-     * @param <R> 结果类型
-     * @return JDK Function
-     */
-    static <O, R> Function<O, R> convert(CFunction<O, R> function) {
-        return t -> apply(function, t);
-    }
-
 }

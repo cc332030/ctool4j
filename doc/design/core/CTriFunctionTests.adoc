@@ -1,7 +1,7 @@
 = CTriFunction 测试用例文档
 
-Version: 1.1
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-03
 所属功能：`com.c332030.ctool4j.definition.function.CTriFunction`（definition 函数接口）——可抛受检异常的三参函数接口。
 
 对应测试类：`com.c332030.ctool4j.definition.test.function.CTriFunctionTests`
@@ -15,7 +15,7 @@ LastModified: 2026-08-21
 === 设计思路
 
 - 按「apply / 工具方法」两个维度组织。
-- apply 覆盖正常、null 输入、受检异常；工具覆盖 first/second/third、静态 apply（null/正常）、convert（null/正常）。
+- apply 覆盖正常、null 输入、受检异常；工具覆盖 first/second/third、静态 apply（null/正常）。
 
 === 设计依据
 
@@ -23,7 +23,7 @@ LastModified: 2026-08-21
 
 === 覆盖场景与未覆盖
 
-- 覆盖：apply 正常/null/受检异常；first/second/third；静态 apply null/正常；convert null/正常。
+- 覆盖：apply 正常/null/受检异常；first/second/third；静态 apply null/正常。
 - 未覆盖：无。
 
 == 1. apply
@@ -39,10 +39,9 @@ LastModified: 2026-08-21
 - 2.3 third：返回第三参数（third）
 - 2.4 静态 apply null：返回 null（staticApplyNullFunction）
 - 2.5 静态 apply 正常：结果正确（staticApplyNormal）
-- 2.6 convert：转换（convert）
-- 2.7 convert null：返回 null（convertNullCTriFunction）
 
 == 变更日志
 
+- 1.2 | 2026-09-03 | 移除 convert 相关用例（CTriFunction 已移除冗余的 convert）
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地

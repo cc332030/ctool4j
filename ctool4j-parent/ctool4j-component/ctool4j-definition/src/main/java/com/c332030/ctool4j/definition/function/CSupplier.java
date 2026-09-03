@@ -64,14 +64,4 @@ public interface CSupplier<T> extends Supplier<T> {
         return supplier.get();
     }
 
-    /**
-     * 转换为 JDK Supplier
-     * @param supplier 自定义供应器
-     * @param <T> 结果类型
-     * @return JDK Supplier
-     */
-    static <T> Supplier<T> convert(CSupplier<T> supplier) {
-        return () -> get(supplier);
-    }
-
 }

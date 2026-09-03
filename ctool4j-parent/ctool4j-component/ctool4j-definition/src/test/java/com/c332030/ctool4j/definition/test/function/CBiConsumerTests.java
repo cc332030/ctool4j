@@ -103,34 +103,4 @@ public class CBiConsumerTests {
 
     }
 
-    /**
-     * 对应测试用例 2.4
-     */
-    @Test
-    public void convert() {
-
-        StringBuilder sb = new StringBuilder();
-
-        CBiConsumer<String, String> cConsumer = (a, b) -> sb.append(a).append(b);
-
-        BiConsumer<String, String> consumer = CBiConsumer.convert(cConsumer);
-
-        consumer.accept("m", "n");
-
-        Assertions.assertEquals("mn", sb.toString());
-
-    }
-
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convertNullCBiConsumer() {
-
-        BiConsumer<String, String> consumer = CBiConsumer.convert(null);
-
-        Assertions.assertDoesNotThrow(() -> consumer.accept("m", "n"));
-
-    }
-
 }

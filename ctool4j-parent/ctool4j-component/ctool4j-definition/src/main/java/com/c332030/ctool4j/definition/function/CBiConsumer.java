@@ -74,15 +74,4 @@ public interface CBiConsumer<T, U> extends BiConsumer<T, U> {
         consumer.accept(t, u);
     }
 
-    /**
-     * 转换为 JDK BiConsumer
-     * @param consumer 自定义消费者
-     * @param <T> 第一个参数类型
-     * @param <U> 第二个参数类型
-     * @return JDK BiConsumer
-     */
-    static <T, U> BiConsumer<T, U> convert(CBiConsumer<T, U> consumer) {
-        return (t, u) -> accept(consumer, t, u);
-    }
-
 }

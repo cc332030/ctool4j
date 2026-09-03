@@ -91,30 +91,4 @@ public class CSupplierTests {
 
     }
 
-    /**
-     * 对应测试用例 2.4
-     */
-    @Test
-    public void convert() {
-
-        CSupplier<String> cSupplier = () -> "converted";
-
-        Supplier<String> supplier = CSupplier.convert(cSupplier);
-
-        Assertions.assertEquals("converted", supplier.get());
-
-    }
-
-    /**
-     * 对应测试用例 2.5
-     */
-    @Test
-    public void convertNullCSupplier() {
-
-        Supplier<String> supplier = CSupplier.convert(null);
-
-        Assertions.assertNull(supplier.get());
-
-    }
-
 }
