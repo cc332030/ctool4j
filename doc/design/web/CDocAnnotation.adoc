@@ -1,0 +1,67 @@
+= C 前缀接口文档注解族 总体设计文档
+
+Version: 1.0
+LastModified: 2026-09-04
+模块：ctool4j-web（注解定义）
+功能：C 前缀接口文档注解族（CSchema / CTag / COperation / CParameter），替代 Swagger/OpenAPI2 文档注解以驱动接口文档（CSchema 附带必填校验）
+状态：已落地
+
+== 1. 功能说明
+
+本项目用 C 前缀注解替代 Swagger/OpenAPI2 的**文档注解**（按 OpenAPI3 注解命名，前缀 c），用于**接口（API）文档生成**，
+统一声明在 ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包。
+这些注解是纯声明、不依赖文档框架；由 `ctool4j-doc-openapi2` 的插件读取并翻译为 springfox 文档。
+
+四个注解与 OpenAPI2/OpenAPI3 文档注解的对应关系：
+
+[options="header"]
+| 注解 | 替代 OpenAPI2 文档注解 | 对应 OpenAPI3 | 标注层级 | 文档作用 |
+|------|----------------------|--------------|---------|---------|
+| `@CSchema` | `@ApiModelProperty` | `Schema` | 字段/参数/getter | 字段/属性说明（并支持必填校验） |
+| `@CTag` | `@Api` | `Tag` | 类 | 接口分组标签 |
+| `@COperation` | `@ApiOperation` | `Operation` | 方法 | 操作摘要/说明 |
+| `@CParameter` | `@ApiParam` | `Parameter` | 参数 | 参数说明/必填/示例 |
+
+均支持简写 `@注解("内容")`，`value()` 为各自的主要文档内容（各 `value` 替代的原属性见对应注解文档）。
+
+== 2. 设计要点
+
+=== 2.1 定位为文档注解
+
+- 四者核心职责都是**描述接口文档**；`@CSchema` 在描述基础上额外提供必填校验（`required`，经 `CSchemaValidator`）。
+
+=== 2.2 命名与替代
+
+- 采用「C + OpenAPI3 对应文档注解名」，与 OpenAPI2/Swagger 文档注解一一对应，便于对照迁移。
+
+=== 2.3 声明与落地分离
+
+- 注解仅承载文档（及校验）声明，不依赖 springfox；翻译逻辑在 ctool4j-doc-openapi2 插件中，注解模块不引入文档框架。
+
+== 3. 落地
+
+每个注解由 `ctool4j-doc-openapi2` 的一个插件读取（注册于 `COpenApi2Configuration`，`cDocket` 以 `@CTag` 收集 Controller）。
+落地细节见 openapi2 模块各插件文档：
+
+| 注解 | openapi2 插件文档 |
+|------|------------------|
+| `@CSchema` | `doc/design/openapi2/CSchemaAnnotationPlugin.adoc`、`CSchemaAnnotationModelPropertyPlugin.adoc` |
+| `@CTag` | `doc/design/openapi2/CTagAnnotationPlugin.adoc` |
+| `@COperation` | `doc/design/openapi2/COperationAnnotationPlugin.adoc` |
+| `@CParameter` | `doc/design/openapi2/CParameterAnnotationPlugin.adoc` |
+
+== 4. 使用指引
+
+- 接口类标 `@CTag`（分组名，Docket 据此收集接口）；无它则不进入文档。
+- 方法标 `@COperation` 说明接口摘要；参数标 `@CParameter` 说明参数。
+- 契约字段/getter 标 `@CSchema`（`required=true` 时既校验又标记必填）。
+
+== 5. 详细设计
+
+- 各注解：`CSchema.adoc`、`CTag.adoc`、`COperation.adoc`、`CParameter.adoc`
+- 校验器：`CSchemaValidator.adoc`
+- 落地与配置：见 `doc/design/openapi2/` 下 `COpenApi2Configuration.adoc` 及上述各插件文档
+
+== 变更日志
+
+- 1.0 | 2026-09-04 | 初始落地

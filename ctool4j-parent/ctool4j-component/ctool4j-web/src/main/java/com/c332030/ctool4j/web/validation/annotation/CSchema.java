@@ -27,6 +27,7 @@ import java.lang.annotation.*;
  *
  * @author c332030
  * @see "doc/design/web/CSchema.adoc"
+ * @see "doc/design/web/CDocAnnotation.adoc"
  */
 @Target({
     ElementType.FIELD,

@@ -14,6 +14,7 @@ import java.lang.annotation.*;
  *
  * @author c332030
  * @see "doc/design/web/COperation.adoc"
+ * @see "doc/design/web/CDocAnnotation.adoc"
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
