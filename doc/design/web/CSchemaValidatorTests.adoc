@@ -2,7 +2,7 @@
 
 Version: 1.1
 LastModified: 2026-08-21
-所属功能：`com.c332030.ctool4j.web.validation.annotation.CSchema` 的校验器 CSchemaValidator（`isValid` 按类型分发必填校验）。
+所属功能：`com.c332030.ctool4j.web.doc.annotation.CSchema` 的校验器 CSchemaValidator（`isValid` 按类型分发必填校验）。
 
 对应测试类：`com.c332030.ctool4j.web.test.validation.annotation.CSchemaValidatorTests`
 

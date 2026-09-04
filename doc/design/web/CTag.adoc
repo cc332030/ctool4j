@@ -3,7 +3,7 @@
 Version: 1.0
 LastModified: 2026-09-04
 模块：ctool4j-web
-类：com.c332030.ctool4j.web.validation.annotation.CTag
+类：com.c332030.ctool4j.web.doc.annotation.CTag
 状态：已落地
 总体文档：`doc/design/web/CDocAnnotation.adoc`（接口文档注解族）
 

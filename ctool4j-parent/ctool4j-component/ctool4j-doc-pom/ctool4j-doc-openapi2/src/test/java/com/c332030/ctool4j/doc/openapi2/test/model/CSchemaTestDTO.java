@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.test.model;
 
-import com.c332030.ctool4j.web.validation.annotation.CSchema;
+import com.c332030.ctool4j.web.doc.annotation.CSchema;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -2,7 +2,7 @@
 
 Version: 1.0
 LastModified: 2026-08-21
-所属功能：`com.c332030.ctool4j.web.validation.annotation.CSchema` 在 openapi2 模块的集成场景——接口必填/非必填校验生效、字段文档生效。
+所属功能：`com.c332030.ctool4j.web.doc.annotation.CSchema` 在 openapi2 模块的集成场景——接口必填/非必填校验生效、字段文档生效。
 
 对应测试类：`com.c332030.ctool4j.doc.openapi2.test.CSchemaIntegrationTests`
 

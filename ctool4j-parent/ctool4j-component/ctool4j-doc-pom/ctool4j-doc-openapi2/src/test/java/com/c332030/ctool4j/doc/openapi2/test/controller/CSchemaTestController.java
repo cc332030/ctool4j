@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.doc.openapi2.test.controller;
 
 import com.c332030.ctool4j.doc.openapi2.test.model.CSchemaTestDTO;
-import com.c332030.ctool4j.web.validation.annotation.COperation;
-import com.c332030.ctool4j.web.validation.annotation.CTag;
+import com.c332030.ctool4j.web.doc.annotation.COperation;
+import com.c332030.ctool4j.web.doc.annotation.CTag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

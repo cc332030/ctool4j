@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.operation.impl;
 
-import com.c332030.ctool4j.web.validation.annotation.COperation;
+import com.c332030.ctool4j.web.doc.annotation.COperation;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

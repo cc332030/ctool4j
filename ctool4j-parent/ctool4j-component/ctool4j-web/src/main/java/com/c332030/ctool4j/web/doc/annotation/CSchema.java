@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.web.validation.annotation;
+package com.c332030.ctool4j.web.doc.annotation;
 
 import com.c332030.ctool4j.web.validation.validator.CSchemaValidator;
 
@@ -23,7 +23,8 @@ import java.lang.annotation.*;
  *
  * <p>{@link #required()} 控制是否必填（默认 false，不强制）；{@link #value()} 作为文档描述
  * （配合 ctool4j-doc-openapi2 的 CSchemaAnnotationModelPropertyPlugin 写入属性 description）。
- * 可标注在字段或 getter 方法（如接口 {@code ICUsername.getUsername()}）上。</p>
+ * 可标注在字段或 getter 方法（如接口 {@code ICUsername.getUsername()}）上。
+ * 校验实现见 {@code com.c332030.ctool4j.web.validation.validator.CSchemaValidator}（保持在校验包）。</p>
  *
  * @author c332030
  * @see "doc/design/web/CSchema.adoc"

@@ -4,7 +4,7 @@ import com.c332030.ctool4j.core.benchmark.CBenchmarkCase;
 import com.c332030.ctool4j.core.benchmark.CBenchmarkReport;
 import com.c332030.ctool4j.core.benchmark.CBenchmarkRunner;
 import com.c332030.ctool4j.core.validation.CValidUtils;
-import com.c332030.ctool4j.web.validation.annotation.CSchema;
+import com.c332030.ctool4j.web.doc.annotation.CSchema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;

@@ -9,7 +9,7 @@ LastModified: 2026-09-04
 == 1. 功能说明
 
 本项目用 C 前缀注解替代 Swagger/OpenAPI2 的**文档注解**（按 OpenAPI3 注解命名，前缀 c），用于**接口（API）文档生成**，
-统一声明在 ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包。
+统一声明在 ctool4j-web 的 `com.c332030.ctool4j.web.doc.annotation` 包。
 这些注解是纯声明、不依赖文档框架；由 `ctool4j-doc-openapi2` 的插件读取并翻译为 springfox 文档。
 
 四个注解与 OpenAPI2/OpenAPI3 文档注解的对应关系：

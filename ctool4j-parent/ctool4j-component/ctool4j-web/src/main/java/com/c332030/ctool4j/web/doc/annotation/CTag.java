@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.web.validation.annotation;
+package com.c332030.ctool4j.web.doc.annotation;
 
 import java.lang.annotation.*;
 

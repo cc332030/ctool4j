@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.web.test.validation.annotation;
 
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
-import com.c332030.ctool4j.web.validation.annotation.CSchema;
+import com.c332030.ctool4j.web.doc.annotation.CSchema;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Assertions;

@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.web.validation.validator;
 
 import com.c332030.ctool4j.core.validation.CValidUtils;
-import com.c332030.ctool4j.web.validation.annotation.CSchema;
+import com.c332030.ctool4j.web.doc.annotation.CSchema;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
