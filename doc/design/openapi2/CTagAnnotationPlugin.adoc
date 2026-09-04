@@ -1,0 +1,48 @@
+= CTagAnnotationPlugin 设计文档
+
+Version: 1.0
+LastModified: 2026-09-04
+模块：ctool4j-doc-openapi2
+类：com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.CTagAnnotationPlugin
+状态：已落地
+适用范围：@CTag → 接口（operation）分组 tag
+
+== 1. 功能说明
+
+`CTagAnnotationPlugin` 实现 `OperationBuilderPlugin`，识别类上 `@CTag` 注解，将类级分组（tag）应用到该类的所有
+operation，并合并方法上 `@COperation.tags` 指定的额外分组（替代类级原生 `@Api` 的分组作用）。
+
+== 2. 设计要点
+
+=== 2.1 注解读取
+
+- 用 `context.findControllerAnnotation(CTag.class)` 取类级 `@CTag`，用 `context.findAnnotation(COperation.class)` 取方法级分组。
+
+=== 2.2 处理
+
+- 类级分组名取 `@CTag.value`。
+- 分组 tag = 类级分组名 并集 方法 `@COperation.tags`（均为空则不处理）。
+- 通过 `context.operationBuilder().tags(...)` 写入。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 无 @CTag | 不处理 |
+| name/tags 均为空 | 不设置分组 |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 用 `@CTag` 标注 Controller 后，springfox 按该类分组生成接口文档。
+
+== 5. 已知限制与取舍
+
+- 依赖 `@CTag`/`@COperation`（web 模块）注解定义。
+
+测试内容见 `doc/design/openapi2/CTagAnnotationPluginTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-09-04 | 初始落地

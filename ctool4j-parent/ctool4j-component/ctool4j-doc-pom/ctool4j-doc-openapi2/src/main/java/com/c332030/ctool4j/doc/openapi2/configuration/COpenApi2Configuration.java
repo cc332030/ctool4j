@@ -2,12 +2,15 @@ package com.c332030.ctool4j.doc.openapi2.configuration;
 
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
+import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.COperationAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.CTagAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CParameterAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CSchemaAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
-import io.swagger.annotations.Api;
+import com.c332030.ctool4j.web.validation.annotation.CTag;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -81,7 +84,37 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * Swagger Docket（收集标注 Api 注解的接口）
+     * 操作注解插件（@COperation，方法摘要/说明/operationId）
+     *
+     * @return 插件
+     */
+    @Bean
+    public COperationAnnotationPlugin cOperationCOperation() {
+        return new COperationAnnotationPlugin();
+    }
+
+    /**
+     * 分组注解插件（@CTag，类级分组 tag）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CTagAnnotationPlugin cOperationCTag() {
+        return new CTagAnnotationPlugin();
+    }
+
+    /**
+     * 参数注解插件（@CParameter，方法参数 name/description/required/example）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CParameterAnnotationPlugin cParameterCParameter() {
+        return new CParameterAnnotationPlugin();
+    }
+
+    /**
+     * Swagger Docket（收集标注 {@code @CTag} 注解的接口，替代原生 {@code @Api}）
      *
      * @param config 配置
      * @return Docket
@@ -96,7 +129,7 @@ public class COpenApi2Configuration {
                 CRequestHeaderEnum.AUTHORIZATION
             )))
             .select()
-            .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
+            .apis(RequestHandlerSelectors.withClassAnnotation(CTag.class))
             .build()
             ;
     }

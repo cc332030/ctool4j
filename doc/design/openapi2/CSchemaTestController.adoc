@@ -9,9 +9,9 @@ LastModified: $DATE
 
 == 1. 功能说明
 
-`CSchemaTestController` 为 `CSchema` 集成测试辅助 Controller（`@RestController`，`@Api` 标注）：
+`CSchemaTestController` 为 `CSchema` 集成测试辅助 Controller（`@RestController`，标注 `@CTag` 供 Docket 收集）：
 
-- `test(@Valid @RequestBody CSchemaTestDTO dto)`：POST `/c-schema/test`，接收 `@CSchema` 标注的 DTO，`@Valid` 触发字段校验（username required=true 必填），标注 `@ApiOperation` 供 springfox 生成字段文档
+- `test(@Valid @RequestBody CSchemaTestDTO dto)`：POST `/c-schema/test`，接收 `@CSchema` 标注的 DTO，`@Valid` 触发字段校验（username required=true 必填），标注 `@COperation` 供 springfox 生成接口文档
 
 == 4. 适用范围
 

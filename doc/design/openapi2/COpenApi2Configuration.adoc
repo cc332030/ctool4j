@@ -11,20 +11,21 @@ LastModified: 2026-08-21
 
 `COpenApi2Configuration`（`@Configuration`）提供 OpenAPI2（springfox）文档的自动配置：
 
-- 注册 `@NotEmpty`、`@CSchema` 等参数/属性插件 Bean。
-- 注册 Swagger `Docket`（收集标注 `@Api` 注解的接口）。
+- 注册 `@NotEmpty`、`@CSchema` 及 `@CTag`/`@COperation`/`@CParameter` 等参数/属性/操作插件 Bean。
+- 注册 Swagger `Docket`（收集标注 `@CTag` 注解的接口，替代原生 `@Api`）。
 - 注册 BeanPostProcessor 修复 springfox 的 handlerMappings 空指针问题。
 
 == 2. 设计要点
 
 === 2.1 插件 Bean
 
-- `cExpanderNotEmpty`、`cExpanderCSchema`、`cModelPropertyCSchema` 三个 Bean。
+- `cExpanderNotEmpty`、`cExpanderCSchema`、`cModelPropertyCSchema`、`cOperationCOperation`、
+  `cOperationCTag`、`cParameterCParameter` 六个 Bean。
 
 === 2.2 Docket
 
 - `@ConditionalOnMissingBean(Docket.class)`，`cDocket(config)` 通过 `CSpringFoxUtils` 构建。
-- 收集标注 `Api.class` 注解的接口；全局参数含 `AUTHORIZATION` 请求头。
+- 收集标注 `CTag.class` 注解的接口；全局参数含 `AUTHORIZATION` 请求头。
 
 === 2.3 springfox 空指针修复
 
