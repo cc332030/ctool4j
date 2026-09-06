@@ -47,7 +47,7 @@ LastModified: 2026-09-06
 
 == 5. 已知限制与取舍
 
-- 依赖 `@CSchema`/`@CRequired`（web 模块）注解定义。
+- 依赖 `@CSchema`（doc-base 模块）与 `@CRequired`（web 模块）注解定义。
 
 测试内容见 `doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc`。
 

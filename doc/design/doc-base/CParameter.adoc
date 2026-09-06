@@ -28,7 +28,7 @@ LastModified: 2026-09-06
 === 2.2 纯文档描述
 
 - 文档侧由 openapi2 的 `CParameterAnnotationPlugin` 读取 name/description/example 写入 springfox；
-  必填判定遵循参数上 `@RequestParam.required` 的原生推断，`@CNotRequired`（web.validation）作文档非必填标记。
+  必填判定：未标注 `@CNotRequired` 即标记必填（默认必填），标注 `@CNotRequired`（web.validation）则不标记。
 
 === 2.3 绑定分离
 
@@ -40,7 +40,8 @@ LastModified: 2026-09-06
 |------|---------|
 | name 为空 | 沿用参数既有名称 |
 | value/example 为空 | 不覆盖已有内容 |
-| 必填表达 | 由 @RequestParam.required / @CNotRequired 决定 |
+| 必填表达（文档） | 未标 @CNotRequired 即标记必填 |
+| 必填表达（绑定） | 由 @RequestParam.required 控制 |
 
 == 4. 适用范围
 

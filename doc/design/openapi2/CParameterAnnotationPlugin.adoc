@@ -42,7 +42,7 @@ name/description/required/example 写入 springfox 的 operation 参数（替代
 
 == 5. 已知限制与取舍
 
-- 依赖 `@CParameter`/`@CNotRequired`（web 模块）注解定义。
+- 依赖 `@CParameter`（doc-base 模块）与 `@CNotRequired`（web 模块）注解定义。
 - `@CNotRequired` 与 `@RequestParam` 同时标注时，文档非必填语义由 `@RequestParam` 覆盖（绑定以 @RequestParam 为准）。
 
 测试内容见 `doc/design/openapi2/CParameterAnnotationPluginTests.adoc`。
