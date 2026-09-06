@@ -1,14 +1,13 @@
 package com.c332030.ctool4j.doc.openapi2.util;
 
+import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.definition.interfaces.ICText;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.lang.Nullable;
 import springfox.documentation.service.AllowableListValues;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -51,13 +50,13 @@ public class CTextEnumUtils {
             return null;
         }
 
-        List<String> values = Arrays.stream(constants)
-            .map(constant -> {
+        List<String> values = CCollUtils.convert(
+            java.util.Arrays.asList(constants),
+            constant -> {
                 val name = ((Enum<?>) constant).name();
                 val text = ((ICText) constant).getText();
-                return name + "(" + text + ")";
-            })
-            .collect(Collectors.toList());
+                return name + "(" + (null == text ? "" : text) + ")";
+            });
 
         return new AllowableListValues(values, "LIST");
     }

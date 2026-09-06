@@ -31,7 +31,8 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
     @Override
     public void apply(@NonNull ParameterContext context) {
 
-        val annotationOpt = context.resolvedMethodParameter().findAnnotation(CParameter.class);
+        val resolvedParameter = context.resolvedMethodParameter();
+        val annotationOpt = resolvedParameter.findAnnotation(CParameter.class);
         annotationOpt.ifPresent(cParameter -> {
             val parameterBuilder = context.parameterBuilder();
 
@@ -42,8 +43,7 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
                 parameterBuilder.name(cParameter.name());
             }
             // 必填：未标注 @CNotRequired 即必填（默认），标注则非必填
-            boolean required = !context.resolvedMethodParameter()
-                .hasParameterAnnotation(CNotRequired.class);
+            boolean required = !resolvedParameter.hasParameterAnnotation(CNotRequired.class);
             if (required) {
                 parameterBuilder.required(true);
             }
