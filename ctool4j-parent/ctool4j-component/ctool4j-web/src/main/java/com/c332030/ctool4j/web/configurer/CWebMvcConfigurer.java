@@ -3,10 +3,12 @@ package com.c332030.ctool4j.web.configurer;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
 import com.c332030.ctool4j.spring.util.CSpringHttpUtils;
+import com.c332030.ctool4j.web.doc.CParameterMethodArgumentResolver;
 import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -37,6 +39,16 @@ public class CWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         CCollUtils.forEach(icHandlerInterceptors, registry::addInterceptor);
+    }
+
+    /**
+     * 注册参数解析器：支持 @CParameter 驱动 SpringMVC 绑定（required 与文档一致）
+     *
+     * @param resolvers 参数解析器列表
+     */
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new CParameterMethodArgumentResolver());
     }
 
     /**

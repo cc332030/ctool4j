@@ -1,9 +1,9 @@
 = C 前缀接口文档注解族 总体设计文档
 
-Version: 1.0
-LastModified: 2026-09-04
+Version: 1.1
+LastModified: 2026-09-06
 模块：ctool4j-web（注解定义）
-功能：C 前缀接口文档注解族（CSchema / CTag / COperation / CParameter），替代 Swagger/OpenAPI2 文档注解以驱动接口文档（CSchema 附带必填校验）
+功能：C 前缀接口文档注解族（CSchema / CTag / COperation / CParameter），替代 Swagger/OpenAPI2 文档注解以驱动接口文档（CSchema 附带必填校验；CParameter 附带 SpringMVC 绑定）
 状态：已落地
 
 == 1. 功能说明
@@ -28,7 +28,8 @@ LastModified: 2026-09-04
 
 === 2.1 定位为文档注解
 
-- 四者核心职责都是**描述接口文档**；`@CSchema` 在描述基础上额外提供必填校验（`required`，经 `CSchemaValidator`）。
+- 四者核心职责都是**描述接口文档**；`@CSchema` 在描述基础上额外提供必填校验（`required`，经 `CSchemaValidator`）；
+  `@CParameter` 在简单类型参数上额外驱动 SpringMVC 绑定（`required` 与文档一致，经 `CParameterMethodArgumentResolver`）。
 
 === 2.2 命名与替代
 
@@ -54,14 +55,17 @@ LastModified: 2026-09-04
 
 - 接口类标 `@CTag`（分组名，Docket 据此收集接口）；无它则不进入文档。
 - 方法标 `@COperation` 说明接口摘要；参数标 `@CParameter` 说明参数。
+  - 简单类型请求参数只标 `@CParameter`（不写 `@RequestParam`）：`required` 同时驱动 SpringMVC 绑定与文档必填。
 - 契约字段/getter 标 `@CSchema`（`required=true` 时既校验又标记必填）。
 
 == 5. 详细设计
 
 - 各注解：`CSchema.adoc`、`CTag.adoc`、`COperation.adoc`、`CParameter.adoc`
 - 校验器：`CSchemaValidator.adoc`
+- 参数解析器：`CParameterMethodArgumentResolver.adoc`
 - 落地与配置：见 `doc/design/openapi2/` 下 `COpenApi2Configuration.adoc` 及上述各插件文档
 
 == 变更日志
 
+- 1.1 | 2026-09-06 | @CParameter 的 required 驱动 SpringMVC 绑定（新增 CParameterMethodArgumentResolver），默认值改为 true
 - 1.0 | 2026-09-04 | 初始落地

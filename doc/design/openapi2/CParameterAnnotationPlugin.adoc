@@ -1,7 +1,7 @@
 = CParameterAnnotationPlugin 设计文档
 
-Version: 1.0
-LastModified: 2026-09-04
+Version: 1.1
+LastModified: 2026-09-06
 模块：ctool4j-doc-openapi2
 类：com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CParameterAnnotationPlugin
 状态：已落地
@@ -31,6 +31,7 @@ name/description/required/example 写入 springfox 的 operation 参数（替代
 |------|---------|
 | name/description/example 为空 | 不覆盖 |
 | required=false | 不标记必填 |
+| required=true（默认） | 标记必填（与 SpringMVC 绑定一致） |
 | 无 @CParameter | 不处理 |
 
 == 4. 适用范围
@@ -42,9 +43,11 @@ name/description/required/example 写入 springfox 的 operation 参数（替代
 == 5. 已知限制与取舍
 
 - 依赖 `@CParameter`（web 模块）注解定义。
+- `@CParameter.required` 默认 true 后，未显式 required=false 的参数文档均标记必填（与 @RequestParam 默认及运行时绑定一致）。
 
 测试内容见 `doc/design/openapi2/CParameterAnnotationPluginTests.adoc`。
 
 == 变更日志
 
+- 1.1 | 2026-09-06 | 同步 @CParameter.required 默认值改为 true（与 @RequestParam 及 SpringMVC 绑定一致）
 - 1.0 | 2026-09-04 | 初始落地

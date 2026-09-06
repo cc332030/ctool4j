@@ -10,7 +10,12 @@ import java.lang.annotation.*;
  *
  * <p>标注在接口方法参数上，描述参数的名称、说明、是否必填、示例等，由 ctool4j-doc-openapi2 的文档插件
  * 读取 {@link #value()}/{@link #name()}/{@link #required()}/{@link #example()} 写入 springfox 的
- * operation 参数（替代原生 {@code @ApiParam}）。纯文档注解，不参与运行时校验。</p>
+ * operation 参数（替代原生 {@code @ApiParam}）。</p>
+ *
+ * <p>标注在 SpringMVC 方法的简单类型参数上且未标注 {@code @RequestParam} 时，由
+ * {@code com.c332030.ctool4j.web.doc.CParameterMethodArgumentResolver} 按 {@code @RequestParam}
+ * 语义解析绑定，{@link #required()} 同时驱动 SpringMVC 必填与文档必填，无需重复标注
+ * {@code @RequestParam(required=...)}。</p>
  *
  * @author c332030
  * @see "doc/design/web/CParameter.adoc"
@@ -38,11 +43,12 @@ public @interface CParameter {
     String name() default "";
 
     /**
-     * 是否必填（对应 OpenAPI3 {@code Parameter.required} / 原生 {@code ApiParam.required}）
+     * 是否必填（对应 OpenAPI3 {@code Parameter.required} / 原生 {@code ApiParam.required}，
+     * 与 {@link org.springframework.web.bind.annotation.RequestParam#required()} 默认一致）
      *
      * @return 是否必填
      */
-    boolean required() default false;
+    boolean required() default true;
 
     /**
      * 参数示例值（对应 OpenAPI3 {@code Parameter.example}）
