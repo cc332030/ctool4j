@@ -1,0 +1,91 @@
+= C 前缀接口文档注解族 总体设计文档
+
+Version: 1.2
+LastModified: 2026-09-06
+模块：ctool4j-doc-base（注解定义）
+功能：C 前缀接口文档注解族（CSchema / CTag / COperation / CParameter）替代 Swagger/OpenAPI2 文档注解以驱动接口文档；
+必填语义由独立注解 CRequired（request body 必填校验，web.validation）/ CNotRequired（request param 非必填）表达
+状态：已落地
+
+== 1. 功能说明
+
+本项目用 C 前缀注解替代 Swagger/OpenAPI2 的**文档注解**（按 OpenAPI3 注解命名，前缀 c），用于**接口（API）文档生成**，
+统一声明在 ctool4j-doc-base 的 `com.c332030.ctool4j.doc.annotation` 包（校验注解 `@CRequired`/`@CNotRequired` 在
+ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包）。
+这些注解是纯声明、不依赖文档框架；由各文档实现（如 `ctool4j-doc-openapi2`）的插件读取并翻译为文档。
+
+四个文档注解与 OpenAPI2/OpenAPI3 文档注解的对应关系：
+
+[options="header"]
+| 注解 | 替代 OpenAPI2 文档注解 | 对应 OpenAPI3 | 标注层级 | 文档作用 |
+|------|----------------------|--------------|---------|---------|
+| `@CSchema` | `@ApiModelProperty` | `Schema` | 字段/getter | 字段/属性描述（纯文档） |
+| `@CTag` | `@Api` | `Tag` | 类 | 接口分组标签 |
+| `@COperation` | `@ApiOperation` | `Operation` | 方法 | 操作摘要/说明 |
+| `@CParameter` | `@ApiParam` | `Parameter` | 参数 | 参数说明/名称/示例 |
+
+均支持简写 `@注解("内容")`，`value()` 为各自的主要文档内容（各 `value` 替代的原属性见对应注解文档）。
+
+必填相关注解（非文档描述注解，留 web.validation）：
+
+[options="header"]
+| 注解 | 场景 | 语义 |
+|------|------|------|
+| `@CRequired` | request body / 字段级 | 标注即必填（Bean Validation 校验 + 文档必填） |
+| `@CNotRequired` | request param / 方法参数级 | 标注即非必填（文档非必填） |
+
+== 2. 设计要点
+
+=== 2.1 定位为文档注解 + 必填解耦
+
+- 四个文档注解核心职责是**描述接口文档**，不含 required 属性，也不参与运行时绑定。
+- 必填语义独立：`@CRequired`（request body 必填，经 `CRequiredValidator`）+ `@CNotRequired`
+  （request param 非必填，文档非必填标记）。request body 字段默认非必填。
+
+=== 2.2 命名与替代
+
+- 采用「C + OpenAPI3 对应文档注解名」，与 OpenAPI2/Swagger 文档注解一一对应，便于对照迁移。
+
+=== 2.3 声明与落地分离
+
+- 注解仅承载文档（及校验）声明，不依赖文档框架；翻译逻辑在具体文档实现（如 ctool4j-doc-openapi2）插件中，
+  doc-base 注解模块不引入文档框架。
+
+=== 2.4 绑定分离
+
+- 四个文档注解为纯文档描述；参数绑定与必填由 SpringMVC 原生 `@RequestParam(required = ...)` 控制
+  （可叠加 `@CNotRequired` 表达文档非必填）。
+
+== 3. 落地
+
+各注解由文档实现模块的插件读取（如 `ctool4j-doc-openapi2` 的 `COpenApi2Configuration`，`cDocket` 以 `@CTag`
+收集 Controller）。落地细节见 openapi2 模块各插件文档：
+
+| 注解 | openapi2 插件文档 |
+|------|------------------|
+| `@CSchema` | `doc/design/openapi2/CSchemaAnnotationModelPropertyPlugin.adoc`（描述） |
+| `@CTag` | `doc/design/openapi2/CTagAnnotationPlugin.adoc` |
+| `@COperation` | `doc/design/openapi2/COperationAnnotationPlugin.adoc` |
+| `@CParameter` | `doc/design/openapi2/CParameterAnnotationPlugin.adoc` |
+| `@CRequired` | `doc/design/openapi2/CRequiredAnnotationPlugin.adoc`、`CSchemaAnnotationModelPropertyPlugin.adoc`（必填） |
+| `@CNotRequired` | `doc/design/openapi2/CParameterAnnotationPlugin.adoc`（非必填） |
+
+== 4. 使用指引
+
+- 接口类标 `@CTag`（分组名，Docket 据此收集接口）；无它则不进入文档。
+- 方法标 `@COperation` 说明接口摘要；参数标 `@CParameter` 说明参数（纯文档）。
+  - request param 绑定与必填用 `@RequestParam(required = ...)` 表达；非必填可叠加 `@CNotRequired`。
+- 契约字段/getter 标 `@CSchema` 提供描述；需要必填时叠加 `@CRequired`。
+
+== 5. 详细设计
+
+- 各注解：`CSchema.adoc`、`CTag.adoc`、`COperation.adoc`、`CParameter.adoc`、`CRequired.adoc`、`CNotRequired.adoc`
+  （后两者位于 doc/design/web）
+- 校验器：`CRequiredValidator.adoc`（doc/design/web）
+- 落地与配置：见 `doc/design/openapi2/` 下 `COpenApi2Configuration.adoc` 及上述各插件文档
+
+== 变更日志
+
+- 1.2 | 2026-09-06 | 文档注解迁至 ctool4j-doc-base（doc.annotation）；CParameter 纯文档、不再驱动 SpringMVC 绑定（删除 CParameterMethodArgumentResolver）
+- 1.1 | 2026-09-06 | 必填语义解耦：文档注解移除 required，新增 CRequired（request body 必填校验）/ CNotRequired（request param 非必填）；CSchema 回归纯描述
+- 1.0 | 2026-09-04 | 初始落地

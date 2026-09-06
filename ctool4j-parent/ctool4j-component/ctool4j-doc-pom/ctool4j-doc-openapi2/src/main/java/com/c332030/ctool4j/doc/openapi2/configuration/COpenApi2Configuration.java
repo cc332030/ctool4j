@@ -6,10 +6,12 @@ import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.COperationAnnotat
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.CTagAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CParameterAnnotationPlugin;
-import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CSchemaAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CRequiredAnnotationPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CTextEnumParameterPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin;
+import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CTextEnumModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
-import com.c332030.ctool4j.web.doc.annotation.CTag;
+import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -64,23 +66,43 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * 必填注解插件（@CSchema，方法参数）
+     * 必填注解插件（@CRequired，方法参数）
      *
      * @return 插件
      */
     @Bean
-    public CSchemaAnnotationPlugin cExpanderCSchema() {
-        return new CSchemaAnnotationPlugin();
+    public CRequiredAnnotationPlugin cExpanderCRequired() {
+        return new CRequiredAnnotationPlugin();
     }
 
     /**
-     * 必填注解 model 属性插件（@CSchema，字段/getter 描述与必填标记）
+     * model 属性文档插件：@CSchema 写字段/getter 描述（description），@CRequired 标注即标记必填
      *
      * @return 插件
      */
     @Bean
     public CSchemaAnnotationModelPropertyPlugin cModelPropertyCSchema() {
         return new CSchemaAnnotationModelPropertyPlugin();
+    }
+
+    /**
+     * 枚举 text 展示 model 属性插件（实现 ICText 的枚举字段，允许值保持枚举名，text 说明进 description）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CTextEnumModelPropertyPlugin cModelPropertyTextEnum() {
+        return new CTextEnumModelPropertyPlugin();
+    }
+
+    /**
+     * 枚举 text 展示参数插件（实现 ICText 的枚举参数，允许值保持枚举名，text 说明进 description）
+     *
+     * @return 插件
+     */
+    @Bean
+    public CTextEnumParameterPlugin cParameterTextEnum() {
+        return new CTextEnumParameterPlugin();
     }
 
     /**

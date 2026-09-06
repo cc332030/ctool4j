@@ -1,7 +1,7 @@
 = ICAnnotationExpandedParameterBuilderPlugin 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-06
 模块：ctool4j-doc-openapi2
 类：com.c332030.ctool4j.doc.openapi2.plugins.parameter.ICAnnotationExpandedParameterBuilderPlugin
 状态：已落地
@@ -23,8 +23,8 @@ LastModified: 2026-08-21
 
 === 2.2 isRequired
 
-- 默认 true：无 required 属性的注解（如 `@NotEmpty`）命中即必填。
-- 子类可覆写读取注解的 required 属性（如 `@CSchema`）。
+- 默认 true：无 required 开关的注解（如 `@NotEmpty`、`@CRequired`）命中即必填。
+- 需按注解属性定制判定时可覆写本方法。
 
 == 3. 兜底设计
 
@@ -47,4 +47,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-06 | 说明更新：@CSchema 已无 required 属性，示例改为 @NotEmpty/@CRequired（命中即必填）
 - 1.0 | 2026-08-21 | 初始落地

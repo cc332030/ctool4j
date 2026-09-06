@@ -1,12 +1,13 @@
 package com.c332030.ctool4j.doc.openapi2.test.model;
 
-import com.c332030.ctool4j.web.doc.annotation.CSchema;
+import com.c332030.ctool4j.doc.annotation.CSchema;
+import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * Description: CSchema 集成测试用 DTO：字段用 @CSchema 标注（required=true 必填、默认非必填），
+ * Description: CRequired + CSchema 集成测试用 DTO：字段用 @CRequired（必填）+ @CSchema（描述）标注，
  * 用于验证接口必填/非必填、字段文档、字段必填生效
  * </p>
  *
@@ -20,7 +21,8 @@ public class CSchemaTestDTO {
     /**
      * 必填字段（含描述）
      */
-    @CSchema(value = "用户名", required = true)
+    @CRequired
+    @CSchema("用户名")
     private String username;
 
     /**

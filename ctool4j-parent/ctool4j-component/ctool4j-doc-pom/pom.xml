@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>ctool4j-doc-base</module>
         <module>ctool4j-doc-openapi2</module>
     </modules>
 

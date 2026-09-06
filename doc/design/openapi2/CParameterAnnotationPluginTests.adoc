@@ -1,7 +1,7 @@
 = CParameterAnnotationPlugin 测试用例文档
 
-Version: 1.0
-LastModified: 2026-09-04
+Version: 1.1
+LastModified: 2026-09-06
 所属功能：`com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CParameterAnnotationPlugin`（openapi2 模块）——@CParameter → operation 参数名称/说明/必填/示例。
 
 对应测试类：`com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CParameterAnnotationPluginTests`
@@ -15,16 +15,17 @@ LastModified: 2026-09-04
 === 设计思路
 
 - 覆盖 supports 支持性。
-- 覆盖 apply 分支输出：命中 @CParameter 写入 name/description/required（正例）、未命中不处理（反例）。
+- 覆盖 apply 分支输出：命中 @CParameter 未标 @CNotRequired 写入 name/description/required（正例，默认必填）、
+  标注 @CNotRequired 不标记必填（非必填）、仅标注 @CNotRequired（无 @CParameter）独立生效、未命中不处理（反例）。
 
 === 设计依据
 
-- 依据功能设计对"name/description 非空覆盖、required=true 标记必填"的约定。
-- 依据分支覆盖：命中/未命中两种分支输出均验证。
+- 依据功能设计对"name/description 非空覆盖、未标 @CNotRequired 即必填"的约定。
+- 依据分支覆盖：默认必填/非必填/未命中三种分支输出均验证。
 
 === 覆盖场景与未覆盖
 
-- 覆盖：supports（含 null）、apply 命中/未命中。
+- 覆盖：supports（含 null）、apply 默认必填/非必填/仅 CNotRequired/未命中。
 - 未覆盖：在真实 springfox 文档生成链路上的端到端行为。
 
 == 1. 支持性
@@ -33,9 +34,13 @@ LastModified: 2026-09-04
 
 == 2. apply 分支输出
 
-- 2.1 命中 @CParameter 写入 name/description/required（apply_hitAnnotation）
-- 2.2 未命中 @CParameter 不标记必填（apply_missAnnotation）
+- 2.1 命中 @CParameter 且未标 @CNotRequired：写入 name/description/required，默认必填（apply_hitAnnotation_requiredByDefault）
+- 2.2 命中 @CParameter 且标注 @CNotRequired：不标记必填（apply_hitAnnotation_notRequired）
+- 2.3 未命中 @CParameter 不标记必填（apply_missAnnotation）
+- 2.4 仅标注 @CNotRequired（无 @CParameter）：独立生效，不标记必填（apply_onlyNotRequired）
 
 == 变更日志
 
+- 1.2 | 2026-09-06 | 新增用例 2.4：@CNotRequired 独立生效（无 @CParameter）
+- 1.1 | 2026-09-06 | 用例按「未标 @CNotRequired 默认必填 / 标 @CNotRequired 非必填」调整
 - 1.0 | 2026-09-04 | 初始落地

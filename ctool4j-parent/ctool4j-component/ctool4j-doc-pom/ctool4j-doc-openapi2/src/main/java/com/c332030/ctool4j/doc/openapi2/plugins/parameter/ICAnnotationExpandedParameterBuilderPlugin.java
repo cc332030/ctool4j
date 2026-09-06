@@ -29,8 +29,8 @@ public interface ICAnnotationExpandedParameterBuilderPlugin<T extends Annotation
     }
 
     /**
-     * 注解命中时是否标记为必填（默认 true；无 required 属性的注解（如 {@code @NotEmpty}）命中即必填，
-     * 有 required 属性的注解（如 {@code @CSchema}）可覆写为读取该属性）
+     * 注解命中时是否标记为必填（默认 true：无 required 开关的注解如 {@code @NotEmpty}、{@code @CRequired} 命中即必填；
+     * 需按注解属性定制判定时可覆写本方法）
      *
      * @param annotation 命中的注解
      * @return 是否必填

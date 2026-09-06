@@ -1,7 +1,7 @@
 = COpenApi2Configuration 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-06
 模块：ctool4j-doc-openapi2
 类：com.c332030.ctool4j.doc.openapi2.configuration.COpenApi2Configuration
 状态：已落地
@@ -19,8 +19,12 @@ LastModified: 2026-08-21
 
 === 2.1 插件 Bean
 
-- `cExpanderNotEmpty`、`cExpanderCSchema`、`cModelPropertyCSchema`、`cOperationCOperation`、
-  `cOperationCTag`、`cParameterCParameter` 六个 Bean。
+- 参数/属性/操作/枚举插件 Bean：
+  - `cExpanderNotEmpty`、`cExpanderCRequired`（参数必填，@CRequired）
+  - `cModelPropertyCSchema`（model 属性描述与必填：@CSchema 写描述、@CRequired 标必填）
+  - `cModelPropertyTextEnum`（枚举 model 属性：允许值保持枚举名，text 进 description）
+  - `cParameterTextEnum`（枚举参数：允许值保持枚举名，text 进 description）
+  - `cOperationCOperation`、`cOperationCTag`、`cParameterCParameter`
 
 === 2.2 Docket
 
@@ -62,4 +66,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-06 | 插件清单同步（cExpanderCRequired 改名、@CRequired 相关）；新增枚举 text 插件注册（cModelPropertyTextEnum/cParameterTextEnum）
 - 1.0 | 2026-08-21 | 初始落地

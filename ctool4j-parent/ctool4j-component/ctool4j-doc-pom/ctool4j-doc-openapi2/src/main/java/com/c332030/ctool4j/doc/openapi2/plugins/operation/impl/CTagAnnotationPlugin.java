@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.operation.impl;
 
-import com.c332030.ctool4j.web.doc.annotation.COperation;
-import com.c332030.ctool4j.web.doc.annotation.CTag;
+import com.c332030.ctool4j.doc.annotation.COperation;
+import com.c332030.ctool4j.doc.annotation.CTag;
 import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;

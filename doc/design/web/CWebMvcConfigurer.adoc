@@ -1,7 +1,7 @@
 = CWebMvcConfigurer 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-06
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.configurer.CWebMvcConfigurer
 状态：已落地
@@ -53,4 +53,6 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.2 | 2026-09-06 | 移除 addArgumentResolvers 注册（@CParameter 纯文档，不再驱动 SpringMVC 绑定）
+- 1.1 | 2026-09-06 | 新增 addArgumentResolvers 注册 CParameterMethodArgumentResolver（@CParameter 驱动 SpringMVC 绑定）
 - 1.0 | 2026-08-21 | 初始落地

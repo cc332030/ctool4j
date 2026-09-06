@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * </p>
  *
  * <ul>
- *   <li>接口必填/非必填生效：MockMvc 调 {@code /c-schema/test}，@CSchema(required=true) 字段缺失/空白触发校验失败
+ *   <li>接口必填/非必填生效：MockMvc 调 {@code /c-schema/test}，@CRequired 字段缺失/空白触发校验失败
  *       （HTTP 200 + body code=500，ctool4j 异常约定），非必填字段缺失返回 200</li>
  *   <li>字段必填生效：@RequestBody @Valid 校验 DTO 字段，必填字段缺失/空白时 body code=500</li>
  *   <li>字段文档生效：/v2/api-docs 生成的 model 字段含 description 与 required</li>
