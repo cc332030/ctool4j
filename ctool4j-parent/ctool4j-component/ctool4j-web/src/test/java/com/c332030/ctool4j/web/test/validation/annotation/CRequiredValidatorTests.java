@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.web.test.validation.annotation;
 
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
-import com.c332030.ctool4j.web.doc.annotation.CSchema;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Getter;
 import lombok.Setter;
@@ -293,7 +292,6 @@ public class CRequiredValidatorTests {
     private static class GroupsBean {
 
         @CRequired(groups = UpdateGroup.class)
-        @CSchema("用户名")
         private String username;
 
     }
@@ -306,7 +304,6 @@ public class CRequiredValidatorTests {
     private static class PayloadBean {
 
         @CRequired(payload = MyPayload.class)
-        @CSchema("编码")
         private String code;
 
     }
@@ -319,7 +316,6 @@ public class CRequiredValidatorTests {
     private static class StringBean {
 
         @CRequired
-        @CSchema("用户名")
         private String username;
 
     }
@@ -380,7 +376,6 @@ public class CRequiredValidatorTests {
     private static class CustomMessageBean {
 
         @CRequired(message = "年龄不能为空")
-        @CSchema("年龄")
         private Integer age;
 
     }
@@ -392,7 +387,6 @@ public class CRequiredValidatorTests {
     @Setter
     private static class OptionalBean {
 
-        @CSchema("备注")
         private String remark;
 
     }

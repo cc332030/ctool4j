@@ -9,7 +9,7 @@ import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CParameterAnnotat
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CRequiredAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
-import com.c332030.ctool4j.web.doc.annotation.CTag;
+import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import lombok.CustomLog;
 import lombok.SneakyThrows;

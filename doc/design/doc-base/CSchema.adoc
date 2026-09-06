@@ -1,11 +1,11 @@
 = CSchema 设计文档
 
-Version: 1.1
+Version: 1.2
 LastModified: 2026-09-06
-模块：ctool4j-web
-类：com.c332030.ctool4j.web.doc.annotation.CSchema
+模块：ctool4j-doc-base
+类：com.c332030.ctool4j.doc.annotation.CSchema
 状态：已落地
-总体文档：`doc/design/web/CDocAnnotation.adoc`（接口文档注解族）
+总体文档：`doc/design/doc-base/CDocAnnotation.adoc`（接口文档注解族）
 
 == 1. 功能说明
 
@@ -14,14 +14,14 @@ LastModified: 2026-09-06
 
 - `value()`：属性描述（对应 `ApiModelProperty.value` / `Schema.description`），默认 ""
 
-需要必填校验时配合 `CRequired` 注解（见 `CRequired.adoc`），描述与必填解耦。
+需要必填校验时配合 `CRequired` 注解（见 `doc/design/web/CRequired.adoc`，校验留 web），描述与必填解耦。
 
 == 2. 设计要点
 
 === 2.1 纯文档描述
 
 - 与 `@ApiModelProperty` / `@Schema` 对齐，只承载文档描述；不再含校验相关属性。
-- 必填语义迁移至 `CRequired`。
+- 必填语义迁移至 `CRequired`（web.validation）。
 
 === 2.2 文档联动
 
@@ -41,9 +41,10 @@ LastModified: 2026-09-06
 
 === 4.2 不适用/边界场景
 
-- 不做运行时校验；需必填校验时配合 `@CRequired`。
+- 不做运行时校验；需必填校验时配合 `@CRequired`（web.validation.annotation）。
 
 == 变更日志
 
+- 1.2 | 2026-09-06 | 迁入 ctool4j-doc-base（doc.annotation）
 - 1.1 | 2026-09-06 | CSchema 回归纯文档描述（对齐 ApiModelProperty/@Schema）；required/message/groups/payload/@Constraint 移除，必填迁移至 CRequired
 - 1.0 | 2026-08-21 | 初始落地

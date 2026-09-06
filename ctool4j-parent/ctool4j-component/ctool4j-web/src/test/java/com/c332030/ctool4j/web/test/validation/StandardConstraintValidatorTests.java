@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.web.test.validation;
 
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
-import com.c332030.ctool4j.web.doc.annotation.CSchema;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,9 +25,9 @@ import java.util.Set;
  * </p>
  *
  * <p>
- * 目的：即使不使用 @CSchema，标准校验注解也应正常生效——真实校验触发 violation，
+ * 目的：即使不使用 @CRequired，标准校验注解也应正常生效——真实校验触发 violation，
  * 且 message 经 getMessage()（即异常处理器使用的 getDefaultMessage()）正确返回，
- * 与 @CSchema 的处理逻辑一致（都由约束注解的 message 提供完整提示，处理器不拼字段名）。
+ * 与 @CRequired 的处理逻辑一致（都由约束注解的 message 提供完整提示，处理器不拼字段名）。
  * </p>
  *
  * @author c332030
@@ -107,10 +106,10 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * 标准注解与 @CSchema 同 bean 共存：message 处理逻辑一致（都由约束注解 message 提供，经 getMessage 返回）（对应测试用例 1.7）
+     * 标准注解与 @CRequired 同 bean 共存：message 处理逻辑一致（都由约束注解 message 提供，经 getMessage 返回）（对应测试用例 1.7）
      */
     @Test
-    public void standardAndCSchema_coexist() {
+    public void standardAndCRequired_coexist() {
         MixedBean bean = new MixedBean();
         // 两个必填字段都缺失
         Set<ConstraintViolation<MixedBean>> violations = validator.validate(bean);
@@ -119,7 +118,7 @@ public class StandardConstraintValidatorTests {
             "@NotNull 字段应校验");
         Assertions.assertTrue(violations.stream().anyMatch(
             v -> "username".equals(v.getPropertyPath().toString()) && "不能为空".equals(v.getMessage())),
-            "@CSchema 字段应校验且返回默认 message（字段描述前缀由异常处理器拼接）");
+            "@CRequired 字段应校验且返回默认 message（字段描述前缀由异常处理器拼接）");
     }
 
     /**
@@ -159,7 +158,7 @@ public class StandardConstraintValidatorTests {
     }
 
     /**
-     * 测试用 bean：标准注解 + @CSchema 共存
+     * 测试用 bean：标准注解 + @CRequired 共存
      */
     @Getter
     @Setter
@@ -169,7 +168,6 @@ public class StandardConstraintValidatorTests {
         private String code;
 
         @CRequired
-        @CSchema("用户名")
         private String username;
 
     }

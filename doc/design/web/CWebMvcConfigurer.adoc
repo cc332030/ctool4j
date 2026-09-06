@@ -1,6 +1,6 @@
 = CWebMvcConfigurer 设计文档
 
-Version: 1.1
+Version: 1.2
 LastModified: 2026-09-06
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.configurer.CWebMvcConfigurer
@@ -14,8 +14,6 @@ LastModified: 2026-09-06
 核心方法：
 
 - `addInterceptors(InterceptorRegistry registry)`：将全部 `ICHandlerInterceptor` 注册到拦截器链
-- `addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers)`：注册 `CParameterMethodArgumentResolver`
-  （支持 `@CParameter` 驱动 SpringMVC 绑定，required 与文档一致）
 - `extendMessageConverters(List<HttpMessageConverter<?>> converters)`：
   `CSpringHttpUtils.setJacksonConfig(jacksonConfig)` 配置 Jackson，
   `CSpringHttpUtils.configureMessageConverters(converters)` 统一消息转换器
@@ -26,12 +24,7 @@ LastModified: 2026-09-06
 
 - 收集容器中所有 `ICHandlerInterceptor` bean，统一注册。
 
-=== 2.2 参数解析器注册
-
-- 注册 `CParameterMethodArgumentResolver`（见 `CParameterMethodArgumentResolver.adoc`）；
-  Spring 将自定义 resolver 排在默认兜底 request param resolver 之前，使 `@CParameter` 的简单参数被接管。
-
-=== 2.3 Jackson 消息转换器
+=== 2.2 Jackson 消息转换器
 
 - 通过 `CSpringHttpUtils` 配置 Jackson 后统一消息转换器，保证序列化行为一致。
 
@@ -41,13 +34,12 @@ LastModified: 2026-09-06
 |------|---------|
 | 无 `ICHandlerInterceptor` | `CCollUtils.forEach` 空集合不执行，无拦截器注册 |
 | `converters` 为空 | `configureMessageConverters` 处理空列表 |
-| 参数无 @CParameter | CParameterMethodArgumentResolver 返回 false，不接管 |
 
 == 4. 适用范围
 
 === 4.1 适用场景
 
-- 需要自动注册项目拦截器、支持 @CParameter 绑定与统一 Jackson 序列化的 web 应用。
+- 需要自动注册项目拦截器与统一 Jackson 序列化的 web 应用。
 
 === 4.2 不适用/边界场景
 
@@ -57,10 +49,10 @@ LastModified: 2026-09-06
 
 - 拦截器与 Jackson 配置集中在框架层，业务方无需各自实现。
 
-测试内容：无独立测试类（CWebMvcConfigurer 依赖 Spring MVC 容器装配，由集成场景间接覆盖，
-`CParameterMethodArgumentResolverTests` 覆盖其参数解析器注册行为）。
+测试内容：无独立测试类（CWebMvcConfigurer 依赖 Spring MVC 容器装配，由集成场景间接覆盖）。
 
 == 变更日志
 
+- 1.2 | 2026-09-06 | 移除 addArgumentResolvers 注册（@CParameter 纯文档，不再驱动 SpringMVC 绑定）
 - 1.1 | 2026-09-06 | 新增 addArgumentResolvers 注册 CParameterMethodArgumentResolver（@CParameter 驱动 SpringMVC 绑定）
 - 1.0 | 2026-08-21 | 初始落地

@@ -4,16 +4,10 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-component</artifactId>
+        <artifactId>ctool4j-doc-pom</artifactId>
         <version>1.1.20260730-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-doc-pom</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>ctool4j-doc-base</module>
-        <module>ctool4j-doc-openapi2</module>
-    </modules>
+    <artifactId>ctool4j-doc-base</artifactId>
 
 </project>

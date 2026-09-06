@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.web.doc.annotation;
+package com.c332030.ctool4j.doc.annotation;
 
 import java.lang.annotation.*;
 
@@ -12,8 +12,8 @@ import java.lang.annotation.*;
  * （校验实现见 {@code com.c332030.ctool4j.web.validation.validator.CRequiredValidator}）。</p>
  *
  * @author c332030
- * @see "doc/design/web/CSchema.adoc"
- * @see "doc/design/web/CDocAnnotation.adoc"
+ * @see "doc/design/doc-base/CSchema.adoc"
+ * @see "doc/design/doc-base/CDocAnnotation.adoc"
  */
 @Target({
     ElementType.FIELD,

@@ -1,11 +1,11 @@
 = COperation 设计文档
 
-Version: 1.0
-LastModified: 2026-09-04
-模块：ctool4j-web
-类：com.c332030.ctool4j.web.doc.annotation.COperation
+Version: 1.1
+LastModified: 2026-09-06
+模块：ctool4j-doc-base
+类：com.c332030.ctool4j.doc.annotation.COperation
 状态：已落地
-总体文档：`doc/design/web/CDocAnnotation.adoc`（接口文档注解族）
+总体文档：`doc/design/doc-base/CDocAnnotation.adoc`（接口文档注解族）
 
 == 1. 功能说明
 
@@ -48,4 +48,5 @@ LastModified: 2026-09-04
 
 == 变更日志
 
+- 1.1 | 2026-09-06 | 迁入 ctool4j-doc-base（doc.annotation）
 - 1.0 | 2026-09-04 | 初始落地

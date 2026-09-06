@@ -74,7 +74,7 @@ ctool4j-nacos-discovery（依赖 spring）
 | ctool4j-mq-pom | 消息队列（占位，待实现） | link:ctool4j-parent/ctool4j-component/ctool4j-mq-pom/README.md[README]
 | ctool4j-job-pom | 定时任务：xxl-job 自动配置、任务参数注入、时间计算 | link:ctool4j-parent/ctool4j-component/ctool4j-job-pom/README.md[README]
 | ctool4j-file-pom | 文件处理：CSV、Excel、MinIO 对象存储 | link:ctool4j-parent/ctool4j-component/ctool4j-file-pom/README.md[README]
-| ctool4j-doc-pom | 接口文档：OpenAPI2（knife4j/springfox）增强 | link:ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[README]
+| ctool4j-doc-pom | 接口文档：通用描述注解（doc-base）+ OpenAPI2（knife4j/springfox）增强（doc-openapi2） | link:ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[README]
 | ctool4j-test-pom | 测试支撑：共享测试模型（部分占位） | link:ctool4j-parent/ctool4j-component/ctool4j-test-pom/README.md[README]
 |===
 

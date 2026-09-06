@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.web.doc.annotation;
+package com.c332030.ctool4j.doc.annotation;
 
 import java.lang.annotation.*;
 
@@ -8,17 +8,17 @@ import java.lang.annotation.*;
  * {@code Parameter}（前缀 c）
  * </p>
  *
- * <p>标注在接口方法参数上，描述参数的名称、说明、示例等，由 ctool4j-doc-openapi2 的文档插件
- * 读取 {@link #value()}/{@link #name()}/{@link #example()} 写入 springfox 的
- * operation 参数（替代原生 {@code @ApiParam}）。</p>
+ * <p>标注在接口方法参数上，描述参数的名称、说明、示例等，由各文档实现
+ * （如 ctool4j-doc-openapi2）的插件读取 {@link #value()}/{@link #name()}/{@link #example()}
+ * 写入文档 operation 参数（替代原生 {@code @ApiParam}）。</p>
  *
- * <p>标注在 SpringMVC 方法的简单类型参数上且未标注 {@code @RequestParam} 时，由
- * {@code com.c332030.ctool4j.web.doc.CParameterMethodArgumentResolver} 按 {@code @RequestParam}
- * 语义解析绑定，默认必填；需要非必填时叠加标注 {@link CNotRequired}（缺参放行返回 null）。</p>
+ * <p>纯文档描述注解，不参与运行时绑定；参数绑定与必填由 SpringMVC 原生
+ * {@code @RequestParam(required = ...)} 控制（可叠加标注
+ * {@code com.c332030.ctool4j.web.validation.annotation.CNotRequired} 表达文档非必填）。</p>
  *
  * @author c332030
- * @see "doc/design/web/CParameter.adoc"
- * @see "doc/design/web/CDocAnnotation.adoc"
+ * @see "doc/design/doc-base/CParameter.adoc"
+ * @see "doc/design/doc-base/CDocAnnotation.adoc"
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

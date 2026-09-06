@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.property.impl;
 
-import com.c332030.ctool4j.web.doc.annotation.CSchema;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;

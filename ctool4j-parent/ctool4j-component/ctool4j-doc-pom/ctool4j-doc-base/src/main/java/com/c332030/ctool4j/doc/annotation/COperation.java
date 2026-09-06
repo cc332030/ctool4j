@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.web.doc.annotation;
+package com.c332030.ctool4j.doc.annotation;
 
 import java.lang.annotation.*;
 
@@ -13,8 +13,8 @@ import java.lang.annotation.*;
  * （替代原生 {@code @ApiOperation}）。纯文档注解，不参与运行时校验。</p>
  *
  * @author c332030
- * @see "doc/design/web/COperation.adoc"
- * @see "doc/design/web/CDocAnnotation.adoc"
+ * @see "doc/design/doc-base/COperation.adoc"
+ * @see "doc/design/doc-base/CDocAnnotation.adoc"
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
