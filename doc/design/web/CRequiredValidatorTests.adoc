@@ -1,6 +1,6 @@
 = CRequiredValidator 测试用例文档
 
-Version: 1.2
+Version: 1.3
 LastModified: 2026-09-06
 所属功能：`com.c332030.ctool4j.web.validation.validator.CRequiredValidator`（`isValid` 按类型分发必填校验），对应注解 `CRequired`。
 
@@ -16,7 +16,7 @@ LastModified: 2026-09-06
 
 === 设计思路
 
-- 启动真实 Spring 容器（`@CTool4jSpringBootTest` + `@AutoConfigureMockMvc`），经容器注入的真实 `Validator` 做按类型分发的直接校验，并走真实接口（MockMvc 调 `CRequiredValidatorTestController` 的 `POST /c-schema-validator/test`，`@Valid @RequestBody` 触发校验）验证必填/非必填生效，贴近真实使用场景。
+- 启动真实 Spring 容器（`@CTool4jSpringBootTest` + `@AutoConfigureMockMvc`），经容器注入的真实 `Validator` 做按类型分发的直接校验，并走真实接口（MockMvc 调 `CRequiredValidatorTestController` 的 `POST /c-required-validator/test`，`@Valid @RequestBody` 触发校验）验证必填/非必填生效，贴近真实使用场景。
 - 覆盖标注 `@CRequired`（即必填）时 null/字符串（notBlank）/集合（notEmpty）/Map（notEmpty）/数组（notEmpty）/其他对象（notNull），以及 message 自定义提示、groups/payload 兼容。
 - 分类 1 用容器 `Validator` 直接校验各类型分发分支；分类 2 用 MockMvc 走真实接口验证必填/非必填。
 
@@ -51,6 +51,7 @@ LastModified: 2026-09-06
 
 == 变更日志
 
+- 1.3 | 2026-09-06 | MockMvc URL 由 /c-schema-validator/test 改为 /c-required-validator/test
 - 1.2 | 2026-09-06 | 自 CSchemaValidatorTests 迁移：注解改 @CRequired（标注即必填，去 required 开关），辅助 DTO/Controller 同步改 CRequiredValidatorTestDTO/Controller
 - 1.1 | 2026-08-21 | 改为启动 Spring 容器（@CTool4jSpringBootTest + @AutoConfigureMockMvc），经容器注入的 Validator 直接校验各类型分发分支；新增 MockMvc 真实接口必填/非必填测试（分类 2，编号 2.1-2.4），贴近真实使用场景（辅助 DTO/Controller：CSchemaValidatorTestDTO/CSchemaValidatorTestController）
 - 1.0 | 2026-08-21 | 初始落地

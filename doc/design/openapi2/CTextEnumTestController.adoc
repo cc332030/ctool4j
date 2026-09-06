@@ -10,11 +10,12 @@ LastModified: 2026-09-06
 == 1. 功能说明
 
 `CTextEnumTestController` 为枚举 text 展示集成测试辅助 Controller（@RestController + @CTag 供 Docket 收集）：
+枚举字段/参数均未标注 @CSchema/@CParameter，故 text 说明会写入 description（验证「允许值=枚举名、text 进 description」）：
 
 - `body(@RequestBody CTextEnumTestDTO)`：POST `/c-text-enum/body`，DTO 含实现 `ICText` 的枚举字段
-  （验证 model 字段枚举文档展示）。
+  （验证 model 字段枚举允许值可提交、description 展示 text）。
 - `query(@RequestParam CRequestHeaderEnum header)`：POST `/c-text-enum/query`，枚举请求参数
-  （验证 query 参数枚举文档展示）。
+  （验证 query 参数枚举允许值可提交、description 展示 text）。
 
 == 4. 适用范围
 

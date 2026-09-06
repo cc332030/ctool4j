@@ -1,6 +1,6 @@
 = CRequiredValidatorTestController 设计文档
 
-Version: 1.1
+Version: 1.2
 LastModified: 2026-09-06
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.test.validation.CRequiredValidatorTestController
@@ -11,7 +11,7 @@ LastModified: 2026-09-06
 
 `CRequiredValidatorTestController` 为 `CRequiredValidatorTests` 集成测试辅助 Controller（`@RestController` + `@Validated`）：
 
-- `test(@Valid @RequestBody CRequiredValidatorTestDTO dto)`：POST `/c-schema-validator/test`，接收 `@CRequired` 标注的 DTO，`@Valid` 触发字段校验（username `@CRequired` 必填）。
+- `test(@Valid @RequestBody CRequiredValidatorTestDTO dto)`：POST `/c-required-validator/test`，接收 `@CRequired` 标注的 DTO，`@Valid` 触发字段校验（username `@CRequired` 必填）。
 
 作为真实接口入口，校验失败由全局异常处理器 `CMethodArgumentNotValidExceptionHandler` 拼接字段错误并返回 `code=500`。
 
@@ -27,5 +27,6 @@ LastModified: 2026-09-06
 
 == 变更日志
 
+- 1.2 | 2026-09-06 | 接口 URL 由 /c-schema-validator/test 改为 /c-required-validator/test（随类名去除 schema 残留）
 - 1.1 | 2026-09-06 | 类名由 CSchemaValidatorTestController 改为 CRequiredValidatorTestController；接收 DTO 同步改名
 - 1.0 | 2026-08-21 | 初始落地

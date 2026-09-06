@@ -76,7 +76,7 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * 必填注解 model 属性插件（@CSchema，字段/getter 描述与必填标记）
+     * model 属性文档插件：@CSchema 写字段/getter 描述（description），@CRequired 标注即标记必填
      *
      * @return 插件
      */
@@ -86,7 +86,7 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * 枚举 text 展示 model 属性插件（实现 ICText 的枚举字段，枚举值显示为「枚举名(text)」）
+     * 枚举 text 展示 model 属性插件（实现 ICText 的枚举字段，允许值保持枚举名，text 说明进 description）
      *
      * @return 插件
      */
@@ -96,7 +96,7 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * 枚举 text 展示参数插件（实现 ICText 的枚举参数，枚举值显示为「枚举名(text)」）
+     * 枚举 text 展示参数插件（实现 ICText 的枚举参数，允许值保持枚举名，text 说明进 description）
      *
      * @return 插件
      */

@@ -21,9 +21,9 @@ LastModified: 2026-09-06
 
 - 参数/属性/操作/枚举插件 Bean：
   - `cExpanderNotEmpty`、`cExpanderCRequired`（参数必填，@CRequired）
-  - `cModelPropertyCSchema`（model 属性描述与必填，@CSchema/@CRequired）
-  - `cModelPropertyTextEnum`（枚举 model 属性展示 text）
-  - `cParameterTextEnum`（枚举参数展示 text）
+  - `cModelPropertyCSchema`（model 属性描述与必填：@CSchema 写描述、@CRequired 标必填）
+  - `cModelPropertyTextEnum`（枚举 model 属性：允许值保持枚举名，text 进 description）
+  - `cParameterTextEnum`（枚举参数：允许值保持枚举名，text 进 description）
   - `cOperationCOperation`、`cOperationCTag`、`cParameterCParameter`
 
 === 2.2 Docket

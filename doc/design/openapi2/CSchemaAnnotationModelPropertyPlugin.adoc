@@ -24,7 +24,8 @@ LastModified: 2026-09-06
 
 === 2.2 处理
 
-- 命中 `@CRequired`：`required(true)`。
+- 命中 `@CRequired`：`required(true)`；兼容 `@Repeatable` 重复标注（多 groups 时注解存于容器
+  `@CRequired.List`，同样命中必填）。
 - `@CSchema.value` 有内容时 `description(value)`；为空时保留已有描述，避免空串覆盖。
 
 === 2.3 supports
@@ -36,6 +37,7 @@ LastModified: 2026-09-06
 | 场景 | 兜底行为 |
 |------|---------|
 | 未标 @CRequired | 不标记必填 |
+| @CRequired 重复标注（@CRequired.List 容器） | 仍标记必填 |
 | @CSchema.value 为空 | 不写描述（保留已有） |
 | 均未标注 | 不处理 |
 

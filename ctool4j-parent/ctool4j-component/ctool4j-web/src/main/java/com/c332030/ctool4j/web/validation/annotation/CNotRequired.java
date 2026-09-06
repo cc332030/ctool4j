@@ -8,8 +8,8 @@ import java.lang.annotation.*;
  * </p>
  *
  * <p>
- * 与文档注解族配合使用：request param 默认必填（与 {@code @RequestParam.required} 默认一致），
- * 需要非必填时标注本注解，由 openapi2 文档插件据此不标记必填；
+ * 独立生效（无需同时标注 @CParameter）：标注本注解即文档非必填，由 openapi2 文档插件据此标记非必填；
+ * request param 默认必填（与 {@code @RequestParam.required} 默认一致），需要非必填时标注本注解。
  * 实际缺参放行由 {@code @RequestParam(required = false)} 控制（本注解不参与 SpringMVC 绑定）。
  * </p>
  *

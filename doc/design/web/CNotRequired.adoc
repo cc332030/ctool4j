@@ -1,6 +1,6 @@
 = CNotRequired 设计文档
 
-Version: 1.1
+Version: 1.2
 LastModified: 2026-09-06
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.validation.annotation.CNotRequired
@@ -23,7 +23,12 @@ request param 绑定与必填由 SpringMVC 原生 `@RequestParam(required = ...)
 
 - `@CParameter`（doc-base）只管描述，`@CNotRequired` 只声明"文档非必填"，二者可组合：`@CNotRequired @CParameter("名称")`。
 
-=== 2.2 纯标记
+=== 2.2 独立生效
+
+- `CParameterAnnotationPlugin`（openapi2）对标注 `@CNotRequired` 的参数直接标记非必填；
+  即使未标注 `@CParameter` 也独立生效（无需依赖 @CParameter 同时存在）。
+
+=== 2.3 纯标记
 
 - 不参与 SpringMVC 绑定；缺参放行由 `@RequestParam(required = false)` 控制，本注解仅作文档标记。
 
@@ -51,5 +56,6 @@ request param 绑定与必填由 SpringMVC 原生 `@RequestParam(required = ...)
 
 == 变更日志
 
+- 1.2 | 2026-09-06 | CParameterAnnotationPlugin 对 @CNotRequired 独立生效（无需同时标注 @CParameter）
 - 1.1 | 2026-09-06 | 迁入 web.validation.annotation（CNotRequired 留 web）；删除 resolver 语义（CParameter 纯文档，不再驱动 SpringMVC 绑定）
 - 1.0 | 2026-09-06 | 初始落地（request param 非必填独立注解）

@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * <p>
  * Description: 枚举 text 展示集成测试用 Controller：覆盖 model 字段枚举（@RequestBody DTO）
- * 与 query 参数枚举（@RequestParam），验证两者枚举值在文档中显示为「枚举名(text)」
+ * 与 query 参数枚举（@RequestParam），验证两者枚举允许值保持可提交的「枚举名」、
+ * 可读的「枚举名(text)」说明写入 description
  * </p>
  *
  * @author c332030

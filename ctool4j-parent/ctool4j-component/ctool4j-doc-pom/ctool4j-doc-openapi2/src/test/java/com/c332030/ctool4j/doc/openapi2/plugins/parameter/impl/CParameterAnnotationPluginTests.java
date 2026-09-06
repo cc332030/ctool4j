@@ -98,12 +98,37 @@ class CParameterAnnotationPluginTests {
 
         Mockito.when(resolvedMethodParameter.findAnnotation(CParameter.class))
             .thenReturn(Optional.empty());
+        Mockito.when(resolvedMethodParameter.hasParameterAnnotation(CNotRequired.class))
+            .thenReturn(false);
         Mockito.when(context.resolvedMethodParameter()).thenReturn(resolvedMethodParameter);
         Mockito.when(context.parameterBuilder()).thenReturn(parameterBuilder);
 
         plugin.apply(context);
 
         Assertions.assertFalse(parameterBuilder.build().isRequired(), "未命中 @CParameter 不应标记必填");
+    }
+
+    /**
+     * apply：仅标注 @CNotRequired（无 @CParameter）→ 独立生效，不标记必填
+     * <p>对应测试用例 2.4</p>
+     */
+    @Test
+    void apply_onlyNotRequired() {
+        val context = Mockito.mock(ParameterContext.class);
+        val resolvedMethodParameter = Mockito.mock(ResolvedMethodParameter.class);
+        val parameterBuilder = new ParameterBuilder();
+
+        Mockito.when(resolvedMethodParameter.findAnnotation(CParameter.class))
+            .thenReturn(Optional.empty());
+        Mockito.when(resolvedMethodParameter.hasParameterAnnotation(CNotRequired.class))
+            .thenReturn(true);
+        Mockito.when(context.resolvedMethodParameter()).thenReturn(resolvedMethodParameter);
+        Mockito.when(context.parameterBuilder()).thenReturn(parameterBuilder);
+
+        plugin.apply(context);
+
+        Assertions.assertFalse(parameterBuilder.build().isRequired(),
+            "仅标注 @CNotRequired（无 @CParameter）也应标记非必填");
     }
 
     private static CParameter findCParameter() throws NoSuchMethodException {

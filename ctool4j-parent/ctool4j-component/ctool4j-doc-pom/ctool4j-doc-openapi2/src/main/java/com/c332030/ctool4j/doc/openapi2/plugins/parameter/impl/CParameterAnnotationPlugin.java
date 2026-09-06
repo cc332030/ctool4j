@@ -18,7 +18,8 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  * </p>
  *
  * <p>
- * 参数必填默认 true（与 {@code @RequestParam} 默认一致）；叠加 {@code @CNotRequired} 时非必填。
+ * 必填语义：标注 {@code @CNotRequired} 即文档非必填（独立生效，无需同时标注 @CParameter）；
+ * 标注 {@code @CParameter} 且未标 {@code @CNotRequired} 时默认必填（与 {@code @RequestParam} 默认一致）。
  * </p>
  *
  * @see "doc/design/openapi2/CParameterAnnotationPlugin.adoc"
@@ -31,8 +32,12 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
     @Override
     public void apply(@NonNull ParameterContext context) {
 
-        val resolvedParameter = context.resolvedMethodParameter();
-        val annotationOpt = resolvedParameter.findAnnotation(CParameter.class);
+        val resolvedMethodParameter = context.resolvedMethodParameter();
+
+        // 非必填标记独立生效：标注 @CNotRequired 即文档非必填（无需同时标注 @CParameter）
+        val notRequired = resolvedMethodParameter.hasParameterAnnotation(CNotRequired.class);
+
+        val annotationOpt = resolvedMethodParameter.findAnnotation(CParameter.class);
         annotationOpt.ifPresent(cParameter -> {
             val parameterBuilder = context.parameterBuilder();
 
@@ -42,15 +47,17 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
             if (hasText(cParameter.name())) {
                 parameterBuilder.name(cParameter.name());
             }
-            // 必填：未标注 @CNotRequired 即必填（默认），标注则非必填
-            boolean required = !resolvedParameter.hasParameterAnnotation(CNotRequired.class);
-            if (required) {
-                parameterBuilder.required(true);
-            }
             if (hasText(cParameter.example())) {
                 parameterBuilder.scalarExample(cParameter.example());
             }
         });
+
+        if (notRequired) {
+            context.parameterBuilder().required(false);
+        } else if (annotationOpt.isPresent()) {
+            // 标注 @CParameter 且未标 @CNotRequired → 默认必填（与 @RequestParam 默认一致）
+            context.parameterBuilder().required(true);
+        }
     }
 
     @Override

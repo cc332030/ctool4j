@@ -11,13 +11,14 @@ import java.lang.annotation.*;
  * 需要必填校验时配合 {@code com.c332030.ctool4j.web.validation.annotation.CRequired}
  * （校验实现见 {@code com.c332030.ctool4j.web.validation.validator.CRequiredValidator}）。</p>
  *
+ * <p>参数级描述请用 {@code @CParameter}（参数必填由 {@code @CRequired} / {@code @CNotRequired} 表达）。</p>
+ *
  * @author c332030
  * @see "doc/design/doc-base/CSchema.adoc"
  * @see "doc/design/doc-base/CDocAnnotation.adoc"
  */
 @Target({
     ElementType.FIELD,
-    ElementType.PARAMETER,
     ElementType.METHOD
 })
 @Retention(RetentionPolicy.RUNTIME)

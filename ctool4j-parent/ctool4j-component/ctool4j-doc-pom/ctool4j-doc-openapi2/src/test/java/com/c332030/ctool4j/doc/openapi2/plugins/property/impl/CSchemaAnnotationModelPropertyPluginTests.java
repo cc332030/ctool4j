@@ -77,6 +77,17 @@ class CSchemaAnnotationModelPropertyPluginTests {
 
     /**
      * <p>
+     * 对应测试用例 1.5
+     */
+    @Test
+    void apply_fieldRequiredRepeated() throws NoSuchFieldException {
+        // 边界：@Repeatable 容器注解场景，同一字段按不同 groups 重复标注 @CRequired，仍应标记必填
+        val property = applyOnField("usernameRepeated");
+        Assertions.assertTrue(property.isRequired(), "@CRequired 容器注解（@CRequired.List）也应标记必填");
+    }
+
+    /**
+     * <p>
      * 对应测试用例 2.1
      */
     @Test
@@ -111,6 +122,13 @@ class CSchemaAnnotationModelPropertyPluginTests {
         @CSchema("用户名")
         private String username;
 
+        /**
+         * 重复标注 @CRequired（不同 groups）场景：注解以容器 @CRequired.List 存在
+         */
+        @CRequired(groups = Group1.class)
+        @CRequired(groups = Group2.class)
+        private String usernameRepeated;
+
         @CRequired
         private String password;
 
@@ -118,5 +136,17 @@ class CSchemaAnnotationModelPropertyPluginTests {
         private String remark;
 
         private String extra;
+    }
+
+    /**
+     * 分组 1（重复标注测试用）
+     */
+    private interface Group1 {
+    }
+
+    /**
+     * 分组 2（重复标注测试用）
+     */
+    private interface Group2 {
     }
 }

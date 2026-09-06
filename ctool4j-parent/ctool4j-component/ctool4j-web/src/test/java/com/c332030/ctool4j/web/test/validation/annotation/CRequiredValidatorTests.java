@@ -226,7 +226,7 @@ public class CRequiredValidatorTests {
      */
     @Test
     public void requiredField_missing() throws Exception {
-        mockMvc.perform(post("/c-schema-validator/test")
+        mockMvc.perform(post("/c-required-validator/test")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
             .andExpect(status().isOk())
@@ -239,7 +239,7 @@ public class CRequiredValidatorTests {
      */
     @Test
     public void requiredField_blank() throws Exception {
-        mockMvc.perform(post("/c-schema-validator/test")
+        mockMvc.perform(post("/c-required-validator/test")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"   \"}"))
             .andExpect(status().isOk())
@@ -252,7 +252,7 @@ public class CRequiredValidatorTests {
      */
     @Test
     public void optionalField_missing() throws Exception {
-        mockMvc.perform(post("/c-schema-validator/test")
+        mockMvc.perform(post("/c-required-validator/test")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"c332030\"}"))
             .andExpect(status().isOk());
@@ -263,7 +263,7 @@ public class CRequiredValidatorTests {
      */
     @Test
     public void allFields_present() throws Exception {
-        mockMvc.perform(post("/c-schema-validator/test")
+        mockMvc.perform(post("/c-required-validator/test")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"c332030\",\"remark\":\"备注\",\"other\":\"x\"}"))
             .andExpect(status().isOk());

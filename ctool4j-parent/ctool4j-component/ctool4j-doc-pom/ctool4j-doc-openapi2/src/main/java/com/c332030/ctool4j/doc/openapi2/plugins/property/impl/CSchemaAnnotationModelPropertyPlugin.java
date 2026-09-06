@@ -43,8 +43,9 @@ public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilde
             }
         });
 
-        // 必填：标注 @CRequired 即必填
-        if (findAnnotation(context, CRequired.class).isPresent()) {
+        // 必填：标注 @CRequired 即必填（兼容 @Repeatable：重复标注时注解存于容器 @CRequired.List）
+        if (findAnnotation(context, CRequired.class).isPresent()
+            || findAnnotation(context, CRequired.List.class).isPresent()) {
             context.getBuilder().required(true);
         }
     }

@@ -1,25 +1,31 @@
 = CTextEnumModelPropertyPlugin 设计文档
 
-Version: 1.0
+Version: 1.1
 LastModified: 2026-09-06
 模块：ctool4j-doc-openapi2
 类：com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CTextEnumModelPropertyPlugin
 状态：已落地
-适用范围：实现 ICText 的枚举 model 属性 → 枚举值显示「枚举名(text)」
+适用范围：实现 ICText 的枚举 model 属性 → 允许值保持可提交「枚举名」，text 说明进属性描述
 
 == 1. 功能说明
 
 `CTextEnumModelPropertyPlugin` 实现 `ModelPropertyBuilderPlugin`：对 model 字段类型为实现 `ICText` 的枚举，
-将允许值列表由「枚举名」改为「枚举名(text)」（如 AUTHORIZATION(鉴权)），使接口文档枚举值可读。
+允许值保持可提交的「枚举名」（如 AUTHORIZATION），并将可读的「枚举名(text)」（如 AUTHORIZATION(鉴权)）
+写入属性描述（description），使接口文档枚举值可读。
 
 == 2. 设计要点
 
 === 2.1 处理时机
 
 - 经 `context.getBeanPropertyDefinition().getRawPrimaryType()` 获取字段类型。
-- 由 `CTextEnumUtils.textEnumAllowableValues` 生成新允许值并覆写 builder.allowableValues。
+- 由 `CTextEnumUtils.enumAllowableValues` 生成可提交允许值并覆写 builder.allowableValues；
+  由 `CTextEnumUtils.textEnumDescription` 生成可读说明写入 description。
 
-=== 2.2 影响范围
+=== 2.2 描述防覆盖
+
+- 若属性已标注 `@CSchema` 且 `value` 非空（提供自定义描述），则不写入 text 说明，避免覆盖既有描述。
+
+=== 2.3 影响范围
 
 - 仅影响 model 属性文档展示；非 ICText 枚举 / 非枚举属性不受影响。
 
@@ -28,20 +34,22 @@ LastModified: 2026-09-06
 | 场景 | 兜底行为 |
 |------|---------|
 | 非 ICText 枚举 | 不覆写（保持 springfox 默认「枚举名」列表） |
-| textEnumAllowableValues 返回 null | 不覆写 |
+| enumAllowableValues 返回 null | 不覆写 |
+| 已标 @CSchema(value) 自定义描述 | 不写 text 说明（description 由 @CSchema 提供） |
 
 == 4. 适用范围
 
 === 4.1 适用场景
 
-- 接口文档 model 字段为实现 ICText 的枚举，希望枚举值带可读文本。
+- 接口文档 model 字段为实现 ICText 的枚举，希望允许值可直接使用、text 说明可读。
 
 == 5. 已知限制与取舍
 
-- 仅改文档展示（allowableValues），不影响运行时传值（仍用枚举名）。
+- 允许值保持可提交的枚举名（与运行时一致）；text 可读性通过 description 提供，两者兼顾。
 
 无独立测试类（集成测试 CTextEnumIntegrationTests 覆盖）。
 
 == 变更日志
 
+- 1.1 | 2026-09-06 | 允许值由「枚举名(text)」改为可提交的「枚举名」，text 说明写入 description
 - 1.0 | 2026-09-06 | 初始落地

@@ -9,8 +9,10 @@ LastModified: 2026-09-06
 
 == 1. 功能说明
 
-`CTextEnumTestDTO` 为枚举 text 展示集成测试辅助 DTO，含实现 `ICText` 的枚举字段（`header`，类型 `CRequestHeaderEnum`），
-用于验证 model 字段枚举值在文档中显示为「枚举名(text)」。
+`CTextEnumTestDTO` 为枚举 text 展示集成测试辅助 DTO，含实现 `ICText` 的枚举字段（类型 `CRequestHeaderEnum`）：
+
+- `header`：未标注 @CSchema，验证允许值保持可提交「枚举名」、description 展示「枚举名(text)」。
+- `headerWithSchema`：标注 `@CSchema("带描述枚举头")`，验证自定义描述不被 text 说明覆盖。
 
 == 4. 适用范围
 

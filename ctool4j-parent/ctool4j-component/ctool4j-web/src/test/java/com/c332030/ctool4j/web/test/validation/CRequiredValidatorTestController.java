@@ -26,7 +26,7 @@ public class CRequiredValidatorTestController {
      * @param dto 请求体
      * @return 成功标识
      */
-    @PostMapping("/c-schema-validator/test")
+    @PostMapping("/c-required-validator/test")
     public String test(@Valid @RequestBody CRequiredValidatorTestDTO dto) {
         return "ok";
     }
