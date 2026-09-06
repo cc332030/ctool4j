@@ -1,0 +1,44 @@
+= CTextEnumIntegrationTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-09-06
+所属功能：`com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CTextEnumModelPropertyPlugin` 与
+`com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CTextEnumParameterPlugin`（openapi2 模块）——实现 ICText 的枚举在文档中显示「枚举名(text)」。
+
+对应测试类：`com.c332030.ctool4j.doc.openapi2.test.CTextEnumIntegrationTests`
+
+对应设计文档：`doc/design/openapi2/CTextEnumModelPropertyPlugin.adoc`、`doc/design/openapi2/CTextEnumParameterPlugin.adoc`
+（功能设计，测试内容以本文档为准）。
+
+辅助测试类：`doc.openapi2.test.model.CTextEnumTestDTO`、`doc.openapi2.test.controller.CTextEnumTestController`
+（真实接口入口）。
+
+本文档为 CTextEnumIntegrationTests 的测试用例文档，含用例设计思路与依据、覆盖场景与取舍，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 启动真实 Spring 容器（@CTool4jSpringBootTest + @AutoConfigureMockMvc），经 /v2/api-docs 获取文档 JSON
+  （response 用 UTF-8 读取，避免 springfox 中文字符按默认编码解码乱码），断言枚举值显示为「枚举名(text)」。
+- 测试枚举用 web 模块的 `CRequestHeaderEnum`（实现 ICText：AUTHORIZATION(鉴权) 等）。
+- 覆盖 model 字段枚举与 query 参数枚举两条展示路径。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：model 字段枚举含 AUTHORIZATION(鉴权)、不含裸枚举名；所有枚举值均为「枚举名(text)」形态且数量与常量一致；
+  query 参数枚举含 AUTHORIZATION(鉴权)。
+- 未覆盖：非 ICText 枚举保持默认（未断言）；运行时绑定不受影响。
+
+== 1. model 字段枚举
+
+- 1.1 modelFieldEnum_showsText（modelFieldEnum_showsText）
+- 1.2 modelFieldEnum_allValuesTextual（modelFieldEnum_allValuesTextual）
+
+== 2. query 参数枚举
+
+- 2.1 queryParamEnum_showsText（queryParamEnum_showsText）
+
+== 变更日志
+
+- 1.0 | 2026-09-06 | 初始落地
