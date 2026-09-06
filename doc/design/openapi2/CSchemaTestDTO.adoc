@@ -1,17 +1,17 @@
 = CSchemaTestDTO 设计文档
 
 Version: 1.0
-LastModified: $DATE
+LastModified: 2026-09-06
 模块：ctool4j-doc-openapi2
 类：com.c332030.ctool4j.doc.openapi2.test.model.CSchemaTestDTO
 状态：已落地
-适用范围：CSchema 集成测试辅助 DTO
+适用范围：CRequired/CSchema 集成测试辅助 DTO
 
 == 1. 功能说明
 
-`CSchemaTestDTO` 为 `CSchema` 集成测试辅助 DTO，字段用 `@CSchema` 标注：
+`CSchemaTestDTO` 为 `CRequired`/`CSchema` 集成测试辅助 DTO，字段用 `@CRequired`（必填）+ `@CSchema`（描述）标注：
 
-- `username`：必填字段（`@CSchema(required=true)`，含描述）
+- `username`：必填字段（`@CRequired`，含描述 `@CSchema("用户名")`）
 - `remark`：非必填字段（含描述）
 - `other`：无描述的非必填字段
 
@@ -21,7 +21,7 @@ LastModified: $DATE
 
 === 4.1 适用场景
 
-- `CSchemaIntegrationTests` 集成测试，验证 `@CSchema` 注解在真实接口（`CSchemaTestController`）上的必填校验与字段文档。
+- `CSchemaIntegrationTests` 集成测试，验证 `@CRequired`/`@CSchema` 注解在真实接口（`CSchemaTestController`）上的必填校验与字段文档。
 
 == 5. 已知限制与取舍
 
@@ -29,4 +29,4 @@ LastModified: $DATE
 
 == 变更日志
 
-- 1.0 | $DATE | 初始落地
+- 1.0 | 2026-09-06 | 初始落地（必填由 @CRequired，描述由 @CSchema）

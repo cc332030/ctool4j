@@ -2,6 +2,7 @@ package com.c332030.ctool4j.web.test.validation.annotation;
 
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
 import com.c332030.ctool4j.web.doc.annotation.CSchema;
+import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Assertions;
@@ -26,22 +27,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * <p>
- * Description: CSchemaValidator 按类型自动校验逻辑测试：启动 Spring 容器（@CTool4jSpringBootTest），
- * 经容器注入的真实 {@link Validator} 完整校验（验证 required/message 等属性生效），并通过 MockMvc
+ * Description: CRequiredValidator 按类型自动校验逻辑测试：启动 Spring 容器（@CTool4jSpringBootTest），
+ * 经容器注入的真实 {@link Validator} 完整校验（验证 message 等属性生效），并通过 MockMvc
  * 走真实接口（@Valid @RequestBody）验证必填/非必填生效，贴近真实使用场景
  * </p>
  *
  * <p>
- * 覆盖：required=false 跳过校验、required=true 时 null/字符串（notBlank）/集合（notEmpty）/
+ * 覆盖：标注 @CRequired 即必填，null/字符串（notBlank）/集合（notEmpty）/
  * Map（notEmpty）/数组（notEmpty）/其他对象（notNull），以及 message 自定义提示
  * </p>
  *
  * @author c332030
- * @see "doc/design/web/CSchemaValidatorTests.adoc"
+ * @see "doc/design/web/CRequiredValidatorTests.adoc"
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest
-public class CSchemaValidatorTests {
+public class CRequiredValidatorTests {
 
     @Autowired
     private Validator validator;
@@ -291,7 +292,8 @@ public class CSchemaValidatorTests {
     @Setter
     private static class GroupsBean {
 
-        @CSchema(value = "用户名", required = true, groups = UpdateGroup.class)
+        @CRequired(groups = UpdateGroup.class)
+        @CSchema("用户名")
         private String username;
 
     }
@@ -303,7 +305,8 @@ public class CSchemaValidatorTests {
     @Setter
     private static class PayloadBean {
 
-        @CSchema(value = "编码", required = true, payload = MyPayload.class)
+        @CRequired(payload = MyPayload.class)
+        @CSchema("编码")
         private String code;
 
     }
@@ -315,7 +318,8 @@ public class CSchemaValidatorTests {
     @Setter
     private static class StringBean {
 
-        @CSchema(value = "用户名", required = true)
+        @CRequired
+        @CSchema("用户名")
         private String username;
 
     }
@@ -327,7 +331,7 @@ public class CSchemaValidatorTests {
     @Setter
     private static class CollectionBean {
 
-        @CSchema(required = true)
+        @CRequired
         private List<String> tags;
 
     }
@@ -339,7 +343,7 @@ public class CSchemaValidatorTests {
     @Setter
     private static class MapBean {
 
-        @CSchema(required = true)
+        @CRequired
         private Map<String, Object> ext;
 
     }
@@ -351,7 +355,7 @@ public class CSchemaValidatorTests {
     @Setter
     private static class ArrayBean {
 
-        @CSchema(required = true)
+        @CRequired
         private int[] nums;
 
     }
@@ -363,7 +367,7 @@ public class CSchemaValidatorTests {
     @Setter
     private static class ObjectBean {
 
-        @CSchema(required = true)
+        @CRequired
         private Object payload;
 
     }
@@ -375,7 +379,8 @@ public class CSchemaValidatorTests {
     @Setter
     private static class CustomMessageBean {
 
-        @CSchema(value = "年龄", required = true, message = "年龄不能为空")
+        @CRequired(message = "年龄不能为空")
+        @CSchema("年龄")
         private Integer age;
 
     }

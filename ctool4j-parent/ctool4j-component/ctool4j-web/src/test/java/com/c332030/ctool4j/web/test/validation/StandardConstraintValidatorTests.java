@@ -2,6 +2,7 @@ package com.c332030.ctool4j.web.test.validation;
 
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
 import com.c332030.ctool4j.web.doc.annotation.CSchema;
+import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Assertions;
@@ -167,7 +168,8 @@ public class StandardConstraintValidatorTests {
         @NotNull
         private String code;
 
-        @CSchema(value = "用户名", required = true)
+        @CRequired
+        @CSchema("用户名")
         private String username;
 
     }

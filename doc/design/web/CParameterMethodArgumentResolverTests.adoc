@@ -2,7 +2,7 @@
 
 Version: 1.0
 LastModified: 2026-09-06
-所属功能：`com.c332030.ctool4j.web.doc.CParameterMethodArgumentResolver`（web 模块）——@CParameter 驱动 SpringMVC 绑定。
+所属功能：`com.c332030.ctool4j.web.doc.CParameterMethodArgumentResolver`（web 模块）——@CParameter 驱动 SpringMVC 绑定（@CNotRequired 反向控制非必填）。
 
 对应测试类：`com.c332030.ctool4j.web.test.doc.CParameterMethodArgumentResolverTests`
 
@@ -15,32 +15,32 @@ LastModified: 2026-09-06
 === 设计思路
 
 - 启动 Spring 容器（@CTool4jSpringBootTest + @AutoConfigureMockMvc），经真实接口验证绑定行为。
-- 测试 controller 仅标注 @CParameter（不标 @RequestParam），覆盖 required=true/false/默认三种形态，
+- 测试 controller 仅标注 @CParameter（不标 @RequestParam），覆盖默认必填、标注 @CNotRequired 非必填，
   及已有 @RequestParam 时 @CParameter 不接管。
 
 === 设计依据
 
-- 依据功能设计对「@CParameter 按 @RequestParam 语义绑定、required 默认 true、已有 @RequestParam 不接管」的约定。
+- 依据功能设计对「@CParameter 按 @RequestParam 语义绑定、默认必填、标注 @CNotRequired 非必填、已有 @RequestParam 不接管」的约定。
 - 依据黑盒原则：缺参与携带两种形态均覆盖。
 
 === 覆盖场景与未覆盖
 
-- 覆盖：required=true 缺参报错/携带正常、required=false 缺参放行/携带正常、默认 required=true、已有 @RequestParam 不接管。
+- 覆盖：默认必填缺参报错/携带正常、@CNotRequired 缺参放行/携带正常、默认必填、已有 @RequestParam 不接管。
 - 未覆盖：name 显式指定、类型转换（int 等）等派生场景。
 
-== 1. required=true
+== 1. 默认必填（未标 @CNotRequired）
 
 - 1.1 缺参：报错（兜底返回 code=500）（requiredTrue_missing）
 - 1.2 携带参数：正常返回（requiredTrue_present）
 
-== 2. required=false
+== 2. 标注 @CNotRequired（非必填）
 
 - 2.1 缺参：放行返回 null（requiredFalse_missing）
 - 2.2 携带参数：正常返回（requiredFalse_present）
 
-== 3. 默认 required（不写，默认 true）
+== 3. 默认 required（与 @RequestParam.required 默认一致）
 
-- 3.1 缺参：报错（与 @RequestParam.required 默认一致）（requiredDefault_missing）
+- 3.1 缺参：报错（requiredDefault_missing）
 - 3.2 携带参数：正常返回（requiredDefault_present）
 
 == 4. 已有 @RequestParam
@@ -49,4 +49,4 @@ LastModified: 2026-09-06
 
 == 变更日志
 
-- 1.0 | 2026-09-06 | 初始落地
+- 1.0 | 2026-09-06 | 初始落地（必填默认 true，非必填由 @CNotRequired 控制）

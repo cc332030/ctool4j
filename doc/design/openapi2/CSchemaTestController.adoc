@@ -1,23 +1,23 @@
 = CSchemaTestController 设计文档
 
 Version: 1.0
-LastModified: $DATE
+LastModified: 2026-09-06
 模块：ctool4j-doc-openapi2
 类：com.c332030.ctool4j.doc.openapi2.test.controller.CSchemaTestController
 状态：已落地
-适用范围：CSchema 集成测试辅助 Controller
+适用范围：CRequired/CSchema 集成测试辅助 Controller
 
 == 1. 功能说明
 
-`CSchemaTestController` 为 `CSchema` 集成测试辅助 Controller（`@RestController`，标注 `@CTag` 供 Docket 收集）：
+`CSchemaTestController` 为 `CRequired`/`CSchema` 集成测试辅助 Controller（`@RestController`，标注 `@CTag` 供 Docket 收集）：
 
-- `test(@Valid @RequestBody CSchemaTestDTO dto)`：POST `/c-schema/test`，接收 `@CSchema` 标注的 DTO，`@Valid` 触发字段校验（username required=true 必填），标注 `@COperation` 供 springfox 生成接口文档
+- `test(@Valid @RequestBody CSchemaTestDTO dto)`：POST `/c-schema/test`，接收 `@CRequired` 标注的 DTO，`@Valid` 触发字段校验（username `@CRequired` 必填），标注 `@COperation` 供 springfox 生成接口文档
 
 == 4. 适用范围
 
 === 4.1 适用场景
 
-- `CSchemaIntegrationTests` 集成测试，作为真实接口入口验证 `@CSchema` 必填校验与字段文档生成。
+- `CSchemaIntegrationTests` 集成测试，作为真实接口入口验证 `@CRequired` 必填校验与字段文档生成。
 
 == 5. 已知限制与取舍
 
@@ -25,4 +25,4 @@ LastModified: $DATE
 
 == 变更日志
 
-- 1.0 | $DATE | 初始落地
+- 1.0 | 2026-09-06 | 初始落地（必填由 @CRequired，描述由 @CSchema）

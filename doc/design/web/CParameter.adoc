@@ -10,18 +10,13 @@ LastModified: 2026-09-06
 == 1. 功能说明
 
 `CParameter` 为接口参数级文档描述注解，命名对应 OpenAPI3 中 Swagger/OpenAPI2 `ApiParam` 的替代注解
-`Parameter`（前缀 c），标注在接口方法参数上，描述参数的名称、说明、是否必填、示例。
+`Parameter`（前缀 c），标注在接口方法参数上，描述参数的名称、说明、示例（不含 required，必填由
+`CNotRequired` 反向控制）。
 
 - `value()`：参数说明，默认 ""，支持简写 `@CParameter("内容")`
   （替代了原先的 `description()`，对应 `Parameter.description` / `ApiParam.value`）
 - `name()`：参数名称（对应 `Parameter.name` / `ApiParam.name`），默认 ""
-- `required()`：是否必填（对应 `Parameter.required` / `ApiParam.required`），默认 true
-  （与 `@RequestParam.required` 默认一致）
 - `example()`：参数示例（对应 `Parameter.example`），默认 ""
-
-标注在 SpringMVC 方法的简单类型参数上且未标注 `@RequestParam` 时，由
-`CParameterMethodArgumentResolver` 按 `@RequestParam` 语义解析绑定，`required` 同时驱动
-SpringMVC 必填与文档必填。
 
 == 2. 设计要点
 
@@ -31,10 +26,11 @@ SpringMVC 必填与文档必填。
 
 === 2.2 文档 + 运行时绑定
 
-- 文档侧由 openapi2 的 `CParameterAnnotationPlugin` 读取 name/description/required/example 写入 springfox。
+- 文档侧由 openapi2 的 `CParameterAnnotationPlugin` 读取 name/description/example 写入 springfox；
+  参数必填默认 true（未标 `@CNotRequired`）。
 - 运行时侧：简单类型参数未标注 `@RequestParam` 时由 `CParameterMethodArgumentResolver` 接管
-  （解析器文档见 `CParameterMethodArgumentResolver.adoc`），实现"一处标注 required 同时控制文档与绑定"。
-- 若参数已标注 `@RequestParam`，则绑定以 `@RequestParam` 为准（`@CParameter` 仅作文档），避免冲突。
+  （解析器文档见 `CParameterMethodArgumentResolver.adoc`），默认必填；叠加 `@CNotRequired` 时非必填。
+- 若参数已标注 `@RequestParam`，则绑定以 `@RequestParam` 为准（`@CParameter` 仅作文档）。
 
 == 3. 兜底设计
 
@@ -42,23 +38,22 @@ SpringMVC 必填与文档必填。
 |------|---------|
 | name 为空 | 沿用参数既有名称 |
 | value/example 为空 | 不覆盖已有内容 |
-| required=false | 不标记必填，运行时放行缺参 |
-| required=true（默认） | 标记必填，运行时缺参报错 |
+| 未标 @CNotRequired | 默认必填（文档 + 绑定） |
+| 标注 @CNotRequired | 非必填（缺参放行） |
 | 已有 @RequestParam | 绑定以 @RequestParam 为准 |
 
 == 4. 适用范围
 
 === 4.1 适用场景
 
-- 接口方法参数需要名称/说明/必填/示例时标注 `@CParameter`，由 openapi2 的 `CParameterAnnotationPlugin` 落地文档。
-- 简单类型请求参数只标注 `@CParameter`（不写 `@RequestParam`）时，required 同时驱动 SpringMVC 绑定。
+- 接口方法参数需要名称/说明/示例时标注 `@CParameter`，由 openapi2 的 `CParameterAnnotationPlugin` 落地文档。
+- 简单类型请求参数只标注 `@CParameter`（不写 `@RequestParam`）时，默认必填；非必填叠加 `@CNotRequired`。
 
 === 4.2 不适用/边界场景
 
 - 复杂对象（非简单类型）参数不做绑定接管，需用 `@RequestBody` 等标准注解。
-- 与 `@RequestParam` 同时标注时以 `@RequestParam` 为准。
 
 == 变更日志
 
-- 1.1 | 2026-09-06 | required 默认值改为 true（与 @RequestParam 一致）；新增 CParameterMethodArgumentResolver 驱动 SpringMVC 绑定
+- 1.1 | 2026-09-06 | 移除 required 属性，非必填由 @CNotRequired 反向控制（默认必填，与 @RequestParam 一致）
 - 1.0 | 2026-09-04 | 初始落地

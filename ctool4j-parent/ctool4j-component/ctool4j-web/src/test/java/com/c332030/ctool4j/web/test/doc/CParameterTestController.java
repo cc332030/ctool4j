@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.test.doc;
 
+import com.c332030.ctool4j.web.doc.annotation.CNotRequired;
 import com.c332030.ctool4j.web.doc.annotation.CParameter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * <p>
  * Description: CParameterMethodArgumentResolver 集成测试用 Controller：仅标注 @CParameter（不标 @RequestParam），
- * 验证 required 同时驱动 SpringMVC 绑定
+ * 验证默认必填、叠加 @CNotRequired 非必填（required 由 CNotRequired 决定）
  * </p>
  *
  * @author c332030
@@ -17,40 +18,41 @@ import org.springframework.web.bind.annotation.RestController;
 public class CParameterTestController {
 
     /**
-     * required=true（默认必填）：缺参应报错
+     * 默认必填（未标 @CNotRequired）：缺参应报错
      *
      * @param name 参数名
      * @return 成功标识
      */
     @GetMapping("/c-parameter/required-true")
     public String requiredTrue(
-        @CParameter(value = "名称", required = true) String name
+        @CParameter("名称") String name
     ) {
         return name;
     }
 
     /**
-     * required=false（非必填）：缺参放行返回 null
+     * 非必填（标 @CNotRequired）：缺参放行返回 null
      *
      * @param name 参数名
      * @return 成功标识
      */
     @GetMapping("/c-parameter/required-false")
     public String requiredFalse(
-        @CParameter(value = "名称", required = false) String name
+        @CNotRequired
+        @CParameter("名称") String name
     ) {
         return name;
     }
 
     /**
-     * 不写 required：默认必填（与 @RequestParam.required 默认一致）
+     * 不写任何非必填标记：默认必填（与 @RequestParam.required 默认一致）
      *
      * @param name 参数名
      * @return 成功标识
      */
     @GetMapping("/c-parameter/required-default")
     public String requiredDefault(
-        @CParameter(value = "名称") String name
+        @CParameter("名称") String name
     ) {
         return name;
     }
@@ -64,7 +66,7 @@ public class CParameterTestController {
     @GetMapping("/c-parameter/with-request-param")
     public String withRequestParam(
         @org.springframework.web.bind.annotation.RequestParam(value = "name", required = false)
-        @CParameter(value = "名称") String name
+        @CParameter("名称") String name
     ) {
         return name;
     }

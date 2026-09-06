@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.web.validation.validator;
 
 import com.c332030.ctool4j.core.validation.CValidUtils;
-import com.c332030.ctool4j.web.doc.annotation.CSchema;
+import com.c332030.ctool4j.web.validation.annotation.CRequired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,26 +11,21 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: CSchema 注解校验器：按 {@link CSchema#required()} 决定是否校验，
+ * Description: CRequired 注解校验器：标注 {@link CRequired} 即必填（无 required 开关），
  * 校验规则按值类型自动分发，复用 {@link CValidUtils}
  * （字符串→notBlank、集合/Map/数组→notEmpty、其他→notNull）
  * </p>
  *
  * <p>
- * 属性支持：{@link CSchema#required()} 控制是否必填；校验失败时应用 {@link CSchema#message()}
- * 作为约束消息（默认"不能为空"）；{@link CSchema#groups()} / {@link CSchema#payload()}
- * 由 Bean Validation 框架按标准约定自动处理（分组过滤/载荷元数据），validator 无需读取。
+ * 属性支持：校验失败时应用 {@link CRequired#message()}（默认"不能为空"）作为约束消息；
+ * {@link CRequired#groups()} / {@link CRequired#payload()} 由 Bean Validation 框架按标准约定自动处理
+ * （分组过滤/载荷元数据），validator 无需读取。
  * </p>
  *
  * @author c332030
- * @see "doc/design/web/CSchemaValidator.adoc"
+ * @see "doc/design/web/CRequiredValidator.adoc"
  */
-public class CSchemaValidator implements ConstraintValidator<CSchema, Object> {
-
-    /**
-     * 是否必填（false 时跳过校验，直接通过）
-     */
-    private boolean required;
+public class CRequiredValidator implements ConstraintValidator<CRequired, Object> {
 
     /**
      * 校验失败时的约束消息
@@ -38,18 +33,12 @@ public class CSchemaValidator implements ConstraintValidator<CSchema, Object> {
     private String message;
 
     @Override
-    public void initialize(CSchema constraintAnnotation) {
-        this.required = constraintAnnotation.required();
+    public void initialize(CRequired constraintAnnotation) {
         this.message = constraintAnnotation.message();
     }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
-
-        // 非必填：不校验，直接通过
-        if (!required) {
-            return true;
-        }
 
         boolean valid = isValidValue(value);
         if (!valid) {

@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl;
 
+import com.c332030.ctool4j.web.doc.annotation.CNotRequired;
 import com.c332030.ctool4j.web.doc.annotation.CParameter;
 import lombok.val;
 import org.springframework.core.annotation.Order;
@@ -14,6 +15,10 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  * Description: CParameterAnnotationPlugin：识别方法参数上的 @CParameter 注解，
  * 将 name/description/required/example 写入 springfox 的 operation 参数
  * （替代原生 {@code @ApiParam}）
+ * </p>
+ *
+ * <p>
+ * 参数必填默认 true（与 {@code @RequestParam} 默认一致）；叠加 {@code @CNotRequired} 时非必填。
  * </p>
  *
  * @see "doc/design/openapi2/CParameterAnnotationPlugin.adoc"
@@ -36,7 +41,10 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
             if (hasText(cParameter.name())) {
                 parameterBuilder.name(cParameter.name());
             }
-            if (cParameter.required()) {
+            // 必填：未标注 @CNotRequired 即必填（默认），标注则非必填
+            boolean required = !context.resolvedMethodParameter()
+                .hasParameterAnnotation(CNotRequired.class);
+            if (required) {
                 parameterBuilder.required(true);
             }
             if (hasText(cParameter.example())) {

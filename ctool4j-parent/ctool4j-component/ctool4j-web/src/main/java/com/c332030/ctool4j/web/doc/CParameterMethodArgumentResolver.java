@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.doc;
 
+import com.c332030.ctool4j.web.doc.annotation.CNotRequired;
 import com.c332030.ctool4j.web.doc.annotation.CParameter;
 import lombok.val;
 import org.springframework.beans.BeanUtils;
@@ -10,8 +11,8 @@ import org.springframework.web.method.annotation.RequestParamMethodArgumentResol
 /**
  * <p>
  * Description: CParameterMethodArgumentResolver：将标注 {@code @CParameter} 的方法参数按
- * {@code @RequestParam} 语义解析（name/required 取自 {@code @CParameter}，与 {@code @RequestParam} 一致），
- * 使文档注解同时驱动 SpringMVC 参数绑定，避免重复标注 required
+ * {@code @RequestParam} 语义解析（默认必填；叠加 {@code @CNotRequired} 时非必填），
+ * 使文档注解同时驱动 SpringMVC 参数绑定
  * </p>
  *
  * <p>
@@ -63,7 +64,9 @@ public class CParameterMethodArgumentResolver extends RequestParamMethodArgument
     protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
         val cParameter = parameter.getParameterAnnotation(CParameter.class);
         // name 为空时由父类按参数名兜底（与 @RequestParam 不写 name 一致）
-        return new NamedValueInfo(cParameter.name(), cParameter.required(), null);
+        // 必填：未标注 @CNotRequired 即必填（默认）
+        boolean required = !parameter.hasParameterAnnotation(CNotRequired.class);
+        return new NamedValueInfo(cParameter.name(), required, null);
     }
 
 }

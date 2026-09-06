@@ -11,8 +11,8 @@ LastModified: 2026-09-06
 
 `CParameterMethodArgumentResolver` 为 SpringMVC 参数解析器，继承 `RequestParamMethodArgumentResolver`
 （Spring 解析 `@RequestParam` 的标准基类），将「标注 `@CParameter`、未标注 `@RequestParam`、简单类型」
-的方法参数按 `@RequestParam` 语义解析绑定：参数名与必填取自 `@CParameter`，使文档注解同时驱动
-SpringMVC 绑定，避免重复标注 `@RequestParam(required=...)`。
+的方法参数按 `@RequestParam` 语义解析绑定。参数名取自 `@CParameter`；**必填默认 true，未标注
+`@CNotRequired` 即必填，标注 `@CNotRequired` 则非必填**。
 
 == 2. 设计要点
 
@@ -26,7 +26,7 @@ SpringMVC 绑定，避免重复标注 `@RequestParam(required=...)`。
 === 2.2 绑定语义
 
 - `createNamedValueInfo`：参数名取 `@CParameter.name()`（空时由基类按参数名兜底，与 `@RequestParam` 不写 name 一致）；
-  required 取 `@CParameter.required()`（默认 true）。
+  required = 未标注 `@CNotRequired`（默认必填，与 `@RequestParam.required` 默认一致）。
 - 复用父类 `resolveName`/`handleMissingValue`：从 request 取参、缺参且必填时抛
   `MissingServletRequestParameterException`（与 `@RequestParam` 行为一致）。
 
@@ -44,13 +44,14 @@ SpringMVC 绑定，避免重复标注 `@RequestParam(required=...)`。
 | 已标注 @RequestParam | 返回 false，绑定以 @RequestParam 为准 |
 | 非简单类型 | 返回 false，交 @RequestBody/@ModelAttribute 等 |
 | name 为空 | 基类按方法参数名兜底 |
-| required=true 缺参 | 抛 MissingServletRequestParameterException |
+| 必填（默认）缺参 | 抛 MissingServletRequestParameterException |
+| 标注 @CNotRequired 缺参 | 放行返回 null |
 
 == 4. 适用范围
 
 === 4.1 适用场景
 
-- 简单类型请求参数只标注 `@CParameter`，需 required 同时驱动 SpringMVC 绑定与文档。
+- 简单类型请求参数只标注 `@CParameter`，默认必填；需要非必填时叠加 `@CNotRequired`。
 
 === 4.2 不适用/边界场景
 
@@ -66,4 +67,4 @@ SpringMVC 绑定，避免重复标注 `@RequestParam(required=...)`。
 
 == 变更日志
 
-- 1.0 | 2026-09-06 | 初始落地（@CParameter 驱动 SpringMVC 绑定）
+- 1.0 | 2026-09-06 | 初始落地（@CParameter 驱动 SpringMVC 绑定；必填默认 true，非必填由 @CNotRequired 控制）

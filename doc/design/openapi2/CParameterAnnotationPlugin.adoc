@@ -22,7 +22,7 @@ name/description/required/example 写入 springfox 的 operation 参数（替代
 
 - `@CParameter.value` 非空 → `parameterBuilder.description(...)`。
 - name 非空 → `parameterBuilder.name(...)`。
-- required=true → `parameterBuilder.required(true)`。
+- 必填判定：未标注 `@CNotRequired` → `parameterBuilder.required(true)`（默认必填，与 `@RequestParam` 一致）。
 - example 非空 → `parameterBuilder.scalarExample(...)`。
 
 == 3. 兜底设计
@@ -30,8 +30,8 @@ name/description/required/example 写入 springfox 的 operation 参数（替代
 | 场景 | 兜底行为 |
 |------|---------|
 | name/description/example 为空 | 不覆盖 |
-| required=false | 不标记必填 |
-| required=true（默认） | 标记必填（与 SpringMVC 绑定一致） |
+| 未标 @CNotRequired | 标记必填（默认，与 SpringMVC 绑定一致） |
+| 标注 @CNotRequired | 不标记必填（非必填） |
 | 无 @CParameter | 不处理 |
 
 == 4. 适用范围
@@ -42,12 +42,12 @@ name/description/required/example 写入 springfox 的 operation 参数（替代
 
 == 5. 已知限制与取舍
 
-- 依赖 `@CParameter`（web 模块）注解定义。
-- `@CParameter.required` 默认 true 后，未显式 required=false 的参数文档均标记必填（与 @RequestParam 默认及运行时绑定一致）。
+- 依赖 `@CParameter`/`@CNotRequired`（web 模块）注解定义。
+- `@CNotRequired` 与 `@RequestParam` 同时标注时，文档非必填语义由 `@RequestParam` 覆盖（绑定以 @RequestParam 为准）。
 
 测试内容见 `doc/design/openapi2/CParameterAnnotationPluginTests.adoc`。
 
 == 变更日志
 
-- 1.1 | 2026-09-06 | 同步 @CParameter.required 默认值改为 true（与 @RequestParam 及 SpringMVC 绑定一致）
+- 1.1 | 2026-09-06 | required 判定由 @CParameter.required() 改为「未标 @CNotRequired 即必填」（配合注解去 required，默认必填与 @RequestParam 一致）
 - 1.0 | 2026-09-04 | 初始落地

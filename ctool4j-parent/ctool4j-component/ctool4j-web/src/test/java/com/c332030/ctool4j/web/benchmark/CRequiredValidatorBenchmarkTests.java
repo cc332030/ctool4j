@@ -4,7 +4,7 @@ import com.c332030.ctool4j.core.benchmark.CBenchmarkCase;
 import com.c332030.ctool4j.core.benchmark.CBenchmarkReport;
 import com.c332030.ctool4j.core.benchmark.CBenchmarkRunner;
 import com.c332030.ctool4j.core.validation.CValidUtils;
-import com.c332030.ctool4j.web.doc.annotation.CSchema;
+import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -23,14 +23,14 @@ import java.util.Map;
 
 /**
  * <p>
- * Description: CSchema 注解校验性能对比基准
+ * Description: CRequired 注解校验性能对比基准
  * </p>
  * <p>
  * 对比维度：参数校验（字段必填）。
  * 覆盖多类实现方式（满足对比类别 ≥3 类）：
  * </p>
  * <ul>
- *     <li>@CSchema(required=true)（被测，按类型自动分发校验）</li>
+ *     <li>@CRequired（被测，按类型自动分发校验）</li>
  *     <li>标准 javax.validation 注解（@NotNull/@NotBlank/@NotEmpty，按类型分别标注）</li>
  *     <li>手工 CValidUtils.isValid（基线，不经 Validator）</li>
  * </ul>
@@ -38,10 +38,10 @@ import java.util.Map;
  * @since 2026/8/20
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class CSchemaValidatorBenchmarkTests {
+public class CRequiredValidatorBenchmarkTests {
 
     /**
-     * 基准执行入口（显式运行：mvn test -Dtest=CSchemaValidatorBenchmarkTests -DfailIfNoTests=false）
+     * 基准执行入口（显式运行：mvn test -Dtest=CRequiredValidatorBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
      */
 
@@ -61,38 +61,38 @@ public class CSchemaValidatorBenchmarkTests {
      */
     public static List<CBenchmarkCase> cases() {
         return Arrays.asList(
-            new CSchemaCase(),
+            new CRequiredCase(),
             new StandardConstraintCase(),
             new ManualValidCase()
         );
     }
 
     /**
-     * @CSchema(required=true) 标注的待校验 Bean（字段覆盖字符串/集合/Map/数组/其他对象各类分支）
+     * @CRequired 标注的待校验 Bean（字段覆盖字符串/集合/Map/数组/其他对象各类分支）
      */
     @Data
     @NoArgsConstructor
-    public static class CSchemaBean {
+    public static class CRequiredBean {
 
-        @CSchema(required = true)
+        @CRequired
         private String name;
 
-        @CSchema(required = true)
+        @CRequired
         private List<String> tags;
 
-        @CSchema(required = true)
+        @CRequired
         private Map<String, Object> ext;
 
-        @CSchema(required = true)
+        @CRequired
         private int[] nums;
 
-        @CSchema(required = true)
+        @CRequired
         private Object payload;
 
     }
 
     /**
-     * 标准 javax.validation 注解标注的待校验 Bean（对应 CSchemaBean，按类型选注解）
+     * 标准 javax.validation 注解标注的待校验 Bean（对应 CRequiredBean，按类型选注解）
      */
     @Data
     @NoArgsConstructor
@@ -117,10 +117,10 @@ public class CSchemaValidatorBenchmarkTests {
     }
 
     /**
-     * 构造校验值均有效（校验全通过）的 CSchemaBean
+     * 构造校验值均有效（校验全通过）的 CRequiredBean
      */
-    private static CSchemaBean newCSchemaBean() {
-        CSchemaBean bean = new CSchemaBean();
+    private static CRequiredBean newCRequiredBean() {
+        CRequiredBean bean = new CRequiredBean();
         bean.setName("benchmark");
         bean.setTags(Arrays.asList("a", "b"));
         bean.setExt(new HashMap<>());
@@ -145,22 +145,22 @@ public class CSchemaValidatorBenchmarkTests {
     }
 
     /**
-     * @CSchema(required=true) 校验（被测）：经 hibernate Validator 执行 CSchemaValidator
+     * @CRequired 校验（被测）：经 hibernate Validator 执行 CRequiredValidator
      */
-    private static class CSchemaCase implements CBenchmarkCase {
+    private static class CRequiredCase implements CBenchmarkCase {
 
         private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-        private CSchemaBean bean;
+        private CRequiredBean bean;
 
         @Override
         public String name() {
-            return "@CSchema 校验";
+            return "@CRequired 校验";
         }
 
         @Override
         public void prepare() {
-            bean = newCSchemaBean();
+            bean = newCRequiredBean();
         }
 
         @Override
@@ -199,7 +199,7 @@ public class CSchemaValidatorBenchmarkTests {
      */
     private static class ManualValidCase implements CBenchmarkCase {
 
-        private CSchemaBean bean;
+        private CRequiredBean bean;
 
         @Override
         public String name() {
@@ -208,7 +208,7 @@ public class CSchemaValidatorBenchmarkTests {
 
         @Override
         public void prepare() {
-            bean = newCSchemaBean();
+            bean = newCRequiredBean();
         }
 
         @Override
