@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.DynamicTableNameInnerInt
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import lombok.CustomLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -25,6 +26,7 @@ import java.util.LinkedHashSet;
  * @since 2025/12/29
  * @see "doc/design/mybatisplus/CMybatisPlusConfiguration.adoc"
  */
+@CustomLog
 @Configuration
 public class CMybatisPlusConfiguration {
 
@@ -63,6 +65,7 @@ public class CMybatisPlusConfiguration {
     @ConditionalOnBean(MybatisPlusInterceptor.class)
     @ConditionalOnMissingBean(PaginationInnerInterceptor.class)
     public PaginationInnerInterceptor cPaginationInnerInterceptor() {
+        log.debug("默认装配分页拦截器 PaginationInnerInterceptor（未自定义时自动分页）");
         return new PaginationInnerInterceptor();
     }
 
@@ -75,6 +78,7 @@ public class CMybatisPlusConfiguration {
     @ConditionalOnBean(MybatisPlusInterceptor.class)
     @ConditionalOnMissingBean(BlockAttackInnerInterceptor.class)
     public BlockAttackInnerInterceptor cBlockAttackInnerInterceptor() {
+        log.debug("默认装配防全表更新删除拦截器 BlockAttackInnerInterceptor");
         return new BlockAttackInnerInterceptor();
     }
 

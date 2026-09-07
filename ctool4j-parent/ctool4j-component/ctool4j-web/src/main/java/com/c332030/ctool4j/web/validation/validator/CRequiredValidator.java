@@ -2,6 +2,7 @@ package com.c332030.ctool4j.web.validation.validator;
 
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
+import lombok.CustomLog;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -25,6 +26,7 @@ import java.util.Map;
  * @author c332030
  * @see "doc/design/web/CRequiredValidator.adoc"
  */
+@CustomLog
 public class CRequiredValidator implements ConstraintValidator<CRequired, Object> {
 
     /**
@@ -41,6 +43,7 @@ public class CRequiredValidator implements ConstraintValidator<CRequired, Object
     public boolean isValid(Object value, ConstraintValidatorContext context) {
 
         boolean valid = isValidValue(value);
+        log.debug("CRequired 校验: value={}, valid={}", value, valid);
         if (!valid) {
             // 应用自定义 message（禁用默认约束消息，改用注解声明的 message）
             context.disableDefaultConstraintViolation();

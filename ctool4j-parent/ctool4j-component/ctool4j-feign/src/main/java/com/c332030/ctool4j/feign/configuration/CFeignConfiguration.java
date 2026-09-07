@@ -6,6 +6,7 @@ import com.c332030.ctool4j.feign.interceptor.CFeignInterceptor;
 import com.c332030.ctool4j.feign.log.CFeignLogger;
 import feign.Client;
 import feign.Logger;
+import lombok.CustomLog;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
  * @see "doc/design/feign/CFeignConfiguration.adoc"
  * @since 2025/9/21
  */
+@CustomLog
 @Configuration
 public class CFeignConfiguration {
 
@@ -51,6 +53,8 @@ public class CFeignConfiguration {
     @Bean
     @ConditionalOnMissingBean(Logger.Level.class)
     public Logger.Level cFeignLoggerLevel() {
+        // 默认 FULL：打印 feign http 请求与响应全文（无自定义 Logger.Level 时启用），便于排查，注意流量与敏感信息
+        log.debug("feign Logger.Level 默认 FULL，未自定义 Logger.Level Bean 时将打印 http 请求/响应全文");
         return Logger.Level.FULL;
     }
 

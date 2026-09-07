@@ -8,7 +8,9 @@ import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrate
 import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.service.impl.CEmptyUserDetailService;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +38,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * @since 2026/1/22
  * @see "doc/design/spring/CSecurityConfiguration.adoc"
  */
+@CustomLog
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -137,7 +140,7 @@ public class CSecurityConfiguration {
         CAbstractJwtFilter jwtFilter
     ) throws Exception {
 
-        return http
+        val chain = http
             .csrf(AbstractHttpConfigurer::disable)
             // 禁用自带的表单登录 /login
             .formLogin().disable()
@@ -174,6 +177,10 @@ public class CSecurityConfiguration {
                 .authenticated()
             )
             .build();
+
+        // 默认授权保护：无自定义 SecurityFilterChain 时自动开启，对所有未显式 permit/deny 的请求要求已认证
+        log.debug("默认安全过滤器链已装配：除 permits 白名单外，所有请求均需认证");
+        return chain;
     }
 
 }

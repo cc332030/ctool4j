@@ -6,6 +6,7 @@ import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.CustomLog;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2026/4/8
  * @see "doc/design/spring/CJacksonInit.adoc"
  */
+@CustomLog
 @Configuration
 @AllArgsConstructor
 public class CJacksonInit implements ICSpringInit {
@@ -31,6 +33,7 @@ public class CJacksonInit implements ICSpringInit {
     public void onInit() {
 
         if(CBoolUtils.isTrue(jacksonConfig.getJson5())) {
+            log.debug("spring.jackson.json5 已开启，配置 ObjectMapper");
             CJacksonUtils.configure(objectMapper);
         }
 
