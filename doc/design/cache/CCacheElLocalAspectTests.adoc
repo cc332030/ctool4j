@@ -1,0 +1,43 @@
+= CCacheElLocalAspectTests 测试用例文档
+
+Version: 1.0
+LastModified: 2026-09-08
+所属功能：`com.c332030.ctool4j.cache.aop.CCacheAspect`（cache 模块）——@CCacheable 带 `key()` 表达式的本地 Caffeine 缓存端到端。
+
+对应测试类：`com.c332030.ctool4j.cache.aop.CCacheElLocalAspectTests`
+
+对应设计文档：`doc/design/cache/CCacheAspect.adoc`、`doc/design/cache/CCacheKeyResolver.adoc`
+
+本文档为 el 本地缓存集成用例文档，含用例设计思路与依据、覆盖场景、分类编号索引。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 用最小 Spring AOP 上下文（`@ContextConfiguration` + `@EnableAspectJAutoProxy` + `@Import(CCacheAspect.class)`），
+  仅加载切面、mock 的 `CCacheService`（local 模式不使用）与本地业务 Bean。
+- **刻意不加载 `CSpringConfiguration` / 不启用 Spring Boot auto-config**：避免 `CRestTemplateUtils`
+  （依赖 httpclient）与真实 Redis，使用例可在无 Redis/httpclient 环境运行。
+- 业务方法以 `key()` 表达式取 key、`local=true`（默认）走 Caffeine；方法返回自增执行序号，
+  以「命中时序号不变、未命中自增」判定缓存是否命中。
+
+=== 设计依据
+
+- 依据 `CCacheAspect` 的本地缓存实现（`cache.get(key, loader)` 原子加载）与
+  `resolveCacheKey` 的 el/默认分派。
+- 依据 el 语义：参数为 null → key 为 null → 不入缓存（每次执行）。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：el key 命中（同 key 二次调用不重算）、不同 el key 隔离、参数为 null（不入缓存每次执行）。
+- 未覆盖：Redis 缓存、真实 httpclient、过期时间语义（属 CCacheAspectTests 场景，依赖完整上下文）。
+
+== 1. el 本地缓存端到端
+
+- 1.1 el key 缓存命中：同 key 二次调用不重算（testLocalCache_elKey_hit）
+- 1.2 不同 el key 隔离：不同对象 id 各自缓存、互不共享（testLocalCache_elKey_distinctIsolation）
+- 1.3 参数为 null（el 取不到 key）：不入缓存、每次执行（testLocalCache_elNullParam_noCache）
+
+== 变更日志
+
+- 1.0 | 2026-09-08 | 初始落地

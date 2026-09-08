@@ -92,14 +92,12 @@ class CCacheAspectCacheKeyTests {
         Assertions.assertEquals("42", key);
     }
 
-    /** 对应测试用例 1.4：POJO 无 @CCacheId 取 toString */
+    /** 对应测试用例 1.4：POJO 无 @CCacheId 且未配 key()，应报错（需显式配 key() 或 @CCacheId） */
     @Test
-    void testGetCacheKey_pojoWithoutCacheId_cacheIdNull() {
+    void testGetCacheKey_pojoWithoutCacheId_throws() {
         CCacheable cacheable = cacheable();
         UserWithoutId user = new UserWithoutId(42L, "name");
-        String key = aspect.getCacheKey(user, cacheable);
-        // 无 @CCacheId 字段，cacheId 为 null，则取 object.toString()
-        Assertions.assertEquals(user.toString(), key);
+        Assertions.assertThrows(IllegalStateException.class, () -> aspect.getCacheKey(user, cacheable));
     }
 
     /** 对应测试用例 1.5：object 为 null 返回 null */

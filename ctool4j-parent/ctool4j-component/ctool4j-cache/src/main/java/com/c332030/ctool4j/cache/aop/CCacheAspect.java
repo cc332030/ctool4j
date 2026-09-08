@@ -86,7 +86,7 @@ public class CCacheAspect {
         val cacheable = CReflectUtils.getAnnotationCached(method, CCacheable.class);
         if (cacheable.local()) {
             log.debug("启用本地缓存");
-            return getLocalCache(joinPoint, cacheable);
+            return getLocalCache(joinPoint, method, cacheable);
         } else {
             log.debug("启用 Redis 缓存");
             return getRedisCache(joinPoint, method, cacheable);
@@ -94,8 +94,45 @@ public class CCacheAspect {
     }
 
     /**
-     * 生成缓存 key
-     * @param object 方法参数，为 null 时返回 null（由调用方保证不写入缓存）
+     * 解析缓存 key（统一入口：key 表达式 or 默认 @CCacheId 逻辑）。
+     *
+     * <p>key() 非空且非空白：走简单 el 表达式（可多参数、多级取属性）；为空或空白：视为未配置，
+     * 走默认逻辑（第一参数 + {@code @CCacheId}）。返回 null 表示无缓存 key（无参/参数为 null/
+     * 表达式链某级为 null），由调用方决定不写缓存直接执行原方法。</p>
+     *
+     * @param args      方法实参
+     * @param method    被缓存方法
+     * @param cacheable 缓存注解
+     * @return 缓存 key；无法取值时返回 null
+     */
+    public String resolveCacheKey(
+        Object[] args,
+        Method method,
+        CCacheable cacheable
+    ) {
+
+        val keyExpr = cacheable.key();
+        if (null != keyExpr && !keyExpr.trim().isEmpty()) {
+            val resolver = CCacheKeyResolver.getResolver(method, keyExpr);
+            val value = resolver.resolve(args);
+            if (null == value) {
+                return null;
+            }
+            val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
+            return idConverter.apply(value, null);
+        }
+
+        // 默认逻辑：第一参数
+        if (null == args || args.length == 0) {
+            return null;
+        }
+        return getCacheKey(CArrUtils.get(args, 0), cacheable);
+    }
+
+    /**
+     * 生成缓存 key（默认逻辑，基于第一个参数对象 + @CCacheId 字段）
+     *
+     * @param object    方法第一个参数对象，为 null 时返回 null（由调用方保证不写入缓存）
      * @param cacheable 缓存注解
      * @return 缓存 key；object 为 null 时返回 null
      */
@@ -112,23 +149,22 @@ public class CCacheAspect {
         val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
 
         val objClass = object.getClass();
-        val cacheId = CClassUtils.isJdkClass(objClass)
-            ? null
-            : getCacheIdByHandle(object, objClass);
+        if (CClassUtils.isJdkClass(objClass)) {
+            // JDK 类（String/Integer 等）直接用对象字符串作 key
+            return idConverter.apply(null, object);
+        }
 
-        return idConverter.apply(cacheId, object);
-    }
-
-    /**
-     * 通过 MethodHandle 获取 @CCacheId 标注的字段值
-     */
-    @SneakyThrows
-    private Object getCacheIdByHandle(Object object, Class<?> objClass) {
+        // 非 JDK POJO：必须有 @CCacheId 字段，否则无法生成缓存 key
         val handle = CACHE_ID_HANDLE_CLASS_VALUE.get(objClass);
         if (null == handle) {
-            return null;
+            throw new IllegalStateException(
+                "@CCacheable 缓存参数类型 " + objClass.getName()
+                    + " 无 @CCacheId 字段且未配置 key()，无法生成缓存 key。请在方法上配置"
+                    + " @CCacheable(key=\"参数名.属性…\")，或在参数类型的业务 id 字段上加 @CCacheId。方法: "
+                    + cacheable.namespace().getName());
         }
-        return handle.invoke(object);
+        val cacheId = handle.invoke(object);
+        return idConverter.apply(cacheId, object);
     }
 
     /**
@@ -159,11 +195,13 @@ public class CCacheAspect {
     /**
      * 获取本地缓存：未命中时执行原方法并写缓存（Caffeine cache.get 原子加载，单 key 并发只执行一次）
      * @param joinPoint 切入点
+     * @param method    被缓存方法
      * @param cacheable 缓存注解
      * @return 本地缓存或执行结果
      */
     public Object getLocalCache(
         ProceedingJoinPoint joinPoint,
+        Method method,
         CCacheable cacheable
     ) {
 
@@ -176,33 +214,31 @@ public class CCacheAspect {
         val cache = getCache(namespace, expire);
 
         val args = joinPoint.getArgs();
-        val argOne = CArrUtils.get(args, 0);
+        val cacheKey = resolveCacheKey(args, method, cacheable);
 
-        // TODO 无方法参数缓存
-        if (null != argOne) {
-
-            val cacheKey = getCacheKey(argOne, cacheable);
+        // 无缓存 key（无参/参数为 null/表达式某级为 null）跳过缓存
+        if (null == cacheKey) {
             if (log.isDebugEnabled()) {
-                log.debug("cacheKey: {}, expire: {}", cacheKey, expire);
+                log.debug("无缓存 key，跳过本地缓存");
             }
-            return cache.get(cacheKey, k -> {
-
-                val valueNew = CAspectUtils.process(joinPoint);
-                log.info("新值 cacheKey: {}, cacheValue: {}", k, valueNew);
-                return valueNew;
-            });
+            return CAspectUtils.process(joinPoint);
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("方法无参数，跳过本地缓存");
+            log.debug("cacheKey: {}, expire: {}", cacheKey, expire);
         }
-        return CAspectUtils.process(joinPoint);
+        return cache.get(cacheKey, k -> {
+
+            val valueNew = CAspectUtils.process(joinPoint);
+            log.info("新值 cacheKey: {}, cacheValue: {}", k, valueNew);
+            return valueNew;
+        });
     }
 
     /**
      * 获取 Redis 缓存：未命中时执行原方法并写缓存（cacheService.getCache 读-算-写一体）
      * <p>
-     * 缓存 key 格式：namespace:cacheKey（由 getCacheKey 生成）
+     * 缓存 key 格式：namespace:cacheKey（由 resolveCacheKey 统一生成：key() 走 el，否则默认逻辑）
      * @param joinPoint 切入点
      * @param method 目标方法（用于获取返回类型做反序列化）
      * @param cacheable 缓存注解
@@ -222,28 +258,27 @@ public class CCacheAspect {
         val expire = cacheable.expire();
 
         val args = joinPoint.getArgs();
-        val argOne = CArrUtils.get(args, 0);
+        val cacheKey = resolveCacheKey(args, method, cacheable);
 
-        if (null != argOne) {
-
-            val cacheKey = getCacheKey(argOne, cacheable);
-            val redisKey = namespace.getSimpleName() + ":" + cacheKey;
+        // 无缓存 key（无参/参数为 null/表达式某级为 null）跳过缓存
+        if (null == cacheKey) {
             if (log.isDebugEnabled()) {
-                log.debug("Redis cacheKey: {}, expire: {}", redisKey, expire);
+                log.debug("无缓存 key，跳过 Redis 缓存");
             }
-
-            val returnType = method.getReturnType();
-            return cacheService.getCache(
-                redisKey, CObjUtils.anyType(returnType),
-                expire,
-                () -> CAspectUtils.process(joinPoint)
-            );
+            return CAspectUtils.process(joinPoint);
         }
 
+        val redisKey = namespace.getSimpleName() + ":" + cacheKey;
         if (log.isDebugEnabled()) {
-            log.debug("方法无参数，跳过 Redis 缓存");
+            log.debug("Redis cacheKey: {}, expire: {}", redisKey, expire);
         }
-        return CAspectUtils.process(joinPoint);
+
+        val returnType = method.getReturnType();
+        return cacheService.getCache(
+            redisKey, CObjUtils.anyType(returnType),
+            expire,
+            () -> CAspectUtils.process(joinPoint)
+        );
     }
 
 }

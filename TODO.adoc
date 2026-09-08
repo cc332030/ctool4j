@@ -3,7 +3,7 @@
 
 == develop
 
-. [ ] CCacheable el 表达式，启动时校验是否正确，不能影响性能
+. [x] CCacheable el 表达式（key="参数名.属性…"），首次使用时校验是否正确，结果按方法缓存不重复解析、不牺牲启动性能
 . [ ] RabbitMQ 默认 channel 数据限制，避免打满（满了需要阻塞而不是不停建新渠道，方便找问题），自定义名称
 . [ ] 自定义 RocketMQ 注解，避免踩坑（consumerGroup 不能等共用问题），自定义名称
 . [ ] BeanUtils.copy 深拷贝
