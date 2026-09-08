@@ -8,5 +8,5 @@
 . [ ] 自定义 RocketMQ 注解，避免踩坑（consumerGroup 不能等共用问题），自定义名称
 . [ ] BeanUtils.copy 深拷贝
 . [ ] 兼容 log4j2
-. [ ] log with level
+. [x] log with level
 . [x] Instant 格式化
