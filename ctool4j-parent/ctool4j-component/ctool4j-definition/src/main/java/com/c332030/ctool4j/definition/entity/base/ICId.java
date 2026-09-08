@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.entity.base;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 import java.io.Serializable;
 
@@ -18,7 +18,7 @@ public interface ICId<T extends Serializable> {
      * 获取主键
      * @return 主键
      */
-    @ApiModelProperty("主键")
+    @CSchema("主键")
     T getId();
 
     /**

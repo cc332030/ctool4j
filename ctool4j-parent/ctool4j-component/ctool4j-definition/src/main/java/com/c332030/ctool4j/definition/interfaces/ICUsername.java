@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.interfaces;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ public interface ICUsername {
      * 获取用户名
      * @return 用户名
      */
-    @ApiModelProperty("用户名")
+    @CSchema("用户名")
     String getUsername();
 
     /**

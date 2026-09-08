@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.definition.interfaces;
 
+import com.c332030.ctool4j.doc.annotation.CSchema;
+
 /**
  * <p>
  * Description: ICMessage
@@ -14,6 +16,7 @@ public interface ICMessage {
      * 获取消息
      * @return 消息
      */
+    @CSchema("提示信息")
     String getMessage();
 
 }

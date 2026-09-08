@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.mybatis.model;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ public interface ICDeleted {
      * 获取删除标识
      * @return 删除标识
      */
-    @ApiModelProperty("删除标识")
+    @CSchema("删除标识")
     Boolean getDeleted();
 
     /**

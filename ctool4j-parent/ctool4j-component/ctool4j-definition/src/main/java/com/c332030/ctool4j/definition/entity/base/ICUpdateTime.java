@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.entity.base;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 import java.util.Date;
 
@@ -18,7 +18,7 @@ public interface ICUpdateTime {
      * 获取更新时间
      * @return 更新时间
      */
-    @ApiModelProperty("更新时间")
+    @CSchema("更新时间")
     Date getUpdateTime();
 
     /**

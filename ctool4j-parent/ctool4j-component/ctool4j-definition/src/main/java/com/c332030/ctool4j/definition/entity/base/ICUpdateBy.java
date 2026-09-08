@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.entity.base;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ public interface ICUpdateBy {
      * 获取更新人ID
      * @return 更新人ID
      */
-    @ApiModelProperty("更新人ID")
+    @CSchema("更新人ID")
     Long getUpdateById();
 
     /**
@@ -29,7 +29,7 @@ public interface ICUpdateBy {
      * 获取更新人
      * @return 更新人
      */
-    @ApiModelProperty("更新人")
+    @CSchema("更新人")
     String getUpdateBy();
 
     /**

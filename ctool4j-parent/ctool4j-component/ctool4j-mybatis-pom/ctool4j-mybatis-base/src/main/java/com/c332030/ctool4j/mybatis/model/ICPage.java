@@ -7,9 +7,9 @@ import com.c332030.ctool4j.core.util.CNumUtils;
 import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.annotation.CJsonLog;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 import com.c332030.ctool4j.mybatisplus.util.CMpPageUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.val;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public interface ICPage {
      * 当前页
      * @return 当前页
      */
-    @ApiModelProperty(value = "当前页", required = true)
+    @CSchema("当前页")
     default Integer getPageNum() {
         return 1;
     }
@@ -38,7 +38,7 @@ public interface ICPage {
      * 页大小
      * @return 页大小
      */
-    @ApiModelProperty(value = "页大小", required = true)
+    @CSchema("页大小")
     default Integer getPageSize() {
         return CPageUtils.DEFAULT_PAGE_SIZE;
     }
@@ -47,7 +47,7 @@ public interface ICPage {
      * 排序
      * @return 排序
      */
-    @ApiModelProperty(value = "排序")
+    @CSchema("排序")
     default List<OrderItem> getOrders() {
         return CList.of();
     }

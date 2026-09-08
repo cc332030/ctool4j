@@ -3,6 +3,7 @@ package com.c332030.ctool4j.mybatisplus.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.c332030.ctool4j.definition.entity.base.CId;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.doc.annotation.COperation;
 import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatisplus.service.ICService;
 import com.c332030.ctool4j.spring.lifecycle.ICSpringInit;
@@ -52,6 +53,7 @@ public abstract class CMpController<S extends ICService<T>, T> implements ICSpri
      * @param cPage 分页查询条件
      * @return 分页结果
      */
+    @COperation("分页查询")
     @ResponseBody
     @PostMapping("/page")
     public CStrResult<IPage<T>> page(@Validated @NotNull @RequestBody CPageReq<T> cPage) {
@@ -66,6 +68,7 @@ public abstract class CMpController<S extends ICService<T>, T> implements ICSpri
      * @param cId id 请求
      * @return 查询结果
      */
+    @COperation("按 id 查询")
     @ResponseBody
     @PostMapping("/get-by-id")
     public CStrResult<T> getById(@Validated @NotNull @RequestBody CId<?> cId) {
@@ -79,6 +82,7 @@ public abstract class CMpController<S extends ICService<T>, T> implements ICSpri
      * @param entity 实体
      * @return 新增结果
      */
+    @COperation("新增实体")
     @ResponseBody
     @PostMapping("/add")
     public CStrResult<T> add(@Validated @NotNull @RequestBody T entity) {
@@ -93,6 +97,7 @@ public abstract class CMpController<S extends ICService<T>, T> implements ICSpri
      * @param entity 实体
      * @return 更新结果
      */
+    @COperation("按 id 更新")
     @ResponseBody
     @PostMapping("/update-by-id")
     public CStrResult<Boolean> updateById(@Validated @NotNull @RequestBody T entity) {
@@ -106,6 +111,7 @@ public abstract class CMpController<S extends ICService<T>, T> implements ICSpri
      * @param cId id 请求
      * @return 删除结果
      */
+    @COperation("按 id 删除")
     @ResponseBody
     @PostMapping("/remove-by-id")
     public CStrResult<Boolean> removeById(@Validated @NotNull @RequestBody CId<?> cId) {

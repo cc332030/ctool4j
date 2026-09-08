@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.entity.base;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ public interface ICCreateBy {
      * 获取创建人ID
      * @return 创建人ID
      */
-    @ApiModelProperty("创建人ID")
+    @CSchema("创建人ID")
     Long getCreateById();
 
     /**
@@ -29,7 +29,7 @@ public interface ICCreateBy {
      * 获取创建人
      * @return 创建人
      */
-    @ApiModelProperty("创建人")
+    @CSchema("创建人")
     String getCreateBy();
 
     /**

@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.definition.interfaces;
 
+import com.c332030.ctool4j.doc.annotation.CSchema;
+
 /**
  * <p>
  * Description: ICData
@@ -14,6 +16,7 @@ public interface ICData<T> {
      * 获取数据
      * @return 数据
      */
+    @CSchema("数据")
     T getData();
 
 }

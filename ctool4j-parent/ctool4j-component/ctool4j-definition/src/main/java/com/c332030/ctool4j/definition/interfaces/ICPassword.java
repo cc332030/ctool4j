@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.definition.interfaces;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.c332030.ctool4j.doc.annotation.CSchema;
 
 /**
  * <p>
@@ -16,7 +16,7 @@ public interface ICPassword {
      * 获取密码
      * @return 密码
      */
-    @ApiModelProperty("密码")
+    @CSchema("密码")
     String getPassword();
 
     /**
