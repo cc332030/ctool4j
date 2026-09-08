@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * <p>覆盖不依赖 Spring 容器的纯逻辑/ThreadLocal 方法；
- * isEnable/isExcludeUri/genRequestLog/logWrite 等依赖容器或配置对象，不在本测试覆盖范围</p>
+ * isExcludeUri（依赖配置的用户排除项部分）、isEnable/genRequestLog/logWrite 等依赖容器或配置对象，
+ * 不在本测试覆盖范围；isExcludeUri 的内置静态资源排除分支（配置无关，先于配置读取）纳入本测试覆盖</p>
  *
  * @since 2026/8/14
  */
@@ -86,6 +87,43 @@ public class CRequestLogUtilsTests {
     public void constants() {
         // 正例：常量定义合理
         Assertions.assertEquals("request-log", CRequestLogUtils.REQUEST_LOG_STR);
+    }
+
+    // ---------- isExcludeUri：内置静态资源默认排除（配置无关分支，先于配置读取） ----------
+
+    /**
+     * 对应测试用例 1.7
+     */
+    @Test
+    public void excludeStaticResource_docEntry() {
+        // 正例：接口文档入口静态资源默认排除，无需配置
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/doc.html"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/webjars/css/app.1824bac3.css"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/webjars/js/app.5de26223.js"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/swagger-resources"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/v2/api-docs"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/favicon.ico"));
+    }
+
+    /**
+     * 对应测试用例 1.8
+     */
+    @Test
+    public void excludeStaticResource_byExtension() {
+        // 正例：常见静态文件扩展名默认排除
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/static/app.js"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/css/main.css"));
+        Assertions.assertTrue(CRequestLogUtils.isExcludeUri("/img/logo.png"));
+    }
+
+    /**
+     * 对应测试用例 1.9
+     */
+    @Test
+    public void notExclude_businessUri() {
+        // 反例：业务接口 uri 不在内置静态资源排除内；未注入配置（null）时返回 false
+        Assertions.assertFalse(CRequestLogUtils.isExcludeUri("/api/user/list"));
+        Assertions.assertFalse(CRequestLogUtils.isExcludeUri("/c-schema/test"));
     }
 
 }

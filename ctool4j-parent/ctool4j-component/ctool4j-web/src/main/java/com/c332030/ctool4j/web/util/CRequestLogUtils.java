@@ -74,18 +74,72 @@ public class CRequestLogUtils {
     }
 
     /**
-     * 判断 uri 是否命中排除规则
+     * 内置需排除的静态资源默认路径模式（无需配置即生效，避免日志刷屏）。
+     * 与配置 {@code exclude-uri-patterns}（追加的用户规则）叠加，命中任一即排除
+     */
+    private final String[] STATIC_RESOURCE_EXCLUDE_PATTERNS = {
+        // 接口文档（knife4j/swagger）静态资源
+        "/webjars/**",
+        "/webjars",
+        "/swagger-resources",
+        "/swagger-resources/**",
+        "/v2/api-docs",
+        "/v2/api-docs/**",
+        "/v3/api-docs",
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/doc.html",
+        // 浏览器默认请求
+        "/favicon.ico",
+        // 常见静态文件扩展名
+        "/**/*.js",
+        "/**/*.css",
+        "/**/*.png",
+        "/**/*.jpg",
+        "/**/*.jpeg",
+        "/**/*.gif",
+        "/**/*.svg",
+        "/**/*.ico",
+        "/**/*.woff",
+        "/**/*.woff2",
+        "/**/*.ttf",
+        "/**/*.eot"
+    };
+
+    /**
+     * 判断 uri 是否命中排除规则（用户配置 {@code excludeUriPatterns} 或内置静态资源默认路径，命中任一即排除）
      *
      * @param uri 请求 uri
      * @return true 表示命中排除规则
      */
     public boolean isExcludeUri(String uri) {
+
+        if (isStaticResourceUri(uri)) {
+            return true;
+        }
+
         val excludeUriPatterns = CObjUtils.convert(requestLogConfig, CRequestLogConfig::getExcludeUriPatterns);
         if (CollUtil.isEmpty(excludeUriPatterns)) {
             return false;
         }
         return excludeUriPatterns.stream()
             .anyMatch(pattern -> matchUri(uri, pattern));
+    }
+
+    /**
+     * 判断 uri 是否命中内置静态资源默认排除路径
+     *
+     * @param uri 请求 uri
+     * @return true 表示命中内置静态资源排除规则
+     */
+    private boolean isStaticResourceUri(String uri) {
+        for (val pattern : STATIC_RESOURCE_EXCLUDE_PATTERNS) {
+            if (matchUri(uri, pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean matchUri(String uri, String pattern) {

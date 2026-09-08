@@ -14,7 +14,8 @@ LastModified: 2026-08-21
 核心方法：
 
 - `isEnable()`：判断请求日志功能是否开启（`requestLogConfig.enable`，未注入时按 false）
-- `isExcludeUri(uri)`：判断 uri 是否命中排除规则（支持 `*` 通配，经 `CPatternUtils.getUrlCache` 预编译匹配）
+- `isExcludeUri(uri)`：判断 uri 是否命中排除规则（支持 `*`/`**` 通配，经 `CPatternUtils.getUrlCache` 预编译匹配）。
+  内置静态资源默认路径（`STATIC_RESOURCE_EXCLUDE_PATTERNS`）无需配置即排除，与用户配置 `exclude-uri-patterns` 叠加，命中任一即排除
 - `getOpt()` / `getOptThenRemove()`：获取当前线程请求日志（Opt），后者取出并移除
 - `genRequestLog()`：根据当前请求生成请求日志；uri 命中排除规则返回 null
 - `collectHeaders`：采集全部请求头（拷贝为独立 Map，避免持有请求对象内部结构）
@@ -30,6 +31,7 @@ LastModified: 2026-08-21
 - `REQUEST_LOG_STR = "request-log"`：请求日志 logger 名称
 - `EMPTY_REQ = "[no request body]"`：无请求体占位
 - `EMPTY_RSP = "[no response body]"`：无响应体占位
+- `STATIC_RESOURCE_EXCLUDE_PATTERNS`：内置需排除的静态资源默认路径模式（接口文档 webjars/swagger/doc.html、favicon、常见静态文件扩展名等）
 
 == 2. 设计要点
 
@@ -56,7 +58,8 @@ LastModified: 2026-08-21
 | 场景 | 兜底行为 |
 |------|---------|
 | `requestLogConfig` 未注入 | `isEnable`/`isExcludeUri` 经 `CObjUtils.convert` 判空，按默认值（false）处理 |
-| `excludeUriPatterns` 为空 | `isExcludeUri` 返回 false（不排除任何 uri） |
+| `excludeUriPatterns` 为空 | 用户排除为空，但仍排除内置静态资源默认路径（`isExcludeUri` 先判内置静态路径再读配置） |
+| uri 为内置静态资源 | `isExcludeUri` 返回 true（先于配置读取短路，无需容器/配置即可生效） |
 | uri 命中排除规则 | `genRequestLog` 返回 null，`init` 不绑定 |
 | 无当前请求日志 | `setReq`/`setRsp` 直接跳过（debug 日志提示） |
 

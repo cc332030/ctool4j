@@ -15,12 +15,12 @@ LastModified: 2026-08-21
 === 设计思路
 
 - 按 CRequestLogUtils：请求日志采集与常量 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。
-- 使用 MockHttpServletRequest/MockHttpServletResponse/MockMvc 构造真实请求场景，贴近真实使用，不依赖外部服务。
+- `isExcludeUri` 的内置静态资源排除分支（先于配置读取、配置无关）纳入覆盖：接口文档静态资源、静态文件扩展名命中即排除，业务 uri 不排除。
 
 === 覆盖场景与未覆盖
 
 - 覆盖：见下方编号索引。
-- 未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。
+- 未覆盖：`isExcludeUri` 依赖用户配置 `exclude-uri-patterns` 的部分、`isEnable`/`genRequestLog`/`logWrite` 等依赖容器装配的场景，由集成测试覆盖。
 
 == 1. CRequestLogUtils：请求日志采集与常量
 
@@ -30,6 +30,9 @@ LastModified: 2026-08-21
 - 1.4 getOptThenRemove_empty（getOptThenRemove_empty）
 - 1.5 remove_idempotent（remove_idempotent）
 - 1.6 constants（constants）
+- 1.7 isExcludeUri：接口文档静态资源默认排除（excludeStaticResource_docEntry）
+- 1.8 isExcludeUri：静态文件扩展名默认排除（excludeStaticResource_byExtension）
+- 1.9 isExcludeUri：业务 uri 不排除（notExclude_businessUri）
 
 == 变更日志
 
