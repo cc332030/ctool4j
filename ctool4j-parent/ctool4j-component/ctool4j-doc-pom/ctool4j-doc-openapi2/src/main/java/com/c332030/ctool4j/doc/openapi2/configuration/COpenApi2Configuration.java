@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.doc.openapi2.configuration;
 
 import com.c332030.ctool4j.core.util.CList;
+import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.COperationAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.CTagAnnotationPlugin;
@@ -11,8 +12,8 @@ import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CTextEnumParamete
 import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CSchemaAnnotationModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.property.impl.CTextEnumModelPropertyPlugin;
 import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
-import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
+import io.swagger.annotations.Api;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -26,7 +27,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
-import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
 
@@ -151,7 +151,11 @@ public class COpenApi2Configuration {
                 CRequestHeaderEnum.AUTHORIZATION
             )))
             .select()
-            .apis(RequestHandlerSelectors.withClassAnnotation(CTag.class))
+            .apis(requestHandler -> {
+                // 兼容：@CTag 为本族新注解；@Api 为存量 Swagger 注解，二者都纳入文档，避免存量接口漏收集
+                return requestHandler.isAnnotatedWith(Api.class)
+                    || requestHandler.isAnnotatedWith(CTag.class);
+            })
             .build()
             ;
     }
