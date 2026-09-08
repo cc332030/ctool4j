@@ -39,7 +39,7 @@ operation，并合并方法上 `@COperation.tags` 指定的额外分组（替代
 
 == 5. 已知限制与取舍
 
-- 依赖 `@CTag`/`@COperation`（doc-base 模块）注解定义。
+- 依赖 `@CTag`/`@COperation`（ctool4j-definition 模块）注解定义。
 
 测试内容见 `doc/design/openapi2/CTagAnnotationPluginTests.adoc`。
 

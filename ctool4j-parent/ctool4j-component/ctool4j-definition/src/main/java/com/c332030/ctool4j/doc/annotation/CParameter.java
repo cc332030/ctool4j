@@ -17,8 +17,8 @@ import java.lang.annotation.*;
  * {@code com.c332030.ctool4j.web.validation.annotation.CNotRequired} 表达文档非必填）。</p>
  *
  * @author c332030
- * @see "doc/design/doc-base/CParameter.adoc"
- * @see "doc/design/doc-base/CDocAnnotation.adoc"
+ * @see "doc/design/definition/CParameter.adoc"
+ * @see "doc/design/definition/CDocAnnotation.adoc"
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

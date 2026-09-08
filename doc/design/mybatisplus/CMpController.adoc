@@ -1,6 +1,6 @@
 = CMpController 设计文档
 
-Version: 1.1
+Version: 1.2
 LastModified: 2026-09-08
 模块：ctool4j-mybatisplus
 类：com.c332030.ctool4j.mybatisplus.controller.CMpController
@@ -14,10 +14,10 @@ LastModified: 2026-09-08
 == 2. 设计要点
 
 - 提供分页查询、按ID查询等公共接口。
-- 各接口方法标注 `@COperation` 提供接口摘要/说明（ctool4j-doc-base 的接口文档注解），供 doc-openapi2 生成接口文档。
+- 各接口方法标注 `@COperation` 提供接口摘要/说明（ctool4j-definition 的接口文档注解），供 doc-openapi2 生成接口文档。
 - `@RequestBody` 参数不再标注参数注解：入参/出参文档由对应请求/响应 model 在父接口 getter 上的 `@CSchema`
   （如 ICPage、ICCode/ICMessage/ICData、ICId）统一提供，子类/实现无需重复标注。
-- 依赖以 `provided` 引入（`ctool4j-doc-base`），仅编译期生效、不透传；运行时由启用 doc-openapi2 的应用经其传递引入。
+- 依赖以 `provided` 引入（`ctool4j-definition`），仅编译期生效、不透传；运行时由启用 doc-openapi2 的应用经其传递引入。
 
 == 3. 兜底设计
 
@@ -39,5 +39,6 @@ LastModified: 2026-09-08
 
 == 变更日志
 
+- 1.2 | 2026-09-08 | 接口文档注解迁入 ctool4j-definition，provided 依赖由 ctool4j-doc-base 改为 ctool4j-definition
 - 1.1 | 2026-09-08 | 接口方法标注 @COperation 提供接口文档；@RequestBody 参数文档改由请求/响应 model 父接口 getter 的 @CSchema 统一提供；引入 ctool4j-doc-base（provided）
 - 1.0 | 2026-08-21 | 初始落地

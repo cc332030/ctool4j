@@ -14,8 +14,8 @@ import java.lang.annotation.*;
  * <p>参数级描述请用 {@code @CParameter}（参数必填由 {@code @CRequired} / {@code @CNotRequired} 表达）。</p>
  *
  * @author c332030
- * @see "doc/design/doc-base/CSchema.adoc"
- * @see "doc/design/doc-base/CDocAnnotation.adoc"
+ * @see "doc/design/definition/CSchema.adoc"
+ * @see "doc/design/definition/CDocAnnotation.adoc"
  */
 @Target({
     ElementType.FIELD,

@@ -1,11 +1,11 @@
 = CSchema 设计文档
 
-Version: 1.3
-LastModified: 2026-09-06
-模块：ctool4j-doc-base
+Version: 1.4
+LastModified: 2026-09-08
+模块：ctool4j-definition
 类：com.c332030.ctool4j.doc.annotation.CSchema
 状态：已落地
-总体文档：`doc/design/doc-base/CDocAnnotation.adoc`（接口文档注解族）
+总体文档：`doc/design/definition/CDocAnnotation.adoc`（接口文档注解族）
 
 == 1. 功能说明
 
@@ -46,6 +46,7 @@ LastModified: 2026-09-06
 
 == 变更日志
 
+- 1.4 | 2026-09-08 | 迁入 ctool4j-definition（doc.annotation）
 - 1.3 | 2026-09-06 | @Target 移除 PARAMETER（参数描述由 @CParameter 承担，CSchema 仅字段/getter 描述）
 - 1.2 | 2026-09-06 | 迁入 ctool4j-doc-base（doc.annotation）
 - 1.1 | 2026-09-06 | CSchema 回归纯文档描述（对齐 ApiModelProperty/@Schema）；required/message/groups/payload/@Constraint 移除，必填迁移至 CRequired

@@ -19,11 +19,6 @@
 
         <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-doc-base</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.c332030</groupId>
             <artifactId>ctool4j-web</artifactId>
         </dependency>
 

@@ -14,8 +14,8 @@ import java.lang.annotation.*;
  * springfox 收集 Controller 的判定条件（对应 Docket 的 withClassAnnotation）。纯文档注解，不参与运行时校验。</p>
  *
  * @author c332030
- * @see "doc/design/doc-base/CTag.adoc"
- * @see "doc/design/doc-base/CDocAnnotation.adoc"
+ * @see "doc/design/definition/CTag.adoc"
+ * @see "doc/design/definition/CDocAnnotation.adoc"
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

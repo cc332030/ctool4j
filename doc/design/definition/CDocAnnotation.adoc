@@ -1,8 +1,8 @@
 = C 前缀接口文档注解族 总体设计文档
 
-Version: 1.2
-LastModified: 2026-09-06
-模块：ctool4j-doc-base（注解定义）
+Version: 1.3
+LastModified: 2026-09-08
+模块：ctool4j-definition（注解定义）
 功能：C 前缀接口文档注解族（CSchema / CTag / COperation / CParameter）替代 Swagger/OpenAPI2 文档注解以驱动接口文档；
 必填语义由独立注解 CRequired（request body 必填校验，web.validation）/ CNotRequired（request param 非必填）表达
 状态：已落地
@@ -10,7 +10,7 @@ LastModified: 2026-09-06
 == 1. 功能说明
 
 本项目用 C 前缀注解替代 Swagger/OpenAPI2 的**文档注解**（按 OpenAPI3 注解命名，前缀 c），用于**接口（API）文档生成**，
-统一声明在 ctool4j-doc-base 的 `com.c332030.ctool4j.doc.annotation` 包（校验注解 `@CRequired`/`@CNotRequired` 在
+统一声明在 ctool4j-definition 的 `com.c332030.ctool4j.doc.annotation` 包（校验注解 `@CRequired`/`@CNotRequired` 在
 ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包）。
 这些注解是纯声明、不依赖文档框架；由各文档实现（如 `ctool4j-doc-openapi2`）的插件读取并翻译为文档。
 
@@ -49,7 +49,7 @@ ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包）。
 === 2.3 声明与落地分离
 
 - 注解仅承载文档（及校验）声明，不依赖文档框架；翻译逻辑在具体文档实现（如 ctool4j-doc-openapi2）插件中，
-  doc-base 注解模块不引入文档框架。
+  definition 注解模块不引入文档框架。
 
 === 2.4 绑定分离
 
@@ -86,6 +86,7 @@ ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包）。
 
 == 变更日志
 
+- 1.3 | 2026-09-08 | 文档注解随类迁至 ctool4j-definition（doc.annotation），原 ctool4j-doc-base 模块删除
 - 1.2 | 2026-09-06 | 文档注解迁至 ctool4j-doc-base（doc.annotation）；CParameter 纯文档、不再驱动 SpringMVC 绑定（删除 CParameterMethodArgumentResolver）
 - 1.1 | 2026-09-06 | 必填语义解耦：文档注解移除 required，新增 CRequired（request body 必填校验）/ CNotRequired（request param 非必填）；CSchema 回归纯描述
 - 1.0 | 2026-09-04 | 初始落地

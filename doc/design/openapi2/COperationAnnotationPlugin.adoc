@@ -42,7 +42,7 @@ summary/description/deprecated 写入 springfox 的 operation（替代原生 `@A
 == 5. 已知限制与取舍
 
 - springfox 为 operation 自动生成 id，`operationId` 不在此映射。
-- 依赖 `@COperation`（doc-base 模块）注解定义。
+- 依赖 `@COperation`（ctool4j-definition 模块）注解定义。
 
 测试内容见 `doc/design/openapi2/COperationAnnotationPluginTests.adoc`。
 

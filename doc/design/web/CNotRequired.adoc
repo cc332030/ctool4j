@@ -5,7 +5,7 @@ LastModified: 2026-09-06
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.validation.annotation.CNotRequired
 状态：已落地
-总体文档：`doc/design/doc-base/CDocAnnotation.adoc`（接口文档注解族）
+总体文档：`doc/design/definition/CDocAnnotation.adoc`（接口文档注解族）
 
 == 1. 功能说明
 
@@ -21,7 +21,7 @@ request param 绑定与必填由 SpringMVC 原生 `@RequestParam(required = ...)
 
 === 2.1 与 CParameter 配合
 
-- `@CParameter`（doc-base）只管描述，`@CNotRequired` 只声明"文档非必填"，二者可组合：`@CNotRequired @CParameter("名称")`。
+- `@CParameter`（ctool4j-definition）只管描述，`@CNotRequired` 只声明"文档非必填"，二者可组合：`@CNotRequired @CParameter("名称")`。
 
 === 2.2 独立生效
 

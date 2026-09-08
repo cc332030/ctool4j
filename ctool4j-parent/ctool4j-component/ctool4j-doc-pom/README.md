@@ -1,45 +1,34 @@
 # ctool4j-doc-pom
 
-> 接口文档聚合模块：通用接口文档描述注解（`ctool4j-doc-base`）、OpenAPI2（knife4j / springfox）增强（`ctool4j-doc-openapi2`）。
+> 接口文档聚合模块：OpenAPI2（springfox / knife4j）文档增强（`ctool4j-doc-openapi2`）。
 
 ## 简介
 
-`ctool4j-doc-pom` 是聚合 pom，包含 2 个子模块：
+`ctool4j-doc-pom` 是聚合 pom，包含子模块：
 
-- `ctool4j-doc-base`：通用接口文档描述注解（CSchema/CTag/COperation/CParameter），供各文档实现（如 openapi2）复用
-- `ctool4j-doc-openapi2`：Swagger / springfox 接口文档增强（Docket 自动装配、全局请求头注入、校验注解自动映射必填参数、兼容性修复）
+- `ctool4j-doc-openapi2`：OpenAPI2（springfox / knife4j）接口文档增强。
 
-## 子模块一：ctool4j-doc-base
+通用接口文档描述注解（`CSchema`/`CTag`/`COperation`/`CParameter`）定义在 `ctool4j-definition`
+的 `com.c332030.ctool4j.doc.annotation` 包（设计文档见 `doc/design/definition/`），本模块插件读取后落地为 Swagger 文档。
 
-> 通用接口文档描述注解模块（纯声明，不依赖任何文档框架）。
+## 子模块：ctool4j-doc-openapi2
 
-### 核心类
-
-| 类 | 类型 | 职责 |
-|----|------|------|
-| `CSchema` | 注解 | 字段/getter 文档描述（对齐 ApiModelProperty/@Schema） |
-| `CTag` | 注解 | 接口分组标签（替代 @Api） |
-| `COperation` | 注解 | 操作摘要/说明（替代 @ApiOperation） |
-| `CParameter` | 注解 | 参数说明/名称/示例（纯文档，替代 @ApiParam） |
-
-设计文档见 `doc/design/doc-base/`。
-
-## 子模块二：ctool4j-doc-openapi2
-
-> Swagger / springfox 增强模块。
+> OpenAPI2（springfox / knife4j）接口文档增强：读取 `doc.annotation` 文档注解与 web 校验注解，生成 / 增强 Swagger 文档。
 
 ### 功能特性
 
-- **Docket 自动装配**：`COpenApi2Configuration` 自动装配 Docket、注册插件
-- **全局请求头**：`CSpringFoxUtils` 生成全局 header 参数（基于 `CRequestHeaderEnum`）
-- **必填参数映射**：`ICExpandedParameterBuilderPlugin` 参数扩展插件，将 `@CRequired`/`@NotEmpty` 注解参数在文档中标记为必填
-- **兼容性修复**：修复 springfox 空指针问题
+- **Docket 自动装配**：`COpenApi2Configuration` 自动装配 Docket（收集标注 `@Api` 或 `@CTag` 的 Controller、注入全局请求头）并注册各文档插件
+- **文档注解映射**：`@CTag` 分组、`@COperation` 摘要 / 说明、`@CParameter` 参数、`@CSchema` 属性描述，分别由 `CTagAnnotationPlugin`、`COperationAnnotationPlugin`、`CParameterAnnotationPlugin`、`CSchemaAnnotationModelPropertyPlugin` 落地
+- **必填参数映射**：标注 `@CRequired` / `@NotEmpty` 的参数在文档中标记必填（`CRequiredAnnotationPlugin` / `CNotEmptyAnnotationPlugin`）
+- **text 枚举展示**：实现 `ICText` 的枚举，在 model 属性 / 参数中以 description 展示 text（`CTextEnumModelPropertyPlugin` / `CTextEnumParameterPlugin`）
+- **全局请求头**：`CSpringFoxUtils` 将请求头定义（`ICRequestHeader`，如 `CRequestHeaderEnum.AUTHORIZATION`）写入全局参数
+- **兼容性修复**：修复 springfox 的 handlerMappings 空指针问题
 
 ### 依赖
 
 | 依赖 | 说明 |
 |------|------|
-| `ctool4j-doc-base` | 通用文档描述注解 |
-| `ctool4j-core` | 工具与请求头接口 |
-| `ctool4j-web` | 请求头枚举、校验注解（CRequired/CNotRequired） |
-| `springfox` / `knife4j` / `swagger` | 文档框架 |
+| `knife4j-openapi2-spring-boot-starter` | OpenAPI2 文档框架（springfox / knife4j / swagger） |
+| `ctool4j-definition` | 接口文档描述注解（`doc.annotation` 包） |
+| `ctool4j-web` | 请求头枚举 `CRequestHeaderEnum`、校验注解 `CRequired` / `CNotRequired` |
+| `ctool4j-core`（经 `ctool4j-web` → `ctool4j-spring` 传递） | 请求头接口 `ICRequestHeader`、工具类 |
