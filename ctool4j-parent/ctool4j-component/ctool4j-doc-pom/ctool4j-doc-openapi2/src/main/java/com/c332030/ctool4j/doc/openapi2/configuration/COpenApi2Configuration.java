@@ -27,6 +27,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
+import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
 
@@ -151,11 +152,9 @@ public class COpenApi2Configuration {
                 CRequestHeaderEnum.AUTHORIZATION
             )))
             .select()
-            .apis(requestHandler -> {
+            .apis(RequestHandlerSelectors.withClassAnnotation(Api.class)
                 // 兼容：@CTag 为本族新注解；@Api 为存量 Swagger 注解，二者都纳入文档，避免存量接口漏收集
-                return requestHandler.isAnnotatedWith(Api.class)
-                    || requestHandler.isAnnotatedWith(CTag.class);
-            })
+                .or(RequestHandlerSelectors.withClassAnnotation(CTag.class)))
             .build()
             ;
     }
