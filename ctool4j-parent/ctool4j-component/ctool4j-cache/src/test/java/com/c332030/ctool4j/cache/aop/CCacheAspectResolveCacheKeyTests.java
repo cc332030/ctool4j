@@ -167,7 +167,7 @@ class CCacheAspectResolveCacheKeyTests {
     void testResolveCacheKey_defaultNoId_throws() {
         Method m = method("cacheDefaultNoId");
         UserWithoutId user = new UserWithoutId(42L, "name");
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
             () -> aspect.resolveCacheKey(new Object[] { user }, m, cacheable(m)));
     }
 
@@ -192,7 +192,7 @@ class CCacheAspectResolveCacheKeyTests {
     void testResolveCacheKey_elNoArgs_throws() {
         // 用带 key() 但引用不存在参数名的方法（无参），参数名必然找不到
         Method m = method("cacheNoArgs");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> aspect.resolveCacheKey(new Object[0], m,
                 cacheable(method("cacheElById"))));
     }

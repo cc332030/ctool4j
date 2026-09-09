@@ -132,7 +132,7 @@ class CIdempotentAspectTests {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
 
         Method m = method("doOnce");
-        Assertions.assertThrows(CIdempotentException.class,
+        Assertions.assertThrowsExactly(CIdempotentException.class,
             () -> aspect.idempotent(joinPoint(m, new Object[] { 1L })));
     }
 
@@ -142,7 +142,7 @@ class CIdempotentAspectTests {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
 
         Method m = method("doOnce");
-        CIdempotentException ex = Assertions.assertThrows(CIdempotentException.class,
+        CIdempotentException ex = Assertions.assertThrowsExactly(CIdempotentException.class,
             () -> aspect.idempotent(joinPoint(m, new Object[] { 1L })));
         Assertions.assertEquals("重复请求，请勿重复提交", ex.getMessage());
     }
@@ -153,7 +153,7 @@ class CIdempotentAspectTests {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
 
         Method m = method("doOnceCustomMessage");
-        CIdempotentException ex = Assertions.assertThrows(CIdempotentException.class,
+        CIdempotentException ex = Assertions.assertThrowsExactly(CIdempotentException.class,
             () -> aspect.idempotent(joinPoint(m, new Object[] { 1L })));
         Assertions.assertEquals("custom msg", ex.getMessage());
     }
@@ -223,7 +223,7 @@ class CIdempotentAspectTests {
         ProceedingJoinPoint pjp = joinPoint(m, new Object[] { 1L });
         Mockito.when(pjp.proceed(Mockito.any())).thenThrow(new IllegalStateException("biz error"));
 
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
             () -> aspect.idempotent(pjp));
         Mockito.verify(lock).unlock();
     }
