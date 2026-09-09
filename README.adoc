@@ -91,7 +91,7 @@ ctool4j-nacos-discovery（依赖 spring）
 
 除 Maven 模块外，项目根下还有以下支撑目录：
 
-- *agent/*：项目规范目录。规范以远端统一规范（+http://agent.c332030.com/AGENTS.adoc+，含 `specs/` 分层规范）为基准，入口为根 +AGENTS.md+；项目特有规范集中在 +agent/AGENTS-PROJECT.MD+。涉及某主题操作前须按加载调度规则加载对应规范文件确认规则。
+- *agent/*：项目规范目录。规范以远端统一规范（+http://agent.c332030.com/AGENTS_COMMON.adoc+，含 `specs/` 分层规范）为基准，入口为根 +AGENTS.md+；项目特有规范集中在 +agent/AGENTS-PROJECT.MD+。涉及某主题操作前须按加载调度规则加载对应规范文件确认规则。
 - *doc/*：各模块的设计文档与测试文档（AsciiDoc，按模块分子目录，如 +doc/design/core/CBeanUtils.adoc+）。设计文档记录功能设计、测试设计、已知缺陷与性能瓶颈；测试文档记录用例设计与分类编号。配套规范见远端统一规范的文档规范。
 - *script/*：项目级脚本
   - +clean-tmp.py+：清理 +tmp/+ 下的临时产物（扫描中间结果、日志等），仅限 +tmp/+ 目录，带路径穿越防护。
