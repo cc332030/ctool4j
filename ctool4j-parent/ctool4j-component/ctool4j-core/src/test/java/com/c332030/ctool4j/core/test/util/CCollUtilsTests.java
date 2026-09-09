@@ -432,11 +432,10 @@ public class CCollUtilsTests {
         Assertions.assertEquals(1, map6.get("a"));
         Assertions.assertEquals(2, map6.get("b"));
 
-        // 自定义谓词放行 null key 时，不应 NPE，null key 正常入 Map（回归：见 Q1）
+        // toMap 始终过滤 null key：即使自定义谓词放行 null key，null key 也被跳过
         val map7 = CCollUtils.<String, String, String>toMap(
                 CList.of("a"), e -> null, e -> e.toUpperCase(), k -> true, (v1, v2) -> v1 + v2);
-        Assertions.assertEquals(1, map7.size());
-        Assertions.assertEquals("A", map7.get(null));
+        Assertions.assertTrue(map7.isEmpty());
 
     }
 
