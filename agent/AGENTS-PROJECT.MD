@@ -4,7 +4,8 @@
 
 ## 命名前缀
 
-- 命名前缀：当前项目所有类（class）统一使用 `C` 固定前缀，所有接口（interface）统一使用 `IC` 固定前缀；新增、重构代码均须遵循
+- 命名前缀：当前项目所有类（class）统一使用 `C` 固定前缀，所有接口（interface）统一使用 `IC` 固定前缀；新增、重构代码均须遵循。
+  - 例外：function 接口（函数式接口，`@FunctionalInterface`）不要求以 `I` 开头，统一使用 `C` 前缀（如 `CFunction`、`CBiConsumer`）
 
 ## Spring 配置
 
