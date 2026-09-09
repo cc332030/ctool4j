@@ -3,6 +3,8 @@ package com.c332030.ctool4j.core.test.log;
 import com.c332030.ctool4j.core.log.CLog;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 /**
@@ -43,12 +45,13 @@ public class CLogTests {
     public void levelEnabled() {
 
         CLog log = new CLog(CLogTests.class);
-        // 仅断言返回 boolean 且调用不抛异常，避免依赖具体日志级别配置
-        Assertions.assertNotNull(log.isTraceEnabled());
-        Assertions.assertNotNull(log.isDebugEnabled());
-        Assertions.assertNotNull(log.isInfoEnabled());
-        Assertions.assertNotNull(log.isWarnEnabled());
-        Assertions.assertNotNull(log.isErrorEnabled());
+        // 校验 CLog 各级别判断与底层 SLF4J Logger 委托一致（不依赖具体日志级别配置）
+        Logger logger = LoggerFactory.getLogger(CLogTests.class);
+        Assertions.assertEquals(logger.isTraceEnabled(), log.isTraceEnabled());
+        Assertions.assertEquals(logger.isDebugEnabled(), log.isDebugEnabled());
+        Assertions.assertEquals(logger.isInfoEnabled(), log.isInfoEnabled());
+        Assertions.assertEquals(logger.isWarnEnabled(), log.isWarnEnabled());
+        Assertions.assertEquals(logger.isErrorEnabled(), log.isErrorEnabled());
 
     }
 

@@ -1,7 +1,7 @@
 = CClassConvert 测试用例文档
 
-Version: 1.1
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-09
 所属功能：`com.c332030.ctool4j.core.classes.CClassConvert`（core 对象类）——类型转换（字符串/数值/日期/枚举值互转）。
 
 对应测试类：`com.c332030.ctool4j.core.test.classes.CClassConvertTests`
@@ -68,7 +68,7 @@ LastModified: 2026-08-21
 
 == 6. 日期转换
 
-- 6.1 parseDateTime：解析非空（parseDateTime）
+- 6.1 parseDateTime：解析后格式化精确还原；非法输入抛 DateException（parseDateTime）
 - 6.2 formatDateTime：格式化正确（formatDateTime）
 - 6.3 toMills：含 null（toMills）
 - 6.4 fromMills：含 null（fromMills）
@@ -87,5 +87,6 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.2 | 2026-09-09 | parseDateTime 用例强化：解析后格式化精确还原 + 非法输入抛 DateException，消除仅断言非空的弱断言
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地

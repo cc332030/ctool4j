@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.test.classes;
 
+import cn.hutool.core.date.DateException;
 import com.c332030.ctool4j.core.classes.CClassConvert;
 import com.c332030.ctool4j.core.util.CDateUtils;
 import com.c332030.ctool4j.definition.interfaces.ICValue;
@@ -326,7 +327,11 @@ public class CClassConvertTests {
     @Test
     public void parseDateTime() {
 
-        Assertions.assertNotNull(CClassConvert.parseDateTime("2025-03-03 08:01:03"));
+        // 解析后再格式化，验证解析结果精确还原（而非仅断言非空）
+        Assertions.assertEquals("2025-03-03 08:01:03",
+                CClassConvert.formatDateTime(CClassConvert.parseDateTime("2025-03-03 08:01:03")));
+        // 非法日期字符串抛出 DateException
+        Assertions.assertThrowsExactly(DateException.class, () -> CClassConvert.parseDateTime("not-a-date"));
 
     }
 
