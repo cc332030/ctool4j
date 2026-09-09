@@ -23,13 +23,6 @@ import java.util.Map;
 @UtilityClass
 public class CJsonUtils {
 
-//    public static final List<MediaType> SUPPORT_MEDIA_TYPES = CList.of(
-//            MediaType.TEXT_HTML,
-//            MediaType.TEXT_PLAIN,
-//            MediaType.APPLICATION_JSON,
-//            CMimeTypeEnum.JSON5.getMimeType()
-//    );
-
     /**
      * 转 json
      *

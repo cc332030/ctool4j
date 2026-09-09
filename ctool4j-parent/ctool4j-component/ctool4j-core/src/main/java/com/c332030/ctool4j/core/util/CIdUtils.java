@@ -28,10 +28,28 @@ import lombok.var;
 public class CIdUtils {
 
     /**
-     * UUID v7 生成器：线程安全，类级复用避免每次调用重复创建生成器实例
+     * UUID v7 生成器：懒加载（双重检查锁，线程安全）。
+     * 不在此急切初始化，避免类加载时依赖可选的 java-uuid-generator；
+     * 仅调用 UUID/simpleUUID 时才初始化，nextId/getPrefix 等强能力方法不受影响。
      */
-    private final TimeBasedEpochGenerator UUID_V7_GENERATOR =
-        Generators.timeBasedEpochGenerator();
+    private volatile TimeBasedEpochGenerator uuidV7Generator;
+
+    /**
+     * 懒加载 UUID v7 生成器
+     *
+     * @return UUID v7 生成器
+     */
+    private TimeBasedEpochGenerator getUuidV7Generator() {
+
+        if (null == uuidV7Generator) {
+            synchronized (CIdUtils.class) {
+                if (null == uuidV7Generator) {
+                    uuidV7Generator = Generators.timeBasedEpochGenerator();
+                }
+            }
+        }
+        return uuidV7Generator;
+    }
 
     /**
      * 生成 UUID 字符串
@@ -39,7 +57,7 @@ public class CIdUtils {
      * @return UUID 字符串
      */
     public String UUID() {
-        return UUID_V7_GENERATOR.generate()
+        return getUuidV7Generator().generate()
             .toString()
             ;
     }
@@ -198,13 +216,14 @@ public class CIdUtils {
 
     /**
      * 生成 ULID（26 字符，Crockford Base32 大写，128 位 = 48 位毫秒时间戳 + 80 位随机）
-     * <p>封装开源 ulid-creator 的 {@link UlidCreator#getUlid()}：字符串字典序即生成时间序（时间可排序），
-     * 可用于需"短 + 可排序"的 ID 场景。依赖为可选（optional），使用方需引入 ulid-creator。</p>
+     * <p>封装开源 ulid-creator 的 {@link UlidCreator#getMonotonicUlid()}：字符串字典序即生成时间序（时间可排序），
+     * 同一毫秒内单调递增，严格保证可排序；可用于需"短 + 可排序"的 ID 场景。
+     * 依赖为可选（optional），使用方需引入 ulid-creator。</p>
      *
      * @return ULID 字符串
      */
     public String ulid() {
-        return UlidCreator.getUlid()
+        return UlidCreator.getMonotonicUlid()
             .toString();
     }
 

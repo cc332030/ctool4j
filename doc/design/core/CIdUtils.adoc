@@ -1,6 +1,6 @@
 = CIdUtils 设计文档
 
-Version: 1.2
+Version: 1.4
 LastModified: 2026-09-09
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CIdUtils
@@ -48,7 +48,8 @@ LastModified: 2026-09-09
 </dependency>
 ----
 
-若使用方未引入对应依赖却调用该方法，运行时会抛 `NoClassDefFoundError`。
+若使用方未引入对应依赖却调用对应方法（如 `UUID`），运行时会抛 `NoClassDefFoundError`；
+但 `nextId`（雪花 ID，依赖 hutool）、`getPrefix` 等强能力方法**不受影响**（生成器懒加载，类加载不依赖可选库）。
 `nextId`（雪花 ID）依赖 hutool，为 core 强能力，无需单独引入。
 
 == 2. 设计要点
@@ -57,8 +58,9 @@ LastModified: 2026-09-09
 
 - 使用 `com.fasterxml.uuid.Generators.timeBasedEpochGenerator()` 生成 **UUID v7**（时间有序），
   相比 v4 随机 UUID，索引友好、可排序，且无需维护状态即可保证全局唯一。
-- 生成器以类级字段 `UUID_V7_GENERATOR` 缓存复用，避免每次调用重复创建实例；
-  该生成器本身**线程安全**（内部 `synchronized` 保护时间戳/熵状态），可安全并发共享。
+- 生成器以类级字段懒加载缓存复用（双重检查锁），避免每次调用重复创建实例；
+  仅在调用 `UUID`/`simpleUUID` 时才初始化，类加载不触发；该生成器本身**线程安全**
+  （内部 `synchronized` 保护时间戳/熵状态），可安全并发共享。
 - 输出为带 '-' 的标准 UUID 字符串（36 位）；`simpleUUID` 在其基础上去除 '-'（32 位）。
 
 === 2.2 前缀计算规则（CLASS_PREFIX）
@@ -86,9 +88,11 @@ LastModified: 2026-09-09
 
 === 2.6 ULID 生成（ulid）
 
-- 复用**开源 ulid-creator**（`com.github.f4b6a3:ulid-creator`）的 `UlidCreator.getUlid()`（标准加密 ULID）。
+- 复用**开源 ulid-creator**（`com.github.f4b6a3:ulid-creator`）的 `UlidCreator.getMonotonicUlid()`（标准加密 ULID）。
 - 格式：26 字符、大写 Crockford Base32（`0-9A-HJKMNP-TV-Z`，不含 `I/L/O/U`），128 位 = 48 位毫秒时间戳 + 80 位随机。
-- 特性：字符串字典序即生成时间序（可排序）、前 10 字符时间戳可解码回毫秒、短于 UUID。
+- 特性：字符串字典序即生成时间序（可排序）、**同一毫秒内单调递增**（严格保证排序）、前 10 字符时间戳可解码回毫秒、短于 UUID。
+  - 选用 `getMonotonicUlid()` 而非 `getUlid()`：后者同一毫秒内随机后缀不保证递增（同毫秒并发生成可能乱序），
+    与"时间可排序"的设计意图不符；monotonic 版确保时间戳相同后缀递增，真正满足可排序。
 - 相比 Nano ID：同为 URL 友好但**时间可排序**；适合需"短 + 可排序"的 ID。
 - 依赖为可选（optional），见 1.1。
 
@@ -120,12 +124,14 @@ LastModified: 2026-09-09
 - `getPrefixFromId` 语义简单（数字前字符），不做复杂的前缀分隔规则。
 - Nano ID 依赖 jnanoid（`com.aventrix.jnanoid:jnanoid` 2.0.0，MIT，零传递依赖）：该库为社区事实标准 Java nanoid 实现、多年稳定（版本未再更新），算法简单可靠；Nano ID 无序、不含时间信息，不适合需要排序/可追溯的 ID。
 - ULID 依赖 ulid-creator（`com.github.f4b6a3:ulid-creator` 5.2.4，MIT，Java 8）。
-- `UUID`/`simpleUUID`、`nanoId`、`ulid` 为**可选能力**：若使用方未引入对应依赖却调用，会抛 `NoClassDefFoundError`（见 1.1）。判断 ID 是否需要可排序时选型：UUID v7/雪花（时间有序）、Nano ID（短无序）、ULID（短时间有序）。
+- `UUID`/`simpleUUID`、`nanoId`、`ulid` 为**可选能力**：若使用方未引入对应依赖却调用对应方法，会抛 `NoClassDefFoundError`（见 1.1）；未调用对应方法时不影响 `nextId`/`getPrefix` 等强能力（生成器懒加载）。判断 ID 是否需要可排序时选型：UUID v7/雪花（时间有序）、Nano ID（短无序）、ULID（短时间有序）。
 
 测试内容见 `doc/design/core/CIdUtilsTests.adoc`。
 
 == 变更日志
 
+- 1.4 | 2026-09-09 | ULID 改用 `getMonotonicUlid()`：确保同一毫秒内单调递增、严格可排序（原 `getUlid()` 同毫秒随机后缀可能乱序，与"时间可排序"设计意图不符），修复 ulid_timeOrdered 用例偶发失败
+- 1.3 | 2026-09-09 | UUID v7 生成器改为懒加载（双重检查锁）：消除类加载对可选依赖 java-uuid-generator 的强制依赖，未引入该依赖时 nextId/getPrefix 等强能力方法不再受影响（修复 NoClassDefFoundError）
 - 1.2 | 2026-09-09 | 新增 Nano ID（`nanoId`/`nanoId(size)`，jnanoid 2.0.0）与 ULID（`ulid`，ulid-creator 5.2.4）；UUID/simpleUUID（java-uuid-generator）、nanoId、ulid 依赖均改为 Maven optional 可选能力（1.1 说明）
 - 1.1 | 2026-08-27 | UUID 生成由 v4 随机改为 UUID v7（`Generators.timeBasedEpochGenerator()`），方法 `stringUUID`/`stringUUIDNoHyphen` 重命名为 `UUID`/`simpleUUID`；生成器以类级字段 `UUID_V7_GENERATOR` 缓存复用（线程安全）；新增 2.1 设计要点，章节编号顺延
 - 1.0 | 2026-08-21 | 初始落地
