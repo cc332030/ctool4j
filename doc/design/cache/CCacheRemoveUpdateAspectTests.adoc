@@ -1,0 +1,44 @@
+= CCacheRemove/CCacheUpdate 测试用例文档
+
+Version: 1.1
+LastModified: 2026-09-11
+所属功能：`com.c332030.ctool4j.cache.annotation.CCacheRemove` / `CCacheUpdate`（cache 模块）——缓存删除 / 更新注解切面。
+
+对应测试类：`com.c332030.ctool4j.cache.aop.CCacheRemoveUpdateAspectTests`
+
+对应设计文档：`doc/design/cache/CCacheRemove.adoc`、`doc/design/cache/CCacheUpdate.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CCacheRemove/CCacheUpdate 本地缓存删除、更新语义的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 通过最小 Spring AOP 上下文（复用 `CCacheElLocalAspectTests.LocalConfig`，mock cacheService）集成验证
+  `@CCacheRemove` / `@CCacheUpdate` 经切面拦截生效。
+- 覆盖：remove 删除后重算、remove 方法异常不删缓存、update 更新后命中新值、update 返回 null 不写、
+  无缓存 key 时跳过。
+
+=== 设计依据
+
+- 依据功能设计对 remove/update 的约定：方法成功后才删除 / 更新缓存；异常不删 / 不写。
+- 依据最真实场景优先原则：走真实切面 + 真实业务 Bean + Caffeine 缓存流程，而非 mock 切面单点。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：remove 删除、remove 异常、update 更新、update null、null key 跳过（均为本地 Caffeine 模式）。
+- 未覆盖：Redis 模式的删除 / 更新（由 CCacheService 集成 / 环境覆盖）；多实例并发丢失更新竞争。
+
+== 1. 缓存删除 / 更新行为
+
+- 1.1 remove 删除缓存后重新计算（不再命中）（testLocalCache_remove_recompute）
+- 1.2 remove 方法抛异常时向上传播、且不删除缓存（testLocalCache_removeError_notRemove）
+- 1.3 update 更新缓存后，读方法命中更新后的值（testLocalCache_update_updateHit）
+- 1.4 update 方法返回 null 时不写入缓存（保留原值）（testLocalCache_updateNull_keepOld）
+- 1.5 无缓存 key（参数为 null）时 remove/update 跳过，不抛错（testLocalCache_removeUpdateNullKey_skip）
+- 1.6 update 写入后首次读取即命中更新值（无前置缓存）（testLocalCache_update_writeThenHit）
+
+== 变更日志
+
+- 1.1 | 2026-09-11 | 注解改名 CCacheEvict→CCacheRemove、CCachePut→CCacheUpdate；新增用例 1.6 update 写入后首次读取命中
+- 1.0 | 2026-09-11 | 初始落地
