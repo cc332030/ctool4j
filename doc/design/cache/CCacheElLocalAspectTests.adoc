@@ -1,7 +1,7 @@
 = CCacheElLocalAspectTests 测试用例文档
 
-Version: 1.0
-LastModified: 2026-09-08
+Version: 1.1
+LastModified: 2026-09-11
 所属功能：`com.c332030.ctool4j.cache.aop.CCacheAspect`（cache 模块）——@CCacheable 带 `key()` 表达式的本地 Caffeine 缓存端到端。
 
 对应测试类：`com.c332030.ctool4j.cache.aop.CCacheElLocalAspectTests`
@@ -23,7 +23,7 @@ LastModified: 2026-09-08
 
 === 设计依据
 
-- 依据 `CCacheAspect` 的本地缓存实现（`cache.get(key, loader)` 原子加载）与
+- 依据 `CCacheAspect` 的本地缓存实现（`getIfPresent` + 手动 `put`，方法返回 null 不写缓存）与
   `resolveCacheKey` 的 el/默认分派。
 - 依据 el 语义：参数为 null → key 为 null → 不入缓存（每次执行）。
 
@@ -37,7 +37,9 @@ LastModified: 2026-09-08
 - 1.1 el key 缓存命中：同 key 二次调用不重算（testLocalCache_elKey_hit）
 - 1.2 不同 el key 隔离：不同对象 id 各自缓存、互不共享（testLocalCache_elKey_distinctIsolation）
 - 1.3 参数为 null（el 取不到 key）：不入缓存、每次执行（testLocalCache_elNullParam_noCache）
+- 1.4 本地缓存方法返回 null：不抛 NPE、null 不写缓存（testLocalCache_elNullResult_noNpe）
 
 == 变更日志
 
+- 1.1 | 2026-09-11 | 新增用例 1.4：本地缓存方法返回 null 不抛 NPE、null 不写缓存（Q1 修复）
 - 1.0 | 2026-09-08 | 初始落地

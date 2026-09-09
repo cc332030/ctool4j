@@ -275,7 +275,10 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取本地缓存：未命中时执行原方法并写缓存（Caffeine cache.get 原子加载，单 key 并发只执行一次）
+     * 获取本地缓存：未命中时执行原方法并写缓存。
+     * <p>Caffeine 的 cache.get(key, mapping) 要求 mapping 函数禁止返回 null（返回 null 会抛 NPE），
+     * 故改用 getIfPresent + 手动 put：方法返回 null 时不写缓存直接返回，与 Redis 路径 null 语义对齐。
+     * 原子加载（单 key 并发只执行一次）仅对非空值生效，null 值不缓存、下次重新计算</p>
      * @param joinPoint 切入点
      * @param method    被缓存方法
      * @param cacheable 缓存注解
@@ -309,12 +312,27 @@ public class CCacheAspect {
         if (log.isDebugEnabled()) {
             log.debug("cacheKey: {}, expire: {}", cacheKey, expire);
         }
-        return cache.get(cacheKey, k -> {
 
-            val valueNew = CAspectUtils.process(joinPoint);
-            log.info("新值 cacheKey: {}, cacheValue: {}", k, valueNew);
-            return valueNew;
-        });
+        // Caffeine cache.get 的 mapping 函数禁止返回 null（返回 null 会抛 NPE），
+        // 故用 getIfPresent + 手动 put：方法返回 null 时不写缓存，与 Redis 路径 null 语义对齐
+        val cached = cache.getIfPresent(cacheKey);
+        if (null != cached) {
+            if (log.isDebugEnabled()) {
+                log.debug("命中本地缓存 cacheKey: {}", cacheKey);
+            }
+            return cached;
+        }
+
+        val valueNew = CAspectUtils.process(joinPoint);
+        if (null != valueNew) {
+            log.info("新值 cacheKey: {}, cacheValue: {}", cacheKey, valueNew);
+            cache.put(cacheKey, valueNew);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("方法返回 null，不写本地缓存 cacheKey: {}", cacheKey);
+            }
+        }
+        return valueNew;
     }
 
     /**

@@ -283,4 +283,15 @@ class CRateLimitAspectTests {
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
+    /**
+     * 对应测试用例 1.12：Redis 自增返回 null 时快速失败抛 IllegalStateException（不放行，Q4 修复）
+     */
+    @Test
+    void rateLimit_countNull_throws() {
+        // 未 stub 计数，redisTemplate.execute 默认返回 null
+        Method m = method("limited");
+        Assertions.assertThrowsExactly(IllegalStateException.class,
+            () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
+    }
+
 }

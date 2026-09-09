@@ -1,8 +1,8 @@
 = CCacheBuilder 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
-所属功能：`com.c332030.ctool4j.cache.service.CCacheService.CCacheBuilder`（cache 模块）——缓存构建器。
+Version: 1.1
+LastModified: 2026-09-11
+所属功能：`com.c332030.ctool4j.cache.service.CCacheService`（cache 模块）——缓存服务与构建器。
 
 对应测试类：`com.c332030.ctool4j.cache.service.CCacheBuilderTests`
 
@@ -45,6 +45,13 @@ LastModified: 2026-08-21
 - 2.1 永久缓存（TTL=-1）：直接返回缓存值，不抢锁（computeIfAbsent_permanentCache_returnsDirectly）
 - 2.2 已过期：阻塞加锁读-算-写，写缓存并返回值（computeIfAbsent_expired_computesAndWrites）
 
+== 3. getCache 加锁双重检查
+
+- 3.1 未命中：锁内计算并写缓存（getCache_lockDoubleCheck_computesAndWrites）
+- 3.2 锁内已被写入：直接返回缓存值，不再写（getCache_lockDoubleCheck_hitInLock）
+- 3.3 计算值 null：不写缓存、直接返回 null（getCache_nullValue_notCached）
+
 == 变更日志
 
+- 1.1 | 2026-09-11 | 新增用例 3.1~3.3：getCache 加锁双重检查防击穿（Q3 修复）
 - 1.0 | 2026-08-21 | 初始落地

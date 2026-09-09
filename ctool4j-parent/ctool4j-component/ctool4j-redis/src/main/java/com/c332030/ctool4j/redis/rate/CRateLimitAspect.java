@@ -65,6 +65,11 @@ public class CRateLimitAspect {
         val limitKey = buildLimitKey(method, rateLimit, specKey);
 
         val current = CRedisUtils.incrExpire(limitKey, 1, Duration.ofSeconds(interval));
+        if (null == current) {
+            // Redis 自增异常（脚本执行失败等）返回 null：快速失败，不放行，避免限流失效被绕过
+            throw new IllegalStateException(
+                "@CRateLimit 自增计数返回 null，key: " + limitKey + ", 方法: " + method);
+        }
         if (log.isDebugEnabled()) {
             log.debug("rate limit key: {}, current: {}, count: {}", limitKey, current, count);
         }
