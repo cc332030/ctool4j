@@ -69,7 +69,8 @@ public class CCacheService {
      * <p>使用 LoadingCache 而非 Cache.get(key, function)：后者并发探测时 mapping 函数可能被多次执行、
      * 各线程拿到各自实例，导致 refreshing/lastRefreshMillis 状态分叉（防并发与节流失效）；
      * LoadingCache.get 保证每 key 单实例</p>
-     * <p>已知取舍：刷新任务运行超过空闲淘汰时长而被淘汰时，节流状态丢失属极端情况，由使用者自行处理</p>
+     * <p>已知取舍（KNOWN）：刷新任务运行超过空闲淘汰时长（5 分钟）而被淘汰时，refreshing/lastRefreshMillis
+     * 状态丢失，节流与防并发标记失效，极端情况下可能并发重复刷新。属可接受的边界取舍，由使用者自行处理</p>
      */
     private static final LoadingCache<String, RefreshState> REFRESH_STATES = Caffeine.newBuilder()
         .expireAfterAccess(REFRESH_STATE_IDLE_DURATION)
@@ -183,7 +184,9 @@ public class CCacheService {
 
     /**
      * 获取 Redis 缓存值，带过期时间
-     * <p>无锁的轻量"读-算-写"：值提供者允许返回 null（null 时不写缓存直接返回，避免缓存空值）；
+     * <p>加锁双重检查的"读-算-写"：值提供者允许返回 null（null 时不写缓存直接返回，避免缓存空值）；
+     * 未命中时加分布式锁，锁内重温缓存，命中直接返回，否则计算写缓存——防止并发穿透重复计算（缓存击穿）。
+     * 获取锁失败时降级为无锁直接计算（保持旧行为），避免误判缓存值不存在。
      * 与 {@link #computeAndWrite(String, Class, Supplier, Function)} 语义不同（后者锁内强校验非空），独立实现不复用</p>
      * @param key 缓存 key
      * @param tClass 返回值类型
@@ -206,11 +209,39 @@ public class CCacheService {
             log.debug("Redis 缓存未命中，key: {}", key);
         }
 
-        val valueNew = valueSupplier.get();
-        if (null != valueNew) {
-            setValue(key, valueNew, expireSeconds);
+        // 加锁双重检查防缓存击穿：并发未命中时只放一个线程计算写缓存，其余等锁后读新值
+        val lockFail = new AtomicBoolean(false);
+        val result = lockService.lock(CLockUtils.getLockKey(key))
+            .waitTime(DEFAULT_WAIT_TIME)
+            .onLockFail(unused -> lockFail.set(true))
+            .execute(() -> {
+                // 双重检查：锁内可能已被其他线程刷新写入
+                val valueInLock = redisService.getValue(key, tClass);
+                if (null != valueInLock) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("锁内命中 Redis 缓存，key: {}", key);
+                    }
+                    return valueInLock;
+                }
+                val valueNew = valueSupplier.get();
+                if (null != valueNew) {
+                    setValue(key, valueNew, expireSeconds);
+                }
+                return valueNew;
+            });
+
+        if (!lockFail.get()) {
+            return result;
         }
-        return valueNew;
+        // 获取锁失败：降级无锁直接计算，避免误判缓存值不存在（缓存击穿退化为旧的无锁读-算-写）
+        if (log.isDebugEnabled()) {
+            log.debug("获取锁失败，降级无锁计算，key: {}", key);
+        }
+        val valueFallback = valueSupplier.get();
+        if (null != valueFallback) {
+            setValue(key, valueFallback, expireSeconds);
+        }
+        return valueFallback;
     }
 
     /**

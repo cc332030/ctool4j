@@ -77,6 +77,15 @@ class CCacheElLocalAspectTests {
         public Long elNullParam(User user) {
             return EXECUTE_COUNT.incrementAndGet();
         }
+
+        /**
+         * 本地缓存方法返回 null（Q1 修复验证）：Caffeine mapping 禁止返回 null，
+         * 本地缓存路径不应抛 NPE，且 null 不写缓存、每次重新执行
+         */
+        @CCacheable(namespace = Namespace.class, key = "user.id")
+        public Long elNullResult(User user) {
+            return null;
+        }
     }
 
     /**
@@ -143,6 +152,22 @@ class CCacheElLocalAspectTests {
         val n2 = elCacheService.elNullParam(null);
 
         Assertions.assertNotEquals(n1, n2);
+    }
+
+    /**
+     * 对应测试用例 1.4：本地缓存方法返回 null 不抛 NPE（Q1 修复），null 不写缓存
+     */
+    @Test
+    void testLocalCache_elNullResult_noNpe() {
+
+        val user = new User(99L, "n");
+
+        // 返回 null：不应抛 NPE（Caffeine cache.get 允许返回 null 的历史问题）
+        val n1 = elCacheService.elNullResult(user);
+        val n2 = elCacheService.elNullResult(user);
+
+        Assertions.assertNull(n1);
+        Assertions.assertNull(n2);
     }
 
 }

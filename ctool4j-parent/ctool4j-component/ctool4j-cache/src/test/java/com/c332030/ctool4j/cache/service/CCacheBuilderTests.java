@@ -26,6 +26,7 @@ public class CCacheBuilderTests {
 
     private CLockService lockService;
     private CStringStringRedisService redisService;
+    private CCacheService cacheService;
     private CCacheService.CCacheBuilder<String> builder;
 
     @BeforeEach
@@ -33,7 +34,7 @@ public class CCacheBuilderTests {
         lockService = Mockito.mock(CLockService.class);
         redisService = Mockito.mock(CStringStringRedisService.class);
 
-        CCacheService cacheService = new CCacheService(lockService, redisService);
+        cacheService = new CCacheService(lockService, redisService);
         builder = cacheService.cacheBuilder("myKey", String.class);
     }
 
@@ -147,6 +148,70 @@ public class CCacheBuilderTests {
         // 用 String 字面量会解析到接口默认方法 setValue(String, String, Duration)（computeAndWrite 中泛型 T 实际走类方法）
         Mockito.verify(redisService).setValue(
             Mockito.eq("myKey"), Mockito.any(Object.class), Mockito.any(Duration.class));
+    }
+
+    /**
+     * 打桩 lockBuilder：等待超时/锁失败回调链式返回自身，execute 直接执行 callable（模拟加锁成功）
+     */
+    private CLockService.CLockBuilder stubLockBuilder() {
+        CLockService.CLockBuilder lockBuilder = Mockito.mock(CLockService.CLockBuilder.class);
+        Mockito.when(lockService.lock(Mockito.anyString())).thenReturn(lockBuilder);
+        Mockito.when(lockBuilder.waitTime(Mockito.any(Duration.class))).thenReturn(lockBuilder);
+        Mockito.when(lockBuilder.onLockFail(Mockito.any())).thenReturn(lockBuilder);
+        Mockito.when(lockBuilder.execute(Mockito.any(Supplier.class)))
+            .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
+        return lockBuilder;
+    }
+
+    /**
+     * 对应测试用例 3.1：getCache 加锁双重检查，未命中时锁内计算并写缓存（Q3 修复）
+     */
+    @Test
+    public void getCache_lockDoubleCheck_computesAndWrites() {
+        stubLockBuilder();
+        // 首读 miss，锁内重读 miss
+        Mockito.when(redisService.getValue("k", String.class)).thenReturn(null);
+
+        String result = cacheService.getCache("k", String.class, 60, () -> "computed");
+
+        Assertions.assertEquals("computed", result);
+        // 写缓存
+        Mockito.verify(redisService).setValue(
+            Mockito.eq("k"), Mockito.any(Object.class), Mockito.any(Duration.class));
+    }
+
+    /**
+     * 对应测试用例 3.2：getCache 加锁双重检查，锁内已被其他线程写入时直接返回缓存值（防击穿）
+     */
+    @Test
+    public void getCache_lockDoubleCheck_hitInLock() {
+        stubLockBuilder();
+        // 首读 miss，锁内重读命中
+        Mockito.when(redisService.getValue("k", String.class))
+            .thenReturn(null)
+            .thenReturn("cachedInLock");
+
+        String result = cacheService.getCache("k", String.class, 60, () -> "computed");
+
+        Assertions.assertEquals("cachedInLock", result);
+        // 未再写缓存
+        Mockito.verify(redisService, Mockito.never()).setValue(
+            Mockito.anyString(), Mockito.any(Object.class), Mockito.any(Duration.class));
+    }
+
+    /**
+     * 对应测试用例 3.3：getCache 计算值 null 时不写缓存、直接返回 null（保留语义）
+     */
+    @Test
+    public void getCache_nullValue_notCached() {
+        stubLockBuilder();
+        Mockito.when(redisService.getValue("k", String.class)).thenReturn(null);
+
+        String result = cacheService.getCache("k", String.class, 60, () -> null);
+
+        Assertions.assertNull(result);
+        Mockito.verify(redisService, Mockito.never()).setValue(
+            Mockito.anyString(), Mockito.any(Object.class), Mockito.any(Duration.class));
     }
 
     private Object getFieldValue(Object target, String fieldName) {

@@ -1,7 +1,7 @@
 = CRateLimitAspect 测试用例文档
 
-Version: 1.2
-LastModified: 2026-09-09
+Version: 1.3
+LastModified: 2026-09-11
 所属功能：`com.c332030.ctool4j.redis.rate.CRateLimitAspect`（redis 模块）——@CRateLimit 限流切面。
 
 对应测试类：`com.c332030.ctool4j.redis.rate.CRateLimitAspectTests`
@@ -43,9 +43,11 @@ LastModified: 2026-09-09
 - 1.9 id 为空白字符串时按方法全局限流，key 不含业务维度（rateLimit_blankBizId_limitGlobalKey）
 - 1.10 useMethodName=false 时 key 不含方法名段（rateLimit_withoutMethodName_shareKey）
 - 1.11 useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id（rateLimit_withoutMethodName_bizIdInKey）
+- 1.12 自增返回 null 时快速失败抛 IllegalStateException，不放行（rateLimit_countNull_throws）
 
 == 变更日志
 
+- 1.3 | 2026-09-11 | 新增用例 1.12：自增返回 null 快速失败（Q4 修复）
 - 1.2 | 2026-09-09 | 新增 useMethodName=false 用例 1.10、1.11
 - 1.1 | 2026-09-08 | 新增空白业务 id（按方法全局限流）用例 1.9
 - 1.0 | 2026-09-08 | 初始落地

@@ -49,6 +49,8 @@ public class CInnerApiInterceptor implements ICHandlerInterceptor {
         if (allowedIps == null || allowedIps.isEmpty()) {
             return true;
         }
+        // 已知取舍：getIp 无条件信任 X-Forwarded-For 首段，客户端直连时可伪造该头绕过白名单（安全缺陷）。
+        // 生产对外场景须配合可信代理清理/覆盖 X-Forwarded-For（见 CRequestUtils.adoc 既有已知限制）；暂按此取舍保留。
         String clientIp = CRequestUtils.getIp(request);
         if (CIpUtils.contains(clientIp, allowedIps)) {
             return true;
