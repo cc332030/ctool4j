@@ -245,7 +245,7 @@ public class CStrUtils {
      * @param value 待转换值
      * @return 转换结果
      */
-    public String upperUnderscoreToLowerCamel(String value)  {
+    public String upperUnderscoreToLowerCamel(String value) {
 
         val result = CaseFormat.UPPER_UNDERSCORE
                 .converterTo(CaseFormat.LOWER_CAMEL)
@@ -259,7 +259,7 @@ public class CStrUtils {
      * @param value 待转换值
      * @return 转换结果
      */
-    public String upperUnderscoreToUpperCamel(String value)  {
+    public String upperUnderscoreToUpperCamel(String value) {
 
         val result = CaseFormat.UPPER_UNDERSCORE
                 .converterTo(CaseFormat.UPPER_CAMEL)
@@ -273,7 +273,7 @@ public class CStrUtils {
      * @param value 待转换值
      * @return 转换结果
      */
-    public String upperCamelToUpperUnderscore(String value)  {
+    public String upperCamelToUpperUnderscore(String value) {
 
         val result = CaseFormat.UPPER_CAMEL
                 .converterTo(CaseFormat.UPPER_UNDERSCORE)

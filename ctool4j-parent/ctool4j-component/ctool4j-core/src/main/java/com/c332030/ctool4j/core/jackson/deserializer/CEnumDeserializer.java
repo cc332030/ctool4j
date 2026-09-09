@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.io.IOException;
  * @see "doc/design/core/CEnumDeserializerTests.adoc"
  */
 @Getter
+@RequiredArgsConstructor
 public class CEnumDeserializer
         extends JsonDeserializer<Enum<?>>
         implements ContextualDeserializer {
@@ -34,15 +36,6 @@ public class CEnumDeserializer
     public static final CEnumDeserializer EMPTY_INSTANCE = new CEnumDeserializer(null);
 
     private final Class<Enum<?>> enumClass;
-
-    /**
-     * 构造枚举反序列化器
-     *
-     * @param enumClass 枚举类型
-     */
-    public CEnumDeserializer(Class<Enum<?>> enumClass) {
-        this.enumClass = enumClass;
-    }
 
     /**
      * 按枚举名反序列化，空白值返回 null

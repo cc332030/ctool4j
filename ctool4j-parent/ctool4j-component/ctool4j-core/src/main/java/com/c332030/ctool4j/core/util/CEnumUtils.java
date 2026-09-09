@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.lang.func.LambdaUtil;
+import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.definition.interfaces.ICName;
 import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.SneakyThrows;
@@ -120,9 +121,9 @@ public class CEnumUtils {
                     } else {
 
                         val field = enumClass.getDeclaredField(fieldName);
-                        field.setAccessible(true);
+                        val getterHandle = CMethodHandleUtils.getGetterHandleAsType(field);
                         for (val val : values) {
-                            val fieldValue = field.get(val);
+                            val fieldValue = getterHandle.invoke(val);
                             if (fieldValue != null) {
                                 map.put(fieldValue, val);
                             }

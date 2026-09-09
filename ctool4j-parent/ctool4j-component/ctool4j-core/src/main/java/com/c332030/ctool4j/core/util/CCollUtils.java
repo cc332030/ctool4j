@@ -731,7 +731,7 @@ public class CCollUtils {
      * @param <T>   元素类型
      * @return 元素，越界或为空时返回 null
      */
-    public static  <T> T get(List<T> list, int index) {
+    public static <T> T get(List<T> list, int index) {
         if(CollUtil.isEmpty(list) || index < 0 || index >= list.size()) {
             return null;
         }
@@ -766,7 +766,7 @@ public class CCollUtils {
      * @param <T>        元素类型
      * @return 最后一个元素，为空时返回 null
      */
-    public static  <T> T last(Collection<T> collection) {
+    public static <T> T last(Collection<T> collection) {
 
         if(CollUtil.isEmpty(collection)) {
             return null;

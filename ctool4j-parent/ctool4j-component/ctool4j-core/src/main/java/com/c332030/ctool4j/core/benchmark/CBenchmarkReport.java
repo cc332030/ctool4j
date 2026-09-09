@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.core.benchmark;
 
+import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,6 +17,7 @@ import java.util.List;
  * @see "doc/design/core/CBenchmarkReport.adoc"
  * @see "doc/design/core/CBenchmarkReportTests.adoc"
  */
+@RequiredArgsConstructor
 public class CBenchmarkReport {
 
     /**
@@ -26,17 +29,6 @@ public class CBenchmarkReport {
      * 按耗时升序的结果列表（首项为基线）
      */
     private final List<CBenchmarkResult> results;
-
-    /**
-     * 构造报告
-     *
-     * @param title   标题
-     * @param results 结果列表（按耗时升序）
-     */
-    public CBenchmarkReport(String title, List<CBenchmarkResult> results) {
-        this.title = title;
-        this.results = results;
-    }
 
     /**
      * 获取报告标题
