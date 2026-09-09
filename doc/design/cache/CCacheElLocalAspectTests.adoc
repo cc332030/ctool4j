@@ -6,7 +6,7 @@ LastModified: 2026-09-08
 
 对应测试类：`com.c332030.ctool4j.cache.aop.CCacheElLocalAspectTests`
 
-对应设计文档：`doc/design/cache/CCacheAspect.adoc`、`doc/design/cache/CCacheKeyResolver.adoc`
+对应设计文档：`doc/design/cache/CCacheAspect.adoc`、`doc/design/core/CElKeyResolveUtils.adoc`
 
 本文档为 el 本地缓存集成用例文档，含用例设计思路与依据、覆盖场景、分类编号索引。
 
