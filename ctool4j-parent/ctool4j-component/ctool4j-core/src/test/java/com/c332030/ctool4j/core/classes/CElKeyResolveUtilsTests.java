@@ -100,7 +100,9 @@ class CElKeyResolveUtilsTests {
         }
     }
 
-    /** 对应测试用例 1.1：一级表达式（仅参数名）返回参数对象本身 */
+    /**
+     * 对应测试用例 1.1：一级表达式（仅参数名）返回参数对象本身
+     */
     @Test
     void testResolve_singleLevel() {
         Method method = method("keyOuter");
@@ -110,7 +112,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertSame(outer, key);
     }
 
-    /** 对应测试用例 1.2：多级表达式取属性对象 */
+    /**
+     * 对应测试用例 1.2：多级表达式取属性对象
+     */
     @Test
     void testResolve_twoLevel() {
         Method method = method("keyOuter");
@@ -120,7 +124,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertSame(inner, key);
     }
 
-    /** 对应测试用例 1.3：二级取到基础属性值（第二个参数不参与） */
+    /**
+     * 对应测试用例 1.3：二级取到基础属性值（第二个参数不参与）
+     */
     @Test
     void testResolve_propertyValue() {
         Method method = method("keySelf");
@@ -129,7 +135,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertEquals(42L, key);
     }
 
-    /** 对应测试用例 1.4：目标参数为 null 返回 null */
+    /**
+     * 对应测试用例 1.4：目标参数为 null 返回 null
+     */
     @Test
     void testResolve_paramNull_returnsNull() {
         Method method = method("keyOuter");
@@ -137,7 +145,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertNull(key);
     }
 
-    /** 对应测试用例 1.5：属性链某级为 null 返回 null */
+    /**
+     * 对应测试用例 1.5：属性链某级为 null 返回 null
+     */
     @Test
     void testResolve_middleNull_returnsNull() {
         Method method = method("keyOuter");
@@ -146,7 +156,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertNull(key);
     }
 
-    /** 对应测试用例 1.6：表达式为空白抛异常 */
+    /**
+     * 对应测试用例 1.6：表达式为空白抛异常
+     */
     @Test
     void testParse_blankExpr_throws() {
         Method method = method("keyOuter");
@@ -154,7 +166,9 @@ class CElKeyResolveUtilsTests {
             () -> CElKeyResolveUtils.getResolver(method, "  "));
     }
 
-    /** 对应测试用例 1.7：参数名不存在抛异常 */
+    /**
+     * 对应测试用例 1.7：参数名不存在抛异常
+     */
     @Test
     void testParse_paramNotExist_throws() {
         Method method = method("keyOuter");
@@ -162,7 +176,9 @@ class CElKeyResolveUtilsTests {
             () -> CElKeyResolveUtils.getResolver(method, "notExist.inner"));
     }
 
-    /** 对应测试用例 1.8：非法段（连续点）抛异常 */
+    /**
+     * 对应测试用例 1.8：非法段（连续点）抛异常
+     */
     @Test
     void testParse_illegalSegment_throws() {
         Method method = method("keyOuter");
@@ -170,7 +186,9 @@ class CElKeyResolveUtilsTests {
             () -> CElKeyResolveUtils.getResolver(method, "outer..inner"));
     }
 
-    /** 对应测试用例 1.9：运行期属性在某实际类型不可解析抛异常 */
+    /**
+     * 对应测试用例 1.9：运行期属性在某实际类型不可解析抛异常
+     */
     @Test
     void testResolve_propNotResolvable_throws() {
         Method method = method("keyOuter");
@@ -181,7 +199,9 @@ class CElKeyResolveUtilsTests {
                 .resolve(new Object[] { outer }));
     }
 
-    /** 对应测试用例 1.10：循环引用（同一对象实例在链中重复访问）运行期抛异常 */
+    /**
+     * 对应测试用例 1.10：循环引用（同一对象实例在链中重复访问）运行期抛异常
+     */
     @Test
     void testResolve_cycle_throws() {
         Method method = method("keySelf");
@@ -192,7 +212,9 @@ class CElKeyResolveUtilsTests {
                 .resolve(new Object[] { self, "t" }));
     }
 
-    /** 对应测试用例 1.11：合法链不误报循环引用 */
+    /**
+     * 对应测试用例 1.11：合法链不误报循环引用
+     */
     @Test
     void testResolve_noCycle() {
         Method method = method("keySelf");
@@ -204,7 +226,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertEquals(2L, key);
     }
 
-    /** 对应测试用例 1.12：表达式引用第二个参数（参数下标 > 0） */
+    /**
+     * 对应测试用例 1.12：表达式引用第二个参数（参数下标 > 0）
+     */
     @Test
     void testResolve_secondParam() {
         Method method = method("keyInner");
@@ -214,7 +238,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertEquals("TAG", key);
     }
 
-    /** 对应测试用例 1.13：三级以上深层属性链取值 */
+    /**
+     * 对应测试用例 1.13：三级以上深层属性链取值
+     */
     @Test
     void testResolve_deepChain() {
         Method method = method("keyDeep");
@@ -224,7 +250,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertEquals("CN", key);
     }
 
-    /** 对应测试用例 1.14：深层链中段某级为 null 返回 null */
+    /**
+     * 对应测试用例 1.14：深层链中段某级为 null 返回 null
+     */
     @Test
     void testResolve_deepChainMiddleNull_returnsNull() {
         Method method = method("keyDeep");
@@ -234,7 +262,9 @@ class CElKeyResolveUtilsTests {
         Assertions.assertNull(key);
     }
 
-    /** 对应测试用例 1.15：深层链某实际类型属性不可解析抛异常 */
+    /**
+     * 对应测试用例 1.15：深层链某实际类型属性不可解析抛异常
+     */
     @Test
     void testResolve_deepChainPropNotResolvable_throws() {
         Method method = method("keyDeep");

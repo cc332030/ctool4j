@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
  */
 public class CValueWithTtlTests {
 
-    /** 对应测试用例 1.1 */
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     void allArgsConstructor_setsFields() {
         CValueWithTtl<String> valueWithTtl = new CValueWithTtl<>("value", 100L);
@@ -24,7 +26,9 @@ public class CValueWithTtlTests {
         Assertions.assertEquals(100L, valueWithTtl.getTtl());
     }
 
-    /** 对应测试用例 1.2 */
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     void noArgsConstructor_createsEmpty() {
         CValueWithTtl<String> valueWithTtl = new CValueWithTtl<>();
@@ -33,7 +37,9 @@ public class CValueWithTtlTests {
         Assertions.assertNull(valueWithTtl.getTtl());
     }
 
-    /** 对应测试用例 1.3 */
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     void builder_setsFields() {
         CValueWithTtl<Integer> valueWithTtl = CValueWithTtl.<Integer>builder()
@@ -45,7 +51,9 @@ public class CValueWithTtlTests {
         Assertions.assertEquals(60L, valueWithTtl.getTtl());
     }
 
-    /** 对应测试用例 1.4 */
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     void setters_updateFields() {
         CValueWithTtl<String> valueWithTtl = new CValueWithTtl<>();
@@ -57,7 +65,9 @@ public class CValueWithTtlTests {
         Assertions.assertEquals(200L, valueWithTtl.getTtl());
     }
 
-    /** 对应测试用例 1.5 */
+    /**
+     * 对应测试用例 1.5
+     */
     @Test
     void toString_containsFields() {
         CValueWithTtl<String> valueWithTtl = new CValueWithTtl<>("value", 100L);

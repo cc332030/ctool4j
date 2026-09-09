@@ -108,7 +108,9 @@ class CCacheAspectResolveCacheKeyTests {
         return m.getAnnotation(CCacheable.class);
     }
 
-    /** 对应测试用例 2.1：key() 表达式取值并经默认 idConverter 生成 key（多级取业务 id） */
+    /**
+     * 对应测试用例 2.1：key() 表达式取值并经默认 idConverter 生成 key（多级取业务 id）
+     */
     @Test
     void testResolveCacheKey_elPropertyValue() {
         Method m = method("cacheElById");
@@ -117,7 +119,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertEquals("42", key);
     }
 
-    /** 对应测试用例 2.2：key() 表达式参数为 null 返回 null（跳过缓存） */
+    /**
+     * 对应测试用例 2.2：key() 表达式参数为 null 返回 null（跳过缓存）
+     */
     @Test
     void testResolveCacheKey_elParamNull_returnsNull() {
         Method m = method("cacheElById");
@@ -125,7 +129,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertNull(key);
     }
 
-    /** 对应测试用例 2.3：key() 表达式属性值为 null 返回 null（跳过缓存） */
+    /**
+     * 对应测试用例 2.3：key() 表达式属性值为 null 返回 null（跳过缓存）
+     */
     @Test
     void testResolveCacheKey_elPropNull_returnsNull() {
         Method m = method("cacheElNullId");
@@ -134,7 +140,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertNull(key);
     }
 
-    /** 对应测试用例 2.4：key() 表达式引用第二个参数 */
+    /**
+     * 对应测试用例 2.4：key() 表达式引用第二个参数
+     */
     @Test
     void testResolveCacheKey_elSecondParam() {
         Method m = method("cacheElSecondParam");
@@ -143,7 +151,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertEquals("TAG", key);
     }
 
-    /** 对应测试用例 2.5：key() 为空白视为未配置，走默认 @CCacheId 逻辑（不报错） */
+    /**
+     * 对应测试用例 2.5：key() 为空白视为未配置，走默认 @CCacheId 逻辑（不报错）
+     */
     @Test
     void testResolveCacheKey_elBlank_goesDefault() {
         Method m = method("cacheElBlank");
@@ -153,7 +163,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertEquals("1", key);
     }
 
-    /** 对应测试用例 2.6：key() 为空走默认逻辑，@CCacheId 取字段 */
+    /**
+     * 对应测试用例 2.6：key() 为空走默认逻辑，@CCacheId 取字段
+     */
     @Test
     void testResolveCacheKey_defaultId() {
         Method m = method("cacheDefaultId");
@@ -162,7 +174,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertEquals("42", key);
     }
 
-    /** 对应测试用例 2.7：key() 为空、默认逻辑无 @CCacheId 时报错 */
+    /**
+     * 对应测试用例 2.7：key() 为空、默认逻辑无 @CCacheId 时报错
+     */
     @Test
     void testResolveCacheKey_defaultNoId_throws() {
         Method m = method("cacheDefaultNoId");
@@ -171,7 +185,9 @@ class CCacheAspectResolveCacheKeyTests {
             () -> aspect.resolveCacheKey(new Object[] { user }, m, cacheable(m)));
     }
 
-    /** 对应测试用例 2.8：key() 为空、默认逻辑 JDK 类参数直接作 key */
+    /**
+     * 对应测试用例 2.8：key() 为空、默认逻辑 JDK 类参数直接作 key
+     */
     @Test
     void testResolveCacheKey_defaultJdk() {
         Method m = method("cacheDefaultJdk");
@@ -179,7 +195,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertEquals("hello", key);
     }
 
-    /** 对应测试用例 2.9：方法无参数返回 null（跳过缓存） */
+    /**
+     * 对应测试用例 2.9：方法无参数返回 null（跳过缓存）
+     */
     @Test
     void testResolveCacheKey_noArgs_returnsNull() {
         Method m = method("cacheNoArgs");
@@ -187,7 +205,9 @@ class CCacheAspectResolveCacheKeyTests {
         Assertions.assertNull(key);
     }
 
-    /** 对应测试用例 2.10：方法无参数但 key() 表达式引用参数，首次使用抛异常 */
+    /**
+     * 对应测试用例 2.10：方法无参数但 key() 表达式引用参数，首次使用抛异常
+     */
     @Test
     void testResolveCacheKey_elNoArgs_throws() {
         // 用带 key() 但引用不存在参数名的方法（无参），参数名必然找不到

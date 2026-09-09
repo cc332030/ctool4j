@@ -16,7 +16,9 @@ import org.junit.jupiter.api.Test;
  */
 class CFeignClientHeaderPropagationModeEnumTests {
 
-    /** 对应测试用例 1.1 */
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testGetText() {
 
@@ -25,21 +27,27 @@ class CFeignClientHeaderPropagationModeEnumTests {
         Assertions.assertEquals("无", CFeignClientHeaderPropagationModeEnum.NONE.getText());
     }
 
-    /** 对应测试用例 1.2 */
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testValues() {
 
         Assertions.assertEquals(3, CFeignClientHeaderPropagationModeEnum.values().length);
     }
 
-    /** 对应测试用例 1.3 */
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testValueOf() {
 
         Assertions.assertSame(CFeignClientHeaderPropagationModeEnum.ALL, CFeignClientHeaderPropagationModeEnum.valueOf("ALL"));
     }
 
-    /** 对应测试用例 1.4 */
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     void testValueOfNotExist() {
 

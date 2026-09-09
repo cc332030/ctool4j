@@ -115,7 +115,9 @@ class CIdempotentAspectTests {
         return captor.getValue();
     }
 
-    /** 对应测试用例 1.1：加锁成功时执行业务并返回结果，且释放锁 */
+    /**
+     * 对应测试用例 1.1：加锁成功时执行业务并返回结果，且释放锁
+     */
     @Test
     void idempotent_lockSuccess_executesAndReturns() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -126,7 +128,9 @@ class CIdempotentAspectTests {
         Mockito.verify(lock).unlock();
     }
 
-    /** 对应测试用例 1.2：加锁失败（重复请求）抛幂等异常 */
+    /**
+     * 对应测试用例 1.2：加锁失败（重复请求）抛幂等异常
+     */
     @Test
     void idempotent_lockFail_throws() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
@@ -136,7 +140,9 @@ class CIdempotentAspectTests {
             () -> aspect.idempotent(joinPoint(m, new Object[] { 1L })));
     }
 
-    /** 对应测试用例 1.3：幂等异常消息取注解 message 默认值 */
+    /**
+     * 对应测试用例 1.3：幂等异常消息取注解 message 默认值
+     */
     @Test
     void idempotent_message_default() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
@@ -147,7 +153,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("重复请求，请勿重复提交", ex.getMessage());
     }
 
-    /** 对应测试用例 1.4：幂等异常消息取注解 message 自定义值 */
+    /**
+     * 对应测试用例 1.4：幂等异常消息取注解 message 自定义值
+     */
     @Test
     void idempotent_message_custom() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(false);
@@ -158,7 +166,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("custom msg", ex.getMessage());
     }
 
-    /** 对应测试用例 1.5：无业务 id 时 key 为 应用前缀:分组类简单名:方法名 */
+    /**
+     * 对应测试用例 1.5：无业务 id 时 key 为 应用前缀:分组类简单名:方法名
+     */
     @Test
     void idempotent_noBizId_key() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -169,7 +179,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("grp:CIdempotentAspectTests:doOnce", capturedKey());
     }
 
-    /** 对应测试用例 1.6：业务 id 表达式取参数，key 含业务维度 */
+    /**
+     * 对应测试用例 1.6：业务 id 表达式取参数，key 含业务维度
+     */
     @Test
     void idempotent_bizId_key() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -180,7 +192,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("grp:CIdempotentAspectTests:doOnceById:10", capturedKey());
     }
 
-    /** 对应测试用例 1.7：id 为空白字符串时 key 不含业务维度 */
+    /**
+     * 对应测试用例 1.7：id 为空白字符串时 key 不含业务维度
+     */
     @Test
     void idempotent_blankBizId_key() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -191,7 +205,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("grp:CIdempotentAspectTests:doOnceByBlankId", capturedKey());
     }
 
-    /** 对应测试用例 1.8：useMethodName=false 时 key 不含方法名段 */
+    /**
+     * 对应测试用例 1.8：useMethodName=false 时 key 不含方法名段
+     */
     @Test
     void idempotent_withoutMethodName_key() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -202,7 +218,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("grp:CIdempotentAspectTests", capturedKey());
     }
 
-    /** 对应测试用例 1.9：useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id */
+    /**
+     * 对应测试用例 1.9：useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id
+     */
     @Test
     void idempotent_withoutMethodName_bizId_key() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);
@@ -213,7 +231,9 @@ class CIdempotentAspectTests {
         Assertions.assertEquals("grp:CIdempotentAspectTests:10", capturedKey());
     }
 
-    /** 对应测试用例 1.10：锁内业务异常向上传播且释放锁 */
+    /**
+     * 对应测试用例 1.10：锁内业务异常向上传播且释放锁
+     */
     @Test
     void idempotent_bizException_propagatesAndUnlocks() throws Throwable {
         Mockito.when(lock.tryLock(Mockito.anyLong(), Mockito.any(TimeUnit.class))).thenReturn(true);

@@ -103,7 +103,9 @@ class CCacheElLocalAspectTests {
     @Autowired
     ElCacheService elCacheService;
 
-    /** 对应测试用例 1.1：el key 缓存命中（同 key 二次调用不重算） */
+    /**
+     * 对应测试用例 1.1：el key 缓存命中（同 key 二次调用不重算）
+     */
     @Test
     void testLocalCache_elKey_hit() {
 
@@ -115,7 +117,9 @@ class CCacheElLocalAspectTests {
         Assertions.assertEquals(c1, c2);
     }
 
-    /** 对应测试用例 1.2：不同 el key（不同对象 id）不共享缓存，分别执行 */
+    /**
+     * 对应测试用例 1.2：不同 el key（不同对象 id）不共享缓存，分别执行
+     */
     @Test
     void testLocalCache_elKey_distinctIsolation() {
 
@@ -128,7 +132,9 @@ class CCacheElLocalAspectTests {
         Assertions.assertNotEquals(c1, c2);
     }
 
-    /** 对应测试用例 1.3：参数为 null（el 取不到 key）不写缓存，每次执行 */
+    /**
+     * 对应测试用例 1.3：参数为 null（el 取不到 key）不写缓存，每次执行
+     */
     @Test
     void testLocalCache_elNullParam_noCache() {
 

@@ -28,7 +28,9 @@ import java.util.Map;
  */
 class CFeignLoggerTests {
 
-    /** 被测 API 类型 */
+    /**
+     * 被测 API 类型
+     */
     static class ApiClass {
     }
 
@@ -431,7 +433,9 @@ class CFeignLoggerTests {
             .build();
     }
 
-    /** feign.Target 最小测试实现 */
+    /**
+     * feign.Target 最小测试实现
+     */
     private static final class TestTarget<T> implements Target<T> {
 
         private final Class<T> type;
@@ -463,7 +467,9 @@ class CFeignLoggerTests {
         }
     }
 
-    /** 将 protected 方法提升为 public 便于测试 */
+    /**
+     * 将 protected 方法提升为 public 便于测试
+     */
     private static final class TestableLogger extends CFeignLogger {
 
         private TestableLogger(CFeignClientLogConfig config) {

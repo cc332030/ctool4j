@@ -19,7 +19,9 @@ import java.util.HashSet;
  */
 public class CFeignClientLogConfigTests {
 
-    /** 对应测试用例 1.1 */
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     void defaultValues() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
@@ -31,7 +33,9 @@ public class CFeignClientLogConfigTests {
         Assertions.assertTrue(config.getApiBlackList().isEmpty());
     }
 
-    /** 对应测试用例 1.2 */
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     void settersAndGetters() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
@@ -45,7 +49,9 @@ public class CFeignClientLogConfigTests {
         Assertions.assertTrue(config.getLogAll());
     }
 
-    /** 对应测试用例 2.1 */
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     void apiWhiteList_replaceReadable() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
@@ -57,7 +63,9 @@ public class CFeignClientLogConfigTests {
         Assertions.assertTrue(config.getApiWhiteList().contains("api2"));
     }
 
-    /** 对应测试用例 2.2 */
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     void apiWhiteList_defaultImmutable() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();
@@ -67,7 +75,9 @@ public class CFeignClientLogConfigTests {
             () -> config.getApiWhiteList().add("api3"));
     }
 
-    /** 对应测试用例 3.1 */
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     void toString_containsFields() {
         CFeignClientLogConfig config = new CFeignClientLogConfig();

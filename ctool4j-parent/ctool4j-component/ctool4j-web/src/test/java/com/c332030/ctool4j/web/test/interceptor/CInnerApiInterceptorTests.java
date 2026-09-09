@@ -24,14 +24,18 @@ import org.springframework.web.method.HandlerMethod;
  */
 class CInnerApiInterceptorTests {
 
-    /** 无内部接口标记的普通 Controller 桩 */
+    /**
+     * 无内部接口标记的普通 Controller 桩
+     */
     static class OpenController {
         public String open() {
             return "open";
         }
     }
 
-    /** 方法级标记 @CInnerApi 的 Controller 桩 */
+    /**
+     * 方法级标记 @CInnerApi 的 Controller 桩
+     */
     static class MethodAnnotatedController {
         @CInnerApi
         public String inner() {
@@ -43,7 +47,9 @@ class CInnerApiInterceptorTests {
         }
     }
 
-    /** 类级标记 @CInnerApi 的 Controller 桩 */
+    /**
+     * 类级标记 @CInnerApi 的 Controller 桩
+     */
     @CInnerApi
     static class ClassAnnotatedController {
         public String any() {
@@ -51,7 +57,9 @@ class CInnerApiInterceptorTests {
         }
     }
 
-    /** 父类类级标记 @CInnerApi 的基类桩 */
+    /**
+     * 父类类级标记 @CInnerApi 的基类桩
+     */
     @CInnerApi
     static class AnnotatedBaseController {
         public String any() {
@@ -59,7 +67,9 @@ class CInnerApiInterceptorTests {
         }
     }
 
-    /** 继承标注父类类的子类 Controller 桩（@Inherited 使类级注解被子类继承） */
+    /**
+     * 继承标注父类类的子类 Controller 桩（@Inherited 使类级注解被子类继承）
+     */
     static class InheritChildController extends AnnotatedBaseController {
     }
 

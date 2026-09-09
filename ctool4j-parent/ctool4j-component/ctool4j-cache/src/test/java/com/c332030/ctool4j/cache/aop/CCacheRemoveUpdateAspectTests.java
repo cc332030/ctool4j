@@ -114,7 +114,9 @@ class CCacheRemoveUpdateAspectTests {
     @Autowired
     RemoveUpdateCacheService service;
 
-    /** 对应测试用例 1.1：remove 删除缓存后重新计算（不再命中） */
+    /**
+     * 对应测试用例 1.1：remove 删除缓存后重新计算（不再命中）
+     */
     @Test
     void testLocalCache_remove_recompute() {
 
@@ -132,7 +134,9 @@ class CCacheRemoveUpdateAspectTests {
         Assertions.assertNotEquals(v2, v3);
     }
 
-    /** 对应测试用例 1.2：remove 方法抛异常时向上传播、且不删除缓存 */
+    /**
+     * 对应测试用例 1.2：remove 方法抛异常时向上传播、且不删除缓存
+     */
     @Test
     void testLocalCache_removeError_notRemove() {
 
@@ -150,7 +154,9 @@ class CCacheRemoveUpdateAspectTests {
         Assertions.assertEquals(v1, v2);
     }
 
-    /** 对应测试用例 1.3：update 更新缓存后，读方法命中更新后的值 */
+    /**
+     * 对应测试用例 1.3：update 更新缓存后，读方法命中更新后的值
+     */
     @Test
     void testLocalCache_update_updateHit() {
 
@@ -165,7 +171,9 @@ class CCacheRemoveUpdateAspectTests {
         Assertions.assertEquals(Long.valueOf(9000 + id), hit);
     }
 
-    /** 对应测试用例 1.4：update 方法返回 null 时不写入缓存（保留原值） */
+    /**
+     * 对应测试用例 1.4：update 方法返回 null 时不写入缓存（保留原值）
+     */
     @Test
     void testLocalCache_updateNull_keepOld() {
 
@@ -181,7 +189,9 @@ class CCacheRemoveUpdateAspectTests {
         Assertions.assertEquals(v1, v2);
     }
 
-    /** 对应测试用例 1.5：无缓存 key（参数为 null）时 remove/update 跳过，不抛错 */
+    /**
+     * 对应测试用例 1.5：无缓存 key（参数为 null）时 remove/update 跳过，不抛错
+     */
     @Test
     void testLocalCache_removeUpdateNullKey_skip() {
 
@@ -192,7 +202,9 @@ class CCacheRemoveUpdateAspectTests {
         Assertions.assertDoesNotThrow(() -> service.updateById(null));
     }
 
-    /** 对应测试用例 1.6：update 写入后首次读取即命中更新值（无前置缓存） */
+    /**
+     * 对应测试用例 1.6：update 写入后首次读取即命中更新值（无前置缓存）
+     */
     @Test
     void testLocalCache_update_writeThenHit() {
 

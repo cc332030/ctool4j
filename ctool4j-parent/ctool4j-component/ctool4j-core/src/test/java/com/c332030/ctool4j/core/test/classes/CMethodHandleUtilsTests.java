@@ -216,10 +216,14 @@ public class CMethodHandleUtilsTests {
     @AllArgsConstructor
     static class Person {
 
-        /** 姓名 */
+        /**
+         * 姓名
+         */
         String name;
 
-        /** 年龄 */
+        /**
+         * 年龄
+         */
         Integer age;
 
         private String secret() {
@@ -239,7 +243,9 @@ public class CMethodHandleUtilsTests {
     @AllArgsConstructor
     static class PrimitiveHolder {
 
-        /** 值（原始类型） */
+        /**
+         * 值（原始类型）
+         */
         int value;
 
     }

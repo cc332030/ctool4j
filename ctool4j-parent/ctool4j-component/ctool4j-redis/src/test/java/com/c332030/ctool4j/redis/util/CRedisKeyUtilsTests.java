@@ -56,28 +56,36 @@ class CRedisKeyUtilsTests {
 
     // ===== resolveBizId =====
 
-    /** 对应测试用例 1.1：id 表达式为空返回 null（无业务维度） */
+    /**
+     * 对应测试用例 1.1：id 表达式为空返回 null（无业务维度）
+     */
     @Test
     void resolveBizId_emptyExpr_returnsNull() {
         Method m = method("sample");
         Assertions.assertNull(CRedisKeyUtils.resolveBizId(new Object[] { 1L }, m, ""));
     }
 
-    /** 对应测试用例 1.2：id 表达式为空白返回 null */
+    /**
+     * 对应测试用例 1.2：id 表达式为空白返回 null
+     */
     @Test
     void resolveBizId_blankExpr_returnsNull() {
         Method m = method("sample");
         Assertions.assertNull(CRedisKeyUtils.resolveBizId(new Object[] { 1L }, m, "   "));
     }
 
-    /** 对应测试用例 1.3：id 表达式取参数本身 */
+    /**
+     * 对应测试用例 1.3：id 表达式取参数本身
+     */
     @Test
     void resolveBizId_paramExpr_resolves() {
         Method m = method("sample");
         Assertions.assertEquals(10L, CRedisKeyUtils.resolveBizId(new Object[] { 10L }, m, "userId"));
     }
 
-    /** 对应测试用例 1.4：id 表达式取参数属性链 */
+    /**
+     * 对应测试用例 1.4：id 表达式取参数属性链
+     */
     @Test
     void resolveBizId_propChain_resolves() {
         Method m = method("sampleOrder");
@@ -85,14 +93,18 @@ class CRedisKeyUtilsTests {
             CRedisKeyUtils.resolveBizId(new Object[] { new OrderRequest(10L) }, m, "req.userId"));
     }
 
-    /** 对应测试用例 1.5：参数为 null 返回 null */
+    /**
+     * 对应测试用例 1.5：参数为 null 返回 null
+     */
     @Test
     void resolveBizId_nullParam_returnsNull() {
         Method m = method("sample");
         Assertions.assertNull(CRedisKeyUtils.resolveBizId(new Object[] { null }, m, "userId"));
     }
 
-    /** 对应测试用例 1.6：表达式参数名不存在抛 IllegalArgumentException */
+    /**
+     * 对应测试用例 1.6：表达式参数名不存在抛 IllegalArgumentException
+     */
     @Test
     void resolveBizId_unknownParam_throws() {
         Method m = method("sample");
@@ -100,7 +112,9 @@ class CRedisKeyUtilsTests {
             () -> CRedisKeyUtils.resolveBizId(new Object[] { 1L }, m, "unknown"));
     }
 
-    /** 对应测试用例 1.7：属性在类型上不可解析抛 IllegalStateException */
+    /**
+     * 对应测试用例 1.7：属性在类型上不可解析抛 IllegalStateException
+     */
     @Test
     void resolveBizId_unknownProp_throws() {
         Method m = method("sampleOrder");
@@ -110,35 +124,45 @@ class CRedisKeyUtilsTests {
 
     // ===== buildKey =====
 
-    /** 对应测试用例 2.1：含方法名与业务 id */
+    /**
+     * 对应测试用例 2.1：含方法名与业务 id
+     */
     @Test
     void buildKey_withMethodAndBizId() {
         Assertions.assertEquals("grp:Svc:do:10",
             CRedisKeyUtils.buildKey("grp", "Svc", "do", true, 10L));
     }
 
-    /** 对应测试用例 2.2：无业务 id（null）省略末段 */
+    /**
+     * 对应测试用例 2.2：无业务 id（null）省略末段
+     */
     @Test
     void buildKey_noBizId() {
         Assertions.assertEquals("grp:Svc:do",
             CRedisKeyUtils.buildKey("grp", "Svc", "do", true, null));
     }
 
-    /** 对应测试用例 2.3：业务 id 为空白字符串省略末段 */
+    /**
+     * 对应测试用例 2.3：业务 id 为空白字符串省略末段
+     */
     @Test
     void buildKey_blankBizId() {
         Assertions.assertEquals("grp:Svc:do",
             CRedisKeyUtils.buildKey("grp", "Svc", "do", true, "  "));
     }
 
-    /** 对应测试用例 2.4：useMethodName=false 省略方法名段 */
+    /**
+     * 对应测试用例 2.4：useMethodName=false 省略方法名段
+     */
     @Test
     void buildKey_withoutMethodName() {
         Assertions.assertEquals("grp:Svc",
             CRedisKeyUtils.buildKey("grp", "Svc", "do", false, null));
     }
 
-    /** 对应测试用例 2.5：useMethodName=false 且含业务 id */
+    /**
+     * 对应测试用例 2.5：useMethodName=false 且含业务 id
+     */
     @Test
     void buildKey_withoutMethodName_bizId() {
         Assertions.assertEquals("grp:Svc:10",
@@ -147,25 +171,33 @@ class CRedisKeyUtilsTests {
 
     // ===== isBlankSpecKey =====
 
-    /** 对应测试用例 3.1：null 视为空 */
+    /**
+     * 对应测试用例 3.1：null 视为空
+     */
     @Test
     void isBlankSpecKey_null() {
         Assertions.assertTrue(CRedisKeyUtils.isBlankSpecKey(null));
     }
 
-    /** 对应测试用例 3.2：空白字符串视为空 */
+    /**
+     * 对应测试用例 3.2：空白字符串视为空
+     */
     @Test
     void isBlankSpecKey_blankString() {
         Assertions.assertTrue(CRedisKeyUtils.isBlankSpecKey("  "));
     }
 
-    /** 对应测试用例 3.3：非空字符串不为空 */
+    /**
+     * 对应测试用例 3.3：非空字符串不为空
+     */
     @Test
     void isBlankSpecKey_nonBlank() {
         Assertions.assertFalse(CRedisKeyUtils.isBlankSpecKey("userId"));
     }
 
-    /** 对应测试用例 3.4：非字符串对象不为空 */
+    /**
+     * 对应测试用例 3.4：非字符串对象不为空
+     */
     @Test
     void isBlankSpecKey_nonString() {
         Assertions.assertFalse(CRedisKeyUtils.isBlankSpecKey(10L));

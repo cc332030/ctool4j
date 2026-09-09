@@ -125,7 +125,9 @@ class CRateLimitAspectTests {
         }
     }
 
-    /** 对应测试用例 1.1：窗口内未超阈值放行 */
+    /**
+     * 对应测试用例 1.1：窗口内未超阈值放行
+     */
     @Test
     void rateLimit_withinThreshold_allowed() throws Throwable {
         stubCurrentCounts(1L);
@@ -133,7 +135,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("ok", aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
-    /** 对应测试用例 1.2：达到阈值仍放行（current == count 允许） */
+    /**
+     * 对应测试用例 1.2：达到阈值仍放行（current == count 允许）
+     */
     @Test
     void rateLimit_atThreshold_allowed() throws Throwable {
         stubCurrentCounts(3L);
@@ -141,7 +145,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("ok", aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
-    /** 对应测试用例 1.3：超过阈值拦截抛限流异常 */
+    /**
+     * 对应测试用例 1.3：超过阈值拦截抛限流异常
+     */
     @Test
     void rateLimit_overThreshold_blocked() {
         stubCurrentCounts(4L);
@@ -150,7 +156,9 @@ class CRateLimitAspectTests {
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
-    /** 对应测试用例 1.4：计数异常抛出的消息取自注解 message（默认） */
+    /**
+     * 对应测试用例 1.4：计数异常抛出的消息取自注解 message（默认）
+     */
     @Test
     void rateLimit_message_default() {
         stubCurrentCounts(4L);
@@ -160,7 +168,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("请求过于频繁，请稍后再试", ex.getMessage());
     }
 
-    /** 对应测试用例 1.5：业务 id 表达式取指定参数，限流 key 含业务维度 */
+    /**
+     * 对应测试用例 1.5：业务 id 表达式取指定参数，限流 key 含业务维度
+     */
     @Test
     void rateLimit_bizId_inKey() throws Throwable {
         Method m = method("limitedById");
@@ -177,7 +187,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("grp:CRateLimitAspectTests:limitedById:10", keysCaptor.getValue().get(0));
     }
 
-    /** 对应测试用例 1.6：id 为空（未配置）时按方法全局限流，key 不含业务维度 */
+    /**
+     * 对应测试用例 1.6：id 为空（未配置）时按方法全局限流，key 不含业务维度
+     */
     @Test
     void rateLimit_noBizId_limitGlobalKey() throws Throwable {
         Method m = method("limited");
@@ -194,7 +206,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("grp:CRateLimitAspectTests:limited", keysCaptor.getValue().get(0));
     }
 
-    /** 对应测试用例 1.9：id 为空白字符串时按方法全局限流，key 不含业务维度 */
+    /**
+     * 对应测试用例 1.9：id 为空白字符串时按方法全局限流，key 不含业务维度
+     */
     @Test
     void rateLimit_blankBizId_limitGlobalKey() throws Throwable {
         Method m = method("limitedByBlankId");
@@ -211,7 +225,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("grp:CRateLimitAspectTests:limitedByBlankId", keysCaptor.getValue().get(0));
     }
 
-    /** 对应测试用例 1.10：useMethodName=false 时 key 不含方法名段（共享限流桶） */
+    /**
+     * 对应测试用例 1.10：useMethodName=false 时 key 不含方法名段（共享限流桶）
+     */
     @Test
     void rateLimit_withoutMethodName_shareKey() throws Throwable {
         Method m = method("limitedWithoutMethodName");
@@ -228,7 +244,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("grp:CRateLimitAspectTests", keysCaptor.getValue().get(0));
     }
 
-    /** 对应测试用例 1.11：useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id */
+    /**
+     * 对应测试用例 1.11：useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id
+     */
     @Test
     void rateLimit_withoutMethodName_bizIdInKey() throws Throwable {
         Method m = method("limitedWithoutMethodNameById");
@@ -245,7 +263,9 @@ class CRateLimitAspectTests {
         Assertions.assertEquals("grp:CRateLimitAspectTests:10", keysCaptor.getValue().get(0));
     }
 
-    /** 对应测试用例 1.7：count 非法（<=0）抛 IllegalArgumentException */
+    /**
+     * 对应测试用例 1.7：count 非法（<=0）抛 IllegalArgumentException
+     */
     @Test
     void rateLimit_invalidCount_throws() {
         Method m = method("invalidCount");
@@ -253,7 +273,9 @@ class CRateLimitAspectTests {
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
-    /** 对应测试用例 1.8：interval 非法（<=0）抛 IllegalArgumentException */
+    /**
+     * 对应测试用例 1.8：interval 非法（<=0）抛 IllegalArgumentException
+     */
     @Test
     void rateLimit_invalidInterval_throws() {
         Method m = method("invalidInterval");
