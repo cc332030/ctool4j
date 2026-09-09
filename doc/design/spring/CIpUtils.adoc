@@ -1,6 +1,6 @@
 = CIpUtils 设计文档
 
-Version: 1.2
+Version: 1.0
 LastModified: 2026-09-09
 模块：ctool4j-spring
 类：com.c332030.ctool4j.spring.util.CIpUtils
@@ -82,6 +82,4 @@ IP 白名单/黑名单校验、按 IP 段放行/拦截等运行时判断。
 
 == 变更日志
 
-- 1.2 | 2026-09-09 | 按设计文档规范补齐已知缺陷/易误用/边界/默认值/性能/线程安全说明
-- 1.1 | 2026-09-09 | 优先复用 hutool Ipv4Util（ipv4ToLong/getBeginIpStr/getEndIpStr）；版本无感入口，IPv6 优雅拒绝并预留扩展；/0 全量特判
-- 1.0 | 2026-09-09 | 初始落地
+- 1.0 | 2026-09-09 | 初始落地（复用 hutool Ipv4Util；IPv4 支持单 IP 与 CIDR(/0~32)；版本无感入口，IPv6 优雅拒绝并预留扩展；含方法级已知缺陷/易误用/边界/默认值/性能/线程安全说明）

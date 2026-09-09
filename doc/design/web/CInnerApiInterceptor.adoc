@@ -1,6 +1,6 @@
 = CInnerApiInterceptor 设计文档
 
-Version: 1.2
+Version: 1.0
 LastModified: 2026-09-09
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.interceptor.CInnerApiInterceptor
@@ -88,6 +88,4 @@ LastModified: 2026-09-09
 
 == 变更日志
 
-- 1.2 | 2026-09-09 | 补齐 CInnerApiInterceptorTests 消除测试缺口，文档 5.6 改为测试说明
-- 1.1 | 2026-09-09 | 按设计文档规范补齐安全缺陷(IP可伪造)、易误用、边界、性能说明
-- 1.0 | 2026-09-09 | 初始落地（原命名 CInternalIpInterceptor 更名而来，随注解族统一为 CInnerApi）
+- 1.0 | 2026-09-09 | 初始落地（原命名 CInternalIpInterceptor 更名而来，随注解族统一为 CInnerApi；含安全缺陷/IP可伪造、易误用、边界、性能、测试说明）

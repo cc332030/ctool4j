@@ -3,12 +3,14 @@ package com.c332030.ctool4j.core.util;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.annotation.CBizId;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
+import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
@@ -168,6 +170,42 @@ public class CIdUtils {
         }
 
         return id.substring(0, index);
+    }
+
+    /**
+     * 生成 Nano ID（默认 21 字符，URL 安全字母表 A-Za-z0-9_-，SecureRandom）
+     * <p>封装开源 jnanoid 的 {@link NanoIdUtils#randomNanoId()}，比 UUID 更短、更友好。</p>
+     *
+     * @return Nano ID 字符串
+     */
+    public String nanoId() {
+        return NanoIdUtils.randomNanoId();
+    }
+
+    /**
+     * 生成指定长度的 Nano ID（URL 安全字母表 A-Za-z0-9_-，SecureRandom）
+     *
+     * @param size 长度（需 &gt; 0）
+     * @return Nano ID 字符串
+     */
+    public String nanoId(int size) {
+        return NanoIdUtils.randomNanoId(
+            NanoIdUtils.DEFAULT_NUMBER_GENERATOR,
+            NanoIdUtils.DEFAULT_ALPHABET,
+            size
+        );
+    }
+
+    /**
+     * 生成 ULID（26 字符，Crockford Base32 大写，128 位 = 48 位毫秒时间戳 + 80 位随机）
+     * <p>封装开源 ulid-creator 的 {@link UlidCreator#getUlid()}：字符串字典序即生成时间序（时间可排序），
+     * 可用于需"短 + 可排序"的 ID 场景。依赖为可选（optional），使用方需引入 ulid-creator。</p>
+     *
+     * @return ULID 字符串
+     */
+    public String ulid() {
+        return UlidCreator.getUlid()
+            .toString();
     }
 
 }

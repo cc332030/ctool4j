@@ -18,10 +18,11 @@
             <version>3.4.3.4</version>
         </dependency>
 
+        <!-- 可选：MyBatis-Plus join 增强（main 未直接引用其类），使用方按需引入 -->
         <dependency>
             <groupId>com.github.yulichang</groupId>
             <artifactId>mybatis-plus-join-boot-starter</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

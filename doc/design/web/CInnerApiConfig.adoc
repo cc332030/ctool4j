@@ -1,6 +1,6 @@
 = CInnerApiConfig 设计文档
 
-Version: 1.2
+Version: 1.0
 LastModified: 2026-09-09
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.config.CInnerApiConfig
@@ -73,6 +73,4 @@ LastModified: 2026-09-09
 
 == 变更日志
 
-- 1.2 | 2026-09-09 | 按设计文档规范补齐字段默认值语义、易误用(忘配白名单=放行)、线程安全与波及影响说明
-- 1.1 | 2026-09-09 | 配置前缀由 internal-ip 统一为 inner-api（与注解/类名 CInnerApi* 命名族一致）
-- 1.0 | 2026-09-09 | 初始落地（原命名 CInternalIpConfig 更名而来）
+- 1.0 | 2026-09-09 | 初始落地（原命名 CInternalIpConfig/internal-ip 统一为 CInnerApiConfig/inner-api；含字段默认值语义、易误用、线程安全与波及影响说明）

@@ -1,8 +1,8 @@
 = CIdUtils 测试用例文档
 
-Version: 1.3
-LastModified: 2026-08-28
-所属功能：`com.c332030.ctool4j.core.util.CIdUtils`（core 工具类）——UUID v7/雪花 ID 生成、类 ID 前缀计算、带前缀雪花 ID、ID 前缀解析。
+Version: 1.4
+LastModified: 2026-09-09
+所属功能：`com.c332030.ctool4j.core.util.CIdUtils`（core 工具类）——UUID v7/雪花 ID/Nano ID/ULID 生成、类 ID 前缀计算、带前缀雪花 ID、ID 前缀解析。
 
 对应测试类：`com.c332030.ctool4j.core.test.util.CIdUtilsTests`
 
@@ -63,8 +63,21 @@ LastModified: 2026-08-28
 - 5.6 转换函数：`P-123` → `P-` / 长度 2（getPrefixFromIdWithFunction）
 - 5.7 无前缀时不调用转换函数直接返回 null：`123` → null（getPrefixFromIdWithFunction）
 
+== 6. Nano ID 生成
+
+- 6.1 nanoId：默认 21 字符，且仅含 URL 安全字母表 `A-Za-z0-9_-`（nanoId_default）
+- 6.2 nanoId(size)：自定义长度 1/16/64，字符合法（nanoId_customSize）
+- 6.3 唯一性：抽样 10000 次无重复（nanoId_unique）
+
+== 7. ULID 生成
+
+- 7.1 ulid：默认 26 字符，大写 Crockford Base32（不含 I/L/O/U）（ulid_format）
+- 7.2 时间有序：先生成的字典序小于后生成（ulid_timeOrdered）
+- 7.3 时间戳可解码：前 10 字符解码回毫秒，落在生成时刻附近（ulid_timestampDecodable）
+
 == 变更日志
 
+- 1.4 | 2026-09-09 | 新增 Nano ID 用例（默认 21 字符与字母表、自定义长度、唯一性）与 ULID 用例（26 字符与字符集、时间有序、时间戳可解码）
 - 1.3 | 2026-08-28 | 用例 1.1 补充 UUID v7 格式特征验证（版本位为 7、variant 位为 8/9/a/b）
 - 1.2 | 2026-08-27 | UUID 方法由 `stringUUID`/`stringUUIDNoHyphen` 重命名为 `UUID`/`simpleUUID`（用例 1.1/1.2 同步更新）；新增用例 1.3 并发唯一性（验证生成器缓存复用后仍线程安全）
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段

@@ -12,10 +12,11 @@
 
     <dependencies>
 
+        <!-- 可选：jdbc/DataSource 能力（main 仅用事务注解，未直接引用 jdbc），使用方按需引入 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

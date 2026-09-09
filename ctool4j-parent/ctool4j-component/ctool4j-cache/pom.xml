@@ -12,10 +12,11 @@
 
     <dependencies>
 
+        <!-- 可选：spring data redis 能力（main 经 redisson/jetcache 链路，未直接引用其类），使用方按需引入 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

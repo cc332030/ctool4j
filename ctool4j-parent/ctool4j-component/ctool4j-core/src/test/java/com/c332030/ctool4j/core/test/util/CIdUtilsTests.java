@@ -201,4 +201,152 @@ public class CIdUtilsTests {
 
     }
 
+    // ---------- Nano ID ----------
+
+    /**
+     * 对应测试用例 6.1：默认 21 字符，且仅含 URL 安全字母表字符
+     */
+    @Test
+    public void nanoId_default() {
+
+        String id = CIdUtils.nanoId();
+
+        Assertions.assertNotNull(id);
+        Assertions.assertEquals(21, id.length());
+        Assertions.assertTrue(id.chars().allMatch(CIdUtilsTests::isUrlSafe));
+
+    }
+
+    /**
+     * 对应测试用例 6.2：指定长度
+     */
+    @Test
+    public void nanoId_customSize() {
+
+        Assertions.assertEquals(10, CIdUtils.nanoId(10).length());
+        Assertions.assertEquals(1, CIdUtils.nanoId(1).length());
+        Assertions.assertEquals(64, CIdUtils.nanoId(64).length());
+        Assertions.assertTrue(CIdUtils.nanoId(16).chars().allMatch(CIdUtilsTests::isUrlSafe));
+
+    }
+
+    /**
+     * 对应测试用例 6.3：多次生成不重复（抽样规模内）
+     */
+    @Test
+    public void nanoId_unique() {
+
+        Set<String> ids = new HashSet<>();
+        for (int i = 0; i < 10000; i++) {
+            ids.add(CIdUtils.nanoId());
+        }
+
+        Assertions.assertEquals(10000, ids.size());
+
+    }
+
+    /**
+     * 字符是否为 Nano ID 默认 URL 安全字母表 A-Za-z0-9_- 之一
+     *
+     * @param ch 字符
+     * @return 是否合法
+     */
+    private static boolean isUrlSafe(int ch) {
+        return ch >= 'A' && ch <= 'Z'
+            || ch >= 'a' && ch <= 'z'
+            || ch >= '0' && ch <= '9'
+            || ch == '_'
+            || ch == '-';
+    }
+
+    // ---------- ULID ----------
+
+    /**
+     * 对应测试用例 7.1：默认 26 字符，大写 Crockford Base32（不含 I/L/O/U），时间戳+随机结构
+     */
+    @Test
+    public void ulid_format() {
+
+        String id = CIdUtils.ulid();
+
+        Assertions.assertNotNull(id);
+        Assertions.assertEquals(26, id.length());
+        Assertions.assertTrue(id.chars().allMatch(CIdUtilsTests::isUlidChar));
+
+    }
+
+    /**
+     * 对应测试用例 7.2：时间有序（先生成的字典序小于后生成的）
+     */
+    @Test
+    public void ulid_timeOrdered() {
+
+        String first = CIdUtils.ulid();
+        String second = CIdUtils.ulid();
+
+        Assertions.assertTrue(first.compareTo(second) < 0);
+
+    }
+
+    /**
+     * 对应测试用例 7.3：时间戳部分（前 10 字符）可解码回毫秒，落在当前时间附近
+     */
+    @Test
+    public void ulid_timestampDecodable() {
+
+        String id = CIdUtils.ulid();
+        long before = System.currentTimeMillis();
+
+        // ULID 时间戳用 48 位毫秒，Crockford Base32 前 10 字符表示，可通过规范算法解码
+        long ts = decodeUlidTimestamp(id);
+
+        long after = System.currentTimeMillis();
+        Assertions.assertTrue(ts >= before && ts <= after);
+
+    }
+
+    /**
+     * 字符是否为 ULID Crockford Base32 字符之一（大写 0-9A-HJKMNP-TV-Z，不含 I/L/O/U）
+     *
+     * @param ch 字符
+     * @return 是否合法
+     */
+    private static boolean isUlidChar(int ch) {
+        return ULID_ALPHABET.indexOf(ch) >= 0;
+    }
+
+    /**
+     * 解码 ULID 前 10 字符的毫秒时间戳（Crockford Base32，48 位）
+     *
+     * @param ulid ULID 字符串
+     * @return 毫秒时间戳
+     */
+    private static long decodeUlidTimestamp(String ulid) {
+        long value = 0;
+        String tsPart = ulid.substring(0, 10);
+        for (int i = 0; i < tsPart.length(); i++) {
+            value = value * 32 + crockfordValue(tsPart.charAt(i));
+        }
+        return value;
+    }
+
+    /**
+     * ULID Crockford Base32 字符集（有序，排除 I/L/O/U）
+     */
+    private static final String ULID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+    /**
+     * Crockford Base32 字符对应值
+     *
+     * @param ch 字符
+     * @return 值 0~31
+     */
+    private static int crockfordValue(char ch) {
+        int idx = ULID_ALPHABET.indexOf(ch);
+        if (idx < 0) {
+            throw new IllegalArgumentException("非 ULID 字符: " + ch);
+        }
+        return idx;
+    }
+
 }

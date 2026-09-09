@@ -17,15 +17,32 @@
             <artifactId>commons-text</artifactId>
         </dependency>
 
+        <!-- httpmime 由 provided 改为 optional：main 代码未直接引用其类，使用方按需引入 -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
+        <!-- 可选能力：UUID v7（见 CIdUtils.UUID），使用方按需引入本依赖后生效 -->
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 可选能力：Nano ID（见 CIdUtils.nanoId），使用方按需引入本依赖后生效 -->
+        <dependency>
+            <groupId>com.aventrix.jnanoid</groupId>
+            <artifactId>jnanoid</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 可选能力：ULID（见 CIdUtils.ulid），使用方按需引入本依赖后生效 -->
+        <dependency>
+            <groupId>com.github.f4b6a3</groupId>
+            <artifactId>ulid-creator</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>

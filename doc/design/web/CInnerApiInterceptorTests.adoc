@@ -1,6 +1,6 @@
 = CInnerApiInterceptorTests 测试用例文档
 
-Version: 1.1
+Version: 1.0
 LastModified: 2026-09-09
 所属功能：`com.c332030.ctool4j.web.interceptor.CInnerApiInterceptor`（内部接口 IP 白名单拦截器）。
 
@@ -42,5 +42,4 @@ LastModified: 2026-09-09
 
 == 变更日志
 
-- 1.1 | 2026-09-09 | 补全用例：@Inherited 父类类级继承(命中/未命中)、X-Forwarded-For 首段未命中拒绝
-- 1.0 | 2026-09-09 | 初始落地
+- 1.0 | 2026-09-09 | 初始落地（含非 HandlerMethod、类/方法级注解识别、@Inherited 继承、白名单空/命中/未命中、X-Forwarded-For 首段等用例）

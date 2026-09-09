@@ -1,6 +1,6 @@
 = CInnerApi 设计文档
 
-Version: 1.1
+Version: 1.0
 LastModified: 2026-09-09
 模块：ctool4j-definition
 类：com.c332030.ctool4j.definition.annotation.CInnerApi
@@ -55,5 +55,4 @@ LastModified: 2026-09-09
 
 == 变更日志
 
-- 1.1 | 2026-09-09 | 按设计文档规范补齐纯标记/不携带IP、@Inherited仅类级、@Target边界等易误用说明
-- 1.0 | 2026-09-09 | 初始落地（原命名 CInternalIp 更名而来，语义统一为"内部接口标记"）
+- 1.0 | 2026-09-09 | 初始落地（原命名 CInternalIp 更名而来，语义统一为"内部接口标记"；含纯标记/不携带IP、@Inherited仅类级、@Target边界等说明）

@@ -47,6 +47,8 @@
         <commons-csv.version>1.14.1</commons-csv.version>
 
         <guava.version>33.4.8-jre</guava.version>
+        <jnanoid.version>2.0.0</jnanoid.version>
+        <ulid-creator.version>5.2.4</ulid-creator.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <fasterxml.java-uuid-generator.version>5.2.0</fasterxml.java-uuid-generator.version>
         <lombok.version>1.18.38</lombok.version>
