@@ -33,7 +33,9 @@ public class CObjectValueRedisServiceTests {
         service = new CObjectValueRedisService(redisTemplate);
     }
 
-    /** 对应测试用例 1.1 */
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     void getValue_nullKey_shortCircuit() {
         Assertions.assertNull(service.getValue(null));
@@ -41,7 +43,9 @@ public class CObjectValueRedisServiceTests {
         Mockito.verify(redisTemplate, Mockito.never()).opsForValue();
     }
 
-    /** 对应测试用例 1.2 */
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     void getValue_validKey_returnsValue() {
         Object expected = new Object();
@@ -53,7 +57,9 @@ public class CObjectValueRedisServiceTests {
         Mockito.verify(valueOps).get("key");
     }
 
-    /** 对应测试用例 1.3 */
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     void getValueOpt_empty() {
         Mockito.when(valueOps.get("missing")).thenReturn(null);
@@ -63,7 +69,9 @@ public class CObjectValueRedisServiceTests {
         Assertions.assertTrue(opt.isEmpty());
     }
 
-    /** 对应测试用例 1.4 */
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     void getValueOpt_present() {
         Object expected = "value";
@@ -75,7 +83,9 @@ public class CObjectValueRedisServiceTests {
         Assertions.assertSame(expected, opt.get());
     }
 
-    /** 对应测试用例 2.1 */
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     void setValue_nullKey_shortCircuit() {
         service.setValue(null, "value");
@@ -84,7 +94,9 @@ public class CObjectValueRedisServiceTests {
         Mockito.verify(valueOps, Mockito.never()).set(Mockito.any(), Mockito.any());
     }
 
-    /** 对应测试用例 2.2 */
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     void setValue_valid_callsValueOpsSet() {
         service.setValue("key", "value");
@@ -92,7 +104,9 @@ public class CObjectValueRedisServiceTests {
         Mockito.verify(valueOps).set("key", "value");
     }
 
-    /** 对应测试用例 3.1 */
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     void getValueForGenericType_converts() {
         Mockito.when(valueOps.get("key")).thenReturn(123);

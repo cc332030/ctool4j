@@ -37,7 +37,9 @@ public class CCacheBuilderTests {
         builder = cacheService.cacheBuilder("myKey", String.class);
     }
 
-    /** 对应测试用例 1.1：链式配置默认值 */
+    /**
+     * 对应测试用例 1.1：链式配置默认值
+     */
     @Test
     public void defaultValues() {
         Assertions.assertEquals(Duration.ofSeconds(1), getFieldValue(builder, "waitTime"));
@@ -46,56 +48,72 @@ public class CCacheBuilderTests {
         Assertions.assertNotNull(getFieldValue(builder, "onLockFail"));
     }
 
-    /** 对应测试用例 1.2：waitTime(long) 链式 */
+    /**
+     * 对应测试用例 1.2：waitTime(long) 链式
+     */
     @Test
     public void waitTime_long_chainable() {
         Assertions.assertSame(builder, builder.waitTime(10L));
         Assertions.assertEquals(Duration.ofSeconds(10), getFieldValue(builder, "waitTime"));
     }
 
-    /** 对应测试用例 1.3：waitTime(Duration) 链式 */
+    /**
+     * 对应测试用例 1.3：waitTime(Duration) 链式
+     */
     @Test
     public void waitTime_duration_chainable() {
         Assertions.assertSame(builder, builder.waitTime(Duration.ofSeconds(30)));
         Assertions.assertEquals(Duration.ofSeconds(30), getFieldValue(builder, "waitTime"));
     }
 
-    /** 对应测试用例 1.4：onLockFail 链式 */
+    /**
+     * 对应测试用例 1.4：onLockFail 链式
+     */
     @Test
     public void onLockFail_chainable() {
         Assertions.assertSame(builder, builder.onLockFail(lock -> {}));
         Assertions.assertNotNull(getFieldValue(builder, "onLockFail"));
     }
 
-    /** 对应测试用例 1.5：expireDuration(Duration) 链式 */
+    /**
+     * 对应测试用例 1.5：expireDuration(Duration) 链式
+     */
     @Test
     public void expireDuration_duration_chainable() {
         Assertions.assertSame(builder, builder.expireDuration(Duration.ofMinutes(1)));
         Assertions.assertEquals(Duration.ofMinutes(1), getFieldValue(builder, "expireDuration"));
     }
 
-    /** 对应测试用例 1.6：expireDuration(Function) 链式 */
+    /**
+     * 对应测试用例 1.6：expireDuration(Function) 链式
+     */
     @Test
     public void expireDuration_function_chainable() {
         Assertions.assertSame(builder, builder.expireDuration(value -> Duration.ofMinutes(1)));
         Assertions.assertNotNull(getFieldValue(builder, "expireDurationFunction"));
     }
 
-    /** 对应测试用例 1.7：refreshWindow 链式 */
+    /**
+     * 对应测试用例 1.7：refreshWindow 链式
+     */
     @Test
     public void refreshWindow_chainable() {
         Assertions.assertSame(builder, builder.refreshWindow(Duration.ofMinutes(1)));
         Assertions.assertEquals(Duration.ofMinutes(1), getFieldValue(builder, "refreshWindow"));
     }
 
-    /** 对应测试用例 1.8：key/tClass 存储 */
+    /**
+     * 对应测试用例 1.8：key/tClass 存储
+     */
     @Test
     public void keyAndTClass_stored() throws Exception {
         Assertions.assertEquals("myKey", getFieldValue(builder, "key"));
         Assertions.assertEquals(String.class, getFieldValue(builder, "tClass"));
     }
 
-    /** 对应测试用例 2.1：永久缓存直接返回不抢锁 */
+    /**
+     * 对应测试用例 2.1：永久缓存直接返回不抢锁
+     */
     @Test
     public void computeIfAbsent_permanentCache_returnsDirectly() {
         Mockito.when(redisService.getValueWithTtl("myKey", String.class))
@@ -107,7 +125,9 @@ public class CCacheBuilderTests {
         Mockito.verify(lockService, Mockito.never()).lock(Mockito.anyString());
     }
 
-    /** 对应测试用例 2.2：已过期读-算-写 */
+    /**
+     * 对应测试用例 2.2：已过期读-算-写
+     */
     @Test
     public void computeIfAbsent_expired_computesAndWrites() {
         Mockito.when(redisService.getValueWithTtl("myKey", String.class)).thenReturn(null);

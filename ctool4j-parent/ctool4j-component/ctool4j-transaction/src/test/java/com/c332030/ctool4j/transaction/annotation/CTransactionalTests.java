@@ -48,7 +48,9 @@ class CTransactionalTests {
         }
     }
 
-    /** 对应测试用例 1.1：类级默认值元注解解析 */
+    /**
+     * 对应测试用例 1.1：类级默认值元注解解析
+     */
     @Test
     void metaAnnotationResolved_defaultValues() {
         Transactional t = AnnotatedElementUtils.findMergedAnnotation(DefaultConfig.class, Transactional.class);
@@ -60,7 +62,9 @@ class CTransactionalTests {
         Assertions.assertEquals(Exception.class, t.rollbackFor()[0]);
     }
 
-    /** 对应测试用例 1.2：类级自定义值元注解解析 */
+    /**
+     * 对应测试用例 1.2：类级自定义值元注解解析
+     */
     @Test
     void metaAnnotationResolved_customValues() {
         Transactional t = AnnotatedElementUtils.findMergedAnnotation(CustomConfig.class, Transactional.class);
@@ -72,7 +76,9 @@ class CTransactionalTests {
         Assertions.assertEquals(IllegalStateException.class, t.rollbackFor()[0]);
     }
 
-    /** 对应测试用例 1.3：方法级自定义值元注解解析 */
+    /**
+     * 对应测试用例 1.3：方法级自定义值元注解解析
+     */
     @Test
     void metaAnnotationResolved_methodLevel() throws NoSuchMethodException {
         Transactional t = AnnotatedElementUtils.findMergedAnnotation(
@@ -85,7 +91,9 @@ class CTransactionalTests {
         Assertions.assertEquals(IllegalArgumentException.class, t.rollbackFor()[0]);
     }
 
-    /** 对应测试用例 2.1：注解运行时保留 */
+    /**
+     * 对应测试用例 2.1：注解运行时保留
+     */
     @Test
     void annotationRetainedAtRuntime() {
         Assertions.assertTrue(CTransactional.class.isAnnotationPresent(Transactional.class),

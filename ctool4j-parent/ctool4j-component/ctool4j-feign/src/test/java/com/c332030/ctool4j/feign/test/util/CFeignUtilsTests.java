@@ -32,15 +32,21 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 class CFeignUtilsTests {
 
-    /** 被测类标记的接口 */
+    /**
+     * 被测类标记的接口
+     */
     interface MarkerApi {
     }
 
-    /** 匹配的父接口 */
+    /**
+     * 匹配的父接口
+     */
     interface ParentApi {
     }
 
-    /** 直接匹配的类 */
+    /**
+     * 直接匹配的类
+     */
     static class MarkerImpl implements MarkerApi {
     }
 
@@ -65,7 +71,9 @@ class CFeignUtilsTests {
 
     // ==================== addInterceptor / intercept ====================
 
-    /** 对应测试用例 1.1 */
+    /**
+     * 对应测试用例 1.1
+     */
     @Test
     void testInterceptMatchByClass() {
 
@@ -85,7 +93,9 @@ class CFeignUtilsTests {
         Assertions.assertSame(template, got.get());
     }
 
-    /** 对应测试用例 1.2 */
+    /**
+     * 对应测试用例 1.2
+     */
     @Test
     void testInterceptNotMatch() {
 
@@ -98,7 +108,9 @@ class CFeignUtilsTests {
         Assertions.assertFalse(invoked.get());
     }
 
-    /** 对应测试用例 1.3 */
+    /**
+     * 对应测试用例 1.3
+     */
     @Test
     void testInterceptEmptyInterceptorMap() {
 
@@ -106,7 +118,9 @@ class CFeignUtilsTests {
         Assertions.assertFalse(matched);
     }
 
-    /** 对应测试用例 1.4 */
+    /**
+     * 对应测试用例 1.4
+     */
     @Test
     void testInterceptTemplateNoTargetThrowsNpe() {
 
@@ -117,7 +131,9 @@ class CFeignUtilsTests {
         );
     }
 
-    /** 对应测试用例 2.1 */
+    /**
+     * 对应测试用例 2.1
+     */
     @Test
     void testGetApiType() {
 
@@ -128,7 +144,9 @@ class CFeignUtilsTests {
         Assertions.assertSame(MarkerApi.class, CFeignUtils.getApiType(template));
     }
 
-    /** 对应测试用例 2.2 */
+    /**
+     * 对应测试用例 2.2
+     */
     @Test
     void testGetApiTypeNullTargetThrowsNpe() {
 
@@ -140,7 +158,9 @@ class CFeignUtilsTests {
 
     // ==================== newResponse ====================
 
-    /** 对应测试用例 3.1 */
+    /**
+     * 对应测试用例 3.1
+     */
     @Test
     void testNewResponse() throws java.io.IOException {
 
@@ -170,7 +190,9 @@ class CFeignUtilsTests {
         Assertions.assertEquals("application/json", cts.iterator().next());
     }
 
-    /** 对应测试用例 3.2 */
+    /**
+     * 对应测试用例 3.2
+     */
     @Test
     void testNewResponseNullBody() {
 
@@ -190,7 +212,9 @@ class CFeignUtilsTests {
 
     // ==================== transferHeaders ====================
 
-    /** 对应测试用例 4.1 */
+    /**
+     * 对应测试用例 4.1
+     */
     @Test
     void testTransferHeadersNullConfigNoOp() throws Exception {
 
@@ -204,7 +228,9 @@ class CFeignUtilsTests {
         Assertions.assertEquals("v", template.headers().get("X-Old").iterator().next());
     }
 
-    /** 对应测试用例 4.2 */
+    /**
+     * 对应测试用例 4.2
+     */
     @Test
     void testTransferHeadersAllNoPropagationHeadersNoOp() throws Exception {
 
@@ -222,7 +248,9 @@ class CFeignUtilsTests {
         Assertions.assertEquals("v", template.headers().get("X-Old").iterator().next());
     }
 
-    /** 对应测试用例 4.3 */
+    /**
+     * 对应测试用例 4.3
+     */
     @Test
     void testTransferHeadersAllCopiesOrigin() throws Exception {
 
@@ -240,7 +268,9 @@ class CFeignUtilsTests {
         Assertions.assertTrue(template.headers().containsKey("X-Old"));
     }
 
-    /** 对应测试用例 4.4 */
+    /**
+     * 对应测试用例 4.4
+     */
     @Test
     void testTransferHeadersCustomFilters() throws Exception {
 
@@ -263,7 +293,9 @@ class CFeignUtilsTests {
         Assertions.assertFalse(template.headers().containsKey("X-Other"));
     }
 
-    /** 对应测试用例 4.5 */
+    /**
+     * 对应测试用例 4.5
+     */
     @Test
     void testTransferHeadersNone() throws Exception {
 
@@ -294,7 +326,9 @@ class CFeignUtilsTests {
         );
     }
 
-    /** feign.Target 的最小测试实现 */
+    /**
+     * feign.Target 的最小测试实现
+     */
     private static final class TestTarget<T> implements Target<T> {
 
         private final Class<T> type;

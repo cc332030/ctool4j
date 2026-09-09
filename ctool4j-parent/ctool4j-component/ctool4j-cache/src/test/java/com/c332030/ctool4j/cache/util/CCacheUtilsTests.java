@@ -38,7 +38,9 @@ public class CCacheUtilsTests {
         CCacheUtils.setCacheService(null);
     }
 
-    /** 对应测试用例 1.1：未注入时 cacheBuilder 抛 NPE */
+    /**
+     * 对应测试用例 1.1：未注入时 cacheBuilder 抛 NPE
+     */
     @Test
     public void cacheBuilder_notSet_throwsNullPointerException() {
         Assertions.assertThrowsExactly(
@@ -46,7 +48,9 @@ public class CCacheUtilsTests {
             () -> CCacheUtils.cacheBuilder("key", String.class));
     }
 
-    /** 对应测试用例 1.2：注入后转发到 CCacheService */
+    /**
+     * 对应测试用例 1.2：注入后转发到 CCacheService
+     */
     @Test
     public void cacheBuilder_set_delegatesToCacheService() {
         CCacheUtils.setCacheService(cacheService);
