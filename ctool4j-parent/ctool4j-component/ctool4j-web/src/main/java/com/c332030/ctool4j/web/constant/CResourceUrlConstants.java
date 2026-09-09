@@ -7,14 +7,14 @@ import java.util.Set;
 
 /**
  * <p>
- * Description: ResourceUrlConstants
+ * Description: CResourceUrlConstants
  * </p>
  *
  * @since 2026/1/28
- * @see "doc/design/web/ResourceUrlConstants.adoc"
+ * @see "doc/design/web/CResourceUrlConstants.adoc"
  */
 @UtilityClass
-public class ResourceUrlConstants {
+public class CResourceUrlConstants {
 
     /**
      * favicon 图标地址

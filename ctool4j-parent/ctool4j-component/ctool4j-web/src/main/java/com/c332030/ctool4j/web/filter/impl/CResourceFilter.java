@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.web.filter.impl;
 
-import com.c332030.ctool4j.web.constant.ResourceUrlConstants;
+import com.c332030.ctool4j.web.constant.CResourceUrlConstants;
 import com.c332030.ctool4j.web.filter.ICFilter;
 import lombok.CustomLog;
 import lombok.val;
@@ -50,7 +50,7 @@ public class CResourceFilter implements ICFilter, PriorityOrdered {
     ) throws ServletException, IOException {
 
         val requestURI = request.getRequestURI();
-        if(ResourceUrlConstants.IGNORE_RESOURCE_URLS.contains(requestURI)) {
+        if(CResourceUrlConstants.IGNORE_RESOURCE_URLS.contains(requestURI)) {
             log.debug("ignore: {}", requestURI);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             return;

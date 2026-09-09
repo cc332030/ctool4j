@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.web.test.filter.impl;
 
-import com.c332030.ctool4j.web.constant.ResourceUrlConstants;
+import com.c332030.ctool4j.web.constant.CResourceUrlConstants;
 import com.c332030.ctool4j.web.filter.impl.CResourceFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class CResourceFilterTests {
     public void doFilter_whenIgnoreResource() throws Exception {
         // 命中忽略资源 URL：返回 204 且不继续链
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI(ResourceUrlConstants.FAVICON_ICO_URL);
+        request.setRequestURI(CResourceUrlConstants.FAVICON_ICO_URL);
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = mock(FilterChain.class);
 

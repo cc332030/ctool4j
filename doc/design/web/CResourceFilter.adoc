@@ -14,7 +14,7 @@ LastModified: 2026-08-21
 核心方法 `doFilter(request, response, chain)`：
 
 - 取 `request.getRequestURI()`
-- 命中 `ResourceUrlConstants.IGNORE_RESOURCE_URLS` 时，记录 debug 日志、以 204 状态码结束请求并返回
+- 命中 `CResourceUrlConstants.IGNORE_RESOURCE_URLS` 时，记录 debug 日志、以 204 状态码结束请求并返回
 - 否则 `chain.doFilter` 继续请求链
 
 == 2. 设计要点
@@ -38,7 +38,7 @@ LastModified: 2026-08-21
 
 == 5. 已知限制与取舍
 
-- 忽略资源集合来自 `ResourceUrlConstants` 常量，新增忽略资源需改常量。
+- 忽略资源集合来自 `CResourceUrlConstants` 常量，新增忽略资源需改常量。
 
 测试内容见 `doc/design/web/CResourceFilterTests.adoc`。
 
