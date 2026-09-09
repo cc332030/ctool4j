@@ -309,7 +309,12 @@ public class CCollUtilsTests {
     @Test
     public void first() {
 
+        // List 按索引取第一个
         Assertions.assertEquals(1, CCollUtils.first(CList.of(1, 2)));
+
+        // 非 List 集合按迭代器取第一个
+        val set = new LinkedHashSet<>(CList.of(1, 2, 3));
+        Assertions.assertEquals(1, CCollUtils.first(set));
 
         // null / 空集合返回 null
         Assertions.assertNull(CCollUtils.first(null));
@@ -326,7 +331,7 @@ public class CCollUtilsTests {
         // List 按索引取最后一个
         Assertions.assertEquals(2, CCollUtils.last(CList.of(1, 2)));
 
-        // 非 List 集合走 reduce
+        // 非 List 集合按迭代器单遍遍历取最后一个
         val set = new LinkedHashSet<>(CList.of(1, 2, 3));
         Assertions.assertEquals(3, CCollUtils.last(set));
 

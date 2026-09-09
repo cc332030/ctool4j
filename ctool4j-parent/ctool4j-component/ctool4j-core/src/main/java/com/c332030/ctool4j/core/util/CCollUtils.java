@@ -12,6 +12,7 @@ import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import lombok.var;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -751,9 +752,11 @@ public class CCollUtils {
             return null;
         }
 
-        return collection.stream()
-                .findFirst()
-                .orElse(null);
+        if(collection instanceof List) {
+            return ((List<T>) collection).get(0);
+        }
+
+        return collection.iterator().next();
     }
 
     /**
@@ -774,9 +777,12 @@ public class CCollUtils {
                     .get(collection.size() - 1);
         }
 
-        return collection.stream()
-                .reduce((first,  second) -> second)
-                .orElse(null);
+        val iterator = collection.iterator();
+        var last = iterator.next();
+        while(iterator.hasNext()) {
+            last = iterator.next();
+        }
+        return last;
     }
 
     /**
@@ -796,7 +802,7 @@ public class CCollUtils {
         val size = collection.size();
         CAssert.isTrue(size == 1, () -> "collection more then one value, size: " + size);
 
-        return first(collection);
+        return collection.iterator().next();
     }
 
     /**
@@ -814,11 +820,24 @@ public class CCollUtils {
             return null;
         }
 
-        return collection.stream()
-                .filter(Objects::nonNull)
-                .filter(e -> Objects.nonNull(convert.apply(e)))
-                .min(Comparator.comparing(convert))
-                .orElse(null);
+        T min = null;
+        U minKey = null;
+        for (val e : collection) {
+
+            if(e == null) {
+                continue;
+            }
+            val key = convert.apply(e);
+            if(key == null) {
+                continue;
+            }
+            if(min == null || key.compareTo(minKey) < 0) {
+                min = e;
+                minKey = key;
+            }
+        }
+
+        return min;
     }
 
     /**
@@ -836,11 +855,24 @@ public class CCollUtils {
             return null;
         }
 
-        return collection.stream()
-                .filter(Objects::nonNull)
-                .filter(e -> Objects.nonNull(convert.apply(e)))
-                .max(Comparator.comparing(convert))
-                .orElse(null);
+        T max = null;
+        U maxKey = null;
+        for (val e : collection) {
+
+            if(e == null) {
+                continue;
+            }
+            val key = convert.apply(e);
+            if(key == null) {
+                continue;
+            }
+            if(max == null || key.compareTo(maxKey) > 0) {
+                max = e;
+                maxKey = key;
+            }
+        }
+
+        return max;
     }
 
     /**

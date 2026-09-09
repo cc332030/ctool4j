@@ -71,7 +71,23 @@ public class CCollUtilsBenchmarkTests {
 
             new CCollFilterCase(),
             new StreamFilterCase(),
-            new ManualFilterCase()
+            new ManualFilterCase(),
+
+            new CCollFirstCase(),
+            new StreamFirstCase(),
+            new ManualFirstCase(),
+
+            new CCollLastCase(),
+            new StreamLastCase(),
+            new ManualLastCase(),
+
+            new CCollMinCase(),
+            new StreamMinCase(),
+            new ManualMinCase(),
+
+            new CCollMaxCase(),
+            new StreamMaxCase(),
+            new ManualMaxCase()
         );
     }
 
@@ -404,6 +420,285 @@ public class CCollUtilsBenchmarkTests {
             numbers.add(i);
         }
         return numbers;
+    }
+
+
+    // ===== first：获取第一个元素 =====
+
+    private static class CCollFirstCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "CCollUtils.first";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return CCollUtils.first(items);
+        }
+    }
+
+    private static class StreamFirstCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "原生 stream.findFirst";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return items.stream().findFirst().orElse(null);
+        }
+    }
+
+    private static class ManualFirstCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "手工循环(first)";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return items.isEmpty() ? null : items.get(0);
+        }
+    }
+
+    // ===== last：获取最后一个元素 =====
+
+    private static class CCollLastCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "CCollUtils.last";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return CCollUtils.last(items);
+        }
+    }
+
+    private static class StreamLastCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "原生 stream.reduce";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return items.stream().reduce((first, second) -> second).orElse(null);
+        }
+    }
+
+    private static class ManualLastCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "手工循环(last)";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return items.isEmpty() ? null : items.get(items.size() - 1);
+        }
+    }
+
+    // ===== min：按转换结果取最小 =====
+
+    private static class CCollMinCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "CCollUtils.min";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return CCollUtils.min(items, Item::getId);
+        }
+    }
+
+    private static class StreamMinCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "原生 stream.min";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return items.stream().min(java.util.Comparator.comparing(Item::getId)).orElse(null);
+        }
+    }
+
+    private static class ManualMinCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "手工循环(min)";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            Item min = null;
+            Long minKey = null;
+            for (Item e : items) {
+                if (e == null) {
+                    continue;
+                }
+                Long key = e.getId();
+                if (key == null) {
+                    continue;
+                }
+                if (min == null || key.compareTo(minKey) < 0) {
+                    min = e;
+                    minKey = key;
+                }
+            }
+            return min;
+        }
+    }
+
+    // ===== max：按转换结果取最大 =====
+
+    private static class CCollMaxCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "CCollUtils.max";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return CCollUtils.max(items, Item::getId);
+        }
+    }
+
+    private static class StreamMaxCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "原生 stream.max";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return items.stream().max(java.util.Comparator.comparing(Item::getId)).orElse(null);
+        }
+    }
+
+    private static class ManualMaxCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "手工循环(max)";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            Item max = null;
+            Long maxKey = null;
+            for (Item e : items) {
+                if (e == null) {
+                    continue;
+                }
+                Long key = e.getId();
+                if (key == null) {
+                    continue;
+                }
+                if (max == null || key.compareTo(maxKey) > 0) {
+                    max = e;
+                    maxKey = key;
+                }
+            }
+            return max;
+        }
     }
 
 }

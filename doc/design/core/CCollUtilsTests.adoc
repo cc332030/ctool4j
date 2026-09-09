@@ -1,7 +1,7 @@
 = CCollUtils 测试用例文档
 
-Version: 1.1
-LastModified: 2026-08-21
+Version: 1.3
+LastModified: 2026-09-09
 所属功能：`com.c332030.ctool4j.core.util.CCollUtils`（core 工具类）——集合操作（空兜底/遍历/分组/添加/拼接/过滤/转换/新建/取元素/最值/转 Map）。
 
 对应测试类：`com.c332030.ctool4j.core.test.util.CCollUtilsTests`
@@ -30,7 +30,8 @@ LastModified: 2026-08-21
   filter（Collection/List/Set/null/filterNull/filterString/filterKey/filterStringKey/convert 过滤）；
   convert（转换/null 过滤/predicate/convertSet/convertToList/convertToSet/convertToCollection/
   convertString/convertCollection）；newCollection（size0 不可变/size>0 可变）；contains；get（越界/负数/null）；
-  first/last（空/null）；onlyOne（空/单/多抛异常）；minMax（null/空/convert null 过滤）；
+  first（List 索引/非 List 迭代器/空/null）；last（List 索引/非 List 迭代器/空/null）；
+  onlyOne（空/单/多抛异常）；minMax（null/空/convert null 过滤）；
   stream（null/正常）；toMap（基本/空/value null/自定义 value/predicate/merge/冲突抛异常/不可变/Pair）；
   containsAny；getValues；size；collectionType（返回类型）。
 - 未覆盖：`newLinkedSet`/`newLinkedMap` 独立创建断言（在 newCollection 中覆盖 isEmpty，类型未逐一断言）。
@@ -70,8 +71,8 @@ LastModified: 2026-08-21
 
 - 7.1 contains：null/空返回 false、正常正反（contains）
 - 7.2 get：正索引；越界/负数/null 返回 null（get）
-- 7.3 first：正常、null/空返回 null（first）
-- 7.4 last：List 索引与非 List reduce、null/空返回 null（last）
+- 7.3 first：List 按索引与按迭代器、null/空返回 null（first）
+- 7.4 last：List 索引与非 List 迭代器遍历、null/空返回 null（last）
 - 7.5 onlyOne：空 null、单元素、多元素抛业务异常（onlyOne）
 
 == 8. 最值
@@ -92,5 +93,7 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.3 | 2026-09-09 | first 补充非 List（迭代器）分支用例覆盖
+- 1.2 | 2026-09-09 | last 非 List 由 reduce 改为迭代器遍历，同步用例说明
 - 1.1 | 2026-08-21 | 测试用例编号改为在测试方法 javadoc 中标注（符合 AGENTS-TEST.MD 规范）；补充 Version/LastModified 头部字段
 - 1.0 | 2026-08-21 | 初始落地

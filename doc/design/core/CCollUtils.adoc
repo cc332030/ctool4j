@@ -1,7 +1,7 @@
 = CCollUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-09
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CCollUtils
 状态：已落地
@@ -47,12 +47,12 @@ LastModified: 2026-08-21
 === 2.5 元素获取
 
 - `get`：List 索引取元素，越界/负索引/null 返回 null。
-- `first`/`last`：空/null 返回 null；last 对非 List 走 reduce。
+- `first`/`last`：空/null 返回 null；list 走索引 O(1)（List 取首/末元素），非 List 走迭代器单遍遍历，不构造 Stream。
 - `onlyOne`：空返回 null、单个返回、多个抛业务异常。
 
 === 2.6 最值与转 Map
 
-- `min`/`max`：按字段取值，null 集合/空/全 null 返回 null，过滤 convert 结果 null 元素。
+- `min`/`max`：按字段取值，null 集合/空/全 null 返回 null，过滤 convert 结果 null 元素；单遍遍历，每元素仅执行一次 convert（避免重复调用转换函数）。
 - `toMap`：key-value 映射；value 为 null 的条目跳过；无 merge 冲突抛 IllegalStateException；
   Pair 版本；返回不可变 Map。
 
@@ -88,4 +88,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-09 | 优化 first/last/onlyOne/min/max 性能：list 走索引、非 List 走迭代器单遍遍历（不构造 Stream）；min/max 每元素只执行一次 convert
 - 1.0 | 2026-08-21 | 初始落地
