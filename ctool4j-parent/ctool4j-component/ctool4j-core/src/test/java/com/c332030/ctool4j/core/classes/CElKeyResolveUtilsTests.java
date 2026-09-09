@@ -162,7 +162,7 @@ class CElKeyResolveUtilsTests {
     @Test
     void testParse_blankExpr_throws() {
         Method method = method("keyOuter");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> CElKeyResolveUtils.getResolver(method, "  "));
     }
 
@@ -172,7 +172,7 @@ class CElKeyResolveUtilsTests {
     @Test
     void testParse_paramNotExist_throws() {
         Method method = method("keyOuter");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> CElKeyResolveUtils.getResolver(method, "notExist.inner"));
     }
 
@@ -182,7 +182,7 @@ class CElKeyResolveUtilsTests {
     @Test
     void testParse_illegalSegment_throws() {
         Method method = method("keyOuter");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> CElKeyResolveUtils.getResolver(method, "outer..inner"));
     }
 
@@ -194,7 +194,7 @@ class CElKeyResolveUtilsTests {
         Method method = method("keyOuter");
         Outer outer = new Outer(new Inner(1L));
         // inner 上没有 manager 属性
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
             () -> CElKeyResolveUtils.getResolver(method, "outer.inner.manager")
                 .resolve(new Object[] { outer }));
     }
@@ -207,7 +207,7 @@ class CElKeyResolveUtilsTests {
         Method method = method("keySelf");
         Self self = new Self(1L, null);
         self.manager = self; // 自引用形成环
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
             () -> CElKeyResolveUtils.getResolver(method, "self.manager.id")
                 .resolve(new Object[] { self, "t" }));
     }
@@ -270,7 +270,7 @@ class CElKeyResolveUtilsTests {
         Method method = method("keyDeep");
         Person person = new Person(new Contact(new Address("CN")));
         // address 上没有 codeOf 属性
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
             () -> CElKeyResolveUtils.getResolver(method, "person.contact.address.codeOf")
                 .resolve(new Object[] { person }));
     }

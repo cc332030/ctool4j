@@ -152,7 +152,7 @@ class CRateLimitAspectTests {
     void rateLimit_overThreshold_blocked() {
         stubCurrentCounts(4L);
         Method m = method("limited");
-        Assertions.assertThrows(CRateLimitException.class,
+        Assertions.assertThrowsExactly(CRateLimitException.class,
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
@@ -163,7 +163,7 @@ class CRateLimitAspectTests {
     void rateLimit_message_default() {
         stubCurrentCounts(4L);
         Method m = method("limited");
-        CRateLimitException ex = Assertions.assertThrows(CRateLimitException.class,
+        CRateLimitException ex = Assertions.assertThrowsExactly(CRateLimitException.class,
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
         Assertions.assertEquals("请求过于频繁，请稍后再试", ex.getMessage());
     }
@@ -269,7 +269,7 @@ class CRateLimitAspectTests {
     @Test
     void rateLimit_invalidCount_throws() {
         Method m = method("invalidCount");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 
@@ -279,7 +279,7 @@ class CRateLimitAspectTests {
     @Test
     void rateLimit_invalidInterval_throws() {
         Method m = method("invalidInterval");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> aspect.rateLimit(joinPoint(m, new Object[] { 1L })));
     }
 

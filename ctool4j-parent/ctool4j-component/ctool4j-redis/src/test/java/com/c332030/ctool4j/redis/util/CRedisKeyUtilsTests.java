@@ -108,7 +108,7 @@ class CRedisKeyUtilsTests {
     @Test
     void resolveBizId_unknownParam_throws() {
         Method m = method("sample");
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrowsExactly(IllegalArgumentException.class,
             () -> CRedisKeyUtils.resolveBizId(new Object[] { 1L }, m, "unknown"));
     }
 
@@ -118,7 +118,7 @@ class CRedisKeyUtilsTests {
     @Test
     void resolveBizId_unknownProp_throws() {
         Method m = method("sampleOrder");
-        Assertions.assertThrows(IllegalStateException.class,
+        Assertions.assertThrowsExactly(IllegalStateException.class,
             () -> CRedisKeyUtils.resolveBizId(new Object[] { new OrderRequest(10L) }, m, "req.noSuch"));
     }
 

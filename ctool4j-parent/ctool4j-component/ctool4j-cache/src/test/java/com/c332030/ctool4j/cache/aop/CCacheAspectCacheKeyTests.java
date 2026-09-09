@@ -105,7 +105,7 @@ class CCacheAspectCacheKeyTests {
     void testGetCacheKey_pojoWithoutCacheId_throws() {
         CCacheable cacheable = cacheable();
         UserWithoutId user = new UserWithoutId(42L, "name");
-        Assertions.assertThrows(IllegalStateException.class, () -> aspect.getCacheKey(user, cacheable));
+        Assertions.assertThrowsExactly(IllegalStateException.class, () -> aspect.getCacheKey(user, cacheable));
     }
 
     /**
