@@ -1023,26 +1023,49 @@ public class CCollUtils {
             predicate = Objects::nonNull;
         }
 
-        collection = filter(collection, toKey, predicate);
         if(CollUtil.isEmpty(collection)) {
             return CMap.of();
         }
 
-        val first = first(collection);
-        val firstKey = CObjUtils.convert(first, toKey);
-        val keyType = CObjUtils.convert(firstKey, e -> e.getClass());
+        final CPredicate<K> keyPredicate = predicate;
 
-        val map = CMapUtils.<K, V>newMap(keyType, collection.size());
-        collection.forEach(t -> {
+        // 单遍循环：toKey 每个元素仅执行一次，避免原实现 filter/toMap 重复转换与中间集合
+        Map<K, V> map = null;
+        K keyType = null;
+        for(T t : collection) {
+
+            if(null == t) {
+                continue;
+            }
+
+            val key = toKey.apply(t);
+            if(!keyPredicate.test(key)) {
+                continue;
+            }
+
+            if(null == keyType && null != key) {
+                keyType = key;
+            }
 
             val value = toValue.apply(t);
             if(null == value) {
-                return;
+                continue;
             }
 
-            map.compute(toKey.apply(t),
+            if(null == map) {
+                if(null == keyType) {
+                    keyType = key;
+                }
+                map = CMapUtils.<K, V>newMap(keyType.getClass(), collection.size());
+            }
+
+            map.compute(key,
                     (k, v) -> CObjUtils.merge(k, v, value, mergeFunction));
-        });
+        }
+
+        if(null == map) {
+            return CMap.of();
+        }
         return Collections.unmodifiableMap(map);
     }
 

@@ -16,6 +16,7 @@ LastModified: 2026-09-09
 
 - `convert`：集合元素映射（`List<String>` → `List<Integer>`）。
 - `toMap`：集合转 Map（`List<Item>` → `Map<Long, Item>`，元素自身为值）。
+- `toMap`（key 过滤 + value 提取）：`List<Item>` → `Map<Long, String>`，按 key 过滤、单独提取 value（覆盖 `toKey` 单遍调用的优化路径）。
 - `groupingBy`：集合分组（`List<Item>` → `Map<Integer, List<Item>>`）。
 - `filter`：集合过滤（`List<Integer>` 过滤偶数）。
 - `first`：获取集合首个元素（`List<Item>`）。
@@ -29,6 +30,7 @@ LastModified: 2026-09-09
 - 原生 stream + Collectors：JDK 直接实现（`stream().map/filter/collect`、`Collectors.toMap/toList/groupingBy`、`stream().findFirst/reduce/min/max`）。
 - hutool `CollUtil`：第三方工具类实现（`CollUtil.map`）。
 - 手工循环：编译期直接赋值的基线（`for` 循环手工操作集合，列表按索引取值）。
+- `toMap` 过滤 + value 提取维度同样提供 CCollUtils 与手工循环两种对比实现（验证 `toKey` 单遍调用优化）。
 
 === 执行方式
 
@@ -41,10 +43,11 @@ LastModified: 2026-09-09
 
 === 1. 基准执行
 
-- 1.1 benchmark：CCollUtils 集合转换与取首尾/最值性能对比基准（convert/toMap/groupingBy/filter/first/last/min/max 多实现方式对比）
+- 1.1 benchmark：CCollUtils 集合转换与取首尾/最值性能对比基准（convert/toMap/toMap 过滤+提取/groupingBy/filter/first/last/min/max 多实现方式对比）
 
 == 变更日志
 
+- 1.2 | 2026-09-09 | 新增 toMap（key 过滤 + value 提取）单遍优化性能对比基准
 - 1.1 | 2026-09-09 | 新增取首尾（first/last）与最值（min/max）性能对比基准
 - 1.0 | 2026-09-09 | 初始落地（CCollUtils 集合转换性能对比基准）
 
@@ -53,6 +56,7 @@ LastModified: 2026-09-09
 以手工循环为基线（1.00x），本次采样数据（100 元素集合，相对基线）：
 
 - `CCollUtils.convert` 约 5.2x、`toMap` 约 8.4x，相对原生 stream 更慢。原因：CCollUtils 底层封装 stream + Collectors，并在语义上额外承担**空集合判空、null 元素过滤**、`toMap` 额外返回**不可变 Map**（包装拷贝）等健壮性代价。
+- `toMap`（key 过滤 + value 提取）经单遍循环优化：`toKey` 每个元素仅执行一次（原实现经 filter/first/forEach 重复调用，命中元素重复 2 次），并避免中间集合，消除重复转换与多余遍历。
 - `CCollUtils.groupingBy`、`filter` 接近原生实现（约 3~3.7x），表现良好。
 - 手工循环始终最快（编译期确定性分配，零语义开销）。
 
