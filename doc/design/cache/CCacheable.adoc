@@ -1,7 +1,7 @@
 = CCacheable 设计文档
 
-Version: 1.2
-LastModified: 2026-09-08
+Version: 1.4
+LastModified: 2026-09-11
 模块：ctool4j-cache
 类：com.c332030.ctool4j.cache.annotation.CCacheable
 状态：已落地
@@ -55,6 +55,7 @@ LastModified: 2026-09-08
 === 4.1 适用场景
 
 - 需要按入参对象做本地/Redis 缓存的方法或类。
+- 配合 `@CCacheRemove`（方法成功后删除缓存）/ `@CCacheUpdate`（方法成功后更新缓存）主动管理缓存一致性，避免等过期。
 
 === 4.2 不适用/边界场景
 
@@ -72,6 +73,8 @@ LastModified: 2026-09-08
 
 == 变更日志
 
+- 1.4 | 2026-09-11 | 注解改名 CCacheEvict→CCacheRemove、CCachePut→CCacheUpdate，同步一致性说明
+- 1.3 | 2026-09-11 | 补充与 @CCacheRemove / @CCacheUpdate 主动缓存管理的一致性说明
 - 1.2 | 2026-09-08 | el 表达式解析改用 core 公共类 CElKeyResolveUtils 替代 cache 内 CCacheKeyResolver
 - 1.1 | 2026-09-08 | 新增 `key()` 简单 el 表达式属性，支持多参数/多级取 key；`key()` 为空时参数 POJO 无 `@CCacheId` 改为报错
 - 1.0 | 2026-08-21 | 初始落地

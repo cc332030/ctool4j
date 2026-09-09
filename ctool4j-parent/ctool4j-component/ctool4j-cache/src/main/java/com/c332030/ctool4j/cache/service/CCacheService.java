@@ -174,6 +174,14 @@ public class CCacheService {
     }
 
     /**
+     * 删除 Redis 缓存值
+     * @param key 缓存 key
+     */
+    public void deleteValue(String key) {
+        redisService.delete(key);
+    }
+
+    /**
      * 获取 Redis 缓存值，带过期时间
      * <p>无锁的轻量"读-算-写"：值提供者允许返回 null（null 时不写缓存直接返回，避免缓存空值）；
      * 与 {@link #computeAndWrite(String, Class, Supplier, Function)} 语义不同（后者锁内强校验非空），独立实现不复用</p>

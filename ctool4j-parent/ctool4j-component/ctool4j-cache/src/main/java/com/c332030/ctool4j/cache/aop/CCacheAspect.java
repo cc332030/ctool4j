@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.cache.aop;
 
+import com.c332030.ctool4j.cache.annotation.CCacheRemove;
 import com.c332030.ctool4j.cache.annotation.CCacheId;
+import com.c332030.ctool4j.cache.annotation.CCacheUpdate;
 import com.c332030.ctool4j.cache.annotation.CCacheable;
 import com.c332030.ctool4j.cache.service.CCacheService;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
@@ -95,6 +97,46 @@ public class CCacheAspect {
     }
 
     /**
+     * 缓存删除切面：执行原方法 → 成功（未抛异常）后删除对应缓存。
+     * <p>原方法执行异常时向上抛出，不删除缓存（保持缓存与数据源一致，避免误删）。</p>
+     *
+     * @param joinPoint 切入点
+     * @return 方法执行结果
+     */
+    @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheRemove)")
+    public Object cacheRemoveAspect(ProceedingJoinPoint joinPoint) {
+
+        val method = CAspectUtils.getMethod(joinPoint);
+        val remove = CReflectUtils.getAnnotationCached(method, CCacheRemove.class);
+
+        // 先执行原方法，成功（不抛异常）后才删除缓存
+        val result = CAspectUtils.process(joinPoint);
+
+        removeCache(joinPoint, method, remove);
+        return result;
+    }
+
+    /**
+     * 缓存更新切面：执行原方法 → 成功（未抛异常）后用返回值更新缓存。
+     * <p>原方法执行异常时向上抛出，不写入缓存（避免把失败结果写入缓存）。</p>
+     *
+     * @param joinPoint 切入点
+     * @return 方法执行结果
+     */
+    @Around("@annotation(com.c332030.ctool4j.cache.annotation.CCacheUpdate)")
+    public Object cacheUpdateAspect(ProceedingJoinPoint joinPoint) {
+
+        val method = CAspectUtils.getMethod(joinPoint);
+        val update = CReflectUtils.getAnnotationCached(method, CCacheUpdate.class);
+
+        // 先执行原方法，成功（不抛异常）后才更新缓存
+        val result = CAspectUtils.process(joinPoint);
+
+        updateCache(joinPoint, method, update, result);
+        return result;
+    }
+
+    /**
      * 解析缓存 key（统一入口：key 表达式 or 默认 @CCacheId 逻辑）。
      *
      * <p>key() 非空且非空白：走简单 el 表达式（可多参数、多级取属性）；为空或空白：视为未配置，
@@ -111,15 +153,36 @@ public class CCacheAspect {
         Method method,
         CCacheable cacheable
     ) {
+        return resolveCacheKey(args, method, cacheable.namespace(), cacheable.key(), cacheable.idConverter());
+    }
 
-        val keyExpr = cacheable.key();
+    /**
+     * 解析缓存 key（独立属性重载，供 {@link CCacheRemove} / {@link CCacheUpdate} 复用同一套 key 规则）。
+     *
+     * <p>语义与 {@link #resolveCacheKey(Object[], Method, CCacheable)} 一致。</p>
+     *
+     * @param args          方法实参
+     * @param method        目标方法
+     * @param namespace     缓存命名空间类
+     * @param keyExpr       key 表达式（为空走默认 @CCacheId 逻辑）
+     * @param idConverterClass 缓存 id 生成类
+     * @return 缓存 key；无法取值时返回 null
+     */
+    public String resolveCacheKey(
+        Object[] args,
+        Method method,
+        Class<?> namespace,
+        String keyExpr,
+        Class<? extends ICCacheIdConverter<?, ?>> idConverterClass
+    ) {
+
         if (null != keyExpr && !keyExpr.trim().isEmpty()) {
             val resolver = CElKeyResolveUtils.getResolver(method, keyExpr);
             val value = resolver.resolve(args);
             if (null == value) {
                 return null;
             }
-            val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
+            val idConverter = CLASS_ID_CONVERTER.get(idConverterClass);
             return idConverter.apply(value, null);
         }
 
@@ -127,7 +190,7 @@ public class CCacheAspect {
         if (null == args || args.length == 0) {
             return null;
         }
-        return getCacheKey(CArrUtils.get(args, 0), cacheable);
+        return getCacheKey(CArrUtils.get(args, 0), namespace, idConverterClass);
     }
 
     /**
@@ -142,12 +205,29 @@ public class CCacheAspect {
         Object object,
         CCacheable cacheable
     ) {
+        return getCacheKey(object, cacheable.namespace(), cacheable.idConverter());
+    }
+
+    /**
+     * 生成缓存 key（独立属性重载，供 {@link CCacheRemove} / {@link CCacheUpdate} 复用同一套 key 规则）。
+     *
+     * @param object           方法第一个参数对象，为 null 时返回 null
+     * @param namespace        缓存命名空间类
+     * @param idConverterClass 缓存 id 生成类
+     * @return 缓存 key；object 为 null 时返回 null
+     */
+    @SneakyThrows
+    public String getCacheKey(
+        Object object,
+        Class<?> namespace,
+        Class<? extends ICCacheIdConverter<?, ?>> idConverterClass
+    ) {
 
         if (null == object) {
             return null;
         }
 
-        val idConverter = CLASS_ID_CONVERTER.get(cacheable.idConverter());
+        val idConverter = CLASS_ID_CONVERTER.get(idConverterClass);
 
         val objClass = object.getClass();
         if (CClassUtils.isJdkClass(objClass)) {
@@ -159,10 +239,11 @@ public class CCacheAspect {
         val handle = CACHE_ID_HANDLE_CLASS_VALUE.get(objClass);
         if (null == handle) {
             throw new IllegalStateException(
-                "@CCacheable 缓存参数类型 " + objClass.getName()
+                "缓存参数类型 " + objClass.getName()
                     + " 无 @CCacheId 字段且未配置 key()，无法生成缓存 key。请在方法上配置"
-                    + " @CCacheable(key=\"参数名.属性…\")，或在参数类型的业务 id 字段上加 @CCacheId。方法: "
-                    + cacheable.namespace().getName());
+                    + " key=\"参数名.属性…\"（如 @CCacheable/@CCacheRemove/@CCacheUpdate），或在参数类型"
+                    + " 的业务 id 字段上加 @CCacheId。namespace: "
+                    + namespace.getName());
         }
         val cacheId = handle.invoke(object);
         return idConverter.apply(cacheId, object);
@@ -280,6 +361,154 @@ public class CCacheAspect {
             expire,
             () -> CAspectUtils.process(joinPoint)
         );
+    }
+
+    /**
+     * 删除缓存（统一入口，按 local 分流到本地 / Redis）。
+     * <p>无缓存 key（null）时跳过，直接返回。</p>
+     *
+     * @param joinPoint 切入点
+     * @param method    目标方法
+     * @param remove     缓存删除注解
+     */
+    public void removeCache(
+        ProceedingJoinPoint joinPoint,
+        Method method,
+        CCacheRemove remove
+    ) {
+
+        val namespace = remove.namespace();
+        val args = joinPoint.getArgs();
+        val cacheKey = resolveCacheKey(args, method, namespace, remove.key(), remove.idConverter());
+
+        if (null == cacheKey) {
+            if (log.isDebugEnabled()) {
+                log.debug("无缓存 key，跳过缓存删除");
+            }
+            return;
+        }
+
+        if (remove.local()) {
+            removeLocalCache(namespace, cacheKey);
+        } else {
+            removeRedisCache(namespace, cacheKey);
+        }
+    }
+
+    /**
+     * 删除本地缓存：遍历 namespace 下所有 expire 分组的 Cache，删除对应 key。
+     * <p>因为本地缓存按 (namespace, expire) 分组，删除时不确定 key 落在哪个 expire 分组，
+     * 故遍历该 namespace 下所有已有的 Cache 实例做 invalidate，保证彻底释放。</p>
+     *
+     * @param namespace 缓存命名空间类
+     * @param cacheKey  缓存 key
+     */
+    private void removeLocalCache(Class<?> namespace, String cacheKey) {
+
+        val expireCaches = NAMESPACE_CACHES.getIfPresent(namespace);
+        if (null == expireCaches) {
+            return;
+        }
+
+        expireCaches.asMap().values().forEach(cache -> cache.invalidate(cacheKey));
+
+        if (log.isDebugEnabled()) {
+            log.debug("删除本地缓存，namespace: {}, cacheKey: {}", namespace.getSimpleName(), cacheKey);
+        }
+    }
+
+    /**
+     * 删除 Redis 缓存
+     *
+     * @param namespace 缓存命名空间类
+     * @param cacheKey  缓存 key
+     */
+    private void removeRedisCache(Class<?> namespace, String cacheKey) {
+
+        val redisKey = namespace.getSimpleName() + ":" + cacheKey;
+        cacheService.deleteValue(redisKey);
+
+        if (log.isDebugEnabled()) {
+            log.debug("删除 Redis 缓存，redisKey: {}", redisKey);
+        }
+    }
+
+    /**
+     * 更新缓存（统一入口，按 local 分流到本地 / Redis）。
+     * <p>无缓存 key（null）或返回值 null 时跳过，避免写入空值。</p>
+     *
+     * @param joinPoint 切入点
+     * @param method    目标方法
+     * @param update    缓存更新注解
+     * @param result    方法执行结果（写入缓存的新值）
+     */
+    public void updateCache(
+        ProceedingJoinPoint joinPoint,
+        Method method,
+        CCacheUpdate update,
+        Object result
+    ) {
+
+        if (null == result) {
+            if (log.isDebugEnabled()) {
+                log.debug("方法返回 null，跳过缓存更新");
+            }
+            return;
+        }
+
+        val namespace = update.namespace();
+        val args = joinPoint.getArgs();
+        val cacheKey = resolveCacheKey(args, method, namespace, update.key(), update.idConverter());
+
+        if (null == cacheKey) {
+            if (log.isDebugEnabled()) {
+                log.debug("无缓存 key，跳过缓存更新");
+            }
+            return;
+        }
+
+        if (update.local()) {
+            updateLocalCache(namespace, update.expire(), cacheKey, result);
+        } else {
+            updateRedisCache(namespace, update.expire(), cacheKey, result);
+        }
+    }
+
+    /**
+     * 更新本地缓存：写入 namespace 下指定 expire 分组的 Cache。
+     *
+     * @param namespace 缓存命名空间类
+     * @param expire    过期时间（秒）
+     * @param cacheKey  缓存 key
+     * @param value     新值
+     */
+    private void updateLocalCache(Class<?> namespace, int expire, String cacheKey, Object value) {
+
+        val cache = getCache(namespace, expire);
+        cache.put(cacheKey, value);
+
+        if (log.isDebugEnabled()) {
+            log.debug("更新本地缓存，namespace: {}, cacheKey: {}, expire: {}",
+                namespace.getSimpleName(), cacheKey, expire);
+        }
+    }
+
+    /**
+     * 更新 Redis 缓存
+     *
+     * @param namespace 缓存命名空间类
+     * @param expire    过期时间（秒）
+     * @param cacheKey  缓存 key
+     * @param value     新值
+     */
+    private void updateRedisCache(Class<?> namespace, int expire, String cacheKey, Object value) {
+
+        val redisKey = namespace.getSimpleName() + ":" + cacheKey;
+        cacheService.setValue(redisKey, value, expire);
+
+        if (log.isDebugEnabled()) {
+            log.debug("更新 Redis 缓存，redisKey: {}, expire: {}", redisKey, expire);
+        }
     }
 
 }

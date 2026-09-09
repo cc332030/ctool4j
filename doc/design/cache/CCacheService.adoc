@@ -1,7 +1,7 @@
 = CCacheService 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-11
 模块：ctool4j-cache
 类：com.c332030.ctool4j.cache.service.CCacheService
 状态：已落地
@@ -13,6 +13,7 @@ LastModified: 2026-08-21
 
 - `computeIfAbsent(...)`（已废弃）：分布式同步读-算-写。
 - `setValue(key, value, expireSeconds)`：写 Redis 缓存（非正数秒则永久）。
+- `deleteValue(key)`：删除 Redis 缓存（供 `@CCacheRemove` 使用）。
 - `getCache(key, tClass, expireSeconds, valueSupplier)`：无锁的轻量读-算-写（允许 null 值）。
 - `cacheBuilder(key, tClass)`：返回 `CCacheBuilder<T>` 缓存构建器。
 
@@ -71,4 +72,6 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.2 | 2026-09-11 | 注解改名后同步引用：deleteValue 供 @CCacheRemove 使用
+- 1.1 | 2026-09-11 | 新增 deleteValue 删除 Redis 缓存方法（供 @CCacheRemove 使用）
 - 1.0 | 2026-08-21 | 初始落地
