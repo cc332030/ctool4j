@@ -1,0 +1,84 @@
+= CElKeyResolveUtils 设计文档
+
+Version: 1.2
+LastModified: 2026-09-09
+模块：ctool4j-core
+类：com.c332030.ctool4j.core.classes.CElKeyResolveUtils
+状态：已落地
+适用范围：简单 el 表达式的解析、校验与运行求值（供缓存 key、限流业务 id 等取值场景复用）
+
+== 1. 功能说明
+
+`CElKeyResolveUtils` 将简单 el 表达式 `参数名.属性名.属性名…` 编译为可复用解析器并执行取值。
+
+表达式格式：`参数名.属性名.属性名…`，如 `"user.id"`、`"req.userId"`，支持一级到任意深度，属性可以是嵌套对象。
+
+核心能力：
+
+- `getResolver(Method, String)`：解析并校验表达式，按方法缓存解析器。
+- `Resolver.resolve(Object[] args)`：对一次调用的实参求值，并检测循环引用。
+
+== 2. 设计要点
+
+=== 2.1 语法与校验（首次使用即懒校验）
+
+- 表达式为 null/空白 → `IllegalArgumentException`。
+- 按 `.` 分段，每段须为合法 Java 标识符（`[A-Za-z_$][A-Za-z0-9_$]*`），空段/非法字符 → 报错。
+- 首段为参数名，须能在方法形参中命中（否则报错）。
+- 参数名解析依赖编译期 `-parameters`（父 pom 已全局开启），直接读 `Parameter#getName()`。
+- 校验时机为「首次使用」：首次调用时解析校验并缓存；不牺牲启动时间（不做启动期全量扫描）。
+
+=== 2.2 高性能
+
+- 表达式只解析一次，按方法（`Method` 弱引用）缓存解析器；合法后后续调用命中缓存，运行期零字符串解析。
+- 解析器读取：先 `getIfPresent` 命中直接返回（不创建 lambda、不走并发 compute），热路径开销极低。
+- 属性 getter 复用 `CReflectUtils.getGetterHandleMap(type)` 按类缓存的 MethodHandle（含继承字段），运行期零反射查表、`handle.invokeExact` 执行（统一 `(Object)Object` 签名，无签名适配开销，为 MethodHandle 快速路径）。
+- 每级按对象实际类型取 getter，天然适配接口/父类/多态运行类型。
+- 无属性跳的一级表达式（`key="参数名"`）直接返回参数对象，跳过循环检测与集合分配，为最高频最快路径。
+- 单级跳（`参数名.属性`）仅取一次属性、直接返回，不分配循环检测集合，为次快路径。
+
+=== 2.3 运行期取值与循环引用检测
+
+- 参数为 null、或属性链某级为 null → 返回 null（由调用方决定取值是否可用）。
+- 属性在某一实际类型不可解析（无该字段 getter）→ `IllegalStateException`（动态类型运行期兜底报错）。
+- 循环引用检测：仅在存在多级属性跳（属性链 ≥2 级）时进行；单线程线性推进，用局部引用去重 `Set`
+  （`IdentityHashMap` 底层）记录已访问对象；若链中再次访问到同一对象实例，判定循环引用 → `IllegalStateException`。
+  - 单级跳不可能形成环（环至少需两次跳转），走零分配快速路径跳过该检测。
+  - 因求值在同一方法调用栈内顺序推进，用局部 `Set` 即可，无需 `ThreadLocal`。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| 表达式空/空白 | 解析期抛 IllegalArgumentException |
+| 参数名不存在 | 解析期抛 IllegalArgumentException |
+| 非法段（连续点/非法字符） | 解析期抛 IllegalArgumentException |
+| 参数为 null / 链中某级为 null | resolve 返回 null |
+| 属性在某运行类型不可解析 | resolve 抛 IllegalStateException |
+| 属性链循环引用（同实例重复访问） | resolve 抛 IllegalStateException |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+- 缓存 key（`@CCacheable.key()`）取值，由 `CCacheAspect.resolveCacheKey` 调用。
+- 限流业务 id（`@CRateLimit.id()`）取值，由 `CRateLimitAspect` 调用。
+
+=== 4.2 不适用/边界场景
+
+- 不支持算术/方法调用/复杂 SpEL 语法，仅简单属性路径。
+- 参数名依赖编译期 `-parameters` 或 debug 符号，否则无法按参数名取值。
+- 校验为首次使用（懒）触发：某方法从未被调用则其表达式错误不会暴露（不做启动期全量扫描，换取启动速度）。
+
+== 5. 已知限制与取舍
+
+- 循环引用仅在"同一对象实例沿属性链被重复访问"时判定；不同对象即使值相等也不误报（引用去重）。
+- 校验期仅能做「表达式结构 + 参数名 + 段合法性」；属性在具体运行类型的可达性与循环引用需运行期按实际类型验证（接口/泛型无法静态推导）。
+
+测试内容见 `doc/design/core/CElKeyResolveUtilsTests.adoc`（功能用例）、`doc/design/core/CElKeyResolveUtilsBenchmarkTests.adoc`（性能对比）。
+
+== 变更日志
+
+- 1.2 | 2026-09-09 | 性能优化：getter 调用由 handle.invoke 改为 handle.invokeExact；单级跳走零分配快速路径
+- 1.1 | 2026-09-08 | 新增性能对比基准 CElKeyResolveUtilsBenchmarkTests（对比原生反射/hutool/编译期基线）
+- 1.0 | 2026-09-08 | 初始落地（由 cache 模块 CCacheKeyResolver 抽离至 core，去掉对 spring 的依赖）

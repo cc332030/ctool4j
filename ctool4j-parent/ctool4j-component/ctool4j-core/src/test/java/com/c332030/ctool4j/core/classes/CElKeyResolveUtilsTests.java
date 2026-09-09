@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.cache.aop;
+package com.c332030.ctool4j.core.classes;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,21 +9,21 @@ import java.lang.reflect.Method;
 
 /**
  * <p>
- * Description: CCacheKeyResolverTests
+ * Description: CElKeyResolveUtilsTests
  * </p>
  * <p>
- * 测试 {@link CCacheKeyResolver}：简单 el 表达式解析、多级取值、null 处理、非法表达式、
+ * 测试 {@link CElKeyResolveUtils}：简单 el 表达式解析、多级取值、null 处理、非法表达式、
  * 循环引用检测。仅测试纯逻辑，不依赖 Spring 容器。
  * </p>
  *
  * <p>
- * 是 {@link CCacheKeyResolver} 的测试用例（对应测试文档
- * <code>doc/design/cache/CCacheKeyResolverTests.adoc</code>）。
+ * 是 {@link CElKeyResolveUtils} 的测试用例（对应测试文档
+ * <code>doc/design/core/CElKeyResolveUtilsTests.adoc</code>）。
  * </p>
  *
  * @since 2026/9/8
  */
-class CCacheKeyResolverTests {
+class CElKeyResolveUtilsTests {
 
     @Data
     @AllArgsConstructor
@@ -40,15 +40,12 @@ class CCacheKeyResolverTests {
     }
 
     @Data
+    @AllArgsConstructor
     static class Self {
 
         Long id;
 
         Self manager;
-
-        Self(Long id) {
-            this.id = id;
-        }
     }
 
     @Data
@@ -92,7 +89,7 @@ class CCacheKeyResolverTests {
 
     private Method method(String name) {
         try {
-            for (Method m : CCacheKeyResolverTests.class.getDeclaredMethods()) {
+            for (Method m : CElKeyResolveUtilsTests.class.getDeclaredMethods()) {
                 if (m.getName().equals(name)) {
                     return m;
                 }
@@ -109,7 +106,7 @@ class CCacheKeyResolverTests {
         Method method = method("keyOuter");
         Inner inner = new Inner(1L);
         Outer outer = new Outer(inner);
-        Object key = CCacheKeyResolver.getResolver(method, "outer").resolve(new Object[] { outer });
+        Object key = CElKeyResolveUtils.getResolver(method, "outer").resolve(new Object[] { outer });
         Assertions.assertSame(outer, key);
     }
 
@@ -119,7 +116,7 @@ class CCacheKeyResolverTests {
         Method method = method("keyOuter");
         Inner inner = new Inner(1L);
         Outer outer = new Outer(inner);
-        Object key = CCacheKeyResolver.getResolver(method, "outer.inner").resolve(new Object[] { outer });
+        Object key = CElKeyResolveUtils.getResolver(method, "outer.inner").resolve(new Object[] { outer });
         Assertions.assertSame(inner, key);
     }
 
@@ -127,8 +124,8 @@ class CCacheKeyResolverTests {
     @Test
     void testResolve_propertyValue() {
         Method method = method("keySelf");
-        Self self = new Self(42L);
-        Object key = CCacheKeyResolver.getResolver(method, "self.id").resolve(new Object[] { self, "t" });
+        Self self = new Self(42L, null);
+        Object key = CElKeyResolveUtils.getResolver(method, "self.id").resolve(new Object[] { self, "t" });
         Assertions.assertEquals(42L, key);
     }
 
@@ -136,7 +133,7 @@ class CCacheKeyResolverTests {
     @Test
     void testResolve_paramNull_returnsNull() {
         Method method = method("keyOuter");
-        Object key = CCacheKeyResolver.getResolver(method, "outer.inner").resolve(new Object[] { null });
+        Object key = CElKeyResolveUtils.getResolver(method, "outer.inner").resolve(new Object[] { null });
         Assertions.assertNull(key);
     }
 
@@ -145,7 +142,7 @@ class CCacheKeyResolverTests {
     void testResolve_middleNull_returnsNull() {
         Method method = method("keyOuter");
         Outer outer = new Outer(null);
-        Object key = CCacheKeyResolver.getResolver(method, "outer.inner").resolve(new Object[] { outer });
+        Object key = CElKeyResolveUtils.getResolver(method, "outer.inner").resolve(new Object[] { outer });
         Assertions.assertNull(key);
     }
 
@@ -154,7 +151,7 @@ class CCacheKeyResolverTests {
     void testParse_blankExpr_throws() {
         Method method = method("keyOuter");
         Assertions.assertThrows(IllegalArgumentException.class,
-            () -> CCacheKeyResolver.getResolver(method, "  "));
+            () -> CElKeyResolveUtils.getResolver(method, "  "));
     }
 
     /** 对应测试用例 1.7：参数名不存在抛异常 */
@@ -162,7 +159,7 @@ class CCacheKeyResolverTests {
     void testParse_paramNotExist_throws() {
         Method method = method("keyOuter");
         Assertions.assertThrows(IllegalArgumentException.class,
-            () -> CCacheKeyResolver.getResolver(method, "notExist.inner"));
+            () -> CElKeyResolveUtils.getResolver(method, "notExist.inner"));
     }
 
     /** 对应测试用例 1.8：非法段（连续点）抛异常 */
@@ -170,7 +167,7 @@ class CCacheKeyResolverTests {
     void testParse_illegalSegment_throws() {
         Method method = method("keyOuter");
         Assertions.assertThrows(IllegalArgumentException.class,
-            () -> CCacheKeyResolver.getResolver(method, "outer..inner"));
+            () -> CElKeyResolveUtils.getResolver(method, "outer..inner"));
     }
 
     /** 对应测试用例 1.9：运行期属性在某实际类型不可解析抛异常 */
@@ -180,7 +177,7 @@ class CCacheKeyResolverTests {
         Outer outer = new Outer(new Inner(1L));
         // inner 上没有 manager 属性
         Assertions.assertThrows(IllegalStateException.class,
-            () -> CCacheKeyResolver.getResolver(method, "outer.inner.manager")
+            () -> CElKeyResolveUtils.getResolver(method, "outer.inner.manager")
                 .resolve(new Object[] { outer }));
     }
 
@@ -188,10 +185,10 @@ class CCacheKeyResolverTests {
     @Test
     void testResolve_cycle_throws() {
         Method method = method("keySelf");
-        Self self = new Self(1L);
+        Self self = new Self(1L, null);
         self.manager = self; // 自引用形成环
         Assertions.assertThrows(IllegalStateException.class,
-            () -> CCacheKeyResolver.getResolver(method, "self.manager.id")
+            () -> CElKeyResolveUtils.getResolver(method, "self.manager.id")
                 .resolve(new Object[] { self, "t" }));
     }
 
@@ -199,10 +196,10 @@ class CCacheKeyResolverTests {
     @Test
     void testResolve_noCycle() {
         Method method = method("keySelf");
-        Self manager = new Self(2L);
-        Self self = new Self(1L);
+        Self manager = new Self(2L, null);
+        Self self = new Self(1L, null);
         self.manager = manager; // manager 是另一个实例，不成环
-        Object key = CCacheKeyResolver.getResolver(method, "self.manager.id")
+        Object key = CElKeyResolveUtils.getResolver(method, "self.manager.id")
             .resolve(new Object[] { self, "t" });
         Assertions.assertEquals(2L, key);
     }
@@ -212,7 +209,7 @@ class CCacheKeyResolverTests {
     void testResolve_secondParam() {
         Method method = method("keyInner");
         Outer outer = new Outer(new Inner(1L));
-        Object key = CCacheKeyResolver.getResolver(method, "tag")
+        Object key = CElKeyResolveUtils.getResolver(method, "tag")
             .resolve(new Object[] { outer, "TAG" });
         Assertions.assertEquals("TAG", key);
     }
@@ -222,7 +219,7 @@ class CCacheKeyResolverTests {
     void testResolve_deepChain() {
         Method method = method("keyDeep");
         Person person = new Person(new Contact(new Address("CN")));
-        Object key = CCacheKeyResolver.getResolver(method, "person.contact.address.code")
+        Object key = CElKeyResolveUtils.getResolver(method, "person.contact.address.code")
             .resolve(new Object[] { person });
         Assertions.assertEquals("CN", key);
     }
@@ -232,7 +229,7 @@ class CCacheKeyResolverTests {
     void testResolve_deepChainMiddleNull_returnsNull() {
         Method method = method("keyDeep");
         Person person = new Person(new Contact(null));
-        Object key = CCacheKeyResolver.getResolver(method, "person.contact.address.code")
+        Object key = CElKeyResolveUtils.getResolver(method, "person.contact.address.code")
             .resolve(new Object[] { person });
         Assertions.assertNull(key);
     }
@@ -244,7 +241,7 @@ class CCacheKeyResolverTests {
         Person person = new Person(new Contact(new Address("CN")));
         // address 上没有 codeOf 属性
         Assertions.assertThrows(IllegalStateException.class,
-            () -> CCacheKeyResolver.getResolver(method, "person.contact.address.codeOf")
+            () -> CElKeyResolveUtils.getResolver(method, "person.contact.address.codeOf")
                 .resolve(new Object[] { person }));
     }
 

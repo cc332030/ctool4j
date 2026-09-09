@@ -1,7 +1,7 @@
 = CCacheable 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-08
 模块：ctool4j-cache
 类：com.c332030.ctool4j.cache.annotation.CCacheable
 状态：已落地
@@ -35,7 +35,7 @@ LastModified: 2026-08-21
 
 - 纯注解声明；切面通过 `@Around("@annotation(...CCacheable)")` 拦截，
   `resolveCacheKey` 依据 `key()` 是否非空分派到「简单 el 表达式」或「`@CCacheId` 默认逻辑」生成 key。
-- el 表达式由 `CCacheKeyResolver` 在首次使用时解析校验（懒校验）、结果按方法缓存复用，运行期经 MethodHandle getter 链求值。
+- el 表达式由 `CElKeyResolveUtils` 在首次使用时解析校验（懒校验）、结果按方法缓存复用，运行期经 MethodHandle getter 链求值。
 
 == 3. 兜底设计
 
@@ -68,9 +68,10 @@ LastModified: 2026-08-21
 - el 取值仅作 key 输入，不传原始参数对象给自定义 `idConverter`；一级表达式取整个 POJO 时按其 `toString` 作 key（不触发 `@CCacheId` 规则）。
 - 本地缓存与 Redis 缓存的 key 语义不同（Redis 为 `namespace:cacheKey`），两模式不可混用同一 key。
 
-测试内容见 `doc/design/cache/CCacheAspectTests.adoc`、`doc/design/cache/CCacheKeyResolver.adoc`。
+测试内容见 `doc/design/cache/CCacheAspectTests.adoc`、`doc/design/core/CElKeyResolveUtils.adoc`。
 
 == 变更日志
 
+- 1.2 | 2026-09-08 | el 表达式解析改用 core 公共类 CElKeyResolveUtils 替代 cache 内 CCacheKeyResolver
 - 1.1 | 2026-09-08 | 新增 `key()` 简单 el 表达式属性，支持多参数/多级取 key；`key()` 为空时参数 POJO 无 `@CCacheId` 改为报错
 - 1.0 | 2026-08-21 | 初始落地
