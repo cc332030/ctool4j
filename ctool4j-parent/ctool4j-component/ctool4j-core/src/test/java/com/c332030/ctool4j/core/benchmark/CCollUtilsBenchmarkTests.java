@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.benchmark;
 
 import cn.hutool.core.collection.CollUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -64,6 +65,9 @@ public class CCollUtilsBenchmarkTests {
             new CCollToMapCase(),
             new StreamToMapCase(),
             new ManualToMapCase(),
+
+            new CCollToMapPredicateCase(),
+            new ManualToMapPredicateCase(),
 
             new CCollGroupingByCase(),
             new StreamGroupingByCase(),
@@ -275,6 +279,65 @@ public class CCollUtilsBenchmarkTests {
             Map<Long, Item> result = new HashMap<>(items.size());
             for (Item item : items) {
                 result.put(item.getId(), item);
+            }
+            return result;
+        }
+    }
+
+    // ===== toMap（key 过滤 + value 提取）：List<Item> → Map（按 type 分组 value 提取，过滤 null key）=====
+    // toKey 每个元素仅执行一次是本次优化的关键；对比手工循环的单遍实现
+
+    private static class CCollToMapPredicateCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "CCollUtils.toMap(过滤+value)";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            return CCollUtils.<Item, Long, String>toMap(
+                    items, Item::getId, Item::getName, (CPredicate<Long>) (id -> id != null), null);
+        }
+    }
+
+    private static class ManualToMapPredicateCase implements CBenchmarkCase {
+
+        private List<Item> items;
+
+        @Override
+        public String name() {
+            return "手工循环(toMap 过滤+value)";
+        }
+
+        @Override
+        public void prepare() {
+            items = newItems();
+        }
+
+        @Override
+        public Object run() {
+            Map<Long, String> result = new HashMap<>(items.size());
+            for (Item item : items) {
+                if (item == null) {
+                    continue;
+                }
+                Long key = item.getId();
+                if (key == null) {
+                    continue;
+                }
+                String value = item.getName();
+                if (value == null) {
+                    continue;
+                }
+                result.put(key, value);
             }
             return result;
         }
