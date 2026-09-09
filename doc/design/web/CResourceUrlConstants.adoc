@@ -1,14 +1,14 @@
-= ResourceUrlConstants 设计文档
+= CResourceUrlConstants 设计文档
 
 Version: 1.0
 LastModified: 2026-08-21
 模块：ctool4j-web
-类：com.c332030.ctool4j.web.constant.ResourceUrlConstants
+类：com.c332030.ctool4j.web.constant.CResourceUrlConstants
 状态：已落地
 
 == 1. 功能说明
 
-`ResourceUrlConstants`（`@UtilityClass`）为静态资源 URL 常量类。
+`CResourceUrlConstants`（`@UtilityClass`）为静态资源 URL 常量类。
 
 常量：
 
