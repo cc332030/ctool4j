@@ -1,6 +1,6 @@
 = CCollUtils 测试用例文档
 
-Version: 1.4
+Version: 1.5
 LastModified: 2026-09-09
 所属功能：`com.c332030.ctool4j.core.util.CCollUtils`（core 工具类）——集合操作（空兜底/遍历/分组/添加/拼接/过滤/转换/新建/取元素/最值/转 Map）。
 
@@ -83,7 +83,7 @@ LastModified: 2026-09-09
 
 - 9.1 stream：null 空流、正常计数（stream）
 - 9.2 toMap：基本；空集合；value null 跳过；自定义 value；predicate 过滤 key；merge 冲突；无 merge
-  冲突抛异常；不可变；Pair 版本；自定义谓词放行 null key 时不抛 NPE 且 null key 正常入 Map（toMap）
+  冲突抛异常；不可变；Pair 版本；自定义谓词放行 null key 时 null key 被过滤，不入 Map（toMap）
 
 == 10. 其他
 
@@ -93,6 +93,7 @@ LastModified: 2026-09-09
 
 == 变更日志
 
+- 1.5 | 2026-09-09 | toMap 用例改为验证始终过滤 null key：自定义谓词放行 null key 时 null key 被跳过而非入 Map（见 CCollUtils.adoc 1.4）
 - 1.4 | 2026-09-09 | toMap 补充自定义谓词放行 null key 的回归用例（修复 NPE，见 CCollUtils.adoc）
 - 1.3 | 2026-09-09 | first 补充非 List（迭代器）分支用例覆盖
 - 1.2 | 2026-09-09 | last 非 List 由 reduce 改为迭代器遍历，同步用例说明

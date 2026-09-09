@@ -1031,7 +1031,6 @@ public class CCollUtils {
 
         // 单遍循环：toKey 每个元素仅执行一次，避免原实现 filter/toMap 重复转换与中间集合
         Map<K, V> map = null;
-        K keyType = null;
         for(T t : collection) {
 
             if(null == t) {
@@ -1039,12 +1038,9 @@ public class CCollUtils {
             }
 
             val key = toKey.apply(t);
-            if(!keyPredicate.test(key)) {
+            // toMap 始终过滤 null key：即使自定义谓词放行 null key，也直接跳过
+            if(null == key || !keyPredicate.test(key)) {
                 continue;
-            }
-
-            if(null == keyType && null != key) {
-                keyType = key;
             }
 
             val value = toValue.apply(t);
@@ -1053,13 +1049,8 @@ public class CCollUtils {
             }
 
             if(null == map) {
-                if(null != keyType) {
-                    map = CMapUtils.<K, V>newMap(keyType.getClass(), collection.size());
-                } else {
-                    // 首个 key 为 null 且通过谓词（自定义谓词可能放行 null key），
-                    // 无法据 key 类型推断 Map 实现，回退 LinkedHashMap（支持 null key）
-                    map = new LinkedHashMap<K, V>(collection.size());
-                }
+                // key 已保证非空，据其类型推断 Map 实现（枚举键用 EnumMap，其余用 LinkedHashMap）
+                map = CMapUtils.<K, V>newMap(key.getClass(), collection.size());
             }
 
             map.compute(key,
