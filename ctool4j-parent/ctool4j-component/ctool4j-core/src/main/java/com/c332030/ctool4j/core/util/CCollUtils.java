@@ -1053,10 +1053,13 @@ public class CCollUtils {
             }
 
             if(null == map) {
-                if(null == keyType) {
-                    keyType = key;
+                if(null != keyType) {
+                    map = CMapUtils.<K, V>newMap(keyType.getClass(), collection.size());
+                } else {
+                    // 首个 key 为 null 且通过谓词（自定义谓词可能放行 null key），
+                    // 无法据 key 类型推断 Map 实现，回退 LinkedHashMap（支持 null key）
+                    map = new LinkedHashMap<K, V>(collection.size());
                 }
-                map = CMapUtils.<K, V>newMap(keyType.getClass(), collection.size());
             }
 
             map.compute(key,
