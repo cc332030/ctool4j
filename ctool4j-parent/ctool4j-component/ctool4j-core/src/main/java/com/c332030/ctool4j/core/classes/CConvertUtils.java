@@ -35,7 +35,7 @@ public class CConvertUtils {
     static {
 
         log.info("初始化默认类型转换");
-        val methods = CReflectUtils.getAllMethodsCached(CClassConvert.class);
+        val methods = CReflectUtils.getAllMethods(CClassConvert.class);
         methods.stream()
                 .filter(CReflectUtils::isStatic)
                 .forEach(CConvertUtils::addConverter);

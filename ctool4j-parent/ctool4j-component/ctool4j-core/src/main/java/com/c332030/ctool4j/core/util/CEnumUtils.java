@@ -86,7 +86,7 @@ public class CEnumUtils {
      * @param <E>       枚举类型
      * @return 字段值到枚举的 Map
      */
-    public static <T, E> Map<T, E> getMap(Class<E> enumClass, Func1<T, ?> func) {
+    public static <T, E> Map<T, E> getMap(Class<E> enumClass, Func1<E, T> func) {
         return getMap(enumClass, LambdaUtil.getFieldName(func));
     }
 
@@ -121,7 +121,7 @@ public class CEnumUtils {
                     } else {
 
                         val field = enumClass.getDeclaredField(fieldName);
-                        val getterHandle = CMethodHandleUtils.getGetterHandleAsType(field);
+                        val getterHandle = CMethodHandleUtils.toGetterHandle(field).asType(CMethodHandleUtils.GETTER_HANDLE_TYPE);
                         for (val val : values) {
                             val fieldValue = getterHandle.invoke(val);
                             if (fieldValue != null) {

@@ -30,10 +30,10 @@ public class CEntityUtils {
      * 清除方法句柄
      */
     private static final List<MethodHandle> CLEAR_METHODS =
-        CReflectUtils.getAllMethodsByName(
-                CEntityUtils.class, "clear"
-            ).stream()
-            .map(CMethodHandleUtils::getHandle)
+        CReflectUtils.getAllMethods(CEntityUtils.class)
+            .stream()
+            .filter(method -> "clear".equals(method.getName()))
+            .map(CMethodHandleUtils::toHandle)
             .collect(CCollectors.toUnmodifiableList());
 
     /**

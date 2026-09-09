@@ -1,7 +1,7 @@
 = CEnumUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-09
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CEnumUtils
 状态：已落地
@@ -42,6 +42,13 @@ LastModified: 2026-08-21
 - `getMap(Class, String)` 校验 `enumClass.isEnum()`，非枚举抛 `IllegalArgumentException`。
 - 指定字段名不存在时反射抛 `NoSuchFieldException`（经 `@SneakyThrows` 上抛）。
 
+=== 2.5 getMap 函数引用重载泛型签名
+
+- `getMap(Class<E>, Func1<E, T>)`：`E` 为枚举类型（函数入参），`T` 为字段值类型（函数返回与 Map key），
+  与 `valueOf(Class, Func1, value)` 的 `Func1<C, T>` 语义一致。
+- 行为等价于 `getMap(Class, fieldName)`（通过 `LambdaUtil.getFieldName` 取字段名），供字段名不便于手写
+  或需编译期校验字段存在时使用。
+
 == 3. 兜底设计
 
 | 场景 | 兜底行为 |
@@ -72,4 +79,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-09 | 修复 getMap(Class, Func1) 泛型签名 Func1<T,?> 为 Func1<E,T>，使入参为枚举类型、字段值类型一致；新增 2.5 节说明
 - 1.0 | 2026-08-21 | 初始落地
