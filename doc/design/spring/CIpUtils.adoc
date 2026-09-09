@@ -1,0 +1,87 @@
+= CIpUtils 设计文档
+
+Version: 1.2
+LastModified: 2026-09-09
+模块：ctool4j-spring
+类：com.c332030.ctool4j.spring.util.CIpUtils
+状态：已落地
+适用范围：IP/IP 段(CIDR)公共解析工具
+
+== 1. 功能说明
+
+`CIpUtils`：IP 工具类，提供 IPv4 地址与 CIDR 网段的公共解析与判断方法，供 IP 白名单/黑名单控制等场景复用。
+
+== 2. 设计要点
+
+- `contains(String ip, String.../Collection<String> rules)`：判断目标 IP 是否命中任一规则。
+- 规则支持两种形式：
+  - 单个 IPv4：如 `192.168.1.5`。
+  - CIDR 网段：如 `192.168.1.0/24`（前缀 0~32，`/0` 表示全量网段）。
+- **版本无感入口 + 底层拆分扩展**：
+  - 入口 `contains` 不暴露 IPv4/IPv6 差异，调用方无需关心版本。
+  - 当前仅实现 IPv4；对 IPv6（含 `:`）地址或规则安全返回 `false`，不抛异常、不空指针。
+  - 将来支持 IPv6 时，在版本识别处（IP 含 `:`）路由到独立 v6 匹配实现即可，入口无需变更。
+- **优先复用 hutool**（`cn.hutool.core.net.Ipv4Util`）：
+  - IP 转 `long`：`Ipv4Util.ipv4ToLong(String, long default)`（带默认值，非法返回哨兵）。
+  - CIDR 掩码位 1~32：`Ipv4Util.getBeginIpStr`/`getEndIpStr` 计算起止区间，再转 `long` 比较。
+  - 掩码位范围校验：`Ipv4Util.IP_MASK_MAX`。
+  - hutool 不支持 `maskBit=0`（`/0` 全量），故 `maskBit=0` 特判为全量放行（命中所有合法 IPv4）。
+- 健壮性：目标 IP 为空、非法或 IPv6 返回 `false`（安全优先）；非法规则（含 IPv6 规则）记录日志并跳过，不影响其它规则判断。
+- 纯 JDK + hutool，不依赖 servlet/web，可跨模块复用。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| IP 为空/非法/为 IPv6 | 返回 `false`（当前仅支持 IPv4，安全拒绝，不抛异常） |
+| 规则非法（非 CIDR、掩码位越界、IPv6 规则） | 记录日志并跳过，不影响其它规则 |
+| `maskBit=0`（`/0` 全量） | 特判为全量放行（命中所有合法 IPv4） |
+| IP 为 null | 返回 `false` |
+
+== 4. 适用范围
+
+=== 4.1 适用场景
+
+IP 白名单/黑名单校验、按 IP 段放行/拦截等运行时判断。
+
+=== 4.2 不适用/边界场景
+
+- 当前仅支持 IPv4；IPv6 暂未实现（入口与命名已预留扩展，见"已知限制"）。
+- 解析为长整型比较，不做域名解析。
+
+== 5. 已知缺陷与不足 / 注意事项
+
+按类→方法/字段分层记录，便于定位到代码。
+
+=== 5.1 方法级
+
+- `contains(String ip, String... rules)` / `contains(String ip, Collection<String> rules)`：
+  - **易误用**：IPv6 地址或规则会**静默返回 `false`**（无异常）。若调用方意图支持 IPv6，会把"不支持"误判为"不在白名单内"；当前阶段仅在 IPv4 场景使用，勿用本方法判断 IPv6。
+  - **易误用**：`rules` 为 `null` 或空集合返回 `false`（空名单=不放行，而非"全放行"）。"白名单为空=全放行"的语义由上层 `CInnerApiConfig`/`CInnerApiInterceptor` 决定，本工具不隐含该策略，调用方需自行决定空名单语义。
+  - 返回值即"命中与否"，不区分"IP 非法"与"未命中"，调用方如需区分请自行预校验。
+- `match`/`matchCidr`（私有）：对非法规则（含 IPv6 规则、掩码位越界）记录日志并跳过，不中断对其它规则的判断——单个坏配置不致整体失效，但**静默跳过**可能掩盖配置错误，生产建议先对配置规则做合法性校验。
+
+=== 5.2 边界与默认值
+
+- 非法 IP 哨兵值 `INVALID_IP = -1L`：IPv4 最大 `0xFFFFFFFF` 恒小于 `-1`（long），不会与合法值冲突，作为"非法/IPv6"标记安全。
+- `maskBit` 范围 [0,32]：hutool `isMaskBitValid` 视 0 为非法，故 `maskBit=0`（`/0`）由本类特判为全量放行（命中所有合法 IPv4）；超出 0~32 的掩码位判为非法规则并跳过。
+- IP/规则解析复用 hutool 带默认值 `ipv4ToLong(String, long)`，格式非法返回哨兵，不抛异常。
+
+=== 5.3 性能
+
+- 每次调用即时解析（`Ipv4Util.getBeginIpStr`/`getEndIpStr` 逐条规则计算区间），未做结果缓存。白名单规模很小、调用频次低，开销可忽略；若做高频超大规则集匹配需考虑缓存。
+
+=== 5.4 线程安全与副作用
+
+- `@UtilityClass` 无状态静态方法，线程安全；不持有可变共享状态，无并发问题。
+- 每次调用内部解析，无副作用，可重复调用。
+
+=== 5.5 波及影响
+
+- 本工具被 `CInnerApiInterceptor` 用于内部接口 IP 白名单校验：若将来其行为变化（如 IPv6 支持、空名单语义调整），需同步评估对 IP 白名单拦截语义的影响。
+
+== 变更日志
+
+- 1.2 | 2026-09-09 | 按设计文档规范补齐已知缺陷/易误用/边界/默认值/性能/线程安全说明
+- 1.1 | 2026-09-09 | 优先复用 hutool Ipv4Util（ipv4ToLong/getBeginIpStr/getEndIpStr）；版本无感入口，IPv6 优雅拒绝并预留扩展；/0 全量特判
+- 1.0 | 2026-09-09 | 初始落地

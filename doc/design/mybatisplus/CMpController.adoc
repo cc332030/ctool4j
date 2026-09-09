@@ -1,7 +1,7 @@
 = CMpController 设计文档
 
-Version: 1.2
-LastModified: 2026-09-08
+Version: 1.3
+LastModified: 2026-09-09
 模块：ctool4j-mybatisplus
 类：com.c332030.ctool4j.mybatisplus.controller.CMpController
 状态：已落地
@@ -18,6 +18,9 @@ LastModified: 2026-09-08
 - `@RequestBody` 参数不再标注参数注解：入参/出参文档由对应请求/响应 model 在父接口 getter 上的 `@CSchema`
   （如 ICPage、ICCode/ICMessage/ICData、ICId）统一提供，子类/实现无需重复标注。
 - 依赖以 `provided` 引入（`ctool4j-definition`），仅编译期生效、不透传；运行时由启用 doc-openapi2 的应用经其传递引入。
+- 本类为纯内部接口（供内部/管理端调用）。子类若需限制仅内网 IP/IP 段可访问，可在具体 Controller 类或其方法上标注 `@CInnerApi`
+  （ctool4j-definition 的内部接口标记注解），由 ctool4j-web 的 `CInnerApiInterceptor` 读取并通过 `CInnerApiConfig`
+  （`inner-api.allowed-ips`，支持单 IP 与 CIDR 网段）统一校验白名单；基类默认不标注，由使用方按需启用。
 
 == 3. 兜底设计
 
@@ -39,6 +42,7 @@ LastModified: 2026-09-08
 
 == 变更日志
 
+- 1.3 | 2026-09-09 | 文档补充：内部接口可标注 @CInnerApi 通过 CInnerApiConfig（inner-api.allowed-ips）启用 IP 白名单控制（由使用方子类自行标注）
 - 1.2 | 2026-09-08 | 接口文档注解迁入 ctool4j-definition，provided 依赖由 ctool4j-doc-base 改为 ctool4j-definition
 - 1.1 | 2026-09-08 | 接口方法标注 @COperation 提供接口文档；@RequestBody 参数文档改由请求/响应 model 父接口 getter 的 @CSchema 统一提供；引入 ctool4j-doc-base（provided）
 - 1.0 | 2026-08-21 | 初始落地
