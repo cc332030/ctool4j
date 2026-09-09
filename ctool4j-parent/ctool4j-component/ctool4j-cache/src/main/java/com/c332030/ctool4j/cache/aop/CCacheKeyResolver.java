@@ -64,7 +64,7 @@ public class CCacheKeyResolver {
      * @param keyExpr  key 简单 el 表达式
      * @return 解析器
      */
-    public static Resolver getResolver(Method method, String keyExpr) {
+    public Resolver getResolver(Method method, String keyExpr) {
 
         // 先直接读，命中即返回，避免热路径每次创建 lambda 与重复并发读
         val cached = RESOLVER_CACHE.getIfPresent(method);
@@ -77,7 +77,7 @@ public class CCacheKeyResolver {
     /**
      * 解析并校验表达式，生成可执行解析器
      */
-    static Resolver parse(Method method, String keyExpr) {
+    Resolver parse(Method method, String keyExpr) {
 
         if (null == keyExpr || keyExpr.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -109,14 +109,14 @@ public class CCacheKeyResolver {
         return new Resolver(method, paramIndex, propChain);
     }
 
-    private static void validateSegment(Method method, String keyExpr, String segment) {
+    private void validateSegment(Method method, String keyExpr, String segment) {
         if (segment.isEmpty() || !IDENTIFIER_PATTERN.matcher(segment).matches()) {
             throw new IllegalArgumentException(
                 "@CCacheable key 表达式段非法: [" + segment + "]（整体: [" + keyExpr + "]），方法: " + method);
         }
     }
 
-    private static int findParamIndex(Method method, String paramName) {
+    private int findParamIndex(Method method, String paramName) {
 
         // 参数名发现器：依赖 -parameters（本模块已开启）；未开启时反射可能返回 argN，
         // 再按 Parameter#getName 兜底

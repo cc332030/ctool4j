@@ -282,4 +282,118 @@ public class CCorsUtilsTests {
                 response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
     }
 
+    /**
+     * 对应测试用例 1.14
+     */
+    @Test
+    public void handleDo_whenExposedHeadersDefault() {
+        // 正例：默认 exposedHeaders 仅暴露 Authorization（无其它非简单响应头）
+        enable();
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+        config.setAllowedOrigins(Collections.singleton("example.com"));
+
+        CCorsUtils.handleDo(request, response);
+
+        Assertions.assertEquals(HttpHeaders.AUTHORIZATION,
+                response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
+    }
+
+    /**
+     * 对应测试用例 1.15
+     */
+    @Test
+    public void handleDo_whenExposedHeadersAll() {
+        // 正例：exposedHeaders 含 ALL 时，Expose-Headers 使用通配符
+        enable();
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+        config.setAllowedOrigins(Collections.singleton("example.com"));
+        config.setExposedHeaders(Collections.singleton(CCorsConfig.ALL));
+
+        CCorsUtils.handleDo(request, response);
+
+        Assertions.assertEquals(CCorsConfig.ALL,
+                response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
+    }
+
+    /**
+     * 对应测试用例 1.16
+     */
+    @Test
+    public void handleDo_whenExposedHeadersEmpty() {
+        // 边界：exposedHeaders 为空集合时不设置 Expose-Headers
+        enable();
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+        config.setAllowedOrigins(Collections.singleton("example.com"));
+        config.setExposedHeaders(Collections.emptySet());
+
+        CCorsUtils.handleDo(request, response);
+
+        Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
+    }
+
+    /**
+     * 对应测试用例 1.17
+     */
+    @Test
+    public void handle_whenEnable_shouldExposeHeaders() {
+        // 正例：普通（非 OPTIONS）实际响应同样暴露 Expose-Headers，前端 JS 才能读取响应头
+        enable();
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+        config.setAllowedOrigins(Collections.singleton("example.com"));
+
+        CCorsUtils.handle(request, response);
+
+        Assertions.assertEquals(HttpHeaders.AUTHORIZATION,
+                response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
+    }
+
+    /**
+     * 对应测试用例 1.18
+     */
+    @Test
+    public void handleDo_whenExposedHeadersMultiple() {
+        // 正例：exposedHeaders 含多个头时，Expose-Headers 为逗号拼接的列表
+        enable();
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+        config.setAllowedOrigins(Collections.singleton("example.com"));
+
+        Set<String> exposedHeaders = new LinkedHashSet<String>();
+        exposedHeaders.add(HttpHeaders.AUTHORIZATION);
+        exposedHeaders.add("X-TOKEN");
+        config.setExposedHeaders(exposedHeaders);
+
+        CCorsUtils.handleDo(request, response);
+
+        Assertions.assertEquals("Authorization,X-TOKEN",
+                response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
+    }
+
+    /**
+     * 对应测试用例 1.19
+     */
+    @Test
+    public void handleDo_whenExposedHeadersNull() {
+        // 边界：exposedHeaders 为 null 时不设置 Expose-Headers（空安全）
+        enable();
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+        config.setAllowedOrigins(Collections.singleton("example.com"));
+        config.setExposedHeaders(null);
+
+        CCorsUtils.handleDo(request, response);
+
+        Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
+    }
+
 }

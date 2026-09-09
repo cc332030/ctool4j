@@ -41,4 +41,13 @@ public class CCorsConfig {
         , HttpHeaders.CONTENT_TYPE
     );
 
+    /**
+     * 跨域暴露给浏览器脚本的响应报文头
+     * <p>默认浏览器脚本仅可读取简单响应头（Cache-Control、Content-Language、Content-Length、
+     * Content-Type、Expires、Last-Modified、Pragma），{@code Authorization} 响应头需通过本配置显式暴露。</p>
+     */
+    Set<String> exposedHeaders = CSet.of(
+        HttpHeaders.AUTHORIZATION
+    );
+
 }

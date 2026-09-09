@@ -1,7 +1,7 @@
 = CCorsUtils 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-09
 所属功能：`com.c332030.ctool4j.web.test.cors.util` 对应 CCorsUtils.handleOptions/handle/handleDo：跨域校验与响应头设置。
 
 对应测试类：`com.c332030.ctool4j.web.test.cors.util.CCorsUtilsTests`
@@ -37,7 +37,14 @@ LastModified: 2026-08-21
 - 1.11 handleDo_whenMethodNotAllowed（handleDo_whenMethodNotAllowed）
 - 1.12 handleDo_whenAllowedHeadersAll（handleDo_whenAllowedHeadersAll）
 - 1.13 handleDo_whenAllowedHeadersSpecific（handleDo_whenAllowedHeadersSpecific）
+- 1.14 handleDo_whenExposedHeadersDefault（handleDo_whenExposedHeadersDefault）
+- 1.15 handleDo_whenExposedHeadersAll（handleDo_whenExposedHeadersAll）
+- 1.16 handleDo_whenExposedHeadersEmpty（handleDo_whenExposedHeadersEmpty）
+- 1.17 handle_whenEnable_shouldExposeHeaders（handle_whenEnable_shouldExposeHeaders）
+- 1.18 handleDo_whenExposedHeadersMultiple（handleDo_whenExposedHeadersMultiple）
+- 1.19 handleDo_whenExposedHeadersNull（handleDo_whenExposedHeadersNull）
 
 == 变更日志
 
+- 1.1 | 2026-09-09 | 新增 1.14–1.16（Expose-Headers 默认/ALL/空）与 1.17–1.19（普通请求路径暴露、多元素拼接、null 不设置）
 - 1.0 | 2026-08-21 | 初始落地

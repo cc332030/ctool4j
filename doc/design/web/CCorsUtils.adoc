@@ -1,7 +1,7 @@
 = CCorsUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-09
 模块：ctool4j-web
 类：com.c332030.ctool4j.web.cors.util.CCorsUtils
 状态：已落地
@@ -31,9 +31,12 @@ LastModified: 2026-08-21
   请求方法是否在 `allowedMethods`（含 `*` 通配）中。
 - 全部通过后设置响应头：
   - `Access-Control-Allow-Origin` 回显请求 Origin
-  - `Access-Control-Allow-Headers`：`allowedHeaders` 含 `*` 时用 `*`，否则逗号连接
+  - `Access-Control-Allow-Headers` / `Access-Control-Expose-Headers`：头集合经统一私有方法
+    `setHeaderIfNotEmpty`（集合为 null/空则不设置）拼接 `joinHeaders`（含 `*` 用 `*`，否则逗号连接）
   - `Access-Control-Allow-Credentials`：固定 `true`
   - `Access-Control-Allow-Methods`：回显当前请求方法
+  - `Access-Control-Expose-Headers`：默认仅暴露 `Authorization`（浏览器脚本默认仅可读简单响应头，
+    需显式暴露）；集合为空则不设置该头
 
 === 2.3 异常兜底
 
@@ -46,6 +49,7 @@ LastModified: 2026-08-21
 | 配置未注入（config 为 null） | NPE 被外层 try-catch 捕获，记录日志，跨域头不输出 |
 | `handleDo` 校验链不通过（非同源/不在白名单/方法不允许） | 不设置任何跨域头，直接返回 |
 | 请求无 `Origin` 头 | 视为非跨域请求，直接返回 |
+| `allowedHeaders`/`exposedHeaders` 集合为 null 或空 | 经 `setHeaderIfNotEmpty` 不设置对应响应头（避免空指针，空即不声明） |
 
 == 4. 适用范围
 
@@ -67,4 +71,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-09 | `handleDo` 增加 `Access-Control-Expose-Headers` 响应头（来源 `exposedHeaders`，默认暴露 `Authorization`）；Allow/Expose 头拼接与判空设置统一收敛到 `joinHeaders`/`setHeaderIfNotEmpty`（集合 null/空则不设置）
 - 1.0 | 2026-08-21 | 初始落地
