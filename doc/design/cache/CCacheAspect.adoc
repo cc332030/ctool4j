@@ -1,7 +1,7 @@
 = CCacheAspect 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-08
 模块：ctool4j-cache
 类：com.c332030.ctool4j.cache.aop.CCacheAspect
 状态：已落地
@@ -15,7 +15,7 @@ LastModified: 2026-08-21
 
 - `cacheAspect(joinPoint)`：`@Around` 拦截；`local()` 为 true 走本地缓存，否则走 Redis 缓存。
 - `resolveCacheKey(args, method, cacheable)`：统一 key 解析。`key()` 非空走简单 el 表达式
-  （`CCacheKeyResolver`，可多参数/多级取属性）；为空走默认逻辑。
+  （`CElKeyResolveUtils`，可多参数/多级取属性）；为空走默认逻辑。
 - `getCacheKey(object, cacheable)`：默认逻辑（第一个参数 + `@CCacheId` 字段 + idConverter）。
 - `getLocalCache(...)`：本地 Caffeine 缓存（按 namespace + expire 分组），`cache.get` 原子加载。
 - `getRedisCache(...)`：Redis 缓存（`namespace:cacheKey`），走 `CCacheService.getCache` 读-算-写。
@@ -30,7 +30,7 @@ LastModified: 2026-08-21
 
 === 2.2 缓存 key 生成
 
-- `resolveCacheKey(args, method, cacheable)` 统一入口：`key()` 非空/非空白走 el（`CCacheKeyResolver`），
+- `resolveCacheKey(args, method, cacheable)` 统一入口：`key()` 非空/非空白走 el（`CElKeyResolveUtils`），
   为空或空白走默认逻辑。
 - 默认逻辑：仅取方法第一个参数作为 key 来源；无参数不缓存。
 - `@CCacheId` 字段通过 MethodHandle（`CACHE_ID_HANDLE_CLASS_VALUE`）读取，替代反射提升性能。
@@ -68,13 +68,14 @@ LastModified: 2026-08-21
 - 默认逻辑仅支持第一个参数参与缓存 key，是已知简化取舍。
 - namespace 下 expire 超过 16 种时会复用最长过期时间缓存，可能与预期过期时间不一致（防御性兜底）。
 - `getRedisCache` 用 `namespace.getSimpleName()` 作为 key 前缀，不同包下同名类可能冲突。
-- el 表达式首次使用时校验（懒校验，`CCacheKeyResolver` 缓存复用）；循环引用仅运行期可检出。
+- el 表达式首次使用时校验（懒校验，`CElKeyResolveUtils` 缓存复用）；循环引用仅运行期可检出。
 - el 分支把表达式取值作为 key 传给 `idConverter` 时不传原始参数对象（object 参数为 null）；一级 `key="参数名"` 按参数对象 `toString` 作 key，不触发 `@CCacheId` 规则。
 - el `key()` 按参数名取值依赖消费方编译期保留形参名（建议开启 `-parameters`），否则首次使用报「参数名不存在」。
 
-测试内容见 `doc/design/cache/CCacheAspectTests.adoc`（完整上下文/Redis）、`doc/design/cache/CCacheAspectCacheKeyTests.adoc`、`doc/design/cache/CCacheAspectResolveCacheKeyTests.adoc`、`doc/design/cache/CCacheElLocalAspectTests.adoc`（el 本地最小上下文）、`doc/design/cache/CCacheKeyResolverTests.adoc`。
+测试内容见 `doc/design/cache/CCacheAspectTests.adoc`（完整上下文/Redis）、`doc/design/cache/CCacheAspectCacheKeyTests.adoc`、`doc/design/cache/CCacheAspectResolveCacheKeyTests.adoc`、`doc/design/cache/CCacheElLocalAspectTests.adoc`（el 本地最小上下文）、`doc/design/core/CElKeyResolveUtilsTests.adoc`。
 
 == 变更日志
 
+- 1.2 | 2026-09-08 | el key 解析改用 core 公共类 CElKeyResolveUtils 替代 cache 内 CCacheKeyResolver（公共代码抽离）
 - 1.1 | 2026-09-08 | key 生成增加 el 表达式分派（resolveCacheKey）；默认逻辑无 @CCacheId 且未配 key() 改为报错
 - 1.0 | 2026-08-21 | 初始落地

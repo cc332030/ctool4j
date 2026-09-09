@@ -1,0 +1,55 @@
+= CRedisKeyUtils 设计文档
+
+Version: 1.0
+LastModified: 2026-09-09
+模块：ctool4j-redis
+类：com.c332030.ctool4j.redis.util.CRedisKeyUtils
+状态：已落地
+适用范围：基于 Redis 的切面（限流 @CRateLimit、幂等 @CIdempotent）的业务 key 构建与业务 id 解析公共工具
+
+== 1. 功能说明
+
+`CRedisKeyUtils`（`@UtilityClass`）抽取限流/幂等切面共用的业务 key 构建与业务 id 解析逻辑，
+供 `CRateLimitAspect`、`CIdempotentAspect` 复用，避免各切面重复实现 key 拼接与 el 表达式求值。
+
+- `resolveBizId`：按注解 `id()` 的简单 el 表达式从方法参数解析业务 id。
+- `buildKey`：按统一格式构建 Redis 业务 key。
+- `isBlankSpecKey`：判断业务 id 是否为空（null/空白），决定是否省略 key 末段。
+
+== 2. 设计要点
+
+=== 2.1 业务 key 统一格式
+
+- 格式：`应用前缀:段简单名[:方法名][:业务id]`。
+- 段简单名：限流取方法声明类简单名；幂等取注解分组类简单名（由调用方传入）。
+- `useMethodName` 为 false 时省略方法名段（同段多个方法共享同一 key 维度）。
+- 业务 id 为空（null/空白字符串）时省略末段。
+
+=== 2.2 业务 id 解析
+
+- 复用 `CElKeyResolveUtils`：首次使用时解析并校验表达式（参数名存在、属性链可达），按方法缓存。
+- 表达式为空/空白返回 null（按段全局不区分业务维度）；表达式非法或属性链循环引用时抛异常。
+
+=== 2.3 key 段分隔
+
+- 沿用 `CRedisUtils.KEY_SEPARATOR`（`":"`）作为段分隔符，与应用前缀等其它 key 保持一致。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| id 表达式为空/空白 | resolveBizId 返回 null（省略业务维度） |
+| id 表达式非法/参数名不存在 | 抛 IllegalArgumentException（CElKeyResolveUtils） |
+| 属性链循环引用 | 运行期抛 IllegalStateException |
+| 业务 id 为 null/空白 | buildKey 省略末段 |
+
+== 4. 适用范围与取舍
+
+- 供 redis 模块内基于注解的切面复用；单纯 key 拼接场景也可使用 `buildKey`。
+- `buildKey` 不依赖 Spring 容器（纯静态无状态），便于单元测试。
+
+测试内容见 `doc/design/redis/CRedisKeyUtilsTests.adoc`。
+
+== 变更日志
+
+- 1.0 | 2026-09-09 | 初始落地（抽取 CRateLimitAspect/CIdempotentAspect 共用逻辑）

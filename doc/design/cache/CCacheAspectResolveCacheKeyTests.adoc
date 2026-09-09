@@ -6,7 +6,7 @@ LastModified: 2026-09-08
 
 对应测试类：`com.c332030.ctool4j.cache.aop.CCacheAspectResolveCacheKeyTests`
 
-对应设计文档：`doc/design/cache/CCacheAspect.adoc`、`doc/design/cache/CCacheKeyResolver.adoc`、`doc/design/cache/CCacheable.adoc`
+对应设计文档：`doc/design/cache/CCacheAspect.adoc`、`doc/design/core/CElKeyResolveUtils.adoc`、`doc/design/cache/CCacheable.adoc`
 
 本文档为 resolveCacheKey 的测试用例文档，含用例设计思路与依据、覆盖场景、分类编号索引；测试方法在 javadoc 中标注对应编号。
 

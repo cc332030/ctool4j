@@ -1,0 +1,50 @@
+= CIdempotentAspect 测试用例文档
+
+Version: 1.0
+LastModified: 2026-09-09
+所属功能：`com.c332030.ctool4j.redis.idempotent.CIdempotentAspect`（redis 模块）——@CIdempotent 幂等切面。
+
+对应测试类：`com.c332030.ctool4j.redis.idempotent.CIdempotentAspectTests`
+
+对应设计文档：`doc/design/redis/CIdempotentAspect.adoc`（功能设计，测试内容以本文档为准）。
+
+本文档为 CIdempotentAspect 的测试用例文档，含用例设计思路与依据、覆盖场景，以及测试用例的分类编号索引；测试方法在 javadoc 中标注对应编号，文档与代码互相定位。
+
+== 用例设计思路与依据
+
+=== 设计思路
+
+- 通过 mock `RedissonClient` / `RLock` 与真实 `CLockService` 验证幂等加锁-执行-解锁逻辑，
+  不依赖真实 Redis（外部依赖用 mock 隔离）。
+- 通过反射取测试类中带 `@CIdempotent` 注解的方法，验证注解属性驱动的幂等行为。
+- 覆盖加锁成功/失败、默认与自定义消息、业务 id 表达式、方法名开关、锁内业务异常传播等场景。
+
+=== 设计依据
+
+- 依据功能设计对 `idempotent` 的约定（见 CIdempotentAspect.adoc）。
+- 依据白盒/黑盒原则：加锁成功/失败、业务 id 解析、默认/自定义消息、方法名开关、锁内异常均需覆盖。
+
+=== 覆盖场景与未覆盖
+
+- 覆盖：加锁成功执行并解锁、加锁失败抛幂等异常、默认消息、自定义消息、无业务 id（按分组+方法名隔离）、
+  业务 id 表达式、空白业务 id、useMethodName=false（key 去方法名段）、useMethodName=false 且带业务 id、
+  锁内业务异常传播并解锁。
+- 未覆盖：真实 Redis 集成（依赖外部环境，本模块以 mock 隔离外部依赖）；多线程并发加锁竞争
+  （依赖 Redisson 锁保证，单元测试不覆盖并发时序）。
+
+== 1. CIdempotentAspect 幂等判定
+
+- 1.1 加锁成功：执行业务并返回结果，且释放锁（idempotent_lockSuccess_executesAndReturns）
+- 1.2 加锁失败（重复请求）：抛 CIdempotentException（idempotent_lockFail_throws）
+- 1.3 幂等异常消息取注解 message 默认值（idempotent_message_default）
+- 1.4 幂等异常消息取注解 message 自定义值（idempotent_message_custom）
+- 1.5 无业务 id 时 key 为 应用前缀:分组类简单名:方法名（idempotent_noBizId_key）
+- 1.6 业务 id 表达式取参数，key 含业务维度（idempotent_bizId_key）
+- 1.7 id 为空白字符串时 key 不含业务维度（idempotent_blankBizId_key）
+- 1.8 useMethodName=false 时 key 不含方法名段（idempotent_withoutMethodName_key）
+- 1.9 useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id（idempotent_withoutMethodName_bizId_key）
+- 1.10 锁内业务异常向上传播且释放锁（idempotent_bizException_propagatesAndUnlocks）
+
+== 变更日志
+
+- 1.0 | 2026-09-09 | 初始落地

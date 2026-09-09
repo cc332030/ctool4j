@@ -14,9 +14,10 @@ import java.util.List;
  * 由测试方法调用 {@link #run(List, String)} 触发基准，返回报告后可写入文件。
  * </p>
  * <p>
- * 流程：共测试两次。第一轮对所有用例预热，触发全部实现方式初始化/加载
- * （初始化干扰不计入结果）；第二轮在全部初始化完成后再预热并正式计时，
+ * 流程：先对所有用例做一轮预热，触发全部实现方式初始化/加载（初始化干扰不计入结果）；
+ * 随后对每个用例进行多轮采样，每轮先充分预热再正式计时，
  * run 返回值经 identityHashCode 累计，防止 JIT 将无副作用的循环体消除。
+ * 最终各用例取多轮平均值作为结果，降低单次测量噪声。
  * </p>
  *
  * @since 2026/8/16
@@ -25,17 +26,22 @@ import java.util.List;
 public class CBenchmarkRunner {
 
     /**
-     * 预热次数（不计时，触发 JIT 编译）
+     * 预热次数（不计时，触发 JIT 编译；纳秒级操作需足够迭代才能到达 C2 稳态）
      */
-    private static final int WARMUP_ITERATIONS = 50_000;
+    private static final int WARMUP_ITERATIONS = 500_000;
 
     /**
-     * 计时迭代次数
+     * 单轮计时迭代次数
      */
-    private static final int MEASURE_ITERATIONS = 100_000;
+    private static final int MEASURE_ITERATIONS = 1_000_000;
 
     /**
-     * 运行一组基准用例（预热 + 计时），返回报告（含控制台打印）
+     * 采样轮数（多轮取平均，降低 JIT/GC 调度噪声）
+     */
+    private static final int MEASURE_ROUNDS = 5;
+
+    /**
+     * 运行一组基准用例（预热 + 多轮计时取均值），返回报告（含控制台打印）
      *
      * @param cases 基准用例列表
      * @param title 报告标题
@@ -53,30 +59,43 @@ public class CBenchmarkRunner {
             }
         }
 
-        // 第二轮：全部初始化完成后，再预热并正式计时
+        // 第二轮：对每个用例做多轮采样（每轮先预热再计时），取平均
         List<CBenchmarkResult> results = new ArrayList<>();
 
         for (CBenchmarkCase bc : cases) {
 
-            bc.prepare();
+            long totalNanos = 0;
 
-            for (int i = 0; i < WARMUP_ITERATIONS; i++) {
-                bc.run();
+            for (int round = 0; round < MEASURE_ROUNDS; round++) {
+
+                bc.prepare();
+
+                // 每轮开始前充分预热，保证测量在稳态下进行
+                for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+                    bc.run();
+                }
+
+                long blackhole = 0;
+                long start = System.nanoTime();
+                for (int i = 0; i < MEASURE_ITERATIONS; i++) {
+                    blackhole += System.identityHashCode(bc.run());
+                }
+                long elapsed = System.nanoTime() - start;
+
+                totalNanos += elapsed;
+
+                // 防止 JIT 消除，blackhole 仅参与一次无副作用累加
+                if (blackhole == Long.MIN_VALUE) {
+                    System.out.println("unreachable");
+                }
             }
 
-            long blackhole = 0;
-            long start = System.nanoTime();
-            for (int i = 0; i < MEASURE_ITERATIONS; i++) {
-                blackhole += System.identityHashCode(bc.run());
-            }
-            long elapsed = System.nanoTime() - start;
-
-            results.add(new CBenchmarkResult(bc.name(), MEASURE_ITERATIONS, elapsed));
-
-            // 防止 JIT 消除，blackhole 仅参与一次无副作用累加
-            if (blackhole == Long.MIN_VALUE) {
-                System.out.println("unreachable");
-            }
+            // 累计全部迭代的耗时与迭代次数，得到精确的平均耗时
+            results.add(new CBenchmarkResult(
+                bc.name(),
+                (long) MEASURE_ITERATIONS * MEASURE_ROUNDS,
+                totalNanos
+            ));
         }
 
         results.sort(Comparator.comparingDouble(CBenchmarkResult::avgNanos));
@@ -92,7 +111,8 @@ public class CBenchmarkRunner {
         double baseline = report.getResults().get(0).avgNanos();
 
         System.out.println();
-        System.out.println("===== " + report.getTitle() + "（" + MEASURE_ITERATIONS + " 次迭代）=====");
+        System.out.println("===== " + report.getTitle() + "（" + MEASURE_ITERATIONS
+            + " 次迭代 × " + MEASURE_ROUNDS + " 轮）=====");
         System.out.printf("%-24s %16s %16s %14s%n", "实现方式", "Avg(ns/op)", "ops/s", "相对基线");
         System.out.println("--------------------------------------------------------------------------");
         for (CBenchmarkResult result : report.getResults()) {

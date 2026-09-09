@@ -5,6 +5,7 @@ import com.c332030.ctool4j.cache.annotation.CCacheable;
 import com.c332030.ctool4j.cache.service.CCacheService;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.classes.CClassUtils;
+import com.c332030.ctool4j.core.classes.CElKeyResolveUtils;
 import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
@@ -113,7 +114,7 @@ public class CCacheAspect {
 
         val keyExpr = cacheable.key();
         if (null != keyExpr && !keyExpr.trim().isEmpty()) {
-            val resolver = CCacheKeyResolver.getResolver(method, keyExpr);
+            val resolver = CElKeyResolveUtils.getResolver(method, keyExpr);
             val value = resolver.resolve(args);
             if (null == value) {
                 return null;
