@@ -113,11 +113,11 @@ public class CCorsUtils {
         }
 
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-        setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, config.getAllowedHeaders());
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
         // 允许当前请求方法类型
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, method);
 
+        setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, config.getAllowedHeaders());
         // 暴露给浏览器脚本可读的响应头（默认仅简单响应头可读，如 Authorization 需显式暴露）
         setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, config.getExposedHeaders());
 
