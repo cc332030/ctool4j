@@ -6,6 +6,7 @@
 [cols="1,9", options="header"]
 |===
 | 状态 | 待办内容
+| | 排除 guava 依赖
 | | CMpController IP 控制，page 查询功能优化
 | ✓ | CCacheable el 表达式（key="参数名.属性…"），首次使用时校验是否正确，结果按方法缓存不重复解析、不牺牲启动性能
 | | RabbitMQ 默认 channel 数据限制，避免打满（满了需要阻塞而不是不停建新渠道，方便找问题），自定义名称
