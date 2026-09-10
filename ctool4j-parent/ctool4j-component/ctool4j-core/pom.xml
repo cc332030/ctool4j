@@ -24,6 +24,11 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <!-- 可选能力：UUID v7（见 CIdUtils.UUID），使用方按需引入本依赖后生效 -->
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
