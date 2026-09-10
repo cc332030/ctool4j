@@ -45,7 +45,7 @@ public class CIdUtils {
      */
     @SuppressWarnings("all")
     private final CLazyRef<Object> UUID_V7_GENERATOR =
-        CLazyRef.of(() -> (Object) Generators.timeBasedEpochGenerator());
+        CLazyRef.of(() -> Generators.timeBasedEpochGenerator());
 
     /**
      * 生成 UUID 字符串
