@@ -28,28 +28,12 @@ import lombok.var;
 public class CIdUtils {
 
     /**
-     * UUID v7 生成器：懒加载（双重检查锁，线程安全）。
+     * UUID v7 生成器：懒加载（{@link CLazyRef} 封装双重检查锁，线程安全）。
      * 不在此急切初始化，避免类加载时依赖可选的 java-uuid-generator；
      * 仅调用 UUID/simpleUUID 时才初始化，nextId/getPrefix 等强能力方法不受影响。
      */
-    private volatile TimeBasedEpochGenerator uuidV7Generator;
-
-    /**
-     * 懒加载 UUID v7 生成器
-     *
-     * @return UUID v7 生成器
-     */
-    private TimeBasedEpochGenerator getUuidV7Generator() {
-
-        if (null == uuidV7Generator) {
-            synchronized (CIdUtils.class) {
-                if (null == uuidV7Generator) {
-                    uuidV7Generator = Generators.timeBasedEpochGenerator();
-                }
-            }
-        }
-        return uuidV7Generator;
-    }
+    private final CLazyRef<TimeBasedEpochGenerator> UUID_V7_GENERATOR =
+        CLazyRef.of(() -> Generators.timeBasedEpochGenerator());
 
     /**
      * 生成 UUID 字符串
@@ -57,7 +41,7 @@ public class CIdUtils {
      * @return UUID 字符串
      */
     public String UUID() {
-        return getUuidV7Generator().generate()
+        return UUID_V7_GENERATOR.get().generate()
             .toString()
             ;
     }
