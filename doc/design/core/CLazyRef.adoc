@@ -1,6 +1,6 @@
 = CLazyRef 设计文档
 
-Version: 1.6
+Version: 1.7
 LastModified: 2026-09-10
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CLazyRef
@@ -52,9 +52,12 @@ LastModified: 2026-09-10
 - 上述两种写法分别由 `CLazyLambdaDepHolder`（擦除写法）与 `CLazyMethodRefDepHolder`（具体类型写法）
   承载，各在"有依赖 / 无依赖"两种环境验证（用例 1.11~1.14）：有依赖时两种写法均不抛异常；
   无依赖时擦除写法初始化通过、取值才抛错，具体类型写法初始化即抛错。
-- **实践建议**：`CIdUtils.UUID_V7_GENERATOR` 用 `CLazyRef<TimeBasedEpochGenerator>` + 未擦除 lambda——
-  UUID 依赖虽为 Maven optional，但既然调用 `UUID()` 就必须已引入，无需擦除；仅当确实可能存在
-  "未引入依赖仍要加载本类"的场景时，才采用擦除写法。
+- **实践建议**：`CIdUtils.UUID_V7_GENERATOR` 属"依赖可能缺失"场景，必须用 `CLazyRef<Object>` +
+  **擦除返回类型的 lambda**（`() -> (Object) Generators.timeBasedEpochGenerator()`），取值时强转。
+  java-uuid-generator 为 Maven `optional`，依赖它的模块（如 `ctool4j-mybatis-base`）**不一定引入**，
+  而 `CIdUtils` 会被 `CBizIdUtils` 等间接触发类加载——若不擦除，这些模块将在类初始化阶段抛
+  `NoClassDefFoundError`。此**曾为真实缺陷**（提交 `5cbafe06` 将原方法体延迟写法改为未擦除的字段
+  lambda，导致 `ctool4j-mybatis-base` 的 `CBizIdUtilsTests` 全量测试失败），已按本节规范修复。
 
 === 2.4 线程安全
 
@@ -92,6 +95,7 @@ LastModified: 2026-09-10
 
 == 变更日志
 
+- 1.7 | 2026-09-10 | 2.3 节实践建议纠正：`CIdUtils` 属"依赖可能缺失"场景，必须擦除返回类型（原写"无需擦除"错误，已致 `ctool4j-mybatis-base` 类初始化失败）；补充该真实回归案例
 - 1.6 | 2026-09-10 | 修正 5 节按 key 场景的类引用（`CClassValue` 属 `cache.impl` 包）；同步类 javadoc 的粗体标签与措辞
 - 1.5 | 2026-09-10 | 类名由 `CLazy` 改为 `CLazyRef`（`Ref` 后缀表明"延迟引用持有"，并避免与未来可能的 `@CLazy` 注解争用命名）；文档与测试文档相应更名为 `CLazyRef.adoc` / `CLazyRefTests.adoc`，补充命名说明
 - 1.4 | 2026-09-10 | 同步 `CLazy` 类 javadoc 至 2.3 节口径（区分"依赖存在"与"可能缺失"，后者须 lambda + 擦除 `Object`），修正原"用 lambda 而非方法引用即可"的不准确表述

@@ -31,9 +31,21 @@ public class CIdUtils {
      * UUID v7 生成器：懒加载（{@link CLazyRef} 封装双重检查锁，线程安全）。
      * 不在此急切初始化，避免类加载时依赖可选的 java-uuid-generator；
      * 仅调用 UUID/simpleUUID 时才初始化，nextId/getPrefix 等强能力方法不受影响。
+     * <p>
+     * 注意：泛型与 lambda 返回类型必须擦除为 {@link Object}（{@code (Object) ...}）。
+     * 若声明为 {@code CLazyRef<TimeBasedEpochGenerator>} 且 lambda 返回具体类型，lambda 引导生成的
+     * {@code instantiatedMethodType} 会引用 {@link TimeBasedEpochGenerator}，导致类初始化阶段即加载该
+     * 可选依赖、在未引入 java-uuid-generator 的模块中抛 {@code NoClassDefFoundError}（见
+     * {@code doc/design/core/CLazyRef.adoc} 2.3 节）。
+     * </p>
+     * <p>
+     * 此处刻意使用 lambda 而非方法引用（{@code Generators::timeBasedEpochGenerator}）：方法引用在类初始化
+     * 阶段即需解析目标类型，会提前加载可选依赖，与上述延迟目标冲突；故抑制"可替换为方法引用"告警。
+     * </p>
      */
-    private final CLazyRef<TimeBasedEpochGenerator> UUID_V7_GENERATOR =
-        CLazyRef.of(() -> Generators.timeBasedEpochGenerator());
+    @SuppressWarnings("all")
+    private final CLazyRef<Object> UUID_V7_GENERATOR =
+        CLazyRef.of(() -> (Object) Generators.timeBasedEpochGenerator());
 
     /**
      * 生成 UUID 字符串
@@ -41,7 +53,7 @@ public class CIdUtils {
      * @return UUID 字符串
      */
     public String UUID() {
-        return UUID_V7_GENERATOR.get().generate()
+        return ((TimeBasedEpochGenerator) UUID_V7_GENERATOR.get()).generate()
             .toString()
             ;
     }

@@ -62,8 +62,11 @@ LastModified: 2026-09-09
   `doc/design/core/CLazyRef.adoc`）统一封装，避免每次调用重复创建实例、也避免在工具类里散落 DCL 代码；
   仅在调用 `UUID`/`simpleUUID` 时才初始化，类加载不触发；该生成器本身**线程安全**
   （内部 `synchronized` 保护时间戳/熵状态），可安全并发共享。
-- 字段声明为 `CLazyRef<TimeBasedEpochGenerator>` + lambda：`CLazyRef.of(() -> Generators.timeBasedEpochGenerator())`，
-  `UUID()` 直接 `get()`。lambda（而非方法引用）使 `Generators` 延迟到首次 `get()` 才加载。
+- 字段声明为 `CLazyRef<Object>` + lambda 且**返回类型擦除为 `Object`**：`CLazyRef.of(() -> (Object) Generators.timeBasedEpochGenerator())`，
+  `UUID()` 取 `get()` 后强转为 `TimeBasedEpochGenerator` 再 `generate()`。
+  擦除是**必需**的（非可选优化）：若声明为 `CLazyRef<TimeBasedEpochGenerator>` 且 lambda 返回具体类型，
+  lambda 引导生成的 `instantiatedMethodType` 会引用该可选类型，导致 `CIdUtils` **类初始化即加载**
+  java-uuid-generator，在未引入该依赖的模块（如 `ctool4j-mybatis-base`）中抛 `NoClassDefFoundError`。
 - 输出为带 '-' 的标准 UUID 字符串（36 位）；`simpleUUID` 在其基础上去除 '-'（32 位）。
 
 === 2.2 前缀计算规则（CLASS_PREFIX）
@@ -133,6 +136,7 @@ LastModified: 2026-09-09
 
 == 变更日志
 
+- 1.10 | 2026-09-10 | **修复回归**：UUID v7 生成器字段的泛型与 lambda 返回类型擦除为 `Object`（`CLazyRef<Object>` + `() -> (Object) Generators.timeBasedEpochGenerator()`）。此前 `CLazyRef<TimeBasedEpochGenerator>` + 未擦除 lambda 会使 `CIdUtils` 类初始化即加载可选依赖 java-uuid-generator，导致未引入该依赖的模块（如 `ctool4j-mybatis-base`）抛 `NoClassDefFoundError`
 - 1.9 | 2026-09-10 | UUID v7 生成器懒加载由内联双重检查锁改为复用 `CLazyRef`（`CLazyRef.of(() -> ...)`），消除工具类内 DCL 样板；lambda（非方法引用）确保 `Generators` 延迟到首次 get 才加载。原 DCL 以 `null == uuidV7Generator` 判定（生成器为 null 时每次都重新求值），改用 `CLazyRef` 后以 `initialized` 标志判定，**缓存 null 结果**（生成器不会返回 null，实际行为等价，语义更标准）
 - 1.4 | 2026-09-09 | ULID 改用 `getMonotonicUlid()`：确保同一毫秒内单调递增、严格可排序（原 `getUlid()` 同毫秒随机后缀可能乱序，与"时间可排序"设计意图不符），修复 ulid_timeOrdered 用例偶发失败
 - 1.3 | 2026-09-09 | UUID v7 生成器改为懒加载（双重检查锁）：消除类加载对可选依赖 java-uuid-generator 的强制依赖，未引入该依赖时 nextId/getPrefix 等强能力方法不再受影响（修复 NoClassDefFoundError）
