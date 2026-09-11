@@ -2,14 +2,16 @@ package com.c332030.ctool4j.auth.filter;
 
 import com.c332030.ctool4j.auth.config.CAbstractSpringSecurityMockSessionConfig;
 import com.c332030.ctool4j.auth.util.CTokenUtils;
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
 import com.c332030.ctool4j.session.service.CAbstractSessionService;
 import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import com.c332030.ctool4j.web.util.CAuthUtils;
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import lombok.Setter;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -21,7 +23,7 @@ import java.io.IOException;
 
 /**
  * <p>
- * Description: CAbstractAuthJwtFilter
+ * Description: CAbstractAuthFilter
  * </p>
  *
  * <p>认证 JWT 过滤器抽象基类，继承 {@link CAbstractJwtFilter}。请求进入时：可选注入 mock 会话 → 解析 jwt 得到 token
@@ -41,16 +43,17 @@ import java.io.IOException;
  * @since 2026/3/16
  */
 @CustomLog
-@AllArgsConstructor
-public abstract class CAbstractAuthJwtFilter<SESSION extends ICSecuritySession> extends CAbstractJwtFilter {
+public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> extends CAbstractJwtFilter {
 
     /**
      * 匿名认证 token 的固定 key（用于 hashCode/equals，避免随会话 token 变化）
      */
     private static final String ANONYMOUS_KEY = "anonymous";
 
+    @Setter(onMethod_ = @Autowired)
     CAbstractSpringSecurityMockSessionConfig<SESSION> mockSessionConfig;
 
+    @Setter(onMethod_ = @Autowired)
     CAbstractSessionService<SESSION> sessionService;
 
     @Override
@@ -74,6 +77,10 @@ public abstract class CAbstractAuthJwtFilter<SESSION extends ICSecuritySession> 
 
         val jwt = CAuthUtils.getToken(request);
         val token = CTokenUtils.getTokenByJwt(jwt);
+        if(CValidUtils.isNotValid(token)) {
+            log.debug("no token");
+            return;
+        }
         val session = sessionService.get(token);
         if(session == null) {
             log.debug("can't find session, token: {}", token);

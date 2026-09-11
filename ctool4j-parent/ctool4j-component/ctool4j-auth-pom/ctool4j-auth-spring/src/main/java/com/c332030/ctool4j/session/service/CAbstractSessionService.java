@@ -12,6 +12,7 @@ import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
+import org.springframework.lang.NonNull;
 
 /**
  * <p>
@@ -40,28 +41,57 @@ public abstract class CAbstractSessionService<SESSION extends ICSecuritySession>
      */
     final Class<SESSION> sessionClass = getGenericClass();
 
-    public String getKey(String token) {
+    /**
+     * 生成会话在 Redis 中的 key（基于会话类型 {@code sessionClass} 与 token）
+     *
+     * @param token token
+     * @return Redis key
+     */
+    private String getKey(String token) {
         return CRedisUtils.getKey(sessionClass, token);
     }
 
-    public SESSION get(String token) {
+    /**
+     * 按 token 读取会话
+     *
+     * @param token token
+     * @return 会话；不存在返回 null
+     */
+    public SESSION get(@NonNull String token) {
         return redisService.getValue(getKey(token), sessionClass);
     }
 
-    public void save(String token, SESSION session) {
+    /**
+     * 按 token 写入会话（过期时间取配置 {@link CSessionConfig#getExpire()}）
+     *
+     * @param token   token
+     * @param session 会话
+     */
+    public void save(@NonNull String token, SESSION session) {
 
         log.info("save session, token: {}, session: {}", token, session);
         redisService.setValue(getKey(token), session, sessionConfig.getExpire());
 
     }
 
-    public void remove(String token) {
+    /**
+     * 按 token 删除会话
+     *
+     * @param token token
+     */
+    public void remove(@NonNull String token) {
 
         log.info("remove session, token: {}", token);
         redisService.delete(getKey(token));
 
     }
 
+    /**
+     * 由 jwt 解析 token 后读取会话
+     *
+     * @param jwt jwt
+     * @return 会话；token 为空或会话不存在返回 null
+     */
     public SESSION getSessionByJwt(String jwt) {
 
         val token = CTokenUtils.getTokenByJwt(jwt);
@@ -72,14 +102,30 @@ public abstract class CAbstractSessionService<SESSION extends ICSecuritySession>
         return get(token);
     }
 
+    /**
+     * 校验当前已授权
+     *
+     * @throws IllegalArgumentException 未授权
+     */
     public void check() {
         get();
     }
 
+    /**
+     * 获取当前会话（未授权返回 null，不抛异常）
+     *
+     * @return 当前会话；未授权返回 null
+     */
     public SESSION getDefaultNull() {
         return CSpringSecurityUtils.getPrincipal();
     }
 
+    /**
+     * 获取当前会话
+     *
+     * @return 当前会话
+     * @throws IllegalArgumentException 未授权
+     */
     public SESSION get() {
         val session = getDefaultNull();
         CAssert.notNull(session, "未授权");
