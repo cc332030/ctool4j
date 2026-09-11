@@ -11,6 +11,7 @@ import com.c332030.ctool4j.web.util.CTokenUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -56,7 +57,11 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
     CAbstractSessionService<SESSION> sessionService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
         try {
             loadToken(request);
