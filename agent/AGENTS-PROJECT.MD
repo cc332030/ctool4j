@@ -72,7 +72,7 @@
 以下为项目既有约定；与远端统一规范不一致处，按远端「引用方项目自身规范优先」以本约定执行。存量不做一次性批量改动，随代码变更逐步迁移：
 
 - 测试类包路径：测试类置于对应源包之下并加一层 `test` 段（如源类 `com.c332030.ctool4j.core.util.CMapUtils`，其测试类 `CMapUtilsTests` 位于同层 `test` 包 `com.c332030.ctool4j.core.test.util`）；远端 `specs/stack/java-testing.adoc` 的「测试类与源类包路径一致、不额外加 `test` 段」不适用于本项目，新增测试类沿用本约定
-- 文档：javadoc 即文档——类级细节归源码 javadoc 注释；「一个类一个 adoc」已废弃，禁止新增类级 adoc；规划性/总结性的模块级、功能级文档统一置于仓库根 `doc/design/<模块>/`，不在各模块内另建 `doc/` 目录；存量类级 adoc 不强制删除
+- 文档：javadoc 即文档——类级细节归源码 javadoc 注释；「一个类一个 adoc」已废弃，禁止新增类级 adoc；规划性/总结性的模块级、功能级文档统一置于仓库/模块 `doc/` 目录；存量类级 adoc 不强制删除
 
 ## 语言目标
 
