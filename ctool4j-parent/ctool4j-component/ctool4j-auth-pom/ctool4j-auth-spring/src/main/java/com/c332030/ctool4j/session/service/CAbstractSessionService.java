@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.session.service;
 
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.auth.util.CTokenUtils;
+import com.c332030.ctool4j.auth.util.CAuthUtils;
 import com.c332030.ctool4j.core.interfaces.IGenericType;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
@@ -32,14 +32,14 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public abstract class CAbstractSessionService<SESSION extends ICSecuritySession> implements IGenericType<SESSION> {
 
-    CSessionConfig sessionConfig;
-
-    CStringStringRedisService redisService;
-
     /**
      * 泛型 SESSION 的运行时 Class，由子类 {@code extends CAbstractSessionService<Xxx>} 的泛型实参解析而来
      */
     final Class<SESSION> sessionClass = getGenericClass();
+
+    CSessionConfig sessionConfig;
+
+    CStringStringRedisService redisService;
 
     /**
      * 生成会话在 Redis 中的 key（基于会话类型 {@code sessionClass} 与 token）
@@ -62,7 +62,7 @@ public abstract class CAbstractSessionService<SESSION extends ICSecuritySession>
     }
 
     /**
-     * 按 token 写入会话（过期时间取配置 {@link CSessionConfig#getExpire()}）
+     * 按 token 写入会话（过期时间取配置 {@link CSessionConfig#expire}）
      *
      * @param token   token
      * @param session 会话
@@ -94,7 +94,7 @@ public abstract class CAbstractSessionService<SESSION extends ICSecuritySession>
      */
     public SESSION getSessionByJwt(String jwt) {
 
-        val token = CTokenUtils.getTokenByJwt(jwt);
+        val token = CAuthUtils.getTokenByJwt(jwt);
         if(StrUtil.isBlank(token)) {
             return null;
         }

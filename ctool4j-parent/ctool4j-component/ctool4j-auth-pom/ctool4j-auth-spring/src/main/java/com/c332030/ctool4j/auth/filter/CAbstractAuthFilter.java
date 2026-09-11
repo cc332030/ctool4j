@@ -1,15 +1,14 @@
 package com.c332030.ctool4j.auth.filter;
 
 import com.c332030.ctool4j.auth.config.CAbstractSpringSecurityMockSessionConfig;
-import com.c332030.ctool4j.auth.util.CTokenUtils;
+import com.c332030.ctool4j.auth.util.CAuthUtils;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
 import com.c332030.ctool4j.session.service.CAbstractSessionService;
 import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
-import com.c332030.ctool4j.web.util.CAuthUtils;
+import com.c332030.ctool4j.web.util.CTokenUtils;
 import lombok.CustomLog;
-import lombok.Setter;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -50,10 +49,10 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
      */
     private static final String ANONYMOUS_KEY = "anonymous";
 
-    @Setter(onMethod_ = @Autowired)
+    @Autowired
     CAbstractSpringSecurityMockSessionConfig<SESSION> mockSessionConfig;
 
-    @Setter(onMethod_ = @Autowired)
+    @Autowired
     CAbstractSessionService<SESSION> sessionService;
 
     @Override
@@ -75,8 +74,11 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
             return;
         }
 
-        val jwt = CAuthUtils.getToken(request);
-        val token = CTokenUtils.getTokenByJwt(jwt);
+        // 可能收到其他系统误传的 token：jwt 解析失败（内部静默返回 null）或按 token 查不到会话时直接返回，
+        // 不写入认证信息，请求保持未认证状态，交由后续 Spring Security 授权规则决定放行/拦截；
+        // 解析失败静默处理不影响接口安全。
+        val jwt = CTokenUtils.getHeaderToken(request);
+        val token = CAuthUtils.getTokenByJwt(jwt);
         if(CValidUtils.isNotValid(token)) {
             log.debug("no token");
             return;

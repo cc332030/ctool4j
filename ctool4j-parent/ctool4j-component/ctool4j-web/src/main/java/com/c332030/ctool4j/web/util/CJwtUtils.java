@@ -1,20 +1,15 @@
-package com.c332030.ctool4j.auth.util;
+package com.c332030.ctool4j.web.util;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.jwt.JWTUtil;
-import com.c332030.ctool4j.auth.config.CAuthConfig;
-import com.c332030.ctool4j.auth.interfaces.ICJwtInfo;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CCharsets;
 import com.c332030.ctool4j.core.util.CJsonUtils;
-import com.c332030.ctool4j.spring.annotation.CAutowired;
-import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -25,22 +20,46 @@ import java.util.Map;
  * Description: CJwtUtils
  * </p>
  *
- * <p>JWT 工具类，基于 hutool JWTUtil，提供 jwt 创建、验证、解析，以及为 {@link ICJwtInfo}
- * 生成并回填 jwt（{@link #setJwt}，密钥取自配置 {@link CAuthConfig#getJwtSecret()}）。</p>
+ * <p>JWT 工具类，基于 hutool JWTUtil，提供 jwt 创建、验证、解析等纯编解码能力，不感知配置与业务类型。
+ * 密钥由调用方显式传入；依赖配置（{@code CAuthConfig}）与业务载荷接口（{@code ICJwtInfo}）的封装见 ctool4j-auth-base 的
+ * {@code CAuthUtils}。</p>
+ *
+ * <h2>功能说明</h2>
+ * <ul>
+ *   <li>{@link #create(Object, String)} / {@link #create(Map, String)}：创建 jwt（secret 空白快速失败）；</li>
+ *   <li>{@link #verify(String, String)}：校验签名（jwt 为空直接返回 false）；</li>
+ *   <li>{@link #parseJwt(String)}：按 "." 拆分为三段；</li>
+ *   <li>{@link #getJson(String[], int)} / {@link #getHeaderJson(String)} / {@link #getBodyJson(String)}：取并 base64 解码指定段；</li>
+ *   <li>{@link #parseHeader(String, Class)} / {@link #parseBody(String, Class)} / {@link #parseBody(String, TypeReference)}：解析为指定类型。</li>
+ * </ul>
+ *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>create 前校验 secret 非空白，避免底层库对空密钥的隐式行为；</li>
+ *   <li>verify 对空 jwt 直接返回 false，不依赖底层库抛错行为。</li>
+ * </ul>
+ *
+ * <h2>兜底设计</h2>
+ * <ul>
+ *   <li>create/verify：secret 为空白抛 {@link IllegalArgumentException}；</li>
+ *   <li>verify：jwt 为 null/空返回 false；jwt 格式非法抛 {@code JWTException}（不吞异常，由调用方决定是否容错）；</li>
+ *   <li>parseJwt/getJson/getHeaderJson/getBodyJson：输入为空或无对应段返回 null；</li>
+ *   <li>parseHeader/parseBody：头部/载荷为空返回 null。</li>
+ * </ul>
  *
  * <p>注意：{@code parseHeader}/{@code parseBody} 仅 base64 解码、不校验签名，内容未认证不可信，
  * 需认证时先调用 {@link #verify(String, String)}。</p>
+ *
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>不感知配置与业务类型，密钥须由调用方显式传入；签名算法由底层 hutool 默认决定。</li>
+ * </ul>
  *
  * @author c332030
  * @since 2025/9/25
  */
 @UtilityClass
-@CAutowiredScan
 public class CJwtUtils {
-
-    @Setter
-    @CAutowired
-    CAuthConfig authConfig;
 
     /**
      * 创建 jwt
@@ -72,26 +91,16 @@ public class CJwtUtils {
     }
 
     /**
-     * 为 jwt 信息对象生成并设置 jwt（密钥取自配置 {@code CAuthConfig#jwtSecret}）
-     *
-     * @param jwtInfo jwt 信息对象（以其内容为载荷，生成后回填 token）
-     * @param <S>     jwt 信息类型
-     * @return 传入的 jwtInfo（token 已设置）
-     */
-    public <S extends ICJwtInfo> S setJwt(S jwtInfo) {
-        jwtInfo.setToken(
-            create(jwtInfo, authConfig.getJwtSecret())
-        );
-        return jwtInfo;
-    }
-
-    /**
      * 验证
+     *
+     * <p>格式非法（如段数不足、非 jwt 串）时不返回 false，而是由底层 hutool 抛 {@code JWTException}；
+     * 调用方若需容错应自行捕获（参见 {@code CAuthUtils#getTokenByJwt}）。空 jwt 走短路返回 false。</p>
      *
      * @param jwt    jwt，为空时不校验签名，直接返回 false
      * @param secret 密钥，不能为空白
      * @return 验证结果；jwt 为空时返回 false
      * @throws IllegalArgumentException secret 为空白时抛出
+     * @throws cn.hutool.jwt.JWTException jwt 格式非法时抛出
      */
     public boolean verify(String jwt, String secret) {
         Assert.isTrue(StrUtil.isNotBlank(secret), "secret must not be blank");

@@ -1,6 +1,6 @@
 = ctool4j
 
-Java 工具库，面向 Spring Boot 2.7 / Spring Cloud 2021 生态，提供 Web、缓存、数据库、日志、消息、任务、文件等场景的组件化封装与约定式开发支持。
+Java 工具库，面向 Spring Boot 2.7 / Spring Cloud 2021 生态，提供 Web、认证、缓存、数据库、日志、消息、任务、文件等场景的组件化封装与约定式开发支持。
 
 == 模块全景
 
@@ -17,6 +17,7 @@ ctool4j（根，packaging=pom）
         ├── 基础层    definition / core / db / transaction
         ├── Spring 层 spring-pom（spring / spring-security / spring-cloud）
         ├── 应用层    web / feign / redis / cache
+        ├── 认证层    auth-pom（auth-base / auth-spring）
         ├── 中间件层  log-pom / mybatis-pom / nacos-pom / mq-pom / job-pom
         ├── 文件层    file-pom（csv / excel / minio）
         └── 配套层    doc-pom / test-pom
@@ -51,6 +52,8 @@ ctool4j-log-base（依赖 spring / web / spring-cloud / core）
 ctool4j-mybatis-base（依赖 core / definition / spring / redis）
 ctool4j-job-base（依赖 spring）
 ctool4j-nacos-discovery（依赖 spring）
+
+ctool4j-web ──► ctool4j-auth-base ──► ctool4j-auth-spring（auth-spring 另依赖 cache / spring-security）
 ----
 
 == 模块文档索引
@@ -65,6 +68,7 @@ ctool4j-nacos-discovery（依赖 spring）
 | ctool4j-transaction | 事务注解约定（@CTransactional） | link:ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[README]
 | ctool4j-spring-pom | Spring 基础设施：Bean 装配、Context 工具、Security、Cloud | link:ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[README]
 | ctool4j-web | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId 透传 | link:ctool4j-parent/ctool4j-component/ctool4j-web/README.md[README]
+| ctool4j-auth-pom | 认证：JWT 校验/签发、token 读写、会话服务、认证过滤器 | link:ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[README]
 | ctool4j-feign | Feign 增强：请求头传播、日志、自定义拦截器 | link:ctool4j-parent/ctool4j-component/ctool4j-feign/README.md[README]
 | ctool4j-redis |  Redis 操作、Redisson 分布式锁、@CRateLimit 限流、@CIdempotent 幂等 | link:ctool4j-parent/ctool4j-component/ctool4j-redis/README.md[README]
 | ctool4j-cache | 二级缓存：本地缓存 + Redis，防击穿/防雪崩 | link:ctool4j-parent/ctool4j-component/ctool4j-cache/README.md[README]

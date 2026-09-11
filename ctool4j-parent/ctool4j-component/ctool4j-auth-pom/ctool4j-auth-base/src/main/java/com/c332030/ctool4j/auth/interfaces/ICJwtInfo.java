@@ -5,26 +5,12 @@ package com.c332030.ctool4j.auth.interfaces;
  * Description: ICJwtInfo
  * </p>
  *
- * <p>JWT 信息接口：提供 token/jwt 的读写能力，供 {@code CJwtUtils#setJwt} 生成并回填 jwt。
- * 实现类需支持 {@link #setToken} 以便回填。</p>
+ * <p>JWT 信息接口：作为 jwt body（载荷）的基类接口，实现类自身字段即为 jwt 载荷内容，
+ * 由 {@code CJwtUtils#create} 转换为载荷后生成 jwt，便捷入口见 {@code CAuthUtils#setJwt}。</p>
  *
  * @author c332030
  * @since 2026/9/11
  */
 public interface ICJwtInfo {
-
-    /**
-     * 获取 token（jwt）
-     *
-     * @return token
-     */
-    String getToken();
-
-    /**
-     * 设置 token（jwt）
-     *
-     * @param token token
-     */
-    void setToken(String token);
 
 }

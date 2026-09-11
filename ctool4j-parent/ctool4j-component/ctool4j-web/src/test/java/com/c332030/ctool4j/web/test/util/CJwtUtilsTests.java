@@ -1,9 +1,7 @@
-package com.c332030.ctool4j.auth.test.util;
+package com.c332030.ctool4j.web.test.util;
 
 import cn.hutool.jwt.JWTException;
-import com.c332030.ctool4j.auth.config.CAuthConfig;
-import com.c332030.ctool4j.auth.interfaces.ICJwtInfo;
-import com.c332030.ctool4j.auth.util.CJwtUtils;
+import com.c332030.ctool4j.web.util.CJwtUtils;
 import lombok.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,17 +13,17 @@ import java.util.Map;
  * <p>
  * Description: CJwtUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.auth.util.CJwtUtils` 的测试用例，覆盖 jwt 创建/验证/解析/JSON 提取等易出错方法。</p>
+ * <p>`com.c332030.ctool4j.web.util.CJwtUtils` 的测试用例，覆盖 jwt 创建/验证/解析/JSON 提取等易出错方法。</p>
  *
  * <p><b>用例设计思路</b>：按 create / verify / parse / getJson 多个维度组织，覆盖正常、空值、异常路径。</p>
  * <p><b>设计依据</b>：依据 CJwtUtils 对 secret 非空白、jwt 空兜底等约定。</p>
  * <p><b>覆盖场景</b>：create（Map/Object secret、null/空 secret 抛异常）；verify（正确/错误 secret、非法 jwt、
  * 空 jwt、null/空 secret 抛异常）；parseJwt（正常/空/null/无点）；getJson（正常/null 数组/越界）；
- * getHeaderJson/getBodyJson（正常/空 jwt/空段）；parseHeader/parseBody（正常/空 jwt/往返）；setJwt（生成并回填）。</p>
+ * getHeaderJson/getBodyJson（正常/空 jwt/空段）；parseHeader/parseBody（正常/空 jwt/往返）。</p>
  * <p><b>未覆盖</b>：无（已覆盖核心行为）。</p>
  *
  * <p><b>用例编号索引</b>：1 create（1.1-1.4）；2 verify（2.1-2.6）；3 parseJwt（3.1-3.3）；4 getJson/头载荷（4.1-4.8）；
- * 5 parseHeader（5.1-5.2）；6 parseBody（6.1-6.3）；7 setJwt（7.1）。各测试方法 javadoc 标注其编号与说明。</p>
+ * 5 parseHeader（5.1-5.2）；6 parseBody（6.1-6.3）。各测试方法 javadoc 标注其编号与说明。</p>
  *
  * @author c332030
  * @since 2026/8/14
@@ -348,35 +346,6 @@ public class CJwtUtilsTests {
         val jwt = CJwtUtils.create(original, SECRET);
         Map<String, Object> body = CJwtUtils.parseBody(jwt, Map.class);
         Assertions.assertEquals(original, body);
-    }
-
-    // ---------- setJwt ----------
-
-    /**
-     * 7.1 setJwt：由 ICJwtInfo 生成 jwt 并回填 token，结果可 verify
-     */
-    @Test
-    public void setJwt() {
-        // 正例：由 ICJwtInfo 生成 jwt 并回填 token，生成结果可验证
-        CAuthConfig config = new CAuthConfig();
-        config.setJwtSecret(SECRET);
-        CJwtUtils.setAuthConfig(config);
-
-        JwtInfoStub info = new JwtInfoStub();
-        info.setName("tom");
-
-        JwtInfoStub result = CJwtUtils.setJwt(info);
-
-        Assertions.assertSame(info, result);
-        Assertions.assertNotNull(result.getToken());
-        Assertions.assertTrue(CJwtUtils.verify(result.getToken(), SECRET));
-    }
-
-    // 内部测试用 ICJwtInfo 桩
-    @Data
-    public static class JwtInfoStub implements ICJwtInfo {
-        private String name;
-        private String token;
     }
 
     // 内部测试用 DTO

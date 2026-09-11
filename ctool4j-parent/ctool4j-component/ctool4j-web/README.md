@@ -1,16 +1,16 @@
 # ctool4j-web
 
-> Web MVC 通用能力封装：全局异常统一处理、跨域支持、JWT 与认证工具、请求响应体增强、HTTP 请求日志与 traceId 透传。
+> Web MVC 通用能力封装：全局异常统一处理、跨域支持、JWT 与 token 工具、请求响应体增强、HTTP 请求日志与 traceId 透传。
 
 ## 简介
 
-`ctool4j-web` 面向 Spring Boot Web 应用，开箱即用地提供异常统一返回、CORS 跨域、认证辅助、HTTP 请求日志与 traceId 透传等能力，规范 Web 层的错误处理与安全基础。
+`ctool4j-web` 面向 Spring Boot Web 应用，开箱即用地提供异常统一返回、CORS 跨域、JWT 编解码与 token 读写、HTTP 请求日志与 traceId 透传等能力，规范 Web 层的错误处理与安全基础。
 
 ## 功能特性
 
 - **全局异常处理**：内置多类异常处理器（业务异常、参数校验异常、HTTP 方法不支持、消息不可写、客户端中断、非法参数/状态、兜底 Throwable），通过 `@ConditionalOnMissingExceptionHandler` 支持业务自定义覆盖
 - **跨域全面支持**：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强多层方案
-- **认证与 JWT**：`CJwtUtils`（JWT 生成/解析）、`CAuthUtils`（认证辅助）
+- **JWT 与 token**：`CJwtUtils`（JWT 生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头与请求属性读写）
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称
 - **MVC 配置**：`CWebMvcConfigurer`（拦截器、静态资源配置）、静态资源过滤器 `CResourceFilter`
 - **统一错误页**：`CErrorController`
@@ -43,7 +43,7 @@
 | `ConditionalOnMissingExceptionHandler` | 注解 | 仅当业务未自定义处理器时装配 |
 | `CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` | 配置/过滤器/拦截器 | 跨域支持 |
 | `CJwtUtils` | 工具类 | JWT 生成与解析 |
-| `CAuthUtils` | 工具类 | 认证信息辅助 |
+| `CTokenUtils` | 工具类 | token 前缀、请求头/响应头与请求属性读写 |
 | `CRequestHeaderEnum` | 枚举 | 请求头名称统一管理 |
 | `CErrorController` | 控制器 | 统一错误页 |
 | `CWebMvcConfigurer` | 配置 | MVC 拦截器与资源映射 |
@@ -63,8 +63,11 @@
 throw new CBusinessException("订单不存在");
 
 // JWT 工具
-String token = CJwtUtils.createToken(userId);
-Long userId = CJwtUtils.parseToken(token);
+String jwt = CJwtUtils.create(body, secret);
+boolean valid = CJwtUtils.verify(jwt, secret);
+
+// token 工具（请求头/请求属性）
+String token = CTokenUtils.getHeaderToken(request);
 ```
 
 ## 配置项

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.definition.function.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,13 +21,102 @@ import java.util.stream.Collectors;
  * Description: CMapUtils
  * </p>
  *
+ * <p>Map 工具类，提供：</p>
+ * <ul>
+ *   <li>读取与兜底：{@link #get}/{@link #getOrDefault}（空入参安全）、{@link #put}（空入参不写入）、{@link #defaultEmpty}、{@link #toStringValueMap}；</li>
+ *   <li>创建：{@code newMap}、{@link #newEnumMap}、{@link #newIgnoreCaseMap}；</li>
+ *   <li>键值映射：{@link #mapKey}、{@link #mapValue}、{@link #map}（转换结果为 null 的条目过滤）；</li>
+ *   <li>过滤：{@link #filter}、{@link #filterKey}、{@link #filterValue}；</li>
+ *   <li>合并：{@code merge}（冲突取第一个或自定义合并，返回不可变 Map）；</li>
+ *   <li>其他：{@link #toAvailableStrMap}、{@code compare}（打印差异表格）、{@code computeIfAbsent}；</li>
+ *   <li>TypeReference 常量：{@link #MAP_STRING_OBJECT_TYPE_REFERENCE}、{@link #LIST_MAP_STRING_OBJECT_TYPE_REFERENCE}、{@link #MAP_STRING_STRING_TYPE_REFERENCE}。</li>
+ * </ul>
+ *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>空入参语义：{@link #put} 的 map/key/value 任一为 null 时不写入并返回 null；{@link #defaultEmpty} 空/null Map 返回空 Map；
+ *   {@link #map}/{@code merge}/{@link #filter} 空 Map 返回空 Map，转换后 key/value 为 null 的条目被过滤。</li>
+ *   <li>读取语义：{@link #get} 等价于 {@code getOrDefault(map, key, null)}；{@link #getOrDefault} 在 map/key 为空时返回
+ *   {@code defaultValue}，否则取 {@code Map#getOrDefault} 结果。</li>
+ *   <li>Map 创建：{@code newMap(type, size)} 的 type 为枚举返回 EnumMap，否则返回 LinkedHashMap；{@link #newEnumMap} 非枚举抛
+ *   {@link IllegalArgumentException}；{@link #newIgnoreCaseMap} 返回 {@code TreeMap(String.CASE_INSENSITIVE_ORDER)}，忽略大小写。</li>
+ *   <li>映射与过滤：{@link #map} 逐条转换，key/value 任一转换结果为 null 时跳过该条目；{@link #filter} 按 {@code CBiPredicate}
+ *   过滤后收集（{@code Collectors.toMap}）。</li>
+ *   <li>合并：{@code merge} 合并多个 Map，空/全 null value 条目过滤；默认冲突取第一个（{@code (e1,e2)->e1}），可传 mergeFunction；
+ *   返回不可变 LinkedHashMap。</li>
+ *   <li>{@code computeIfAbsent}：先 {@code map.get(key)}，非 null 直接返回；否则 {@code map.computeIfAbsent(key, mappingFunction)}。</li>
+ * </ul>
+ *
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr><th>场景</th><th>兜底行为</th></tr>
+ *   <tr><td>get/getOrDefault map 空/null 或 key 空/null</td><td>get 返回 null / getOrDefault 返回 defaultValue，不写入</td></tr>
+ *   <tr><td>put 任一入参为 null</td><td>不写入，返回 null</td></tr>
+ *   <tr><td>defaultEmpty 空/null Map</td><td>返回空 Map</td></tr>
+ *   <tr><td>map 空 Map / 转换后 key/value 为 null</td><td>返回空 Map / 跳过该条目</td></tr>
+ *   <tr><td>merge 空数组/null</td><td>返回空 Map</td></tr>
+ *   <tr><td>merge 冲突 key</td><td>默认取第一个（可自定义 merge）</td></tr>
+ *   <tr><td>computeIfAbsent 已有值</td><td>直接返回，不调用 supplier</td></tr>
+ * </table>
+ *
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>适用：Map 创建、键值映射/过滤/合并、空值安全写入等通用 Map 操作。</li>
+ *   <li>不适用/边界：{@code newMap} 需传非 null object/type，EnumMap 需枚举类型；{@link #map}/{@link #filter} 依赖转换函数，
+ *   转换结果为 null 的条目被丢弃。</li>
+ * </ul>
+ *
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>null key/value 过滤保证结果 Map 无 null 条目，牺牲「保留 null」能力换取安全。</li>
+ *   <li>{@code merge} 返回不可变 LinkedHashMap，保证合并结果不被修改。</li>
+ *   <li>{@link #getOrDefault} 采用 JDK {@code Map#getOrDefault} 语义：键存在但映射为 null 时同样返回默认值。</li>
+ * </ul>
+ *
  * @since 2024/2/26
- * @see "doc/design/core/CMapUtils.adoc"
- * @see "doc/design/core/CMapUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass
 public class CMapUtils {
+
+    /**
+     * 获取键对应的值（空入参安全）
+     *
+     * <p>等价于 {@code getOrDefault(map, key, null)}：map 为空（null 或空 Map）或 key 为空
+     * （null、空字符串、空集合/数组等）时返回 null，不写入、不抛异常。</p>
+     *
+     * @param map Map
+     * @param key 键
+     * @param <K> 键泛型
+     * @param <V> 值泛型
+     * @return 键对应的值；map/key 为空或键不存在时返回 null
+     */
+    public <K, V> V get(Map<K, V> map, K key) {
+        return getOrDefault(map, key, null);
+    }
+
+    /**
+     * 获取键对应的值，为空或不存在时返回默认值
+     *
+     * <p>map 为空（null 或空 Map）或 key 为空（null、空字符串、空集合/数组等）时直接返回
+     * {@code defaultValue}；否则返回 {@link Map#getOrDefault(Object, Object)} 的结果
+     * （键不存在或映射为 null 时返回 {@code defaultValue}）。</p>
+     *
+     * @param map          Map
+     * @param key          键
+     * @param defaultValue 默认值
+     * @param <K>          键泛型
+     * @param <V>          值泛型
+     * @return 键对应的值；map/key 为空、键不存在或映射为 null 时返回 defaultValue
+     */
+    public <K, V> V getOrDefault(Map<K, V> map, K key, V defaultValue) {
+        if (MapUtil.isEmpty(map) || ObjectUtil.isEmpty(key)) {
+            return defaultValue;
+        }
+
+        return map.getOrDefault(key, defaultValue);
+    }
 
     /**
      * 设置 map 值

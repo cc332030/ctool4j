@@ -1,15 +1,15 @@
 # 项目特有规范
 
-以下为 ctool4j 项目**特有**规范（远端统一规范 `http://agent.c332030.com/AGENTS_COMMON.adoc` 未包含或仅通用化提及的部分）。与远端规范冲突时，以本项目特有规范为准。
+以下为 ctool4j 项目**特有**规范（远端统一规范 `https://agent.c332030.com/AGENTS_COMMON.adoc` 未包含或仅通用化提及的部分）。与远端规范冲突时，以本项目特有规范为准。
 
 ## 命名前缀
 
-- 命名前缀：
-  - 所有类（class）统一使用 `C` 固定前缀；新增、重构代码均须遵循。
+- 命名前缀（适用范围：本仓库**新增、重构的主代码**类型；测试夹具、注解处理器测试样例、生成代码及既有存量不受约束，随变更迁移、不强制批量改名）：
+  - 类（class）统一使用 `C` 固定前缀。
   - 接口（interface）按类型区分前缀：
     - **纯字段接口**（仅为数据对象提供属性/字段契约的接口，如 `ICId`、`ICName`、`ICCreateBy`）统一使用 `IC` 固定前缀。
-    - **功能型接口**（定义行为/能力方法、作为组件或框架扩展点被实现，含 function 接口）**不要求** `IC` 前缀（非禁止，而是不强制），可使用 `C` 前缀（如 `CFunction`、`CBiConsumer`、`CService`）。
-  - **禁止裸 `I` 前缀**：类型名（类与接口）必须以 `C` 或 `IC` 开头，不得仅以 `I` 开头（如 `ISecuritySession` 应为 `ICSecuritySession`、`IFoo` 应为 `ICFoo`）。
+    - **功能型接口**（定义行为/能力方法、作为组件或框架扩展点被实现，含 function 接口）**不要求** `IC` 前缀（非禁止，而是不强制）：新增的使用 `C` 前缀（如 `CFunction`、`CBiConsumer`、`CService`）；沿用 JDK/Hutool 等既有命名的函数式接口保持原名（如 `StringFunction`、`ToStringFunction`、`StartEndTimeConsumer`）。
+  - **禁止新增裸 `I` 前缀**类型：不得仅以 `I` 开头（如 `ISecuritySession` 应为 `ICSecuritySession`、`IFoo` 应为 `ICFoo`）；既有裸 `I` 类型（如 `IGenericType`）随变更迁移。
 
 ## Spring 配置
 
@@ -26,7 +26,7 @@
 
 ## 语法糖（C 工具类）
 
-使用本项目提供的 C 工具类替代原生重复写法，统一代码风格。以下均为通用规则。
+使用本项目提供的 C 工具类替代原生重复写法，统一代码风格。以下为本项目约定的 C 工具类统一用法（主代码与测试代码同等适用）。
 
 ### 集合（List / Set）
 
@@ -60,6 +60,20 @@
 - 空安全链式：`COpt.ofNullable(x).map(f).orElse(d)`
 - 集合/字符串判空：`COpt.ofEmptyAble(...)`；空白字符串判断：`COpt.ofBlankAble(...)`
 
-## 测试（项目细化）
+### 参数校验（有效性判断）
 
-- 测试代码语言层面保持 Java 8 目标（项目目标版本），禁用 `List.of`/`Map.of` 等新语法糖（见远端统一规范的 Java 规范与本文件「语法糖（C 工具类）」）；语法糖（C 工具类）使用按主代码标准执行
+- 参数校验（判 null / 判空白 / 判空集合、Map、数组）统一使用 `CValidUtils`（`com.c332030.ctool4j.core.validation.CValidUtils`，`ctool4j-core`）的 `isValid` / `isNotValid`，按类型自动分发：字符串按 blank、集合/`Iterable`/Map/数组按 empty、其他对象按 null；有效性判断不再手写 `x == null`、`StringUtils.isBlank`、`CollUtil.isEmpty` 等逐类型判空，也不再引入其他有效性判断工具（本条范围限有效性判断，不含断言式校验等场景）
+- 调用注意：传入具体类型变量（由重载自动匹配）；传 `null` 字面量会因多重载歧义而编译失败
+- `CValidateUtils` 已废弃（`@Deprecated`）：新代码不得使用，一律改用 `CValidUtils`
+- 存量代码不做一次性全量替换：随代码变更（改动到相关代码时）逐步迁移；未改动处的既有写法不作为问题处理
+
+## 与远端规范的差异（项目覆盖）
+
+以下为项目既有约定；与远端统一规范不一致处，按远端「引用方项目自身规范优先」以本约定执行。存量不做一次性批量改动，随代码变更逐步迁移：
+
+- 测试类包路径：测试类置于对应源包之下并加一层 `test` 段（如源类 `com.c332030.ctool4j.core.util.CMapUtils`，其测试类 `CMapUtilsTests` 位于同层 `test` 包 `com.c332030.ctool4j.core.test.util`）；远端 `specs/stack/java-testing.adoc` 的「测试类与源类包路径一致、不额外加 `test` 段」不适用于本项目，新增测试类沿用本约定
+- 文档位置：类级/模块级独立文档统一置于仓库根 `doc/design/<模块>/`，不在各模块内另建 `doc/` 目录；类级细节以源码 javadoc 为准（javadoc 即文档）
+
+## 语言目标
+
+主代码与测试代码统一以 **Java 8** 为目标版本（项目事实）：禁用 `List.of`/`Map.of` 等目标版本不支持的新语法糖；语言层面的规则见远端 Java 相关规范（`specs/stack/java.adoc`、`specs/stack/java-syntax.adoc`），此处仅记录本项目的目标版本取值。

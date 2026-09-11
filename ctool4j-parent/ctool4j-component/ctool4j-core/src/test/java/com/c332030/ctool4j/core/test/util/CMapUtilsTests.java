@@ -13,9 +13,32 @@ import java.util.*;
  * <p>
  * Description: CMapUtilsTests
  * </p>
+ * <p>`com.c332030.ctool4j.core.util.CMapUtils`（Map 工具类）的测试用例</p>
+ *
+ * <p><b>用例设计思路</b>：按「写入与空兜底 / 创建 / 键值映射 / 过滤 / 合并 / 其他」多个维度组织：</p>
+ * <ul>
+ *   <li>空入参统一覆盖：put 任一 null 不写入、defaultEmpty 空返回空、map/filter/merge 空返回空；</li>
+ *   <li>映射覆盖键/值/键值转换，null key/value 与转换结果为 null 的条目过滤；</li>
+ *   <li>合并覆盖冲突默认取第一、自定义 merge、null value 过滤、返回不可变；</li>
+ *   <li>创建覆盖普通类型 LinkedHashMap、枚举 EnumMap、忽略大小写 TreeMap、非枚举抛异常。</li>
+ * </ul>
+ *
+ * <p><b>设计依据</b>：依据功能设计对空值语义、null 过滤、合并冲突、创建类型的约定；依据测试方法
+ * （等价类 / 边界值 / 异常路径 / 分支覆盖）：null 入参、空集合、冲突、类型、不可变断言。</p>
+ *
+ * <p><b>覆盖场景</b>：put（正常 / null 各入参）；defaultEmpty（null / 空 / 原引用）；toStringValueMap（null / normal / null 值）；
+ * newMap（null 抛异常 / 普通 LinkedHashMap / 枚举 EnumMap）；newEnumMap（枚举 / 非枚举抛异常）；newIgnoreCaseMap（大小写）；
+ * map（mapKey / mapValue / map、空 map、null key/value、转换 null）；filter（filter / filterKey / filterValue、空 map）；
+ * merge（空数组 / 合并 / 冲突取第一 / 自定义 merge / null value / 不可变）；toAvailableStrMap（trim / 关键字过滤 / null value）；
+ * computeIfAbsent（已有值 / 无值 / mappingFunction）；get（正常 / 键不存在 / 空 map / 空 key）；
+ * getOrDefault（正常 / 键不存在 / 空 map / 空 key）。</p>
+ *
+ * <p><b>未覆盖</b>：compare（打印差异表格，依赖日志输出，单测未直接断言表格内容）。</p>
+ *
+ * <p><b>用例编号索引</b>：1 写入与空兜底（1.1-1.3）；2 Map 创建（2.1-2.3）；3 键值映射（3.1）；4 过滤（4.1）；
+ * 5 合并（5.1）；6 其他（6.1-6.2）；7 读取（7.1-7.2）。各测试方法 javadoc 标注其编号。</p>
  *
  * @since 2026/8/14
- * @see "doc/design/core/CMapUtilsTests.adoc"
  */
 public class CMapUtilsTests {
 
@@ -274,6 +297,42 @@ public class CMapUtilsTests {
         // mappingFunction 版本
         Assertions.assertEquals(3, CMapUtils.computeIfAbsent(map, "c", k -> k.length() + 2));
         Assertions.assertEquals(3, map.get("c"));
+
+    }
+
+    /**
+     * 对应测试用例 7.1
+     */
+    @Test
+    public void get() {
+
+        // 正例：取到值
+        Assertions.assertEquals(1, CMapUtils.get(CMap.of("a", 1), "a"));
+
+        // 边界：key 不存在 / map 为空 / key 为 null 返回 null（空入参安全）
+        Assertions.assertNull(CMapUtils.get(CMap.of("a", 1), "b"));
+        Assertions.assertNull(CMapUtils.get(null, "a"));
+        Assertions.assertNull(CMapUtils.get(CMap.of("a", 1), null));
+
+    }
+
+    /**
+     * 对应测试用例 7.2
+     */
+    @Test
+    public void getOrDefault() {
+
+        val map = CMap.of("a", 1);
+
+        // 正例：取到值返回该值
+        Assertions.assertEquals(1, CMapUtils.getOrDefault(map, "a", 9));
+
+        // 兜底：key 不存在返回 defaultValue
+        Assertions.assertEquals(9, CMapUtils.getOrDefault(map, "b", 9));
+
+        // 兜底：map / key 为空时直接返回 defaultValue
+        Assertions.assertEquals(9, CMapUtils.getOrDefault(null, "a", 9));
+        Assertions.assertEquals(9, CMapUtils.getOrDefault(map, null, 9));
 
     }
 

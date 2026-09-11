@@ -12,9 +12,15 @@
 
 **加载要求**：执行任务前须按远端入口 `AGENTS_COMMON.adoc` 的加载调度规则，加载对应主题的规范文件（执行原则、规范管理为必加载层；编写代码、写文档、git 操作、code review、agent 协作、验证按活动加载通用层；Java/Spring/Maven 等按项目技术特征加载技术栈层；CNB 平台操作加载平台层）。禁止仅凭本入口文件猜测执行，凡工作涉及对应主题或项目具备对应技术特征，必须加载对应规范文件，不得因「规范文件不在常驻上下文」而跳过其要求。
 
+## 项目类型声明
+
+本项目为通用工具/库类项目，各类须保证绝对正确与可维护性。
+
+（按远端 `AGENTS_COMMON.adoc`「项目类型层」，该声明触发加载 `specs/general/doc-tool.adoc`：文档组织——类级细节归代码文档注释、独立文档承载模块/功能级总结与规划。）
+
 ## 项目特有规范
 
-远端统一规范之外的**项目特有规范**见 [agent/AGENTS-PROJECT.MD](agent/AGENTS-PROJECT.MD)（如类 `C`/接口 `IC` 命名前缀、Spring `@Bean` 方法名 `c` 前缀、C 工具类语法糖、`CMethodHandleUtils` 反射、Java 8 语言目标等）。与远端规范冲突时，以本项目特有规范为准。
+远端统一规范之外的**项目特有规范**见 [agent/AGENTS-PROJECT.MD](agent/AGENTS-PROJECT.MD)（如类 `C`/接口 `IC` 命名前缀、Spring `@Bean` 方法名 `c` 前缀、C 工具类语法糖、参数校验 `CValidUtils`、`CMethodHandleUtils` 反射、Java 8 语言目标等）。与远端规范冲突时，以本项目特有规范为准。
 
 ## 规范管理
 
