@@ -25,6 +25,7 @@ import java.util.List;
  * 通过静态 setter 注入 CSpringJacksonConfig</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/spring/CSpringHttpUtilsTests.adoc"
  */
 public class CSpringHttpUtilsTests {
 

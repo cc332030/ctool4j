@@ -1,7 +1,7 @@
 = CStrUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CStrUtils
 状态：已落地
@@ -12,7 +12,7 @@ LastModified: 2026-08-21
 `CStrUtils` 为字符串工具类，提供丰富的字符串操作：
 
 - 常量：`NULL`/`UNDEFINED`、引号、分隔符、`NOT_AVAILABLE_*`、`UTF8_BOM`
-- 格式化：`format`（占位符 ${}）/`formatLookup`/`formatByObject`/`formatNullToEmpty`
+- 格式化：`format`（`{}` 占位符 / `${}` 模板）/`formatLookup`/`formatByObject`/`formatNullToEmpty`
 - 命名转换：`upperUnderscoreToHeaderName`/`upperUnderscoreToLowerCamel`/`upperCamelToUpperUnderscore` 等
 - 切割：`splitToList`/`splitToSet`/`splitToIntegerList`/`splitToMap`/`splitThenGetFirst` 等
 - 连接：`concat`/`join`
@@ -23,8 +23,10 @@ LastModified: 2026-08-21
 
 === 2.1 格式化
 
-- `format(template, params)`：替换 `${key}` 占位符；缺失参数经 `defaultValue`（如 `formatNullToEmpty`
-  用空串）兜底。
+- `format(template, params)`：按 `{}` 占位符替换（`MessageFormatter.arrayFormat`）。
+- `format(template, stringLookup[, defaultValue])`：按 `${key}` 模板替换（`StringSubstitutor`），
+  key 经 `stringLookup` 查找、缺失时用 `defaultValue` 兜底。
+- `formatLookup(key, stringLookup[, defaultValue])`：按 key 查找替换值，key 为空或查得 null 时用 `defaultValue` 兜底。
 
 === 2.2 可用性处理（toAvailable）
 
@@ -62,8 +64,9 @@ LastModified: 2026-08-21
 - 可用性清洗为启发式规则（引号/关键字），覆盖常见脏数据。
 - 自增仅支持 `前缀-数字` 形态，其他形态原样返回。
 
-测试内容见 `doc/design/core/CStrUtilsTests.adoc`。
+测试内容见 `doc/design/core/CStrUtilsTest.adoc`。
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | 修正 `format` 占位符描述：区分 `{}`（`MessageFormatter`）与 `${}`（`StringSubstitutor`）两种重载，与代码一致
 - 1.0 | 2026-08-21 | 初始落地

@@ -1,7 +1,7 @@
 = CValueWithTtl 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.redis.model.CValueWithTtl`（redis 模块）——Redis 值与剩余 TTL 载体。
 
 对应测试类：`com.c332030.ctool4j.redis.model.CValueWithTtlTests`
@@ -18,17 +18,17 @@ LastModified: 2026-08-21
 
 === 设计依据
 
-- 依据功能设计对纯数据类（lombok 生成）的约定：全参/无参构造、Builder、setter、toString。
+- 依据功能设计对纯数据类（lombok 生成）的约定：全参构建/无参构造、Builder、setter、toString。
 - 依据白盒原则：各构造/赋值路径均取代表性值验证。
 
 === 覆盖场景与未覆盖
 
-- 覆盖：全参构造、无参构造、Builder、setter、toString。
+- 覆盖：全参构建、无参构造、Builder、setter、toString。
 - 未覆盖：equals/hashCode（lombok @Data 生成，未单测）；TTL 数值语义（由 Redis 端决定）。
 
 == 1. 字段读写
 
-- 1.1 全参构造赋值（allArgsConstructor_setsFields）
+- 1.1 全参构建赋值（builderAllFields_setsFields）
 - 1.2 无参构造为空（noArgsConstructor_createsEmpty）
 - 1.3 Builder 赋值（builder_setsFields）
 - 1.4 setter 更新字段（setters_updateFields）
@@ -36,4 +36,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | Q18：用例 1.1 与 toString 用例改为经 builder 构建
 - 1.0 | 2026-08-21 | 初始落地

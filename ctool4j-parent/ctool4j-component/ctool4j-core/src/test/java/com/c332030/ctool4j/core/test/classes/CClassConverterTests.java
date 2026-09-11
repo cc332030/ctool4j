@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CClassConverterTests.adoc"
  */
 public class CClassConverterTests {
 
@@ -40,7 +41,11 @@ public class CClassConverterTests {
     public void allArgsConstructor() {
 
         CFunction<String, Integer> converter = Integer::valueOf;
-        CClassConverter<String, Integer> c = new CClassConverter<>(String.class, Integer.class, converter);
+        CClassConverter<String, Integer> c = CClassConverter.<String, Integer>builder()
+            .fromClass(String.class)
+            .toClass(Integer.class)
+            .converter(converter)
+            .build();
 
         Assertions.assertEquals(String.class, c.getFromClass());
         Assertions.assertEquals(Integer.class, c.getToClass());

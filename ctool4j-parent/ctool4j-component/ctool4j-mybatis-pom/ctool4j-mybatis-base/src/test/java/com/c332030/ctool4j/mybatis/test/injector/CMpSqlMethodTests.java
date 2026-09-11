@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/mybatisplus/CMpSqlMethodTests.adoc"
  */
 public class CMpSqlMethodTests {
 

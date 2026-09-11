@@ -16,6 +16,8 @@ public interface CBenchmarkCase {
 
     /**
      * 用例名称（用于结果对比展示）
+     *
+     * @return 用例名称
      */
     String name();
 
@@ -26,6 +28,8 @@ public interface CBenchmarkCase {
 
     /**
      * 单次执行被测操作，返回值用于防止 JIT 消除死代码
+     *
+     * @return 被测操作结果
      */
     Object run();
 

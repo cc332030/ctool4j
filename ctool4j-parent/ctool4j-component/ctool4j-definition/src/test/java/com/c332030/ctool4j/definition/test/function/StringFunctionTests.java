@@ -12,6 +12,7 @@ import java.io.IOException;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/StringFunctionTests.adoc"
  */
 public class StringFunctionTests {
 

@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * @since 2026/6/16
+ * @see "doc/design/core/CReflectUtilsTests.adoc"
  */
 public class CReflectUtilsTests {
 

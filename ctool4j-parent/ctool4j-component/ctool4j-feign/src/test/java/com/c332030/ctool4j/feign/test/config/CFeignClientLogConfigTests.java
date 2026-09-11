@@ -16,6 +16,7 @@ import java.util.HashSet;
  * 是 {@link CFeignClientLogConfig} 的测试用例（对应测试文档
  * <code>doc/design/feign/CFeignClientLogConfigTests.adoc</code>）。
  * </p>
+ * @see "doc/design/feign/CFeignClientLogConfigTests.adoc"
  */
 public class CFeignClientLogConfigTests {
 

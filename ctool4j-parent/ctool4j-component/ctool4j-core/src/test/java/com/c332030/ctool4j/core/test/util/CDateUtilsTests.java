@@ -22,6 +22,7 @@ import java.util.Date;
  * <p>`com.c332030.ctool4j.core.util.CDateUtils`（CDateUtils）的测试用例</p>
  *
  * @since 2025/12/7
+ * @see "doc/design/core/CDateUtilsTests.adoc"
  */
 @CustomLog
 public class CDateUtilsTests {

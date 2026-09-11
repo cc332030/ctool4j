@@ -12,6 +12,7 @@ import java.util.Date;
  * </p>
  *
  * @since 2026/8/16
+ * @see "doc/design/core/CBaseTimeEntityTests.adoc"
  */
 public class CBaseTimeEntityTests {
 

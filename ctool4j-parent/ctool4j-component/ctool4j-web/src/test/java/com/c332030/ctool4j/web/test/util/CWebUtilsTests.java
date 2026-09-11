@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
  * writeResponse 依赖 CRequestUtils.getResponse()（容器），不在本测试覆盖范围</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CWebUtilsTests.adoc"
  */
 @CustomLog
 public class CWebUtilsTests {

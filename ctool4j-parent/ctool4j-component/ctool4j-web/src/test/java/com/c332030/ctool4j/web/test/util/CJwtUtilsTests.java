@@ -18,6 +18,7 @@ import java.util.Map;
  * <p>覆盖 jwt 创建、验证、解析（header/body/JSON 提取）等容易出错的方法</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CJwtUtilsTests.adoc"
  */
 @CustomLog
 public class CJwtUtilsTests {

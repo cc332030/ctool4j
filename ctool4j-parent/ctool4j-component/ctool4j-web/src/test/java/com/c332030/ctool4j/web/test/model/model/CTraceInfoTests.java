@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * <p>覆盖 CTraceInfo 数据类：各构造方式与读写</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CTraceInfoTests.adoc"
  */
 public class CTraceInfoTests {
 
@@ -27,11 +28,13 @@ public class CTraceInfoTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：全参构建（统一使用 builder，禁止依赖 lombok 生成的全参构造器）
      */
     @Test
-    public void allArgsConstructor() {
-        val info = new CTraceInfo("trace-1");
+    public void builderAllFields() {
+        val info = CTraceInfo.builder()
+            .traceId("trace-1")
+            .build();
 
         Assertions.assertEquals("trace-1", info.getTraceId());
     }

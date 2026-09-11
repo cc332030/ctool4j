@@ -21,6 +21,8 @@ import java.util.function.Supplier;
  * 是 {@link CCacheService.CCacheBuilder} 的测试用例（对应测试文档
  * <code>doc/design/cache/CCacheBuilderTests.adoc</code>）。
  * </p>
+ * @see "doc/design/cache/CCacheBuilderTests.adoc"
+  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
  */
 public class CCacheBuilderTests {
 
@@ -118,7 +120,10 @@ public class CCacheBuilderTests {
     @Test
     public void computeIfAbsent_permanentCache_returnsDirectly() {
         Mockito.when(redisService.getValueWithTtl("myKey", String.class))
-            .thenReturn(new CValueWithTtl<>("cached", -1L));
+            .thenReturn(CValueWithTtl.<String>builder()
+                .value("cached")
+                .ttl(-1L)
+                .build());
 
         String result = builder.computeIfAbsent(() -> "computed");
 

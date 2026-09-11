@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
  *
  * @since 2026/8/16
  * <p>`com.c332030.ctool4j.web.exception.handler.CMethodArgumentNotValidExceptionHandler`（CMethodArgumentNotValidExceptionHandler）的测试用例</p>
+ * @see "doc/design/web/CMethodArgumentNotValidExceptionHandlerTests.adoc"
  */
 public class CMethodArgumentNotValidExceptionHandlerTests {
 

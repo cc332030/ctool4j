@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
  * </p>
  *
  * @since 2026/9/9
+ * @see "doc/design/redis/CRedisKeyUtilsTests.adoc"
  */
 class CRedisKeyUtilsTests {
 

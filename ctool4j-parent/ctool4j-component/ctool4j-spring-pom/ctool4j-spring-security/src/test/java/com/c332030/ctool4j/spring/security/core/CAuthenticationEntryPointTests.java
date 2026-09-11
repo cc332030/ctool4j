@@ -20,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
  * </p>
  *
  * @since 2026/8/17
+ * @see "doc/design/spring/CAuthenticationEntryPointTests.adoc"
  */
 class CAuthenticationEntryPointTests {
 

@@ -25,6 +25,7 @@ import java.util.HashSet;
  * <p>覆盖 CCorsResponseBodyAdvice.beforeBodyWrite：原样返回响应体，启用跨域时设置响应头</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CCorsResponseBodyAdviceTests.adoc"
  */
 
 public class CCorsResponseBodyAdviceTests {

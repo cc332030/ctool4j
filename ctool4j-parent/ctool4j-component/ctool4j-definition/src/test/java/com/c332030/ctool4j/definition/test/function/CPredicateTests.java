@@ -13,6 +13,7 @@ import java.util.function.Predicate;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CPredicateTests.adoc"
  */
 public class CPredicateTests {
 

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CBiClassValueTests.adoc"
  */
 public class CBiClassValueTests {
 

@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.core.benchmark;
 
+import lombok.CustomLog;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.List;
  * @since 2026/8/16
  * @see "doc/design/core/CBenchmarkRunner.adoc"
  */
+@CustomLog
 public class CBenchmarkRunner {
 
     /**
@@ -41,7 +44,7 @@ public class CBenchmarkRunner {
     private static final int MEASURE_ROUNDS = 5;
 
     /**
-     * 运行一组基准用例（预热 + 多轮计时取均值），返回报告（含控制台打印）
+     * 运行一组基准用例（预热 + 多轮计时取均值），返回报告（并输出日志报告）
      *
      * @param cases 基准用例列表
      * @param title 报告标题
@@ -86,21 +89,24 @@ public class CBenchmarkRunner {
 
                 // 防止 JIT 消除，blackhole 仅参与一次无副作用累加
                 if (blackhole == Long.MIN_VALUE) {
-                    System.out.println("unreachable");
+                    log.debug("unreachable");
                 }
             }
 
             // 累计全部迭代的耗时与迭代次数，得到精确的平均耗时
-            results.add(new CBenchmarkResult(
-                bc.name(),
-                (long) MEASURE_ITERATIONS * MEASURE_ROUNDS,
-                totalNanos
-            ));
+            results.add(CBenchmarkResult.builder()
+                .name(bc.name())
+                .iterations((long) MEASURE_ITERATIONS * MEASURE_ROUNDS)
+                .elapsedNanos(totalNanos)
+                .build());
         }
 
         results.sort(Comparator.comparingDouble(CBenchmarkResult::avgNanos));
 
-        CBenchmarkReport report = new CBenchmarkReport(title, results);
+        CBenchmarkReport report = CBenchmarkReport.builder()
+            .title(title)
+            .results(results)
+            .build();
 
         print(report);
         return report;
@@ -110,20 +116,16 @@ public class CBenchmarkRunner {
 
         double baseline = report.getResults().get(0).avgNanos();
 
-        System.out.println();
-        System.out.println("===== " + report.getTitle() + "（" + MEASURE_ITERATIONS
-            + " 次迭代 × " + MEASURE_ROUNDS + " 轮）=====");
-        System.out.printf("%-24s %16s %16s %14s%n", "实现方式", "Avg(ns/op)", "ops/s", "相对基线");
-        System.out.println("--------------------------------------------------------------------------");
+        log.info(String.format("%-24s %16s %16s %14s", "实现方式", "Avg(ns/op)", "ops/s", "相对基线"));
+        log.info("--------------------------------------------------------------------------");
         for (CBenchmarkResult result : report.getResults()) {
-            System.out.printf("%-24s %16.1f %16.0f %12.2fx%n",
+            log.info(String.format("%-24s %16.1f %16.0f %12.2fx",
                     result.getName(),
                     result.avgNanos(),
                     result.opsPerSecond(),
                     result.avgNanos() / baseline
-            );
+            ));
         }
-        System.out.println();
     }
 
 }

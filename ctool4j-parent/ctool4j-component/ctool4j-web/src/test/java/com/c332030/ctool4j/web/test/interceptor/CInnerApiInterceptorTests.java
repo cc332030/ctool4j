@@ -21,6 +21,7 @@ import org.springframework.web.method.HandlerMethod;
  * @author c332030
  * @since 2026/9/9
  * @see "doc/design/web/CInnerApiInterceptor.adoc"
+  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
  */
 class CInnerApiInterceptorTests {
 

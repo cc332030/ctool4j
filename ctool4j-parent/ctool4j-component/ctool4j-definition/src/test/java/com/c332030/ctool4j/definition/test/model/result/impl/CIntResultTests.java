@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CIntResultTests.adoc"
  */
 public class CIntResultTests {
 
@@ -33,12 +34,16 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：全参构建（统一使用 builder，禁止依赖 lombok 生成的全参构造器）
      */
     @Test
-    public void allArgsConstructor() {
+    public void builderAllFields() {
 
-        CIntResult<String> result = new CIntResult<>(200, "OK", "data");
+        CIntResult<String> result = CIntResult.<String>builder()
+            .code(200)
+            .message("OK")
+            .data("data")
+            .build();
 
         Assertions.assertEquals(200, result.getCode());
         Assertions.assertEquals("OK", result.getMessage());

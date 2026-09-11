@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/12/28
+ * @see "doc/design/spring/CAutowiredUtilsTests.adoc"
  */
 public class CAutowiredUtilsTests {
 

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CMimeTypeEnumTests.adoc"
  */
 public class CMimeTypeEnumTests {
 

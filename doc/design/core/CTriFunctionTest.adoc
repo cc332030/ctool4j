@@ -1,7 +1,7 @@
 = CTriFunction 测试用例文档
 
 Version: 1.0
-LastModified: $DATE
+LastModified: 2026-09-10
 模块：ctool4j-core
 被测类：com.c332030.ctool4j.definition.function.CTriFunction
 状态：已落地
@@ -26,4 +26,4 @@ LastModified: $DATE
 
 == 变更日志
 
-- 1.0 | $DATE | 初始落地
+- 1.0 | 2026-09-10 | 初始落地

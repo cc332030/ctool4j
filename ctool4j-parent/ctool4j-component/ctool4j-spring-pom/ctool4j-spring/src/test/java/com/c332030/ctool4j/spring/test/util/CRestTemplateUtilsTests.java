@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
  * 替换 Jackson 转换器的 ObjectMapper 并追加 json5 媒体类型</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/spring/CRestTemplateUtilsTests.adoc"
  */
 public class CRestTemplateUtilsTests {
 

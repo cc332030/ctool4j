@@ -70,9 +70,10 @@ LastModified: 2026-08-31
   初始化，`log` 先于 `LOGS` 就绪时触发自引用 NPE。故本类（CLog 的底层实现）保留 `@Slf4j`，
   不影响后端无关性（CLog 内部本就使用 slf4j 门面）。
 
-测试内容见 `doc/design/core/CLogUtilsTests.adoc`。
+测试内容见 `doc/design/core/CLogUtilsTest.adoc`。
 
 == 变更日志
 
+- 1.2 | 2026-09-10 | 修正测试文档引用：指向实际测试类对应的 `CLogUtilsTest.adoc`
 - 1.1 | 2026-08-31 | 补充本类保留 @Slf4j 的原因说明（@CustomLog 静态初始化自引用）
 - 1.0 | 2026-08-21 | 初始落地

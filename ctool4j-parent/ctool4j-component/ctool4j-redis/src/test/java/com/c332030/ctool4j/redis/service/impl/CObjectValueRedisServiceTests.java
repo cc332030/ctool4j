@@ -17,6 +17,8 @@ import org.springframework.data.redis.core.ValueOperations;
  * 是 {@link CObjectValueRedisService} 的测试用例（对应测试文档
  * <code>doc/design/redis/CObjectValueRedisServiceTests.adoc</code>）。
  * </p>
+ * @see "doc/design/redis/CObjectValueRedisServiceTests.adoc"
+  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
  */
 public class CObjectValueRedisServiceTests {
 

@@ -18,6 +18,7 @@ import org.springframework.security.access.AccessDeniedException;
  * </p>
  *
  * @since 2026/8/17
+ * @see "doc/design/spring/CAccessDeniedHandlerTests.adoc"
  */
 class CAccessDeniedHandlerTests {
 

@@ -1,6 +1,6 @@
 = CLazyRef 测试用例文档
 
-Version: 1.9
+Version: 1.10
 LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.core.util.CLazyRef`（core 模块）——懒加载值持有器。
 
@@ -60,6 +60,7 @@ LastModified: 2026-09-10
 
 == 变更日志
 
+- 1.10 | 2026-09-10 | 代码同步：用例 1.15 异常断言由 `assertThrows` 改为 `assertThrowsExactly`（与本文档 1.1 记录及测试规范一致）
 - 1.9 | 2026-09-10 | 新增用例 1.15（`of(null)`）；据实证修正原文档"抛 `NullPointerException`"的表述为 `IllegalArgumentException`
 - 1.8 | 2026-09-10 | 修正样例计数器注释（`STATIC_LAZY` 经用例 1.10 也间接调用 `staticCreate`）
 - 1.7 | 2026-09-10 | `BlockingClassLoader` 由 `URLClassLoader` 改为 `ClassLoader`（不再持有无用 URL 能力）；修正用例 1.6 注释关于异常包装来源的表述

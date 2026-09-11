@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
  * 不依赖 Spring 容器的链路追踪方法；initTrace 依赖容器请求对象，不在本测试覆盖范围</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CTraceUtilsTests.adoc"
  */
 @CustomLog
 public class CTraceUtilsTests {

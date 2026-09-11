@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/12/28
+ * @see "doc/design/spring/CAutowiredUtilsBootTests.adoc"
  */
 @CTool4jSpringBootTest
 public class CAutowiredUtilsBootTests {

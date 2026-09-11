@@ -1,7 +1,7 @@
 = CStringStringRedisService 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.redis.service.impl.CStringStringRedisService`（redis 模块）——String 键值 Redis Service。
 
 对应测试类：`com.c332030.ctool4j.redis.service.impl.CStringStringRedisServiceTests`
@@ -58,4 +58,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | Q18：用例 5.1 期望对象改用 builder 创建
 - 1.0 | 2026-08-21 | 初始落地

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author c332030
  * @since 2025/12/20
+ * @see "doc/design/core/CLambdaUtilsTests.adoc"
  */
 public class CLambdaUtilsTests {
 

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * 是 {@link CStringStringRedisService} 的测试用例（对应测试文档
  * <code>doc/design/redis/CStringStringRedisServiceTests.adoc</code>）。
  * </p>
+ * @see "doc/design/redis/CStringStringRedisServiceTests.adoc"
  */
 public class CStringStringRedisServiceTests {
 
@@ -181,7 +182,10 @@ public class CStringStringRedisServiceTests {
      */
     @Test
     void getValueWithTtl_delegatesToRedisCallback() {
-        CValueWithTtl<String> expected = new CValueWithTtl<>("value", 100L);
+        CValueWithTtl<String> expected = CValueWithTtl.<String>builder()
+            .value("value")
+            .ttl(100L)
+            .build();
         Mockito.when(redisTemplate.execute(Mockito.any(RedisCallback.class))).thenReturn(expected);
 
         CValueWithTtl<String> result = service.getValueWithTtl("key", String.class);

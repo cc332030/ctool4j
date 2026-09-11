@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
  * 不在本测试覆盖范围；isExcludeUri 的内置静态资源排除分支（配置无关，先于配置读取）纳入本测试覆盖</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CRequestLogUtilsTests.adoc"
  */
 
 @CustomLog

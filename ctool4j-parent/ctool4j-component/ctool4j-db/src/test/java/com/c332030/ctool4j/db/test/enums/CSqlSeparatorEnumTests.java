@@ -18,6 +18,7 @@ import java.util.Collections;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/db/CSqlSeparatorEnumTests.adoc"
  */
 public class CSqlSeparatorEnumTests {
 

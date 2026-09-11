@@ -22,6 +22,7 @@ import springfox.documentation.spi.schema.contexts.ModelPropertyContext;
  * <p>
  * 是 {@link CSchemaAnnotationModelPropertyPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/CSchemaAnnotationModelPropertyPluginTests.adoc"
  */
 class CSchemaAnnotationModelPropertyPluginTests {
 

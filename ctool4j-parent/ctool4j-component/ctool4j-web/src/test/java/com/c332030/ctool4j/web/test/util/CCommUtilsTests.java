@@ -28,6 +28,7 @@ import java.util.Map;
  * 测试用例分类与编号见 doc/design/web/CCommUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CCommUtilsTests.adoc"
  */
 @CustomLog
 public class CCommUtilsTests {

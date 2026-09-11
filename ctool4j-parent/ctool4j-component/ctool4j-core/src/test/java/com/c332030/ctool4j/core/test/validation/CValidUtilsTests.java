@@ -16,6 +16,7 @@ import java.util.Collections;
  * </p>
  *
  * @since 2026/8/20
+ * @see "doc/design/core/CValidUtilsTests.adoc"
  */
 public class CValidUtilsTests {
 

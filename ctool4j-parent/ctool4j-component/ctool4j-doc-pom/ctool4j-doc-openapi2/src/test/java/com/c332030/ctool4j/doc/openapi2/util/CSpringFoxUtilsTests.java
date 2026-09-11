@@ -24,6 +24,7 @@ import java.util.List;
  * <p>
  * 是 {@link CSpringFoxUtils} 的测试用例（对应测试文档 <code>doc/design/openapi2/CSpringFoxUtilsTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/CSpringFoxUtilsTests.adoc"
  */
 class CSpringFoxUtilsTests {
 

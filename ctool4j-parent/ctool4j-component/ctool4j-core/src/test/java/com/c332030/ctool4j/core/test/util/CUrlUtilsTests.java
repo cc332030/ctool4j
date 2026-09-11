@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/12/22
+ * @see "doc/design/core/CUrlUtilsTests.adoc"
  */
 public class CUrlUtilsTests {
 

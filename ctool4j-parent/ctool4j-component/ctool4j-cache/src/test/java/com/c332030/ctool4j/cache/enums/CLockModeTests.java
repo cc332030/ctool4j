@@ -14,6 +14,7 @@ import java.util.Arrays;
  * 是 {@link CLockMode} 的测试用例（对应测试文档
  * <code>doc/design/cache/CLockModeTests.adoc</code>）。
  * </p>
+ * @see "doc/design/cache/CLockModeTests.adoc"
  */
 public class CLockModeTests {
 

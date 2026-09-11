@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.benchmark;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,7 @@ import java.util.List;
  * @see "doc/design/core/CBenchmarkReport.adoc"
  * @see "doc/design/core/CBenchmarkReportTests.adoc"
  */
+@SuperBuilder
 @RequiredArgsConstructor
 public class CBenchmarkReport {
 

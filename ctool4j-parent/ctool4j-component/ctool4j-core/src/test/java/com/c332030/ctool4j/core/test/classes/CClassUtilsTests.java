@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  * 内部专用 API 警告（sun.proprietary，javac 无法用 @SuppressWarnings 抑制）已知且接受</p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CClassUtilsTests.adoc"
  */
 public class CClassUtilsTests {
 

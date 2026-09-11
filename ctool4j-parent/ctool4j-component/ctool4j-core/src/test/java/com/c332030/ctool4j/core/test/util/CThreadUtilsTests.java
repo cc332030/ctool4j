@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CThreadUtilsTests.adoc"
  */
 public class CThreadUtilsTests {
 

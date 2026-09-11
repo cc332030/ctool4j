@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CRunnableTests.adoc"
  */
 public class CRunnableTests {
 

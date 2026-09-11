@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
  * 通过 Mockito mock AnnotatedTypeMetadata 验证正例、属性缺失与无注解场景</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/spring/CAnnotationUtilsTests.adoc"
  */
 public class CAnnotationUtilsTests {
 

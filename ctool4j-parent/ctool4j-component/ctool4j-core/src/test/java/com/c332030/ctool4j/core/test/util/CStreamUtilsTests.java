@@ -16,6 +16,7 @@ import java.util.stream.Stream;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CStreamUtilsTests.adoc"
  */
 public class CStreamUtilsTests {
 

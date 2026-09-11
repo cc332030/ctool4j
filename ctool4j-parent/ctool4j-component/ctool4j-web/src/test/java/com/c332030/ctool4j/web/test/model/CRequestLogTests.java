@@ -18,6 +18,7 @@ import java.util.Map;
  * <p>`com.c332030.ctool4j.web.model.CRequestLog`（请求日志数据类）的测试用例，覆盖各构造方式与读写</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CRequestLogTests.adoc"
  */
 
 public class CRequestLogTests {
@@ -34,18 +35,33 @@ public class CRequestLogTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：全参构建（统一使用 builder，禁止依赖 lombok 生成的全参构造器）
      */
     @Test
-    public void allArgsConstructor() {
+    public void builderAllFields() {
         Map<String, Collection<String>> headers = new HashMap<>();
         Map<String, Collection<String>> params = new HashMap<>();
         Object req = "requestBody";
 
-        val log = new CRequestLog(
-            CLogSource.MVC, "GET", "/path", "token", "trace-1", "tenant-1", "user-1", "127.0.0.1",
-            headers, params, req, "rsp", 200, headers, "boom", 100L, 200L
-        );
+        val log = CRequestLog.builder()
+            .source(CLogSource.MVC)
+            .method("GET")
+            .path("/path")
+            .token("token")
+            .traceId("trace-1")
+            .tenantId("tenant-1")
+            .userId("user-1")
+            .ip("127.0.0.1")
+            .requestHeaders(headers)
+            .params(params)
+            .req(req)
+            .rsp("rsp")
+            .responseStatus(200)
+            .responseHeaders(headers)
+            .errorMessage("boom")
+            .beginTimeMillis(100L)
+            .endTimeMillis(200L)
+            .build();
 
         Assertions.assertEquals(CLogSource.MVC, log.getSource());
         Assertions.assertEquals("GET", log.getMethod());

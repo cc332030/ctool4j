@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/spring/CAuthenticationUtilsTests.adoc"
  */
 class CAuthenticationUtilsTests {
 

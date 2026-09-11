@@ -17,6 +17,7 @@ import java.util.Date;
  *
  * @author c332030
  * @since 2025/12/20
+ * @see "doc/design/core/CEntityUtilsTests.adoc"
  */
 public class CEntityUtilsTests {
 

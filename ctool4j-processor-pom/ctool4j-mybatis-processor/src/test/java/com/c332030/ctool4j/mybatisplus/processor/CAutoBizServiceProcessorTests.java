@@ -27,6 +27,7 @@ import java.util.Collections;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/mybatisplus/CAutoBizServiceProcessorTests.adoc"
  */
 public class CAutoBizServiceProcessorTests {
 

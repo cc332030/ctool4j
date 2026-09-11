@@ -18,6 +18,7 @@ import java.util.*;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CCollUtilsTests.adoc"
  */
 public class CCollUtilsTests {
 

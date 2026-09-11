@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CObjUtilsTests.adoc"
  */
 public class CObjUtilsTests {
 

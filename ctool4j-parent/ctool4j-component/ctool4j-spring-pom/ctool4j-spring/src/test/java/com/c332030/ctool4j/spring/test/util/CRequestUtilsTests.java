@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/spring/CRequestUtilsTests.adoc"
  */
 class CRequestUtilsTests {
 

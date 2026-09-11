@@ -14,6 +14,7 @@ import java.util.function.Consumer;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CConsumerTests.adoc"
  */
 public class CConsumerTests {
 

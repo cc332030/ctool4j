@@ -16,6 +16,7 @@ import java.util.Set;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CSetTests.adoc"
  */
 public class CSetTests {
 

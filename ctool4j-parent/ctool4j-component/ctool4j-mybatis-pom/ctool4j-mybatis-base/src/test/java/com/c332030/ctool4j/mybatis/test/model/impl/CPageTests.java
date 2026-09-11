@@ -15,6 +15,7 @@ import java.util.Collections;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/mybatis/CPageTests.adoc"
  */
 public class CPageTests {
 

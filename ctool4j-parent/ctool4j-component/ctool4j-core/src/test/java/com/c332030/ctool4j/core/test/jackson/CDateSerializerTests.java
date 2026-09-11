@@ -16,6 +16,7 @@ import java.util.Date;
  * </p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CDateSerializerTests.adoc"
  */
 public class CDateSerializerTests {
 

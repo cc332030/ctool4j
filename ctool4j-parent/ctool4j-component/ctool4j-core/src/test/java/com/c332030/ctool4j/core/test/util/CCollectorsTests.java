@@ -18,6 +18,7 @@ import java.util.stream.Stream;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CCollectorsTests.adoc"
  */
 public class CCollectorsTests {
 

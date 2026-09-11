@@ -16,6 +16,7 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CConvertUtilsTests.adoc"
  */
 public class CConvertUtilsTests {
 

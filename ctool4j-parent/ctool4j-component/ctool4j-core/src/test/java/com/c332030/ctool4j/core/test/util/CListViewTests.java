@@ -18,6 +18,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/31
+ * @see "doc/design/core/CListViewTests.adoc"
  */
 class CListViewTests {
 

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
  * <p>覆盖 CResourceFilter.doFilter：命中忽略资源 URL 时返回 204，其余放行</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CResourceFilterTests.adoc"
  */
 
 public class CResourceFilterTests {

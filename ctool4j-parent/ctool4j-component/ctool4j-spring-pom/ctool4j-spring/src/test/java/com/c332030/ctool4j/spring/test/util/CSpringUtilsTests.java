@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/6/2
+ * @see "doc/design/spring/CSpringUtilsTests.adoc"
  */
 @CTool4jSpringBootTest
 public class CSpringUtilsTests {

@@ -36,6 +36,7 @@ import java.util.*;
  * </p>
  *
  * @since 2026/8/16
+ * @see "doc/design/core/CBeanUtilsMoreTests.adoc"
  */
 public class CBeanUtilsMoreTests {
 

@@ -23,6 +23,7 @@ import java.util.Optional;
  * <p>
  * 是 {@link CTagAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CTagAnnotationPluginTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/CTagAnnotationPluginTests.adoc"
  */
 class CTagAnnotationPluginTests {
 

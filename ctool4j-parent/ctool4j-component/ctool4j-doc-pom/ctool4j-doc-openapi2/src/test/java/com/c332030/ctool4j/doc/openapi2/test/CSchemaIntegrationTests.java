@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * </ul>
  *
  * @author c332030
+ * @see "doc/design/openapi2/CSchemaIntegrationTests.adoc"
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest

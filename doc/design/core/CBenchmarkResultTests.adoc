@@ -1,7 +1,7 @@
 = CBenchmarkResult 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.core.benchmark.CBenchmarkResult`（core benchmark 包）——基准执行结果，保存用例名、迭代次数与总耗时（纳秒），并提供平均耗时与每秒执行次数的指标计算。
 
 对应测试类：`com.c332030.ctool4j.core.test.benchmark.CBenchmarkResultTests`
@@ -50,4 +50,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | Q1：测试对象创建改用 builder（禁止 new Xxx(参数…)）
 - 1.0 | 2026-08-21 | 初始落地（为 CBenchmarkResult 补测试用例与测试文档）

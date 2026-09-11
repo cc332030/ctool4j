@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <code>doc/design/feign/CFeignUtilsTests.adoc</code>）。</p>
  *
  * @author c332030
+ * @see "doc/design/feign/CFeignUtilsTests.adoc"
  */
 class CFeignUtilsTests {
 
