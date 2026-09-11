@@ -61,6 +61,7 @@ public class CCorsUtilsTests {
     @Test
     public void handleOptions_whenDisable() {
         // 反例：未开启跨域时，OPTIONS 请求不处理
+        CCorsUtils.setConfig(config);
         request.setMethod("OPTIONS");
 
         val handled = CCorsUtils.handleOptions(request, response);
@@ -151,6 +152,7 @@ public class CCorsUtilsTests {
     @Test
     public void handle_whenDisable() {
         // 反例：未开启跨域时，不设置任何跨域响应头
+        CCorsUtils.setConfig(config);
         request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
         request.addHeader(HttpHeaders.HOST, "localhost:8080");
         config.setAllowedOrigins(Collections.singleton("example.com"));
