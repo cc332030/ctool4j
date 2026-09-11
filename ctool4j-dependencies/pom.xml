@@ -60,6 +60,24 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-auth-pom</artifactId>
+                <version>1.1.20260730-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-auth-base</artifactId>
+                <version>1.1.20260730-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-auth-spring</artifactId>
+                <version>1.1.20260730-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-logback</artifactId>
                 <version>1.1.20260730-SNAPSHOT</version>
             </dependency>

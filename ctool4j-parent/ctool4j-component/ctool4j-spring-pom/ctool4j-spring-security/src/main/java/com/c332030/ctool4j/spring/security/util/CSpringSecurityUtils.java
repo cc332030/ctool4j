@@ -8,12 +8,15 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
@@ -26,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 @UtilityClass
 public class CSpringSecurityUtils {
+
+    public static final List<GrantedAuthority> ANONYMOUS_AUTHORITIES =
+        AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
 
     /**
      * 获取安全上下文
