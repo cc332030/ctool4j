@@ -9,9 +9,9 @@ import com.c332030.ctool4j.redis.util.CRedisUtils;
 import com.c332030.ctool4j.session.config.CSessionConfig;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
-import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 
 /**
@@ -29,7 +29,6 @@ import org.springframework.lang.NonNull;
  * @since 2026/9/10
  */
 @CustomLog
-@AllArgsConstructor
 public abstract class CAbstractSessionService<SESSION extends ICSecuritySession> implements IGenericType<SESSION> {
 
     /**
@@ -37,8 +36,10 @@ public abstract class CAbstractSessionService<SESSION extends ICSecuritySession>
      */
     final Class<SESSION> sessionClass = getGenericClass();
 
+    @Autowired
     CSessionConfig sessionConfig;
 
+    @Autowired
     CStringStringRedisService redisService;
 
     /**
