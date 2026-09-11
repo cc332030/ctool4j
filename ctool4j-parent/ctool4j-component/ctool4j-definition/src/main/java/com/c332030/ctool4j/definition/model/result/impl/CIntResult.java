@@ -14,9 +14,36 @@ import org.springframework.lang.NonNull;
  * Description: CIntResult
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CIntResult&lt;DATA&gt;} 为结果封装，实现 {@code ICIntResult&lt;DATA&gt;}，含 {@code code}/{@code message}/{@code data} 字段，提供：</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>error message 为 null</td>
+ *     <td>使用 500 原因短语</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>服务统一结果封装（Integer 状态码）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>与 CResult 类似，但用 message 字段命名。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>成功/失败工厂</b></p>
+ * <ul>
+ *   <li>{@code success} 用 {@code HttpStatus.OK}（200），可指定状态与数据。</li>
+ * </ul>
+ *
  * @since 2025/5/13
- * @see "doc/design/core/CIntResult.adoc"
- * @see "doc/design/core/CIntResultTests.adoc"
+ * @version 1.0
  */
 @Data
 @SuperBuilder
@@ -32,6 +59,9 @@ public class CIntResult<DATA> implements ICIntResult<DATA> {
 
     /**
      * 构造结果
+     * <ul>
+     *   <li>{@code newInstance(code, message, data)}：构造</li>
+     * </ul>
      *
      * @param code    状态码
      * @param message 消息
@@ -49,6 +79,9 @@ public class CIntResult<DATA> implements ICIntResult<DATA> {
 
     /**
      * 成功结果（无数据）
+     * <ul>
+     *   <li>{@code success()} / {@code success(httpStatus, data)} / {@code success(data)}：成功结果</li>
+     * </ul>
      *
      * @param <DATA> 数据类型
      * @return 成功结果

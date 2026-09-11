@@ -24,8 +24,59 @@ import java.util.stream.Collectors;
  * Description: ConditionalOnMissingExceptionHandlerCondition
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>核心方法 {@code matches(ConditionContext, AnnotatedTypeMetadata)}：</p>
+ * <ul>
+ *   <li>从注解元数据读取要检查的异常类型 {@code value()}</li>
+ *   <li>取容器中所有 {@code ControllerAdvice} 标注的 bean</li>
+ *   <li>无任何 ControllerAdvice 时返回 true（启用默认 Handler）</li>
+ *   <li>遍历各 bean 方法，若任一方法用 {@code @ExceptionHandler} 处理了该异常类型，返回 false（禁用默认 Handler）</li>
+ *   <li>均未处理时返回 true（启用默认 Handler）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>注解不存在</td>
+ *     <td>{@code Assert.notNull} 抛异常</td>
+ *   </tr>
+ *   <tr>
+ *     <td>beanFactory 为 null</td>
+ *     <td>{@code Assert.notNull} 抛异常</td>
+ *   </tr>
+ *   <tr>
+ *     <td>无 ControllerAdvice</td>
+ *     <td>返回 true，启用默认 Handler</td>
+ *   </tr>
+ *   <tr>
+ *     <td>bean 无方法</td>
+ *     <td>跳过该 bean，继续遍历</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>框架内置异常处理器的条件装配，避免与业务方自定义处理器冲突。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>用反射遍历 bean 方法，性能开销可接受（仅 Spring 启动装配时执行一次）。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>反射遍历</b></p>
+ * <ul>
+ *   <li>用 {@code CReflectUtils.getMethods} 获取 bean 方法，检查 {@code @ExceptionHandler} 注解的 {@code value()} 是否包含目标异常类型。</li>
+ * </ul>
+ * <p><b>空安全</b></p>
+ * <ul>
+ *   <li>beanFactory/beanMap 为空时按"无 ControllerAdvice"处理，返回 true 启用默认 Handler。</li>
+ * </ul>
+ *
  * @since 2026/4/9
- * @see "doc/design/web/ConditionalOnMissingExceptionHandlerCondition.adoc"
+ * @version 1.0
  */
 @CustomLog
 @AllArgsConstructor

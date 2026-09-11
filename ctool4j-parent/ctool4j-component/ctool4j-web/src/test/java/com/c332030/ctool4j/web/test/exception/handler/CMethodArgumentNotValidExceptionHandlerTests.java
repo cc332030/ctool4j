@@ -20,19 +20,36 @@ import static org.mockito.Mockito.when;
  * Description: CMethodArgumentNotValidExceptionHandlerTests
  * </p>
  *
- * <p>覆盖 CMethodArgumentNotValidExceptionHandler.handle：拼接全部字段错误信息</p>
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>直接实例化处理器并调用 {@code handle}，验证 参数校验失败异常 的处理结果。</li>
+ *   <li>返回 {@code CStrResult.error(...)}，可处理无字段错误场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对参数校验失败异常处理结果（错误码/消息）的约定。</li>
+ *   <li>依据测试方法（正例/边界）：返回 {@code CStrResult.error(...)}，可处理无字段错误场景。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：参数校验失败异常的 {@code handle} 处理路径。</li>
+ *   <li>未覆盖：真实 MVC 容器下的异常拦截链路。</li>
+ * </ul>
+ * <h2>参数校验失败异常处理</h2>
+ * <ul>
+ *   <li>1.1 handle：验证参数校验失败异常处理结果</li>
+ * </ul>
  *
  * @since 2026/8/16
- * <p>`com.c332030.ctool4j.web.exception.handler.CMethodArgumentNotValidExceptionHandler`（CMethodArgumentNotValidExceptionHandler）的测试用例</p>
- * @see "doc/design/web/CMethodArgumentNotValidExceptionHandlerTests.adoc"
+ * @version 1.0
  */
 public class CMethodArgumentNotValidExceptionHandlerTests {
 
     private final CMethodArgumentNotValidExceptionHandler handler = new CMethodArgumentNotValidExceptionHandler();
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证参数校验失败异常处理结果
+         */
     @Test
     public void handle() throws NoSuchMethodException {
         val parameter = new MethodParameter(
@@ -52,8 +69,8 @@ public class CMethodArgumentNotValidExceptionHandlerTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     public void handle_whenNoFieldError() throws NoSuchMethodException {
         val parameter = new MethodParameter(

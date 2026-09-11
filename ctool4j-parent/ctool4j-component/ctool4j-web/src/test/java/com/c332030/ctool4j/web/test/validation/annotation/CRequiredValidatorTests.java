@@ -36,8 +36,45 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Map（notEmpty）/数组（notEmpty）/其他对象（notNull），以及 message 自定义提示
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>启动真实 Spring 容器（{@code @CTool4jSpringBootTest} + {@code @AutoConfigureMockMvc}），经容器注入的真实 {@code Validator} 做按类型分发的直接校验，并走真实接口（MockMvc 调 {@code CRequiredValidatorTestController} 的 {@code POST /c-required-validator/test}，{@code @Valid @RequestBody} 触发校验）验证必填/非必填生效，贴近真实使用场景。</li>
+ *   <li>覆盖标注 {@code @CRequired}（即必填）时 null/字符串（notBlank）/集合（notEmpty）/Map（notEmpty）/数组（notEmpty）/其他对象（notNull），以及 message 自定义提示、groups/payload 兼容。</li>
+ *   <li>分类 1 用容器 {@code Validator} 直接校验各类型分发分支；分类 2 用 MockMvc 走真实接口验证必填/非必填。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：文档字段生成（description/required）由 openapi2 模块的 {@code CSchemaIntegrationTests} 集成测试覆盖。</li>
+ * </ul>
+ * <h2>CRequiredValidator.isValid：按类型分发必填校验（容器 Validator 直接校验）</h2>
+ * <ul>
+ *   <li>1.1 validate_stringRequired（validate_stringRequired）</li>
+ *   <li>1.2 validate_stringBlank（validate_stringBlank）</li>
+ *   <li>1.3 validate_stringValid（validate_stringValid）</li>
+ *   <li>1.4 validate_customMessage（validate_customMessage）</li>
+ *   <li>1.5 validate_notRequired（validate_notRequired）</li>
+ *   <li>1.6 validate_collection（validate_collection）</li>
+ *   <li>1.7 validate_map（validate_map）</li>
+ *   <li>1.8 validate_array（validate_array）</li>
+ *   <li>1.9 validate_object（validate_object）</li>
+ *   <li>1.10 validate_groups（validate_groups）</li>
+ *   <li>1.11 validate_groups_valid（validate_groups_valid）</li>
+ *   <li>1.12 validate_groups_otherGroup（validate_groups_otherGroup）</li>
+ *   <li>1.13 validate_payload（validate_payload）</li>
+ *   <li>1.14 validate_payload_valid（validate_payload_valid）</li>
+ * </ul>
+ * <h2>接口必填/非必填生效（MockMvc 真实接口）</h2>
+ * <ul>
+ *   <li>2.1 requiredField_missing（requiredField_missing）</li>
+ *   <li>2.2 requiredField_blank（requiredField_blank）</li>
+ *   <li>2.3 optionalField_missing（optionalField_missing）</li>
+ *   <li>2.4 allFields_present（allFields_present）</li>
+ * </ul>
+ *
  * @author c332030
- * @see "doc/design/web/CRequiredValidatorTests.adoc"
+ * @since 1.0
+ * @version 1.0
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest

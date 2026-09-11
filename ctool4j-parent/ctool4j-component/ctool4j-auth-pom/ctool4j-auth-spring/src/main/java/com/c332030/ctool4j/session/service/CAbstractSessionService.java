@@ -27,6 +27,7 @@ import org.springframework.lang.NonNull;
  *
  * @author c332030
  * @since 2026/9/10
+ * @version 1.0
  */
 @CustomLog
 public abstract class CAbstractSessionService<SESSION extends ICSecuritySession> implements IGenericType<SESSION> {

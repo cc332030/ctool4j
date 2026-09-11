@@ -14,8 +14,23 @@ import org.springframework.context.annotation.Configuration;
  * Description: CJacksonInit
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CJacksonInit}：Jackson 初始化。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>Spring 初始化时配置 Jackson</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>Jackson 初始化</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>实现 ICSpringInit</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>实现 ICSpringInit</p>
+ *
  * @since 2026/4/8
- * @see "doc/design/spring/CJacksonInit.adoc"
+ * @version 1.0
  */
 @CustomLog
 @Configuration

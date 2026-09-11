@@ -16,8 +16,23 @@ import java.lang.reflect.Field;
  * Description: CBizIdUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CBizIdUtils}：业务ID工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>获取/生成实体业务ID，校验 bizId 字段为 String</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无 @CBizId 字段返回 null</p>
+ * <h2>适用范围</h2>
+ * <p>业务ID生成</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>依赖反射与 CClassValue</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>依赖反射与 CClassValue</p>
+ *
  * @since 2025/12/3
- * @see "doc/design/mybatis/CBizIdUtils.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CBizIdUtils {

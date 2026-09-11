@@ -30,9 +30,64 @@ import java.util.stream.Collectors;
  * Description: CReflectUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CReflectUtils} 为反射工具类，提供：</p>
+ * <ul>
+ *   <li>缓存：{@code FIELD_MAP_CLASS_VALUE} / {@code INSTANCE_FIELD_MAP_CLASS_VALUE} / {@code ALL_METHODS_CLASS_VALUE} 等</li>
+ *   <li>构造器：{@code getAllConstructors} / {@code getConstructors} / {@code getNoArgConstructor} / {@code newInstance}</li>
+ *   <li>方法：{@code getMethods} / {@code getAllMethods} / {@code getAllMethodsCached} / {@code getAllMethodsByName}</li>
+ *   <li>字段：{@code getAllFieldMap} / {@code getInstanceFieldMap} / {@code getField} / {@code getFieldMap}</li>
+ *   <li>读写：{@code getValue} / {@code setValue}（按字段或字段名，MethodHandle 快速路径）</li>
+ *   <li>方法句柄：{@code getGetterHandleMap} / {@code getSetterHandleMap}</li>
+ *   <li>注解：{@code getAnnotationCached} / {@code getFieldName}</li>
+ *   <li>判断：{@code isStatic} / {@code isFinal}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>按字段名读写不存在字段</td>
+ *     <td>抛 IllegalArgumentException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>final 字段 setValue</td>
+ *     <td>回退 Field.set</td>
+ *   </tr>
+ *   <tr>
+ *     <td>静态字段读写</td>
+ *     <td>回退 Field 原生路径</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>反射获取字段/方法/构造器、字段快速读写、注解查询。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>按字段名读写不存在字段抛异常，调用方需预校验。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>实例字段走 MethodHandle 快速路径提升性能，final/静态字段回退保证兼容。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>缓存</b></p>
+ * <ul>
+ *   <li>各类元数据（字段/方法/方法句柄）按类缓存于 {@code CClassValue}，避免重复反射。</li>
+ * </ul>
+ * <p><b>字段读写（getValue/setValue）</b></p>
+ * <ul>
+ *   <li>实例字段走缓存的 MethodHandle 快速路径；静态字段回退 Field 原生路径。</li>
+ *   <li>final 字段 setValue 回退 Field.set（handle 缓存排除 final 字段）。</li>
+ *   <li>父类声明字段可经子类实例读写；按字段名读写时字段不存在快速失败（抛 IllegalArgumentException）。</li>
+ * </ul>
+ *
  * @since 2024/4/2
- * @see "doc/design/core/CReflectUtils.adoc"
- * @see "doc/design/core/CReflectUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -490,7 +545,6 @@ public class CReflectUtils {
     public void setValue(Object object, String fieldName, Object value) {
         setValue(object, getField(object.getClass(), fieldName), value, true);
     }
-
 
     /**
      * 设置对象指定字段的值

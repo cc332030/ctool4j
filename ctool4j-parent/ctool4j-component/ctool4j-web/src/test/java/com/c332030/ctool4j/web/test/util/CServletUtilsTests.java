@@ -19,8 +19,30 @@ import java.util.Map;
  *
  * <p>覆盖 writeJson 两个重载：状态码、content-type、写入内容、字符集</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 CServletUtils.writeJson：JSON 响应写出 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。</li>
+ *   <li>使用 MockHttpServletRequest/MockHttpServletResponse/MockMvc 构造真实请求场景，贴近真实使用，不依赖外部服务。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。</li>
+ * </ul>
+ * <h2>CServletUtils.writeJson：JSON 响应写出</h2>
+ * <ul>
+ *   <li>1.1 writeJson_string（writeJson_string）</li>
+ *   <li>1.2 writeJson_string_errorStatus（writeJson_string_errorStatus）</li>
+ *   <li>1.3 writeJson_string_emptyJson（writeJson_string_emptyJson）</li>
+ *   <li>1.4 writeJson_string_null（writeJson_string_null）</li>
+ *   <li>1.5 writeJson_string_nullResponse（writeJson_string_nullResponse）</li>
+ *   <li>1.6 writeJson_object（writeJson_object）</li>
+ *   <li>1.7 writeJson_object_map（writeJson_object_map）</li>
+ *   <li>1.8 writeJson_object_null（writeJson_object_null）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/web/CServletUtilsTests.adoc"
+ * @version 1.0
  */
 
 @CustomLog
@@ -29,7 +51,7 @@ public class CServletUtilsTests {
     // ---------- writeJson(String) ----------
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：writeJson_string
      */
     @Test
     public void writeJson_string() throws Exception {
@@ -43,7 +65,7 @@ public class CServletUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：writeJson_string_errorStatus
      */
     @Test
     public void writeJson_string_errorStatus() {
@@ -54,7 +76,7 @@ public class CServletUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：writeJson_string_emptyJson
      */
     @Test
     public void writeJson_string_emptyJson() throws Exception {
@@ -65,7 +87,7 @@ public class CServletUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：writeJson_string_null
      */
     @Test
     public void writeJson_string_null() {
@@ -77,7 +99,7 @@ public class CServletUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：writeJson_string_nullResponse
      */
     @Test
     public void writeJson_string_nullResponse() {
@@ -91,7 +113,7 @@ public class CServletUtilsTests {
     // ---------- writeJson(Object) ----------
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：writeJson_object
      */
     @Test
     public void writeJson_object() throws Exception {
@@ -108,7 +130,7 @@ public class CServletUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7
+     * 对应测试用例 1.7：writeJson_object_map
      */
     @Test
     public void writeJson_object_map() throws Exception {
@@ -122,7 +144,7 @@ public class CServletUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.8
+     * 对应测试用例 1.8：writeJson_object_null
      */
     @Test
     public void writeJson_object_null() {

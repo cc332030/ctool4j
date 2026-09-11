@@ -19,13 +19,43 @@ import java.lang.reflect.Method;
  * </p>
  *
  * <p>
- * 是 {@link CCacheAspect#resolveCacheKey} 的测试用例（对应测试文档
- * <code>doc/design/cache/CCacheAspectResolveCacheKeyTests.adoc</code>）。
+ * 是 {@link CCacheAspect#resolveCacheKey} 的测试用例。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>仅测试纯逻辑方法 {@code resolveCacheKey}，不依赖 Spring 容器与 Redis（{@code new CCacheAspect(null)}）。</li>
+ *   <li>通过反射取带 {@code @CCacheable} 注解与形参名（{@code -parameters}）的测试方法及其注解，覆盖 el 分支与默认分支的分派。</li>
+ *   <li>分派规则：{@code key()} 非空白走 el；空白/为空走默认（第一参数 + {@code @CCacheId}）。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据 {@code CCacheAspect.resolveCacheKey} 与 {@code CCacheable.key()} 约定。</li>
+ *   <li>依据需求：key() 非空走 el；为空走默认；默认逻辑下 POJO 无 @CCacheId 报错。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：el 多级取属性、el 参数 null、el 属性值 null、el 引用第二参数、el 空白回落默认、默认 @CCacheId、默认无 @CCacheId 报错、默认 JDK 参数、无参数跳过、el 无参数报错。</li>
+ *   <li>未覆盖：真实 Spring AOP 拦截的端到端缓存命中/未命中（集成测试 CCacheAspectTests）；本地/Redis 缓存写读。</li>
+ * </ul>
+ * <h2>resolveCacheKey 分派</h2>
+ * <ul>
+ *   <li>2.1 key() 表达式多级取属性并经默认 idConverter 生成 key（testResolveCacheKey_elPropertyValue）</li>
+ *   <li>2.2 key() 参数为 null：返回 null（testResolveCacheKey_elParamNull_returnsNull）</li>
+ *   <li>2.3 key() 属性值为 null：返回 null（testResolveCacheKey_elPropNull_returnsNull）</li>
+ *   <li>2.4 key() 引用第二个参数（testResolveCacheKey_elSecondParam）</li>
+ *   <li>2.5 key() 为空白：视为未配置，回落默认 @CCacheId 逻辑（testResolveCacheKey_elBlank_goesDefault）</li>
+ *   <li>2.6 key() 为空走默认逻辑，@CCacheId 取字段（testResolveCacheKey_defaultId）</li>
+ *   <li>2.7 key() 为空、默认逻辑无 @CCacheId：报错（testResolveCacheKey_defaultNoId_throws）</li>
+ *   <li>2.8 key() 为空、默认逻辑 JDK 类参数直接作 key（testResolveCacheKey_defaultJdk）</li>
+ *   <li>2.9 方法无参数：返回 null（testResolveCacheKey_noArgs_returnsNull）</li>
+ *   <li>2.10 方法无参数但 key() 引用参数：报错（testResolveCacheKey_elNoArgs_throws）</li>
+ * </ul>
+ *
+ * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ *
  * @since 2026/9/8
- * @see "doc/design/cache/CCacheAspectResolveCacheKeyTests.adoc"
-  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ * @version 1.0
  */
 class CCacheAspectResolveCacheKeyTests {
 
@@ -57,41 +87,65 @@ class CCacheAspectResolveCacheKeyTests {
 
     // ===== 供反射取方法签名与注解（形参名依赖 -parameters 保留）=====
 
+    /**
+     * cacheElById
+     */
     @CCacheable(namespace = Namespace.class, key = "user.id")
     public String cacheElById(UserWithId user) {
         return null;
     }
 
+    /**
+     * cacheElSecondParam
+     */
     @CCacheable(namespace = Namespace.class, key = "tag")
     public String cacheElSecondParam(UserWithId req, String tag) {
         return null;
     }
 
+    /**
+     * cacheElNullId
+     */
     @CCacheable(namespace = Namespace.class, key = "user.id")
     public String cacheElNullId(UserWithId user) {
         return null;
     }
 
+    /**
+     * cacheElBlank
+     */
     @CCacheable(namespace = Namespace.class, key = "  ")
     public String cacheElBlank(UserWithId user) {
         return null;
     }
 
+    /**
+     * cacheDefaultId
+     */
     @CCacheable(namespace = Namespace.class)
     public String cacheDefaultId(UserWithId user) {
         return null;
     }
 
+    /**
+     * cacheDefaultNoId
+     */
     @CCacheable(namespace = Namespace.class)
     public String cacheDefaultNoId(UserWithoutId user) {
         return null;
     }
 
+    /**
+     * cacheNoArgs
+     */
     @CCacheable(namespace = Namespace.class)
     public String cacheNoArgs() {
         return null;
     }
 
+    /**
+     * cacheDefaultJdk
+     */
     @CCacheable(namespace = Namespace.class)
     public String cacheDefaultJdk(String name) {
         return null;

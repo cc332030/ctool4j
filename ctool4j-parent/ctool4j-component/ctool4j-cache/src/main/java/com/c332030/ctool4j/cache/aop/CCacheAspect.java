@@ -33,10 +33,30 @@ import java.util.concurrent.TimeUnit;
  * Description: CCacheAspect
  * </p>
  *
- * @see "doc/design/cache/CCacheAspect.adoc"
- * @see "doc/design/cache/CCacheAspectTests.adoc"
- * @see "doc/design/cache/CCacheAspectCacheKeyTests.adoc"
+ * <p>{@code @Aspect} + {@code @Component} 切面，拦截标注 {@code @CCacheable} / {@code @CCacheRemove} /
+ * {@code @CCacheUpdate} 的方法，统一管理本地（Caffeine）与 Redis 两级缓存。</p>
+ *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>key 解析：{@link #resolveCacheKey(Object[], Method, CCacheable)} 与其独立属性重载；
+ *   默认逻辑 {@link #getCacheKey(Object, CCacheable)} 及其重载。</li>
+ *   <li>读路径：{@link #getLocalCache}（本地）、{@link #getRedisCache}（Redis）。</li>
+ *   <li>写路径：{@link #removeCache} / {@link #updateCache} 按 {@code local} 分流到本地与 Redis 实现。</li>
+ * </ul>
+ *
+ * <h2>设计思路总述</h2>
+ * <ul>
+ *   <li>三个注解共用一套 key 规则：{@code key()} 非空白走简单 el 表达式（{@code CElKeyResolveUtils}，
+ *   支持多参数与多级取属性），否则走默认逻辑（第一个参数 + {@code @CCacheId} 字段 + idConverter）。</li>
+ *   <li>读写语义一致：写路径先执行原方法，成功（未抛异常）后才改缓存；异常向上抛出且不写/不删缓存，
+ *   保证缓存与数据源一致；null 值不写缓存，与 Redis 路径 null 语义对齐。</li>
+ *   <li>性能：{@code @CCacheId} 字段经 MethodHandle 读取（按类缓存，替代反射）；本地缓存按
+ *   namespace + expire 分组并设实例数上限，防无界增长。</li>
+ * </ul>
+ * <p>详细设计、详细步骤、兜底与已知限制见各方法 javadoc。</p>
+ *
  * @since 2025/9/27
+ * @version 1.0
  */
 @CustomLog
 @Aspect
@@ -76,8 +96,20 @@ public class CCacheAspect {
 
     /**
      * 缓存切面：读缓存 → 未命中时执行原方法并写缓存（原方法在缓存方法内部执行）。
-     * <p>读缓存/执行原方法异常不捕获，直接向上抛出，调用方可感知失败，
-     * 不再静默降级返回 null（异常时缓存未写入，不会污染缓存）</p>
+     *
+     * <p><b>详细设计</b>：{@code @Around} 拦截 {@code @CCacheable}，按 {@code local()} 分流——
+     * {@code true} 走本地 Caffeine 缓存（{@link #getLocalCache}），
+     * {@code false} 走 Redis 缓存（{@link #getRedisCache}）。</p>
+     *
+     * <p><b>详细步骤</b>：取被拦截方法 → 读取方法上的 {@code @CCacheable}（经
+     * {@code CReflectUtils.getAnnotationCached} 缓存读取）→ {@code local()} 为 true 记 debug 日志并走本地缓存，
+     * 否则记 debug 日志并走 Redis 缓存 → 返回结果。</p>
+     *
+     * <p><b>异常与兜底</b>：读缓存/执行原方法异常不捕获，直接向上抛出，调用方可感知失败，
+     * 不做静默降级返回 null（异常时缓存未写入，不会污染缓存）。</p>
+     * <ul>
+     *   <li>{@link #cacheAspect(ProceedingJoinPoint)}：{@code @CCacheable} 读缓存、未命中执行原方法并写缓存。</li>
+     * </ul>
      *
      * @param joinPoint 切入点
      * @return 方法执行结果
@@ -98,7 +130,14 @@ public class CCacheAspect {
 
     /**
      * 缓存删除切面：执行原方法 → 成功（未抛异常）后删除对应缓存。
-     * <p>原方法执行异常时向上抛出，不删除缓存（保持缓存与数据源一致，避免误删）。</p>
+     *
+     * <p><b>详细步骤</b>：取方法与 {@code @CCacheRemove} 注解 → <b>先执行原方法</b>
+     * （{@code CAspectUtils.process}）→ 原方法正常返回后调用 {@link #removeCache} 删除缓存 → 返回原方法结果。</p>
+     *
+     * <p><b>异常与兜底</b>：原方法执行异常时向上抛出，<b>不删除缓存</b>（保持缓存与数据源一致，避免误删）。</p>
+     * <ul>
+     *   <li>{@link #cacheRemoveAspect(ProceedingJoinPoint)}：{@code @CCacheRemove} 方法成功后删除缓存。</li>
+     * </ul>
      *
      * @param joinPoint 切入点
      * @return 方法执行结果
@@ -118,7 +157,16 @@ public class CCacheAspect {
 
     /**
      * 缓存更新切面：执行原方法 → 成功（未抛异常）后用返回值更新缓存。
-     * <p>原方法执行异常时向上抛出，不写入缓存（避免把失败结果写入缓存）。</p>
+     *
+     * <p><b>详细步骤</b>：取方法与 {@code @CCacheUpdate} 注解 → <b>先执行原方法</b>
+     * （{@code CAspectUtils.process}）→ 原方法正常返回后以返回值调用 {@link #updateCache} 更新缓存 →
+     * 返回原方法结果。</p>
+     *
+     * <p><b>异常与兜底</b>：原方法执行异常时向上抛出，<b>不写入缓存</b>（避免把失败结果写入缓存）；
+     * 返回值为 null 时由 {@link #updateCache} 跳过写入。</p>
+     * <ul>
+     *   <li>{@link #cacheUpdateAspect(ProceedingJoinPoint)}：{@code @CCacheUpdate} 方法成功后用返回值更新缓存。</li>
+     * </ul>
      *
      * @param joinPoint 切入点
      * @return 方法执行结果
@@ -139,9 +187,11 @@ public class CCacheAspect {
     /**
      * 解析缓存 key（统一入口：key 表达式 or 默认 @CCacheId 逻辑）。
      *
-     * <p>key() 非空且非空白：走简单 el 表达式（可多参数、多级取属性）；为空或空白：视为未配置，
-     * 走默认逻辑（第一参数 + {@code @CCacheId}）。返回 null 表示无缓存 key（无参/参数为 null/
-     * 表达式链某级为 null），由调用方决定不写缓存直接执行原方法。</p>
+     * <p><b>详细设计</b>：本方法仅为 {@code @CCacheable} 的属性重载，直接委托给独立属性重载，
+     * 使三个注解共用同一套 key 规则。</p>
+     *
+     * <p><b>返回 null 的含义</b>：无法取得缓存 key（无参/参数为 null/表达式链某级为 null），
+     * 调用方据此跳过缓存、直接执行原方法。</p>
      *
      * @param args      方法实参
      * @param method    被缓存方法
@@ -159,7 +209,18 @@ public class CCacheAspect {
     /**
      * 解析缓存 key（独立属性重载，供 {@link CCacheRemove} / {@link CCacheUpdate} 复用同一套 key 规则）。
      *
-     * <p>语义与 {@link #resolveCacheKey(Object[], Method, CCacheable)} 一致。</p>
+     * <p><b>详细步骤</b>：</p>
+     * <ol>
+     *   <li>{@code keyExpr} 非空且非空白 → 走简单 el 表达式：由
+     *   {@code CElKeyResolveUtils.getResolver(method, keyExpr)} 取得解析器（首次使用时解析并校验表达式、
+     *   按方法缓存），{@code resolve(args)} 求值；求值结果为 null → 返回 null；否则用 {@code idConverter}
+     *   转换（<b>此时 object 参数传 null</b>，即表达式结果仅作 key 输入，不回传原始参数对象）；</li>
+     *   <li>{@code keyExpr} 为空或空白 → 走默认逻辑：方法无参（{@code args} 为 null 或长度 0）返回 null；
+     *   否则取第一个参数调用 {@link #getCacheKey(Object, Class, Class)}。</li>
+     * </ol>
+     *
+     * <p><b>已知限制</b>：el 表达式按参数名取值依赖编译期保留形参名（消费方需开启 {@code -parameters}）；
+     * 属性链循环引用仅运行期可检出。为 key 唯一性，建议取业务属性而非整个 POJO。</p>
      *
      * @param args          方法实参
      * @param method        目标方法
@@ -196,6 +257,8 @@ public class CCacheAspect {
     /**
      * 生成缓存 key（默认逻辑，基于第一个参数对象 + @CCacheId 字段）
      *
+     * <p><b>详细设计</b>：{@code @CCacheable} 的属性重载，委托给独立属性重载，语义与其一致。</p>
+     *
      * @param object    方法第一个参数对象，为 null 时返回 null（由调用方保证不写入缓存）
      * @param cacheable 缓存注解
      * @return 缓存 key；object 为 null 时返回 null
@@ -211,10 +274,24 @@ public class CCacheAspect {
     /**
      * 生成缓存 key（独立属性重载，供 {@link CCacheRemove} / {@link CCacheUpdate} 复用同一套 key 规则）。
      *
+     * <p><b>详细步骤</b>：</p>
+     * <ol>
+     *   <li>{@code object} 为 null → 返回 null（调用方据此跳过缓存）；</li>
+     *   <li>取 idConverter 实例（按类缓存于 {@code CLASS_ID_CONVERTER}，反射实例化后经
+     *   {@code CObjUtils.anyType} 适配）；</li>
+     *   <li>参数为 JDK 类（String/Integer 等）→ 直接用对象字符串作 key
+     *   （{@code idConverter.apply(null, object)}）；</li>
+     *   <li>非 JDK POJO → 经 {@code CACHE_ID_HANDLE_CLASS_VALUE}（按类缓存的 MethodHandle，
+     *   替代反射、性能提升约 3-5 倍）读 {@code @CCacheId} 字段值，再交 idConverter；
+     *   无 {@code @CCacheId} 字段且未配 {@code key()} 时抛 {@link IllegalStateException}
+     *   （提示配置 key() 或在 id 字段加 @CCacheId，避免生成歧义 key）。</li>
+     * </ol>
+     *
      * @param object           方法第一个参数对象，为 null 时返回 null
      * @param namespace        缓存命名空间类
      * @param idConverterClass 缓存 id 生成类
      * @return 缓存 key；object 为 null 时返回 null
+     * @throws IllegalStateException POJO 参数无 {@code @CCacheId} 字段且未配置 {@code key()} 时抛出
      */
     @SneakyThrows
     public String getCacheKey(
@@ -250,10 +327,19 @@ public class CCacheAspect {
     }
 
     /**
-     * 获取或创建 namespace 下指定过期时间的 Guava Cache
-     * <p>
-     * 防御：每个 namespace 最多创建 {@value #MAX_EXPIRE_CACHES_PER_NAMESPACE} 个不同 expire 的 Cache 实例，
-     * 超过阈值时复用已有的最长过期时间 Cache，防止无界增长。
+     * 获取或创建 namespace 下指定过期时间的 Caffeine Cache
+     *
+     * <p><b>详细步骤</b>：取（或创建）namespace 对应的 expire→Cache 分组缓存 → 目标 expire 已存在直接返回
+     * → 否则创建 Cache 并缓存：{@code expire > 0} 设 {@code expireAfterWrite(expire, SECONDS)}，
+     * {@code expire = 0}（未配置）不设过期时间。</p>
+     *
+     * <p><b>兜底设计</b>：每个 namespace 最多创建 {@value #MAX_EXPIRE_CACHES_PER_NAMESPACE} 个不同 expire 的
+     * Cache 实例，超过阈值时复用已有的最长过期时间 Cache，防止无界增长；此时实际过期时间可能与预期不一致
+     * （属防御性兜底，为已知取舍）。</p>
+     *
+     * @param namespace 缓存命名空间类
+     * @param expire    过期时间（秒），0 表示不设过期
+     * @return 该 namespace 下对应过期时间的缓存实例
      */
     private Cache<String, Object> getCache(Class<?> namespace, int expire) {
 
@@ -276,9 +362,20 @@ public class CCacheAspect {
 
     /**
      * 获取本地缓存：未命中时执行原方法并写缓存。
-     * <p>Caffeine 的 cache.get(key, mapping) 要求 mapping 函数禁止返回 null（返回 null 会抛 NPE），
-     * 故改用 getIfPresent + 手动 put：方法返回 null 时不写缓存直接返回，与 Redis 路径 null 语义对齐。
-     * 原子加载（单 key 并发只执行一次）仅对非空值生效，null 值不缓存、下次重新计算</p>
+     *
+     * <p><b>详细步骤</b>：</p>
+     * <ol>
+     *   <li>取 {@code namespace()} 与 {@code expire()}，取（或创建）对应本地 Cache（见 {@link #getCache}）；</li>
+     *   <li>解析缓存 key；key 为 null（无参/参数为 null/表达式某级为 null）→ 跳过缓存直接执行原方法；</li>
+     *   <li>{@code getIfPresent} 命中 → 直接返回缓存值；</li>
+     *   <li>未命中 → 执行原方法；结果非 null 则 {@code put} 写缓存并返回，
+     *   结果 null 则记 debug 日志、不写缓存直接返回 null。</li>
+     * </ol>
+     *
+     * <p><b>设计取舍</b>：Caffeine 的 {@code cache.get(key, mapping)} 要求 mapping 函数禁止返回 null
+     * （返回 null 会抛 NPE），故改用 {@code getIfPresent + 手动 put}：方法返回 null 时不写缓存直接返回，
+     * 与 Redis 路径 null 语义对齐。原子加载（单 key 并发只执行一次）仅对非空值生效，null 值不缓存、下次重新计算。</p>
+     *
      * @param joinPoint 切入点
      * @param method    被缓存方法
      * @param cacheable 缓存注解
@@ -337,8 +434,15 @@ public class CCacheAspect {
 
     /**
      * 获取 Redis 缓存：未命中时执行原方法并写缓存（cacheService.getCache 读-算-写一体）
-     * <p>
-     * 缓存 key 格式：namespace:cacheKey（由 resolveCacheKey 统一生成：key() 走 el，否则默认逻辑）
+     *
+     * <p><b>详细步骤</b>：取 {@code namespace()} 与 {@code expire()} → 解析缓存 key
+     * （null 则跳过缓存直接执行原方法）→ 拼 Redis key {@code namespace.getSimpleName() + ":" + cacheKey}
+     * → 取方法返回类型（用于反序列化）→ 调 {@code cacheService.getCache} 读-算-写一并返回。</p>
+     *
+     * <p><b>已知限制</b>：Redis key 前缀取 {@code namespace.getSimpleName()}，
+     * 不同包下的同名类可能冲突；本地缓存与 Redis 缓存的 key 语义不同（Redis 带 namespace 前缀），
+     * 两种模式不可混用同一 key。</p>
+     *
      * @param joinPoint 切入点
      * @param method 目标方法（用于获取返回类型做反序列化）
      * @param cacheable 缓存注解
@@ -383,7 +487,11 @@ public class CCacheAspect {
 
     /**
      * 删除缓存（统一入口，按 local 分流到本地 / Redis）。
-     * <p>无缓存 key（null）时跳过，直接返回。</p>
+     *
+     * <p><b>详细步骤</b>：解析缓存 key（与 {@code @CCacheable} 同一套规则）→ key 为 null 时记 debug 日志并跳过
+     * → {@code local()} 为 true 走 {@link #removeLocalCache}，否则走 {@link #removeRedisCache}。</p>
+     *
+     * <p><b>兜底</b>：无缓存 key（null）时不删除、不抛错。</p>
      *
      * @param joinPoint 切入点
      * @param method    目标方法
@@ -415,8 +523,11 @@ public class CCacheAspect {
 
     /**
      * 删除本地缓存：遍历 namespace 下所有 expire 分组的 Cache，删除对应 key。
-     * <p>因为本地缓存按 (namespace, expire) 分组，删除时不确定 key 落在哪个 expire 分组，
-     * 故遍历该 namespace 下所有已有的 Cache 实例做 invalidate，保证彻底释放。</p>
+     *
+     * <p><b>详细设计</b>：本地缓存按 (namespace, expire) 分组，删除时不确定 key 落在哪个 expire 分组，
+     * 故遍历该 namespace 下所有已有的 Cache 实例逐个 {@code invalidate}，保证彻底释放。</p>
+     *
+     * <p><b>兜底</b>：该 namespace 尚无任何 Cache 实例（{@code getIfPresent} 为 null）时直接返回。</p>
      *
      * @param namespace 缓存命名空间类
      * @param cacheKey  缓存 key
@@ -438,6 +549,9 @@ public class CCacheAspect {
     /**
      * 删除 Redis 缓存
      *
+     * <p><b>详细设计</b>：拼 key {@code namespace.getSimpleName() + ":" + cacheKey}，
+     * 交 {@code CCacheService.deleteValue} 删除（与读路径 key 格式一致，确保删得掉）。</p>
+     *
      * @param namespace 缓存命名空间类
      * @param cacheKey  缓存 key
      */
@@ -453,7 +567,12 @@ public class CCacheAspect {
 
     /**
      * 更新缓存（统一入口，按 local 分流到本地 / Redis）。
-     * <p>无缓存 key（null）或返回值 null 时跳过，避免写入空值。</p>
+     *
+     * <p><b>详细步骤</b>：{@code result} 为 null → 记 debug 日志并跳过（避免写入空值）
+     * → 解析缓存 key → key 为 null 记 debug 日志并跳过 → {@code local()} 为 true 走
+     * {@link #updateLocalCache}，否则走 {@link #updateRedisCache}。</p>
+     *
+     * <p><b>兜底</b>：返回值 null 或无缓存 key 时跳过，不写、不抛错。</p>
      *
      * @param joinPoint 切入点
      * @param method    目标方法
@@ -495,6 +614,9 @@ public class CCacheAspect {
     /**
      * 更新本地缓存：写入 namespace 下指定 expire 分组的 Cache。
      *
+     * <p><b>详细设计</b>：取（或创建）namespace 下 {@code expire} 分组的 Cache 后直接 {@code put}；
+     * 与删除一样按 (namespace, expire) 精确定位分组，不需要遍历。</p>
+     *
      * @param namespace 缓存命名空间类
      * @param expire    过期时间（秒）
      * @param cacheKey  缓存 key
@@ -513,6 +635,9 @@ public class CCacheAspect {
 
     /**
      * 更新 Redis 缓存
+     *
+     * <p><b>详细设计</b>：拼 key {@code namespace.getSimpleName() + ":" + cacheKey}，
+     * 交 {@code CCacheService.setValue} 带过期时间写入（{@code expire} 非正数则永久）。</p>
      *
      * @param namespace 缓存命名空间类
      * @param expire    过期时间（秒）

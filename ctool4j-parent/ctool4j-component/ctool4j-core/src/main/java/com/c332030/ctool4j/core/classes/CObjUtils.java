@@ -11,9 +11,67 @@ import java.util.Objects;
  * Description: CObjUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CObjUtils} 为对象工具类，提供：</p>
+ * <ul>
+ *   <li>类型：{@code emptyObject} / {@code anyType} / {@code toSupplier}</li>
+ *   <li>转换：{@code to}（类型匹配）/ {@code convert}（Class 转换器）/ {@code convert}（函数转换，多版本）</li>
+ *   <li>条件取值：{@code ifThenGet} / {@code equalsThenGet} / {@code notNullThenGet}</li>
+ *   <li>比较合并：{@code equals} / {@code merge}</li>
+ *   <li>兜底：{@code defaultIfNull}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>to 类型不匹配</td>
+ *     <td>抛 IllegalStateException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>convert 无转换器 / null 入参</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>convert 函数结果 null</td>
+ *     <td>返回默认值</td>
+ *   </tr>
+ *   <tr>
+ *     <td>merge v1/v2 不可用</td>
+ *     <td>返回可用方</td>
+ *   </tr>
+ *   <tr>
+ *     <td>merge 双可用且 merge null</td>
+ *     <td>抛 IllegalStateException</td>
+ *   </tr>
+ * </table>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>{@code to} 类型不匹配抛异常，需要安全转换用 {@code convert}。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>convert 依赖 CConvertUtils 注册的转换器；null 语义统一（返回 null/默认值/跳过）。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>类型转换</b></p>
+ * <ul>
+ *   <li>无转换器返回 null。</li>
+ * </ul>
+ * <p><b>函数转换</b></p>
+ * <ul>
+ *   <li>双对象版本：依次尝试两个对象，返回第一个非 null 结果。</li>
+ * </ul>
+ * <p><b>条件取值</b></p>
+ * <ul>
+ *   <li>{@code equalsThenGet} / {@code notNullThenGet}：基于相等/非 null 条件。</li>
+ * </ul>
+ *
  * @since 2024/3/19
- * @see "doc/design/core/CObjUtils.adoc"
- * @see "doc/design/core/CObjUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CObjUtils {
@@ -84,6 +142,9 @@ public class CObjUtils {
 
     /**
      * 条件成立时获取结果
+     * <ul>
+     *   <li>{@code ifThenGet(bool, supplier)}：条件成立返回结果，否则 null。</li>
+     * </ul>
      *
      * @param bool     条件
      * @param supplier 结果供应商
@@ -137,6 +198,9 @@ public class CObjUtils {
 
     /**
      * 对象转目标类型（不支持转换时抛异常）
+     * <ul>
+     *   <li>{@code to(o, tClass)}：目标类型实例直接返回；null 返回 null；类型不匹配抛 IllegalStateException。</li>
+     * </ul>
      *
      * @param o      对象
      * @param tClass 目标类型
@@ -160,6 +224,11 @@ public class CObjUtils {
 
     /**
      * 对象转目标类型（使用已注册转换器）
+     * <ul>
+     *   <li>{@code convert(from, toClass)}：类型匹配直接返回；否则经 {@code CConvertUtils.getConverter} 转换器转换，</li>
+     *   <li>{@code convert(o, function, defaultValue)}：null 返回默认值；函数结果 null 返回默认值。</li>
+     *   <li>对象类型转换、条件取值、字段取值（{@code convert(t, function)}）、合并兜底。</li>
+     * </ul>
      *
      * @param from    源对象
      * @param toClass 目标类型
@@ -272,12 +341,17 @@ public class CObjUtils {
     /**
      * 合并两个值
      *
+     * <h2>合并（merge）</h2>
+     * <ul>
+     *   <li>v1 不可用返回 v2，v2 不可用返回 v1；两者可用且 merge 为 null 抛 IllegalStateException；</li>
+     *   <li>否则执行 merge。</li>
+     * </ul>
+     *
      * @param v1    第一个值
      * @param v2    第二个值
      * @param merge 合并函数
      * @param <T>   类型
-     * @return 合并结果
-     */
+     * @return 合并结果*/
     public <T> T merge(T v1, T v2, CBiFunction<T, T, T> merge) {
         return merge(null, v1, v2, Objects::nonNull, merge);
     }

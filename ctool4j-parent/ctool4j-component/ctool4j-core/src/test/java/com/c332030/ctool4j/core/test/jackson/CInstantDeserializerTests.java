@@ -14,13 +14,33 @@ import java.time.Instant;
  * Description: CInstantDeserializerTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「字符串 / 整型毫秒 / null」多个维度组织，用 InstantBean 验证反序列化。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对字符串与整型毫秒反序列化的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：字符串日期；整型毫秒；null 返回 null。</li>
+ *   <li>未覆盖：其他 token 回退默认实现分支（未单列）。</li>
+ * </ul>
+ * <h2>反序列化</h2>
+ * <ul>
+ *   <li>1.1 字符串日期：{@code "2025-03-03 08:01:03"} 解析非空（stringInstant）</li>
+ *   <li>1.2 整型毫秒：{@code 1731502563000} 转 Instant（numberIntInstant）</li>
+ *   <li>1.3 null：返回 null（nullValue）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/CInstantDeserializerTests.adoc"
+ * @version 1.0
  */
 public class CInstantDeserializerTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：字符串日期：{@code "2025-03-03 08:01:03"} 解析非空
      */
     @Test
     public void stringInstant() throws Exception {
@@ -32,7 +52,7 @@ public class CInstantDeserializerTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：整型毫秒：{@code 1731502563000} 转 Instant
      */
     @Test
     public void numberIntInstant() throws Exception {
@@ -44,7 +64,7 @@ public class CInstantDeserializerTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：返回 null
      */
     @Test
     public void nullValue() throws Exception {

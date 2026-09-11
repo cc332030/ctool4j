@@ -32,16 +32,39 @@ import java.util.stream.Collectors;
  * Description: CBeanUtils
  * </p>
  *
- * <p>JavaBean 属性复制与对象转 Map 工具类。</p>
- * <p>核心能力：对象间属性复制（{@code copy} 直连字段、避免 toMap 中转）、对象转 Map
- * （{@code toMap} 系列，支持原名/下划线/注解 key）、Map 转对象、数组/集合批量复制；
- * 校验与转换查找在计划（预热）阶段完成，运行期仅遍历字段数组 + null 判断，性能接近手工 setter。
- * 设计取舍、已知缺陷与性能瓶颈见设计文档。</p>
+ * <p>JavaBean 属性复制与对象转 Map 工具类：对象间属性复制（{@code copy} 直连字段、避免 toMap 中转）、
+ * 对象转 Map（{@code toMap} 系列，支持原名/下划线/注解 key）、Map 转对象、数组/集合批量复制。</p>
+ *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>属性复制：{@link #copy(Object, Object)}（核心，直连字段）、{@link #copy(Map, Object)}（Map 源）、
+ *   {@link #copy(Object, Class)} / {@link #copy(Object, CSupplier)}（创建目标）、
+ *   {@link #copyList(Collection, Class)} / {@link #copyListFromMap(Collection, Class)}（批量）、
+ *   {@link #copyFromArr(Object[], Object)}（数组反序覆盖）。</li>
+ *   <li>对象转 Map：{@link #toMap(Object)}、{@link #toMapJsonName(Object)}、{@link #toMapUnderlineName(Object)}、
+ *   {@link #toMap(Object, ToStringFunction)}、{@link #toMap(Object, Class, CFunction)}。</li>
+ * </ul>
+ *
+ * <h2>设计思路总述</h2>
+ * <ul>
+ *   <li><b>计划预计算</b>：按 (源类, 目标类) / 按类预计算复制计划与转 Map 计划，
+ *   缓存于 {@code CClassValue} / {@code CBiClassValue}（基于 {@code java.lang.ClassValue}，线程安全、按类弱关联）；
+ *   字段配对、转换器解析、final/集合剔除全部在计划期完成，运行期仅遍历字段数组 + null 判断，
+ *   性能接近手工 setter。计划缓存键为 Class，被类加载器持有，无泄漏问题。</li>
+ *   <li><b>方法句柄</b>：getter/setter 统一适配为 Object 签名 MethodHandle（{@code Object -> Object}、
+ *   {@code (Object, Object) -> void}），运行期 {@code invokeExact} 无签名适配开销；handle 经
+ *   {@link CMethodHandleUtils} 获取（Caffeine 弱 key 缓存），无参构造器按类缓存。</li>
+ *   <li><b>快慢路径分离</b>：计划期已解析转换路径的字段进 fast 条目（直接写 / 转换后写）；
+ *   Object 声明、仅 Object 源兜底可匹配等无法计划期确定的字段进 fallback 条目，
+ *   运行期按实际值类型查预计算动作（跳过/直接写/转换），首次出现时预热并缓存。</li>
+ *   <li><b>兜底转换器优先级最低</b>：Object→String 兜底在 {@code CConvertUtils.findConverter} 中只记录不返回，
+ *   保证 Date→String 等更精确转换不被抢占。</li>
+ * </ul>
+ * <p>详细设计、详细步骤、兜底与已知限制见各方法 javadoc（本类 javadoc 只保留总结）。</p>
  *
  * @author c332030
+ * @since 1.0
  * @version 1.0
- * @see "doc/design/core/CBeanUtils.adoc"
- * @see "doc/design/core/CBeanUtilsTests.adoc"
  */
 @CustomLog
 @UtilityClass
@@ -74,11 +97,23 @@ public class CBeanUtils {
 
     /**
      * map 属性复制到对象
-     * <p>源为 map 时无法预设字段，保留旧流程：遍历 map、按字段名查表、转换后写入；
-     * setter 复用 {@link CMethodHandleUtils#getSetterHandle(Field)}。</p>
+     *
+     * <p><b>详细步骤</b>（源为 map 无法预设字段，逐条走旧流程，不走计划路径）：</p>
+     * <ol>
+     *   <li>{@code fromMap} 或 {@code to} 为 null → 原样返回 {@code to}（不做任何写入）；</li>
+     *   <li>取目标类实例字段表（{@link CReflectUtils#getInstanceFieldMap(Class)}）；</li>
+     *   <li>逐条遍历 map：字段名在目标类中不存在、值为 null、字段为 static 或 final → 跳过该条；</li>
+     *   <li>经 {@link CConvertUtils#convertOpt(Object, Class)} 转换：有结果则用 setter 方法句柄
+     *   （{@link CMethodHandleUtils#getSetterHandle(Field)}）写入，无结果（null）则跳过。</li>
+     * </ol>
+     *
+     * <p><b>边界与取舍</b>：键不匹配即静默跳过（不抛错）；值转换失败（无转换器）同样静默跳过；
+     * 目标 final 字段不可写故跳过。因无法预计算字段配对，本方法性能低于
+     * {@link #copy(Object, Object)} 计划路径，仅用于源本身即 Map 的场景。</p>
+     *
      * @param fromMap 源 map
      * @param to 目标对象
-     * @return 目标对象
+     * @return 目标对象；入参为空时原样返回
      * @param <To> 目标对象泛型
      */
     public <To> To copy(Map<String, ?> fromMap, To to) {
@@ -108,23 +143,41 @@ public class CBeanUtils {
     }
 
     /**
-     * 对象属性复制
-     * <p>预热（计划）路径：按 (源类, 目标类) 预计算 {@link CopyPlan}，字段级校验与转换查找
-     * （final 剔除、同名字段配对、类型转换器解析）全部在计划阶段完成；
-     * 运行期仅遍历字段数组：getter 取值、判空、setter 写入，无其他耗时操作，
-     * 预热后性能约等同于直接 set。</p>
-     * <p>语义与旧实现一致：目标 final 字段不可写、null 值跳过、类型可赋值直接写入、
-     * 否则走转换器（无转换器时跳过）、集合/Map/数组字段不复制。
-     * 计划期未解析转换路径的字段（Object 声明、仅 Object 兜底可匹配、原始类型等）
-     * 运行期按实际值类型一次查表分派（跳过/直接写/转换），集合判断、可赋值判断与
-     * 转换查找均在该值类型首次出现时（预热）完成并缓存，热路径仅剩 null 判断。
-     * 已知取舍：源字段声明类型为 Iterable/Serializable 等集合父类型且实际持有集合时，
-     * 由旧实现的"跳过"变为"直接写入"（Object 声明已回退旧逻辑，其余集合父类型
-     * 为消除运行期 instanceof 检查的必要取舍）。</p>
+     * 对象属性复制（核心方法，直连字段）
+     *
+     * <p><b>详细设计</b>：走计划（预热）路径，字段级校验与转换查找均不在运行期做。
+     * 按 (源类, 目标类) 取 {@link CopyPlan}（{@code COPY_PLAN_BI_CLASS_VALUE}），
+     * 运行期仅遍历两个字段数组，无其他耗时操作，预热后性能约等同于直接 set。</p>
+     *
+     * <p><b>详细步骤</b>：</p>
+     * <ol>
+     *   <li>{@code from} 或 {@code to} 为 null → 返回 {@code to}；</li>
+     *   <li>取复制计划（首次调用触发计划期计算）；JDK 源类命中空计划，
+     *   两个循环均为空、热路径零判断（保持"JDK 类不拷贝"原语义）；</li>
+     *   <li>fast 循环：getter 取值 → null 跳过 → {@code converter == CFunction.SELF} 时直接 setter 写入；
+     *   否则转换器 {@code apply}，转换结果非 null 才写入（转换器可能返回 null）；</li>
+     *   <li>fallback 循环：getter 取值 → null 跳过 → 按 (实际值类型, 目标声明类型) 取预计算动作
+     *   （{@code VALUE_ACTION_BI_CLASS_VALUE}）→ 结果非 null 时 setter 写入；</li>
+     *   <li>返回 {@code to}（目标对象本身，便于链式使用）。</li>
+     * </ol>
+     *
+     * <p><b>计划期规则</b>：对目标类每个实例字段按序判定——JDK 源类返回空计划；目标 final 字段、
+     * 源无同名字段、源声明集合/Map/数组 一律剔除；
+     * {@code Object.class != fromType && ClassUtil.isAssignable(toType, fromType)}
+     * （目标在前、源在后，支持原始/包装等价）进 fast 条目（SELF）；
+     * Object 声明或"仅 Object 兜底可匹配"（{@code getConverterNoObjectFallback} 为 null）进 fallback 条目；
+     * 其余进 fast 条目（转换后写）。</p>
+     *
+     * <p><b>兜底</b>：源/目标 null 原样返回；值转换后为 null 跳过；fallback 动作解析为 EMPTY 时跳过写入。</p>
+     *
+     * <p><b>边界与已知取舍</b>：目标 final 字段不可写；null 值跳过；集合/Map/数组字段不复制。
+     * 源字段声明类型为集合父类型（Iterable/Serializable 等）且实际持有集合时，本实现由旧实现的"跳过"
+     * 变为"直接写入"（Object 声明已回退旧逻辑，其余集合父类型为消除运行期 instanceof 检查的必要取舍）；
+     * 原始类型同型字段（int→int 等）旧实现无转换器跳过、现直接写入（旧缺口修复）。</p>
      *
      * @param from 源对象
      * @param to   目标对象
-     * @return 目标对象
+     * @return 目标对象；入参为空时原样返回
      * @param <To> 目标对象泛型
      */
     @SneakyThrows
@@ -241,8 +294,6 @@ public class CBeanUtils {
                 .collect(Collectors.toList());
     }
 
-
-
     /**
      * 集合对象属性复制
      * @param fromCollection 源集合
@@ -338,16 +389,27 @@ public class CBeanUtils {
     }
 
     /**
-     * 对象转 map
-     * <p>预热（计划）路径：按类预计算 {@link ToMapPlan}（字段 + getter MethodHandle，含 final 字段，
-     * 不剔除集合字段），运行期遍历计划数组：取 key、getter 取值、判空、写入 map，
-     * 性能瓶颈仅在 map 写入；校验与字段收集均在计划期完成。</p>
-     * <p>语义：final 字段值同样进入 map；null key 过滤、null 值跳过、key 冲突抛
-     * {@link IllegalStateException}、结果不可变（空结果返回 {@link CMap#of()}）。</p>
+     * 对象转 map（核心方法，字段名由入参函数决定）
+     *
+     * <p><b>详细设计</b>：走计划（预热）路径。按类取 {@link ToMapPlan}
+     * （{@code TO_MAP_PLAN_CLASS_VALUE}：字段 + getter MethodHandle，含 final 字段，不剔除集合字段），
+     * 运行期遍历计划数组即可，校验与字段收集均在计划期完成，性能瓶颈仅在 map 写入。</p>
+     *
+     * <p><b>详细步骤</b>：</p>
+     * <ol>
+     *   <li>{@code object} 为 null → 返回空 map（{@link CMap#of()}）；</li>
+     *   <li>取转 Map 计划；JDK 类命中空计划（保持"JDK 类转 map 为空"原语义）；</li>
+     *   <li>按计划长度预分配可变 map，遍历条目：key 为 null 跳过 → getter 取值 → 值为 null 跳过 →
+     *   {@code putIfAbsent} 写入；写入时已有非空旧值说明 key 冲突，抛 {@link IllegalStateException}；</li>
+     *   <li>结果 map 为空返回 {@link CMap#of()}，否则返回不可变视图。</li>
+     * </ol>
+     *
+     * <p><b>边界与已知取舍</b>：final 字段值同样进入 map；null key 过滤、null 值跳过；
+     * key 冲突（不同字段映射到同名 key）抛 {@link IllegalStateException}（与 merge 语义一致）。</p>
      *
      * @param object 对象
      * @param getFieldNameFunction 获取字段名方法
-     * @return 对象值 map
+     * @return 对象值 map（不可变）；object 为 null 时返回空 map
      */
     @SneakyThrows
     public Map<String, Object> toMap(Object object, ToStringFunction<Field> getFieldNameFunction) {
@@ -386,9 +448,17 @@ public class CBeanUtils {
 
     /**
      * 对象数组元素属性复制，反顺序遍历
+     *
+     * <p><b>详细设计</b>：从数组末尾向前遍历，逐个把元素复制到同一目标对象，
+     * 使数组靠前的元素覆盖靠后的元素（后者先写、前者后写），便于按优先级传入多来源对象。</p>
+     *
+     * <p><b>详细步骤</b>：数组为空（null 或长度 0）→ 原样返回 {@code to}；
+     * 否则下标自 {@code length - 1} 递减到 0，逐个调用 {@link #copy(Object, Object)}（空元素在其内部被跳过），
+     * 最终返回 {@code to}。</p>
+     *
      * @param fromArr 源对象数组
      * @param to 目标对象
-     * @return 目标对象
+     * @return 目标对象；数组为空时原样返回
      * @param <To> 目标对象泛型
      */
     public <To> To copyFromArr(Object[] fromArr, To to) {

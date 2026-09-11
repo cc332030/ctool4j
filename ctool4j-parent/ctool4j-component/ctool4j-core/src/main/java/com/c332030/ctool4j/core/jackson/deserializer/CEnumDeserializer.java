@@ -20,9 +20,52 @@ import java.io.IOException;
  * Description: CEnumDeserializer
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CEnumDeserializer} 为 Jackson 枚举反序列化器，实现 {@code ContextualDeserializer}：</p>
+ * <ul>
+ *   <li>按枚举名反序列化（trim 后按名匹配）</li>
+ *   <li>空白值（空/空白）返回 null</li>
+ *   <li>{@code createContextual} 按字段类型绑定具体枚举类型</li>
+ * </ul>
+ * <p>提供空实例 {@code EMPTY_INSTANCE}（未绑定枚举类型）。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>空白/null 值</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>未知枚举名</td>
+ *     <td>抛 IllegalArgumentException（包装为 JsonMappingException）</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>枚举字段按名称反序列化，容忍前后空格。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>按枚举名精确匹配（忽略大小写由 CEnumUtils 决定）；空白返回 null 与设计一致。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>反序列化</b></p>
+ * <ul>
+ *   <li>值经 {@code StrUtil.trim} 后，空白返回 null；否则 {@code CEnumUtils.nameOf(enumClass, value)} 按枚举名反查。</li>
+ *   <li>未知枚举名抛 IllegalArgumentException（Jackson 包装为 JsonMappingException）。</li>
+ * </ul>
+ * <p><b>上下文绑定</b></p>
+ * <ul>
+ *   <li>{@code createContextual} 经 {@code CJacksonUtils.getRawClass(property)} 取字段类型，{@code CAssert.isTrue(rawClass.isEnum())}</li>
+ *   <li>校验枚举后绑定。</li>
+ * </ul>
+ *
  * @since 2025/8/11
- * @see "doc/design/core/CEnumDeserializer.adoc"
- * @see "doc/design/core/CEnumDeserializerTests.adoc"
+ * @version 1.0
  */
 @Getter
 @RequiredArgsConstructor

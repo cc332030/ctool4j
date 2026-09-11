@@ -32,7 +32,71 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * <p><b>用例编号索引</b>：1 removePrefix（1.1-1.8）；2 getHeaderToken（2.1-2.8）；3 setHeaderToken（3.1-3.6）；
  * 4 请求属性（4.1-4.5）。各测试方法 javadoc 标注其编号与说明。</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 {@code removePrefix} / {@code getHeaderToken} / {@code setHeaderToken} / 请求属性 四个维度组织，每个维度覆盖正常、边界与空值反例。</li>
+ *   <li>区分两类重载：显式传入 {@code request}/{@code response} 的重载（纯逻辑，直接断言）与依赖当前请求上下文的无参重载</li>
+ *   <li>（经 {@code RequestContextHolder} 绑定 {@code MockHttpServletRequest}/{@code MockHttpServletResponse} 后验证）。</li>
+ *   <li>{@code removePrefix} 前缀匹配逐项覆盖：空白、等于前缀、短于前缀、无前缀、前缀后无空格、大小写敏感、仅前缀加空格。</li>
+ *   <li>上下文相关的用例在 {@code @AfterEach} 中重置请求上下文，避免状态残留污染同 JVM 的其他用例。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对前缀匹配规则、空值兜底（null request/response 返回 null）与「非请求上下文抛 IllegalArgumentException」的约定。</li>
+ *   <li>依据等价类/边界值/异常路径/分支覆盖：空白 token、长度边界、前缀大小写、无上下文。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：{@code removePrefix}（正常 / 空白 / 等于前缀 / 短于前缀 / 无前缀 / 前缀后无空格 / 大小写敏感 / 仅前缀加空格）；</li>
+ *   <li>{@code getHeaderToken}（带前缀 / 无 Authorization 头 / 空前缀 / 长度等于前缀 / null request / 自定义前缀 / 无参重载 / 自定义前缀无参重载）；</li>
+ *   <li>{@code setHeaderToken}（默认前缀 / 自定义前缀 / null response / 无参重载 / 自定义前缀无参重载 / 两参重载）；</li>
+ *   <li>请求属性（{@code setToken} 显式 request / {@code getToken} / {@code getTokenOrNew} 缺失时生成 / {@code getTokenOrNew} 已存在 / {@code setToken} 上下文重载 /</li>
+ *   <li>{@code getToken} 无请求上下文抛异常）。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>removePrefix</h2>
+ * <ul>
+ *   <li>1.1 正常移除 "Bearer " 前缀（removePrefix_normal）</li>
+ *   <li>1.2 null / 空 / 纯空白返回 null（removePrefix_blank_returnsNull）</li>
+ *   <li>1.3 token 恰好等于前缀时原样返回（removePrefix_equalsPrefix）</li>
+ *   <li>1.4 token 短于前缀时原样返回（removePrefix_shorterThanPrefix）</li>
+ *   <li>1.5 未以前缀开头时原样返回（removePrefix_noPrefix）</li>
+ *   <li>1.6 "Bearer" 后无空格时的取舍（removePrefix_bearerNoSpace）</li>
+ *   <li>1.7 前缀大小写敏感（removePrefix_caseSensitive）</li>
+ *   <li>1.8 仅 "Bearer " + 空格时返回空串（removePrefix_prefixWithSpaceOnly_returnsEmpty）</li>
+ * </ul>
+ * <h2>getHeaderToken</h2>
+ * <ul>
+ *   <li>2.1 从 Authorization 头取 token（getHeaderToken_requestPrefix）</li>
+ *   <li>2.2 无 Authorization 头返回 null（getHeaderToken_noAuthorization）</li>
+ *   <li>2.3 空前缀返回 null（getHeaderToken_emptyPrefix）</li>
+ *   <li>2.4 头长度等于前缀返回 null（getHeaderToken_lengthEqualsPrefix）</li>
+ *   <li>2.5 null request 返回 null（getHeaderToken_nullRequest_returnsNull）</li>
+ *   <li>2.6 自定义前缀取 token（getHeaderToken_customPrefix）</li>
+ *   <li>2.7 无参重载取当前请求（getHeaderToken_defaultsToCurrentRequest）</li>
+ *   <li>2.8 无参重载 + 自定义前缀（getHeaderToken_prefixUsesCurrentRequest）</li>
+ * </ul>
+ * <h2>setHeaderToken</h2>
+ * <ul>
+ *   <li>3.1 默认前缀写入响应头（setHeaderToken_response）</li>
+ *   <li>3.2 自定义前缀写入响应头（setHeaderToken_customPrefix）</li>
+ *   <li>3.3 null response 不抛异常（setHeaderToken_nullResponse）</li>
+ *   <li>3.4 无参重载写当前响应（setHeaderToken_defaultsToCurrentResponse）</li>
+ *   <li>3.5 无参重载 + 自定义前缀（setHeaderToken_customPrefixUsesCurrentResponse）</li>
+ *   <li>3.6 两参重载使用默认前缀（setHeaderToken_twoArgUsesDefaultPrefix）</li>
+ * </ul>
+ * <h2>请求属性</h2>
+ * <ul>
+ *   <li>4.1 setToken / getToken 读写显式 request 属性（setToken_and_getToken_fromRequestAttribute）</li>
+ *   <li>4.2 getTokenOrNew 无 token 时生成（getTokenOrNew_generatesWhenAbsent）</li>
+ *   <li>4.3 getTokenOrNew 已有 token 时返回原值（getTokenOrNew_returnsExisting）</li>
+ *   <li>4.4 setToken 上下文重载写当前请求（setToken_writesCurrentRequest）</li>
+ *   <li>4.5 getToken 无请求上下文抛 IllegalArgumentException（getToken_withoutRequestContext_throws）</li>
+ * </ul>
+ *
  * @since 2026/8/14
+ * @version 1.0
+ * @see CTokenUtils
  */
 @CustomLog
 public class CTokenUtilsTests {
@@ -48,7 +112,7 @@ public class CTokenUtilsTests {
     // ---------- removePrefix ----------
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：正常移除 "Bearer " 前缀
      */
     @Test
     public void removePrefix_normal() {
@@ -57,7 +121,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：null / 空 / 纯空白返回 null
      */
     @Test
     public void removePrefix_blank_returnsNull() {
@@ -68,7 +132,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：token 恰好等于前缀时原样返回
      */
     @Test
     public void removePrefix_equalsPrefix() {
@@ -77,7 +141,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：token 短于前缀时原样返回
      */
     @Test
     public void removePrefix_shorterThanPrefix() {
@@ -86,7 +150,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：未以前缀开头时原样返回
      */
     @Test
     public void removePrefix_noPrefix() {
@@ -95,7 +159,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6："Bearer" 后无空格时的取舍
      */
     @Test
     public void removePrefix_bearerNoSpace() {
@@ -104,7 +168,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7
+     * 对应测试用例 1.7：前缀大小写敏感
      */
     @Test
     public void removePrefix_caseSensitive() {
@@ -113,7 +177,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.8
+     * 对应测试用例 1.8：仅 "Bearer " + 空格时返回空串
      */
     @Test
     public void removePrefix_prefixWithSpaceOnly_returnsEmpty() {
@@ -124,7 +188,7 @@ public class CTokenUtilsTests {
     // ---------- getHeaderToken(HttpServletRequest, String) ----------
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：从 Authorization 头取 token
      */
     @Test
     public void getHeaderToken_requestPrefix() {
@@ -135,7 +199,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：无 Authorization 头返回 null
      */
     @Test
     public void getHeaderToken_noAuthorization() {
@@ -145,7 +209,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：空前缀返回 null
      */
     @Test
     public void getHeaderToken_emptyPrefix() {
@@ -156,7 +220,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.4
+     * 对应测试用例 2.4：头长度等于前缀返回 null
      */
     @Test
     public void getHeaderToken_lengthEqualsPrefix() {
@@ -167,7 +231,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.5
+     * 对应测试用例 2.5：null request 返回 null
      */
     @Test
     public void getHeaderToken_nullRequest_returnsNull() {
@@ -176,7 +240,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.6
+     * 对应测试用例 2.6：自定义前缀取 token
      */
     @Test
     public void getHeaderToken_customPrefix() {
@@ -187,7 +251,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.7
+     * 对应测试用例 2.7：无参重载取当前请求
      */
     @Test
     public void getHeaderToken_defaultsToCurrentRequest() {
@@ -200,7 +264,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.8
+     * 对应测试用例 2.8：无参重载 + 自定义前缀
      */
     @Test
     public void getHeaderToken_prefixUsesCurrentRequest() {
@@ -215,7 +279,7 @@ public class CTokenUtilsTests {
     // ---------- setHeaderToken(String, String, HttpServletResponse) ----------
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：默认前缀写入响应头
      */
     @Test
     public void setHeaderToken_response() {
@@ -226,7 +290,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：自定义前缀写入响应头
      */
     @Test
     public void setHeaderToken_customPrefix() {
@@ -237,7 +301,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：null response 不抛异常
      */
     @Test
     public void setHeaderToken_nullResponse() {
@@ -249,7 +313,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.4
+     * 对应测试用例 3.4：无参重载写当前响应
      */
     @Test
     public void setHeaderToken_defaultsToCurrentResponse() {
@@ -264,7 +328,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.5
+     * 对应测试用例 3.5：无参重载 + 自定义前缀
      */
     @Test
     public void setHeaderToken_customPrefixUsesCurrentResponse() {
@@ -279,7 +343,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.6
+     * 对应测试用例 3.6：两参重载使用默认前缀
      */
     @Test
     public void setHeaderToken_twoArgUsesDefaultPrefix() {
@@ -292,7 +356,7 @@ public class CTokenUtilsTests {
     // ---------- 请求属性 ----------
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：setToken / getToken 读写显式 request 属性
      */
     @Test
     public void setToken_and_getToken_fromRequestAttribute() {
@@ -305,7 +369,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：getTokenOrNew 无 token 时生成
      */
     @Test
     public void getTokenOrNew_generatesWhenAbsent() {
@@ -317,7 +381,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：getTokenOrNew 已有 token 时返回原值
      */
     @Test
     public void getTokenOrNew_returnsExisting() {
@@ -330,7 +394,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.4
+     * 对应测试用例 4.4：setToken 上下文重载写当前请求
      */
     @Test
     public void setToken_writesCurrentRequest() {
@@ -343,7 +407,7 @@ public class CTokenUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.5
+     * 对应测试用例 4.5：getToken 无请求上下文抛 IllegalArgumentException
      */
     @Test
     public void getToken_withoutRequestContext_throws() {

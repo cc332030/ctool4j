@@ -12,15 +12,93 @@ import java.util.function.Function;
  * Description: CComparatorUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CComparatorUtils} 为比较工具类，提供：</p>
+ * <ul>
+ *   <li>{@code min} / {@code max}：取集合或可变参数中的最小/最大值（过滤 null 元素，空集合返回 null）</li>
+ *   <li>{@code compareCollection}：按自定义比较器或字段取值后取集合最值</li>
+ *   <li>{@code compare}：比较两个值（null 视为最大）</li>
+ *   <li>{@code minConsumer} / {@code maxConsumer}：取最值后消费（最值为 null 时不消费）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>min/max/compareCollection 空集合</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>min/max/compareCollection 全部元素为 null</td>
+ *     <td>返回 null（null 元素被过滤）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>字段取值最值：元素或字段值为 null</td>
+ *     <td>该元素被过滤，不参与最值</td>
+ *   </tr>
+ *   <tr>
+ *     <td>minConsumer/maxConsumer 最值为 null</td>
+ *     <td>不调用 consumer</td>
+ *   </tr>
+ *   <tr>
+ *     <td>compare 双 null</td>
+ *     <td>返回 0</td>
+ *   </tr>
+ *   <tr>
+ *     <td>compare(null, x)</td>
+ *     <td>返回正数（null 视为最大）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>compare(x, null)</td>
+ *     <td>返回负数</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>对可能含 null 元素的集合取最值，避免手写 null 判空。</li>
+ *   <li>将 null 排序到末尾的双值比较（{@code compare}）。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>最值类方法依赖元素 {@code Comparable} 或显式比较器，非 {@code Comparable} 类型需传比较器。</li>
+ *   <li>字段取值最值对字段值为 null 的元素直接过滤，无法表达"null 字段参与排序"。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>最值过滤 null 元素，牺牲"null 参与比较"能力换取无异常取最值便利。</li>
+ *   <li>可变参数重载与集合重载语义一致（null 过滤），调用方无需区分。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>语义约定</b></p>
+ * <ul>
+ *   <li>最值类方法（min/max/compareCollection）均<b>过滤 null 元素</b>，对全部为 null 或空集合</li>
+ *   <li>返回 null，而非抛异常。</li>
+ *   <li>{@code minConsumer} / {@code maxConsumer} 基于 {@code Optional.ofNullable(最值).ifPresent(consumer)}，</li>
+ *   <li>最值为 null（空集合/全 null）时不调用 consumer。</li>
+ * </ul>
+ * <p><b>实现方式</b></p>
+ * <ul>
+ *   <li>后按比较器 {@code min/max}，{@code .orElse(null)}。</li>
+ *   <li>（{@code e != null &amp;&amp; function.apply(e) != null}），再按取值的比较器取最值。</li>
+ * </ul>
+ *
  * @since 2025/3/26
- * @see "doc/design/core/CComparatorUtils.adoc"
- * @see "doc/design/core/CComparatorUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CComparatorUtils {
 
     /**
      * 按比较器取集合中最值（过滤 null 元素）
+     * <ul>
+     *   <li>基础最值复用 {@code compareCollection(collection, comparator)}：{@code stream.filter(Objects::nonNull)}</li>
+     *   <li>{@code min} = {@code compareCollection(collection, Comparable::compareTo)}；</li>
+     *   <li>{@code max} = {@code compareCollection(collection, Comparator.reverseOrder())}。</li>
+     *   <li>字段取值最值 {@code compareCollection(collection, function, comparator)}：过滤元素与取值双非空</li>
+     * </ul>
      *
      * @param collection 集合
      * @param comparator 比较器
@@ -36,6 +114,10 @@ public class CComparatorUtils {
 
     /**
      * 取参数中的最小值
+     * <ul>
+     *   <li>可变参数重载委托集合重载：{@code min(T... os)} 内部 {@code Arrays.asList(os)} 后走集合路径。</li>
+     *   <li>按对象某字段取最值（如 {@code min(list, Item::getPrice)}）。</li>
+     * </ul>
      *
      * @param os  待比较元素
      * @param <T> 元素类型
@@ -169,6 +251,10 @@ public class CComparatorUtils {
 
     /**
      * 比较两个值（null 视为最大）
+     * <ul>
+     *   <li>{@code compare} 将 null 视为最大：{@code compare(null, x)} 返回正数、{@code compare(x, null)} 返回负数、</li>
+     *   <li>{@code compare(null, null)} 返回 0，便于将 null 值排序到末尾。</li>
+     * </ul>
      *
      * @param v1        第一个值
      * @param v2        第二个值

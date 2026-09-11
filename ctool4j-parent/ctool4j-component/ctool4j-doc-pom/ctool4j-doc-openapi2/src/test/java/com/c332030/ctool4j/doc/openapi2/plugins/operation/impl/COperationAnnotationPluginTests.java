@@ -16,12 +16,37 @@ import java.util.Optional;
  * Description: COperationAnnotationPluginTests
  * </p>
  *
- * @since 2026/9/4
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>覆盖 supports 支持性。</li>
+ *   <li>覆盖 apply 分支输出：命中 @COperation 写入 summary/description/deprecated（正例）、未命中不处理（反例）。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对"summary/description 非空覆盖、deprecated=true 标记废弃"的约定。</li>
+ *   <li>依据白盒/黑盒原则与分支覆盖：命中/未命中两种分支输出均验证。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：supports（含 null）、apply 命中/未命中。</li>
+ *   <li>未覆盖：在真实 springfox 文档生成链路上的端到端行为。</li>
+ * </ul>
+ * <h2>支持性</h2>
+ * <ul>
+ *   <li>1.1 支持 SWAGGER_2/12 与 null（supports）</li>
+ * </ul>
+ * <h2>apply 分支输出</h2>
+ * <ul>
+ *   <li>2.1 命中 @COperation 写入 summary/description/deprecated（apply_hitAnnotation）</li>
+ *   <li>2.2 未命中 @COperation 不处理（apply_missAnnotation）</li>
+ * </ul>
  *
  * <p>
- * 是 {@link COperationAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/COperationAnnotationPluginTests.adoc</code>）。
+ * 是 {@link COperationAnnotationPlugin} 的测试用例。
  * </p>
- * @see "doc/design/openapi2/COperationAnnotationPluginTests.adoc"
+ *
+ * @since 2026/9/4
+ * @version 1.0
  */
 class COperationAnnotationPluginTests {
 

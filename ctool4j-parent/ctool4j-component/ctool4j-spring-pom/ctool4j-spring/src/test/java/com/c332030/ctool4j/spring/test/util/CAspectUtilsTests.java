@@ -21,16 +21,35 @@ import static org.mockito.Mockito.*;
  * <p>覆盖 CAspectUtils 的 getMethod/process，通过 Mockito mock 切点，
  * 验证切点方法获取与异常解包逻辑</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证获取方法、执行切点的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对获取方法、执行切点的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：获取方法、执行切点的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>切面工具</h2>
+ * <ul>
+ *   <li>1.1 验证获取方法、执行切点（对应测试方法 1.1-1.4）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/spring/CAspectUtilsTests.adoc"
+ * @version 1.0
  */
 public class CAspectUtilsTests {
 
     // ---------- getMethod ----------
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证获取方法、执行切点（对应测试方法 1.1-1.4）
+         */
     @Test
     public void getMethod() throws NoSuchMethodException {
         // 正例：返回切点签名对应的 Method
@@ -50,8 +69,8 @@ public class CAspectUtilsTests {
     // ---------- process ----------
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     public void process() throws Throwable {
         // 正例：返回切点方法执行结果
@@ -66,8 +85,8 @@ public class CAspectUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     public void process_whenUndeclaredThrowableException() throws Throwable {
         // 异常：切点抛出未声明异常时解包并抛出原异常
@@ -83,8 +102,8 @@ public class CAspectUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4
+         */
     @Test
     public void process_whenRuntimeException() throws Throwable {
         // 反例：普通运行时异常直接透传

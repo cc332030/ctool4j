@@ -1,0 +1,99 @@
+= 限流与幂等 设计文档
+
+模块：ctool4j-redis
+状态：已落地
+适用范围：基于 Redis 的方法级限流注解 `@CRateLimit` 与幂等/防并发注解 `@CIdempotent`
+
+本文件承载这两个注解的**跨类功能级设计**（方案与取舍、通用 key 规则、兜底策略、适用范围与已知限制）；
+注解属性、类级细节与逐注解的实现要点分别见 link:../../../ctool4j-parent/ctool4j-component/ctool4j-redis/src/main/java/com/c332030/ctool4j/redis/rate/CRateLimit.java[CRateLimit]、
+link:../../../ctool4j-parent/ctool4j-component/ctool4j-redis/src/main/java/com/c332030/ctool4j/redis/idempotent/CIdempotent.java[CIdempotent] 源码 javadoc。
+
+== 1. 功能说明
+
+两个注解均为**方法级切面声明**，共享同一套业务 key 规则（由 link:../../../ctool4j-parent/ctool4j-component/ctool4j-redis/src/main/java/com/c332030/ctool4j/redis/util/CRedisKeyUtils.java[CRedisKeyUtils] 统一构建）：
+
+| 注解 | 语义 | 触发结果 |
+|------|------|---------|
+| `@CRateLimit` | 固定窗口限流：`interval` 秒窗口内允许 `count` 次调用 | 超阈值抛 `CRateLimitException` |
+| `@CIdempotent` | 幂等/防并发：同一业务 key 任一时刻只允许一个调用执行 | 获取执行权失败抛 `CIdempotentException` |
+
+== 2. 设计要点
+
+=== 2.1 业务 key 统一格式
+
+`应用前缀:段简单名[:方法名][:业务id]`（段分隔沿用 `CRedisUtils.KEY_SEPARATOR`）：
+
+- `段简单名`：限流取方法声明类的简单名；幂等取注解 `group()` 指定分组类的简单名（而非方法声明类），使多个方法甚至跨类的方法可通过相同分组类共享同一维度。
+- `方法名段`：`useMethodName()` 默认 `true`，各方法按自身隔离；设为 `false` 时去掉，同类/同组的多个方法共享同一限流桶或执行权。
+- `业务id`：由 `id()` 简单 el 表达式（`参数名.属性名.属性名…`）从方法参数取值；为空或求值为 null 时省略末段（不按业务维度）。表达式解析与校验复用 `CElKeyResolveUtils`（首次使用解析、按方法缓存）。
+
+=== 2.2 与缓存注解共用 el 规则
+
+`id()` 与 `@CCacheable.key()` 使用同一套简单 el 语法与解析器，消费方无需学习第二套表达式；属性链循环引用在运行期报错。
+
+=== 2.3 限流实现：固定窗口计数
+
+`INCR` + 首次 `EXPIRE`（`CRedisUtils.incrExpire`），实现简单、原子；计数完全依赖 Redis，多实例共享同一计数器，天然支持分布式限流。
+
+=== 2.4 幂等实现：分布式锁互斥
+
+复用 `CLockService`（Redisson 分布式锁）：加锁成功 → 锁内执行业务 → 释放锁；加锁失败即抛幂等异常，默认不等待，使并发重复提交立即被感知。
+
+=== 2.5 限流注解属性（原 rate-limit 文档要点）
+
+| 属性 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `id()` | String | `""` | 业务 id 简单 el 表达式，空表示不按业务维度限流 |
+| `count()` | int | 无 | 窗口内允许的最大调用次数，必须 > 0 |
+| `interval()` | long | 无 | 时间窗口大小（秒），必须 > 0 |
+| `useMethodName()` | boolean | `true` | 是否将方法名纳入限流 key；false 时同类多方法共享同一限流桶 |
+| `message()` | String | 请求过于频繁，请稍后再试 | 限流时抛出的异常消息 |
+
+- `id()` 格式 `参数名.属性名.属性名…`，参考 `@CCacheable.key()`；由公共解析器 `CElKeyResolveUtils` 求值，从方法参数取业务维度值。
+- 为空或求值为 null 时，限流不带业务维度（按方法全局限流）。
+- `useMethodName()` 默认 `true`：key 含 `类简单名:方法名`，各方法按自身隔离。
+- 设为 `false`：key 去掉方法名段（`应用前缀:类简单名:业务id`），同类的多个方法共享同一限流桶。
+- 用途：同一业务的多个入口/共用一个限流维度时，避免各方法独立计数导致总频率失控。
+- `CRateLimitException` 继承 `CException`（运行时异常）。限流触发时抛出，携带 `message()` 指定的消息。
+- 适用范围与取舍：切面作为 Spring Bean 由组件扫描自动注册，需消费方组件扫描到 `com.c332030.ctool4j.redis.rate` 包。
+- 计数完全依赖 Redis，多实例共享同一计数器，天然支持分布式限流。
+- 同名重载方法共用同一限流 key（类名:方法名），若需区分需在业务 id 中体现方法差异。
+
+=== 2.6 幂等注解属性（原 idempotent 文档要点）
+
+| 属性 | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `id()` | String | `""` | 业务 id 简单 el 表达式，空表示不按业务维度隔离 |
+| `group()` | Class<?> | 无（必填） | 分组类实例，其简单名作为 key 的类段 |
+| `useMethodName()` | boolean | `true` | 是否将方法名纳入幂等 key；false 时同组多方法共享同一执行权 |
+| `message()` | String | 重复请求，请勿重复提交 | 幂等冲突时抛出的异常消息 |
+
+- `group()` 必填：取 `group()` 的简单名作为幂等 key 的类段，而非方法声明类的简单名。
+- 这样可让多个方法（甚至跨类）通过指定相同分组类共享同一幂等维度；配合 `useMethodName()` 关闭方法名段，即可让多个方法共享同一执行权。
+- 默认 `useMethodName()=true`：key 含 `分组类简单名:方法名`，各方法按自身隔离；设为 `false`：key 去掉方法名段（`应用前缀:分组类简单名:业务id`），同组多个方法共享同一执行权。
+- 用途：同一业务的多个入口/共用一个幂等维度时，避免各方法独立、无法拦截跨方法的重复提交。
+- `CIdempotentException` 继承 `CException`（运行时异常）。幂等冲突（获取执行权失败）时抛出，携带 `message()` 指定的消息。
+- 适用范围与取舍：切面作为 Spring Bean 由组件扫描自动注册，需消费方组件扫描到 `com.c332030.ctool4j.redis.idempotent` 包。
+
+== 3. 兜底设计
+
+| 场景 | 兜底行为 |
+|------|---------|
+| `count`/`interval` 非正 | `@CRateLimit` 切面抛 `IllegalArgumentException` |
+| 业务 id 表达式非法（参数名不存在） | 抛 `IllegalArgumentException`（`CElKeyResolveUtils`） |
+| 业务 id 属性链循环引用 | 运行期抛 `IllegalStateException` |
+| 业务 id 求值为 null | 省略维度：限流按方法全局、幂等按分组类+方法名全局 |
+| 限流窗口内超阈值 | 抛 `CRateLimitException` |
+| 幂等加锁失败（重复/并发） | 抛 `CIdempotentException` |
+
+== 4. 适用范围与取舍
+
+- 切面作为 Spring Bean 由组件扫描自动注册，消费方需扫描到 `com.c332030.ctool4j.redis.rate` / `com.c332030.ctool4j.redis.idempotent` 包。
+- 计算与锁完全依赖 Redis 可用性：Redis 异常时判定直接抛异常（非降级放行），故障策略由调用方决定。
+
+== 5. 已知缺陷与不足
+
+- `待修复` 固定窗口计数器在窗口翻转临界点存在突增边界问题（重置时刻允许冲过一次阈值）；如需平滑限流（令牌桶/滑动窗口）须另行实现。
+- `待修复` 幂等只在持锁期间生效：方法执行完锁释放，后续新请求可再次获取执行权；「完成后不可重放」需另做持久标记，超出本注解职责。
+- `待修复` 限流/幂等默认不等待锁，加锁失败立即抛异常；幂等切面当前固定不等待（`CLockService` 的 `waitTime` 不生效）。
+- `待修复` 同名重载方法共用同一 key（类名/分组名 + 方法名），需区分时依赖业务 id 体现差异。

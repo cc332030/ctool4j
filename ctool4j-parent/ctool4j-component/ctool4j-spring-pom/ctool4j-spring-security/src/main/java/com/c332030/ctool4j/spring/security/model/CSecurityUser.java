@@ -12,8 +12,23 @@ import java.util.Collection;
  * Description: CSecurityUser
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CSecurityUser}：安全用户模型。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>业务用户信息载体（含用户名、权限等）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>安全用户载体</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>实现 UserDetails</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>实现 UserDetails</p>
+ *
  * @since 2026/1/24
- * @see "doc/design/spring/CSecurityUser.adoc"
+ * @version 1.0
  */
 @Getter
 public class CSecurityUser<T> extends User {

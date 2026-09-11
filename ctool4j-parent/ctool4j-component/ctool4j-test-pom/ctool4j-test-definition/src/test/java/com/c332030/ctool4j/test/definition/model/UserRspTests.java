@@ -12,14 +12,32 @@ import java.util.Date;
  * Description: UserRspTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证 lombok 生成的构造器、builder、equals 行为。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对模型构造/builder/equals 的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：构造器、builder、equals 各路径。</li>
+ *   <li>未覆盖：真实业务逻辑（测试支撑类）。</li>
+ * </ul>
+ * <h2>模型行为</h2>
+ * <ul>
+ *   <li>1.1 验证构造器/builder/equals（对应测试方法 1.1-1.8）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/test/UserRspTests.adoc"
+ * @version 1.0
  */
 class UserRspTests {
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证构造器/builder/equals（对应测试方法 1.1-1.8）
+         */
     @Test
     void noArgsConstructor() {
         UserRsp rsp = new UserRsp();
@@ -29,8 +47,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     void superBuilder_inheritanceWiring() {
         Date updateTime = new Date(1700000000000L);
@@ -61,8 +79,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     void superBuilder_defaultNullFields() {
         UserRsp rsp = UserRsp.builder().userName("admin").build();
@@ -73,8 +91,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4
+         */
     @Test
     void equals_sameValues() {
         UserRsp a = UserRsp.builder().userName("admin").sex("male").build();
@@ -84,8 +102,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.5
-     */
+         * 对应测试用例 1.5
+         */
     @Test
     void equals_differentField() {
         UserRsp a = UserRsp.builder().userName("admin").sex("male").build();
@@ -94,8 +112,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.6
-     */
+         * 对应测试用例 1.6
+         */
     @Test
     void equals_null() {
         UserRsp a = UserRsp.builder().userName("admin").build();
@@ -103,8 +121,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.7
-     */
+         * 对应测试用例 1.7
+         */
     @Test
     void equals_otherType() {
         UserRsp rsp = UserRsp.builder().userName("admin").sex("male").build();
@@ -114,8 +132,8 @@ class UserRspTests {
     }
 
         /**
-     * 对应测试用例 1.8
-     */
+         * 对应测试用例 1.8
+         */
     @Test
     void equals_sameValueButDifferentSubclassNotEqual() {
         UserRsp rsp = UserRsp.builder().userName("admin").build();

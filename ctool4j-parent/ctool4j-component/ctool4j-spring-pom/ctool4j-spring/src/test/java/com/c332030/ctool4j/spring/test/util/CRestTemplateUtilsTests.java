@@ -18,8 +18,27 @@ import org.springframework.web.client.RestTemplate;
  * <p>覆盖 CRestTemplateUtils.restTemplate，验证创建 RestTemplate 时
  * 替换 Jackson 转换器的 ObjectMapper 并追加 json5 媒体类型</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证构建 RestTemplate的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对构建 RestTemplate的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：构建 RestTemplate的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>RestTemplate 工具</h2>
+ * <ul>
+ *   <li>1.1 验证构建 RestTemplate（对应测试方法 1.1-1.3）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/spring/CRestTemplateUtilsTests.adoc"
+ * @version 1.0
  */
 public class CRestTemplateUtilsTests {
 
@@ -33,8 +52,8 @@ public class CRestTemplateUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证构建 RestTemplate（对应测试方法 1.1-1.3）
+         */
     @Test
     public void restTemplate() {
         // 正例：返回的 RestTemplate 非空，Jackson 转换器使用指定 ObjectMapper 并追加 json5
@@ -52,8 +71,8 @@ public class CRestTemplateUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     public void restTemplate_withSharedObjectMapper() {
         // 正例：使用共享 ObjectMapper 时 Jackson 转换器使用同一实例
@@ -65,8 +84,8 @@ public class CRestTemplateUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     public void restTemplate_nullObjectMapper() {
         // 反例：ObjectMapper 为 null 时，Spring 断言其非空并抛 IllegalArgumentException

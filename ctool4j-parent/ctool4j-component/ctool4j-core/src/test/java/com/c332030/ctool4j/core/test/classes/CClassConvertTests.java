@@ -16,15 +16,89 @@ import java.util.Date;
  * Description: CClassConvertTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「布尔 / 整数 / 长整数 / 浮点 / 大数 / 日期 / 枚举值 / 字符串」多个类型维度组织。</li>
+ *   <li>数值转换覆盖正例、空/null 返回 null、非法值抛异常、溢出返回 null、原语默认值 0。</li>
+ *   <li>布尔覆盖 true/false/null/大小写/数字 "1"/"0"（Q24）。</li>
+ *   <li>日期覆盖 parse/format/mills/instant 互转；字符串系列覆盖 objectStr 及各类 xxxStr null 返回 null。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对各转换语义与空值/异常兜底的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/异常路径）：空/null、非法值、溢出、默认 0。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：toBoolean（true/false/null/大小写/数字）；toInt（正/负/null/非法/溢出/long/int）与 intValue；</li>
+ *   <li>toLong 与 longValue；toFloat/floatValue、toDouble/doubleValue；toBigDecimal（string/float/double/long/</li>
+ *   <li>int）与 null；toEnumIntegerValue/toEnumStringValue；parseDateTime/formatDateTime/toMills/fromMills/</li>
+ *   <li>toInstant/toDate；objectStr 系列（boolean/int/long/float/double/bigDecimal）。</li>
+ *   <li>未覆盖：无（覆盖了全部公开转换方法）。</li>
+ * </ul>
+ * <h2>布尔转换</h2>
+ * <ul>
+ *   <li>1.1 toBoolean：true/false/null/大小写/数字 {@code 1}/{@code 0}（Q24）（toBoolean）</li>
+ * </ul>
+ * <h2>整数转换</h2>
+ * <ul>
+ *   <li>2.1 toInt：正/负/null/空（toInt）</li>
+ *   <li>2.2 toInt 非法值：抛 NumberFormatException（toInt_error）</li>
+ *   <li>2.3 toInt(Long)：溢出返回 null（toInt_long）</li>
+ *   <li>2.4 toInt(int)：返回自身（toInt_int）</li>
+ *   <li>2.5 intValue：null 返回 0（intValue）</li>
+ * </ul>
+ * <h2>长整数转换</h2>
+ * <ul>
+ *   <li>3.1 toLong：正/null/空（toLong）</li>
+ *   <li>3.2 toLong 非法值：抛 NumberFormatException（toLong_error）</li>
+ *   <li>3.3 toLong(int/Integer/Long)：各形态（toLong_int）</li>
+ *   <li>3.4 longValue：null 返回 0（longValue）</li>
+ * </ul>
+ * <h2>浮点转换</h2>
+ * <ul>
+ *   <li>4.1 toFloat：正例/null（toFloat）</li>
+ *   <li>4.2 floatValue：null 返回 0、String/BigDecimal 形态（floatValue）</li>
+ *   <li>4.3 toDouble：正例/null（toDouble）</li>
+ *   <li>4.4 doubleValue：null 返回 0、String/Float/BigDecimal 形态（doubleValue）</li>
+ * </ul>
+ * <h2>大数转换</h2>
+ * <ul>
+ *   <li>5.1 toBigDecimal：String 正例/空 null/非法抛异常（toBigDecimal）</li>
+ *   <li>5.2 toBigDecimal(float)：含 null（toBigDecimal_float）</li>
+ *   <li>5.3 toBigDecimal(double)：含 null（toBigDecimal_double）</li>
+ *   <li>5.4 toBigDecimal(long)：含 null（toBigDecimal_long）</li>
+ *   <li>5.5 toBigDecimal(int)：含 null（toBigDecimal_int）</li>
+ * </ul>
+ * <h2>日期转换</h2>
+ * <ul>
+ *   <li>6.1 parseDateTime：解析后格式化精确还原；非法输入抛 DateException（parseDateTime）</li>
+ *   <li>6.2 formatDateTime：格式化正确（formatDateTime）</li>
+ *   <li>6.3 toMills：含 null（toMills）</li>
+ *   <li>6.4 fromMills：含 null（fromMills）</li>
+ *   <li>6.5 toInstant：含 null（toInstant）</li>
+ *   <li>6.6 toDate：含 null（toDate）</li>
+ * </ul>
+ * <h2>枚举值转换</h2>
+ * <ul>
+ *   <li>7.1 toEnumIntegerValue：取值含 null（toEnumIntegerValue）</li>
+ *   <li>7.2 toEnumStringValue：取值含 null（toEnumStringValue）</li>
+ * </ul>
+ * <h2>字符串转换</h2>
+ * <ul>
+ *   <li>8.1 objectStr：含 null（objectStr）</li>
+ *   <li>8.2 booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/CClassConvertTests.adoc"
+ * @version 1.0
  */
 public class CClassConvertTests {
 
     // ---- toBoolean ----
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：true/false/null/大小写/数字 {@code 1}/{@code 0}（Q24）
      */
     @Test
     public void toBoolean() {
@@ -44,7 +118,7 @@ public class CClassConvertTests {
     // ---- toInt ----
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：正/负/null/空
      */
     @Test
     public void toInt() {
@@ -59,7 +133,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：toInt 非法值：抛 NumberFormatException
      */
     @Test
     public void toInt_error() {
@@ -76,7 +150,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：toInt(Long)：溢出返回 null
      */
     @Test
     public void toInt_long() {
@@ -89,7 +163,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 2.4
+     * 对应测试用例 2.4：toInt(int)：返回自身
      */
     @Test
     public void toInt_int() {
@@ -101,7 +175,7 @@ public class CClassConvertTests {
     // ---- intValue ----
 
     /**
-     * 对应测试用例 2.5
+     * 对应测试用例 2.5：null 返回 0
      */
     @Test
     public void intValue() {
@@ -115,7 +189,7 @@ public class CClassConvertTests {
     // ---- toLong ----
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：正/null/空
      */
     @Test
     public void toLong() {
@@ -128,7 +202,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：toLong 非法值：抛 NumberFormatException
      */
     @Test
     public void toLong_error() {
@@ -143,7 +217,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：toLong(int/Integer/Long)：各形态
      */
     @Test
     public void toLong_int() {
@@ -157,7 +231,7 @@ public class CClassConvertTests {
     // ---- longValue ----
 
     /**
-     * 对应测试用例 3.4
+     * 对应测试用例 3.4：null 返回 0
      */
     @Test
     public void longValue() {
@@ -171,7 +245,7 @@ public class CClassConvertTests {
     // ---- toFloat / floatValue ----
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：正例/null
      */
     @Test
     public void toFloat() {
@@ -182,7 +256,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：null 返回 0、String/BigDecimal 形态
      */
     @Test
     public void floatValue() {
@@ -197,7 +271,7 @@ public class CClassConvertTests {
     // ---- toDouble / doubleValue ----
 
     /**
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：正例/null
      */
     @Test
     public void toDouble() {
@@ -208,7 +282,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 4.4
+     * 对应测试用例 4.4：null 返回 0、String/Float/BigDecimal 形态
      */
     @Test
     public void doubleValue() {
@@ -225,7 +299,7 @@ public class CClassConvertTests {
     // ---- toBigDecimal ----
 
     /**
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：String 正例/空 null/非法抛异常
      */
     @Test
     public void toBigDecimal() {
@@ -241,7 +315,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 5.2
+     * 对应测试用例 5.2：toBigDecimal(float)：含 null
      */
     @Test
     public void toBigDecimal_float() {
@@ -252,7 +326,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 5.3
+     * 对应测试用例 5.3：toBigDecimal(double)：含 null
      */
     @Test
     public void toBigDecimal_double() {
@@ -263,7 +337,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 5.4
+     * 对应测试用例 5.4：toBigDecimal(long)：含 null
      */
     @Test
     public void toBigDecimal_long() {
@@ -274,7 +348,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 5.5
+     * 对应测试用例 5.5：toBigDecimal(int)：含 null
      */
     @Test
     public void toBigDecimal_int() {
@@ -287,7 +361,7 @@ public class CClassConvertTests {
     // ---- toEnumIntegerValue / toEnumStringValue ----
 
     /**
-     * 对应测试用例 7.1
+     * 对应测试用例 7.1：取值含 null
      */
     @Test
     public void toEnumIntegerValue() {
@@ -304,7 +378,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 7.2
+     * 对应测试用例 7.2：取值含 null
      */
     @Test
     public void toEnumStringValue() {
@@ -323,7 +397,7 @@ public class CClassConvertTests {
     // ---- Date / Instant / Mills ----
 
     /**
-     * 对应测试用例 6.1
+     * 对应测试用例 6.1：解析后格式化精确还原；非法输入抛 DateException
      */
     @Test
     public void parseDateTime() {
@@ -337,7 +411,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 6.2
+     * 对应测试用例 6.2：格式化正确
      */
     @Test
     public void formatDateTime() {
@@ -348,7 +422,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 6.3
+     * 对应测试用例 6.3：含 null
      */
     @Test
     public void toMills() {
@@ -360,7 +434,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 6.4
+     * 对应测试用例 6.4：含 null
      */
     @Test
     public void fromMills() {
@@ -371,7 +445,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 6.5
+     * 对应测试用例 6.5：含 null
      */
     @Test
     public void toInstant() {
@@ -383,7 +457,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 6.6
+     * 对应测试用例 6.6：含 null
      */
     @Test
     public void toDate() {
@@ -397,7 +471,7 @@ public class CClassConvertTests {
     // ---- objectStr 系列 ----
 
     /**
-     * 对应测试用例 8.1
+     * 对应测试用例 8.1：含 null
      */
     @Test
     public void objectStr() {
@@ -409,7 +483,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
      */
     @Test
     public void booleanStr() {
@@ -420,7 +494,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
      */
     @Test
     public void intStr() {
@@ -431,7 +505,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
      */
     @Test
     public void longStr() {
@@ -442,7 +516,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
      */
     @Test
     public void floatStr() {
@@ -453,7 +527,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
      */
     @Test
     public void doubleStr() {
@@ -464,7 +538,7 @@ public class CClassConvertTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr：各含 null（booleanStr/intStr/longStr/floatStr/doubleStr/bigDecimalStr）
      */
     @Test
     public void bigDecimalStr() {

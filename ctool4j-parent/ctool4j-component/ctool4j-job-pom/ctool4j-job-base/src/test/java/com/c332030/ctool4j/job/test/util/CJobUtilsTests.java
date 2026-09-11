@@ -16,13 +16,36 @@ import java.time.temporal.ChronoUnit;
  * </p>
  *
  * <p>
- * 是 {@link CJobUtils} 的测试用例（对应测试文档
- * <code>doc/design/job/CJobUtilsTests.adoc</code>）。
+ * 是 {@link CJobUtils} 的测试用例。
  * </p>
+ *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>覆盖 dayJobTime 的正常路径：param 合法时 endTime/startTime 计算（days=1 与 days=3）、param 为空取当前时间、param 为空白取当前时间。</li>
+ *   <li>覆盖异常路径：param 格式非法抛异常，不静默兜底。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对"endTime 次日零点、startTime 前移 1 小时+days 天、空参取当前时间、非法抛异常"的约定。</li>
+ *   <li>依据白盒/黑盒原则与错误推测法：days 参数（1/3）、param 形态（合法/空/空白/非法）均覆盖。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：days=1、days=3、param 为空、param 空白、param 非法。</li>
+ *   <li>未覆盖：跨系统默认时区边界的时间计算（依赖 {@code ZoneId.systemDefault()}，未对特定时区断言）。</li>
+ * </ul>
+ * <h2>dayJobTime 时间窗口计算</h2>
+ * <ul>
+ *   <li>1.1 合法 param，days=1，endTime 次日零点、startTime 前移 1 小时+1 天（dayJobTime_validParamDays1）</li>
+ *   <li>1.2 合法 param，days=3，startTime 相应前移（dayJobTime_validParamDays3）</li>
+ *   <li>1.3 param 为空使用当前时间（dayJobTime_nullParamUsesNow）</li>
+ *   <li>1.4 param 纯空白按当前时间处理（dayJobTime_blankParamUsesNow）</li>
+ *   <li>1.5 param 格式非法抛异常（dayJobTime_invalidParamThrows）</li>
+ * </ul>
  *
  * @author c332030
  * @since 2026/8/14
- * @see "doc/design/job/CJobUtilsTests.adoc"
+ * @version 1.0
  */
 class CJobUtilsTests {
 
@@ -43,9 +66,9 @@ class CJobUtilsTests {
 
     /**
      * 正常路径：param 合法时，endTime 为参数所在日次日零点，startTime 为 endTime 减 1 小时再减 days 天
- * <p>
- * 对应测试用例 1.1
- */
+     * <p>
+     * 对应测试用例 1.1：合法 param，days=1，endTime 次日零点、startTime 前移 1 小时+1 天
+     */
     @Test
     void dayJobTime_validParamDays1() {
         CJobUtils.dayJobTime("2026-08-14 10:00:00", 1, consumer);
@@ -59,9 +82,9 @@ class CJobUtilsTests {
 
     /**
      * 正常路径：days 大于 1 时 startTime 相应前移
- * <p>
- * 对应测试用例 1.2
- */
+     * <p>
+     * 对应测试用例 1.2：合法 param，days=3，startTime 相应前移
+     */
     @Test
     void dayJobTime_validParamDays3() {
         CJobUtils.dayJobTime("2026-08-14 10:00:00", 3, consumer);
@@ -75,9 +98,9 @@ class CJobUtilsTests {
 
     /**
      * 正常路径：param 为空时使用当前时间，仍满足 endTime 为次日零点、startTime 为 endTime 减 1 小时再减 days 天
- * <p>
- * 对应测试用例 1.3
- */
+     * <p>
+     * 对应测试用例 1.3：param 为空使用当前时间
+     */
     @Test
     void dayJobTime_nullParamUsesNow() {
         // 与 CJobUtils 内部一致，按系统默认时区的日边界截断，避免 UTC 截断导致跨时区偏差
@@ -101,9 +124,9 @@ class CJobUtilsTests {
 
     /**
      * 边界：param 为纯空白时按当前时间处理
- * <p>
- * 对应测试用例 1.4
- */
+     * <p>
+     * 对应测试用例 1.4：param 纯空白按当前时间处理
+     */
     @Test
     void dayJobTime_blankParamUsesNow() {
         CJobUtils.dayJobTime("   ", 1, consumer);
@@ -115,9 +138,9 @@ class CJobUtilsTests {
 
     /**
      * 异常路径：param 格式非法时抛异常，不静默兜底
- * <p>
- * 对应测试用例 1.5
- */
+     * <p>
+     * 对应测试用例 1.5：param 格式非法抛异常
+     */
     @Test
     void dayJobTime_invalidParamThrows() {
         Assertions.assertThrowsExactly(

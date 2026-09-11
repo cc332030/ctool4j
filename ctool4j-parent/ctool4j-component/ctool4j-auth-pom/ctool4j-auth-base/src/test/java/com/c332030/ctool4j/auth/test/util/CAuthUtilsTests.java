@@ -36,7 +36,46 @@ import java.util.Collections;
  *
  * <p><b>用例编号索引</b>：1 getTokenByJwt（1.1-1.6）；2 setJwt（2.1-2.4）。各测试方法 javadoc 标注其编号与说明。</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 {@code getTokenByJwt} / {@code setJwt} 两个维度组织，覆盖正常、带前缀、空值、校验失败与配置缺失等路径。</li>
+ *   <li>「静默失败」为该类的刻意设计：{@code getTokenByJwt} 对任意来源 jwt（非本系统签发、被篡改、已过期）解析失败一律返回 null 不向上抛，</li>
+ *   <li>用例据此断言返回值而非异常；{@code setJwt} 属签发路径，异常按实现精确断言。</li>
+ *   <li>依赖当前请求上下文的用例经 {@code RequestContextHolder} 绑定 {@code MockHttpServletRequest}/{@code MockHttpServletResponse} 后验证；</li>
+ *   <li>配置（{@code CAuthConfig}）按需注入/不注入以覆盖「未注入」分支。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 jwt 校验兜底（失败静默返回 null）、密钥取自 {@code CAuthConfig#jwtSecret} 的约定。</li>
+ *   <li>依据等价类/边界值/异常路径：合法/非法 jwt、带前缀、空白 jwt、无 token 字段、配置未注入、非请求上下文。</li>
+ *   <li>异常类型按实现精确断言：密钥空白 IllegalArgumentException、非请求上下文 IllegalArgumentException、配置未注入 NPE。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：{@code getTokenByJwt}（正常 / 带前缀 / 空白 / null / 非法 jwt / 载荷无 token 字段 / 配置未注入）；</li>
+ *   <li>{@code setJwt}（生成并写入响应头且结果可 verify / 密钥空白 / 非请求上下文 / 配置未注入）。</li>
+ *   <li>未覆盖：无；token 前缀与请求头/属性读写的纯逻辑见 ctool4j-web 的 {@code CTokenUtils} 测试，此处不重复。</li>
+ * </ul>
+ * <h2>getTokenByJwt</h2>
+ * <ul>
+ *   <li>1.1 合法 jwt 解析出 token（getTokenByJwt_valid）</li>
+ *   <li>1.2 带 "Bearer " 前缀的 jwt 先移除前缀再解析（getTokenByJwt_withPrefix）</li>
+ *   <li>1.3 空白 jwt 返回 null（getTokenByJwt_blank_returnsNull）</li>
+ *   <li>1.4 非法 jwt 静默返回 null（getTokenByJwt_invalid_returnsNull）</li>
+ *   <li>1.5 载荷无 token 字段返回 null（getTokenByJwt_noTokenField_returnsNull）</li>
+ *   <li>1.6 未注入 CAuthConfig 时静默返回 null（getTokenByJwt_withoutAuthConfig_returnsNull）</li>
+ * </ul>
+ * <h2>setJwt</h2>
+ * <ul>
+ *   <li>2.1 生成 jwt 并写入响应 Authorization 头、结果可 verify（setJwt_writesAuthorizationHeader）</li>
+ *   <li>2.2 密钥空白抛 IllegalArgumentException（setJwt_blankSecret_throws）</li>
+ *   <li>2.3 非请求上下文抛 IllegalArgumentException（setJwt_withoutRequestContext_throws）</li>
+ *   <li>2.4 未注入 CAuthConfig 抛 NPE（setJwt_withoutAuthConfig_throws）</li>
+ * </ul>
+ *
  * @since 2026/9/11
+ * @version 1.0
+ * @see CAuthUtils
  */
 @CustomLog
 public class CAuthUtilsTests {
@@ -55,7 +94,7 @@ public class CAuthUtilsTests {
     // ---------- getTokenByJwt ----------
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：合法 jwt 解析出 token
      */
     @Test
     public void getTokenByJwt_valid() {
@@ -67,7 +106,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：带 "Bearer " 前缀的 jwt 先移除前缀再解析
      */
     @Test
     public void getTokenByJwt_withPrefix() {
@@ -79,7 +118,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：空白 jwt 返回 null
      */
     @Test
     public void getTokenByJwt_blank_returnsNull() {
@@ -90,7 +129,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：非法 jwt 静默返回 null
      */
     @Test
     public void getTokenByJwt_invalid_returnsNull() {
@@ -100,7 +139,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：载荷无 token 字段返回 null
      */
     @Test
     public void getTokenByJwt_noTokenField_returnsNull() {
@@ -112,7 +151,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：未注入 CAuthConfig 时静默返回 null
      */
     @Test
     public void getTokenByJwt_withoutAuthConfig_returnsNull() {
@@ -124,7 +163,7 @@ public class CAuthUtilsTests {
     // ---------- setJwt ----------
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：生成 jwt 并写入响应 Authorization 头、结果可 verify
      */
     @Test
     public void setJwt_writesAuthorizationHeader() {
@@ -149,7 +188,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：密钥空白抛 IllegalArgumentException
      */
     @Test
     public void setJwt_blankSecret_throws() {
@@ -165,7 +204,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：非请求上下文抛 IllegalArgumentException
      */
     @Test
     public void setJwt_withoutRequestContext_throws() {
@@ -179,7 +218,7 @@ public class CAuthUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.4
+     * 对应测试用例 2.4：未注入 CAuthConfig 抛 NPE
      */
     @Test
     public void setJwt_withoutAuthConfig_throws() {

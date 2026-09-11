@@ -45,6 +45,7 @@ import javax.validation.constraints.NotNull;
  * <p>本类为抽象类，需子类提供具体 {@code ICService} 实现。</p>
  *
  * @since 2026/1/20
+ * @version 1.0
  */
 @CustomLog
 public abstract class CMpController<S extends ICService<T>, T> implements ICSpringInit {

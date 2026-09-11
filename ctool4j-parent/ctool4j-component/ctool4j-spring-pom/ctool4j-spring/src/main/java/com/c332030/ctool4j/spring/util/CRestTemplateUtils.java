@@ -13,9 +13,23 @@ import org.springframework.web.client.RestTemplate;
  * Description: CRestTemplateUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CRestTemplateUtils}：RestTemplate 工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>RestTemplate 相关处理</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>HTTP 请求</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2025/12/1
- * @see "doc/design/spring/CRestTemplateUtils.adoc"
- * @see "doc/design/spring/CRestTemplateUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CRestTemplateUtils {

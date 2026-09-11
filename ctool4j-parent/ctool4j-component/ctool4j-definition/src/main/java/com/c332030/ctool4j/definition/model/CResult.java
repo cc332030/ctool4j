@@ -12,9 +12,43 @@ import org.springframework.http.HttpStatus;
  * Description: CResult
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CResult&lt;DATA&gt;} 为通用结果封装，实现 {@code ICIntMsgResult&lt;DATA&gt;}，含 {@code code}/{@code msg}/{@code data} 字段，提供：</p>
+ * <ul>
+ *   <li>{@code getMessage()}：委托 msg</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>error message 为 null</td>
+ *     <td>使用 500 原因短语</td>
+ *   </tr>
+ *   <tr>
+ *     <td>error message 为空</td>
+ *     <td>保持空消息</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>接口/服务统一结果封装。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>code 为 Integer，msg 为消息，data 为负载。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>成功/失败工厂</b></p>
+ * <ul>
+ *   <li>{@code success} 用 {@code HttpStatus.OK}（200）。</li>
+ * </ul>
+ *
  * @since 2025/5/13
- * @see "doc/design/core/CResult.adoc"
- * @see "doc/design/core/CResultTests.adoc"
+ * @version 1.0
  */
 @Data
 @SuperBuilder
@@ -29,6 +63,9 @@ public class CResult<DATA> implements ICIntMsgResult<DATA> {
 
     /**
      * 构造结果
+     * <ul>
+     *   <li>{@code newInstance(code, message, data)}：构造</li>
+     * </ul>
      *
      * @param code    状态码
      * @param message 消息
@@ -46,6 +83,9 @@ public class CResult<DATA> implements ICIntMsgResult<DATA> {
 
     /**
      * 成功结果（无数据）
+     * <ul>
+     *   <li>{@code success()} / {@code success(data)}：成功结果（HttpStatus.OK=200）</li>
+     * </ul>
      *
      * @param <DATA> 数据类型
      * @return 成功结果

@@ -12,8 +12,8 @@ import lombok.experimental.StandardException;
  * 即发生重复提交或并发穿透）时抛出，语义为「重复请求，请勿重复提交」。
  * </p>
  *
- * @see "doc/design/redis/CIdempotent.adoc"
  * @since 2026/9/9
+ * @version 1.0
  */
 @StandardException
 public class CIdempotentException extends CException {

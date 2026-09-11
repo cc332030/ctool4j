@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
  *
  * @author c332030
  * @since 2026/5/17
+ * @version 1.0
  */
 @Service
 @AllArgsConstructor

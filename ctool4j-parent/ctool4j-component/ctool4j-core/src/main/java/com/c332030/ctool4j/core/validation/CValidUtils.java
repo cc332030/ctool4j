@@ -21,9 +21,63 @@ import java.util.Objects;
  * 调用时传入具体类型变量，由重载自动匹配；传 {@code null} 字面量会因多重载产生歧义，应传入具体类型变量。
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CValidUtils} 为有效性判断工具类，提供 {@code isValid} / {@code isNotValid} 重载：</p>
+ * <ul>
+ *   <li>{@code Object}：非 null / null</li>
+ *   <li>{@code CharSequence}：非空且非空白（isNotBlank）/ 空白</li>
+ *   <li>{@code Iterable} / {@code Collection}：非空 / 空</li>
+ *   <li>{@code Map}：非空 / 空</li>
+ *   <li>各类型数组（byte/short/char/int/long/float/double/boolean/Object）：非空 / 空</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>字符串空白/null</td>
+ *     <td>isNotValid 为 true</td>
+ *   </tr>
+ *   <tr>
+ *     <td>集合/Map/数组空/null</td>
+ *     <td>isNotValid 为 true</td>
+ *   </tr>
+ *   <tr>
+ *     <td>对象 null</td>
+ *     <td>isNotValid 为 true</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>按类型统一判断值有效性，避免逐类型手写判空。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>传 null 字面量会因多重载歧义编译失败，需强转具体类型。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>通过重载区分类型，类型安全但需注意 null 字面量的编译歧义。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>按类型选择校验逻辑</b></p>
+ * <ul>
+ *   <li>基于 {@code CValidateUtils} 支持的数据类型，按类型选择校验：字符串按 blank、集合/Map/数组按 notEmpty、</li>
+ *   <li>其他对象按非 null。</li>
+ *   <li>调用时传入具体类型变量，由重载自动匹配；传 null 字面量会因多重载产生歧义，应传入具体类型变量。</li>
+ * </ul>
+ * <p><b>判断语义</b></p>
+ * <ul>
+ *   <li>字符串：{@code isValid = StrUtil.isNotBlank}，{@code isNotValid = StrUtil.isBlank}。</li>
+ *   <li>集合/Map/数组：{@code isValid = CollUtil/MapUtil/ArrayUtil.isNotEmpty}，{@code isNotValid = ...isEmpty}。</li>
+ *   <li>对象：{@code isValid = Objects.nonNull}，{@code isNotValid = Objects.isNull}。</li>
+ * </ul>
+ *
  * @since 2026/8/20
- * @see "doc/design/core/CValidUtils.adoc"
- * @see "doc/design/core/CValidUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CValidUtils {

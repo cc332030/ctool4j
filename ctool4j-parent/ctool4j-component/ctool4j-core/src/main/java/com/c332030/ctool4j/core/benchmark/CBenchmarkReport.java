@@ -14,9 +14,32 @@ import java.util.List;
  * Description: 性能基准报告（含标题与各用例结果），支持导出 markdown 文件
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CBenchmarkReport} 为性能基准报告，含标题与按耗时升序的结果列表（首项为基线），提供：</p>
+ * <ul>
+ *   <li>{@code getTitle()} / {@code getResults()}</li>
+ * </ul>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>汇总基准结果并导出 markdown 报告文件。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>相对基线假设 results 按耗时升序（首项为基线），由 CBenchmarkRunner 保证。</li>
+ * </ul>
+ * <p>。</p>
+ * <h2>设计要点</h2>
+ * <p><b>markdown 导出</b></p>
+ * <ul>
+ *   <li>表格含「实现方式 / Avg(ns/op) / ops/s / 相对基线」列，相对基线为各结果与基线（首项）耗时比。</li>
+ * </ul>
+ * <p><b>文件写出</b></p>
+ * <ul>
+ *   <li>{@code writeTo} 自动创建父目录并以 UTF-8 写出，IO 异常包装为 RuntimeException。</li>
+ * </ul>
+ *
  * @since 2026/8/20
- * @see "doc/design/core/CBenchmarkReport.adoc"
- * @see "doc/design/core/CBenchmarkReportTests.adoc"
+ * @version 1.0
  */
 @SuperBuilder
 @RequiredArgsConstructor
@@ -52,6 +75,9 @@ public class CBenchmarkReport {
 
     /**
      * 导出为 markdown 表格
+     * <ul>
+     *   <li>{@code toMarkdown()}：导出为 markdown 表格</li>
+     * </ul>
      *
      * @return markdown 内容
      */
@@ -76,6 +102,9 @@ public class CBenchmarkReport {
 
     /**
      * 将报告写为 markdown 文件（自动创建父目录，UTF-8）
+     * <ul>
+     *   <li>{@code writeTo(Path)}：写为 markdown 文件（自动创建父目录，UTF-8）</li>
+     * </ul>
      *
      * @param path 目标文件路径
      */

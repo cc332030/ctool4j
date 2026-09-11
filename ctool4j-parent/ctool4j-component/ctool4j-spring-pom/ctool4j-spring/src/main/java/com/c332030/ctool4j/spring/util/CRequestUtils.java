@@ -27,9 +27,23 @@ import java.util.function.BiConsumer;
  * Description: CRequestUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CRequestUtils}：请求工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>获取请求URI、状态码等</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>缺失返回默认</p>
+ * <h2>适用范围</h2>
+ * <p>请求处理</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2024/12/9
- * @see "doc/design/spring/CRequestUtils.adoc"
- * @see "doc/design/spring/CRequestUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass

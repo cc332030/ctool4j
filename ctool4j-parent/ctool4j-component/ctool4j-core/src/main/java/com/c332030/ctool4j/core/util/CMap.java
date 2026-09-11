@@ -19,9 +19,48 @@ import java.util.Map;
  * 仅当 JDK 不支持（如 JDK 8 目标）时才使用本类。语义差异：{@code Map.of} 不允许 null 键/值
  * （抛 {@link NullPointerException}），本类不做此限制；本类额外提供复制 Map、指定容器类型能力。</p>
  *
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>of() 空参</td>
+ *     <td>返回空 Map</td>
+ *   </tr>
+ *   <tr>
+ *     <td>of(Map) 原 Map 为空/null</td>
+ *     <td>返回空 Map</td>
+ *   </tr>
+ *   <tr>
+ *     <td>of(Map) 复制结果被修改</td>
+ *     <td>抛 UnsupportedOperationException（不可变）</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要不可变 Map、且自动判空的 Map 构造。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>返回不可变 Map，需要后续增删时用原生 {@code new HashMap}。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>自动判空并返回不可变副本，牺牲可修改性换取安全的 Map 构造。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>不可变语义</b></p>
+ * <ul>
+ *   <li>单键值 {@code of} 用 {@code Collections.singletonMap}（不可变）。</li>
+ *   <li>双/三键值用 {@code HashMap.put} 后包 {@code Collections.unmodifiableMap}。</li>
+ *   <li>{@code putAll} 后包不可变，不修改原 Map。</li>
+ * </ul>
+ *
  * @since 2024/12/3
- * @see "doc/design/core/CMap.adoc"
- * @see "doc/design/core/CMapTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CMap {

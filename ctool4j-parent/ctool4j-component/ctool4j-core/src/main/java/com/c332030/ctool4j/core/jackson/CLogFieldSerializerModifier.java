@@ -24,9 +24,40 @@ import java.util.stream.Collectors;
  * 日志打印链路统一生效；全局 ObjectMapper 不注册，业务序列化输出真实内容</p>
  * <p>子类只需声明注解类型与序列化器创建逻辑，字段扫描与替换逻辑由基类统一提供</p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CLogFieldSerializerModifier&lt;A extends Annotation&gt;} 为日志字段序列化修改器抽象基类，扩展 {@code BeanSerializerModifier}，检测标注指定注解的字段并替换为对应序列化器。</p>
+ * <ul>
+ *   <li>仅注册到日志专用 ObjectMapper（OBJECT_MAPPER_LOG / toJsonLog），全局 ObjectMapper 不注册。</li>
+ *   <li>子类声明注解类型与序列化器创建逻辑（{@code createSerializer}），字段扫描与替换由基类统一处理。</li>
+ * </ul>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>日志打印链路的字段脱敏/占位替换（@CLogBlob、@CLogSensitive）。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>子类同名字段遮蔽父类注解字段时不生效（已知取舍）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>仅日志专用 mapper 生效，业务序列化输出真实内容。</li>
+ *   <li>按类缓存避免重复反射扫描。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>注解字段检测</b></p>
+ * <ul>
+ *   <li>按类缓存标注注解的字段名集合（{@code CClassValue}，复用 {@code CReflectUtils.FIELD_MAP_CLASS_VALUE}）。</li>
+ *   <li>递归父类字段，基类字段上的注解对子类序列化同样生效；子类同名字段覆盖父类字段（已知取舍）。</li>
+ * </ul>
+ * <p><b>属性替换</b></p>
+ * <ul>
+ *   <li>{@code changeProperties} 遍历属性：getter 上的注解优先，字段注解兜底；命中则 {@code assignSerializer} 替换为</li>
+ *   <li>对应序列化器。</li>
+ * </ul>
+ *
  * @param <A> 注解类型
  * @since 2026/8/16
- * @see "doc/design/core/CLogFieldSerializerModifier.adoc"
+ * @version 1.0
  */
 public abstract class CLogFieldSerializerModifier<A extends Annotation> extends BeanSerializerModifier {
 

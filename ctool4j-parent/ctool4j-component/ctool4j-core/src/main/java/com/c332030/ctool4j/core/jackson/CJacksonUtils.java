@@ -23,10 +23,52 @@ import java.util.Date;
  * Description: CJacksonUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CJacksonUtils} 为 Jackson 配置工具类，提供多个预配置的 ObjectMapper 实例：</p>
+ * <ul>
+ *   <li>{@code OBJECT_MAPPER}：默认 mapper（Long/BigDecimal 序列化为字符串防前端溢出）</li>
+ *   <li>{@code OBJECT_MAPPER_NON_NULL}：不序列化 null 值</li>
+ *   <li>{@code OBJECT_MAPPER_SNAKE_CASE}：驼峰转下划线</li>
+ *   <li>{@code OBJECT_MAPPER_LOG}：日志专用（不序列化 null + @CLogBlob 占位符 + @CLogSensitive 脱敏）</li>
+ *   <li>{@code OBJECT_MAPPER_NATIVE}：保留原生数字类型（反序列化整数为 Long、浮点为 BigDecimal）</li>
+ *   <li>工具：{@code getDefinedModule} / {@code configure} / {@code getRawClass}</li>
+ * </ul>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>JSON 序列化/反序列化的统一 mapper 配置，日志脱敏、Long 防溢出等。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>需保留数值类型用 NATIVE；需日志脱敏用 LOG。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>copy() 为深拷贝，mapper 间修改互不影响。</li>
+ *   <li>通过 NATIVE 单一源头构建避免多套配置漂移。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>模块注册</b></p>
+ * <ul>
+ *   <li>自定义模块注册：Long/BigDecimal 序列化为字符串（防前端溢出）、Date/Instant 统一格式、</li>
+ *   <li>枚举反序列化（CEnumDeserializer）。</li>
+ * </ul>
+ * <p><b>mapper 派生</b></p>
+ * <ul>
+ *   <li>{@code OBJECT_MAPPER_NATIVE} 为构建源头（通用配置仅构建一次），其余 mapper 基于其 {@code copy()} 派生并调整：</li>
+ *   <li>OBJECT_MAPPER 关闭 NATIVE 特化数值反序列化、重新注册 Long→String。</li>
+ *   <li>OBJECT_MAPPER_NON_NULL 设 {@code NON_NULL} 包含。</li>
+ *   <li>OBJECT_MAPPER_SNAKE_CASE 设下划线命名策略。</li>
+ *   <li>OBJECT_MAPPER_LOG 基于 NON_NULL 派生并注册两个字段序列化修改器。</li>
+ * </ul>
+ * <p><b>通用 feature</b></p>
+ * <ul>
+ *   <li>配置关闭时间戳/空 bean 失败/未知属性失败，开启 json5 宽松解析（字段名不加引号、尾随逗号、单引号、</li>
+ *   <li>反斜杠转义、java/yaml 注释）。</li>
+ * </ul>
+ *
  * @author c332030
  * @since 2024/3/5
- * @see "doc/design/core/CJacksonUtils.adoc"
- * @see "doc/design/core/CJacksonUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CJacksonUtils {
@@ -72,6 +114,9 @@ public class CJacksonUtils {
     /**
      * 构建自定义序列化/反序列化模块
      * <p>Long/BigDecimal 序列化为字符串避免前端溢出，Date/Instant 使用项目统一格式</p>
+     * <ul>
+     *   <li>{@code getDefinedModule(numberToString)} 可控制 Long/BigDecimal 是否转字符串。</li>
+     * </ul>
      *
      * @return 注册了自定义序列化器的模块
      */

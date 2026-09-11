@@ -21,8 +21,25 @@ import static org.mockito.Mockito.*;
  *
  * <p>覆盖 CCorsFilter.doFilter：未启用时放行、预检请求直接 204 结束、普通请求放行</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 CCorsFilter.doFilter：跨域头输出与 OPTIONS 预检处理 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。</li>
+ *   <li>使用 MockHttpServletRequest/MockHttpServletResponse/MockMvc 构造真实请求场景，贴近真实使用，不依赖外部服务。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。</li>
+ * </ul>
+ * <h2>CCorsFilter.doFilter：跨域头输出与 OPTIONS 预检处理</h2>
+ * <ul>
+ *   <li>1.1 doFilter_whenNotEnabled（doFilter_whenNotEnabled）</li>
+ *   <li>1.2 doFilter_whenEnabledAndOptions（doFilter_whenEnabledAndOptions）</li>
+ *   <li>1.3 doFilter_whenEnabledAndGet（doFilter_whenEnabledAndGet）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/web/CCorsFilterTests.adoc"
+ * @version 1.0
  */
 
 public class CCorsFilterTests {
@@ -34,6 +51,9 @@ public class CCorsFilterTests {
     private MockHttpServletResponse response;
     private FilterChain chain;
 
+    /**
+     * 每个用例执行前的准备
+     */
     @BeforeEach
     public void setUp() {
         config = new CCorsConfig();
@@ -42,13 +62,16 @@ public class CCorsFilterTests {
         chain = mock(FilterChain.class);
     }
 
+    /**
+     * 每个用例执行后的清理
+     */
     @AfterEach
     public void tearDown() {
         CCorsUtils.setConfig(null);
     }
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：doFilter_whenNotEnabled
      */
     @Test
     public void doFilter_whenNotEnabled() throws Exception {
@@ -59,7 +82,7 @@ public class CCorsFilterTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：doFilter_whenEnabledAndOptions
      */
     @Test
     public void doFilter_whenEnabledAndOptions() throws Exception {
@@ -75,7 +98,7 @@ public class CCorsFilterTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：doFilter_whenEnabledAndGet
      */
     @Test
     public void doFilter_whenEnabledAndGet() throws Exception {

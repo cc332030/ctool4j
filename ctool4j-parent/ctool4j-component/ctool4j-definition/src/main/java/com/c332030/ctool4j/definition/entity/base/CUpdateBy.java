@@ -10,9 +10,19 @@ import lombok.experimental.SuperBuilder;
  * Description: CUpdateBy
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CUpdateBy} 为更新人实体，继承 {@code CCreateBy} 并实现 {@code ICCreateUpdateBy}，在创建人基础上增加 {@code updateById} 与 {@code updateBy} 字段。</p>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要创建/更新人字段的实体。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>创建人字段不可更新；更新人字段可更新。</li>
+ * </ul>
+ *
  * @since 2025/12/6
- * @see "doc/design/core/CUpdateBy.adoc"
- * @see "doc/design/core/CUpdateByTests.adoc"
+ * @version 1.0
  */
 @Data
 @SuperBuilder

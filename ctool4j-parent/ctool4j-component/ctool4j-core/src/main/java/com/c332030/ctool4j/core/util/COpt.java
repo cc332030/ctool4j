@@ -24,9 +24,82 @@ import java.util.Objects;
  * Description: COpt
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code COpt&lt;T&gt;} 为可空值容器类，提供：</p>
+ * <ul>
+ *   <li>构造：{@code empty} / {@code of}（null 抛 NPE）/ {@code ofNullable} / {@code ofEmptyAble}（空字符串/空集合/空迭代器/空 Map 视为空）/ {@code ofBlankAble}（空白字符串视为空）</li>
+ *   <li>取值：{@code get}（空抛 NoSuchElementException）/ {@code orElse} / {@code orElseGet} / {@code orElseThrow}</li>
+ *   <li>转换：{@code map} / {@code flatMap} / {@code filter}</li>
+ *   <li>判断与消费：{@code isPresent} / {@code ifPresent}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>of(null)</td>
+ *     <td>抛 NullPointerException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>ofEmptyAble 空字符串/空集合/空 Map/空迭代器</td>
+ *     <td>返回 empty</td>
+ *   </tr>
+ *   <tr>
+ *     <td>ofBlankAble 空白字符串</td>
+ *     <td>返回 empty</td>
+ *   </tr>
+ *   <tr>
+ *     <td>get() 空值</td>
+ *     <td>抛 NoSuchElementException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>orElse/orElseGet 空值</td>
+ *     <td>返回默认值/经 supplier</td>
+ *   </tr>
+ *   <tr>
+ *     <td>map/flatMap 函数返回 null</td>
+ *     <td>返回 empty</td>
+ *   </tr>
+ *   <tr>
+ *     <td>filter 不满足</td>
+ *     <td>返回 empty</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要链式处理可能为空的值，且区分"空字符串/空集合"语义的场景。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>{@code of} 不接收 null；需空值用 {@code ofNullable} / {@code ofEmptyAble}。</li>
+ *   <li>{@code get} 空值抛异常，需要空值时用 {@code orElse} 系列。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>提供比 JDK Optional 更丰富的空判定构造（空字符串/集合/Map），贴近业务空值语义。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>构造语义</b></p>
+ * <ul>
+ *   <li>{@code of}：null 抛 {@code NullPointerException}。</li>
+ *   <li>{@code ofEmptyAble}：多态重载，分别对 {@code CharSequence}（StrUtil.isEmpty）、{@code Iterable}（IterUtil.isEmpty）、</li>
+ *   <li>{@code Collection}（CollUtil.isEmpty）、{@code Map}（MapUtil.isEmpty）做空判断，为空返回 empty。</li>
+ *   <li>{@code ofBlankAble}：空白字符串（StrUtil.isBlank）视为空。</li>
+ * </ul>
+ * <p><b>取值与转换</b></p>
+ * <ul>
+ *   <li>{@code get}：值为 null 抛 {@code NoSuchElementException}。</li>
+ *   <li>{@code orElse} / {@code orElseGet}：空时返回默认值/经 supplier 获取（惰性，值存在时不调用 supplier）。</li>
+ *   <li>{@code orElseThrow}：空时抛出 supplier 提供的异常（@SneakyThrows）。</li>
+ *   <li>{@code map}：函数返回 null 时返回 empty；{@code flatMap}：函数返回 null 时返回 empty。</li>
+ *   <li>{@code filter}：不满足 predicate 返回 empty。</li>
+ * </ul>
+ *
  * @since 2025/12/6
- * @see "doc/design/core/COpt.adoc"
- * @see "doc/design/core/COptTests.adoc"
+ * @version 1.0
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class COpt<T> {
@@ -40,6 +113,10 @@ public final class COpt<T> {
 
     /**
      * 返回空 COpt
+     * <ul>
+     *   <li>空容器 {@code EMPTY} 单例，{@code empty()} 经 {@code CObjUtils.anyType} 做类型适配。</li>
+     * </ul>
+     *
      * @return 空 COpt
      * @param <T> 泛型
      */

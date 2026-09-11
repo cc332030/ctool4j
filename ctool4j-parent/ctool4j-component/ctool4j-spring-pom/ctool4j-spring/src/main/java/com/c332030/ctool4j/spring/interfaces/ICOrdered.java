@@ -7,8 +7,23 @@ import org.springframework.core.Ordered;
  * Description: ICOrdered
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICOrdered}：排序接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>提供排序能力（继承 Ordered）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>默认序</p>
+ * <h2>适用范围</h2>
+ * <p>排序控制</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>实现 Ordered</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>实现 Ordered</p>
+ *
  * @since 2025/9/28
- * @see "doc/design/spring/ICOrdered.adoc"
+ * @version 1.0
  */
 public interface ICOrdered<T extends ICOrdered<T>> extends Ordered, Comparable<T> {
 

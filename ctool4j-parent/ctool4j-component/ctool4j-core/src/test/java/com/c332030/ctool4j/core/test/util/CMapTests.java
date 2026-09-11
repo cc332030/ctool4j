@@ -13,13 +13,46 @@ import java.util.Map;
  * Description: CMapTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「固定键值构造 / 复制 Map」两个维度组织。</li>
+ *   <li>固定键值覆盖空/单/双/三键值，双/三额外断言不可变（put 抛异常）。</li>
+ *   <li>复制 Map 覆盖：默认有序副本不可变、原 Map 不受影响、null/空 Map 返回空、supplier 指定容器。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对不可变返回与空 Map 判空的约定。</li>
+ *   <li>依据测试方法（等价类/边界值）：各键值数、空 Map、不可变断言、原 Map 隔离。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：of() 空；单/双/三键值正例与双/三不可变；of(Map) 不可变副本与原 Map 隔离；null/空 Map 返回空；</li>
+ *   <li>of(Map, supplier) 内容与不可变。</li>
+ *   <li>未覆盖：双键值重复 key 场景（未单列，非本类核心语义）。</li>
+ * </ul>
+ * <h2>固定键值构造</h2>
+ * <ul>
+ *   <li>1.1 of()：空 Map（ofEmpty）</li>
+ *   <li>1.2 单键值：{@code of("a",1)} 大小 1 值正确（ofSingle）</li>
+ *   <li>1.3 双键值：{@code of("a",1,"b",2)} 大小 2 值正确（ofTwo）</li>
+ *   <li>1.4 双键值不可变：put 抛 UnsupportedOperationException（ofTwoUnmodifiable）</li>
+ *   <li>1.5 三键值：{@code of("a",1,"b",2,"c",3)} 大小 3 值正确（ofThree）</li>
+ *   <li>1.6 三键值不可变：put 抛 UnsupportedOperationException（ofThreeUnmodifiable）</li>
+ * </ul>
+ * <h2>复制 Map（of(Map) / of(Map, supplier)）</h2>
+ * <ul>
+ *   <li>2.1 默认副本：不可变且内容正确、原 Map 不受影响（ofMapCopyUnmodifiable）</li>
+ *   <li>2.2 null/空 Map：返回空 Map（ofNullMapReturnsEmpty）</li>
+ *   <li>2.3 supplier：指定容器复制，内容正确且不可变（ofMapWithSupplier）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CMapTests.adoc"
+ * @version 1.0
  */
 public class CMapTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：of()：空 Map
      */
     @Test
     public void ofEmpty() {
@@ -29,7 +62,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：单键值：{@code of("a",1)} 大小 1 值正确
      */
     @Test
     public void ofSingle() {
@@ -41,7 +74,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：双键值：{@code of("a",1,"b",2)} 大小 2 值正确
      */
     @Test
     public void ofTwo() {
@@ -54,7 +87,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：双键值不可变：put 抛 UnsupportedOperationException
      */
     @Test
     public void ofTwoUnmodifiable() {
@@ -65,7 +98,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：三键值：{@code of("a",1,"b",2,"c",3)} 大小 3 值正确
      */
     @Test
     public void ofThree() {
@@ -77,7 +110,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：三键值不可变：put 抛 UnsupportedOperationException
      */
     @Test
     public void ofThreeUnmodifiable() {
@@ -88,7 +121,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：默认副本：不可变且内容正确、原 Map 不受影响
      */
     @Test
     public void ofMapCopyUnmodifiable() {
@@ -107,7 +140,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：null/空 Map：返回空 Map
      */
     @Test
     public void ofNullMapReturnsEmpty() {
@@ -118,7 +151,7 @@ public class CMapTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：指定容器复制，内容正确且不可变
      */
     @Test
     public void ofMapWithSupplier() {

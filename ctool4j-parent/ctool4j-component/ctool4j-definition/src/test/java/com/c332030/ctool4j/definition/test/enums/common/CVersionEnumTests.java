@@ -9,13 +9,36 @@ import org.junit.jupiter.api.Test;
  * Description: CVersionEnumTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证枚举数量、各版本描述/名称、valueOf 正常与未知名抛异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对枚举元素与描述的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：枚举数量；V1/V2/V3 描述与名称；valueOf 正常；未知名抛异常。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>枚举</h2>
+ * <ul>
+ *   <li>1.1 values：3 个枚举（values）</li>
+ *   <li>1.2 v1：{@code V1}/V1（v1）</li>
+ *   <li>1.3 v2：{@code V2}/V2（v2）</li>
+ *   <li>1.4 v3：{@code V3}/V3（v3）</li>
+ *   <li>1.5 valueOf 正常（valueOf_normal）</li>
+ *   <li>1.6 未知名抛异常（valueOfUnknown）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CVersionEnumTests.adoc"
+ * @version 1.0
  */
 public class CVersionEnumTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：3 个枚举
      */
     @Test
     public void values() {
@@ -25,7 +48,7 @@ public class CVersionEnumTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：{@code V1}/V1
      */
     @Test
     public void v1() {
@@ -36,7 +59,7 @@ public class CVersionEnumTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：{@code V2}/V2
      */
     @Test
     public void v2() {
@@ -47,7 +70,7 @@ public class CVersionEnumTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：{@code V3}/V3
      */
     @Test
     public void v3() {
@@ -58,7 +81,7 @@ public class CVersionEnumTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：valueOf 正常
      */
     @Test
     public void valueOf_normal() {
@@ -70,7 +93,7 @@ public class CVersionEnumTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：未知名抛异常
      */
     @Test
     public void valueOfUnknown() {

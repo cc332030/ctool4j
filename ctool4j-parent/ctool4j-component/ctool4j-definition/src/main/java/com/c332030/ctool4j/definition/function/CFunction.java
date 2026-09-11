@@ -12,9 +12,50 @@ import java.util.function.Function;
  * 注意：apply 方法内部使用 @SneakyThrows 包装受检异常，调用方无法从签名感知，需自行处理实际异常（设计取舍）
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CFunction&lt;O, R&gt;} 为函数接口，扩展 {@code Function&lt;O, R&gt;}，支持 lambda 中抛受检异常：</p>
+ * <ul>
+ *   <li>{@code apply}：默认方法，经 {@code @SneakyThrows} 包装受检异常后调用 {@code applyThrowable}</li>
+ *   <li>{@code applyThrowable}：抽象方法，可抛 Throwable</li>
+ *   <li>工具：{@code SELF}/{@code self()}、{@code EMPTY}/{@code empty()}、{@code apply(function, o)}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>apply(function, null) 且 function 为 null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>empty() 恒返回 null</td>
+ *     <td>恒返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>lambda 中需要抛受检异常的函数式处理。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>用 @SneakyThrows 简化受检异常处理，牺牲异常签名可见性。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>受检异常包装</b></p>
+ * <ul>
+ *   <li>{@code apply} 内部用 {@code @SneakyThrows} 包装，调用方无法从签名感知受检异常，需自行处理实际异常（设计取舍）。</li>
+ * </ul>
+ * <p><b>工具方法</b></p>
+ * <ul>
+ *   <li>{@code self()}：返回自身函数；{@code empty()}：恒返回 null。</li>
+ *   <li>{@code apply(function, o)}：function 为 null 返回 null。</li>
+ * </ul>
+ *
  * @since 2025/1/15
- * @see "doc/design/core/CFunction.adoc"
- * @see "doc/design/core/CFunctionTests.adoc"
+ * @version 1.0
  */
 @FunctionalInterface
 public interface CFunction<O, R> extends Function<O, R> {

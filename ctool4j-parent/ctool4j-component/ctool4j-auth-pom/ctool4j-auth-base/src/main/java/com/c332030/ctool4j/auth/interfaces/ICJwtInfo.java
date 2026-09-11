@@ -17,6 +17,7 @@ import com.c332030.ctool4j.definition.interfaces.ICToken;
  *
  * @author c332030
  * @since 2026/9/11
+ * @version 1.0
  */
 public interface ICJwtInfo extends ICToken, ICCreateMillis {
 

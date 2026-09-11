@@ -17,14 +17,31 @@ import java.util.Map;
  *
  * <p>`com.c332030.ctool4j.web.model.CRequestLog`（请求日志数据类）的测试用例，覆盖各构造方式与读写</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 CRequestLog：请求日志模型 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。</li>
+ *   <li>使用 MockHttpServletRequest/MockHttpServletResponse/MockMvc 构造真实请求场景，贴近真实使用，不依赖外部服务。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。</li>
+ * </ul>
+ * <h2>CRequestLog：请求日志模型</h2>
+ * <ul>
+ *   <li>1.1 noArgsConstructor（noArgsConstructor）</li>
+ *   <li>1.2 全参构建（builderAllFields）</li>
+ *   <li>1.3 builderAndSetter（builderAndSetter）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/web/CRequestLogTests.adoc"
+ * @version 1.0
  */
 
 public class CRequestLogTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：noArgsConstructor
      */
     @Test
     public void noArgsConstructor() {
@@ -83,7 +100,7 @@ public class CRequestLogTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：builderAndSetter
      */
     @Test
     public void builderAndSetter() {

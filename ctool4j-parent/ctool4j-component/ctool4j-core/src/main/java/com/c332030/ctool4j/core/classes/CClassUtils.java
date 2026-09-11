@@ -28,9 +28,69 @@ import java.util.stream.Collectors;
  * Description: CClassUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CClassUtils} 为类工具类，提供：</p>
+ * <ul>
+ *   <li>判断：{@code isJdkClass} / {@code isBasicClass} / {@code isExistClass} / {@code isAnnotationPresent}（字段/方法/类）</li>
+ *   <li>包名：{@code getFirstPackage} / {@code BASE_PACKAGES}</li>
+ *   <li>继承链：{@code getSuperClasses} / {@code getInterfaces}</li>
+ *   <li>层级元素：{@code getMap} / {@code getMap}（List）</li>
+ *   <li>包扫描：{@code findClasses} / {@code listSubClass} / {@code listAnnotatedClass} / {@code listAnnotatedClassThenDo}</li>
+ *   <li>字段对比：{@code compareField}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>isAnnotationPresent(字段/方法为 null)</td>
+ *     <td>返回 false</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getSuperClasses(Object)</td>
+ *     <td>返回仅含 Object 自身</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getSuperClasses(接口)</td>
+ *     <td>返回仅含接口自身</td>
+ *   </tr>
+ *   <tr>
+ *     <td>isJdkClass</td>
+ *     <td>基本类型或基础包前缀匹配</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>JDK 类判断、继承链/接口遍历、包下子类/注解类扫描。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>getInterfaces 不递归接口继承，仅收集直接实现接口。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>isJdkClass 按类缓存，消除热路径前缀匹配开销。</li>
+ *   <li>getInterfaces 去重保序（LinkedHashSet），按父类链由子至父。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>继承链</b></p>
+ * <ul>
+ *   <li>{@code getSuperClasses}：do-while 收集类及其父类（不含 Object），顺序由子至父；Object 自身仅返回自身；</li>
+ *   <li>接口无父类仅返回接口自身。</li>
+ *   <li>{@code getInterfaces}：按父类链由子至父遍历各层直接接口，LinkedHashSet 去重保序；<b>不递归接口继承</b></li>
+ *   <li>（仅收集直接实现接口）。</li>
+ * </ul>
+ * <p><b>包扫描</b></p>
+ * <ul>
+ *   <li>{@code findClasses}：基于 Spring {@code ClassPathScanningCandidateComponentProvider} + TypeFilter 扫描包下类。</li>
+ *   <li>{@code listSubClass} / {@code listAnnotatedClass}：分别用 AssignableTypeFilter / AnnotationTypeFilter。</li>
+ * </ul>
+ *
  * @since 2025/11/21
- * @see "doc/design/core/CClassUtils.adoc"
- * @see "doc/design/core/CClassUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -95,9 +155,14 @@ public class CClassUtils {
      * <p>结果按类缓存（类所属包名固定，判断结果不会变化），消除热路径每次
      * 类名前缀匹配开销</p>
      *
+     * <h2>JDK 类判断（isJdkClass）</h2>
+     * <ul>
+     *   <li>结果按类缓存（{@code CClassValue}）：基本类型或类名以 {@code BASE_PACKAGES_START}（java./javax./sun./jdk. 等）开头</li>
+     *   <li>即为 JDK 类。</li>
+     * </ul>
+     *
      * @param clazz 类
-     * @return 是否为 JDK 类
-     */
+     * @return 是否为 JDK 类*/
     public boolean isJdkClass(Class<?> clazz) {
         return IS_JDK_CLASS_CLASS_VALUE.get(clazz);
     }
@@ -145,7 +210,6 @@ public class CClassUtils {
         }
         return false;
     }
-
 
     /**
      * 获取类型各层级元素组成的 Map（名称转值）
@@ -373,6 +437,9 @@ public class CClassUtils {
 
     /**
      * 判断字段是否标注了指定注解
+     * <ul>
+     *   <li>{@code isAnnotationPresent(Class)}：类自身或其直接接口标注注解即返回 true。</li>
+     * </ul>
      *
      * @param field           字段
      * @param annotationClass 注解类

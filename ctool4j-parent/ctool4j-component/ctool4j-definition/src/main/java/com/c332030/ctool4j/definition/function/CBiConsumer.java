@@ -12,9 +12,45 @@ import java.util.function.BiConsumer;
  * 注意：accept 方法内部使用 @SneakyThrows 包装受检异常，调用方无法从签名感知，需自行处理实际异常（设计取舍）
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CBiConsumer&lt;T, U&gt;} 为双参消费者接口，扩展 {@code BiConsumer}，支持受检异常：</p>
+ * <ul>
+ *   <li>{@code accept}：默认方法，@SneakyThrows 包装后调用 {@code acceptThrowable}</li>
+ *   <li>{@code acceptThrowable}：抽象方法，可抛 Throwable</li>
+ *   <li>工具：{@code EMPTY}/{@code empty()}、{@code accept(consumer, t, u)}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>accept(consumer=null, t, u)</td>
+ *     <td>不做处理</td>
+ *   </tr>
+ *   <tr>
+ *     <td>empty()</td>
+ *     <td>空实现</td>
+ *   </tr>
+ * </table>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>用 @SneakyThrows 简化受检异常处理。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>受检异常包装</b></p>
+ * <ul>
+ *   <li>{@code accept} 内部 @SneakyThrows 包装（设计取舍）。</li>
+ * </ul>
+ * <p><b>工具方法</b></p>
+ * <ul>
+ *   <li>{@code empty()}：空实现；{@code accept(consumer, t, u)}：consumer 为 null 时不做处理。</li>
+ * </ul>
+ *
  * @since 2025/2/21
- * @see "doc/design/core/CBiConsumer.adoc"
- * @see "doc/design/core/CBiConsumerTests.adoc"
+ * @version 1.0
  */
 @FunctionalInterface
 public interface CBiConsumer<T, U> extends BiConsumer<T, U> {

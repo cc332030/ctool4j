@@ -25,10 +25,152 @@ import java.util.Map;
  *
  * <p>`com.c332030.ctool4j.web.util.CCommUtils`（web 工具类）请求日志拼接的测试用例，
  * 覆盖容易出错或出错后难发现的方法：headers 拼接、URL/Query 拼接、charset 解析、响应报文头、完整 HTTP 日志拼接等；
- * 测试用例分类与编号见 doc/design/web/CCommUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号</p>
+ *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「HTTP 报文结构」的先后顺序组织分类：请求行/请求头/请求体 → 响应状态行/响应头/响应体 → 异常与业务数据 → 开关控制，使分类与真实报文输出结构一一对应，便于从文档直接对照最终打印格式检查每一段是否被覆盖</li>
+ *   <li>在报文结构各段之外，单独提取「开关控制」与「body 文本转换」两个横向维度：开关（enableHeader）作用于 header 输出、与报文内容解耦，单独成类便于验证开关只影响 header 不影响 body/状态行；body 文本转换（getBodyText）是 feign 等 byte[] body 场景与 MVC Object body 场景的统一转换节点，单独成类便于验证文本/非文本/空 body 的转换边界</li>
+ *   <li>每个编号下同时给出正例/反例/边界（分支）路径，避免只测主路径而遗漏易错的边界与分支</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对输出格式的约定：请求行、header 逐行、请求体/响应体带空行、响应报文头与请求侧对称</li>
+ *   <li>依据需求对安全与可读性的要求：enableHeader 开关默认关闭避免敏感 header 泄露（验证开关只作用 header）；空 body 输出占位符（EMPTY_REQ/EMPTY_RSP）避免 {@code [null]}（边界覆盖）</li>
+ *   <li>依据测试方法（等价类/边界值/分支覆盖）：未知状态码为边界值、无状态码有响应头为独立分支、开关关闭为分支覆盖</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：请求行/query/form body、请求头（单值/多值）、响应状态行（正/未知码/无状态码）、响应头（单值/多值）、请求体/响应体、异常与业务数据、enableHeader 开关开/关、getBodyText 文本/非文本/空 body</li>
+ *   <li>未覆盖：非 UTF-8 charset 解码的 gbk 场景（getCharsetOrDefault 已单独覆盖，getBodyText 复用其逻辑）；响应头多值走共用 appendHeaderMap（请求头多值已覆盖），行为等价</li>
+ * </ul>
+ * <h2>已知取舍</h2>
+ * <ul>
+ *   <li>请求头/响应头采集层总是采集、是否输出由打印层 enableHeader 开关控制（采集与打印解耦，打印层按开关过滤敏感 header）</li>
+ *   <li>getBodyText 空 body 返回占位符参数（EMPTY_REQ/EMPTY_RSP）与 null（不输出）两种取值，由调用方传参决定</li>
+ * </ul>
+ * <h2>请求行与来源</h2>
+ * <ul>
+ *   <li>1.1.1 有来源标识输出 {@code [source]}，GET 请求输出 METHOD URL</li>
+ *   <li>1.1.2 GET 带 query 参数拼到 URL，多 value 时 key 重复出现</li>
+ *   <li>1.1.3 POST 不拼 URL query（参数在 body/form）</li>
+ *   <li>1.1.4 method 为 null 时 URL 前输出 {@code null}</li>
+ * </ul>
+ * <h2>请求头</h2>
+ * <ul>
+ *   <li>1.2.1 请求头逐行输出 Key: Value</li>
+ *   <li>1.2.2 同一 header 多个值逐行输出</li>
+ * </ul>
+ * <h2>请求体</h2>
+ * <ul>
+ *   <li>1.3.1 POST 有 body 输出 body</li>
+ *   <li>1.3.2 POST 无 body 有 params 时输出 form-urlencoded body</li>
+ *   <li>1.3.3 req 为 null 时不输出请求体</li>
+ *   <li>1.3.4 空 req 不输出</li>
+ *   <li>1.3.5 params 为空但请求体有值时仅输出 json 请求体（paramsEmptyReqOnly）</li>
+ *   <li>1.3.6 请求体为 null 但响应体有值时仅输出响应体（reqNullRspPresent）</li>
+ * </ul>
+ * <h2>响应状态行</h2>
+ * <ul>
+ *   <li>1.4.1 有状态码输出状态行（如 404 Not Found），响应体随后（responseStatusOnly）</li>
+ *   <li>1.4.2 未知状态码（599）仅输出数字不输出描述（responseStatusUnknownCode）</li>
+ *   <li>1.4.3 未采集状态码/响应头时不输出响应报文头，向后兼容（noResponseStatus）</li>
+ *   <li>1.4.4 无状态码但有响应头时仅输出响应头（responseHeadersOnlyNoStatus）</li>
+ * </ul>
+ * <h2>响应头</h2>
+ * <ul>
+ *   <li>1.5.1 响应头逐行输出（allFields 中随状态行）</li>
+ *   <li>1.5.2 响应头同一 header 多个值（如 Set-Cookie）逐行输出（responseHeadersMultipleValues）</li>
+ * </ul>
+ * <h2>响应体</h2>
+ * <ul>
+ *   <li>1.6.1 有响应体输出</li>
+ *   <li>1.6.2 无响应体不输出</li>
+ *   <li>1.6.3 请求/响应体为 null 时不输出占位（noResponseBody，避免 [null]）</li>
+ * </ul>
+ * <h2>异常与业务数据</h2>
+ * <ul>
+ *   <li>1.7.1 异常信息 errorMessage 输出</li>
+ *   <li>1.7.2 traceId/tenantId/userId 业务数据行输出</li>
+ *   <li>1.7.3 耗时 rt 输出</li>
+ *   <li>1.7.4 全部字段均有值时验证完整格式与各段顺序（allFields）</li>
+ *   <li>1.7.5 异常信息 + 耗时输出（errorAndRt）</li>
+ *   <li>1.7.6 耗时无效（end 早于 begin）时不输出（rtInvalidNotOutput）</li>
+ * </ul>
+ * <h2>开关控制（enableHeader）</h2>
+ * <ul>
+ *   <li>1.8.1 开关开启输出请求头/响应头</li>
+ *   <li>1.8.2 开关关闭不输出请求头/响应头，但状态行与请求/响应体仍输出（enableHeaderFalse_skipHeaders）</li>
+ *   <li>1.8.3 null info 抛 NPE（nullInfo）</li>
+ *   <li>1.8.4 开关关闭时业务数据区仍输出 token/ip，保证鉴权与来源信息可见（enableHeaderFalse_tokenIpInBusinessData）</li>
+ *   <li>1.8.5 开关开启时请求头已输出 Authorization/ip，业务数据区不重复打印（enableHeaderTrue_tokenIpNotDuplicated）</li>
+ * </ul>
+ * <h2>慢请求日志（logSlowRequest，web/feign 共用，耗时从 CRequestLog 起止时间计算）</h2>
+ * <ul>
+ *   <li>1.9.1 耗时（end-begin）超过 slowLogMillis 时输出 warn 慢日志（logSlowRequest_exceeded）</li>
+ *   <li>1.9.2 慢日志开关关闭时不输出（logSlowRequest_disabled）</li>
+ *   <li>1.9.3 耗时未超过阈值时不输出（logSlowRequest_notExceeded）</li>
+ * </ul>
+ * <h2>body 文本转换（getBodyText）</h2>
+ * <ul>
+ *   <li>2.1 正例：文本 body 按 Content-Type charset 解码（text）</li>
+ *   <li>2.2 反例：非文本 body（application/octet-stream）输出占位符 NOT_TEXT_BODY（binary）</li>
+ *   <li>2.3 边界：空 body（空数组/null）返回传入占位符，避免 [null]（emptyBytes_returnsPlaceholder）</li>
+ *   <li>2.4 边界：空 body 且未传占位符时返回 null，调用方不输出（emptyBytes_noPlaceholder_returnsNull）</li>
+ * </ul>
+ * <h2>Content-Type 与 Accept 设置</h2>
+ * <ul>
+ *   <li>3.1 contextTypeForm：设置表单 content-type（contextTypeForm）</li>
+ *   <li>3.2 contextTypeForm null headers 抛 NPE（contextTypeForm_nullHeaders_throws）</li>
+ *   <li>3.3 contextTypeJson：设置 json content-type（contextTypeJson）</li>
+ *   <li>3.4 contextTypeJson null headers 抛 NPE（contextTypeJson_nullHeaders_throws）</li>
+ *   <li>3.5 acceptJson：设置 Accept: application/json（acceptJson）</li>
+ *   <li>3.6 acceptJson null headers 抛 NPE（acceptJson_nullHeaders_throws）</li>
+ * </ul>
+ * <h2>getFullHeaderStr</h2>
+ * <ul>
+ *   <li>4.1 多个 header 以换行连接（getFullHeaderStr）</li>
+ *   <li>4.2 null/空 map 返回 null（getFullHeaderStr_null_returnsNull）</li>
+ *   <li>4.3 同一 header 多值用逗号连接（getFullHeaderStr_multiValue）</li>
+ *   <li>4.4 predicate 过滤 header（getFullHeaderStr_withPredicate）</li>
+ *   <li>4.5 predicate 全部拒绝返回空串（getFullHeaderStr_predicateAllReject_returnsEmptyString）</li>
+ * </ul>
+ * <h2>isTextBody</h2>
+ * <ul>
+ *   <li>5.1 application/json 视为文本 body（isTextBody_json）</li>
+ *   <li>5.2 application/octet-stream 非文本（isTextBody_binary）</li>
+ *   <li>5.3 无 Content-Type 按非文本处理（isTextBody_emptyHeaders）</li>
+ *   <li>5.4 null headers 返回 false（isTextBody_nullHeaders_returnsFalse）</li>
+ * </ul>
+ * <h2>getCharsetOrDefault</h2>
+ * <ul>
+ *   <li>6.1 显式声明 charset 时按声明解析（getCharsetOrDefault_explicit）</li>
+ *   <li>6.2 未声明 charset 默认 UTF-8（getCharsetOrDefault_defaultUtf8）</li>
+ *   <li>6.3 无法解析的 Content-Type 回退 UTF-8（getCharsetOrDefault_invalidContentType）</li>
+ *   <li>6.4 无 Content-Type 默认 UTF-8（getCharsetOrDefault_emptyHeaders）</li>
+ *   <li>6.5 null headers 返回 UTF-8（getCharsetOrDefault_nullHeaders_returnsUtf8）</li>
+ * </ul>
+ * <h2>appendRequestUrl / appendUrl</h2>
+ * <ul>
+ *   <li>7.1 GET 带 query 参数拼到 URL，多 value 时 key 重复出现（appendRequestUrl_getWithParams）</li>
+ *   <li>7.2 GET 无 query 仅记录 path（appendRequestUrl_getNoParams）</li>
+ *   <li>7.3 POST 不拼 URL query（参数在 body/form）（appendUrl_postParamsNotAppended）</li>
+ *   <li>7.4 method 为 null 时 URL 前输出 null（appendUrl_nullMethod）</li>
+ *   <li>7.5 多 value 参数（appendUrl_multiValueParams）</li>
+ * </ul>
+ * <h2>appendHeaderLine</h2>
+ * <ul>
+ *   <li>8.1 正常输出 Key: Value（appendHeaderLine_string）</li>
+ *   <li>8.2 空 value 输出（appendHeaderLine_emptyValue）</li>
+ *   <li>8.3 null value 输出（appendHeaderLine_nullValue）</li>
+ * </ul>
+ * <h2>appendError</h2>
+ * <ul>
+ *   <li>9.1 异常信息拼接（appendError）</li>
+ *   <li>9.2 空 error 不输出（appendError_empty）</li>
+ * </ul>
  *
  * @since 2026/8/14
- * @see "doc/design/web/CCommUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 public class CCommUtilsTests {
@@ -52,7 +194,7 @@ public class CCommUtilsTests {
     // ---------- contextTypeForm ----------
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：设置表单 content-type
      */
     @Test
     public void contextTypeForm() {
@@ -63,7 +205,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：contextTypeForm null headers 抛 NPE
      */
     @Test
     public void contextTypeForm_nullHeaders_throws() {
@@ -77,7 +219,7 @@ public class CCommUtilsTests {
     // ---------- contextTypeJson ----------
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：设置 json content-type
      */
     @Test
     public void contextTypeJson() {
@@ -88,7 +230,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.4
+     * 对应测试用例 3.4：contextTypeJson null headers 抛 NPE
      */
     @Test
     public void contextTypeJson_nullHeaders_throws() {
@@ -102,7 +244,7 @@ public class CCommUtilsTests {
     // ---------- acceptJson ----------
 
     /**
-     * 对应测试用例 3.5
+     * 对应测试用例 3.5：设置 Accept: application/json
      */
     @Test
     public void acceptJson() {
@@ -113,7 +255,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.6
+     * 对应测试用例 3.6：acceptJson null headers 抛 NPE
      */
     @Test
     public void acceptJson_nullHeaders_throws() {
@@ -127,7 +269,7 @@ public class CCommUtilsTests {
     // ---------- getFullHeaderStr ----------
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：多个 header 以换行连接
      */
     @Test
     public void getFullHeaderStr() {
@@ -139,7 +281,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：null/空 map 返回 null
      */
     @Test
     public void getFullHeaderStr_null_returnsNull() {
@@ -149,7 +291,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：同一 header 多值用逗号连接
      */
     @Test
     public void getFullHeaderStr_multiValue() {
@@ -160,7 +302,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.4
+     * 对应测试用例 4.4：predicate 过滤 header
      */
     @Test
     public void getFullHeaderStr_withPredicate() {
@@ -175,7 +317,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.5
+     * 对应测试用例 4.5：predicate 全部拒绝返回空串
      */
     @Test
     public void getFullHeaderStr_predicateAllReject_returnsEmptyString() {
@@ -187,7 +329,7 @@ public class CCommUtilsTests {
     // ---------- isTextBody ----------
 
     /**
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：application/json 视为文本 body
      */
     @Test
     public void isTextBody_json() {
@@ -197,7 +339,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.2
+     * 对应测试用例 5.2：application/octet-stream 非文本
      */
     @Test
     public void isTextBody_binary() {
@@ -207,7 +349,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.3
+     * 对应测试用例 5.3：无 Content-Type 按非文本处理
      */
     @Test
     public void isTextBody_emptyHeaders() {
@@ -216,7 +358,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.4
+     * 对应测试用例 5.4：null headers 返回 false
      */
     @Test
     public void isTextBody_nullHeaders_returnsFalse() {
@@ -227,7 +369,7 @@ public class CCommUtilsTests {
     // ---------- getCharsetOrDefault ----------
 
     /**
-     * 对应测试用例 6.1
+     * 对应测试用例 6.1：显式声明 charset 时按声明解析
      */
     @Test
     public void getCharsetOrDefault_explicit() {
@@ -237,7 +379,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.2
+     * 对应测试用例 6.2：未声明 charset 默认 UTF-8
      */
     @Test
     public void getCharsetOrDefault_defaultUtf8() {
@@ -247,7 +389,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.3
+     * 对应测试用例 6.3：无法解析的 Content-Type 回退 UTF-8
      */
     @Test
     public void getCharsetOrDefault_invalidContentType() {
@@ -257,7 +399,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.4
+     * 对应测试用例 6.4：无 Content-Type 默认 UTF-8
      */
     @Test
     public void getCharsetOrDefault_emptyHeaders() {
@@ -266,7 +408,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.5
+     * 对应测试用例 6.5：null headers 返回 UTF-8
      */
     @Test
     public void getCharsetOrDefault_nullHeaders_returnsUtf8() {
@@ -277,7 +419,7 @@ public class CCommUtilsTests {
     // ---------- appendRequestUrl / appendUrl ----------
 
     /**
-     * 对应测试用例 7.1
+     * 对应测试用例 7.1：GET 带 query 参数拼到 URL，多 value 时 key 重复出现
      */
     @Test
     public void appendRequestUrl_getWithParams() {
@@ -293,7 +435,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.2
+     * 对应测试用例 7.2：GET 无 query 仅记录 path
      */
     @Test
     public void appendRequestUrl_getNoParams() {
@@ -305,7 +447,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.3
+     * 对应测试用例 7.3：POST 不拼 URL query（参数在 body/form）
      */
     @Test
     public void appendUrl_postParamsNotAppended() {
@@ -319,7 +461,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.4
+     * 对应测试用例 7.4：method 为 null 时 URL 前输出 null
      */
     @Test
     public void appendUrl_nullMethod() {
@@ -333,7 +475,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.5
+     * 对应测试用例 7.5：多 value 参数
      */
     @Test
     public void appendUrl_multiValueParams() {
@@ -348,7 +490,7 @@ public class CCommUtilsTests {
     // ---------- appendHeaderLine ----------
 
     /**
-     * 对应测试用例 8.1
+     * 对应测试用例 8.1：正常输出 Key: Value
      */
     @Test
     public void appendHeaderLine_string() {
@@ -359,7 +501,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 8.2
+     * 对应测试用例 8.2：空 value 输出
      */
     @Test
     public void appendHeaderLine_emptyValue() {
@@ -370,7 +512,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 8.3
+     * 对应测试用例 8.3：null value 输出
      */
     @Test
     public void appendHeaderLine_nullValue() {
@@ -423,7 +565,7 @@ public class CCommUtilsTests {
     // ---------- appendError ----------
 
     /**
-     * 对应测试用例 9.1
+     * 对应测试用例 9.1：异常信息拼接
      */
     @Test
     public void appendError() {
@@ -434,7 +576,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 9.2
+     * 对应测试用例 9.2：空 error 不输出
      */
     @Test
     public void appendError_empty() {
@@ -448,7 +590,7 @@ public class CCommUtilsTests {
     // ---------- appendHttpLog（完整 HTTP 报文拼接） ----------
 
     /**
-     * 对应测试用例 1.1.1
+     * 对应测试用例 1.1.1：有来源标识输出 {@code [source]}，GET 请求输出 METHOD URL
      */
     @Test
     public void appendHttpLog_get() {
@@ -464,7 +606,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.1.1
+     * 对应测试用例 1.1.1：有来源标识输出 {@code [source]}，GET 请求输出 METHOD URL
      */
     @Test
     public void appendHttpLog_source() {
@@ -478,7 +620,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3.1
+     * 对应测试用例 1.3.1：POST 有 body 输出 body
      */
     @Test
     public void appendHttpLog_postFormAndBody() {
@@ -498,7 +640,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3.5
+     * 对应测试用例 1.3.5：params 为空但请求体有值时仅输出 json 请求体
      */
     @Test
     public void appendHttpLog_paramsEmptyReqOnly() {
@@ -514,7 +656,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3.6
+     * 对应测试用例 1.3.6：请求体为 null 但响应体有值时仅输出响应体
      */
     @Test
     public void appendHttpLog_reqNullRspPresent() {
@@ -530,7 +672,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7.4
+     * 对应测试用例 1.7.4：全部字段均有值时验证完整格式与各段顺序
      */
     @Test
     public void appendHttpLog_allFields() {
@@ -645,7 +787,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.6.3
+     * 对应测试用例 1.6.3：请求/响应体为 null 时不输出占位（noResponseBody，避免 [null]）
      */
     @Test
     public void appendHttpLog_noResponseBody() {
@@ -657,7 +799,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7.5
+     * 对应测试用例 1.7.5：异常信息 + 耗时输出
      */
     @Test
     public void appendHttpLog_errorAndRt() {
@@ -674,7 +816,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7.6
+     * 对应测试用例 1.7.6：耗时无效（end 早于 begin）时不输出
      */
     @Test
     public void appendHttpLog_rtInvalidNotOutput() {
@@ -688,7 +830,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5.2
+     * 对应测试用例 1.5.2：响应头同一 header 多个值（如 Set-Cookie）逐行输出
      */
     @Test
     public void appendHttpLog_headersMultipleValues() {
@@ -770,7 +912,7 @@ public class CCommUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.8.3
+     * 对应测试用例 1.8.3：null info 抛 NPE
      */
     @Test
     public void appendHttpLog_nullInfo() {

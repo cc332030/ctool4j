@@ -23,9 +23,67 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 查找按注册顺序先注册优先，类似类加载双亲委派，原则上不可被后注册的覆盖。
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CConvertUtils} 为类型转换工具类，提供：</p>
+ * <ul>
+ *   <li>查询：{@code getConverter} / {@code getConverterNoObjectFallback}</li>
+ *   <li>转换：{@code convert} / {@code convertOpt}</li>
+ * </ul>
+ * <p>默认注册 {@code CClassConvert} 的静态方法为转换器。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>convert null 入参</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>无可用转换器（含 Collection/Map/数组源）</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>无入参方法注册</td>
+ *     <td>跳过注册并告警</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>类型间转换（字符串/数值/日期等），支持注册自定义转换器。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>无匹配转换器返回 null，调用方需判空；Collection/Map/数组源不支持。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>基于 CClassConvert 默认转换器 + 自定义注册，扩展灵活。</li>
+ *   <li>Object 源兜底优先级最低，避免抢占特殊转换（核心取舍）。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>默认转换器注册</b></p>
+ * <ul>
+ *   <li>静态初始化经 {@code CReflectUtils.getAllMethodsCached(CClassConvert.class)} 收集静态方法并注册为转换器</li>
+ *   <li>（入参为源类型，返回值为目标类型）。</li>
+ *   <li>无入参方法无法确定源类型，跳过注册（Q16，避免 getParameterTypes()[0] 越界）。</li>
+ * </ul>
+ * <p><b>转换器查找（findConverter）</b></p>
+ * <ul>
+ *   <li>源为 Collection/Map/数组时直接返回 null（不转换）。</li>
+ *   <li>{@code ClassUtil.isAssignable(toClass, fromClass)}（含基本类型/包装等价）时返回 {@code CFunction.SELF}。</li>
+ *   <li>遍历已注册转换器，源/目标类型匹配即命中；Object 源兜底转换器（Object→String）优先级最低，</li>
+ *   <li>仅在无更精确转换器时命中，避免抢占 Date→String 等特殊转换。</li>
+ * </ul>
+ * <p><b>转换语义</b></p>
+ * <ul>
+ *   <li>{@code convertOpt}：Opt 包装转换结果。</li>
+ * </ul>
+ *
  * @since 2025/11/22
- * @see "doc/design/core/CConvertUtils.adoc"
- * @see "doc/design/core/CConvertUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -43,6 +101,9 @@ public class CConvertUtils {
 
     /**
      * 注册方法为类型转换器
+     * <ul>
+     *   <li>注册：{@code addConverter(Method)} / {@code addConverter(fromClass, toClass, converter)}</li>
+     * </ul>
      *
      * @param method 转换方法（入参为源类型，返回值为目标类型）
      */
@@ -167,6 +228,9 @@ public class CConvertUtils {
 
     /**
      * 转换对象为目标类型
+     * <ul>
+     *   <li>{@code convert(from, toClass)}：null 返回 null；无转换器返回 null；否则应用转换器。</li>
+     * </ul>
      *
      * @param from    源对象
      * @param toClass 目标类型

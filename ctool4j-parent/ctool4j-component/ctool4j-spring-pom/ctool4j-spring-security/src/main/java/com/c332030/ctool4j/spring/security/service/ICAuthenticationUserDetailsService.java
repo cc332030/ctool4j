@@ -12,8 +12,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * Description: ICAuthenticationUserDetailsService
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>按令牌加载用户，不存在抛异常</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>抛异常</p>
+ * <h2>适用范围</h2>
+ * <p>认证用户加载</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口定义</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口定义</p>
+ *
  * @since 2026/2/1
- * @see "doc/design/spring/ICAuthenticationUserDetailsService.adoc"
+ * @version 1.0
  */
 public interface ICAuthenticationUserDetailsService<U, T extends Authentication>
     extends AuthenticationUserDetailsService<T> {
