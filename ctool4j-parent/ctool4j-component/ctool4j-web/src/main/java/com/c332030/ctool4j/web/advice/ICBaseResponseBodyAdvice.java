@@ -19,8 +19,46 @@ import javax.servlet.http.HttpServletResponse;
  * Description: ICBaseResponseBodyAdvice
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>默认方法：</p>
+ * <ul>
+ *   <li>{@code supports(...)}：默认返回 true</li>
+ *   <li>{@code beforeBodyWrite(...)}（ServerHttpRequest 版本）：从 {@code ServletServerHttpRequest}/{@code ServletServerHttpResponse}</li>
+ *   <li>解包出 {@code HttpServletRequest}/{@code HttpServletResponse}，转发给抽象 HTTP 版本</li>
+ * </ul>
+ * <p>抽象方法：</p>
+ * <ul>
+ *   <li>{@code beforeBodyWrite(body, returnType, selectedContentType, selectedConverterType, request, response)}</li>
+ *   <li>（HTTP 版本）：实现类只需处理 HTTP 请求/响应</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>未覆写抽象方法</td>
+ *     <td>实现类必须实现 HTTP 版本抽象方法</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要介入响应体写出的 Advice 实现继承本接口。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>{@code supports} 默认 true；实现类必须实现 HTTP 版本 {@code beforeBodyWrite}。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>解包转发</b></p>
+ * <ul>
+ *   <li>基类处理 Servlet 解包，实现类无需关心 ServerHttpRequest 转换，直接处理 HTTP 版本。</li>
+ * </ul>
+ *
  * @since 2025/9/28
- * @see "doc/design/web/ICBaseResponseBodyAdvice.adoc"
+ * @version 1.0
  */
 public interface ICBaseResponseBodyAdvice<T> extends ResponseBodyAdvice<T> {
 

@@ -19,13 +19,38 @@ import java.lang.reflect.Method;
  * </p>
  *
  * <p>
- * 是 {@link CCacheAspect#getCacheKey} 的测试用例（对应测试文档
- * <code>doc/design/cache/CCacheAspectCacheKeyTests.adoc</code>）。
+ * 是 {@link CCacheAspect#getCacheKey} 的测试用例。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>仅测试纯逻辑方法 {@code getCacheKey}，不依赖 Spring 容器与 Redis。</li>
+ *   <li>覆盖入参对象形态：JDK 类（String/Integer）、带 {@code @CCacheId} 字段的 POJO、无 {@code @CCacheId} 字段的 POJO、null。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 {@code getCacheKey} 的约定：JDK 类 cacheId 为 null、带 {@code @CCacheId} 取字段值、</li>
+ *   <li>无 {@code @CCacheId} cacheId 为 null（退 object.toString）、object 为 null 返回 null。</li>
+ *   <li>依据白盒/黑盒原则：覆盖 JDK 类、POJO（有无 @CCacheId）、null 边界。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：JDK String/Integer、POJO 带/不带 @CCacheId、null 对象。</li>
+ *   <li>未覆盖：多 {@code @CCacheId} 字段（只取第一个，语义由实现保证）；复合 key 组装（由 idConverter 承担）。</li>
+ * </ul>
+ * <h2>getCacheKey 缓存 key 生成</h2>
+ * <ul>
+ *   <li>1.1 JDK 类 String：key 为对象字符串（testGetCacheKey_jdkClassString）</li>
+ *   <li>1.2 JDK 类 Integer：key 为对象字符串（testGetCacheKey_jdkClassInteger）</li>
+ *   <li>1.3 POJO 带 @CCacheId：取字段值作为 cacheId（testGetCacheKey_pojoWithCacheId）</li>
+ *   <li>1.4 POJO 无 @CCacheId 且未配 key()：报错（testGetCacheKey_pojoWithoutCacheId_throws）</li>
+ *   <li>1.5 null 对象：返回 null（testGetCacheKey_cacheIdNullButObjectNull_returnsNull）</li>
+ * </ul>
+ *
+ * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ *
  * @since 2026/8/14
- * @see "doc/design/cache/CCacheAspectCacheKeyTests.adoc"
-  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ * @version 1.0
  */
 class CCacheAspectCacheKeyTests {
 
@@ -64,6 +89,9 @@ class CCacheAspectCacheKeyTests {
         }
     }
 
+    /**
+     * 用于反射读取 {@code @CCacheable} 注解与形参名的夹具方法
+     */
     @CCacheable(namespace = Namespace.class)
     public void annotatedMethod() {
     }

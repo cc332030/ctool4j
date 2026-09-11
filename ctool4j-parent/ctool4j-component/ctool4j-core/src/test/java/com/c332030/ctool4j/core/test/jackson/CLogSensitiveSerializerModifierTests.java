@@ -13,13 +13,39 @@ import org.junit.jupiter.api.Test;
  * Description: CLogSensitiveSerializerModifierTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「日志 mapper 脱敏 / 全局 mapper 真实 / 自定义保留 / 普通字段 / null 跳过 / 与 BLOB 共存 / 深拷贝隔离」多个维度组织。</li>
+ *   <li>用 SensitiveBean（name + @CLogSensitive phone）、CustomKeepBean、BlobSensitiveBean 验证各场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对仅日志 mapper 脱敏、自定义保留位数的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：日志 mapper 脱敏；全局 mapper 真实；自定义保留位数；普通字段不受影响；@CLogSensitive null 不输出；</li>
+ *   <li>@CLogBlob 与 @CLogSensitive 共存；深拷贝隔离。</li>
+ *   <li>未覆盖：无（覆盖了核心行为）。</li>
+ * </ul>
+ * <h2>脱敏替换</h2>
+ * <ul>
+ *   <li>1.1 日志 mapper：@CLogSensitive 字段脱敏（sensitiveFieldMaskedInLogMapper）</li>
+ *   <li>1.2 全局 mapper：@CLogSensitive 字段输出真实内容（globalMapperOutputsRealContent）</li>
+ *   <li>1.3 自定义保留：前 1 后 2（customKeepApplied）</li>
+ *   <li>1.4 普通字段：name 正常输出（nonSensitiveFieldNotAffected）</li>
+ *   <li>1.5 null 字段：日志 mapper 不输出（logMapperSkipsNullSensitiveField）</li>
+ *   <li>1.6 与 BLOB 共存：占位符与脱敏互不影响（blobAndSensitiveCoexist）</li>
+ *   <li>1.7 深拷贝隔离：不影响其他 mapper（logMapperDeepCopyDoesNotAffectOthers）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CLogSensitiveSerializerModifierTests.adoc"
+ * @version 1.0
  */
 public class CLogSensitiveSerializerModifierTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：日志 mapper：@CLogSensitive 字段脱敏
      */
     @Test
     public void sensitiveFieldMaskedInLogMapper() throws Exception {
@@ -32,7 +58,7 @@ public class CLogSensitiveSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：全局 mapper：@CLogSensitive 字段输出真实内容
      */
     @Test
     public void globalMapperOutputsRealContent() throws Exception {
@@ -45,7 +71,7 @@ public class CLogSensitiveSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：自定义保留：前 1 后 2
      */
     @Test
     public void customKeepApplied() throws Exception {
@@ -58,7 +84,7 @@ public class CLogSensitiveSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：普通字段：name 正常输出
      */
     @Test
     public void nonSensitiveFieldNotAffected() throws Exception {
@@ -69,7 +95,7 @@ public class CLogSensitiveSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：null 字段：日志 mapper 不输出
      */
     @Test
     public void logMapperSkipsNullSensitiveField() throws Exception {
@@ -81,7 +107,7 @@ public class CLogSensitiveSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：与 BLOB 共存：占位符与脱敏互不影响
      */
     @Test
     public void blobAndSensitiveCoexist() throws Exception {
@@ -96,7 +122,7 @@ public class CLogSensitiveSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.7
+     * 对应测试用例 1.7：深拷贝隔离：不影响其他 mapper
      */
     @Test
     public void logMapperDeepCopyDoesNotAffectOthers() throws Exception {

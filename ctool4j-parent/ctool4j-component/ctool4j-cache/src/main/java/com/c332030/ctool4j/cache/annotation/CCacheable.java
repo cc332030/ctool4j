@@ -10,9 +10,32 @@ import java.lang.annotation.*;
  * Description: CCacheable
  * </p>
  *
- * @see "doc/design/cache/CCacheable.adoc"
- * @see "doc/design/cache/CCacheAspectTests.adoc"
+ * <p>方法/类型级缓存注解：由 {@code CCacheAspect} 在方法执行前读取缓存、未命中时执行原方法并写缓存
+ * （本地 Caffeine 或 Redis，由 {@link #local()} 决定）。</p>
+ *
+ * <h2>设计思路总述</h2>
+ * <ul>
+ *   <li>本注解是纯声明：切面通过 {@code @Around("@annotation(...CCacheable)")} 拦截，
+ *   {@code resolveCacheKey} 依据 {@code key()} 是否非空分派到「简单 el 表达式」或「{@code @CCacheId} 默认逻辑」。</li>
+ *   <li>el 表达式由 {@code CElKeyResolveUtils} 在首次使用时解析校验（懒校验）、结果按方法缓存复用，
+ *   运行期经 MethodHandle getter 链求值，不牺牲启动性能。</li>
+ *   <li>{@code namespace} 必填（无默认值）且用于隔离不同业务的缓存 key；本地与 Redis 两模式的 key 语义不同，
+ *   不可混用（Redis key 为 {@code namespace:cacheKey}）。</li>
+ * </ul>
+ * <p>各属性的详细设计与边界见对应属性 javadoc。</p>
+ * <h2>设计要点</h2>
+ * <p><b>属性目录</b></p>
+ * <ul>
+ *   <li>{@link #local()}：是否本地缓存（默认 {@code true} 本地 Caffeine；{@code false} 走 Redis）。</li>
+ *   <li>{@link #idConverter()}：缓存 ID 生成类（默认 {@code CDefaultCacheIdConverter}）。</li>
+ *   <li>{@link #namespace()}：缓存命名空间类（必填，用于区分缓存分组，如 key 前缀）。</li>
+ *   <li>{@link #expire()}：过期时间（秒），{@code 0} 表示永久（默认 {@code 0}）。</li>
+ *   <li>{@link #key()}：缓存 key 简单 el 表达式（默认 {@code ""}，为空走默认 {@code @CCacheId} 逻辑）。</li>
+ * </ul>
+ *
+ *
  * @since 2025/9/27
+ * @version 1.0
  */
 @Documented
 @Inherited

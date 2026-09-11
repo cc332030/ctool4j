@@ -33,13 +33,42 @@ import java.util.stream.Collectors;
  * 新实现计划期 SELF 直接写入；源声明集合父类型实际持有集合旧实现跳过、新实现直接写入。
  * </p>
  * <p>
- * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见
- * 设计文档 doc/design/core/CBeanUtils.adoc；测试用例分类与编号见测试文档
- * doc/design/core/CBeanUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号。
+ * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见本类 javadoc 各测试方法（含对应编号）。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>功能完整性测试（兼容性）：围绕 CBeanUtils 在重构/优化前后的行为一致性设计用例，验证各复制/转 Map/实例化能力在不同输入形态下行为稳定：</li>
+ *   <li>5.1 复制兼容性：对象复制（完整字段、基本类型字段、JDK 源、null 源、Map、Entry、数组、列表）、Supplier 经 Map 一致性</li>
+ *   <li>5.2 转 Map 兼容性：基础、命名、JDK/null</li>
+ *   <li>5.3 实例化兼容性：newInstance</li>
+ *   <li>覆盖正常路径与边界（null、JDK 类源）。</li>
+ * </ul>
+ * <h2>复制兼容性</h2>
+ * <ul>
+ *   <li>5.1.1 copyFullCompatibility：完整字段复制</li>
+ *   <li>5.1.2 copyPrimitiveTypeFields：基本类型字段复制</li>
+ *   <li>5.1.3 copyJdkSourceCompatibility：JDK 类源复制</li>
+ *   <li>5.1.4 copyNullSourceCompatibility：null 源复制</li>
+ *   <li>5.1.5 copyMapCompatibility：Map 复制</li>
+ *   <li>5.1.6 copyEntryCompatibility：Entry 复制</li>
+ *   <li>5.1.7 copyFromArrCompatibility：数组复制</li>
+ *   <li>5.1.8 copyListCompatibility：列表复制</li>
+ *   <li>5.1.9 copySupplierViaMapConsistency：Supplier 经 Map 一致性</li>
+ * </ul>
+ * <h2>转 Map 兼容性</h2>
+ * <ul>
+ *   <li>5.2.1 toMapCompatibility：转 Map 基础</li>
+ *   <li>5.2.2 toMapNamedCompatibility：转 Map 命名</li>
+ *   <li>5.2.3 toMapJdkNullCompatibility：转 Map JDK/null</li>
+ * </ul>
+ * <h2>实例化兼容性</h2>
+ * <ul>
+ *   <li>5.3.1 newInstanceCompatibility：newInstance 实例化</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CBeanUtilsCompatibilityTests.adoc"
+ * @version 1.0
  */
 public class CBeanUtilsCompatibilityTests {
 
@@ -378,7 +407,7 @@ public class CBeanUtilsCompatibilityTests {
     /**
      * 全字段复制兼容：基础/包装/日期/Object/父类型声明/继承/null/final/集合/无转换器字段；
      * 其中声明 Object/Serializable 实际持有 Date 转 String 命中格式化（objectStr 优先级最低）也由本用例覆盖
-     * 对应测试用例 5.1.1
+     * 对应测试用例 5.1.1：完整字段复制
      */
     @Test
     public void copyFullCompatibility() {
@@ -388,7 +417,7 @@ public class CBeanUtilsCompatibilityTests {
     /**
      * 原始类型同型字段复制：新实现计划期 SELF 直接写入
      * （旧实现因无原始类型转换器而跳过，属旧缺口修复，与旧行为不同）
-     * 对应测试用例 5.1.2
+     * 对应测试用例 5.1.2：基本类型字段复制
      */
     @Test
     public void copyPrimitiveTypeFields() {
@@ -409,7 +438,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * JDK 源类不复制兼容
-     * 对应测试用例 5.1.3
+     * 对应测试用例 5.1.3：JDK 类源复制
      */
     @Test
     public void copyJdkSourceCompatibility() {
@@ -422,7 +451,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * null 源/目标边界兼容
-     * 对应测试用例 5.1.4
+     * 对应测试用例 5.1.4：null 源复制
      */
     @Test
     public void copyNullSourceCompatibility() {
@@ -437,7 +466,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * Map 源兼容：基础字段、null 值、类型转换、final/集合跳过
-     * 对应测试用例 5.1.5
+     * 对应测试用例 5.1.5：Map 复制
      */
     @Test
     public void copyMapCompatibility() {
@@ -452,7 +481,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * 各复制入口兼容：copy(Object, Class)/copy(Object, supplier)/copy(Map, Class)/copy(Map, supplier)
-     * 对应测试用例 5.1.6
+     * 对应测试用例 5.1.6：Entry 复制
      */
     @Test
     public void copyEntryCompatibility() {
@@ -479,7 +508,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * copyFromArr 反序遍历覆盖兼容
-     * 对应测试用例 5.1.7
+     * 对应测试用例 5.1.7：数组复制
      */
     @Test
     public void copyFromArrCompatibility() {
@@ -499,7 +528,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * copyList / copyListFromMap 兼容
-     * 对应测试用例 5.1.8
+     * 对应测试用例 5.1.8：列表复制
      */
     @Test
     public void copyListCompatibility() {
@@ -529,7 +558,7 @@ public class CBeanUtilsCompatibilityTests {
      * copy(Object, CSupplier) / copyList(Collection, CSupplier) 经 Map 中转与直接路径
      * 在原始类型同型字段上行为一致（review P1 已修复：CConvertUtils 以 ClassUtil.isAssignable
      * 判定可直接赋值后，装箱 Integer 经 Map 中转可拆箱直写原始类型字段，不再丢失）
-     * 对应测试用例 5.1.9
+     * 对应测试用例 5.1.9：Supplier 经 Map 一致性
      */
     @Test
     public void copySupplierViaMapConsistency() {
@@ -557,7 +586,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * toMap 兼容：null 值过滤、final/集合字段入 map、不可变
-     * 对应测试用例 5.2.1
+     * 对应测试用例 5.2.1：转 Map 基础
      */
     @Test
     public void toMapCompatibility() {
@@ -571,7 +600,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * toMap 下划线/json 命名兼容
-     * 对应测试用例 5.2.2
+     * 对应测试用例 5.2.2：转 Map 命名
      */
     @Test
     public void toMapNamedCompatibility() {
@@ -592,7 +621,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * toMap null/JDK 源兼容
-     * 对应测试用例 5.2.3
+     * 对应测试用例 5.2.3：转 Map JDK/null
      */
     @Test
     public void toMapJdkNullCompatibility() {
@@ -604,7 +633,7 @@ public class CBeanUtilsCompatibilityTests {
 
     /**
      * newInstance 兼容：正常类实例化、无 public 无参构造器抛异常
-     * 对应测试用例 5.3.1
+     * 对应测试用例 5.3.1：newInstance 实例化
      */
     @Test
     public void newInstanceCompatibility() {

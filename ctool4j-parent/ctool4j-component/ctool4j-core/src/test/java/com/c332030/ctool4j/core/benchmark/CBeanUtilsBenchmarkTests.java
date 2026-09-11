@@ -32,8 +32,26 @@ import java.util.Map;
  *     <li>编译期直接赋值（基线）：手工 setter / 手工循环</li>
  * </ul>
  *
+ * <h2>对比维度</h2>
+ * <ul>
+ *   <li>对象复制（copy），对比多类实现方式（满足对比类别 ≥3 类）：</li>
+ *   <li>CBeanUtilsCopyCase：当前 copy 实现</li>
+ *   <li>CBeanUtilsCopyOldPathCase：旧路径实现</li>
+ *   <li>CBeanUtilsCopyReuseTargetCase：复用目标对象实现</li>
+ * </ul>
+ * <h2>执行方式</h2>
+ * <ul>
+ *   <li>性能测试独立于单元测试，仅在明确命令执行时才运行（显式运行）。</li>
+ *   <li>排除初始化干扰：测试两次，第二次在全部实现方式初始化完成后进行。</li>
+ *   <li>结果写入报告，分析性能差异原因并给出方案。</li>
+ * </ul>
+ * <h2>基准执行</h2>
+ * <ul>
+ *   <li>6.1 benchmark：CBeanUtils 复制性能对比基准（多实现方式对比）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CBeanUtilsBenchmarkTests.adoc"
+ * @version 1.0
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CBeanUtilsBenchmarkTests {
@@ -43,7 +61,7 @@ public class CBeanUtilsBenchmarkTests {
     /**
      * 基准执行入口（显式运行：mvn test -Dtest=CBeanUtilsBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
-     * 对应测试用例 6.1
+     * 对应测试用例 6.1：CBeanUtils 复制性能对比基准（多实现方式对比）
      */
     @Test
     public void benchmark() {

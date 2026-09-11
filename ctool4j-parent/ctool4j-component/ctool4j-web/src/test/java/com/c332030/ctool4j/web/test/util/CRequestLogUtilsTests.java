@@ -15,8 +15,31 @@ import org.junit.jupiter.api.Test;
  * isExcludeUri（依赖配置的用户排除项部分）、isEnable/genRequestLog/logWrite 等依赖容器或配置对象，
  * 不在本测试覆盖范围；isExcludeUri 的内置静态资源排除分支（配置无关，先于配置读取）纳入本测试覆盖</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 CRequestLogUtils：请求日志采集与常量 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。</li>
+ *   <li>{@code isExcludeUri} 的内置静态资源排除分支（先于配置读取、配置无关）纳入覆盖：接口文档静态资源、静态文件扩展名命中即排除，业务 uri 不排除。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：{@code isExcludeUri} 依赖用户配置 {@code exclude-uri-patterns} 的部分、{@code isEnable}/{@code genRequestLog}/{@code logWrite} 等依赖容器装配的场景，由集成测试覆盖。</li>
+ * </ul>
+ * <h2>CRequestLogUtils：请求日志采集与常量</h2>
+ * <ul>
+ *   <li>1.1 emptyReqs（emptyReqs）</li>
+ *   <li>1.2 emptyRsp（emptyRsp）</li>
+ *   <li>1.3 getOpt_empty（getOpt_empty）</li>
+ *   <li>1.4 getOptThenRemove_empty（getOptThenRemove_empty）</li>
+ *   <li>1.5 remove_idempotent（remove_idempotent）</li>
+ *   <li>1.6 constants（constants）</li>
+ *   <li>1.7 isExcludeUri：接口文档静态资源默认排除（excludeStaticResource_docEntry）</li>
+ *   <li>1.8 isExcludeUri：静态文件扩展名默认排除（excludeStaticResource_byExtension）</li>
+ *   <li>1.9 isExcludeUri：业务 uri 不排除（notExclude_businessUri）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/web/CRequestLogUtilsTests.adoc"
+ * @version 1.0
  */
 
 @CustomLog
@@ -25,7 +48,7 @@ public class CRequestLogUtilsTests {
     // ---------- EMPTY_REQ / EMPTY_RSP（无请求体/响应体占位，统一为字符串） ----------
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：emptyReqs
      */
     @Test
     public void emptyReqs() {
@@ -34,7 +57,7 @@ public class CRequestLogUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：emptyRsp
      */
     @Test
     public void emptyRsp() {
@@ -45,7 +68,7 @@ public class CRequestLogUtilsTests {
     // ---------- getOpt / getOptThenRemove / remove（ThreadLocal 空场景） ----------
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：getOpt_empty
      */
     @Test
     public void getOpt_empty() {
@@ -57,7 +80,7 @@ public class CRequestLogUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：getOptThenRemove_empty
      */
     @Test
     public void getOptThenRemove_empty() {
@@ -69,7 +92,7 @@ public class CRequestLogUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：remove_idempotent
      */
     @Test
     public void remove_idempotent() {
@@ -82,7 +105,7 @@ public class CRequestLogUtilsTests {
     // ---------- 常量 ----------
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：constants
      */
     @Test
     public void constants() {
@@ -93,7 +116,7 @@ public class CRequestLogUtilsTests {
     // ---------- isExcludeUri：内置静态资源默认排除（配置无关分支，先于配置读取） ----------
 
     /**
-     * 对应测试用例 1.7
+     * 对应测试用例 1.7：接口文档静态资源默认排除
      */
     @Test
     public void excludeStaticResource_docEntry() {
@@ -107,7 +130,7 @@ public class CRequestLogUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.8
+     * 对应测试用例 1.8：静态文件扩展名默认排除
      */
     @Test
     public void excludeStaticResource_byExtension() {
@@ -118,7 +141,7 @@ public class CRequestLogUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.9
+     * 对应测试用例 1.9：业务 uri 不排除
      */
     @Test
     public void notExclude_businessUri() {

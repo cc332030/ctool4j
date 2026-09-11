@@ -17,16 +17,35 @@ import org.springframework.security.access.AccessDeniedException;
  * 通过 Spring 的 Mock 请求/响应运行完整 writeJsonError 链路，不依赖 Spring 容器。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证处理访问被拒绝，输出 403的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对处理访问被拒绝，输出 403的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：处理访问被拒绝，输出 403的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>访问被拒绝处理器</h2>
+ * <ul>
+ *   <li>1.1 验证处理访问被拒绝，输出 403（对应测试方法 1.1-1.2）</li>
+ * </ul>
+ *
  * @since 2026/8/17
- * @see "doc/design/spring/CAccessDeniedHandlerTests.adoc"
+ * @version 1.0
  */
 class CAccessDeniedHandlerTests {
 
     private final CAccessDeniedHandler handler = new CAccessDeniedHandler();
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证处理访问被拒绝，输出 403（对应测试方法 1.1-1.2）
+         */
     @Test
     void testHandle_write403WithReasonAndUrl() throws Exception {
         // 正例：输出 403，文案为默认 ReasonPhrase + 请求路径
@@ -44,8 +63,8 @@ class CAccessDeniedHandlerTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     void testHandle_withQueryStringUsesRequestUri() throws Exception {
         // 边界：带查询串时仍以 requestURI 作为路径

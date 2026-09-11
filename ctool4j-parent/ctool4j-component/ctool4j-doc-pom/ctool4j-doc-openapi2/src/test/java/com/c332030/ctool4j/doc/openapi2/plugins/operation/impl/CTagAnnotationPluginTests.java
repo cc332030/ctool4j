@@ -18,12 +18,38 @@ import java.util.Optional;
  * Description: CTagAnnotationPluginTests
  * </p>
  *
- * @since 2026/9/4
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>覆盖 supports 支持性。</li>
+ *   <li>覆盖 apply 分支输出：类级 @CTag 作为分组（正例）、合并方法级 @COperation.tags、无 @CTag 不处理（反例）。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对"分组 = 类级 name 并集方法级 tags"的约定。</li>
+ *   <li>依据分支覆盖：有/无 @CTag、是否合并方法级分组均验证。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：supports（含 null）、apply 类级分组/合并/无注解。</li>
+ *   <li>未覆盖：在真实 springfox 文档生成链路上的端到端分组行为。</li>
+ * </ul>
+ * <h2>支持性</h2>
+ * <ul>
+ *   <li>1.1 支持 SWAGGER_2/12 与 null（supports）</li>
+ * </ul>
+ * <h2>apply 分支输出</h2>
+ * <ul>
+ *   <li>2.1 类级 @CTag.name 作为分组 tag（apply_classTag）</li>
+ *   <li>2.2 合并方法 @COperation.tags 到分组（apply_mergeOperationTags）</li>
+ *   <li>2.3 无 @CTag 不设置分组（apply_noAnnotation）</li>
+ * </ul>
  *
  * <p>
- * 是 {@link CTagAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CTagAnnotationPluginTests.adoc</code>）。
+ * 是 {@link CTagAnnotationPlugin} 的测试用例。
  * </p>
- * @see "doc/design/openapi2/CTagAnnotationPluginTests.adoc"
+ *
+ * @since 2026/9/4
+ * @version 1.0
  */
 class CTagAnnotationPluginTests {
 

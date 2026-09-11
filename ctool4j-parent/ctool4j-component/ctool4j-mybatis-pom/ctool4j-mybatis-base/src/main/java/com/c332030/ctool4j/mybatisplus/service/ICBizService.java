@@ -20,8 +20,23 @@ import java.util.Objects;
  * Description: ICBizService
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICBizService}：业务服务接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>扩展 ICService，提供按业务ID查询</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>业务服务</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口</p>
+ *
  * @since 2025/12/6
- * @see "doc/design/mybatisplus/ICBizService.adoc"
+ * @version 1.0
  */
 public interface ICBizService<ENTITY extends BIZ, BIZ>
         extends ICService<ENTITY> {

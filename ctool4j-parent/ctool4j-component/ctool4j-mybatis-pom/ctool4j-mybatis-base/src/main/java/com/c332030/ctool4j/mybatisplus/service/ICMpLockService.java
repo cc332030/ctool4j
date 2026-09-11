@@ -10,8 +10,23 @@ import com.c332030.ctool4j.redis.util.CLockUtils;
  * Description: ICMpLockService
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICMpLockService}：锁服务接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>扩展 ICService，提供插入/更新/删除锁 key</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>锁服务</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口</p>
+ *
  * @since 2025/12/8
- * @see "doc/design/mybatisplus/ICMpLockService.adoc"
+ * @version 1.0
  */
 public interface ICMpLockService<ENTITY> extends ICService<ENTITY> {
 

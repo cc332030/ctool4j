@@ -1,22 +1,23 @@
 package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.enums.CProfileEnum;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.core.validation.CAssert;
+import com.c332030.ctool4j.definition.constant.CTool4jConstants;
 import com.c332030.ctool4j.definition.function.ToStringFunction;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.context.ApplicationEvent;
 
 import java.lang.annotation.Annotation;
@@ -29,9 +30,23 @@ import java.util.function.Consumer;
  * Description: CSpringUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CSpringUtils}：Spring 工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>Spring 容器相关工具</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>Spring 操作</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2025/9/10
- * @see "doc/design/spring/CSpringUtils.adoc"
- * @see "doc/design/spring/CSpringUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -82,17 +97,7 @@ public class CSpringUtils {
      * @return 当前应用上下文
      */
     public ApplicationContext getApplicationContext() {
-        return SpringUtil.getApplicationContext();
-    }
-
-    /**
-     * 获取指定类型的 bean
-     * @param tClass bean 类型
-     * @return bean
-     * @param <T> 泛型
-     */
-    public <T> T getBean(Class<T> tClass) {
-        return SpringUtil.getBean(tClass);
+        return CSpringConfigBeans.getApplicationContext();
     }
 
     /**
@@ -102,6 +107,17 @@ public class CSpringUtils {
      */
     public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> tClass) {
         return getApplicationContext().getBeansWithAnnotation(tClass);
+    }
+
+    /**
+     * 获取指定类型的 bean
+     *
+     * @param tClass bean 类型
+     * @param <T>    泛型
+     * @return bean
+     */
+    public <T> T getBean(Class<T> tClass) {
+        return getApplicationContext().getBean(tClass);
     }
 
     /**
@@ -121,27 +137,43 @@ public class CSpringUtils {
     /**
      * 获取启动类所在的基础包集合
      *
+     * <p><b>详细步骤</b>：</p>
+     * <ol>
+     *   <li>取容器中全部标注 {@code SpringBootApplication} 的 Bean（含组合注解，如
+     *   {@code CSpringBootApplication}）；</li>
+     *   <li>逐个读取其 {@code scanBasePackages}：非空时取各值（去空白、去重），
+     *   为空时回退为启动类所在包；</li>
+     *   <li>返回全部基础包（去重、保持发现顺序）。</li>
+     * </ol>
+     *
+     * <p><b>边界与兜底</b>：容器中不存在启动类时不报错——扫描范围并非只能来自启动类，
+     * 框架基础包与使用方显式声明的包同样有效；无启动类时按剩余来源返回，
+     * 三者皆空才说明确实没有可扫描范围。</p>
+     *
      * @return 基础包集合
      */
     public Set<String> getBasePackages() {
 
-        val springApplicationMap = getBeansWithAnnotation(SpringBootApplication.class);
-        CAssert.notEmpty(springApplicationMap, "springApplicationMap 不能为空");
-
         val basePackages = new LinkedHashSet<String>();
-        springApplicationMap.values().forEach(springApplication -> {
+        basePackages.add(CTool4jConstants.BASE_PACKAGE);
 
-            val mainApplicationClass = springApplication.getClass();
+        val applicationContext = getApplicationContext();
+        val autowiredTypes = applicationContext.getBeansWithAnnotation(SpringBootApplication.class);
+        autowiredTypes.values().forEach(springApplication -> {
+
+            // 用 Spring 的元注解感知查找，兼容 @SpringBootApplication 的组合注解（如 CSpringBootApplication）
+            Class<?> mainApplicationClass = AopUtils.getTargetClass(springApplication);
             CAssert.notNull(mainApplicationClass, "mainApplicationClass 不能为空");
 
-            val springBootAppAnnotation = mainApplicationClass.getAnnotation(SpringBootApplication.class);
+            SpringBootApplication springBootAppAnnotation =
+                AnnotationUtils.findAnnotation(mainApplicationClass, SpringBootApplication.class);
             CAssert.notNull(springBootAppAnnotation, "mainApplicationClass 未标识 @SpringBootApplication");
 
-            val scanBasePackages = springBootAppAnnotation.scanBasePackages();
+            String[] scanBasePackages = springBootAppAnnotation.scanBasePackages();
             if(ArrayUtil.isNotEmpty(scanBasePackages)) {
 
-                for (val scanBasePackage : scanBasePackages) {
-                    val basePackage = CStrUtils.toAvailable(scanBasePackage);
+                for (String scanBasePackage : scanBasePackages) {
+                    String basePackage = CStrUtils.toAvailable(scanBasePackage);
                     CCollUtils.addIgnoreBlank(basePackages, basePackage);
                 }
             } else {
@@ -149,6 +181,7 @@ public class CSpringUtils {
             }
         });
 
+        basePackages.addAll(CSpringConfigBeans.getBasePackages());
         return basePackages;
     }
 
@@ -177,8 +210,8 @@ public class CSpringUtils {
         val constructor = (Constructor<? extends T>) constructors.get(0);
         constructor.setAccessible(true);
 
-        val params = Arrays.stream(constructor.getParameterTypes())
-            .map(SpringUtil::getBean)
+        Object[] params = Arrays.stream(constructor.getParameterTypes())
+            .map(parameterType -> getBean(parameterType))
             .toArray();
         return CReflectUtils.newInstance(constructor, params);
     }
@@ -186,10 +219,14 @@ public class CSpringUtils {
     /**
      * 获取当前激活的环境
      *
+     * <p>取上下文的 {@code Environment#getActiveProfiles()} 首项；无激活环境时返回 {@code null} 由
+     * {@link CProfileEnum#of(String)} 兜底。</p>
+     *
      * @return 当前激活的环境
      */
     public CProfileEnum getActiveProfile() {
-        return CProfileEnum.of(SpringUtil.getActiveProfile());
+        val activeProfiles = getApplicationContext().getEnvironment().getActiveProfiles();
+        return CProfileEnum.of(ArrayUtil.isEmpty(activeProfiles) ? null : activeProfiles[0]);
     }
 
     /**
@@ -251,7 +288,7 @@ public class CSpringUtils {
         Set<CProfileEnum> excludeProfiles
     ) {
 
-        var profile = getActiveProfileDefaultNull();
+        CProfileEnum profile = getActiveProfileDefaultNull();
         if(profile == null
             || excludeProfiles.contains(profile)
         ) {

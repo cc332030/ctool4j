@@ -18,12 +18,39 @@ import java.util.Optional;
  * Description: CNotEmptyAnnotationPluginTests
  * </p>
  *
- * @since 2026/8/14
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>覆盖注解类型识别、supports 支持性。</li>
+ *   <li>覆盖 apply 分支输出：命中 @NotEmpty 标记必填（正例）、未命中不标记（反例）。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对"命中 @NotEmpty 标记必填、isRequired 默认 true"的约定。</li>
+ *   <li>依据白盒/黑盒原则与分支覆盖：命中/未命中两种分支输出均验证。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：getAnnotationClass、supports（含 null）、apply 命中/未命中。</li>
+ *   <li>未覆盖：在真实 springfox 文档生成链路上的端到端行为。</li>
+ * </ul>
+ * <h2>注解识别与支持性</h2>
+ * <ul>
+ *   <li>1.1 返回 NotEmpty.class（getAnnotationClass）</li>
+ *   <li>1.2 支持 SWAGGER_2/12（supports）</li>
+ *   <li>1.3 null 文档类型也支持（supports_null）</li>
+ * </ul>
+ * <h2>apply 分支输出</h2>
+ * <ul>
+ *   <li>2.1 命中 @NotEmpty 标记参数必填（apply_hitAnnotation）</li>
+ *   <li>2.2 未命中 @NotEmpty 不标记必填（apply_missAnnotation）</li>
+ * </ul>
  *
  * <p>
- * 是 {@link CNotEmptyAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CNotEmptyAnnotationPluginTests.adoc</code>）。
+ * 是 {@link CNotEmptyAnnotationPlugin} 的测试用例。
  * </p>
- * @see "doc/design/openapi2/CNotEmptyAnnotationPluginTests.adoc"
+ *
+ * @since 2026/8/14
+ * @version 1.0
  */
 class CNotEmptyAnnotationPluginTests {
 
@@ -31,7 +58,7 @@ class CNotEmptyAnnotationPluginTests {
 
     /**
      * <p>
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：返回 NotEmpty.class
      */
     @Test
     void getAnnotationClass() {
@@ -40,7 +67,7 @@ class CNotEmptyAnnotationPluginTests {
 
     /**
      * <p>
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：支持 SWAGGER_2/12
      */
     @Test
     void supports() {
@@ -50,7 +77,7 @@ class CNotEmptyAnnotationPluginTests {
 
     /**
      * <p>
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：null 文档类型也支持
      */
     @Test
     void supports_null() {
@@ -60,7 +87,7 @@ class CNotEmptyAnnotationPluginTests {
     /**
      * apply 分支输出：命中 @NotEmpty 注解 → 标记参数必填（正例）
      * <p>
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：命中 @NotEmpty 标记参数必填
      */
     @Test
     void apply_hitAnnotation() {
@@ -78,7 +105,7 @@ class CNotEmptyAnnotationPluginTests {
     /**
      * apply 分支输出：未命中 @NotEmpty 注解 → 不标记必填（反例）
      * <p>
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：未命中 @NotEmpty 不标记必填
      */
     @Test
     void apply_missAnnotation() {

@@ -34,8 +34,33 @@ import java.util.List;
  * 显著优于每次全量解析的原生反射。
  * </p>
  *
+ * <h2>被测对象</h2>
+ * <p>简单 el 属性链表达式取值，代表性场景：</p>
+ * <ul>
+ *   <li>深链（多级属性跳）：{@code person.contact.address.code}，验证多级 MethodHandle getter 链。</li>
+ *   <li>一级（仅参数名）：{@code user}，验证无属性跳的最快路径（零分配直接返回参数对象）。</li>
+ * </ul>
+ * <h2>对比维度（≥3 类实现，实现原理各不相同）</h2>
+ * <ul>
+ *   <li>{@code CElKeyResolveUtils}（被测）：表达式一次解析按方法缓存 + getter 按类缓存 MethodHandle。</li>
+ *   <li>原生反射：每次调用逐级 {@code getDeclaredField + Field.get}，无任何缓存（最朴素实现）。</li>
+ *   <li>hutool {@code BeanUtil.getProperty}：反射实现，内部有缓存。</li>
+ *   <li>编译期直接赋值（基线）：手工 getter 链。</li>
+ * </ul>
+ * <h2>执行方式</h2>
+ * <ul>
+ *   <li>性能测试独立于单元测试，仅在明确命令执行时才运行（{@code mvn test -Dtest=CElKeyResolveUtilsBenchmarkTests}）。</li>
+ *   <li>排除初始化干扰：先对所有用例做一轮全局预热，触发全部实现方式初始化/加载，首次结果不计入。</li>
+ *   <li>充分预热 + 足够迭代：预热 50 万次触发 JIT 至 C2 稳态，单轮计时 100 万次、取 5 轮平均，降低测量噪声。</li>
+ *   <li>结果写入 {@code tmp/benchmark-report-celkeyresolver.md} 报告，分析性能差异原因并给出方案。</li>
+ * </ul>
+ * <h2>基准执行</h2>
+ * <ul>
+ *   <li>1.1 benchmark：CElKeyResolveUtils el 属性链取值性能对比基准（多实现方式对比）</li>
+ * </ul>
+ *
  * @since 2026/9/8
- * @see "doc/design/core/CElKeyResolveUtilsBenchmarkTests.adoc"
+ * @version 1.0
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CElKeyResolveUtilsBenchmarkTests {
@@ -43,7 +68,7 @@ public class CElKeyResolveUtilsBenchmarkTests {
     /**
      * 基准执行入口（显式运行：mvn test -Dtest=CElKeyResolveUtilsBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：CElKeyResolveUtils el 属性链取值性能对比基准（多实现方式对比）
      */
     @Test
     public void benchmark() {

@@ -25,10 +25,68 @@ import java.lang.annotation.Target;
  * 多个方法需共用同一限流桶时，将 {@link #useMethodName()} 设为 false 去掉方法名段即可。
  * </p>
  *
- * @see "doc/design/redis/CRateLimit.adoc"
- * @see "doc/design/redis/CRateLimitAspect.adoc"
- * @see "doc/design/redis/CRateLimitAspectTests.adoc"
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>固定窗口计数器（INCR + 首次 EXPIRE 原子脚本，见 {@code CRedisUtils.incrExpire}），实现简单、原子。</li>
+ *   <li>业务 id 用于区分不同调用主体（如用户/商户/IP），使限流维度更精确。</li>
+ *   <li>参数校验：count/interval 必须为正，非法时切面抛 {@code IllegalArgumentException}。</li>
+ * </ul>
+ * <p><b>id() 表达式</b></p>
+ * <ul>
+ *   <li>格式 {@code 参数名.属性名.属性名…}，参考 {@code @CCacheable.key()}。</li>
+ *   <li>由公共解析器 {@code CElKeyResolveUtils} 求值，从方法参数取业务维度值。</li>
+ *   <li>为空或求值为 null 时，限流不带业务维度（按方法全局限流）。</li>
+ * </ul>
+ * <p><b>useMethodName() 方法名隔离</b></p>
+ * <ul>
+ *   <li>默认 {@code true}：key 含 {@code 类简单名:方法名}，各方法按自身隔离。</li>
+ *   <li>设为 {@code false}：key 去掉方法名段（{@code 应用前缀:类简单名:业务id}），同类的多个方法共享同一限流桶。</li>
+ *   <li>用途：同一业务的多个入口/共用一个限流维度时，避免各方法独立计数导致总频率失控。</li>
+ * </ul>
+ * <p><b>CRateLimitException</b></p>
+ * <p>继承 {@code CException}（运行时异常）。限流触发时抛出，携带 {@code message()} 指定的消息。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>count &lt;= 0</td>
+ *     <td>切面抛 IllegalArgumentException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>interval &lt;= 0</td>
+ *     <td>切面抛 IllegalArgumentException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>id 表达式非法/循环引用</td>
+ *     <td>切面抛 IllegalArgumentException/IllegalStateException（由 CElKeyResolveUtils 抛）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>id 求值为 null</td>
+ *     <td>按方法全局限流</td>
+ *   </tr>
+ *   <tr>
+ *     <td>窗口内超阈值</td>
+ *     <td>抛 CRateLimitException</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>接口限流（按用户/IP/商户等维度）。</li>
+ *   <li>高频操作的频率控制。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>固定窗口计数器在窗口临界点存在"窗口翻转瞬间突增"的边界问题（窗口初重置时刻允许冲过阈值一次）。</li>
+ *   <li>若需更平滑的限流（令牌桶/滑动窗口）需另行实现；本实现聚焦简单可靠的固定窗口计数。</li>
+ *   <li>计数依赖 Redis 可用性：Redis 异常时限流判定会抛出异常（非降级放行），调用方需自行处理 Redis 故障策略。</li>
+ * </ul>
+ *
  * @since 2026/9/8
+ * @version 1.0
  */
 @Documented
 @Target(ElementType.METHOD)

@@ -11,13 +11,33 @@ import java.io.IOException;
  * Description: ToStringFunctionTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证 ToStringFunction 的 apply 正常、null 输入、受检异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对继承 CFunction 行为的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：apply 正常/null/受检异常。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>apply</h2>
+ * <ul>
+ *   <li>1.1 正常：结果正确（applyNormal）</li>
+ *   <li>1.2 null 输入：正常处理（applyNullInput）</li>
+ *   <li>1.3 受检异常：抛 IOException（applySneakyThrowsCheckedException）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/ToStringFunctionTests.adoc"
+ * @version 1.0
  */
 public class ToStringFunctionTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：正常：结果正确
      */
     @Test
     public void applyNormal() {
@@ -29,7 +49,7 @@ public class ToStringFunctionTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：null 输入：正常处理
      */
     @Test
     public void applyNullInput() {
@@ -41,7 +61,7 @@ public class ToStringFunctionTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：受检异常：抛 IOException
      */
     @Test
     public void applySneakyThrowsCheckedException() {

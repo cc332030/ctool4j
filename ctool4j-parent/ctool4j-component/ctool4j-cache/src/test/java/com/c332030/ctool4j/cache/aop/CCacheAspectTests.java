@@ -17,12 +17,34 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * <p>
- * 是 {@link CCacheAspect} 的测试用例（对应测试文档
- * <code>doc/design/cache/CCacheAspectTests.adoc</code>）。
+ * 是 {@link CCacheAspect} 的测试用例。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>通过真实 Spring 容器（{@code @CTool4jSpringBootTest}）集成验证切面拦截生效、缓存命中与过期。</li>
+ *   <li>覆盖：相同 key 缓存命中（值相等）、不同 key 不命中、过期后重新计算（值不等）、</li>
+ *   <li>缓存方法抛异常时向上传播且异常不写缓存。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对切面读缓存/未命中写缓存、异常不捕获直接抛出的约定。</li>
+ *   <li>依据最真实场景优先原则：走完整 Spring 容器 + 真实缓存流程，而非 mock 单点。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：命中、未命中、过期重算、异常传播（Q28 修复，异常不写缓存）。</li>
+ *   <li>未覆盖：Redis 模式下的分布式锁竞争细节（由 CCacheBuilderTests/集成环境覆盖）；异步刷新并发竞争（由缓存真实环境验证）。</li>
+ * </ul>
+ * <h2>切面缓存行为</h2>
+ * <ul>
+ *   <li>1.1 本地缓存命中/未命中/过期：相同 key 命中值相等、不同 key 不等、过期后重算不等（cacheAspect）</li>
+ *   <li>1.2 异常传播：缓存方法抛异常向上抛出、异常不写缓存（cacheErrorPropagates）</li>
+ * </ul>
+ *
+ *
  * @since 2026/6/16
- * @see "doc/design/cache/CCacheAspectTests.adoc"
+ * @version 1.0
  */
 @CTool4jSpringBootTest
 public class CCacheAspectTests {

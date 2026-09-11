@@ -12,9 +12,42 @@ import java.util.function.BiFunction;
  * 注意：apply 方法内部使用 @SneakyThrows 包装受检异常，调用方无法从签名感知，需自行处理实际异常（设计取舍）
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CBiFunction&lt;O1, O2, R&gt;} 为双参函数接口，扩展 {@code BiFunction}，支持受检异常：</p>
+ * <ul>
+ *   <li>{@code apply}：默认方法，@SneakyThrows 包装后调用 {@code applyThrowable}</li>
+ *   <li>{@code applyThrowable}：抽象方法，可抛 Throwable</li>
+ *   <li>工具：{@code apply(function, o1, o2)}、{@code first()}/{@code second()}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>apply(function=null, ...)</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>用 @SneakyThrows 简化受检异常处理。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>受检异常包装</b></p>
+ * <ul>
+ *   <li>{@code apply} 内部 @SneakyThrows 包装（设计取舍）。</li>
+ * </ul>
+ * <p><b>工具方法</b></p>
+ * <ul>
+ *   <li>{@code apply(function, o1, o2)}：function 为 null 返回 null。</li>
+ *   <li>{@code first()}/{@code second()}：分别返回取第一/第二参数的函数。</li>
+ * </ul>
+ *
  * @since 2025/5/12
- * @see "doc/design/core/CBiFunction.adoc"
- * @see "doc/design/core/CBiFunctionTests.adoc"
+ * @version 1.0
  */
 @FunctionalInterface
 public interface CBiFunction<O1, O2, R> extends BiFunction<O1, O2, R> {

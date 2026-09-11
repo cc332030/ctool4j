@@ -30,9 +30,58 @@ import java.lang.reflect.Method;
  * 表达式求值。
  * </p>
  *
- * @see "doc/design/redis/CIdempotentAspect.adoc"
- * @see "doc/design/redis/CIdempotentAspectTests.adoc"
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>id 表达式非法</td>
+ *     <td>抛 IllegalArgumentException（CElKeyResolveUtils，经 CRedisKeyUtils）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>id 求值为 null</td>
+ *     <td>按分组类+方法名全局隔离</td>
+ *   </tr>
+ *   <tr>
+ *     <td>加锁失败（重复/并发）</td>
+ *     <td>抛 CIdempotentException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>锁内业务异常</td>
+ *     <td>传播业务异常（CLockService finally 释放锁）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>Redis 异常</td>
+ *     <td>向上抛出（不静默降级放行，由调用方决定故障策略）</td>
+ *   </tr>
+ * </table>
+ * <h2>设计要点</h2>
+ * <p><b>幂等 key</b></p>
+ * <ul>
+ *   <li>格式：{@code 应用前缀:分组类简单名:方法名:业务id}（业务 id 为空时省略最后一段）。</li>
+ *   <li>应用前缀取自 {@code CRedisUtils.getApplicationPrefix()}（优先 group，其次 name）。</li>
+ *   <li>分组类简单名取自注解 {@code group()}（而非方法声明类），支持多方法共用同一分组。</li>
+ *   <li>注解 {@code useMethodName()} 为 false 时省略方法名段，同组多个方法共享同一执行权。</li>
+ *   <li>业务 id 由公共工具 {@code CRedisKeyUtils.resolveBizId}（内部走 {@code CElKeyResolveUtils}）按 {@code id()} 表达式取值，区分调用维度；key 构建复用 {@code CRedisKeyUtils.buildKey}。</li>
+ * </ul>
+ * <p><b>执行权获取（复用 CLockService）</b></p>
+ * <ul>
+ *   <li>复用 {@code CLockService.lock(key).onLockFail(抛异常).execute(业务)} 模板。</li>
+ *   <li>加锁成功 → 锁内执行业务（{@code CAspectUtils.process}）→ 释放锁。</li>
+ *   <li>加锁失败（同一 key 已有调用）→ 执行 {@code onLockFail} 回调抛 {@code CIdempotentException}。</li>
+ *   <li>默认 {@code waitTime=ZERO} 不等待，并发立即可感知拒绝。</li>
+ * </ul>
+ * <p><b>业务 id 解析</b></p>
+ * <ul>
+ *   <li>复用 {@code CRedisKeyUtils.resolveBizId}（内部走 {@code CElKeyResolveUtils}）解析注解 {@code id()} 表达式，从方法参数取业务维度值。</li>
+ *   <li>表达式为空或求值为 null/空白时，幂等不带业务维度（按分组类+方法名全局隔离）。</li>
+ * </ul>
+ *
  * @since 2026/9/9
+ * @version 1.0
  */
 @CustomLog
 @Aspect

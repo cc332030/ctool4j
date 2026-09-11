@@ -24,9 +24,105 @@ import java.util.stream.Stream;
  * Description: CCollUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CCollUtils} 为集合工具类，提供丰富的集合操作：</p>
+ * <ul>
+ *   <li>空兜底：{@code defaultEmpty}、{@code size}</li>
+ *   <li>遍历/分组：{@code forEach}、{@code groupingBy}</li>
+ *   <li>添加/拼接：{@code addIgnoreNull}/{@code addIgnoreEmpty}/{@code addIgnoreBlank}、{@code addAllIgnoreNull}、{@code concat}、{@code concatOne}</li>
+ *   <li>过滤：{@code filter}（Collection/List/Set × predicate/convert）/{@code filterNull}/{@code filterString}/{@code filterKey}/{@code filterStringKey}</li>
+ *   <li>转换：{@code convert}（多版本）/{@code convertSet}/{@code convertToList}/{@code convertToSet}/{@code convertToCollection}/{@code convertString}/{@code convertCollection}</li>
+ *   <li>新建：{@code newList}/{@code newSet}/{@code newLinkedSet}/{@code newMap}/{@code newLinkedMap}</li>
+ *   <li>元素：{@code contains}/{@code containsAny}/{@code get}/{@code first}/{@code last}/{@code onlyOne}/{@code getValues}</li>
+ *   <li>最值：{@code min}/{@code max}（按字段取值）</li>
+ *   <li>其他：{@code stream}、{@code toMap}（多版本）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>defaultEmpty null/空集合</td>
+ *     <td>返回空集合（非 null）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>filter/concat 等空/null 入参</td>
+ *     <td>返回空结果，不抛异常</td>
+ *   </tr>
+ *   <tr>
+ *     <td>get 越界/负索引/null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>first/last 空/null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>onlyOne 空/单元素/多元素</td>
+ *     <td>null / 元素 / 抛业务异常</td>
+ *   </tr>
+ *   <tr>
+ *     <td>min/max 空/null/全 null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toMap value 为 null / key 冲突无 merge</td>
+ *     <td>跳过 / 抛 IllegalStateException</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>集合的过滤、转换、拼接、分组、取元素、最值、转 Map 等通用操作。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>filter/convert 依赖转换函数，转换结果为 null 的元素被丢弃。</li>
+ *   <li>toMap key 冲突无 merge 时抛异常，需显式提供 mergeFunction。</li>
+ *   <li>toMap 始终过滤 null key 与 null value；自定义谓词仅可进一步筛选非空 key，放行 null key 无效（见第 2.6 节）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>null/空入参统一返回空结果（而非抛异常），简化调用方判空。</li>
+ *   <li>过滤/转换丢弃 null 结果，换取结果集无 null 的安全语义。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>空值语义</b></p>
+ * <ul>
+ *   <li>多数方法对 null/空集合返回空结果（空集合/空 Map/空流/null），不抛异常。</li>
+ *   <li>{@code defaultEmpty}：null/空集合返回空集合（非 null）；非空返回原引用。</li>
+ * </ul>
+ * <p><b>过滤语义</b></p>
+ * <ul>
+ *   <li>{@code filter}：按 predicate 过滤；null 元素参与 predicate 判断。</li>
+ *   <li>{@code filterNull}/{@code filterString}：过滤 null 元素 / 过滤空、空白、null 字符串。</li>
+ *   <li>{@code filterKey}/{@code filterStringKey}：按 key（字段取值）过滤，key 为 null 的元素被过滤。</li>
+ * </ul>
+ * <p><b>转换语义</b></p>
+ * <ul>
+ *   <li>{@code convert}：元素转换；转换结果为 null 的元素被过滤；可选 predicate 过滤。</li>
+ *   <li>空集合返回供应商提供的新集合；null 对象返回空集合。</li>
+ *   <li>{@code convertString}：转换后为空白/null 的元素被过滤。</li>
+ * </ul>
+ * <p><b>元素获取</b></p>
+ * <ul>
+ *   <li>{@code get}：List 索引取元素，越界/负索引/null 返回 null。</li>
+ *   <li>{@code first}/{@code last}：空/null 返回 null；list 走索引 O(1)（List 取首/末元素），非 List 走迭代器单遍遍历，不构造 Stream。</li>
+ *   <li>{@code onlyOne}：空返回 null、单个返回、多个抛业务异常。</li>
+ * </ul>
+ * <p><b>最值与转 Map</b></p>
+ * <ul>
+ *   <li>{@code min}/{@code max}：按字段取值，null 集合/空/全 null 返回 null，过滤 convert 结果 null 元素；单遍遍历，每元素仅执行一次 convert（避免重复调用转换函数）。</li>
+ *   <li>{@code toMap}：key-value 映射；value 为 null 的条目跳过；无 merge 冲突抛 IllegalStateException；</li>
+ *   <li>Pair 版本；返回不可变 Map。单遍循环实现，toKey 每个元素仅执行一次。</li>
+ *   <li>toMap 始终过滤 null key 与 null value：即使自定义谓词放行 null key，null key 也被跳过。</li>
+ *   <li>键类型决定了 Map 实现：首键为枚举时用 EnumMap，其余用 LinkedHashMap（key 已保证非空）。</li>
+ * </ul>
+ *
  * @since 2024/11/21
- * @see "doc/design/core/CCollUtils.adoc"
- * @see "doc/design/core/CCollUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CCollUtils {
@@ -637,6 +733,9 @@ public class CCollUtils {
 
     /**
      * 新建指定容量列表
+     * <ul>
+     *   <li>{@code newList(0)} 等 size=0 返回不可变空集合；size&gt;0 返回可变集合（size 为初始容量）。</li>
+     * </ul>
      *
      * @param size 容量
      * @param <T>  元素类型
@@ -721,7 +820,6 @@ public class CCollUtils {
         }
         return collection.contains(element);
     }
-
 
     /**
      * 获取列表指定下标元素（越界返回 null）

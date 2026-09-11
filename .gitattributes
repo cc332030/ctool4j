@@ -1,3 +1,6 @@
 
 *.cmd           text working-tree-encoding=UTF-8 eol=crlf
 *.bat           text working-tree-encoding=UTF-8 eol=crlf
+
+# 代码生成模板（FreeMarker）：不参与文本行尾归一化，保持模板原样
+ctool4j-processor-pom/ctool4j-mybatis-processor/src/main/resources/templates/*.ftl -text

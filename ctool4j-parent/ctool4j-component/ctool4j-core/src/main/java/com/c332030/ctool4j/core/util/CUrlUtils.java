@@ -19,9 +19,67 @@ import java.util.stream.Collectors;
  * Description: CUrlUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>URI/URL 解析：{@code getURI}、{@code getScheme}、{@code getHost}、{@code getPort}、{@code getHostWithPort}</li>
+ *   <li>路径：{@code getPath}、{@code splitToPath}、{@code firstPath}、{@code lastPath}</li>
+ *   <li>查询参数：{@code getParamMap}、{@code getParam}、{@code getParams}</li>
+ *   <li>其他：{@code getUrl}（提取 http(s) 协议起始部分）、{@code decode}、{@code replaceDomain}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>getUrl 空/不含协议</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getParamMap 空 URL / 无参数</td>
+ *     <td>返回空 Map</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getParamMap 无值参数（解码空串）</td>
+ *     <td>不放入结果 Map</td>
+ *   </tr>
+ *   <tr>
+ *     <td>replaceDomain URL 为空</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>replaceDomain 新域名为空</td>
+ *     <td>原样返回原 URL</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getPort 未指定端口</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>URL 组件解析、查询参数提取、域名替换等 URL 处理场景。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>getParamMap 无值参数被丢弃（视为无该参数），需要保留空值参数时不适用。</li>
+ *   <li>基于 {@code new URL}/{@code new URI} 解析，非法 URL 抛异常（@SneakyThrows）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>fragment 剥离、按第一个 {@code =} 分割、无值参数丢弃等均为明确的参数解析取舍。</li>
+ *   <li>返回不可变 Map，保证解析结果不被外部修改。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>端口语义</b></p>
+ * <ul>
+ *   <li>{@code getPort}：URI 端口为 -1（未指定）时返回 null。</li>
+ * </ul>
+ *
  * @since 2024/12/2
- * @see "doc/design/core/CUrlUtils.adoc"
- * @see "doc/design/core/CUrlUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CUrlUtils {
@@ -183,9 +241,16 @@ public class CUrlUtils {
      *
      * <p>无值参数（如 {@code ?a=}）经解码为空串后按 null 处理，不放入结果 Map，视为无该参数（有意设计）</p>
      *
+     * <h2>参数解析（getParamMap）</h2>
+     * <ul>
+     *   <li>未解码前剥离 fragment（{@code #} 后部分，{@code %23} 编码不受影响）。</li>
+     *   <li>按 {@code ?} 拆参数区，再按 {@code &amp;} 拆参数；每个参数按第一个 {@code =} 分割（值含 {@code =} 时保留完整）。</li>
+     *   <li>参数 key/value 均 URL 解码；无值参数（解码后空串）按 null 处理不放入结果 Map。</li>
+     *   <li>返回不可变 LinkedHashMap。</li>
+     * </ul>
+     *
      * @param url URL
-     * @return 参数名到参数值的不可变 Map，URL 为空或无法解析时返回空 Map
-     */
+     * @return 参数名到参数值的不可变 Map，URL 为空或无法解析时返回空 Map*/
     public Map<String, String> getParamMap(String url) {
 
         if(StrUtil.isEmpty(url)) {
@@ -232,9 +297,14 @@ public class CUrlUtils {
     /**
      * 提取 URL 中 http 协议开始的部分
      *
+     * <h2>协议提取（getUrl）</h2>
+     * <ul>
+     *   <li>用正则 {@code https?://} 查找协议起始位置，截取到 URL 末尾。</li>
+     *   <li>空/不含协议返回 null；协议前有垃圾内容时从协议处截取。</li>
+     * </ul>
+     *
      * @param url URL
-     * @return http(s) 协议开始的 URL，为空或不含协议时返回 null
-     */
+     * @return http(s) 协议开始的 URL，为空或不含协议时返回 null*/
     public String getUrl(String url) {
         if(StrUtil.isEmpty(url)) {
             return null;
@@ -306,10 +376,15 @@ public class CUrlUtils {
     /**
      * 替换 URL 域名
      *
+     * <h2>域名替换（replaceDomain）</h2>
+     * <ul>
+     *   <li>URL 为空返回 null；新域名为空原样返回。</li>
+     *   <li>基于 URI 的 rawPath/rawQuery/rawFragment 拼接 {@code newDomain + path + ?query + #fragment}。</li>
+     * </ul>
+     *
      * @param url       URL
      * @param newDomain 新域名
-     * @return 替换后的 URL，URL 为空时返回 null，新域名为空时原样返回
-     */
+     * @return 替换后的 URL，URL 为空时返回 null，新域名为空时原样返回*/
     public String replaceDomain(String url, String newDomain) {
 
         if(StrUtil.isEmpty(url)) {

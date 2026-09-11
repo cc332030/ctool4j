@@ -29,9 +29,70 @@ import java.util.Collections;
  * Description: CRedisUtils
  * </p>
  *
- * @see "doc/design/redis/CRedisUtils.adoc"
- * @see "doc/design/redis/CRedisUtilsTests.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CRedisUtils}（{@code @UtilityClass} + {@code @CAutowiredScan}）提供 Redis 工具能力：</p>
+ * <ul>
+ *   <li>key 生成：应用前缀 + 类名 + key 段拼接（{@code getKey}/{@code getApplicationPrefix}）。</li>
+ *   <li>原子操作（Lua 脚本）：{@code setIfLager}、{@code compareAndSet}、{@code setIfNotEquals}、{@code setIfAbsent}。</li>
+ *   <li>一次性操作：{@code tryDoOnce}。</li>
+ *   <li>自增与业务 id：{@code incr}/{@code incrExpire}、{@code getIncrBizId}/{@code getDateIncrBizId}/{@code getDateTimeIncrBizId}。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>{@code setIfLager}/{@code compareAndSet}/{@code setIfNotEquals} 入参 null</td>
+ *     <td>返回 false 不执行</td>
+ *   </tr>
+ *   <tr>
+ *     <td>{@code tryDoOnce} 执行异常</td>
+ *     <td>删除 key（回滚占用）后重新抛出异常</td>
+ *   </tr>
+ *   <tr>
+ *     <td>应用前缀为空</td>
+ *     <td>退而取应用名</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要原子读-比较-写、去重/限流（tryDoOnce）、自增业务 id 的 Redis 场景。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>{@code compareAndSet}/{@code setIfNotEquals} 期望值/新值与存储值需由字符串序列化模板写入，否则比较结果不受保证。</li>
+ *   <li>Lua 脚本依赖 Redis 服务器支持。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>{@code compareAndSet} 按字符串比较，存储字节序列化方式必须一致。</li>
+ *   <li>业务 id 自增依赖 Redis 单键原子性，跨实例由 Redis 保证。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>原子操作（Lua 脚本）</b></p>
+ * <ul>
+ *   <li>{@code setIfLager}：仅当新值大于当前值时设置（默认当前值为 0）。</li>
+ *   <li>{@code compareAndSet}：当前值等于期望值时才更新（按字符串比较，可带 TTL）。</li>
+ *   <li>{@code setIfNotEquals}：当前值不等于新值时才设置（可带 TTL）。</li>
+ *   <li>{@code setIfAbsent}：key 不存在时设置。</li>
+ * </ul>
+ * <p><b>key 生成语义</b></p>
+ * <ul>
+ *   <li>{@code KEY_SEPARATOR = ":"}；{@code getApplicationPrefix} 优先分组、其次应用名。</li>
+ *   <li>{@code getIncrBizId} 用 {@code "{}:biz_id:incr:{}"} 格式的递增 key，左补 0 到指定长度。</li>
+ * </ul>
+ * <p><b>实现方式</b></p>
+ * <ul>
+ *   <li>Lua 脚本通过 {@code DefaultRedisScript} 执行，保证原子性。</li>
+ *   <li>{@code compareAndSet}/{@code setIfNotEquals} 用字符串序列化模板执行，避免对象模板（JSON 引号）与字符串字节不一致导致比较恒失败。</li>
+ *   <li>{@code setIfNotEquals} 脚本按 {@code ARGV[1]}=新值（比较）、{@code ARGV[2]}=新值（写入）、{@code ARGV[3]}=TTL 传参，保证写入的是新值而非 TTL。</li>
+ * </ul>
+ *
  * @since 2025/11/10
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -87,6 +148,9 @@ public class CRedisUtils {
 
     /**
      * 生成带操作名的 key
+     * <ul>
+     *   <li>{@code getKey(clazz, keys...)} = {@code 应用前缀:类简单名:key段...}。</li>
+     * </ul>
      *
      * @param clazz     业务类
      * @param icOperate 操作

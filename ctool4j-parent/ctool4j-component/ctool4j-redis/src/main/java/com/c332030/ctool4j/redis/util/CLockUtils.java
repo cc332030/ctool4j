@@ -17,10 +17,42 @@ import java.time.Duration;
  * Description: CLockUtils
  * </p>
  *
- * @see "doc/design/redis/CLockUtils.adoc"
- * @see "doc/design/redis/CLockUtilsTests.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CLockUtils}（{@code @UtilityClass} + {@code @CAutowiredScan}）为分布式锁的静态访问入口，持有 {@code CLockService}（注入），提供：</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>{@code lockService} 未注入</td>
+ *     <td>{@code lock()}/{@code tryLockThenRun} 调用将 NPE（依赖 Spring 注入）</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>非 Spring Bean 的静态代码需要加分布式锁时。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>依赖 {@code lockService} 注入；独立使用（无 Spring 上下文）时不适用。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>静态注入依赖 Spring 容器初始化，静态方法调用前需确保注入完成。</li>
+ *   <li>历史 {@code tryLockThenRun} 接口保留但废弃，避免破坏既有调用。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>语义约定</b></p>
+ * <ul>
+ *   <li>通过 {@code @CAutowiredScan}/{@code @CAutowired} 注入 {@code CLockService}。</li>
+ * </ul>
+ *
  * @author c332030
  * @since 2024/3/20
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -38,6 +70,7 @@ public class CLockUtils {
 
     /**
      * 获取锁 key
+     *
      * @param key 业务 key
      * @return 锁 key
      */
@@ -60,6 +93,10 @@ public class CLockUtils {
 
     /**
      * 获取锁并做处理
+     * <ul>
+     *   <li>{@code tryLockThenRun(...)}（已废弃）：获取锁并执行操作。</li>
+     * </ul>
+     *
      * @param key lockKey
      * @param waitSeconds 等锁秒数
      * @param valueSupplier 锁成功操作
@@ -184,6 +221,11 @@ public class CLockUtils {
 
     /**
      * 创建锁构建器
+     * <ul>
+     *   <li>{@code lock(...)}：创建锁构建器（支持格式化 key）。</li>
+     *   <li>静态转发到 {@code CLockService}；{@code tryLockThenRun} 系列已废弃，推荐 {@code lock()} 构建器。</li>
+     *   <li>{@code tryLockThenRun} 已废弃，新代码应使用 {@code lock()} 构建器。</li>
+     * </ul>
      *
      * @param lockKey 锁 key
      * @return 锁构建器

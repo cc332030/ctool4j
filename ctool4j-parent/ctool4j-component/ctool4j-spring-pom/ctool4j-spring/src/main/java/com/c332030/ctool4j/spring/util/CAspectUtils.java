@@ -15,10 +15,24 @@ import java.lang.reflect.UndeclaredThrowableException;
  * Description: CAspectUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CAspectUtils}：AOP 切面工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>切面相关方法处理（获取方法、执行切点）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>AOP 处理</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @author c332030
  * @since 2024/5/6
- * @see "doc/design/spring/CAspectUtils.adoc"
- * @see "doc/design/spring/CAspectUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass

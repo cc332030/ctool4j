@@ -10,8 +10,23 @@ import org.springframework.lang.NonNull;
  * Description: ICApplicationListener
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICApplicationListener}：应用事件监听基接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>继承 ApplicationListener</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>事件监听</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>泛型事件</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>泛型事件</p>
+ *
  * @since 2025/10/31
- * @see "doc/design/spring/ICApplicationListener.adoc"
+ * @version 1.0
  */
 @FunctionalInterface
 public interface ICApplicationListener<E extends ApplicationEvent> extends ApplicationListener<E>, ICEvent<E> {

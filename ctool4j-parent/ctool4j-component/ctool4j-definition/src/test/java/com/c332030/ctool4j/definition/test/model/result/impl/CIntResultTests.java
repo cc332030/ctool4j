@@ -10,8 +10,47 @@ import org.springframework.http.HttpStatus;
  * Description: CIntResultTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「构造 / 成功工厂 / 失败工厂 / builder」多个维度组织，验证工厂方法与字段。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 success/error、message null 兜底的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：无参构造/全参构建；newInstance（含 null）；success（无数据/有数据/指定状态）；error（默认/自定义 code/HttpStatus）。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>构造</h2>
+ * <ul>
+ *   <li>1.1 无参构造（noArgsConstructor）</li>
+ *   <li>1.2 全参构建（builderAllFields）</li>
+ *   <li>1.3 newInstance（newInstance）</li>
+ *   <li>1.4 newInstance null 参数（newInstanceNullParams）</li>
+ * </ul>
+ * <h2>成功工厂</h2>
+ * <ul>
+ *   <li>2.1 success()（success）</li>
+ *   <li>2.2 success(data)（successWithData）</li>
+ *   <li>2.3 success(httpStatus, data)（successWithHttpStatus）</li>
+ * </ul>
+ * <h2>失败工厂</h2>
+ * <ul>
+ *   <li>3.1 error(message)（errorWithMessage）</li>
+ *   <li>3.2 error(null)（errorNullMessage）</li>
+ *   <li>3.3 error(code, message)（errorWithCodeAndMessage）</li>
+ *   <li>3.4 error(httpStatus, message)（errorWithHttpStatusAndMessage）</li>
+ *   <li>3.5 error(httpStatus)（errorWithHttpStatusOnly）</li>
+ * </ul>
+ * <h2>builder</h2>
+ * <ul>
+ *   <li>4.1 builder（builder）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CIntResultTests.adoc"
+ * @version 1.0
  */
 public class CIntResultTests {
 
@@ -20,7 +59,7 @@ public class CIntResultTests {
     private static final int ERROR_CODE = 500;
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：无参构造
      */
     @Test
     public void noArgsConstructor() {
@@ -52,7 +91,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：newInstance
      */
     @Test
     public void newInstance() {
@@ -66,7 +105,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：newInstance null 参数
      */
     @Test
     public void newInstanceNullParams() {
@@ -80,7 +119,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：success()
      */
     @Test
     public void success() {
@@ -94,7 +133,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：success(data)
      */
     @Test
     public void successWithData() {
@@ -108,7 +147,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：success(httpStatus, data)
      */
     @Test
     public void successWithHttpStatus() {
@@ -122,7 +161,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：error(message)
      */
     @Test
     public void errorWithMessage() {
@@ -136,7 +175,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：error(null)
      */
     @Test
     public void errorNullMessage() {
@@ -150,7 +189,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：error(code, message)
      */
     @Test
     public void errorWithCodeAndMessage() {
@@ -164,7 +203,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 3.4
+     * 对应测试用例 3.4：error(httpStatus, message)
      */
     @Test
     public void errorWithHttpStatusAndMessage() {
@@ -178,7 +217,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 3.5
+     * 对应测试用例 3.5：error(httpStatus)
      */
     @Test
     public void errorWithHttpStatusOnly() {
@@ -192,7 +231,7 @@ public class CIntResultTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：builder
      */
     @Test
     public void builder() {

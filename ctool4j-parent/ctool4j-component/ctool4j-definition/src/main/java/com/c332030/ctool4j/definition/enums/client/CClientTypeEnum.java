@@ -8,9 +8,19 @@ import lombok.Getter;
  * Description: CClientTypeEnum
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CClientTypeEnum} 为客户端类型枚举，定义 WEB/OFFICIAL_ACCOUNT/MINI_PROGRAM/APP/PC，各带中文描述 {@code text}。</p>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>客户端类型的标准化枚举。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>描述为中文文本。</li>
+ * </ul>
+ *
  * @since 2026/6/25
- * @see "doc/design/core/CClientTypeEnum.adoc"
- * @see "doc/design/core/CClientTypeEnumTests.adoc"
+ * @version 1.0
  */
 @Getter
 @AllArgsConstructor

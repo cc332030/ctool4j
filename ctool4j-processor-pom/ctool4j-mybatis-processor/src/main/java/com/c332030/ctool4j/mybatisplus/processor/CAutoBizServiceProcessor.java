@@ -25,8 +25,23 @@ import java.util.Set;
  * Description: CAutoBizServiceProcessor 注解处理器
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CAutoBizServiceProcessor}：自动业务服务处理器。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>注解处理器，处理 @CAutoBizService 生成服务实现</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>业务服务生成</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>继承 CAbstractProcessor</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>继承 CAbstractProcessor</p>
+ *
  * @since 2025/05/16
- * @see "doc/design/mybatisplus/CAutoBizServiceProcessor.adoc"
+ * @version 1.0
  */
 @SupportedAnnotationTypes("com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService")
 public class CAutoBizServiceProcessor extends CAbstractProcessor {

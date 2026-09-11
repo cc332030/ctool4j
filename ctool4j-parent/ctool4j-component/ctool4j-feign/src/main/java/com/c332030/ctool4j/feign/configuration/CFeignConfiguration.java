@@ -16,8 +16,32 @@ import org.springframework.context.annotation.Configuration;
  * Description: CFeignConfiguration
  * </p>
  *
- * @see "doc/design/feign/CFeignConfiguration.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CFeignConfiguration}（{@code @Configuration}）注册 Feign 相关 Bean：</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>拦截器默认注册；日志级别/日志实现按缺省注册（{@code @ConditionalOnMissingBean} 可被覆盖）。</li>
+ *   <li>{@code cFeignClient} 方法当前被注释，未注册为 Bean。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <ul>
+ *   <li>日志级别/日志实现缺失时由本配置提供默认 FULL 级别与 CFeignLogger。</li>
+ * </ul>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>引入 ctool4j-feign 时自动装配拦截器与日志。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>用户自定义 Logger/Level 时以用户 Bean 优先（ConditionalOnMissingBean）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>{@code cFeignClient} 未启用，日志客户端需自行装配；响应日志能力通过 CFeignLogger 提供。</li>
+ * </ul>
+ *
  * @since 2025/9/21
+ * @version 1.0
  */
 @CustomLog
 @Configuration
@@ -25,6 +49,9 @@ public class CFeignConfiguration {
 
     /**
      * Feign 拦截器
+     * <ul>
+     *   <li>{@code cFeignInterceptor()}：{@code CFeignInterceptor}（请求拦截器）。</li>
+     * </ul>
      *
      * @return Feign 拦截器
      */
@@ -36,6 +63,9 @@ public class CFeignConfiguration {
 //    @Bean
     /**
      * Feign 客户端（带日志）
+     * <ul>
+     *   <li>{@code cFeignClient(client, feignLogConfig)}：{@code CFeignClient}（带日志客户端，当前注释未启用）。</li>
+     * </ul>
      *
      * @param client         底层客户端
      * @param feignLogConfig 日志配置
@@ -47,6 +77,9 @@ public class CFeignConfiguration {
 
     /**
      * Feign 日志级别（默认 FULL）
+     * <ul>
+     *   <li>{@code cFeignLoggerLevel()}：{@code Logger.Level.FULL}（{@code @ConditionalOnMissingBean}）。</li>
+     * </ul>
      *
      * @return 日志级别
      */
@@ -60,6 +93,9 @@ public class CFeignConfiguration {
 
     /**
      * Feign 日志实现
+     * <ul>
+     *   <li>{@code cFeignLogger(feignLogConfig)}：{@code CFeignLogger} 日志实现（{@code @ConditionalOnMissingBean}）。</li>
+     * </ul>
      *
      * @param feignLogConfig 日志配置
      * @return 日志实现

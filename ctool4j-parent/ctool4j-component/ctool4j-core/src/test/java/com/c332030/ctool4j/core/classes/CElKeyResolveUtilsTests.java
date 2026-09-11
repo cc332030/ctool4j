@@ -17,12 +17,46 @@ import java.lang.reflect.Method;
  * </p>
  *
  * <p>
- * 是 {@link CElKeyResolveUtils} 的测试用例（对应测试文档
- * <code>doc/design/core/CElKeyResolveUtilsTests.adoc</code>）。
+ * 是 {@link CElKeyResolveUtils} 的测试用例。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>仅测试纯逻辑，不依赖 Spring 容器与 Redis。</li>
+ *   <li>通过反射取测试类内带形参名的方法（父 pom 编译开启 {@code -parameters}，保证参数名可靠），据此解析表达式。</li>
+ *   <li>覆盖表达式层级、取值形态、null 边界、非法表达式、运行期属性缺失、循环引用。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 {@code getResolver}/{@code resolve} 的约定（见 CElKeyResolveUtils.adoc）。</li>
+ *   <li>依据白盒/黑盒原则：多级取值、null、非法段、参数名缺失、运行期不可解析、循环引用均需覆盖。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：一级/多级表达式、属性值、参数为 null、链中某级 null、空白表达式、参数名不存在、非法段、运行期属性缺失、循环引用、无环不误报、第二参数引用、三级以上深链。</li>
+ *   <li>未覆盖：真实 Spring AOP 拦截下的端到端取 key（由 cache 模块集成测试覆盖）；接口/泛型动态类型（运行期验证）。</li>
+ * </ul>
+ * <h2>CElKeyResolveUtils 解析与取值</h2>
+ * <ul>
+ *   <li>1.1 一级表达式（仅参数名）：返回参数对象本身（testResolve_singleLevel）</li>
+ *   <li>1.2 多级表达式：取属性对象（testResolve_twoLevel）</li>
+ *   <li>1.3 二级取基础属性值（testResolve_propertyValue）</li>
+ *   <li>1.4 目标参数为 null：返回 null（testResolve_paramNull_returnsNull）</li>
+ *   <li>1.5 属性链某级为 null：返回 null（testResolve_middleNull_returnsNull）</li>
+ *   <li>1.6 表达式为空白：抛异常（testParse_blankExpr_throws）</li>
+ *   <li>1.7 参数名不存在：抛异常（testParse_paramNotExist_throws）</li>
+ *   <li>1.8 非法段（连续点）：抛异常（testParse_illegalSegment_throws）</li>
+ *   <li>1.9 运行期属性在某实际类型不可解析：抛异常（testResolve_propNotResolvable_throws）</li>
+ *   <li>1.10 循环引用（同实例链中重复）：抛异常（testResolve_cycle_throws）</li>
+ *   <li>1.11 合法链不误报循环引用（testResolve_noCycle）</li>
+ *   <li>1.12 引用第二个参数（参数下标 &gt; 0）：取第二实参（testResolve_secondParam）</li>
+ *   <li>1.13 三级以上深层属性链取值（testResolve_deepChain）</li>
+ *   <li>1.14 深层链中段某级为 null：返回 null（testResolve_deepChainMiddleNull_returnsNull）</li>
+ *   <li>1.15 深层链某实际类型属性不可解析：抛异常（testResolve_deepChainPropNotResolvable_throws）</li>
+ * </ul>
+ *
  * @since 2026/9/8
- * @see "doc/design/core/CElKeyResolveUtilsTests.adoc"
+ * @version 1.0
  */
 class CElKeyResolveUtilsTests {
 

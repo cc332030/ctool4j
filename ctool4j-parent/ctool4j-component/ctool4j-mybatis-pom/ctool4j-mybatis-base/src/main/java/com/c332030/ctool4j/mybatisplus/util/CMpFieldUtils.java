@@ -11,8 +11,23 @@ import java.util.function.Predicate;
  * Description: CMpFieldUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CMpFieldUtils}：字段工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>筛选更新策略非 NEVER 的字段等</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>字段处理</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2026/1/6
- * @see "doc/design/mybatisplus/CMpFieldUtils.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CMpFieldUtils {

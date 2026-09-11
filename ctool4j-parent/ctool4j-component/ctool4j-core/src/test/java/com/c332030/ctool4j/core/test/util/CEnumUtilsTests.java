@@ -14,13 +14,67 @@ import java.util.Map;
  * Description: CEnumUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「Map 构建 / 反查 / 异常路径 / 值列表」四个维度组织。</li>
+ *   <li>Map 构建覆盖 getNameMap、getMap（按字段名/函数引用/ICValue）、getMap（按 ICValue.VALUE），</li>
+ *   <li>并验证 Map 大小与内容。</li>
+ *   <li>反查覆盖 nameOf / valueOf（map、字段名、函数引用、ICValue），以及各入口的不存在异常路径。</li>
+ *   <li>异常路径用 {@code assertThrowsExactly} 精确匹配异常类型：字段不存在抛 {@code NoSuchFieldException}、</li>
+ *   <li>非枚举抛 {@code IllegalArgumentException}、反查不存在抛 {@code IllegalArgumentException}。</li>
+ *   <li>测试数据用 {@code CDbOperateEnum}（含 name 与 text 字段）、{@code CCountryCodeEnum}（实现 ICValue&lt;Integer&gt;）</li>
+ *   <li>及测试专用 {@code NullValueEnum}（含 null 值字段），贴近真实枚举使用场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 Map 构建规则（name 用 {@code Enum.name()}、字段值用反射取值且 null 过滤）与反查抛异常约定。</li>
+ *   <li>依据测试方法（等价类/边界值/分支覆盖/异常路径）：正例反查、不存在反查、非枚举、字段不存在、</li>
+ *   <li>字段值为 null 的枚举不建反查项。</li>
+ *   <li>{@code assertThrowsExactly} 精确匹配异常类型（依据测试规范，不用 {@code assertThrows} 掩盖子类语义）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：getNameMap（按 name）、getMap 按字段名（text）、getMap 按函数引用（{@code CDbOperateEnum::getText}）、</li>
+ *   <li>getMap 按 ICValue.VALUE（{@code getMap(CCountryCodeEnum.class)}）、getMap 字段值为 null 的枚举被过滤</li>
+ *   <li>（{@code NullValueEnum}，强化字段反射 null 过滤分支）、字段不存在抛 NoSuchFieldException、非枚举抛</li>
+ *   <li>IllegalArgumentException、valueOf(map)/nameOf/valueOf(字段名/func/ICValue) 正例与不存在抛异常、</li>
+ *   <li>values 值列表。</li>
+ *   <li>未覆盖：{@code valueOf(Class, Func1, value)} 不存在值抛异常路径（正例已覆盖，异常抛 IllegalArgumentException</li>
+ *   <li>与其余反查入口一致）。</li>
+ * </ul>
+ * <h2>Map 构建</h2>
+ * <ul>
+ *   <li>1.1 getNameMap：按枚举名构建，含全部枚举（getNameMap）</li>
+ *   <li>1.2 getMap 按字段名：按 text 字段构建，值映射正确（getMapByFieldName）</li>
+ *   <li>1.3 异常：字段不存在抛 NoSuchFieldException（getMapByUnknownFieldThrows）</li>
+ *   <li>1.4 异常：非枚举类抛 IllegalArgumentException（getMapNotEnumThrows）</li>
+ *   <li>1.5 getMap 按 ICValue：无参重载按 ICValue.VALUE 构建，值映射正确（getMapByValueInterface）</li>
+ *   <li>1.6 getMap 字段值为 null 过滤：字段值为 null 的枚举不建立反查项（getMapNullValueField）</li>
+ *   <li>1.7 getMap 按函数引用：按字段函数引用构建，值映射正确（getMapByFunc）</li>
+ * </ul>
+ * <h2>反查</h2>
+ * <ul>
+ *   <li>2.1 valueOf(map, value)：从 Map 反查命中（valueOfByMap）</li>
+ *   <li>2.2 异常：valueOf(map, value) 值不存在抛 IllegalArgumentException（valueOfByMapNotFoundThrows）</li>
+ *   <li>2.3 nameOf：按枚举名反查命中（nameOf）</li>
+ *   <li>2.4 异常：nameOf 枚举名不存在抛 IllegalArgumentException（nameOfNotFoundThrows）</li>
+ *   <li>2.5 valueOf(Class, fieldName, value)：按字段值反查命中（valueOfByFieldName）</li>
+ *   <li>2.6 异常：valueOf(Class, fieldName, value) 值不存在抛 IllegalArgumentException（valueOfByFieldNameNotFoundThrows）</li>
+ *   <li>2.7 valueOf(Class, ICValue)：按 ICValue.VALUE 值反查命中（valueOfByValueInterface）</li>
+ *   <li>2.8 valueOf(Class, Func1, value)：按字段函数引用值反查命中（valueOfByFunc）</li>
+ * </ul>
+ * <h2>值列表（values）</h2>
+ * <ul>
+ *   <li>3.1 values：返回全部枚举值列表且顺序正确（values）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CEnumUtilsTests.adoc"
+ * @version 1.0
  */
 public class CEnumUtilsTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：按枚举名构建，含全部枚举
      */
     @Test
     public void getNameMap() {
@@ -34,7 +88,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：getMap 按字段名：按 text 字段构建，值映射正确
      */
     @Test
     public void getMapByFieldName() {
@@ -48,7 +102,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：异常：字段不存在抛 NoSuchFieldException
      */
     @Test
     public void getMapByUnknownFieldThrows() {
@@ -59,7 +113,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：异常：非枚举类抛 IllegalArgumentException
      */
     @Test
     public void getMapNotEnumThrows() {
@@ -70,7 +124,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：getMap 按 ICValue：无参重载按 ICValue.VALUE 构建，值映射正确
      */
     @Test
     public void getMapByValueInterface() {
@@ -83,7 +137,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：getMap 字段值为 null 过滤：字段值为 null 的枚举不建立反查项
      */
     @Test
     public void getMapNullValueField() {
@@ -98,7 +152,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7
+     * 对应测试用例 1.7：getMap 按函数引用：按字段函数引用构建，值映射正确
      */
     @Test
     public void getMapByFunc() {
@@ -112,7 +166,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：valueOf(map, value)：从 Map 反查命中
      */
     @Test
     public void valueOfByMap() {
@@ -123,7 +177,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：异常：valueOf(map, value) 值不存在抛 IllegalArgumentException
      */
     @Test
     public void valueOfByMapNotFoundThrows() {
@@ -134,7 +188,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：按枚举名反查命中
      */
     @Test
     public void nameOf() {
@@ -144,7 +198,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.4
+     * 对应测试用例 2.4：异常：nameOf 枚举名不存在抛 IllegalArgumentException
      */
     @Test
     public void nameOfNotFoundThrows() {
@@ -155,7 +209,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.5
+     * 对应测试用例 2.5：valueOf(Class, fieldName, value)：按字段值反查命中
      */
     @Test
     public void valueOfByFieldName() {
@@ -166,7 +220,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.6
+     * 对应测试用例 2.6：异常：valueOf(Class, fieldName, value) 值不存在抛 IllegalArgumentException
      */
     @Test
     public void valueOfByFieldNameNotFoundThrows() {
@@ -177,7 +231,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.7
+     * 对应测试用例 2.7：valueOf(Class, ICValue)：按 ICValue.VALUE 值反查命中
      */
     @Test
     public void valueOfByValueInterface() {
@@ -188,7 +242,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.8
+     * 对应测试用例 2.8：valueOf(Class, Func1, value)：按字段函数引用值反查命中
      */
     @Test
     public void valueOfByFunc() {
@@ -199,7 +253,7 @@ public class CEnumUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：返回全部枚举值列表且顺序正确
      */
     @Test
     public void values() {

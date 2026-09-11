@@ -12,8 +12,8 @@ import lombok.experimental.StandardException;
  * 语义为「请求过于频繁，请稍后再试」。
  * </p>
  *
- * @see "doc/design/redis/CRateLimit.adoc"
  * @since 2026/9/8
+ * @version 1.0
  */
 @StandardException
 public class CRateLimitException extends CException {

@@ -9,8 +9,21 @@ import org.springframework.context.annotation.Configuration;
  * Description: CToolMybatisConfiguration
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>@Configuration，静态块注册 @TableName 为 JSON 日志注解</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>MyBatis 相关配置</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>依赖 CLogUtils</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>依赖 CLogUtils</p>
+ *
  * @since 2025/9/14
- * @see "doc/design/mybatis/CToolMybatisConfiguration.adoc"
+ * @version 1.0
  */
 @Configuration
 public class CToolMybatisConfiguration {

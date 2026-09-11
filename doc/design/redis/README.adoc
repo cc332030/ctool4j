@@ -1,0 +1,13 @@
+= redis 文档索引
+
+Redis 操作与 Redisson 分布式锁、限流、幂等（ctool4j-redis）。
+
+本目录存放 +redis+ 模块的**功能/模块级设计文档**；类级与方法级细节见对应源码 javadoc。
+
+== 功能文档
+
+- link:rate-limit-idempotent.adoc[限流与幂等]：`@CRateLimit` / `@CIdempotent` 的通用 key 规则、实现方式与取舍
+
+== 相关入口
+
+- 上级索引：link:../README.adoc[设计文档索引]

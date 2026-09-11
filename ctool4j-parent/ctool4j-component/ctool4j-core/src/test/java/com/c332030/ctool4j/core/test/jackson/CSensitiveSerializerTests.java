@@ -13,14 +13,45 @@ import java.io.StringWriter;
  * Description: CSensitiveSerializerTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「mask 脱敏 / 序列化」两个维度组织。</li>
+ *   <li>mask 覆盖默认保留、自定义保留、null、空串、短值全部打码、任意非法输入。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对脱敏规则（保留前后缀、短值全打码）的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：默认保留前 3 后 4；自定义保留（1,1/0,4）；null；空串；短值全部打码；任意非法输入脱敏；</li>
+ *   <li>序列化 null 输出 null；序列化正常脱敏。</li>
+ *   <li>未覆盖：无（覆盖了 mask 与序列化核心路径）。</li>
+ * </ul>
+ * <h2>mask 脱敏</h2>
+ * <ul>
+ *   <li>1.1 默认保留：前 3 后 4 中间 {@code *}（maskDefaultKeepPrefix3Suffix4）</li>
+ *   <li>1.2 自定义保留：自定义 prefixKeep/suffixKeep（maskCustomKeep）</li>
+ *   <li>1.3 null：返回 null（maskNull）</li>
+ *   <li>1.4 空串：返回空串（maskEmptyString）</li>
+ *   <li>1.5 短值：长度不足时全部打码（maskShortValueAllMasked）</li>
+ *   <li>1.6 任意非法输入：按字符串脱敏处理（maskArbitraryIllegalInput）</li>
+ * </ul>
+ * <h2>序列化</h2>
+ * <ul>
+ *   <li>2.1 null 内容：输出 {@code null}（serializeNullContent）</li>
+ *   <li>2.2 正常内容：输出脱敏后字符串（serializeContent）</li>
+ * </ul>
+ *
+ * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CSensitiveSerializerTests.adoc"
-  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ * @version 1.0
  */
 public class CSensitiveSerializerTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：默认保留：前 3 后 4 中间 {@code *}
      */
     @Test
     public void maskDefaultKeepPrefix3Suffix4() {
@@ -32,7 +63,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：自定义保留：自定义 prefixKeep/suffixKeep
      */
     @Test
     public void maskCustomKeep() {
@@ -43,7 +74,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：返回 null
      */
     @Test
     public void maskNull() {
@@ -53,7 +84,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：空串：返回空串
      */
     @Test
     public void maskEmptyString() {
@@ -63,7 +94,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：短值：长度不足时全部打码
      */
     @Test
     public void maskShortValueAllMasked() {
@@ -75,7 +106,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：任意非法输入：按字符串脱敏处理
      */
     @Test
     public void maskArbitraryIllegalInput() {
@@ -89,7 +120,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：null 内容：输出 {@code null}
      */
     @Test
     public void serializeNullContent() throws Exception {
@@ -103,7 +134,7 @@ public class CSensitiveSerializerTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：正常内容：输出脱敏后字符串
      */
     @Test
     public void serializeContent() throws Exception {

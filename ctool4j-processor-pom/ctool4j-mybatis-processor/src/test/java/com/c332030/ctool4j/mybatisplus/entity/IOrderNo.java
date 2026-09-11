@@ -9,6 +9,7 @@ import com.c332030.ctool4j.mybatisplus.annotation.CAutoBizService;
  *
  * @author c332030
  * @since 2026/5/17
+ * @version 1.0
  */
 @CAutoBizService
 public interface IOrderNo {

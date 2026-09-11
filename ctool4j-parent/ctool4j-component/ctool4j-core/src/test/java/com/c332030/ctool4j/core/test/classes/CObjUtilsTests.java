@@ -12,8 +12,55 @@ import org.junit.jupiter.api.Test;
  * Description: CObjUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「类型 / 转换 / 条件取值 / 合并 / 兜底」多个维度组织。</li>
+ *   <li>类型覆盖 emptyObject 单例、to 类型匹配/null/不匹配抛异常。</li>
+ *   <li>转换覆盖 Class 转换器与函数转换（null/默认值/双对象回退）。</li>
+ *   <li>合并覆盖 v1/v2 不可用、双可用 merge null 抛异常、正常 merge、key/谓词版本。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对类型转换、null 语义、合并分支的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/异常路径/分支覆盖）：类型匹配/不匹配、null、双对象回退、merge 各分支。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：emptyObject 单例；to 匹配/null/不匹配抛异常；convert(Class) null/匹配/转换器/无转换器；</li>
+ *   <li>convert(函数) 正常/null/结果 null/双对象回退；equals 转换比较；merge 各分支；defaultIfNull；</li>
+ *   <li>ifThenGet/equalsThenGet/notNullThenGet。</li>
+ *   <li>未覆盖：anyType/toSupplier/notNullThenGet(函数) 已覆盖；anyType 强转与 toSupplier 未单列</li>
+ *   <li>（内部实现细节，行为间接覆盖）。</li>
+ * </ul>
+ * <h2>类型</h2>
+ * <ul>
+ *   <li>1.1 emptyObject：返回同一单例（emptyObject）</li>
+ *   <li>1.2 to：类型匹配返回原对象；null 返回 null；不匹配抛 IllegalStateException（to）</li>
+ * </ul>
+ * <h2>转换</h2>
+ * <ul>
+ *   <li>2.1 convert(Class)：null 返回 null；匹配直接返回；有转换器转换；无转换器返回 null（convertClass）</li>
+ *   <li>2.2 convert(函数)：正常；null/结果 null 返回默认值；双对象回退；均为 null 返回 null（convertFunction）</li>
+ * </ul>
+ * <h2>比较与合并</h2>
+ * <ul>
+ *   <li>3.1 equals：转换后相等判断（equals）</li>
+ *   <li>3.2 merge：v1 不可用返回 v2；v2 不可用返回 v1；双可用 merge null 抛异常；正常 merge；key 版本；</li>
+ *   <li>谓词版本；全参数版本（merge）</li>
+ * </ul>
+ * <h2>兜底</h2>
+ * <ul>
+ *   <li>4.1 defaultIfNull：非 null 用对象、null 用默认值（defaultIfNull）</li>
+ * </ul>
+ * <h2>条件取值</h2>
+ * <ul>
+ *   <li>5.1 ifThenGet：条件成立取值、否则 null（ifThenGet）</li>
+ *   <li>5.2 equalsThenGet：相等取值、否则 null（equalsThenGet）</li>
+ *   <li>5.3 notNullThenGet：非 null 取值（值/函数版本）、否则 null（notNullThenGet）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CObjUtilsTests.adoc"
+ * @version 1.0
  */
 public class CObjUtilsTests {
 
@@ -22,7 +69,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：返回同一单例
      */
     @Test
     public void emptyObject() {
@@ -34,7 +81,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：类型匹配返回原对象；null 返回 null；不匹配抛 IllegalStateException
      */
     @Test
     public void to() {
@@ -52,7 +99,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：convert(Class)：null 返回 null；匹配直接返回；有转换器转换；无转换器返回 null
      */
     @Test
     public void convertClass() {
@@ -72,7 +119,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：convert(函数)：正常；null/结果 null 返回默认值；双对象回退；均为 null 返回 null
      */
     @Test
     public void convertFunction() {
@@ -102,7 +149,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：转换后相等判断
      */
     @Test
     public void equals() {
@@ -116,7 +163,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：v1 不可用返回 v2；v2 不可用返回 v1；双可用 merge null 抛异常；正常 merge；key 版本；
      */
     @Test
     public void merge() {
@@ -146,7 +193,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：非 null 用对象、null 用默认值
      */
     @Test
     public void defaultIfNull() {
@@ -157,7 +204,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：条件成立取值、否则 null
      */
     @Test
     public void ifThenGet() {
@@ -168,7 +215,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.2
+     * 对应测试用例 5.2：相等取值、否则 null
      */
     @Test
     public void equalsThenGet() {
@@ -179,7 +226,7 @@ public class CObjUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.3
+     * 对应测试用例 5.3：非 null 取值（值/函数版本）、否则 null
      */
     @Test
     public void notNullThenGet() {

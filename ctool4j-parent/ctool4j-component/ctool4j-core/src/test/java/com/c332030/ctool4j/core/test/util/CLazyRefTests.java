@@ -25,9 +25,50 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 以及 supplier 写法（lambda 是否擦除返回类型、方法引用）对类加载时机的影响。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>纯逻辑单测，不依赖 Spring/外部服务。</li>
+ *   <li>用 {@code AtomicInteger} 计数 supplier 调用次数，验证"懒加载、只求值一次"。</li>
+ *   <li>用 {@code CountDownLatch} + 线程池制造并发，验证 DCL 线程安全。</li>
+ *   <li>用"静态初始化置位的探测类（Probe）"与"不存在的类名（Class.forName）"验证</li>
+ *   <li><b>构造 CLazyRef 不触发被引用类加载</b>（class not found 延迟到首次 get）。</li>
+ *   <li>用自定义 ClassLoader 屏蔽可选依赖类，验证两种环境（有依赖 / 无依赖）。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据 CLazyRef 设计约定（懒加载、只求值一次、null 缓存、线程安全、类加载延迟）。</li>
+ *   <li>依据黑盒/白盒原则：正常路径、边界（null）、并发、类加载时序均需覆盖。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：懒加载、只求值一次、null 结果缓存、并发只求值一次、构造不初始化被引用类、被引用类缺失延迟到 get 抛错、</li>
+ *   <li>of(null) 空值防御、lambda 与各类方法引用（静态/实例）均不抛异常、静态字段初始化、两种环境（有/无依赖）。</li>
+ *   <li>未覆盖：supplier 抛异常后的重试语义（设计已说明下次 get 重新求值，未单测）；</li>
+ *   <li>"返回类型未擦除的 lambda"在无依赖环境于类初始化阶段报错（该限制由 1.14 以方法引用间接记录，</li>
+ *   <li>未单独为该 lambda 写法建用例）。</li>
+ * </ul>
+ * <h2>CLazyRef 行为</h2>
+ * <ul>
+ *   <li>1.1 构造时不求值，首次 get 才求值（get_lazy）</li>
+ *   <li>1.2 只求值一次，多次 get 返回同一实例（get_onlyOnce）</li>
+ *   <li>1.3 supplier 返回 null 也缓存，不重复求值（get_nullCached）</li>
+ *   <li>1.4 并发 get 只求值一次（get_concurrent_onlyOnce）</li>
+ *   <li>1.5 构造 CLazyRef 不触发被引用类初始化，首次 get 才初始化（of_shouldNotInitializeReferencedClass）</li>
+ *   <li>1.6 被引用类缺失（class not found）延迟到 get 才抛，构造不抛（of_missingClass_doesNotThrowAtConstruction）</li>
+ *   <li>1.7 静态方法引用作为 supplier（依赖已存在的正常路径）：构造与取值均不抛异常（of_staticMethodReference_noException）</li>
+ *   <li>1.8 lambda 表达式作为 supplier（依赖已存在的正常路径）：构造与取值均不抛异常（of_lambda_noException）</li>
+ *   <li>1.9 实例方法引用作为 supplier（依赖已存在的正常路径）：构造与取值均不抛异常（of_instanceMethodReference_noException）</li>
+ *   <li>1.10 静态字段初始化（静态方法初始化）：构造类不抛异常且懒加载（staticField_lazy_noException）</li>
+ *   <li>1.11 有依赖 + lambda（返回类型擦除 Object）：初始化不报错、取值不报错（withDep_lambda_initAndGet_noException）</li>
+ *   <li>1.12 有依赖 + 方法引用（具体类型）：初始化不报错、取值不报错（withDep_methodRef_initAndGet_noException）</li>
+ *   <li>1.13 无依赖 + lambda（返回类型擦除 Object）：初始化不报错、取值才报错（withoutDep_lambda_initOk_getThrows）</li>
+ *   <li>1.14 无依赖 + 方法引用：初始化即报错（withoutDep_methodRef_initThrows）——如实记录该限制</li>
+ *   <li>1.15 of(null) 抛异常（of_nullSupplier_throws）——如实记录 Lombok {@code @NonNull} 抛 {@code IllegalArgumentException}</li>
+ * </ul>
+ * <p>&gt; 注： &gt; * 1.7 / 1.8 刻意对比 lambda 与方法引用（均为"依赖已存在"的正常路径），局部 {@code @SuppressWarnings("all")} &gt;   抑制"可替换为方法引用"等无关告警以保留对比意图。 &gt; * 1.11 与 1.13 使用同一 Holder（{@code CLazyLambdaDepHolder}，返回类型擦除为 Object），分别在"有依赖 / 无依赖" &gt;   两种环境验证；1.12 与 1.14 同用 {@code CLazyMethodRefDepHolder}（具体类型）。 &gt; * 1.14 实际抛出 {@code BootstrapMethodError}（{@code invokedynamic} 引导失败），其 cause 为 {@code NoClassDefFoundError}， &gt;   断言精确匹配前者。</p>
+ *
  * @since 2026/9/10
- * @see "doc/design/core/CLazyRefTests.adoc"
- * @see "doc/design/core/CLazyRef.adoc"
+ * @version 1.0
  */
 public class CLazyRefTests {
 
@@ -316,7 +357,7 @@ public class CLazyRefTests {
      * 环境 2（有依赖）：lambda 写法（返回类型擦除为 Object），初始化不报错、取值不报错
      * <p>注：本用例用 App 类加载器加载 Holder，与 1.13/1.14 的 {@link BlockingClassLoader} 相互隔离，
      * 故此处首次加载仍会真正触发静态初始化，{@code assertDoesNotThrow} 具备校验能力。</p>
-     * 对应测试用例 1.11
+     * 对应测试用例 1.11：有依赖 + lambda（返回类型擦除 Object）：初始化不报错、取值不报错
      */
     @Test
     public void withDep_lambda_initAndGet_noException() {
@@ -334,7 +375,7 @@ public class CLazyRefTests {
     /**
      * 环境 2（有依赖）：方法引用写法，初始化不报错、取值不报错
      * <p>注：同 1.11，App 类加载器加载与 1.13/1.14 隔离，首次加载即触发静态初始化。</p>
-     * 对应测试用例 1.12
+     * 对应测试用例 1.12：有依赖 + 方法引用（具体类型）：初始化不报错、取值不报错
      */
     @Test
     public void withDep_methodRef_initAndGet_noException() {
@@ -351,7 +392,7 @@ public class CLazyRefTests {
 
     /**
      * 环境 1（无依赖，屏蔽可选依赖类加载）：lambda 写法，初始化不报错、取值才报错
-     * 对应测试用例 1.13
+     * 对应测试用例 1.13：无依赖 + lambda（返回类型擦除 Object）：初始化不报错、取值才报错
      */
     @Test
     public void withoutDep_lambda_initOk_getThrows() throws Exception {
@@ -370,7 +411,7 @@ public class CLazyRefTests {
     /**
      * 环境 1（无依赖，屏蔽可选依赖类加载）：方法引用写法，因方法引用必然引用目标类型，
      * 类初始化即报错（无法延迟到取值）——如实记录该限制。
-     * 对应测试用例 1.14
+     * 对应测试用例 1.14：无依赖 + 方法引用：初始化即报错（withoutDep_methodRef_initThrows）——如实记录该限制
      */
     @Test
     public void withoutDep_methodRef_initThrows() {

@@ -17,10 +17,11 @@ import com.c332030.ctool4j.core.util.CLazyRef;
  * </p>
  * <p>
  * 对照：{@link CLazyMethodRefDepHolder} 的方法引用写法无法延迟，类初始化即报错（用例 1.14）。
- * 注意"lambda 返回具体类型"的写法与此类似，但项目内未为其单独建用例（见测试文档"未覆盖"）。
+ * 注意"lambda 返回具体类型"的写法与此类似，但项目内未为其单独建用例。
  * </p>
  *
  * @since 2026/9/10
+ * @version 1.0
  */
 public class CLazyLambdaDepHolder {
 

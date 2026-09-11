@@ -28,8 +28,36 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *   <li>query 参数枚举：/c-text-enum/query 的 header 参数 enum 含 AUTHORIZATION，description 含 AUTHORIZATION(鉴权)</li>
  * </ul>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>启动真实 Spring 容器（@CTool4jSpringBootTest + @AutoConfigureMockMvc），经 /v2/api-docs 获取文档 JSON</li>
+ *   <li>（response 用 UTF-8 读取，避免 springfox 中文字符按默认编码解码乱码），断言枚举允许值保持可提交的</li>
+ *   <li>「枚举名」，可读「枚举名(text)」在 description 中展示。</li>
+ *   <li>测试枚举用 web 模块的 {@code CRequestHeaderEnum}（实现 ICText：AUTHORIZATION(鉴权) 等）。</li>
+ *   <li>覆盖 model 字段枚举与 query 参数枚举两条展示路径。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：model 字段枚举允许值含 AUTHORIZATION（可提交）、不含 text 形式；description 含 AUTHORIZATION(鉴权)；</li>
+ *   <li>query 参数枚举允许值含 AUTHORIZATION、description 含 AUTHORIZATION(鉴权)；</li>
+ *   <li>已标注 @CSchema 自定义描述的属性（headerWithSchema）description 不被 text 说明覆盖。</li>
+ *   <li>未覆盖：非 ICText 枚举保持默认（未断言）；运行时绑定不受影响（允许值即枚举名，可直接使用）。</li>
+ * </ul>
+ * <h2>model 字段枚举</h2>
+ * <ul>
+ *   <li>1.1 允许值保持可提交枚举名（modelFieldEnum_keepCallableValue）</li>
+ *   <li>1.2 description 展示「枚举名(text)」（modelFieldEnum_showsTextInDescription）</li>
+ *   <li>1.3 允许值全为裸枚举名、数量一致且 description 含 text 说明（modelFieldEnum_allValuesCallableAndTextual）</li>
+ *   <li>1.4 @CSchema 自定义描述不被 text 覆盖（modelFieldEnum_keepCSchemaDescription）</li>
+ * </ul>
+ * <h2>query 参数枚举</h2>
+ * <ul>
+ *   <li>2.1 允许值可提交、description 展示 text（queryParamEnum_callableValueAndTextDescription）</li>
+ * </ul>
+ *
  * @author c332030
- * @see "doc/design/openapi2/CTextEnumIntegrationTests.adoc"
+ * @since 1.0
+ * @version 1.0
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest

@@ -13,13 +13,33 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Description: StartEndTimeConsumerTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证 acceptThrowable 的正常消费、null 输入与受检异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对消费起止时间的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：accept 正常/null/受检异常。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>accept</h2>
+ * <ul>
+ *   <li>1.1 正常：消费起止时间（acceptNormal）</li>
+ *   <li>1.2 null 输入：正常处理（acceptNullInputs）</li>
+ *   <li>1.3 受检异常：抛 IOException（acceptSneakyThrowsCheckedException）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/StartEndTimeConsumerTests.adoc"
+ * @version 1.0
  */
 public class StartEndTimeConsumerTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：正常：消费起止时间
      */
     @Test
     public void acceptNormal() {
@@ -35,7 +55,7 @@ public class StartEndTimeConsumerTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：null 输入：正常处理
      */
     @Test
     public void acceptNullInputs() {
@@ -51,7 +71,7 @@ public class StartEndTimeConsumerTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：受检异常：抛 IOException
      */
     @Test
     public void acceptSneakyThrowsCheckedException() {

@@ -30,13 +30,75 @@ import java.util.*;
  * toMap 过滤 null 键值并返回不可变 Map。
  * </p>
  * <p>
- * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见
- * 设计文档 doc/design/core/CBeanUtils.adoc；测试用例分类与编号见测试文档
- * doc/design/core/CBeanUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号。
+ * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见本类 javadoc 各测试方法（含对应编号）。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>白盒原则：围绕 CBeanUtils 对象复制/转 Map/类型转换的核心能力，按"复制来源形态、复制边界、列表、转 Map、类型转换"维度组织分类：</li>
+ *   <li>1.x 对象复制：1.1 对象→对象、1.2 Map→对象、1.3 边界（null、JDK 类）</li>
+ *   <li>2.x 列表/数组复制</li>
+ *   <li>3.x 转 Map（基础/下划线/JSON 名/冲突/空/null/含 final/JDK 类）</li>
+ *   <li>4.x 类型转换（包装↔基本、数字/字符串/日期/BigDecimal/枚举/数值互转）</li>
+ *   <li>覆盖正常路径、边界（null、空集合、final 字段）与类型转换分支。</li>
+ * </ul>
+ * <h2>对象→对象</h2>
+ * <ul>
+ *   <li>1.1.1 copyObjectToObject：对象间复制</li>
+ *   <li>1.1.2 copyObjectToObjectSkipCollectionAndArray：复制跳过集合与数组</li>
+ *   <li>1.1.3 copyObjectToObjectSkipFinal：复制跳过 final 字段</li>
+ *   <li>1.1.4 copyNoConverterSkip：无转换器时跳过</li>
+ *   <li>1.1.5 copyParentDeclaredTypeFallback：父类声明类型兜底</li>
+ *   <li>1.1.6 copyUserDtoToRsp：UserDto→UserRsp 复制</li>
+ * </ul>
+ * <h2>Map→对象</h2>
+ * <ul>
+ *   <li>1.2.1 copyMapToObject：Map 复制到对象</li>
+ *   <li>1.2.2 copyMapToObjectSkipNull：Map→对象跳过 null</li>
+ *   <li>1.2.3 copyMapToObjectTypeConvert：Map→对象类型转换</li>
+ *   <li>1.2.4 copyMapUnmodifiable：不可变 Map 复制</li>
+ *   <li>1.2.5 copyClassEntrySkipCollectionAndArray：复制跳过集合与数组</li>
+ * </ul>
+ * <h2>边界</h2>
+ * <ul>
+ *   <li>1.3.1 copyNullEdge：null 边界</li>
+ *   <li>1.3.2 copyJdkClassSource：JDK 类作为源</li>
+ * </ul>
+ * <h2>列表/数组复制</h2>
+ * <ul>
+ *   <li>2.1 copyList：列表复制</li>
+ *   <li>2.2 copyListFromMap：从 Map 复制列表</li>
+ *   <li>2.3 copyFromArr：从数组复制</li>
+ * </ul>
+ * <h2>转 Map</h2>
+ * <ul>
+ *   <li>3.1 toMapBasic：基础转 Map</li>
+ *   <li>3.2 toMapUnderline：下划线命名转 Map</li>
+ *   <li>3.3 toMapJsonName：JSON 名转 Map</li>
+ *   <li>3.4 toMapConflict：冲突字段转 Map</li>
+ *   <li>3.5 toMapEmpty：空对象转 Map</li>
+ *   <li>3.6 toMapNull：null 转 Map</li>
+ *   <li>3.7 toMapIncludesFinal：含 final 字段转 Map</li>
+ *   <li>3.8 toMapJdkClass：JDK 类转 Map</li>
+ * </ul>
+ * <h2>类型转换</h2>
+ * <ul>
+ *   <li>4.1 copyWrapperToPrimitive：包装类型→基本类型</li>
+ *   <li>4.2 copyLongToInt：Long→Integer</li>
+ *   <li>4.3 copyIntToLong：Integer→Long</li>
+ *   <li>4.4 copyNumberToStr：数值→字符串</li>
+ *   <li>4.5 copyDateConvert：日期转换</li>
+ *   <li>4.6 copyToBigDecimal：转 BigDecimal</li>
+ *   <li>4.7 copyDecimalToFloatDouble：Decimal→Float/Double</li>
+ *   <li>4.8 copyNumConvert：数值转换</li>
+ *   <li>4.9 copyStrToPrimitiveFloatDouble：字符串→基本 Float/Double</li>
+ *   <li>4.10 copyEnumToValue：枚举→值</li>
+ *   <li>4.11 copyObjectStrLowestPriority：对象转字符串最低优先级</li>
+ *   <li>4.12 copyStrToNumber：字符串→数值</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CBeanUtilsMoreTests.adoc"
+ * @version 1.0
  */
 public class CBeanUtilsMoreTests {
 
@@ -107,7 +169,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 Map 转对象基础复制
-     * 对应测试用例 1.2.1
+     * 对应测试用例 1.2.1：Map 复制到对象
      */
     @Test
     public void copyMapToObject() {
@@ -124,7 +186,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 Map 转对象时 null 值不覆盖已有值
-     * 对应测试用例 1.2.2
+     * 对应测试用例 1.2.2：Map→对象跳过 null
      */
     @Test
     public void copyMapToObjectSkipNull() {
@@ -139,7 +201,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试对象直接复制（直接路径）：基础字段与继承字段
-     * 对应测试用例 1.1.1
+     * 对应测试用例 1.1.1：对象间复制
      */
     @Test
     public void copyObjectToObject() {
@@ -153,7 +215,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试对象直接复制跳过集合/Map/数组字段（与转换器对这三类返回空一致）
-     * 对应测试用例 1.1.2
+     * 对应测试用例 1.1.2：复制跳过集合与数组
      */
     @Test
     public void copyObjectToObjectSkipCollectionAndArray() {
@@ -167,7 +229,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试对象直接复制时目标 final 字段不被覆盖（setter 缓存排除 final）
-     * 对应测试用例 1.1.3
+     * 对应测试用例 1.1.3：复制跳过 final 字段
      */
     @Test
     public void copyObjectToObjectSkipFinal() {
@@ -179,7 +241,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 Class 入口（copy(Object, Class)）同样跳过集合/Map/数组与 final 字段
-     * 对应测试用例 1.2.5
+     * 对应测试用例 1.2.5：复制跳过集合与数组
      */
     @Test
     public void copyClassEntrySkipCollectionAndArray() {
@@ -195,7 +257,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试类型不匹配且无转换器时跳过（StringBuilder -> StringBuffer）
-     * 对应测试用例 1.1.4
+     * 对应测试用例 1.1.4：无转换器时跳过
      */
     @Test
     public void copyNoConverterSkip() {
@@ -209,7 +271,7 @@ public class CBeanUtilsMoreTests {
      * 测试各类 null 边界
      * <p>字面量 null 经重载决议匹配更具体的 Map 重载（既有语义返回 null）；
      * 显式 Object 引用走 Object 重载返回新实例</p>
-     * 对应测试用例 1.3.1
+     * 对应测试用例 1.3.1：null 边界
      */
     @Test
     public void copyNullEdge() {
@@ -229,7 +291,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 JDK 类源对象复制返回空实例（保持原语义）
-     * 对应测试用例 1.3.2
+     * 对应测试用例 1.3.2：JDK 类作为源
      */
     @Test
     public void copyJdkClassSource() {
@@ -243,7 +305,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试真实模型 UserDto -> UserRsp：集合/Map 字段跳过、类型转换生效
-     * 对应测试用例 1.1.6
+     * 对应测试用例 1.1.6：UserDto→UserRsp 复制
      */
     @Test
     public void copyUserDtoToRsp() {
@@ -267,7 +329,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 copyList
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：列表复制
      */
     @Test
     public void copyList() {
@@ -283,7 +345,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 copyListFromMap
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：从 Map 复制列表
      */
     @Test
     public void copyListFromMap() {
@@ -299,7 +361,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 copyFromArr 反序遍历（后复制者覆盖先复制者）
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：从数组复制
      */
     @Test
     public void copyFromArr() {
@@ -316,7 +378,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap 基础：非 null 值入 map，null 值排除，返回不可变 Map
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：基础转 Map
      */
     @Test
     public void toMapBasic() {
@@ -336,7 +398,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap 下划线命名
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：下划线命名转 Map
      */
     @Test
     public void toMapUnderline() {
@@ -348,7 +410,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap 使用 json 属性名
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：JSON 名转 Map
      */
     @Test
     public void toMapJsonName() {
@@ -364,7 +426,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap key 冲突时抛异常（与 merge 冲突语义一致）
-     * 对应测试用例 3.4
+     * 对应测试用例 3.4：冲突字段转 Map
      */
     @Test
     public void toMapConflict() {
@@ -377,7 +439,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 Map 入口类型转换（Integer -> BigDecimal）
-     * 对应测试用例 1.2.3
+     * 对应测试用例 1.2.3：Map→对象类型转换
      */
     @Test
     public void copyMapToObjectTypeConvert() {
@@ -393,7 +455,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 copy(Map, To) 对不可变 Map 正常处理
-     * 对应测试用例 1.2.4
+     * 对应测试用例 1.2.4：不可变 Map 复制
      */
     @Test
     public void copyMapUnmodifiable() {
@@ -405,7 +467,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap 空对象返回空不可变 Map
-     * 对应测试用例 3.5
+     * 对应测试用例 3.5：空对象转 Map
      */
     @Test
     public void toMapEmpty() {
@@ -428,7 +490,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap null 入参返回空 Map
-     * 对应测试用例 3.6
+     * 对应测试用例 3.6：null 转 Map
      */
     @Test
     public void toMapNull() {
@@ -467,7 +529,7 @@ public class CBeanUtilsMoreTests {
     /**
      * 测试父类型/Object 声明字段走回退路径（计划期无法按声明类型解析转换路径，
      * 运行期按实际值类型判断，语义与旧实现一致）
-     * 对应测试用例 1.1.5
+     * 对应测试用例 1.1.5：父类声明类型兜底
      */
     @Test
     public void copyParentDeclaredTypeFallback() {
@@ -492,7 +554,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap 计划包含 final 字段值（final 值进 map，反向 set 不包含）
-     * 对应测试用例 3.7
+     * 对应测试用例 3.7：含 final 字段转 Map
      */
     @Test
     public void toMapIncludesFinal() {
@@ -504,7 +566,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 toMap 对 JDK 类返回空 Map（JDK 判断下沉计划期后语义保持）
-     * 对应测试用例 3.8
+     * 对应测试用例 3.8：JDK 类转 Map
      */
     @Test
     public void toMapJdkClass() {
@@ -543,7 +605,7 @@ public class CBeanUtilsMoreTests {
     /**
      * 测试 objectStr 优先级最低：Object/父类型声明字段实际持有 Date 时，
      * 走回退路径按实际值类型命中 Date→String 格式化转换，而非 objectStr 的 toString
-     * 对应测试用例 4.11
+     * 对应测试用例 4.11：对象转字符串最低优先级
      */
     @Test
     public void copyObjectStrLowestPriority() {
@@ -611,7 +673,7 @@ public class CBeanUtilsMoreTests {
      * 测试源包装类型 -> 目标基础类型字段（拆箱写入，修复前被静默跳过）
      * <p>CClassConvert 已有 Long→int（intValue）等转换类，配合 ClassUtil.isAssignable
      * 支持包装/基础等价后，同类型包装→基础直接拆箱写入（Integer→int 等）</p>
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：包装类型→基本类型
      */
     @Test
     public void copyWrapperToPrimitive() {
@@ -660,7 +722,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 Long -> int 走 CClassConvert.intValue 转换器（非同类型拆箱场景）
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：Long→Integer
      */
     @Test
     public void copyLongToInt() {
@@ -675,7 +737,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 int -> Long 走 CClassConvert.toLong 转换器（copyLongToInt 的反向对称场景）
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：Integer→Long
      */
     @Test
     public void copyIntToLong() {
@@ -724,7 +786,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 String -> 数字/布尔：toInt/toLong/toBigDecimal/toFloat/toDouble/toBoolean 转换器
-     * 对应测试用例 4.12
+     * 对应测试用例 4.12：字符串→数值
      */
     @Test
     public void copyStrToNumber() {
@@ -784,7 +846,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试数字/布尔 -> String：intStr/longStr/bigDecimalStr/floatStr/doubleStr/booleanStr 转换器
-     * 对应测试用例 4.4
+     * 对应测试用例 4.4：数值→字符串
      */
     @Test
     public void copyNumberToStr() {
@@ -843,7 +905,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试日期系列转换：String->Date、Date->Long、Long->Date、Date->Instant、Instant->Date、Date->String
-     * 对应测试用例 4.5
+     * 对应测试用例 4.5：日期转换
      */
     @Test
     public void copyDateConvert() {
@@ -904,7 +966,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试数字 -> BigDecimal：toBigDecimal(int/long/Integer/Long/double/float) 转换器
-     * 对应测试用例 4.6
+     * 对应测试用例 4.6：转 BigDecimal
      */
     @Test
     public void copyToBigDecimal() {
@@ -951,7 +1013,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 BigDecimal -> double/float、Float -> double（doubleValue/floatValue 转换器）
-     * 对应测试用例 4.7
+     * 对应测试用例 4.7：Decimal→Float/Double
      */
     @Test
     public void copyDecimalToFloatDouble() {
@@ -1008,7 +1070,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试 ICValue 枚举 -> Integer/String（toEnumIntegerValue/toEnumStringValue 转换器）
-     * 对应测试用例 4.10
+     * 对应测试用例 4.10：枚举→值
      */
     @Test
     public void copyEnumToValue() {
@@ -1053,7 +1115,7 @@ public class CBeanUtilsMoreTests {
      * 测试数字互转（非同型数字走转换器）：
      * long/Long -> Integer（toInt(long)/toInt(Long)）、Integer -> Long（toLong(Integer)）、
      * Integer -> long（longValue(Integer)，包装与原始非等价故走转换器而非 SELF）
-     * 对应测试用例 4.8
+     * 对应测试用例 4.8：数值转换
      */
     @Test
     public void copyNumConvert() {
@@ -1093,7 +1155,7 @@ public class CBeanUtilsMoreTests {
     /**
      * 测试 String -> 原始 float/double（floatValue(String)/doubleValue(String) 转换器，
      * 与 String -> Float/Double 的 toFloat/toDouble 区分）
-     * 对应测试用例 4.9
+     * 对应测试用例 4.9：字符串→基本 Float/Double
      */
     @Test
     public void copyStrToPrimitiveFloatDouble() {

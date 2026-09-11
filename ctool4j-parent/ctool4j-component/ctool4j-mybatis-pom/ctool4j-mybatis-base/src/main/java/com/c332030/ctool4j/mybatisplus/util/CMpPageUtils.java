@@ -19,9 +19,23 @@ import java.util.List;
  * Description: CMpPageUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CMpPageUtils}：分页工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>创建不同单次大小的 Page（查询10/任务100/导出1000）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>默认单次大小</p>
+ * <h2>适用范围</h2>
+ * <p>分页创建</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2025/12/9
- * @see "doc/design/mybatisplus/CMpPageUtils.adoc"
- * @see "doc/design/mybatisplus/CMpPageUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CMpPageUtils {
@@ -90,7 +104,6 @@ public class CMpPageUtils {
     public <T> Page<T> emptyPage(ICPage iCPage) {
         return new Page<>(iCPage.getPageNum(), iCPage.getPageSize(), 0);
     }
-
 
     /**
      * 分页查询并执行逻辑

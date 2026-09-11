@@ -17,8 +17,41 @@ import org.springframework.context.annotation.Configuration;
  * Description: CXxlJobConfiguration
  * </p>
  *
- * @see "doc/design/xxljob/CXxlJobConfiguration.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CXxlJobConfiguration}（{@code @Configuration} + {@code @ConditionalOnProperty(xxl.job.enable=true, matchIfMissing=true)}）注册 xxl-job 执行器 Bean。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>xxl.job.enable 未配置</td>
+ *     <td>matchIfMissing 默认开启</td>
+ *   </tr>
+ *   <tr>
+ *     <td>已有 XxlJobExecutor Bean</td>
+ *     <td>跳过</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>xxl-job 执行器的自动装配。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>依赖 admin/executor 配置。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>执行器 Bean</b></p>
+ * <ul>
+ *   <li>{@code @ConditionalOnMissingBean(XxlJobExecutor.class)}。</li>
+ *   <li>用 {@code XxlJobSpringExecutor} 按 admin/executor 配置初始化（accessToken、addresses、timeout、appname、address、ip、port、logPath、logRetentionDays）。</li>
+ * </ul>
+ *
  * @since 2025/11/29
+ * @version 1.0
  */
 @CustomLog
 @Configuration

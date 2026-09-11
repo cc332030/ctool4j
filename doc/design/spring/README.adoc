@@ -1,0 +1,13 @@
+= spring 文档索引
+
+Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-cloud）。
+
+本目录存放 +spring+ 模块的**功能/模块级设计文档**；类级与方法级细节见对应源码 javadoc。
+
+== 功能文档
+
+- link:ip.adoc[ip]
+
+== 相关入口
+
+- 上级索引：link:../README.adoc[设计文档索引]

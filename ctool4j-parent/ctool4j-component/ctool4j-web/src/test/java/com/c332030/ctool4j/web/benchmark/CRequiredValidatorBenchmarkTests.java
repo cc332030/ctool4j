@@ -35,8 +35,24 @@ import java.util.Map;
  *     <li>手工 CValidUtils.isValid（基线，不经 Validator）</li>
  * </ul>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按 CRequiredValidator 性能基准 的处理路径/边界组织分类，逐一覆盖正例、反例与边界。</li>
+ *   <li>对比 @CRequired（被测）与标准 javax.validation 注解、手工 CValidUtils 三类实现，贴近真实使用。</li>
+ *   <li>使用 MockHttpServletRequest/MockHttpServletResponse/MockMvc 构造真实请求场景，贴近真实使用，不依赖外部服务。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。</li>
+ * </ul>
+ * <h2>CRequiredValidator 性能基准</h2>
+ * <ul>
+ *   <li>1.1 benchmark（benchmark）</li>
+ * </ul>
+ *
  * @since 2026/8/20
- * @see "doc/design/web/CRequiredValidatorBenchmarkTests.adoc"
+ * @version 1.0
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class CRequiredValidatorBenchmarkTests {
@@ -47,7 +63,7 @@ public class CRequiredValidatorBenchmarkTests {
      */
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：benchmark
      */
     @Test
     public void benchmark() {

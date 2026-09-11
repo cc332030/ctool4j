@@ -13,8 +13,31 @@ import org.junit.jupiter.api.Test;
  * Description: CBizIdUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证从实体/类获取业务ID，覆盖 null 字段、无 @CBizId 注解、指定长度等场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 @CBizId 字段查找、String 类型校验、ID 生成与补零的约定。</li>
+ *   <li>依据测试方法（等价类/边界）：实体获取、null 字段、无注解、类获取、指定长度。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：从实体/类获取业务ID；null 字段；无 @CBizId 注解；指定长度补零。</li>
+ *   <li>未覆盖：非 String 类型 @CBizId 字段（校验抛异常）场景。</li>
+ * </ul>
+ * <h2>业务ID获取</h2>
+ * <ul>
+ *   <li>1.1 从实体获取（{@code getBizIdFromEntity}）</li>
+ *   <li>1.2 实体字段为 null（{@code getBizIdFromEntityNullField}）</li>
+ *   <li>1.3 实体无 @CBizId 注解（{@code getBizIdFromEntityNoAnnotation}）</li>
+ *   <li>1.4 从类获取（{@code getBizIdFromClass}）</li>
+ *   <li>1.5 从类获取并指定长度（{@code getBizIdFromClassWithLength}）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/mybatis/CBizIdUtilsTests.adoc"
+ * @version 1.0
  */
 public class CBizIdUtilsTests {
 
@@ -44,8 +67,8 @@ public class CBizIdUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：从实体获取（{@code getBizIdFromEntity}）
+         */
     @Test
     public void getBizIdFromEntity() {
         BizEntity entity = new BizEntity();
@@ -54,8 +77,8 @@ public class CBizIdUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2：实体字段为 null（{@code getBizIdFromEntityNullField}）
+         */
     @Test
     public void getBizIdFromEntityNullField() {
         // @CBizId 字段为 null 时返回 null
@@ -64,8 +87,8 @@ public class CBizIdUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3：实体无 @CBizId 注解（{@code getBizIdFromEntityNoAnnotation}）
+         */
     @Test
     public void getBizIdFromEntityNoAnnotation() {
         // 实体无 @CBizId 字段时返回 null
@@ -74,8 +97,8 @@ public class CBizIdUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4：从类获取（{@code getBizIdFromClass}）
+         */
     @Test
     public void getBizIdFromClass() {
         // 根据类生成业务 ID，前缀取自类名大写字母 + 雪花 ID
@@ -86,8 +109,8 @@ public class CBizIdUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.5
-     */
+         * 对应测试用例 1.5：从类获取并指定长度（{@code getBizIdFromClassWithLength}）
+         */
     @Test
     public void getBizIdFromClassWithLength() {
         // 指定前缀长度

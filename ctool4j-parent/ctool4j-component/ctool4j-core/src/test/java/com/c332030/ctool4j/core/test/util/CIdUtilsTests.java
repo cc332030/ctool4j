@@ -18,13 +18,77 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Description: CIdUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「生成 / 前缀计算 / 前缀解析」三个维度组织：生成类验证 UUID/雪花 ID 的形态与唯一性，前缀计算验证类名前缀约定，前缀解析验证数字前字符的解析规则。</li>
+ *   <li>UUID 形态断言长度与 '-' 有无，雪花 ID 断言为正数且两次不相等（验证递增）。</li>
+ *   <li>前缀计算以测试类自身（{@code CIdUtilsTests}）验证类名前缀规则（大写字母去 DO → {@code CIUT}）。</li>
+ *   <li>前缀解析覆盖含前缀、纯字母（无数字）、以数字开头、空、null 等分支。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对前缀计算规则（{@code @CBizId} 优先、类名大写去 DO、按类缓存）与解析规则（数字前字符）的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/分支覆盖）：UUID 形态、前缀截取边界（length 超长）、解析各分支。</li>
+ *   <li>前缀截取覆盖"length 超前缀长度"边界。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：UUID v7 带/不带连字符形态（{@code UUID}/{@code simpleUUID}）、并发多线程下无重复（验证生成器缓存复用后仍线程安全）；雪花 ID 正数且递增；类前缀（含注解优先、类名大写去 DO）、前缀截取边界；</li>
+ *   <li>带前缀雪花 ID（字符串/类/类+长度三种入口）；前缀解析（含前缀、纯字母、数字开头、空、null、转换函数）。</li>
+ *   <li>未覆盖：{@code @CBizId} 注解优先路径（测试类无注解，仅覆盖类名回退路径；注解路径依赖注解声明，未在单测中构造）。</li>
+ * </ul>
+ * <h2>UUID 生成</h2>
+ * <ul>
+ *   <li>1.1 UUID：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）（UUID）</li>
+ *   <li>1.2 simpleUUID：32 位且不含 '-'（simpleUUID）</li>
+ *   <li>1.3 并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确（UUID_concurrent_unique）</li>
+ * </ul>
+ * <h2>雪花 ID 生成</h2>
+ * <ul>
+ *   <li>2.1 nextId：正数且两次不相等（递增）（nextId）</li>
+ * </ul>
+ * <h2>类 ID 前缀计算</h2>
+ * <ul>
+ *   <li>3.1 getPrefix：类名大写去 DO（{@code CIdUtilsTests} → {@code CIUT}）（getPrefix）</li>
+ *   <li>3.2 getPrefix(Class, length)：截取 2 位 {@code CI}（getPrefixByLength）</li>
+ *   <li>3.3 边界：length 超前缀长度时返回完整前缀 {@code CIUT}（getPrefixByLength）</li>
+ * </ul>
+ * <h2>带前缀雪花 ID</h2>
+ * <ul>
+ *   <li>4.1 nextIdWithPrefix(String)：{@code P-} 前缀 + 正数雪花 ID（nextIdWithPrefix）</li>
+ *   <li>4.2 nextIdWithPrefix(Class)：类前缀 {@code CIUT} + 正数雪花 ID（nextIdWithPrefixByClass）</li>
+ *   <li>4.3 nextIdWithPrefix(Class, length)：截取前缀 {@code CI} + 正数雪花 ID（nextIdWithPrefixByClassAndLength）</li>
+ * </ul>
+ * <h2>前缀解析</h2>
+ * <ul>
+ *   <li>5.1 含前缀：{@code P-123} → {@code P-}（getPrefixFromId）</li>
+ *   <li>5.2 纯字母无数字：{@code ABC} → {@code ABC}（getPrefixFromId）</li>
+ *   <li>5.3 以数字开头无前缀：{@code 123abc} → null（getPrefixFromId）</li>
+ *   <li>5.4 边界：空字符串 → null（getPrefixFromId）</li>
+ *   <li>5.5 边界：null → null（getPrefixFromId）</li>
+ *   <li>5.6 转换函数：{@code P-123} → {@code P-} / 长度 2（getPrefixFromIdWithFunction）</li>
+ *   <li>5.7 无前缀时不调用转换函数直接返回 null：{@code 123} → null（getPrefixFromIdWithFunction）</li>
+ * </ul>
+ * <h2>Nano ID 生成</h2>
+ * <ul>
+ *   <li>6.1 nanoId：默认 21 字符，且仅含 URL 安全字母表 {@code A-Za-z0-9_-}（nanoId_default）</li>
+ *   <li>6.2 nanoId(size)：自定义长度 1/16/64，字符合法（nanoId_customSize）</li>
+ *   <li>6.3 唯一性：抽样 10000 次无重复（nanoId_unique）</li>
+ * </ul>
+ * <h2>ULID 生成</h2>
+ * <ul>
+ *   <li>7.1 ulid：默认 26 字符，大写 Crockford Base32（不含 I/L/O/U）（ulid_format）</li>
+ *   <li>7.2 时间有序：先生成的字典序小于后生成（ulid_timeOrdered）</li>
+ *   <li>7.3 时间戳可解码：前 10 字符解码回毫秒，落在生成时刻附近（ulid_timestampDecodable）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CIdUtilsTests.adoc"
+ * @version 1.0
  */
 public class CIdUtilsTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）
      */
     @Test
     public void UUID() {
@@ -42,7 +106,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：32 位且不含 '-'
      */
     @Test
     public void simpleUUID() {
@@ -56,7 +120,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确
      */
     @Test
     public void UUID_concurrent_unique() throws InterruptedException {
@@ -99,7 +163,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：正数且两次不相等（递增）
      */
     @Test
     public void nextId() {
@@ -114,7 +178,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：类名大写去 DO（{@code CIdUtilsTests} → {@code CIUT}）
      */
     @Test
     public void getPrefix() {
@@ -137,7 +201,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：nextIdWithPrefix(String)：{@code P-} 前缀 + 正数雪花 ID
      */
     @Test
     public void nextIdWithPrefix() {
@@ -150,7 +214,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：nextIdWithPrefix(Class)：类前缀 {@code CIUT} + 正数雪花 ID
      */
     @Test
     public void nextIdWithPrefixByClass() {
@@ -163,7 +227,7 @@ public class CIdUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：nextIdWithPrefix(Class, length)：截取前缀 {@code CI} + 正数雪花 ID
      */
     @Test
     public void nextIdWithPrefixByClassAndLength() {

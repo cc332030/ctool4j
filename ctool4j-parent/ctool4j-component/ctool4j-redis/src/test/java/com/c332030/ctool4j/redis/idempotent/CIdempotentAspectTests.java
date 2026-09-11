@@ -26,13 +26,47 @@ import java.util.concurrent.TimeUnit;
  * 加锁失败抛幂等异常、业务 id 表达式解析、方法名开关、参数校验等。不依赖真实 Redis。
  * </p>
  * <p>
- * 是 {@link CIdempotentAspect} 的测试用例（对应测试文档
- * <code>doc/design/redis/CIdempotentAspectTests.adoc</code>）。
+ * 是 {@link CIdempotentAspect} 的测试用例。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>通过 mock {@code RedissonClient} / {@code RLock} 与真实 {@code CLockService} 验证幂等加锁-执行-解锁逻辑，</li>
+ *   <li>不依赖真实 Redis（外部依赖用 mock 隔离）。</li>
+ *   <li>通过反射取测试类中带 {@code @CIdempotent} 注解的方法，验证注解属性驱动的幂等行为。</li>
+ *   <li>覆盖加锁成功/失败、默认与自定义消息、业务 id 表达式、方法名开关、锁内业务异常传播等场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 {@code idempotent} 的约定（见 CIdempotentAspect.adoc）。</li>
+ *   <li>依据白盒/黑盒原则：加锁成功/失败、业务 id 解析、默认/自定义消息、方法名开关、锁内异常均需覆盖。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：加锁成功执行并解锁、加锁失败抛幂等异常、默认消息、自定义消息、无业务 id（按分组+方法名隔离）、</li>
+ *   <li>业务 id 表达式、空白业务 id、useMethodName=false（key 去方法名段）、useMethodName=false 且带业务 id、</li>
+ *   <li>锁内业务异常传播并解锁。</li>
+ *   <li>未覆盖：真实 Redis 集成（依赖外部环境，本模块以 mock 隔离外部依赖）；多线程并发加锁竞争</li>
+ *   <li>（依赖 Redisson 锁保证，单元测试不覆盖并发时序）。</li>
+ * </ul>
+ * <h2>CIdempotentAspect 幂等判定</h2>
+ * <ul>
+ *   <li>1.1 加锁成功：执行业务并返回结果，且释放锁（idempotent_lockSuccess_executesAndReturns）</li>
+ *   <li>1.2 加锁失败（重复请求）：抛 CIdempotentException（idempotent_lockFail_throws）</li>
+ *   <li>1.3 幂等异常消息取注解 message 默认值（idempotent_message_default）</li>
+ *   <li>1.4 幂等异常消息取注解 message 自定义值（idempotent_message_custom）</li>
+ *   <li>1.5 无业务 id 时 key 为 应用前缀:分组类简单名:方法名（idempotent_noBizId_key）</li>
+ *   <li>1.6 业务 id 表达式取参数，key 含业务维度（idempotent_bizId_key）</li>
+ *   <li>1.7 id 为空白字符串时 key 不含业务维度（idempotent_blankBizId_key）</li>
+ *   <li>1.8 useMethodName=false 时 key 不含方法名段（idempotent_withoutMethodName_key）</li>
+ *   <li>1.9 useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id（idempotent_withoutMethodName_bizId_key）</li>
+ *   <li>1.10 锁内业务异常向上传播且释放锁（idempotent_bizException_propagatesAndUnlocks）</li>
+ * </ul>
+ *
+ * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ *
  * @since 2026/9/9
- * @see "doc/design/redis/CIdempotentAspectTests.adoc"
-  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ * @version 1.0
  */
 class CIdempotentAspectTests {
 

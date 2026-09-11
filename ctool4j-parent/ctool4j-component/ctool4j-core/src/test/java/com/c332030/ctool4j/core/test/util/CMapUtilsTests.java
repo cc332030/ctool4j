@@ -38,12 +38,72 @@ import java.util.*;
  * <p><b>用例编号索引</b>：1 写入与空兜底（1.1-1.3）；2 Map 创建（2.1-2.3）；3 键值映射（3.1）；4 过滤（4.1）；
  * 5 合并（5.1）；6 其他（6.1-6.2）；7 读取（7.1-7.2）。各测试方法 javadoc 标注其编号。</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「写入与空兜底 / 创建 / 键值映射 / 过滤 / 合并 / 其他 / 读取」多个维度组织，每个维度覆盖正常路径、边界与 null 反例。</li>
+ *   <li>空入参统一覆盖：{@code put} 任一入参为 null 时不写入且返回 null；{@code defaultEmpty} 对 null 与空 Map 返回空 Map；{@code map}/{@code filter}/{@code merge} 空 Map 返回空 Map。</li>
+ *   <li>映射覆盖键、值、键值同时转换三种形态，并覆盖 null key、null value 与「转换结果为 null 的条目被过滤」。</li>
+ *   <li>合并覆盖空数组、多 Map 合并、冲突默认取第一个、自定义 mergeFunction、null value 过滤与返回值不可变。</li>
+ *   <li>创建覆盖普通类型返回 LinkedHashMap、枚举类型返回 EnumMap、忽略大小写 TreeMap，以及非枚举抛异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对空值语义（null key/value 过滤）、Map 创建类型选择、合并冲突取值、返回不可变的约定。</li>
+ *   <li>依据等价类/边界值/异常路径/分支覆盖：典型值、空集合、null 各入参、冲突、类型判定、不可变性断言。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：{@code put}（正常 / 各入参 null）；{@code defaultEmpty}（null / 空 / 返回原引用）；{@code toStringValueMap}（正常 / null 值）；</li>
+ *   <li>{@code newMap}（null 抛异常 / 普通 LinkedHashMap / 枚举 EnumMap）；{@code newEnumMap}（枚举 / 非枚举抛异常）；</li>
+ *   <li>{@code newIgnoreCaseMap}（大小写不敏感）；{@code map}（mapKey / mapValue / map、空 Map、null key/value、转换结果为 null）；</li>
+ *   <li>{@code filter}（filter / filterKey / filterValue、空 Map）；{@code merge}（空数组 / 多 Map 合并 / 冲突取第一个 / 自定义 merge /</li>
+ *   <li>null value 过滤 / 不可变）；{@code toAvailableStrMap}（trim / 关键字过滤 / null value）；{@code computeIfAbsent}（已有值 / 无值 / 映射函数）；</li>
+ *   <li>{@code get}（正常 / 键不存在 / 空 Map / 空 key）；{@code getOrDefault}（正常 / 键不存在 / 空 Map / 空 key）。</li>
+ *   <li>未覆盖：{@code compare}（打印差异表格，依赖日志输出，单测未直接断言表格内容）。</li>
+ * </ul>
+ * <h2>写入与空兜底</h2>
+ * <ul>
+ *   <li>1.1 put：正常写入、各入参为 null 不写入（put）</li>
+ *   <li>1.2 defaultEmpty：null / 空 Map 返回空 Map、非空返回原引用（defaultEmpty）</li>
+ *   <li>1.3 toStringValueMap：值转字符串、null 值条目过滤（toStringValueMap）</li>
+ * </ul>
+ * <h2>Map 创建</h2>
+ * <ul>
+ *   <li>2.1 newMap：null 抛异常、普通类型 LinkedHashMap、枚举 EnumMap（newMap）</li>
+ *   <li>2.2 newEnumMap：枚举返回 EnumMap、非枚举抛 IllegalArgumentException（newEnumMap）</li>
+ *   <li>2.3 newIgnoreCaseMap：忽略大小写（newIgnoreCaseMap）</li>
+ * </ul>
+ * <h2>键值映射</h2>
+ * <ul>
+ *   <li>3.1 map：mapKey / mapValue / map、空 Map、null key/value、转换结果为 null 过滤（map）</li>
+ * </ul>
+ * <h2>过滤</h2>
+ * <ul>
+ *   <li>4.1 filter：filter / filterKey / filterValue、空 Map（filter）</li>
+ * </ul>
+ * <h2>合并</h2>
+ * <ul>
+ *   <li>5.1 merge：空数组、多 Map 合并、冲突取第一个、自定义 merge、null value 过滤、返回不可变（merge）</li>
+ * </ul>
+ * <h2>其他</h2>
+ * <ul>
+ *   <li>6.1 toAvailableStrMap：trim、关键字过滤、null value 过滤（toAvailableStrMap）</li>
+ *   <li>6.2 computeIfAbsent：已有值直接返回、无值经映射函数写入（computeIfAbsent）</li>
+ * </ul>
+ * <h2>读取</h2>
+ * <ul>
+ *   <li>7.1 get：正常取值、键不存在、空 Map、空 key（get）</li>
+ *   <li>7.2 getOrDefault：正常取值、键不存在取默认、空 Map、空 key 取默认（getOrDefault）</li>
+ * </ul>
+ *
  * @since 2026/8/14
+ * @version 1.0
+ * @see CMapUtils
  */
 public class CMapUtilsTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：正常写入、各入参为 null 不写入
      */
     @Test
     public void put() {
@@ -63,7 +123,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：null / 空 Map 返回空 Map、非空返回原引用
      */
     @Test
     public void defaultEmpty() {
@@ -80,7 +140,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：值转字符串、null 值条目过滤
      */
     @Test
     public void toStringValueMap() {
@@ -100,7 +160,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：null 抛异常、普通类型 LinkedHashMap、枚举 EnumMap
      */
     @Test
     public void newMap() {
@@ -121,7 +181,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：枚举返回 EnumMap、非枚举抛 IllegalArgumentException
      */
     @Test
     public void newEnumMap() {
@@ -135,7 +195,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：忽略大小写
      */
     @Test
     public void newIgnoreCaseMap() {
@@ -151,7 +211,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：mapKey / mapValue / map、空 Map、null key/value、转换结果为 null 过滤
      */
     @Test
     public void map() {
@@ -188,7 +248,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：filter / filterKey / filterValue、空 Map
      */
     @Test
     public void filter() {
@@ -212,7 +272,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：空数组、多 Map 合并、冲突取第一个、自定义 merge、null value 过滤、返回不可变
      */
     @Test
     public void merge() {
@@ -248,7 +308,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.1
+     * 对应测试用例 6.1：trim、关键字过滤、null value 过滤
      */
     @Test
     public void toAvailableStrMap() {
@@ -278,7 +338,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.2
+     * 对应测试用例 6.2：已有值直接返回、无值经映射函数写入
      */
     @Test
     public void computeIfAbsent() {
@@ -301,7 +361,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.1
+     * 对应测试用例 7.1：正常取值、键不存在、空 Map、空 key
      */
     @Test
     public void get() {
@@ -317,7 +377,7 @@ public class CMapUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.2
+     * 对应测试用例 7.2：正常取值、键不存在取默认、空 Map、空 key 取默认
      */
     @Test
     public void getOrDefault() {

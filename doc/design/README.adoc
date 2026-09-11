@@ -1,0 +1,39 @@
+= 设计文档索引
+
+本目录（+doc/design/+）存放各模块的**功能/模块级设计文档**，按模块分子目录组织（仅保留确有功能级文档的模块）。
+
+== 文档分层
+
+* *javadoc 即文档，且按层次分工*：源类**类上**写总结（定位、能力目录、设计思路总述）；**方法上**写详细设计与详细步骤
+  （流程步骤、参数/返回值/异常契约、边界与默认值、兜底、易误用点）。类级细节不写成单独 adoc。
+* *本目录只放功能/模块级内容*：跨类/模块的设计（方案与取舍、兜底策略、适用范围、已知限制与波及影响）成篇记录在
+  +doc/design/<模块>/<功能>.adoc+，按功能命名，不与源文件同名。
+* *测试文档*：测试内容（用例设计思路与依据、覆盖场景与取舍、用例编号索引）已随规范迁入测试类 javadoc，
+  不再单独成篇；跨类的测试组织如需记录，同样放在本目录。
+* *版本与变更*：源文件版本见各源码 javadoc 的 +@version+；全项目变更记录统一在 link:../../CHANGELOG.adoc[CHANGELOG.adoc]。
+
+== 模块索引
+
+[cols="1,3,3", options="header"]
+|===
+| 模块目录 | 定位 | 功能级设计文档
+
+| link:definition/[definition]
+| 基础定义（ctool4j-definition）：统一返回体、实体基类、枚举、注解、函数式接口
+| link:definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
+
+| link:redis/[redis]
+| Redis 操作与 Redisson 分布式锁、限流、幂等（ctool4j-redis）
+| link:redis/rate-limit-idempotent.adoc[限流与幂等]
+
+| link:spring/[spring]
+| Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-cloud）
+| link:spring/ip.adoc[ip]
+
+|===
+
+== 相关入口
+
+- 项目根索引：link:../../README.adoc[README]
+- 变更日志：link:../../CHANGELOG.adoc[CHANGELOG.adoc]
+- 规范入口：link:../../AGENTS.md[AGENTS.md]（引用远端统一规范与 link:../../agent/AGENTS-PROJECT.MD[项目特有规范]）

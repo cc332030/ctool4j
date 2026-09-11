@@ -25,9 +25,62 @@ import java.util.Date;
  * Description: CDateUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CDateUtils} 为日期时间工具类，提供：</p>
+ * <ul>
+ *   <li>解析：{@code parseInstant}/{@code parseInstantDate}/{@code parseInstantTime}/{@code parseInstantDateTime}、{@code parseMaybeMills}/{@code parseInstantMaybeMills}</li>
+ *   <li>转换：{@code toDate}/{@code toInstant}/{@code toLocalDate}/{@code toLocalTime}/{@code toLocalDateTime}/{@code toZonedDateTime}（多种入参）</li>
+ *   <li>运算：{@code plus}/{@code minus}（Instant/Date × Duration/单位/单位数组）</li>
+ *   <li>常量：{@code INITIAL_INSTANT}、{@code DEFAULT_ZONE_ID}、{@code MIN_MILLS}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>toDate/toInstant 入参为 null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>parseMaybeMills 时间戳判定</td>
+ *     <td>数值 {@code &lt;= MIN_MILLS} 按秒处理、否则按毫秒；负数返回 null；失败回退日期时间格式</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>日期时间格式化、解析（含时间戳智能识别）、类型互转、加减运算。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>parseMaybeMills/toMillis 以数值阈值（{@code MIN_MILLS}=1e10）区分秒/毫秒，该区间存在固有歧义</li>
+ *   <li>（1e10 同时是 2286-11-20 的秒值与 1973-03-03 的毫秒值）；需明确语义时用精确解析方法。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>统一基于系统默认时区（DEFAULT_ZONE_ID）处理，跨时区场景需另行处理。</li>
+ *   <li>智能时间戳解析牺牲歧义场景的精确性，换取通用便捷。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>格式化/解析</b></p>
+ * <ul>
+ *   <li>{@code formatDate}/{@code formatTime}/{@code formatDateTime} 分别输出 {@code yyyy-MM-dd}/{@code HH:mm:ss}/{@code yyyy-MM-dd HH:mm:ss}。</li>
+ *   <li>否则视为毫秒，负数视为非法输入返回 null；失败回退按日期时间格式解析；支持日期/时间/日期时间/时间戳多种形态。</li>
+ * </ul>
+ * <p><b>类型转换</b></p>
+ * <ul>
+ *   <li>{@code toDate}/{@code toInstant} 支持 Long（毫秒）/Instant/Date/LocalDateTime/LocalDate 等入参，null 返回 null。</li>
+ *   <li>{@code toZonedDateTime}：将 Date/LocalDateTime/Instant 转系统默认时区 ZonedDateTime。</li>
+ * </ul>
+ * <p><b>运算</b></p>
+ * <ul>
+ *   <li>{@code plus}/{@code minus} 支持 Instant/Date × Duration、单位（TemporalUnit）+ amount、单位数组（Pair 列表）。</li>
+ * </ul>
+ *
  * @since 2025/12/7
- * @see "doc/design/core/CDateUtils.adoc"
- * @see "doc/design/core/CDateUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -54,6 +107,9 @@ public class CDateUtils {
 
     /**
      * 格式化日期时间字符串
+     * <ul>
+     *   <li>格式化：{@code format(instant, pattern)}、{@code formatDate}/{@code formatTime}/{@code formatDateTime}/{@code formatPureDate} 等</li>
+     * </ul>
      *
      * @param instant Instant
      * @param pattern 日期时间格式
@@ -123,8 +179,6 @@ public class CDateUtils {
         return DateUtil.format(toLocalDateTime(instant), DatePattern.PURE_DATETIME_PATTERN);
     }
 
-
-
     /**
      * 日期时间字符串转Instant
      *
@@ -172,6 +226,9 @@ public class CDateUtils {
 
     /**
      * 日期时间字符串转Date，可能是字符串类型的时间戳
+     * <ul>
+     *   <li>{@code parseMaybeMills(text)}：先尝试按"毫秒/秒时间戳"解析——数值 {@code &lt;= MIN_MILLS}（1e10）视为秒并乘 1000，</li>
+     * </ul>
      *
      * @param text 日期时间字符串
      * @return Date

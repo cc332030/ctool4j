@@ -13,8 +13,73 @@ import java.util.List;
  * Description: CArrUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「方法」维度组织分类（filter / get / convert / getArr / toStrArr / first），每个方法下覆盖正例、空入参边界与反例。</li>
+ *   <li>每个方法都覆盖空数组/null 入参的边界，验证与设计约定一致。</li>
+ *   <li>{@code get} 额外覆盖负索引、正负越界分支（Q12 修复：负索引越界返回 null 不抛异常），为该方法的分支重点。</li>
+ *   <li>{@code convert} 分别覆盖两参（Object[]）与三参（类型化数组）两个入口。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对各方法的空入参边界约定（filter 返回空列表、get/convert/first 返回 null、toStrArr 返回空数组）。</li>
+ *   <li>依据功能设计对 {@code get} 负索引与越界返回 null 的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/分支覆盖）：典型值、空数组、null、索引 0/末位/越界、负索引。</li>
+ *   <li>{@code get} 的分支（正向/负向/越界）为判定覆盖重点。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：filter 正例/无命中/空数组/null；filterNull、filterString 去空；get 正负索引/正负越界/null/空数组；</li>
+ *   <li>convert 两参三参正例/null；getArr 正例/空；toStrArr 正例/null/空集合；first 正例/null/空数组。</li>
+ *   <li>未覆盖：类型化数组 convert 的空数组入参（三参对空数组返回 null，与 null 行为一致，未单列）。</li>
+ * </ul>
+ * <h2>过滤（filter / filterNull / filterString）</h2>
+ * <ul>
+ *   <li>1.1 正例：按 predicate 过滤出符合元素（filter）</li>
+ *   <li>1.2 反例：无元素符合 predicate 返回空列表（filter）</li>
+ *   <li>1.3 边界：null 数组返回空列表（filter）</li>
+ *   <li>1.4 边界：空数组返回空列表（filter）</li>
+ *   <li>1.5 正例：filterNull 过滤 null 元素（filterNull）</li>
+ *   <li>1.6 边界：filterNull null 数组返回空列表（filterNull）</li>
+ *   <li>1.7 正例：filterString 过滤空白/null 元素（filterString）</li>
+ *   <li>1.8 边界：filterString null 数组返回空列表（filterString）</li>
+ * </ul>
+ * <h2>取元素（get）</h2>
+ * <ul>
+ *   <li>2.1 正例：正索引取首/末元素（get）</li>
+ *   <li>2.2 边界：负索引 -1/-2 从末尾倒数取值（get）</li>
+ *   <li>2.3 边界：正索引越界返回 null（get）</li>
+ *   <li>2.4 边界：null 数组返回 null（get）</li>
+ *   <li>2.5 边界：空数组返回 null（get）</li>
+ *   <li>2.6 边界：负索引越界（index &lt; -length）返回 null，不抛数组越界异常（getNegativeIndexOutOfRangeReturnsNull，Q12 修复）</li>
+ * </ul>
+ * <h2>转换（convert）</h2>
+ * <ul>
+ *   <li>3.1 正例：两参 convert 转 Object[]（convert）</li>
+ *   <li>3.2 边界：两参 convert null 数组返回 null（convert）</li>
+ *   <li>3.3 正例：三参 convert 转类型化数组 String[]（convertToTypedArray）</li>
+ *   <li>3.4 边界：三参 convert null 数组返回 null（convertToTypedArray）</li>
+ * </ul>
+ * <h2>泛型数组（getArr）</h2>
+ * <ul>
+ *   <li>4.1 正例：可变参数构造数组（getArr）</li>
+ *   <li>4.2 边界：无参调用返回空数组（getArr）</li>
+ * </ul>
+ * <h2>集合转数组（toStrArr）</h2>
+ * <ul>
+ *   <li>5.1 正例：字符串集合转字符串数组（toStrArr）</li>
+ *   <li>5.2 边界：null 集合返回空数组（toStrArr）</li>
+ *   <li>5.3 边界：空集合返回空数组（toStrArr）</li>
+ * </ul>
+ * <h2>首元素（first）</h2>
+ * <ul>
+ *   <li>6.1 正例：返回首元素（first）</li>
+ *   <li>6.2 边界：null 数组返回 null（first）</li>
+ *   <li>6.3 边界：空数组返回 null（first）</li>
+ * </ul>
+ *
  * @since 2025/9/10
- * @see "doc/design/core/CArrUtilsTests.adoc"
+ * @version 1.0
  */
 public class CArrUtilsTests {
 
@@ -78,7 +143,7 @@ public class CArrUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.6
+     * 对应测试用例 2.6：边界：负索引越界（index &lt; -length）返回 null，不抛数组越界异常（getNegativeIndexOutOfRangeReturnsNull，Q12 修复）
      */
     @Test
     public void getNegativeIndexOutOfRangeReturnsNull() {

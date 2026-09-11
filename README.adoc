@@ -96,12 +96,22 @@ ctool4j-web ──► ctool4j-auth-base ──► ctool4j-auth-spring（auth-spr
 除 Maven 模块外，项目根下还有以下支撑目录：
 
 - *agent/*：项目规范目录。规范以远端统一规范（+http://agent.c332030.com/AGENTS_COMMON.adoc+，含 `specs/` 分层规范）为基准，入口为根 +AGENTS.md+；项目特有规范集中在 +agent/AGENTS-PROJECT.MD+。涉及某主题操作前须按加载调度规则加载对应规范文件确认规则。
-- *doc/*：各模块的设计文档与测试文档（AsciiDoc，按模块分子目录，如 +doc/design/core/CBeanUtils.adoc+）。设计文档记录功能设计、测试设计、已知缺陷与性能瓶颈；测试文档记录用例设计与分类编号。配套规范见远端统一规范的文档规范。
+- *doc/*：项目文档目录（AsciiDoc），**只放总结性与规划性文档**。按「javadoc 按层次承载、文档目录只放总结」分层：
+  - **源码 javadoc 承载类级与方法级内容**（javadoc 即文档）：**类上方写总结**（定位、能力目录、设计思路总述）；
+    **方法上方写详细设计与详细步骤**（流程步骤、参数/返回值/异常契约、边界与默认值、兜底、易误用点）。
+  - **测试类同样分层**：**测试类上方写总结**（测试设计思路与依据、覆盖与未覆盖、用例总览/分类/编码与逐个用例精简总结）；
+    **测试方法上方写详细设计**（引用用例编码、测试意图、测试范围、测试意义、断言取舍）。
+  - +doc/design/<模块>/<功能>.adoc+：**跨类的功能/模块级**设计文档（方案取舍、兜底策略、适用范围、已知限制与波及影响），
+    按功能命名、不与源文件同名；类级细节一律链接到对应源码 javadoc。
+  - +doc/README.adoc+、+doc/design/README.adoc+ 及各级模块 README：文档目录索引，构成「总览 → 模块 → 功能」导航。
+  - 源文件版本由各源码 javadoc 的 +@version+ 维护；全项目变更记录统一在 +CHANGELOG.adoc+（时间倒序）。
+  - 除上述总结/规划性文档（含各级 README）、+CHANGELOG.adoc+、+TODO.adoc+ 与规范文件外，仓库不再保留其他文档。
+  配套规范见远端统一规范的文档规范与 link:agent/AGENTS-PROJECT.MD[项目特有规范]。
 - *script/*：项目级脚本
   - +clean-tmp.py+：清理 +tmp/+ 下的临时产物（扫描中间结果、日志等），仅限 +tmp/+ 目录，带路径穿越防护。
   - +push-origins.bat+：推送所有 origin 远端。
 - *tmp/*：临时产物目录（扫描中间结果、日志、临时规划等），不纳入版本管理、不提交；由 +script/clean-tmp.py+ 清理，故不单独登记。
-- 根级文档：+TODO.adoc+ 为项目待办清单；+AGENTS.md+ 为规范入口（引用远端统一规范 + 项目特有规范，见 +agent/+）。
+- 根级文档：+CHANGELOG.adoc+ 为项目统一变更日志（时间倒序）；+TODO.adoc+ 为项目待办清单；+AGENTS.md+ 为规范入口（引用远端统一规范 + 项目特有规范，见 +agent/+）。
 
 == 使用说明
 

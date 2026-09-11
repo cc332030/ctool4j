@@ -17,13 +17,93 @@ import java.util.*;
  * Description: CCollUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「空兜底 / 遍历分组 / 添加拼接 / 过滤 / 转换 / 新建 / 元素 / 最值 / 转 Map / 其他」多维度组织。</li>
+ *   <li>空/null 入参统一作为边界覆盖，验证返回空结果而非抛异常。</li>
+ *   <li>过滤、转换、最值、转 Map 覆盖 null 元素过滤与异常路径。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对空值语义、null 过滤、异常路径的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/分支覆盖/异常路径）：null 入参、空集合、null 元素、冲突、越界。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：defaultEmpty；forEach（null 不抛）；groupingBy（空/分组/null key 过滤/不可变/predicate）；</li>
+ *   <li>addIgnore（null/empty/blank）；addAllIgnoreNull；concatOne（前后/null）；concat（null 过滤/全 null）；</li>
+ *   <li>filter（Collection/List/Set/null/filterNull/filterString/filterKey/filterStringKey/convert 过滤）；</li>
+ *   <li>convert（转换/null 过滤/predicate/convertSet/convertToList/convertToSet/convertToCollection/</li>
+ *   <li>convertString/convertCollection）；newCollection（size0 不可变/size&gt;0 可变）；contains；get（越界/负数/null）；</li>
+ *   <li>first（List 索引/非 List 迭代器/空/null）；last（List 索引/非 List 迭代器/空/null）；</li>
+ *   <li>onlyOne（空/单/多抛异常）；minMax（null/空/convert null 过滤）；</li>
+ *   <li>stream（null/正常）；toMap（基本/空/value null/自定义 value/predicate/merge/冲突抛异常/不可变/Pair）；</li>
+ *   <li>containsAny；getValues；size；collectionType（返回类型）。</li>
+ *   <li>未覆盖：{@code newLinkedSet}/{@code newLinkedMap} 独立创建断言（在 newCollection 中覆盖 isEmpty，类型未逐一断言）。</li>
+ * </ul>
+ * <h2>空兜底</h2>
+ * <ul>
+ *   <li>1.1 defaultEmpty：null/空返回空、非空返回原引用（defaultEmpty）</li>
+ *   <li>1.2 size：null/空返回 0、正常返回大小（size）</li>
+ * </ul>
+ * <h2>遍历与分组</h2>
+ * <ul>
+ *   <li>2.1 forEach：null 不抛、正常遍历（forEach）</li>
+ *   <li>2.2 groupingBy：空返回空；分组正确；null key 过滤；不可变；自定义 predicate（groupingBy）</li>
+ * </ul>
+ * <h2>添加与拼接</h2>
+ * <ul>
+ *   <li>3.1 addIgnoreNull/Empty/Blank：忽略 null/空/空白（addIgnore）</li>
+ *   <li>3.2 addAllIgnoreNull：null 集合不抛、正常添加（addAllIgnoreNull）</li>
+ *   <li>3.3 concatOne：元素前/后；null 元素与 null 集合忽略；不影响原集合（concatOne）</li>
+ *   <li>3.4 concat：null 集合过滤、全 null 返回空、正常拼接（concat）</li>
+ * </ul>
+ * <h2>过滤</h2>
+ * <ul>
+ *   <li>4.1 filter：Collection/List/Set 版本；null 入参返回空；filterNull；filterString；filterKey；</li>
+ *   <li>filterStringKey；convert 过滤（filter）</li>
+ * </ul>
+ * <h2>转换</h2>
+ * <ul>
+ *   <li>5.1 convert：基本转换；null 元素过滤；predicate；convertSet；空集合返回新集合；null 对象返回空；</li>
+ *   <li>convertString（空白过滤）；convertCollection（null 过滤）（convert）</li>
+ * </ul>
+ * <h2>集合新建</h2>
+ * <ul>
+ *   <li>6.1 newCollection：size0 不可变；size&gt;0 可变（newCollection）</li>
+ * </ul>
+ * <h2>元素获取</h2>
+ * <ul>
+ *   <li>7.1 contains：null/空返回 false、正常正反（contains）</li>
+ *   <li>7.2 get：正索引；越界/负数/null 返回 null（get）</li>
+ *   <li>7.3 first：List 按索引与按迭代器、null/空返回 null（first）</li>
+ *   <li>7.4 last：List 索引与非 List 迭代器遍历、null/空返回 null（last）</li>
+ *   <li>7.5 onlyOne：空 null、单元素、多元素抛业务异常（onlyOne）</li>
+ * </ul>
+ * <h2>最值</h2>
+ * <ul>
+ *   <li>8.1 minMax：min/max 正例；null/空返回 null；convert 结果 null 过滤（minMax）</li>
+ * </ul>
+ * <h2>流与转 Map</h2>
+ * <ul>
+ *   <li>9.1 stream：null 空流、正常计数（stream）</li>
+ *   <li>9.2 toMap：基本；空集合；value null 跳过；自定义 value；predicate 过滤 key；merge 冲突；无 merge</li>
+ *   <li>冲突抛异常；不可变；Pair 版本；自定义谓词放行 null key 时 null key 被过滤，不入 Map（toMap）</li>
+ * </ul>
+ * <h2>其他</h2>
+ * <ul>
+ *   <li>10.1 containsAny：命中/多候选/未命中；空 elements/null 集合返回 false（containsAny）</li>
+ *   <li>10.2 getValues：null 枚举返回空；正常枚举取值（getValues）</li>
+ *   <li>10.3 返回类型验证：defaultEmpty 返回 List、convertSet 返回 LinkedHashSet、toMap 返回 Map（collectionType）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CCollUtilsTests.adoc"
+ * @version 1.0
  */
 public class CCollUtilsTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：null/空返回空、非空返回原引用
      */
     @Test
     public void defaultEmpty() {
@@ -45,7 +125,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：null 不抛、正常遍历
      */
     @Test
     public void forEach() {
@@ -61,7 +141,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：空返回空；分组正确；null key 过滤；不可变；自定义 predicate
      */
     @Test
     public void groupingBy() {
@@ -90,7 +170,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：addIgnoreNull/Empty/Blank：忽略 null/空/空白
      */
     @Test
     public void addIgnore() {
@@ -114,7 +194,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：null 集合不抛、正常添加
      */
     @Test
     public void addAllIgnoreNull() {
@@ -131,7 +211,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：元素前/后；null 元素与 null 集合忽略；不影响原集合
      */
     @Test
     public void concatOne() {
@@ -156,7 +236,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.4
+     * 对应测试用例 3.4：null 集合过滤、全 null 返回空、正常拼接
      */
     @Test
     public void concat() {
@@ -172,7 +252,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：Collection/List/Set 版本；null 入参返回空；filterNull；filterString；filterKey；
      */
     @Test
     public void filter() {
@@ -209,7 +289,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：基本转换；null 元素过滤；predicate；convertSet；空集合返回新集合；null 对象返回空；
      */
     @Test
     public void convert() {
@@ -244,7 +324,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.1
+     * 对应测试用例 6.1：size0 不可变；size&gt;0 可变
      */
     @Test
     public void newCollection() {
@@ -274,7 +354,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.1
+     * 对应测试用例 7.1：null/空返回 false、正常正反
      */
     @Test
     public void contains() {
@@ -289,7 +369,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.2
+     * 对应测试用例 7.2：正索引；越界/负数/null 返回 null
      */
     @Test
     public void get() {
@@ -305,7 +385,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.3
+     * 对应测试用例 7.3：List 按索引与按迭代器、null/空返回 null
      */
     @Test
     public void first() {
@@ -324,7 +404,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.4
+     * 对应测试用例 7.4：List 索引与非 List 迭代器遍历、null/空返回 null
      */
     @Test
     public void last() {
@@ -343,7 +423,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 7.5
+     * 对应测试用例 7.5：空 null、单元素、多元素抛业务异常
      */
     @Test
     public void onlyOne() {
@@ -357,7 +437,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 8.1
+     * 对应测试用例 8.1：min/max 正例；null/空返回 null；convert 结果 null 过滤
      */
     @Test
     public void minMax() {
@@ -381,7 +461,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 9.1
+     * 对应测试用例 9.1：null 空流、正常计数
      */
     @Test
     public void stream() {
@@ -392,7 +472,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 9.2
+     * 对应测试用例 9.2：基本；空集合；value null 跳过；自定义 value；predicate 过滤 key；merge 冲突；无 merge
      */
     @Test
     public void toMap() {
@@ -441,7 +521,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 10.1
+     * 对应测试用例 10.1：命中/多候选/未命中；空 elements/null 集合返回 false
      */
     @Test
     public void containsAny() {
@@ -457,7 +537,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 10.2
+     * 对应测试用例 10.2：null 枚举返回空；正常枚举取值
      */
     @Test
     public void getValues() {
@@ -471,7 +551,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：null/空返回 0、正常返回大小
      */
     @Test
     public void size() {
@@ -486,7 +566,7 @@ public class CCollUtilsTests {
     }
 
     /**
-     * 对应测试用例 10.3
+     * 对应测试用例 10.3：返回类型验证：defaultEmpty 返回 List、convertSet 返回 LinkedHashSet、toMap 返回 Map
      */
     @Test
     public void collectionType() {

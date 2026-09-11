@@ -30,8 +30,30 @@ import java.util.Set;
  * 与 @CRequired 的处理逻辑一致（都由约束注解的 message 提供完整提示，处理器不拼字段名）。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>启动真实 Spring 容器（{@code @CTool4jSpringBootTest}），经容器注入的真实 {@code Validator} 校验标准注解（@NotNull/@NotBlank/@NotEmpty）与 {@code @CRequired} 共存场景，贴近真实使用场景，不手动 {@code new} 校验器。</li>
+ *   <li>验证标准校验注解触发 violation、message 经 getMessage() 正确返回，与 @CRequired 处理逻辑一致。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：见下方编号索引。</li>
+ *   <li>未覆盖：依赖外部 Servlet 容器/Spring 全容器装配的集成场景由集成测试覆盖。</li>
+ * </ul>
+ * <h2>CRequired 与标准 Bean Validation 注解共存</h2>
+ * <ul>
+ *   <li>1.1 notNull（notNull）</li>
+ *   <li>1.2 notNull_valid（notNull_valid）</li>
+ *   <li>1.3 notBlank（notBlank）</li>
+ *   <li>1.4 notBlank_valid（notBlank_valid）</li>
+ *   <li>1.5 notEmpty（notEmpty）</li>
+ *   <li>1.6 notEmpty_valid（notEmpty_valid）</li>
+ *   <li>1.7 standardAndCRequired_coexist（standardAndCRequired_coexist）</li>
+ * </ul>
+ *
  * @author c332030
- * @see "doc/design/web/StandardConstraintValidatorTests.adoc"
+ * @since 1.0
+ * @version 1.0
  */
 @CTool4jSpringBootTest
 public class StandardConstraintValidatorTests {

@@ -19,9 +19,81 @@ import java.util.Date;
  * Description: CClassConvert
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CClassConvert} 为类型转换工具类，提供字符串、数值、日期、枚举值之间的转换方法，供 {@code CConvertUtils} 默认注册及 MapStruct 使用：</p>
+ * <ul>
+ *   <li>布尔：{@code toBoolean}</li>
+ *   <li>整数：{@code toInt}（多重载）/{@code intValue}/{@code intStr}</li>
+ *   <li>长整数：{@code toLong}/{@code longValue}/{@code longStr}</li>
+ *   <li>浮点：{@code toFloat}/{@code floatValue}/{@code floatStr}、{@code toDouble}/{@code doubleValue}/{@code doubleStr}</li>
+ *   <li>大数：{@code toBigDecimal}（多重载）/{@code bigDecimalStr}</li>
+ *   <li>日期：{@code parseDateTime}/{@code formatDateTime}/{@code toMills}/{@code fromMills}/{@code toDate}/{@code toInstant}</li>
+ *   <li>枚举：{@code toEnumIntegerValue}/{@code toEnumStringValue}</li>
+ *   <li>通用字符串：{@code objectStr}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>toInt/toLong/toFloat 空/null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toInt/toLong 非法值</td>
+ *     <td>抛 NumberFormatException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toInt(Long) 溢出</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>intValue/longValue/floatValue 等 null</td>
+ *     <td>返回 0</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toBoolean 非 true/1</td>
+ *     <td>返回 false</td>
+ *   </tr>
+ *   <tr>
+ *     <td>objectStr 系列 null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>数值/日期/字符串/枚举值互转，供 MapStruct 映射与 CConvertUtils 类型转换。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>数值字符串非法（如 "1,000"、"abc"）抛 NumberFormatException，调用方需处理或预校验。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>数值转换委托 CNumUtils 统一语义；布尔兼容 "1"/"0" 数字形式（Q24）。</li>
+ *   <li>toBoolean 对 "true "（带空格）返回 false，严格匹配。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>数值转换</b></p>
+ * <ul>
+ *   <li>{@code toBigDecimal}：字符串/float/double/long/int 多形态；空串返回 null、非法抛 NumberFormatException。</li>
+ * </ul>
+ * <p><b>日期转换</b></p>
+ * <ul>
+ *   <li>{@code toMills}/{@code fromMills}：Date 与毫秒互转，null 返回 null。</li>
+ *   <li>{@code toDate}/{@code toInstant}：委托 CDateUtils。</li>
+ * </ul>
+ * <p><b>字符串转换</b></p>
+ * <ul>
+ *   <li>{@code objectStr}：任意对象转字符串，null 返回 null；{@code booleanStr}/{@code intStr}/{@code longStr}/{@code floatStr}/</li>
+ *   <li>{@code doubleStr}/{@code bigDecimalStr} 均委托 objectStr。</li>
+ * </ul>
+ *
  * @since 2025/4/17
- * @see "doc/design/core/CClassConvert.adoc"
- * @see "doc/design/core/CClassConvertTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -95,6 +167,9 @@ public class CClassConvert {
 
     /**
      * 字符串转布尔值
+     * <ul>
+     *   <li>{@code toBoolean(String)}：兼容 {@code "true"/"TRUE"} 与数字 {@code "1"}（Q24 修复），其余（null/空白/其他）为 false。</li>
+     * </ul>
      *
      * @param str 字符串
      * @return 布尔值
@@ -166,6 +241,9 @@ public class CClassConvert {
 
     /**
      * Long 转 int
+     * <ul>
+     *   <li>{@code intValue(Long)}：null 返回 0。</li>
+     * </ul>
      *
      * @param value Long 值
      * @return int 值

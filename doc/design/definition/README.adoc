@@ -1,0 +1,13 @@
+= definition 文档索引
+
+基础定义（ctool4j-definition）：统一返回体、实体基类、枚举、注解、函数式接口。
+
+本目录存放 +definition+ 模块的**功能/模块级设计文档**；类级与方法级细节见对应源码 javadoc。
+
+== 功能文档
+
+- link:openapi-doc-annotations.adoc[openapi-doc-annotations]
+
+== 相关入口
+
+- 上级索引：link:../README.adoc[设计文档索引]
