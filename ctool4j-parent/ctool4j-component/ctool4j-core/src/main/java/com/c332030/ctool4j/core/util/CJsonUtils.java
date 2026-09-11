@@ -15,10 +15,73 @@ import java.util.Map;
  * Description: CJsonUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>序列化：{@code toJson} / {@code toJsonSnakeCase} / {@code toJsonNonNull} / {@code toJsonLog}</li>
+ *   <li>{@code fromJsonStringValue}</li>
+ *   <li>对象转换：{@code convert} / {@code convertSnakeCase}</li>
+ *   <li>转 Map：{@code toMap} / {@code toMapSnakeCase} / {@code toMapStringValue} / {@code toMapStringValueSnakeCase}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>toJson(null)</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>fromJson null/空/空白</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toJsonNonNull(null)</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toMap(null)</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>对象与 JSON 互转、驼峰/下划线互转、Long 安全序列化、日志输出（toJsonLog）。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>基于 Jackson 默认/配置 ObjectMapper，复杂自定义序列化需传入 ObjectMapper 重载。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>Long 序列化为字符串防止前端精度丢失，是核心取舍。</li>
+ *   <li>toMap 保留 Long 数值类型（区别于 toMapStringValue 的字符串值）。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>序列化语义</b></p>
+ * <ul>
+ *   <li>{@code toJson}：null 入参返回 null；<b>Long 序列化为字符串</b>（{@code "id":"1"}），避免前端溢出（易错点）。</li>
+ *   <li>{@code toJsonSnakeCase}：驼峰字段转下划线（{@code userName} → {@code user_name}）。</li>
+ *   <li>{@code toJsonNonNull}：null 字段不输出。</li>
+ * </ul>
+ * <p><b>反序列化语义</b></p>
+ * <ul>
+ *   <li>{@code fromJson}：null/空/空白入参返回 null；非法结构抛 Jackson 异常（MismatchedInputException 等）。</li>
+ *   <li>{@code fromJsonSnakeCase}：下划线字段转驼峰。</li>
+ *   <li>{@code fromJsonList}：解析为 {@code List&lt;Map&lt;String,Object&gt;&gt;}；{@code fromJsonStringValue}：值为 String 的 Map。</li>
+ * </ul>
+ * <p><b>对象转换与转 Map</b></p>
+ * <ul>
+ *   <li>{@code convert}：对象经 JSON 中转（bean→map/bean）。</li>
+ *   <li>{@code toMap}：对象转 {@code Map&lt;String,Object&gt;}，Long 保留数值类型（Q11 修复，不再经 JSON 转 String）。</li>
+ *   <li>{@code toMapStringValue}：值统一转 String（Long → {@code "1"}）。</li>
+ * </ul>
+ *
  * @author c332030
  * @since 2024/3/4
- * @see "doc/design/core/CJsonUtils.adoc"
- * @see "doc/design/core/CJsonUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CJsonUtils {
@@ -82,6 +145,10 @@ public class CJsonUtils {
 
     /**
      * 从 json 转为对象
+     * <ul>
+     *   <li>反序列化：{@code fromJson(json, Class|TypeReference)} / {@code fromJsonSnakeCase} / {@code fromJsonList} /</li>
+     * </ul>
+     *
      * @param json json
      * @param tClass 目标对象类型
      * @param objectMapper 对象映射器

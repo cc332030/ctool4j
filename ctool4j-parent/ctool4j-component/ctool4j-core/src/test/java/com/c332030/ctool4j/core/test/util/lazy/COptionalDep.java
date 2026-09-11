@@ -10,6 +10,7 @@ package com.c332030.ctool4j.core.test.util.lazy;
  * </p>
  *
  * @since 2026/9/10
+ * @version 1.0
  */
 public class COptionalDep {
 

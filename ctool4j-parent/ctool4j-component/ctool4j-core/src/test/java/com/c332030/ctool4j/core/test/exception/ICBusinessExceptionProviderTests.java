@@ -14,13 +14,38 @@ import org.junit.jupiter.api.Test;
  * Description: ICBusinessExceptionProviderTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「默认 getMessageExceptionFunction 抛异常 / 委托创建 / null error」三个维度组织。</li>
+ *   <li>用匿名实现覆盖 getMessageExceptionFunction 返回指定异常类型，验证 getExceptionFunction 委托。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对默认抛 UnsupportedOperationException 与委托 formatResMessage 的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：默认 getMessageExceptionFunction 抛 UnsupportedOperationException；覆盖后 getExceptionFunction</li>
+ *   <li>委托创建异常（含 cause）；error 为 null 时消息仅含扩展信息。</li>
+ *   <li>未覆盖：无（覆盖了默认异常与委托分支）。</li>
+ * </ul>
+ * <h2>默认 getMessageExceptionFunction</h2>
+ * <ul>
+ *   <li>1.1 默认调用抛 UnsupportedOperationException（defaultGetMessageExceptionFunction_throws）</li>
+ * </ul>
+ * <h2>委托创建（getExceptionFunction）</h2>
+ * <ul>
+ *   <li>2.1 覆盖后创建：{@code [200] ok: detail}，cause 正确（getExceptionFunction_delegates）</li>
+ *   <li>2.2 error 为 null：消息仅含 {@code only-extend}（getExceptionFunction_nullRes）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/ICBusinessExceptionProviderTests.adoc"
+ * @version 1.0
  */
 public class ICBusinessExceptionProviderTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：默认调用抛 UnsupportedOperationException
      */
     @Test
     public void defaultGetMessageExceptionFunction_throws() {
@@ -34,7 +59,7 @@ public class ICBusinessExceptionProviderTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：覆盖后创建：{@code [200] ok: detail}，cause 正确
      */
     @Test
     public void getExceptionFunction_delegates() {
@@ -56,7 +81,7 @@ public class ICBusinessExceptionProviderTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：error 为 null：消息仅含 {@code only-extend}
      */
     @Test
     public void getExceptionFunction_nullRes() {

@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @author c332030
  * @since 2026/9/10
+ * @version 1.0
  */
 @Data
 @ConfigurationProperties("auth")

@@ -12,8 +12,28 @@ import org.junit.jupiter.api.Test;
  * Description: CSpringUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证激活 profile 相关的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对激活 profile 相关的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：激活 profile 相关的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>Spring 工具</h2>
+ * <ul>
+ *   <li>1.1 验证激活 profile 相关（对应测试方法 1.1-1.7）</li>
+ * </ul>
+ *
+ *
  * @since 2026/6/2
- * @see "doc/design/spring/CSpringUtilsTests.adoc"
+ * @version 1.0
  */
 @CTool4jSpringBootTest
 public class CSpringUtilsTests {
@@ -26,8 +46,8 @@ public class CSpringUtilsTests {
      * 测试获取当前激活环境
      */
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证激活 profile 相关（对应测试方法 1.1-1.7）
+         */
     @Test
     public void getActiveProfile() {
 
@@ -39,8 +59,8 @@ public class CSpringUtilsTests {
      * 测试获取当前激活环境文本
      */
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     public void getActiveProfileText() {
 
@@ -52,8 +72,8 @@ public class CSpringUtilsTests {
      * 测试环境名前缀拼接
      */
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     public void profilePrefix() {
 
@@ -65,8 +85,8 @@ public class CSpringUtilsTests {
      * 测试生产环境外的环境名前缀拼接
      */
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4
+         */
     @Test
     public void profilePrefixExcludeProd() {
 
@@ -78,8 +98,8 @@ public class CSpringUtilsTests {
      * 测试环境名后缀拼接
      */
         /**
-     * 对应测试用例 1.5
-     */
+         * 对应测试用例 1.5
+         */
     @Test
     public void profileSuffix() {
 
@@ -91,8 +111,8 @@ public class CSpringUtilsTests {
      * 测试生产环境外的环境名后缀拼接
      */
         /**
-     * 对应测试用例 1.6
-     */
+         * 对应测试用例 1.6
+         */
     @Test
     public void profileSuffixExcludeProd() {
 
@@ -104,8 +124,8 @@ public class CSpringUtilsTests {
      * 测试环境文本后缀拼接
      */
         /**
-     * 对应测试用例 1.7
-     */
+         * 对应测试用例 1.7
+         */
     @Test
     public void profileTextSuffix() {
 

@@ -18,9 +18,53 @@ import java.util.concurrent.TimeUnit;
  * Description: CStringStringRedisService
  * </p>
  *
- * @see "doc/design/redis/CStringStringRedisService.adoc"
- * @see "doc/design/redis/CStringStringRedisServiceTests.adoc"
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>key 无效按空白（{@code StrUtil.isBlank}）判断。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>key 空白/无效</td>
+ *     <td>getValue 返回 defaultValue，setValue 不写入</td>
+ *   </tr>
+ *   <tr>
+ *     <td>value null</td>
+ *     <td>setValue 不写入</td>
+ *   </tr>
+ *   <tr>
+ *     <td>timeout&lt;=0</td>
+ *     <td>setValue(带超时) 不写入</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要存储对象（JSON）到 Redis、且 key 为字符串的场景，如缓存服务、业务 id 自增。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>key/value 需非 String 类型时使用 {@code CObjectValueRedisService}。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>依赖 Jackson（{@code CJsonUtils}）JSON 序列化，反序列化类型需匹配存储时的实际结构。</li>
+ *   <li>空白值按无效处理，无法缓存空白字符串（由 toJson 后 JSON 串通常非空白，实际影响有限）。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>语义约定</b></p>
+ * <ul>
+ *   <li>key/value 空白视为无效（重写 {@code isInvalidKey}/{@code isInvalidValue}）。</li>
+ *   <li>对象值统一经 {@code CJsonUtils.toJson} 序列化存储，读取时按目标类型反序列化。</li>
+ *   <li>无效 key/value 或 timeout&lt;=0 时静默返回，不写不抛。</li>
+ * </ul>
+ *
  * @since 2025/11/4
+ * @version 1.0
  */
 @Service
 @AllArgsConstructor
@@ -70,6 +114,9 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
 
     /**
      * 设置值，对象序列化为 JSON 存储
+     * <ul>
+     *   <li>{@code setValue(key, Object, ...)}：对象序列化为 JSON 字符串存储。</li>
+     * </ul>
      *
      * @param key   key
      * @param value 值
@@ -120,6 +167,10 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
 
     /**
      * 获取值并反序列化为指定类型
+     * <ul>
+     *   <li>{@code getValue(key, Class/TypeReference, ...)}：反序列化指定类型。</li>
+     *   <li>基于 {@code ICRedisService} 默认方法 + JSON 序列化；{@code getValue(key, valueClass, default)} 复用父接口默认方法做 convert。</li>
+     * </ul>
      *
      * @param key        key
      * @param valueClass 目标类型
@@ -176,6 +227,9 @@ public class CStringStringRedisService extends CAbstractRedisService<String, Str
 
     /**
      * 获取值及其剩余过期时间，反序列化为指定类型
+     * <ul>
+     *   <li>{@code getValueWithTtl(key, Class/TypeReference)}：值 + 剩余 TTL，反序列化指定类型。</li>
+     * </ul>
      *
      * @param key        key
      * @param valueClass 目标类型

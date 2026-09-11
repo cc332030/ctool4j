@@ -9,16 +9,26 @@ import org.junit.jupiter.api.Test;
  *
  * 覆盖：getText / values / valueOf 正常路径与异常路径
  *
- * <p>是 {@link CFeignClientHeaderPropagationModeEnum} 的测试用例（对应测试文档
- * <code>doc/design/feign/CFeignClientHeaderPropagationModeEnumTests.adoc</code>）。</p>
+ * <h2>用例设计思路与依据</h2>
+ * <ul>
+ *   <li>验证枚举 getText、values、valueOf 正常与不存在抛异常。</li>
+ * </ul>
+ * <h2>枚举访问</h2>
+ * <ul>
+ *   <li>1.1 getText 中文描述（testGetText）</li>
+ *   <li>1.2 values 枚举数量（testValues）</li>
+ *   <li>1.3 valueOf 正常（testValueOf）</li>
+ *   <li>1.4 valueOf 不存在抛 IllegalArgumentException（testValueOfNotExist）</li>
+ * </ul>
  *
  * @author c332030
- * @see "doc/design/feign/CFeignClientHeaderPropagationModeEnumTests.adoc"
+ * @since 1.0
+ * @version 1.0
  */
 class CFeignClientHeaderPropagationModeEnumTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：getText 中文描述
      */
     @Test
     void testGetText() {
@@ -29,7 +39,7 @@ class CFeignClientHeaderPropagationModeEnumTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：values 枚举数量
      */
     @Test
     void testValues() {
@@ -38,7 +48,7 @@ class CFeignClientHeaderPropagationModeEnumTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：valueOf 正常
      */
     @Test
     void testValueOf() {
@@ -47,7 +57,7 @@ class CFeignClientHeaderPropagationModeEnumTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：valueOf 不存在抛 IllegalArgumentException
      */
     @Test
     void testValueOfNotExist() {

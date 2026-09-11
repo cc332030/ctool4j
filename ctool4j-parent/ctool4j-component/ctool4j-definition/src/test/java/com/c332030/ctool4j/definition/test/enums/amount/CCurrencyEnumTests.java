@@ -9,13 +9,34 @@ import org.junit.jupiter.api.Test;
  * Description: CCurrencyEnumTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证枚举数量、CNY/USD 描述与名称，以及未知名抛异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对枚举元素与描述的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：枚举数量；CNY/USD 描述与名称；未知名抛异常。</li>
+ *   <li>未覆盖：其余货币（CNY/USD 代表样本，其余结构一致）。</li>
+ * </ul>
+ * <h2>枚举</h2>
+ * <ul>
+ *   <li>1.1 values：17 个枚举（values）</li>
+ *   <li>1.2 cny：{@code 人民币}/CNY（cny）</li>
+ *   <li>1.3 usd：{@code 美元}/USD（usd）</li>
+ *   <li>1.4 未知名抛异常（valueOfUnknown）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CCurrencyEnumTests.adoc"
+ * @version 1.0
  */
 public class CCurrencyEnumTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：17 个枚举
      */
     @Test
     public void values() {
@@ -25,7 +46,7 @@ public class CCurrencyEnumTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：{@code 人民币}/CNY
      */
     @Test
     public void cny() {
@@ -36,7 +57,7 @@ public class CCurrencyEnumTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：{@code 美元}/USD
      */
     @Test
     public void usd() {
@@ -47,7 +68,7 @@ public class CCurrencyEnumTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：未知名抛异常
      */
     @Test
     public void valueOfUnknown() {

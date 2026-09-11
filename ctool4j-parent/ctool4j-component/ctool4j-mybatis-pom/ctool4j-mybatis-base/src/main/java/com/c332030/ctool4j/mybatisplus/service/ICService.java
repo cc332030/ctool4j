@@ -30,8 +30,23 @@ import java.util.Set;
  * Description: ICService
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICService}：服务接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>扩展 ICBizIdService，提供实体/mapper/分页等公共能力</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>默认实现</p>
+ * <h2>适用范围</h2>
+ * <p>服务接口</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口</p>
+ *
  * @since 2025/11/27
- * @see "doc/design/mybatisplus/ICService.adoc"
+ * @version 1.0
  */
 public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
 
@@ -320,7 +335,6 @@ public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
                 .list();
     }
 
-
     /**
      * 按实体指定列的值统计数量
      *
@@ -386,7 +400,6 @@ public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
                 .count()
                 .longValue();
     }
-
 
     /**
      * 按实体指定列的值更新

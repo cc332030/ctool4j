@@ -23,8 +23,21 @@ import java.util.LinkedHashSet;
  * Description: CMybatisPlusConfiguration
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>注册 SQL 注入器、配置 MyBatis-Plus 行为</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>MyBatis-Plus 配置</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>@Configuration</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>@Configuration</p>
+ *
  * @since 2025/12/29
- * @see "doc/design/mybatisplus/CMybatisPlusConfiguration.adoc"
+ * @version 1.0
  */
 @CustomLog
 @Configuration

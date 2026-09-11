@@ -16,8 +16,48 @@ import java.lang.reflect.Method;
  * 不依赖 Spring 容器与真实 Redis。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>{@code buildKey}/{@code isBlankSpecKey} 为纯逻辑方法，直接断言结果。</li>
+ *   <li>{@code resolveBizId} 依赖方法参数名（编译期 {@code -parameters}），通过反射取测试类方法验证 el 表达式求值；</li>
+ *   <li>非法表达式/属性不可解析等场景断言抛对应异常。</li>
+ *   <li>不依赖 Spring 容器与真实 Redis。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：id 表达式为空/空白/取参数本身/取属性链/参数为 null/参数名不存在/属性不可解析的 {@code resolveBizId}；</li>
+ *   <li>key 含方法名与业务 id/无业务 id/空白业务 id/去方法名段/去方法名段含业务 id 的 {@code buildKey}；</li>
+ *   <li>null/空白/非空白/非字符串的 {@code isBlankSpecKey}。</li>
+ *   <li>未覆盖：真实 Redis 集成（纯工具逻辑，无外部依赖）。</li>
+ * </ul>
+ * <h2>CRedisKeyUtils.resolveBizId（业务 id 解析）</h2>
+ * <ul>
+ *   <li>1.1 id 表达式为空：返回 null（resolveBizId_emptyExpr_returnsNull）</li>
+ *   <li>1.2 id 表达式为空白：返回 null（resolveBizId_blankExpr_returnsNull）</li>
+ *   <li>1.3 取参数本身（resolveBizId_paramExpr_resolves）</li>
+ *   <li>1.4 取参数属性链（resolveBizId_propChain_resolves）</li>
+ *   <li>1.5 参数为 null：返回 null（resolveBizId_nullParam_returnsNull）</li>
+ *   <li>1.6 表达式参数名不存在：抛 IllegalArgumentException（resolveBizId_unknownParam_throws）</li>
+ *   <li>1.7 属性在类型上不可解析：抛 IllegalStateException（resolveBizId_unknownProp_throws）</li>
+ * </ul>
+ * <h2>CRedisKeyUtils.buildKey（key 构建）</h2>
+ * <ul>
+ *   <li>2.1 含方法名与业务 id（buildKey_withMethodAndBizId）</li>
+ *   <li>2.2 无业务 id（null）省略末段（buildKey_noBizId）</li>
+ *   <li>2.3 业务 id 为空白字符串省略末段（buildKey_blankBizId）</li>
+ *   <li>2.4 useMethodName=false 省略方法名段（buildKey_withoutMethodName）</li>
+ *   <li>2.5 useMethodName=false 且含业务 id（buildKey_withoutMethodName_bizId）</li>
+ * </ul>
+ * <h2>CRedisKeyUtils.isBlankSpecKey（业务 id 判空）</h2>
+ * <ul>
+ *   <li>3.1 null 视为空（isBlankSpecKey_null）</li>
+ *   <li>3.2 空白字符串视为空（isBlankSpecKey_blankString）</li>
+ *   <li>3.3 非空字符串不为空（isBlankSpecKey_nonBlank）</li>
+ *   <li>3.4 非字符串对象不为空（isBlankSpecKey_nonString）</li>
+ * </ul>
+ *
  * @since 2026/9/9
- * @see "doc/design/redis/CRedisKeyUtilsTests.adoc"
+ * @version 1.0
  */
 class CRedisKeyUtilsTests {
 

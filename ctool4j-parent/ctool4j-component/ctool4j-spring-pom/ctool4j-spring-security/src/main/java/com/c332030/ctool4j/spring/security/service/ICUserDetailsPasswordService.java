@@ -9,8 +9,21 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  * Description: ICUserDetailsPasswordService
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>更新用户密码</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>密码更新</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口定义</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口定义</p>
+ *
  * @since 2026/2/1
- * @see "doc/design/spring/ICUserDetailsPasswordService.adoc"
+ * @version 1.0
  */
 public interface ICUserDetailsPasswordService<T> extends UserDetailsPasswordService {
 

@@ -30,9 +30,25 @@ import java.util.*;
  * </p>
  * <p>feign 请求日志拦截器，按请求生命周期拦截并输出统一格式 HTTP 请求日志，功能设计与用例设计见设计文档。</p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CFeignLogger} 为 feign 请求日志拦截器，按请求生命周期拦截 feign 请求并输出统一格式的 HTTP 请求日志：</p>
+ * <ul>
+ *   <li>{@code logRequest}：无条件采集请求日志（不受 enable/logAll 控制），按白名单/黑名单 + logAll 判定完整日志打印标志，构建请求日志模型（method/path/query/请求头/请求体）</li>
+ *   <li>{@code logAndRebufferResponse}：重缓冲响应体（可再读）、构建响应日志模型（响应体/响应状态码/响应头）</li>
+ *   <li>{@code logIOException}：记录异常信息</li>
+ *   <li>慢日志：不受 enable/logAll 控制，由 {@code slowLogEnable}/{@code slowLogMillis}（继承自 {@code CRequestLogBaseConfig}）独立控制，耗时用 feign 框架的 {@code elapsedTime}，统一走 {@code CCommUtils.logSlowRequest}</li>
+ *   <li>打印统一走 {@code CRequestLogUtils.logWrite} → {@code CCommUtils.appendHttpLog}</li>
+ * </ul>
+ * <p>关键约定：</p>
+ * <ul>
+ *   <li>采集层无条件采集（不受 enable/logAll 控制）；白名单/黑名单/logAll 仅控制完整日志打印标志（{@code PRINT_LOG_THREAD_LOCAL}），与 MVC 对齐</li>
+ *   <li>请求头/响应头采集层总是采集（深拷贝为不可变），是否输出由打印层 {@code enableHeader} 开关控制（与 MVC 采集解耦）</li>
+ *   <li>空请求体输出 EMPTY_REQ、空响应体输出 EMPTY_RSP 占位（避免 {@code [null]}，与 MVC 一致）</li>
+ *   <li>采集响应状态码与响应头，供输出响应报文头（与 MVC 对称）</li>
+ * </ul>
+ *
  * @since 2025/12/2
- * @see "doc/design/feign/CFeignLogger.adoc"
- * @see "doc/design/feign/CFeignLoggerTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @AllArgsConstructor

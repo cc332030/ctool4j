@@ -16,9 +16,24 @@ import java.util.List;
  * Description: CSqlInjector
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CSqlInjector}：SQL 注入器。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>继承 DefaultSqlInjector，注入自定义方法列表</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>默认方法 + 自定义</p>
+ * <h2>适用范围</h2>
+ * <p>SQL 注入器扩展</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>继承 DefaultSqlInjector</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>继承 DefaultSqlInjector</p>
+ *
  * @author c332030
  * @since 2024/5/7
- * @see "doc/design/mybatisplus/CSqlInjector.adoc"
+ * @version 1.0
  */
 @CustomLog
 @Component

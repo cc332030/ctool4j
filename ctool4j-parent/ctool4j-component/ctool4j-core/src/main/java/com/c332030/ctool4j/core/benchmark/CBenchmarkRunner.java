@@ -22,8 +22,36 @@ import java.util.List;
  * 最终各用例取多轮平均值作为结果，降低单次测量噪声。
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CBenchmarkRunner} 为轻量性能基准运行器，提供 {@code run(List&lt;CBenchmarkCase&gt;, String title)}：</p>
+ * <ul>
+ *   <li>预热：{@code WARMUP_ITERATIONS=500000} 次（触发 JIT 编译至 C2 稳态）</li>
+ *   <li>计时：{@code MEASURE_ITERATIONS=1000000} 次/轮，{@code MEASURE_ROUNDS=5} 轮采样取平均</li>
+ *   <li>返回 {@code CBenchmarkReport}（并通过日志输出报告）</li>
+ * </ul>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>各模块性能基准用例的执行（基准用例放测试源码目录，由测试方法触发）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>轻量级基准，非 JMH 级精度；用于横向对比实现方式耗时。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>执行流程</b></p>
+ * <ul>
+ *   <li>第一轮对所有用例预热，触发全部实现方式初始化/加载（初始化干扰不计入结果）。</li>
+ *   <li>第二轮对每个用例做多轮采样（默认 5 轮）：每轮开始前先 {@code prepare()} 并充分预热，再正式计时；</li>
+ *   <li>多轮耗时取平均作为该用例结果，降低 JIT/GC 调度噪声。</li>
+ *   <li>纳秒级操作（如 MethodHandle）需足够迭代才能稳定，故预热迭代提升至 50 万、单轮计时迭代 100 万。</li>
+ * </ul>
+ * <p><b>结果排序</b></p>
+ * <ul>
+ *   <li>结果按 {@code avgNanos} 升序排序，首项为基线。</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/core/CBenchmarkRunner.adoc"
+ * @version 1.0
  */
 @CustomLog
 public class CBenchmarkRunner {
@@ -45,6 +73,9 @@ public class CBenchmarkRunner {
 
     /**
      * 运行一组基准用例（预热 + 多轮计时取均值），返回报告（并输出日志报告）
+     * <ul>
+     *   <li>{@code run()} 返回值经 {@code System.identityHashCode} 累计到 blackhole，防止 JIT 将无副作用的循环体消除。</li>
+     * </ul>
      *
      * @param cases 基准用例列表
      * @param title 报告标题

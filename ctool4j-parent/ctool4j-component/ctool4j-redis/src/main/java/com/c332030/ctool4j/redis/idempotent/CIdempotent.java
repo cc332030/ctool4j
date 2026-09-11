@@ -25,10 +25,70 @@ import java.lang.annotation.Target;
  * 多个方法需共用同一幂等维度时，将 {@link #useMethodName()} 设为 false 去掉方法名段即可。
  * </p>
  *
- * @see "doc/design/redis/CIdempotent.adoc"
- * @see "doc/design/redis/CIdempotentAspect.adoc"
- * @see "doc/design/redis/CIdempotentAspectTests.adoc"
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>复用 {@code CLockService}（Redisson 分布式锁）实现互斥：加锁成功 → 锁内执行业务 → 释放锁；</li>
+ *   <li>加锁失败（同一 key 已有调用）→ 抛幂等异常。</li>
+ *   <li>业务 id 用于区分不同调用主体（如用户/商户），使幂等维度更精确。</li>
+ *   <li>默认不等待锁，并发立即可感知拒绝（防重复提交场景）。</li>
+ * </ul>
+ * <p><b>id() 表达式</b></p>
+ * <ul>
+ *   <li>格式 {@code 参数名.属性名.属性名…}，参考 {@code @CCacheable.key()}。</li>
+ *   <li>由公共解析器 {@code CElKeyResolveUtils} 求值，从方法参数取业务维度值。</li>
+ *   <li>为空或求值为 null 时，幂等不带业务维度（按分组类+方法名全局隔离）。</li>
+ * </ul>
+ * <p><b>group() 分组类</b></p>
+ * <ul>
+ *   <li>必填。取 {@code group()} 的简单名作为幂等 key 的类段，而非方法声明类的简单名。</li>
+ *   <li>这样可让多个方法（甚至跨类）通过指定相同分组类共享同一幂等维度。</li>
+ *   <li>配合 {@code useMethodName()} 关闭方法名段，即可让多个方法共享同一执行权。</li>
+ * </ul>
+ * <p><b>useMethodName() 方法名隔离</b></p>
+ * <ul>
+ *   <li>默认 {@code true}：key 含 {@code 分组类简单名:方法名}，各方法按自身隔离。</li>
+ *   <li>设为 {@code false}：key 去掉方法名段（{@code 应用前缀:分组类简单名:业务id}），同组多个方法共享同一执行权。</li>
+ *   <li>用途：同一业务的多个入口/共用一个幂等维度时，避免各方法独立、无法拦截跨方法的重复提交。</li>
+ * </ul>
+ * <p><b>CIdempotentException</b></p>
+ * <p>继承 {@code CException}（运行时异常）。幂等冲突（获取执行权失败）时抛出，携带 {@code message()} 指定的消息。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>id 表达式非法/循环引用</td>
+ *     <td>抛 IllegalArgumentException/IllegalStateException（由 CElKeyResolveUtils 抛）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>id 求值为 null</td>
+ *     <td>按分组类+方法名全局隔离</td>
+ *   </tr>
+ *   <tr>
+ *     <td>加锁失败（重复/并发）</td>
+ *     <td>抛 CIdempotentException</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>接口防重复提交（用户短时间重复点击、重复提交表单）。</li>
+ *   <li>防并发穿透（同一业务 key 同一时刻仅允许一个执行）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>幂等只在持锁期间（方法执行期间）生效：方法完成后锁释放，后续新请求可再次获取执行权。</li>
+ *   <li>若需「完成后不可重放」需另做持久标记，超出本注解职责。</li>
+ *   <li>默认不等待锁，加锁失败立即抛异常；若需排队等待可在 {@code CLockService} 配置 {@code waitTime}，</li>
+ *   <li>但本切面当前固定不等待。</li>
+ *   <li>计数/锁完全依赖 Redis 可用性：Redis 异常时幂等判定会抛出异常（非静默放行），调用方需自行处理。</li>
+ *   <li>同名重载方法若不指定 {@code useMethodName=false} 会共享同一执行权；需区分时依赖业务 id 体现差异。</li>
+ * </ul>
+ *
  * @since 2026/9/9
+ * @version 1.0
  */
 @Documented
 @Target(ElementType.METHOD)

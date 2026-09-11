@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
  *
  * @author c332030
  * @since 2026/5/17
+ * @version 1.0
  */
 @Mapper
 public interface OrderMapper extends CBaseMapper<OrderDO> {

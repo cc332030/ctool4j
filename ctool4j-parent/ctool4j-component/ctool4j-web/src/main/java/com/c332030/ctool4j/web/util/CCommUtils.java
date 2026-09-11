@@ -32,9 +32,19 @@ import java.util.stream.Collectors;
  * </p>
  * <p>HTTP 请求日志拼接工具类，将请求日志信息拼接为类似 HTTP 请求+响应的完整报文 dump，功能设计与用例设计见设计文档。</p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CCommUtils} 为 HTTP 请求日志拼接工具类，将请求日志信息（{@code CRequestLog}）拼接为类似 HTTP 请求+响应的完整报文 dump，输出格式：</p>
+ * <p>``{@code  [source]              日志来源标识（独立一行） POST /api/submit      请求行（METHOD URL，URL 含 query 参数） Content-Type: ...     请求头（同一 header 多值逐行） name=张三             请求体（POST 无 body 有 params 时输出 form-urlencoded body） {"x":1}               请求体 200 OK                响应状态行（code 描述） Content-Type: ...     响应头（同一 header 多值逐行） {"y":2}               响应体 error: boom           异常信息 X-Trace-Id: ...       业务数据（traceId/tenantId/userId） rt: 100ms             耗时 }``</p>
+ * <ul>
+ *   <li>各段空行分隔；请求头/响应头输出由打印层 {@code enableHeader} 开关控制（采集层总是采集，见 {@code CRequestLogUtils}）</li>
+ *   <li>业务数据区 token（Authorization）/ip 输出与 {@code enableHeader} 联动：开关关闭时请求头不输出，业务数据区输出 token/ip 保证鉴权与来源信息可见；开关开启时 Authorization/ip 已在请求头区输出，业务数据区不重复打印</li>
+ *   <li>{@code getBodyText} 为 byte[] body → 可打印文本的统一转换节点：空 body 返回占位符（EMPTY_REQ/EMPTY_RSP）、文本 body 按 Content-Type charset 解码、非文本 body 输出占位符</li>
+ *   <li>状态行未知状态码（不在 HttpStatus 枚举）仅输出数字、不输出描述</li>
+ * </ul>
+ * <p>{@code logSlowRequest} 为 web/feign 共用的慢请求日志统一出口：耗时（{@code endTimeMillis - beginTimeMillis}）超过 {@code slowLogMillis} 时输出 warn 慢日志； 慢日志不受请求日志 {@code enable}/{@code logAll} 总开关控制（由 {@code slowLogEnable} 独立控制，默认启用），耗时从 {@code CRequestLog} 起止时间计算（调用方保证有值），输出带来源标识（{@code [mvc]}/{@code [feign]}）置于最前。</p>
+ *
  * @since 2025/3/15
- * @see "doc/design/web/CCommUtils.adoc"
- * @see "doc/design/web/CCommUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CCommUtils {
@@ -300,11 +310,11 @@ public class CCommUtils {
      * 有值才放入，耗时以起止时间能否计算判定：未测量不输出（避免无意义的 rt: 0ms 噪音），
      * 真实测量为 0ms 的快速请求仍会输出
      *
+     *                     关闭时请求头不输出，此处仍打印 token/ip，保证鉴权与来源信息可见
+     *
      * @param info         请求日志信息
      * @param enableHeader 请求头打印开关：开启时 Authorization/ip 已在请求头区输出，业务数据区不重复打印；
-     *                     关闭时请求头不输出，此处仍打印 token/ip，保证鉴权与来源信息可见
-     * @return 业务数据 map
-     */
+     * @return 业务数据 map*/
     private Map<String, String> getBusinessData(CRequestLog info, boolean enableHeader) {
 
         val businessDataMap = new LinkedHashMap<String, String>();

@@ -18,11 +18,52 @@ import java.util.function.Supplier;
  * </p>
  *
  * <p>
- * 是 {@link CCacheService.CCacheBuilder} 的测试用例（对应测试文档
- * <code>doc/design/cache/CCacheBuilderTests.adoc</code>）。
+ * 是 {@link CCacheService.CCacheBuilder} 的测试用例。
  * </p>
- * @see "doc/design/cache/CCacheBuilderTests.adoc"
-  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>用 Mockito mock {@code CLockService}/{@code CStringStringRedisService} 构造 {@code CCacheService} 与 builder，隔离外部依赖。</li>
+ *   <li>覆盖链式配置方法的可链性（返回 this）与字段赋值；覆盖 {@code computeIfAbsent} 的永久缓存直接返回与</li>
+ *   <li>过期后读-算-写两条核心路径。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 builder 链式配置与 TTL 分流的约定（永久缓存直接返回、已过期阻塞加锁读-算-写）。</li>
+ *   <li>依据白盒原则：验证字段默认值、各配置方法链式返回与字段写入、核心 computeIfAbsent 分支。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：默认值、waitTime/onLockFail/expireDuration/refreshWindow 链式配置、key/tClass 存储、</li>
+ *   <li>永久缓存直接返回（不抢锁）、过期后读-算-写。</li>
+ *   <li>未覆盖：快到期异步刷新分支（依赖真实 Redis/并发环境，由集成场景验证）；锁竞争失败回调实际执行。</li>
+ * </ul>
+ * <h2>链式配置</h2>
+ * <ul>
+ *   <li>1.1 默认值：waitTime=1s、refreshWindow=5m、expireDuration=23h、onLockFail 非空（defaultValues）</li>
+ *   <li>1.2 waitTime(long)：链式 + 秒转 Duration（waitTime_long_chainable）</li>
+ *   <li>1.3 waitTime(Duration)：链式 + 赋值（waitTime_duration_chainable）</li>
+ *   <li>1.4 onLockFail：链式 + 赋值（onLockFail_chainable）</li>
+ *   <li>1.5 expireDuration(Duration)：链式 + 赋值（expireDuration_duration_chainable）</li>
+ *   <li>1.6 expireDuration(Function)：链式 + 赋值（expireDuration_function_chainable）</li>
+ *   <li>1.7 refreshWindow：链式 + 赋值（refreshWindow_chainable）</li>
+ *   <li>1.8 key/tClass 存储：构造参数正确保存（keyAndTClass_stored）</li>
+ * </ul>
+ * <h2>computeIfAbsent 缓存策略</h2>
+ * <ul>
+ *   <li>2.1 永久缓存（TTL=-1）：直接返回缓存值，不抢锁（computeIfAbsent_permanentCache_returnsDirectly）</li>
+ *   <li>2.2 已过期：阻塞加锁读-算-写，写缓存并返回值（computeIfAbsent_expired_computesAndWrites）</li>
+ * </ul>
+ * <h2>getCache 加锁双重检查</h2>
+ * <ul>
+ *   <li>3.1 未命中：锁内计算并写缓存（getCache_lockDoubleCheck_computesAndWrites）</li>
+ *   <li>3.2 锁内已被写入：直接返回缓存值，不再写（getCache_lockDoubleCheck_hitInLock）</li>
+ *   <li>3.3 计算值 null：不写缓存、直接返回 null（getCache_nullValue_notCached）</li>
+ * </ul>
+ *
+ * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
+ *
+ * @since 1.0
+ * @version 1.0
  */
 public class CCacheBuilderTests {
 
@@ -31,6 +72,9 @@ public class CCacheBuilderTests {
     private CCacheService cacheService;
     private CCacheService.CCacheBuilder<String> builder;
 
+    /**
+     * 每个用例执行前的准备
+     */
     @BeforeEach
     public void setUp() {
         lockService = Mockito.mock(CLockService.class);

@@ -36,8 +36,36 @@ import java.util.concurrent.atomic.AtomicLong;
  * 依赖 httpclient）。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>用最小 Spring AOP 上下文（{@code @ContextConfiguration} + {@code @EnableAspectJAutoProxy} + {@code @Import(CCacheAspect.class)}），</li>
+ *   <li>仅加载切面、mock 的 {@code CCacheService}（local 模式不使用）与本地业务 Bean。</li>
+ *   <li><b>刻意不加载 {@code CSpringConfiguration} / 不启用 Spring Boot auto-config</b>：避免 {@code CRestTemplateUtils}</li>
+ *   <li>（依赖 httpclient）与真实 Redis，使用例可在无 Redis/httpclient 环境运行。</li>
+ *   <li>业务方法以 {@code key()} 表达式取 key、{@code local=true}（默认）走 Caffeine；方法返回自增执行序号，</li>
+ *   <li>以「命中时序号不变、未命中自增」判定缓存是否命中。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据 {@code CCacheAspect} 的本地缓存实现（{@code getIfPresent} + 手动 {@code put}，方法返回 null 不写缓存）与</li>
+ *   <li>{@code resolveCacheKey} 的 el/默认分派。</li>
+ *   <li>依据 el 语义：参数为 null → key 为 null → 不入缓存（每次执行）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：el key 命中（同 key 二次调用不重算）、不同 el key 隔离、参数为 null（不入缓存每次执行）。</li>
+ *   <li>未覆盖：Redis 缓存、真实 httpclient、过期时间语义（属 CCacheAspectTests 场景，依赖完整上下文）。</li>
+ * </ul>
+ * <h2>el 本地缓存端到端</h2>
+ * <ul>
+ *   <li>1.1 el key 缓存命中：同 key 二次调用不重算（testLocalCache_elKey_hit）</li>
+ *   <li>1.2 不同 el key 隔离：不同对象 id 各自缓存、互不共享（testLocalCache_elKey_distinctIsolation）</li>
+ *   <li>1.3 参数为 null（el 取不到 key）：不入缓存、每次执行（testLocalCache_elNullParam_noCache）</li>
+ *   <li>1.4 本地缓存方法返回 null：不抛 NPE、null 不写缓存（testLocalCache_elNullResult_noNpe）</li>
+ * </ul>
+ *
  * @since 2026/9/8
- * @see "doc/design/cache/CCacheElLocalAspectTests.adoc"
+ * @version 1.0
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = CCacheElLocalAspectTests.LocalConfig.class)

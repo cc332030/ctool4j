@@ -8,6 +8,7 @@ package com.c332030.ctool4j.definition.interfaces;
  * <p>token 字段接口：提供 token 的读取与写入能力，字段名常量见 {@link #TOKEN}。</p>
  *
  * @since 2026/9/11
+ * @version 1.0
  */
 public interface ICToken {
 

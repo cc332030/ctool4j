@@ -11,6 +11,7 @@ import com.c332030.ctool4j.doc.annotation.CSchema;
  * 由实现类按需覆写。</p>
  *
  * @since 2026/9/11
+ * @version 1.0
  */
 public interface ICCreateMillis {
 

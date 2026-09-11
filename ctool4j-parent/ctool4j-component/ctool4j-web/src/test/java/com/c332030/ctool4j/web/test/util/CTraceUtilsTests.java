@@ -16,8 +16,33 @@ import org.junit.jupiter.api.Test;
  * <p>补充覆盖 generateTraceId/setTraceId/getTraceId/removeTraceId/removeTraceInfo 等
  * 不依赖 Spring 容器的链路追踪方法；initTrace 依赖容器请求对象，不在本测试覆盖范围</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证 getTraceInfo 返回默认提供者的追踪信息类型。</li>
+ *   <li>补充覆盖不依赖 Spring 容器的链路追踪方法：generateTraceId 生成/唯一性、setTraceId/getTraceId 读写与 null 边界、removeTraceId、removeTraceInfo。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对默认提供者返回 CTraceInfo、generateTraceId 形如 objectId + "-1"、MDC/ThreadLocal 存取的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：getTraceInfo 返回 CTraceInfo 类型；generateTraceId 生成及唯一性；setTraceId/getTraceId 写入读取与 null 边界；removeTraceId 移除；removeTraceInfo 移除后仍能取默认实例。</li>
+ *   <li>未覆盖：initTrace（依赖请求上下文/MDC，未在单测覆盖）。</li>
+ * </ul>
+ * <h2>追踪信息</h2>
+ * <ul>
+ *   <li>1.1 getTraceInfo：返回 CTraceInfo 实例（getTraceInfo）</li>
+ *   <li>1.2 generateTraceId：生成形如 objectId + "-1" 的 traceId（generateTraceId）</li>
+ *   <li>1.3 generateTraceId 唯一性：连续生成不重复（generateTraceId_unique）</li>
+ *   <li>1.4 setTraceId/getTraceId：写入后能读回（setTraceId_getTraceId）</li>
+ *   <li>1.5 setTraceId null：设置 null 后 getTraceId 返回 null（setTraceId_null）</li>
+ *   <li>1.6 removeTraceId：移除后 getTraceId 为 null（removeTraceId）</li>
+ *   <li>1.7 removeTraceInfo：移除后仍能获取默认实例（removeTraceInfo）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/web/CTraceUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 public class CTraceUtilsTests {
@@ -25,7 +50,7 @@ public class CTraceUtilsTests {
     // ---------- generateTraceId ----------
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：生成形如 objectId + "-1" 的 traceId
      */
     @Test
     public void generateTraceId() {
@@ -38,7 +63,7 @@ public class CTraceUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：generateTraceId 唯一性：连续生成不重复
      */
     @Test
     public void generateTraceId_unique() {
@@ -51,7 +76,7 @@ public class CTraceUtilsTests {
     // ---------- setTraceId / getTraceId ----------
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：setTraceId/getTraceId：写入后能读回
      */
     @Test
     public void setTraceId_getTraceId() {
@@ -63,7 +88,7 @@ public class CTraceUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：setTraceId null：设置 null 后 getTraceId 返回 null
      */
     @Test
     public void setTraceId_null() {
@@ -76,7 +101,7 @@ public class CTraceUtilsTests {
     // ---------- removeTraceId ----------
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：移除后 getTraceId 为 null
      */
     @Test
     public void removeTraceId() {
@@ -89,7 +114,7 @@ public class CTraceUtilsTests {
     // ---------- getTraceInfo / removeTraceInfo ----------
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：返回 CTraceInfo 实例
      */
     @Test
     public void getTraceInfo() {
@@ -100,7 +125,7 @@ public class CTraceUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.7
+     * 对应测试用例 1.7：移除后仍能获取默认实例
      */
     @Test
     public void removeTraceInfo() {

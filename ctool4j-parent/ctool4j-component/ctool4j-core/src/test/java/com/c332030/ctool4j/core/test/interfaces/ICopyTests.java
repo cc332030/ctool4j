@@ -12,13 +12,36 @@ import org.junit.jupiter.api.Test;
  * Description: ICopyTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「拷贝到类型 / 拷贝到实例」两个入口组织。</li>
+ *   <li>用 Source（实现 ICopy，name/age）与 Target（同名字段）验证拷贝正确。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对两个拷贝入口的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：copyTo(Class) 创建新实例拷贝；copyTo(instance) 拷贝到已有实例。</li>
+ *   <li>未覆盖：无（覆盖了两个入口）。</li>
+ * </ul>
+ * <h2>拷贝到类型</h2>
+ * <ul>
+ *   <li>1.1 copyToClass：Source → Target 新实例，name/age 正确（copyToClass）</li>
+ * </ul>
+ * <h2>拷贝到实例</h2>
+ * <ul>
+ *   <li>2.1 copyToInstance：Source → 已有 Target 实例，name/age 正确（copyToInstance）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/ICopyTests.adoc"
+ * @version 1.0
  */
 public class ICopyTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：Source → Target 新实例，name/age 正确
      */
     @Test
     public void copyToClass() {
@@ -32,7 +55,7 @@ public class ICopyTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：Source → 已有 Target 实例，name/age 正确
      */
     @Test
     public void copyToInstance() {

@@ -20,9 +20,73 @@ import java.math.RoundingMode;
  * Description: CNumUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CNumUtils} 为数值工具类，提供丰富的数值操作：</p>
+ * <ul>
+ *   <li>常量：{@code CHARTSET_62}（62 进制字符集）、{@code ONE_HUNDRED}</li>
+ *   <li>默认值：{@code defaultZero}（Integer/Long/BigDecimal）</li>
+ *   <li>正负判断：{@code greaterThanZero} / {@code lessThanZero}</li>
+ *   <li>运算：{@code sum}、{@code divide}、{@code scale} / {@code scale2}</li>
+ *   <li>比较：{@code compare}</li>
+ *   <li>解析：{@code parseInt}/{@code parseLong}（含默认值/fallback）、{@code toStringThenParseInt}/{@code toStringThenParseLong}、{@code parse}</li>
+ *   <li>溢出校验：{@code isOverflow} / {@code assertOverflow}（long→int、double→float）</li>
+ *   <li>转换：{@code toInt}/{@code toLong}/{@code toBigDecimal}/{@code to62}</li>
+ *   <li>最值：{@code max}/{@code min}（跳过 null）</li>
+ *   <li>百分比：{@code percent}（value/total，可带 scale）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>assertOverflow 溢出</td>
+ *     <td>抛 ArithmeticException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toInt 溢出</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>to62 负数</td>
+ *     <td>抛 IllegalArgumentException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>max/min 空/全 null</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>percent value/total 为 null 或 total=0</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>数值的解析、转换、比较、求和、最值、百分比等通用运算。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>to62 不支持负数；percent 的 total 为 0 返回 null。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>toInt 溢出返回 null 而非抛异常，牺牲严格性换取调用便利（调用方需判空）。</li>
+ *   <li>溢出校验显式抛出，保证数值范围安全。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>最值</b></p>
+ * <ul>
+ *   <li>{@code max}/{@code min}：跳过 null 值；数组为空或全为 null 返回 null。</li>
+ * </ul>
+ * <p><b>百分比</b></p>
+ * <ul>
+ *   <li>返回 {@code value ÷ total × 100} 的百分比，保留 scale 位小数。</li>
+ * </ul>
+ *
  * @since 2024/12/2
- * @see "doc/design/core/CNumUtils.adoc"
- * @see "doc/design/core/CNumUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -512,6 +576,10 @@ public class CNumUtils {
 
     /**
      * Long 转换为 Integer
+     * <ul>
+     *   <li>{@code toInt(long)}：溢出时返回 null（而非抛异常），记录 debug 日志。</li>
+     * </ul>
+     *
      * @param value 值
      * @return Integer
      */
@@ -547,6 +615,9 @@ public class CNumUtils {
     /**
      * long 值转 62 进制字符串
      * <p>不支持负数输入，0 的 62 进制表示为 "0"。</p>
+     * <ul>
+     *   <li>{@code to62(long)}：转为 62 进制字符串，不支持负数（抛 IllegalArgumentException），0 的 62 进制为 "0"。</li>
+     * </ul>
      *
      * @param value 非负 long 值
      * @return 62 进制字符串
@@ -655,6 +726,10 @@ public class CNumUtils {
 
     /**
      * 计算占比
+     * <ul>
+     *   <li>{@code percent(value, total, scale)}：value 或 total 为 null 返回 null；total 为 0 时返回 null（除法无意义）。</li>
+     * </ul>
+     *
      * @param value 值
      * @param total 总数
      * @return 占比

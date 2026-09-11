@@ -19,8 +19,23 @@ import java.util.List;
  * Description: ICPage
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICPage}：分页接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>定义 pageNum/pageSize 默认值，@CJsonLog 标注</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>pageNum 默认1、pageSize 默认 CPageUtils.DEFAULT_PAGE_SIZE</p>
+ * <h2>适用范围</h2>
+ * <p>分页参数接口</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口定义</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口定义</p>
+ *
  * @since 2025/2/14
- * @see "doc/design/mybatis/ICPage.adoc"
+ * @version 1.0
  */
 @CJsonLog
 public interface ICPage {

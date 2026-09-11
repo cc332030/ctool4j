@@ -27,9 +27,23 @@ import java.util.Map;
  * Description: CSpringHttpUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CSpringHttpUtils}：Spring HTTP 工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>配置消息转换器、Jackson 等</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>HTTP 配置</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2026/1/27
- * @see "doc/design/spring/CSpringHttpUtils.adoc"
- * @see "doc/design/spring/CSpringHttpUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass

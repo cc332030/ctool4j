@@ -30,8 +30,35 @@ import java.util.concurrent.atomic.AtomicLong;
  * 本地缓存模式不依赖真实 Redis，避免加载 ctool4j-spring 的 CSpringConfiguration。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>通过最小 Spring AOP 上下文（复用 {@code CCacheElLocalAspectTests.LocalConfig}，mock cacheService）集成验证</li>
+ *   <li>{@code @CCacheRemove} / {@code @CCacheUpdate} 经切面拦截生效。</li>
+ *   <li>覆盖：remove 删除后重算、remove 方法异常不删缓存、update 更新后命中新值、update 返回 null 不写、</li>
+ *   <li>无缓存 key 时跳过。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 remove/update 的约定：方法成功后才删除 / 更新缓存；异常不删 / 不写。</li>
+ *   <li>依据最真实场景优先原则：走真实切面 + 真实业务 Bean + Caffeine 缓存流程，而非 mock 切面单点。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：remove 删除、remove 异常、update 更新、update null、null key 跳过（均为本地 Caffeine 模式）。</li>
+ *   <li>未覆盖：Redis 模式的删除 / 更新（由 CCacheService 集成 / 环境覆盖）；多实例并发丢失更新竞争。</li>
+ * </ul>
+ * <h2>缓存删除 / 更新行为</h2>
+ * <ul>
+ *   <li>1.1 remove 删除缓存后重新计算（不再命中）（testLocalCache_remove_recompute）</li>
+ *   <li>1.2 remove 方法抛异常时向上传播、且不删除缓存（testLocalCache_removeError_notRemove）</li>
+ *   <li>1.3 update 更新缓存后，读方法命中更新后的值（testLocalCache_update_updateHit）</li>
+ *   <li>1.4 update 方法返回 null 时不写入缓存（保留原值）（testLocalCache_updateNull_keepOld）</li>
+ *   <li>1.5 无缓存 key（参数为 null）时 remove/update 跳过，不抛错（testLocalCache_removeUpdateNullKey_skip）</li>
+ *   <li>1.6 update 写入后首次读取即命中更新值（无前置缓存）（testLocalCache_update_writeThenHit）</li>
+ * </ul>
+ *
  * @since 2026/9/11
- * @see "doc/design/cache/CCacheRemoveUpdateAspectTests.adoc"
+ * @version 1.0
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {

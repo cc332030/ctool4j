@@ -13,13 +13,50 @@ import org.junit.jupiter.api.Test;
  * 是 {@link CBenchmarkResult} 的测试用例
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>白盒分析：{@code avgNanos()} 为 {@code elapsedNanos * 1.0 / iterations}；{@code opsPerSecond()} 为</li>
+ *   <li>{@code iterations * 1.0 / (elapsedNanos / 1_000_000_000.0)}。两者均为 double 运算，需覆盖</li>
+ *   <li>正常值、小数结果、零边界与除零分支。</li>
+ *   <li>黑盒分析：入参为迭代次数与总耗时，出参为平均耗时（纳秒/次）与每秒执行次数；</li>
+ *   <li>取值代表性覆盖典型值、1 次迭代、0 耗时、0 次迭代（除零）等。</li>
+ *   <li>错误推测法：double 除零在 Java 中返回 {@code Infinity}（不抛异常），需显式断言该行为；</li>
+ *   <li>小数结果（如 elapsed=1、iterations=3）验证浮点精度不被截断。</li>
+ * </ul>
+ * <h2>覆盖场景</h2>
+ * <ul>
+ *   <li>覆盖：{@code avgNanos} 正例、iterations=1、elapsed=0、iterations=0（除零 → Infinity）、小数结果；</li>
+ *   <li>{@code opsPerSecond} 正例、elapsed=0（除零 → Infinity）、半耗时；</li>
+ *   <li>getter 对构造字段的原样返回。</li>
+ *   <li>未覆盖：超长耗时（纳秒溢出）等极端值（{@code CBenchmarkRunner} 实际传入的迭代次数固定，</li>
+ *   <li>不构造此类输入）。</li>
+ * </ul>
+ * <h2>avgNanos()</h2>
+ * <ul>
+ *   <li>1.1 正例：elapsedNanos=5000、iterations=1000 → 5.0</li>
+ *   <li>1.2 边界：iterations=1 → 返回 elapsedNanos 本身</li>
+ *   <li>1.3 边界：elapsedNanos=0 → 0.0</li>
+ *   <li>1.4 边界/除零：iterations=0 → 返回 Infinity（double 除零语义）</li>
+ *   <li>1.5 边界：elapsedNanos=1、iterations=3 → 约 0.333...（小数精度）</li>
+ * </ul>
+ * <h2>opsPerSecond()</h2>
+ * <ul>
+ *   <li>2.1 正例：iterations=1000、elapsedNanos=1_000_000_000 → 1000.0</li>
+ *   <li>2.2 边界/除零：elapsedNanos=0 → 返回 Infinity（double 除零语义）</li>
+ *   <li>2.3 边界：iterations=1000、elapsedNanos=2_000_000_000 → 500.0</li>
+ * </ul>
+ * <h2>字段取值（getter）</h2>
+ * <ul>
+ *   <li>3.1 正例：构造后 {@code getName} / {@code getIterations} / {@code getElapsedNanos} 原样返回构造入参</li>
+ * </ul>
+ *
  * @since 2026/8/21
- * @see "doc/design/core/CBenchmarkResultTests.adoc"
+ * @version 1.0
  */
 public class CBenchmarkResultTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：正例：elapsedNanos=5000、iterations=1000 → 5.0
      */
     @Test
     public void avgNanosNormal() {
@@ -35,7 +72,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：边界：iterations=1 → 返回 elapsedNanos 本身
      */
     @Test
     public void avgNanosSingleIteration() {
@@ -51,7 +88,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：边界：elapsedNanos=0 → 0.0
      */
     @Test
     public void avgNanosZeroElapsed() {
@@ -67,7 +104,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：边界/除零：iterations=0 → 返回 Infinity（double 除零语义）
      */
     @Test
     public void avgNanosZeroIterations() {
@@ -84,7 +121,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：边界：elapsedNanos=1、iterations=3 → 约 0.333...（小数精度）
      */
     @Test
     public void avgNanosFraction() {
@@ -100,7 +137,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：正例：iterations=1000、elapsedNanos=1_000_000_000 → 1000.0
      */
     @Test
     public void opsPerSecondNormal() {
@@ -116,7 +153,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：边界/除零：elapsedNanos=0 → 返回 Infinity（double 除零语义）
      */
     @Test
     public void opsPerSecondZeroElapsed() {
@@ -133,7 +170,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：边界：iterations=1000、elapsedNanos=2_000_000_000 → 500.0
      */
     @Test
     public void opsPerSecondHalfTime() {
@@ -149,7 +186,7 @@ public class CBenchmarkResultTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：正例：构造后 {@code getName} / {@code getIterations} / {@code getElapsedNanos} 原样返回构造入参
      */
     @Test
     public void fieldsReturnedAsIs() {

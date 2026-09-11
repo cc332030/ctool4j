@@ -21,9 +21,71 @@ import java.util.stream.Stream;
  * Description: CResultUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CResultUtils} 为响应结果工具类，提供：</p>
+ * <ul>
+ *   <li>{@code SUCCESS_CODES}：成功状态码集合（{@code 0}、{@code 200}、{@code 000000}，不可变）</li>
+ *   <li>{@code isSuccess} / {@code isNotSuccess}：判断结果是否成功</li>
+ *   <li>{@code assertSuccess}：断言成功，失败抛业务异常</li>
+ *   <li>{@code getData} / {@code getDataDefaultEmptyList}：断言成功并获取数据（可带默认值）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>isSuccess：result 为 null / code 为空</td>
+ *     <td>返回 false</td>
+ *   </tr>
+ *   <tr>
+ *     <td>assertSuccess：result 为 null</td>
+ *     <td>抛业务异常（"未返回数据"）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>assertSuccess：失败结果</td>
+ *     <td>抛业务异常（[code] message）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getData：数据为 null</td>
+ *     <td>返回默认值（无默认值返回 null）</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>远程调用/接口返回结果统一判断成功与取数，避免分散判断。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>仅支持 {@code ICBaseResult&lt;?,?&gt;} 类型结果；其他响应模型需适配。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>成功码集合固定（0/200/000000），业务自定义成功码需扩展集合。</li>
+ *   <li>断言失败抛业务异常，保证调用方明确感知失败。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>成功判断</b></p>
+ * <ul>
+ *   <li>code 经 {@code Opt.ofNullable(result).map(getCode).map(toStringOrNull)} 提取并转为字符串。</li>
+ *   <li>code 为空白（null/空）返回 false；否则判断是否在 {@code SUCCESS_CODES} 集合中。</li>
+ *   <li>{@code isNotSuccess} = {@code !isSuccess}。</li>
+ * </ul>
+ * <p><b>断言与异常</b></p>
+ * <ul>
+ *   <li>{@code assertSuccess}：result 为 null 抛业务异常（"未返回数据"）；isNotSuccess 时抛业务异常</li>
+ *   <li>（格式 {@code [code] message}）。</li>
+ *   <li>异常构造经 {@code CExceptionUtils.newBusinessException(null, message)}（@SneakyThrows 上抛）。</li>
+ * </ul>
+ * <p><b>数据获取</b></p>
+ * <ul>
+ *   <li>{@code ObjUtil.defaultIfNull(result.getData(), defaultValue)}——数据为 null 时返回默认值。</li>
+ * </ul>
+ *
  * @since 2025/2/11
- * @see "doc/design/core/CResultUtils.adoc"
- * @see "doc/design/core/CResultUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass

@@ -11,14 +11,32 @@ import java.util.*;
  * Description: UserDtoTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证 lombok 生成的构造器、builder、equals 行为。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对模型构造/builder/equals 的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：构造器、builder、equals 各路径。</li>
+ *   <li>未覆盖：真实业务逻辑（测试支撑类）。</li>
+ * </ul>
+ * <h2>模型行为</h2>
+ * <ul>
+ *   <li>1.1 验证构造器/builder/equals（对应测试方法 1.1-1.9）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/test/UserDtoTests.adoc"
+ * @version 1.0
  */
 class UserDtoTests {
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证构造器/builder/equals（对应测试方法 1.1-1.9）
+         */
     @Test
     void noArgsConstructor() {
         UserDto dto = new UserDto();
@@ -28,8 +46,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     void superBuilder_inheritanceWiring() {
         Map<String, String> tags = new HashMap<>();
@@ -66,8 +84,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     void superBuilder_defaultNullFields() {
         UserDto dto = UserDto.builder().userName("admin").build();
@@ -80,8 +98,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4
+         */
     @Test
     void equals_sameValues() {
         UserDto a = UserDto.builder().userName("admin").sex(1).build();
@@ -91,8 +109,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.5
-     */
+         * 对应测试用例 1.5
+         */
     @Test
     void equals_differentField() {
         UserDto a = UserDto.builder().userName("admin").sex(1).build();
@@ -101,8 +119,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.6
-     */
+         * 对应测试用例 1.6
+         */
     @Test
     void equals_null() {
         UserDto a = UserDto.builder().userName("admin").build();
@@ -110,8 +128,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.7
-     */
+         * 对应测试用例 1.7
+         */
     @Test
     void equals_otherType() {
         UserDto dto = UserDto.builder().userName("admin").sex(1).build();
@@ -121,8 +139,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.8
-     */
+         * 对应测试用例 1.8
+         */
     @Test
     void equals_rolesCollection() {
         UserDto a = UserDto.builder().userName("admin").roles(Arrays.asList("r1", "r2")).build();
@@ -131,8 +149,8 @@ class UserDtoTests {
     }
 
         /**
-     * 对应测试用例 1.9
-     */
+         * 对应测试用例 1.9
+         */
     @Test
     void equals_emptyRolesVsNull() {
         UserDto a = UserDto.builder().userName("admin").roles(Collections.emptyList()).build();

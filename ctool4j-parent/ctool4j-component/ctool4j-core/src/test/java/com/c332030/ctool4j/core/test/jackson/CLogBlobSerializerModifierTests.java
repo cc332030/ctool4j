@@ -13,13 +13,38 @@ import org.junit.jupiter.api.Test;
  * Description: CLogBlobSerializerModifierTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「日志 mapper 占位 / 全局 mapper 真实 / 深拷贝隔离 / 普通字段 / 无注解 / null 跳过」多个维度组织。</li>
+ *   <li>用 BlobBean（name + @CLogBlob content）与 PlainBean 验证各场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对仅日志 mapper 生效、占位符输出的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：日志 mapper 输出 {@code &lt;BLOB&gt;}；全局 mapper 输出真实内容；深拷贝不影响其他 mapper；普通字段不受影响；</li>
+ *   <li>无注解 bean 正常；@CLogBlob null 字段日志 mapper 不输出。</li>
+ *   <li>未覆盖：无（覆盖了核心行为）。</li>
+ * </ul>
+ * <h2>占位符替换</h2>
+ * <ul>
+ *   <li>1.1 日志 mapper：@CLogBlob 字段输出 {@code &lt;BLOB&gt;}（blobFieldSerializedToPlaceholder）</li>
+ *   <li>1.2 全局 mapper：@CLogBlob 字段输出真实内容（globalMapperOutputsRealContent）</li>
+ *   <li>1.3 深拷贝隔离：日志 mapper 注册不影响其他 mapper（logMapperDeepCopyDoesNotAffectOthers）</li>
+ *   <li>1.4 普通字段：name 正常输出（normalFieldNotAffected）</li>
+ *   <li>1.5 无注解 bean：正常输出（noBlobBeanNormal）</li>
+ *   <li>1.6 null 字段：日志 mapper 不输出（logMapperSkipsNullField）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/CLogBlobSerializerModifierTests.adoc"
+ * @version 1.0
  */
 public class CLogBlobSerializerModifierTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：日志 mapper：@CLogBlob 字段输出 {@code &lt;BLOB&gt;}
      */
     @Test
     public void blobFieldSerializedToPlaceholder() throws Exception {
@@ -32,7 +57,7 @@ public class CLogBlobSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：全局 mapper：@CLogBlob 字段输出真实内容
      */
     @Test
     public void globalMapperOutputsRealContent() throws Exception {
@@ -45,7 +70,7 @@ public class CLogBlobSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：深拷贝隔离：日志 mapper 注册不影响其他 mapper
      */
     @Test
     public void logMapperDeepCopyDoesNotAffectOthers() throws Exception {
@@ -74,7 +99,7 @@ public class CLogBlobSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：普通字段：name 正常输出
      */
     @Test
     public void normalFieldNotAffected() throws Exception {
@@ -85,7 +110,7 @@ public class CLogBlobSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：无注解 bean：正常输出
      */
     @Test
     public void noBlobBeanNormal() throws Exception {
@@ -96,7 +121,7 @@ public class CLogBlobSerializerModifierTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：null 字段：日志 mapper 不输出
      */
     @Test
     public void logMapperSkipsNullField() throws Exception {

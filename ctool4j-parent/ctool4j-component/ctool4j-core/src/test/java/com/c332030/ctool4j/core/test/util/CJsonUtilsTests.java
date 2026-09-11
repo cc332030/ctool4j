@@ -20,8 +20,54 @@ import java.util.Map;
  * Description: CJsonUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「序列化 / 反序列化 / 对象转换 / 转 Map」多个维度组织，覆盖驼峰-下划线、非空、Long 安全等核心语义。</li>
+ *   <li>用 {@code TestBean}（id/userName）验证驼峰/下划线互转与 Long 序列化。</li>
+ *   <li>异常路径用 {@code assertThrowsExactly} 精确匹配（MismatchedInputException、JsonEOFException）。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 Long 转 String、null 返回 null、驼峰-下划线的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/异常路径）：null/空/空白、Long、非法结构、驼峰下划线。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：toJson（null/Long/bean/Map）；toJsonSnakeCase；toJsonNonNull；fromJson（null/非法/合法）；</li>
+ *   <li>fromJsonTypeReference（List/Map）；fromJsonSnakeCase；convert（bean→map/bean）与 convertSnakeCase；</li>
+ *   <li>toMap/toMapSnakeCase；fromJsonList；fromJsonStringValue；toMapStringValue(toMapStringValueSnakeCase)。</li>
+ *   <li>未覆盖：{@code toJsonLog}（日志脱敏路径，属扩展入口，未单列）。</li>
+ * </ul>
+ * <h2>序列化</h2>
+ * <ul>
+ *   <li>1.1 toJson：null→null；{@code {a:1}}→{@code {"a":1}}；Long→{@code "1"}；bean→驼峰（toJson）</li>
+ *   <li>1.2 toJsonSnakeCase：驼峰转下划线（toJsonSnakeCase）</li>
+ *   <li>1.3 toJsonNonNull：null 字段不输出；null 入参→null（toJsonNonNull）</li>
+ * </ul>
+ * <h2>反序列化</h2>
+ * <ul>
+ *   <li>2.1 fromJson：null/空/空白→null；非法结构抛 MismatchedInputException；未闭合抛 JsonEOFException；</li>
+ *   <li>合法反序列化（fromJson）</li>
+ *   <li>2.2 fromJsonTypeReference：List[Map]/Map[String,Object]/Map[String,String]（fromJsonTypeReference）</li>
+ *   <li>2.3 fromJsonSnakeCase：下划线转驼峰（fromJsonSnakeCase）</li>
+ * </ul>
+ * <h2>对象转换</h2>
+ * <ul>
+ *   <li>3.1 convert：bean→Map（值 userName）、bean→bean（convert）</li>
+ *   <li>3.2 convertSnakeCase：bean→Map 键转下划线（convertSnakeCase）</li>
+ * </ul>
+ * <h2>转 Map</h2>
+ * <ul>
+ *   <li>4.1 toMap：值 userName、id 保留 Long 数值类型（Q11）；null→null（toMap）</li>
+ *   <li>4.2 toMapSnakeCase：键转下划线（toMapSnakeCase）</li>
+ *   <li>4.3 fromJsonList：List[Map] 解析（fromJsonList）</li>
+ *   <li>4.4 fromJsonStringValue：值 String 的 Map（fromJsonStringValue）</li>
+ *   <li>4.5 toMapStringValue：值统一转 String（id→{@code "1"}）（toMapStringValue）</li>
+ *   <li>4.6 toMapStringValueSnakeCase：值 String 且键转下划线（toMapStringValueSnakeCase）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CJsonUtilsTests.adoc"
+ * @version 1.0
  */
 public class CJsonUtilsTests {
 
@@ -49,7 +95,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：null→null；{@code {a:1}}→{@code {"a":1}}；Long→{@code "1"}；bean→驼峰
      */
     @Test
     public void toJson() {
@@ -68,7 +114,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：驼峰转下划线
      */
     @Test
     public void toJsonSnakeCase() {
@@ -80,7 +126,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：null 字段不输出；null 入参→null
      */
     @Test
     public void toJsonNonNull() {
@@ -94,7 +140,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：null/空/空白→null；非法结构抛 MismatchedInputException；未闭合抛 JsonEOFException；
      */
     @Test
     public void fromJson() {
@@ -119,7 +165,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：List[Map]/Map[String,Object]/Map[String,String]
      */
     @Test
     public void fromJsonTypeReference() {
@@ -143,7 +189,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：下划线转驼峰
      */
     @Test
     public void fromJsonSnakeCase() {
@@ -158,7 +204,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：bean→Map（值 userName）、bean→bean
      */
     @Test
     public void convert() {
@@ -176,7 +222,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：bean→Map 键转下划线
      */
     @Test
     public void convertSnakeCase() {
@@ -188,7 +234,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：值 userName、id 保留 Long 数值类型（Q11）；null→null
      */
     @Test
     public void toMap() {
@@ -204,7 +250,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：键转下划线
      */
     @Test
     public void toMapSnakeCase() {
@@ -215,7 +261,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：List[Map] 解析
      */
     @Test
     public void fromJsonList() {
@@ -227,7 +273,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.4
+     * 对应测试用例 4.4：值 String 的 Map
      */
     @Test
     public void fromJsonStringValue() {
@@ -238,7 +284,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.5
+     * 对应测试用例 4.5：值统一转 String（id→{@code "1"}）
      */
     @Test
     public void toMapStringValue() {
@@ -250,7 +296,7 @@ public class CJsonUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.6
+     * 对应测试用例 4.6：值 String 且键转下划线
      */
     @Test
     public void toMapStringValueSnakeCase() {

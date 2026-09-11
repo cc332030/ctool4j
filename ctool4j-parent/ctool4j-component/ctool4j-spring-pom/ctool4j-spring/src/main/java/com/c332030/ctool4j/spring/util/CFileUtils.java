@@ -20,9 +20,23 @@ import java.util.Map;
  * Description: CFileUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CFileUtils}：文件工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>提取文件名、文件类型等</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>路径为空返回 null</p>
+ * <h2>适用范围</h2>
+ * <p>文件处理</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2026/7/15
- * @see "doc/design/spring/CFileUtils.adoc"
- * @see "doc/design/spring/CFileUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CFileUtils {

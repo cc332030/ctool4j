@@ -34,8 +34,61 @@ import java.util.function.Supplier;
  *
  * <p>处理并记录日志文件</p>
  * <p>本类自身保留 slf4j 原生 @Slf4j 而非 @CustomLog（原因详见设计文档）</p>
- * @see "doc/design/core/CLogUtils.adoc"
- * @see "doc/design/core/CLogUtilsTests.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CLogUtils} 为日志工具类，提供：</p>
+ * <ul>
+ *   <li>JSON 化判断与配置：{@code isJsonLog} / {@code setJsonLog} / {@code addJsonLogDomainPackage} / {@code addJsonLogAnnotations} 等</li>
+ *   <li>参数处理：{@code toLogArgs} / {@code getSupplierArgs}</li>
+ *   <li>可打印数据处理：{@code getPrintAble} / {@code getPrintAbleString} / {@code isPrintAble}</li>
+ *   <li>常量：{@code LOGGING_LEVEL} / {@code LOGGING_LEVEL_PREFIX}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>isJsonLog 枚举 / 命中不转集合</td>
+ *     <td>返回 false</td>
+ *   </tr>
+ *   <tr>
+ *     <td>isJsonLog 命中转集合 / 非 JDK 类</td>
+ *     <td>返回 true</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toLogArgs 转 JSON 失败</td>
+ *     <td>禁用该类型转换，记录错误日志</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getPrintAble null</td>
+ *     <td>返回 "[null]"</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getPrintAble 不可打印类型</td>
+ *     <td>返回 "[类名]" 等占位</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>统一日志参数 JSON 化、敏感数据脱敏（CLogBlob）、可打印数据转换。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>JSON 化规则依赖包名/注解/父类启发式判断，复杂类型需手动 {@code setJsonLog} 指定。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>转 JSON 失败即禁用该类型转换，避免重复异常（核心取舍）。</li>
+ *   <li>各类集合基于 CopyOnWriteArraySet 线程安全，支持运行期扩展规则。</li>
+ *   <li>本类自身使用 slf4j 原生 {@code @Slf4j} 而非 {@code @CustomLog}：{@code @CustomLog} 生成的 {@code log} 字段初始化会调用</li>
+ *   <li>初始化，{@code log} 先于 {@code LOGS} 就绪时触发自引用 NPE。故本类（CLog 的底层实现）保留 {@code @Slf4j}，</li>
+ *   <li>不影响后端无关性（CLog 内部本就使用 slf4j 门面）。</li>
+ * </ul>
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @Slf4j
 @UtilityClass
@@ -69,6 +122,11 @@ public class CLogUtils {
 
     /**
      * 获取日志
+     * <ul>
+     *   <li>日志获取：{@code getLog(name)} / {@code getLog(Class)}（按类缓存 CLog）</li>
+     *   <li>{@code getLog(CLogUtils.class)}，而 {@code getLog} 依赖本类 {@code LOGS}（ClassValue）静态字段，静态字段按声明顺序</li>
+     * </ul>
+     *
      * @param name 日志名称
      * @return CLog
      */
@@ -238,9 +296,21 @@ public class CLogUtils {
 
     /**
      * 是否能转 json
+     *
+     * <h2>JSON 化判断（isJsonLog）</h2>
+     * <ul>
+     *   <li>基于 {@code CRefClassValue} 缓存按类判断结果，规则优先级：</li>
+     *   <li>枚举不转；命中 {@code NOT_JSON_LOG_SUPERCLASSES}（DataSource/InputStream/OutputStream/Throwable 等）不转；</li>
+     *   <li>命中 {@code NOT_JSON_LOG_DOMAIN_PACKAGE}（.sun./.apache.）不转。</li>
+     *   <li>命中 {@code JSON_LOG_SUPERCLASSES}（ICBaseResult/Collection/Map）转。</li>
+     *   <li>命中 {@code JSON_LOG_DOMAIN_PACKAGE}（.config./.entity./.model. 等）转。</li>
+     *   <li>命中 {@code JSON_LOG_ANNOTATIONS}（CJsonLog/ConfigurationProperties）转。</li>
+     *   <li>兜底：JDK 类不转，其余转。</li>
+     *   <li>各类"添加"方法可动态扩展集合。</li>
+     * </ul>
+     *
      * @param type type
-     * @return boolean
-     */
+     * @return boolean*/
     public boolean isJsonLog(Class<?> type) {
         return JSON_LOG_CLASS_VALUE.get(type);
     }
@@ -266,9 +336,15 @@ public class CLogUtils {
      * <p>将可 json 化的参数元素替换为 JSON 字符串（日志专用 mapper：不序列化 null +
      * 标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符），返回新数组，不修改调用方入参；null 元素保持不动</p>
      *
+     * <h2>参数 JSON 化（toLogArgs）</h2>
+     * <ul>
+     *   <li>对可 JSON 化参数替换为 JSON 字符串（日志专用 mapper：不序列化 null + CLogBlob 字段输出 {@code &lt;BLOB&gt;} 占位符）；</li>
+     *   <li>返回新数组不修改调用方入参；null 元素保持不动。</li>
+     *   <li>转 JSON 失败则禁用该类型转换并记录错误日志（有意设计取舍，避免每次日志都抛异常）。</li>
+     * </ul>
+     *
      * @param args 源参数
-     * @return 新数组
-     */
+     * @return 新数组*/
     public Object[] toLogArgs(Object[] args) {
 
         if (ArrayUtil.isEmpty(args)) {
@@ -360,9 +436,15 @@ public class CLogUtils {
 
     /**
      * 获取可打印的数据
+     *
+     * <h2>可打印数据（getPrintAble）</h2>
+     * <ul>
+     *   <li>可 JSON 化或基础可打印类型（CharSequence/Number/Date/枚举/基本类）原样返回；否则经转换函数</li>
+     *   <li>（byte[] → {@code [byte[n]]}、MultipartFile → {@code 文件名:大小}、其他 → {@code [类名]}）。</li>
+     * </ul>
+     *
      * @param value 源数据
-     * @return 可打印的数据
-     */
+     * @return 可打印的数据*/
     public Object getPrintAble(Object value) {
 
         if (null == value) {

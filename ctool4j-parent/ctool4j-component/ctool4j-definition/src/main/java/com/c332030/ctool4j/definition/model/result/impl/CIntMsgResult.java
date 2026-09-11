@@ -14,9 +14,31 @@ import org.springframework.http.HttpStatus;
  * Description: CIntMsgResult
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CIntMsgResult&lt;DATA&gt;} 为结果封装，实现 {@code ICIntResult&lt;DATA&gt;} 与 {@code ICIntMsgResult&lt;DATA&gt;}，含 {@code code}/{@code msg}/{@code data} 字段，提供：</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>error message 为 null</td>
+ *     <td>使用 500 原因短语</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>服务统一结果封装（code/msg/data）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>与 CResult 类似，msg 字段命名。</li>
+ * </ul>
+ *
  * @since 2025/5/13
- * @see "doc/design/core/CIntMsgResult.adoc"
- * @see "doc/design/core/CIntMsgResultTests.adoc"
+ * @version 1.0
  */
 @Data
 @SuperBuilder
@@ -32,6 +54,9 @@ public class CIntMsgResult<DATA> implements ICIntResult<DATA>, ICIntMsgResult<DA
 
     /**
      * 构造结果
+     * <ul>
+     *   <li>{@code newInstance(code, message, data)}：构造</li>
+     * </ul>
      *
      * @param code    状态码
      * @param message 消息
@@ -49,6 +74,9 @@ public class CIntMsgResult<DATA> implements ICIntResult<DATA>, ICIntMsgResult<DA
 
     /**
      * 成功结果（无数据）
+     * <ul>
+     *   <li>{@code success()} / {@code success(data)}：成功结果（200）</li>
+     * </ul>
      *
      * @param <DATA> 数据类型
      * @return 成功结果
@@ -70,6 +98,10 @@ public class CIntMsgResult<DATA> implements ICIntResult<DATA>, ICIntMsgResult<DA
 
     /**
      * 失败结果（默认 500）
+     * <ul>
+     *   <li>{@code error(message)} / {@code error(code, message)} 等：失败结果（默认 500）</li>
+     *   <li>{@code success} 用 {@code HttpStatus.OK}（200）；{@code error(message)} 默认 500，message 为 null 用 500 原因短语。</li>
+     * </ul>
      *
      * @param message 消息
      * @param <DATA>  数据类型

@@ -14,8 +14,23 @@ import java.util.Optional;
  * Description: ICCheckService
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code ICCheckService}：检查服务接口。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>扩展 IService，提供按ID查询（空安全）</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>ID空返回 null/空Optional</p>
+ * <h2>适用范围</h2>
+ * <p>查询服务</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>接口</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>接口</p>
+ *
  * @since 2026/5/20
- * @see "doc/design/mybatisplus/ICCheckService.adoc"
+ * @version 1.0
  */
 public interface ICCheckService<ENTITY> extends IService<ENTITY> {
 

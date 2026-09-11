@@ -44,9 +44,9 @@ import org.springframework.data.redis.core.RedisTemplate;
  *   <li>注入依赖 Spring 容器；非 Spring 环境无法直接使用。</li>
  * </ul>
  *
- * <p>测试内容见 {@code CStringStringRedisServiceTests}。</p>
  *
  * @since 2024/3/8
+ * @version 1.0
  */
 public abstract class CAbstractRedisService<K, V> implements ICRedisService<K, V> {
 

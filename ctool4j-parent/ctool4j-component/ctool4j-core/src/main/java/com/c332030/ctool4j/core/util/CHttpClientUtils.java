@@ -16,9 +16,62 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
  * Description: CHttpClientUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CHttpClientUtils} 为 HTTP 客户端配置工具类，提供全局可复用的 HttpClient 组件常量：</p>
+ * <ul>
+ *   <li>超时常量：{@code CONNECTION_REQUEST_TIMEOUT=3000}、{@code CONNECT_TIMEOUT=3000}、{@code SOCKET_TIMEOUT=30000}、</li>
+ *   <li>{@code KEEP_ALIVE_TIMEOUT=10000}、{@code MAX_TOTAL_CONNECTIONS=1000}</li>
+ *   <li>{@code REQUEST_CONFIG}：默认请求配置（含上述超时）</li>
+ *   <li>{@code CONNECTION_MANAGER}：连接池管理器（最大连接数/单路由并发）</li>
+ *   <li>{@code KEEP_ALIVE_STRATEGY}：长连接策略</li>
+ *   <li>{@code HTTP_CLIENT}：全局 HTTP 客户端（禁用自动重试）</li>
+ *   <li>{@code REQUEST_FACTORY}：Spring {@code ClientHttpRequestFactory}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>长连接服务端未给建议/建议不足</td>
+ *     <td>使用 KEEP_ALIVE_TIMEOUT=10s</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>Spring RestTemplate/WebClient 等需要统一超时与连接池的 HTTP 客户端配置。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>常量配置全局共享，单业务特殊超时需另建客户端。</li>
+ *   <li>禁用自动重试，需要重试时自行配置。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>全局单例 HttpClient，连接池共享，减少连接创建开销。</li>
+ *   <li>禁用自动重试，避免重试导致的重复请求副作用，由调用方决策是否重试。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>连接池</b></p>
+ * <ul>
+ *   <li>{@code PoolingHttpClientConnectionManager} 设 {@code setMaxTotal(1000)} 与</li>
+ *   <li>{@code setDefaultMaxPerRoute(1000)}（显式提升单路由并发，避免并发被路由级默认 2 限制）。</li>
+ * </ul>
+ * <p><b>长连接策略</b></p>
+ * <ul>
+ *   <li>基于 {@code DefaultConnectionKeepAliveStrategy.INSTANCE} 获取服务端建议时长，不足（&lt;=0）时</li>
+ *   <li>使用 {@code KEEP_ALIVE_TIMEOUT=10s} 兜底。</li>
+ * </ul>
+ * <p><b>客户端与工厂</b></p>
+ * <ul>
+ *   <li>{@code HTTP_CLIENT} 禁用自动重试、设置默认请求配置、连接池与长连接策略。</li>
+ *   <li>{@code REQUEST_FACTORY} 基于 HTTP_CLIENT 构建 Spring 请求工厂，供 Spring 模板使用。</li>
+ * </ul>
+ *
  * @since 2025/12/1
- * @see "doc/design/core/CHttpClientUtils.adoc"
- * @see "doc/design/core/CHttpClientUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CHttpClientUtils {

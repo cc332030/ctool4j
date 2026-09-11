@@ -9,10 +9,33 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * <p>
- * 是 {@link CValueWithTtl} 的测试用例（对应测试文档
- * <code>doc/design/redis/CValueWithTtlTests.adoc</code>）。
+ * 是 {@link CValueWithTtl} 的测试用例。
  * </p>
- * @see "doc/design/redis/CValueWithTtlTests.adoc"
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证 lombok 生成的构造器/Builder/Setter 对 value、ttl 字段的读写，以及 toString 包含字段。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对纯数据类（lombok 生成）的约定：全参构建/无参构造、Builder、setter、toString。</li>
+ *   <li>依据白盒原则：各构造/赋值路径均取代表性值验证。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：全参构建、无参构造、Builder、setter、toString。</li>
+ *   <li>未覆盖：equals/hashCode（lombok @Data 生成，未单测）；TTL 数值语义（由 Redis 端决定）。</li>
+ * </ul>
+ * <h2>字段读写</h2>
+ * <ul>
+ *   <li>1.1 全参构建赋值（builderAllFields_setsFields）</li>
+ *   <li>1.2 无参构造为空（noArgsConstructor_createsEmpty）</li>
+ *   <li>1.3 Builder 赋值（builder_setsFields）</li>
+ *   <li>1.4 setter 更新字段（setters_updateFields）</li>
+ *   <li>1.5 toString 含字段（toString_containsFields）</li>
+ * </ul>
+ *
+ * @since 1.0
+ * @version 1.0
  */
 public class CValueWithTtlTests {
 
@@ -31,7 +54,7 @@ public class CValueWithTtlTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：无参构造为空
      */
     @Test
     void noArgsConstructor_createsEmpty() {
@@ -42,7 +65,7 @@ public class CValueWithTtlTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：Builder 赋值
      */
     @Test
     void builder_setsFields() {
@@ -56,7 +79,7 @@ public class CValueWithTtlTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：setter 更新字段
      */
     @Test
     void setters_updateFields() {
@@ -70,7 +93,7 @@ public class CValueWithTtlTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：toString 含字段
      */
     @Test
     void toString_containsFields() {

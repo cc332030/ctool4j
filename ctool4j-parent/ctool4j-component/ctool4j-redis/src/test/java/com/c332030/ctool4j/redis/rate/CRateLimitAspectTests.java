@@ -26,12 +26,45 @@ import java.util.List;
  * 业务 id 表达式解析、参数校验等。不依赖真实 Redis。
  * </p>
  * <p>
- * 是 {@link CRateLimitAspect} 的测试用例（对应测试文档
- * <code>doc/design/redis/CRateLimitAspectTests.adoc</code>）。
+ * 是 {@link CRateLimitAspect} 的测试用例。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>通过 mock {@code CStringStringRedisService} 与 {@code RedisTemplate} 模拟 Redis 计数返回值，验证限流判定逻辑，</li>
+ *   <li>不依赖真实 Redis（外部依赖用 mock 隔离）。</li>
+ *   <li>通过反射取测试类中带 {@code @CRateLimit} 注解的方法，验证注解属性驱动的限流行为。</li>
+ *   <li>覆盖阈值放行/拦截边界、业务 id 表达式、参数校验异常等场景。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 {@code rateLimit} 的约定（见 CRateLimitAspect.adoc）。</li>
+ *   <li>依据白盒/黑盒原则：阈值边界（等于/超过）、业务 id 解析、非法参数（count/interval）均需覆盖。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：窗口内未超阈值放行、达到阈值放行、超过阈值拦截、默认消息、业务 id 表达式、空白业务 id（全局限流）、非法 count、非法 interval、useMethodName=false 时 key 去方法名段。</li>
+ *   <li>未覆盖：真实 Redis 集成（依赖外部环境，本模块以 mock 隔离外部依赖）；多线程并发计数（依赖 Redis 原子脚本，</li>
+ *   <li>由 Redis 保证，单元测试不覆盖并发时序）。</li>
+ * </ul>
+ * <h2>CRateLimitAspect 限流判定</h2>
+ * <ul>
+ *   <li>1.1 窗口内未超阈值：放行（rateLimit_withinThreshold_allowed）</li>
+ *   <li>1.2 达到阈值：放行，第 count 次调用允许（rateLimit_atThreshold_allowed）</li>
+ *   <li>1.3 超过阈值：拦截抛 CRateLimitException（rateLimit_overThreshold_blocked）</li>
+ *   <li>1.4 限流异常消息取注解 message 默认值（rateLimit_message_default）</li>
+ *   <li>1.5 业务 id 表达式取参数，限流 key 含业务维度（rateLimit_bizId_inKey）</li>
+ *   <li>1.6 id 未配置时按方法全局限流，key 不含业务维度（rateLimit_noBizId_limitGlobalKey）</li>
+ *   <li>1.7 count 非法（&lt;=0）：抛 IllegalArgumentException（rateLimit_invalidCount_throws）</li>
+ *   <li>1.8 interval 非法（&lt;=0）：抛 IllegalArgumentException（rateLimit_invalidInterval_throws）</li>
+ *   <li>1.9 id 为空白字符串时按方法全局限流，key 不含业务维度（rateLimit_blankBizId_limitGlobalKey）</li>
+ *   <li>1.10 useMethodName=false 时 key 不含方法名段（rateLimit_withoutMethodName_shareKey）</li>
+ *   <li>1.11 useMethodName=false 且带业务 id 时，key 不含方法名段、含业务 id（rateLimit_withoutMethodName_bizIdInKey）</li>
+ *   <li>1.12 自增返回 null 时快速失败抛 IllegalStateException，不放行（rateLimit_countNull_throws）</li>
+ * </ul>
+ *
  * @since 2026/9/8
- * @see "doc/design/redis/CRateLimitAspectTests.adoc"
+ * @version 1.0
  */
 class CRateLimitAspectTests {
 

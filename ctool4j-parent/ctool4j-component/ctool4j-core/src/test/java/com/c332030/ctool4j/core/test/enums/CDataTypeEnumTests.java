@@ -9,13 +9,43 @@ import org.junit.jupiter.api.Test;
  * Description: CDataTypeEnumTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「枚举值与描述 / 小写名 / 日期类型集合」三个维度组织。</li>
+ *   <li>枚举值逐一断言数量与各枚举的中文描述。</li>
+ *   <li>小写名覆盖避开含字母 I 的枚举（规避 Turkish locale 陷阱）。</li>
+ *   <li>日期类型集合断言大小、包含日期相关类型、不包含 INT。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 13 种类型、描述、DATE_TYPES 集合的约定。</li>
+ *   <li>依据测试方法（等价类/边界值）：全部枚举、小写名、集合成员判断。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：13 个枚举值数量与描述；getLowerCase 小写名；DATE_TYPES 大小与成员（含/不含）。</li>
+ *   <li>未覆盖：含字母 I 的枚举（INT/TIMESTAMP 等）的 getLowerCase（因 locale 陷阱有意避开，未断言）。</li>
+ * </ul>
+ * <h2>枚举值与描述</h2>
+ * <ul>
+ *   <li>1.1 values：13 个枚举，各枚举中文描述正确（values）</li>
+ * </ul>
+ * <h2>小写名</h2>
+ * <ul>
+ *   <li>2.1 getLowerCase：非 I 字母枚举的小写名正确（getLowerCase）</li>
+ * </ul>
+ * <h2>日期类型集合</h2>
+ * <ul>
+ *   <li>3.1 DATE_TYPES：大小 4，含 DATE/TIME/DATETIME/TIMESTAMP，不含 INT（dateTypes）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/CDataTypeEnumTests.adoc"
+ * @version 1.0
  */
 public class CDataTypeEnumTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：13 个枚举，各枚举中文描述正确
      */
     @Test
     public void values() {
@@ -39,7 +69,7 @@ public class CDataTypeEnumTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：非 I 字母枚举的小写名正确
      */
     @Test
     public void getLowerCase() {
@@ -58,7 +88,7 @@ public class CDataTypeEnumTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：大小 4，含 DATE/TIME/DATETIME/TIMESTAMP，不含 INT
      */
     @Test
     public void dateTypes() {

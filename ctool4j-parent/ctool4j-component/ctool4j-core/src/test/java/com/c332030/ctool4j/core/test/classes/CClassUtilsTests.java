@@ -30,14 +30,54 @@ import java.util.stream.Collectors;
  * <p>刻意使用 JDK 内部类（sun.misc.Unsafe、com.sun.beans.TypeResolver 等）验证包名判断逻辑，
  * 内部专用 API 警告（sun.proprietary，javac 无法用 @SuppressWarnings 抑制）已知且接受</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「字段对比 / 包名 / JDK 类判断 / 继承链 / 接口」多个维度组织。</li>
+ *   <li>用 JDK 内部类（sun.misc.Unsafe、com.sun.beans.TypeResolver 等）验证包名与 JDK 判断逻辑。</li>
+ *   <li>继承链用 {@code CBaseEntity → CBaseTimeEntity → CBaseCreateTimeEntity → CId} 多层级验证顺序（由子至父，不含 Object）。</li>
+ *   <li>接口用 CBaseEntity 各类直接实现接口验证去重保序且不递归接口继承。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对继承链顺序、接口去重保序、JDK 类判断的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：compareField 不抛异常；getFirstPackage 各包前缀；isJdkClass（java/javax/jdk/sun/com.sun/com.oracle）；</li>
+ *   <li>getSuperClasses（多层/中间层/Object 父类/接口/自身上）；getInterfaces（多层级接口顺序/接口继承不递归/</li>
+ *   <li>单层/无接口）。</li>
+ *   <li>未覆盖：{@code isExistClass}/{@code getMap}/{@code findClasses}/{@code listSubClass}/{@code listAnnotatedClass}/{@code compareField} 内容</li>
+ *   <li>（部分依赖容器/类路径扫描，未在单测覆盖）。</li>
+ * </ul>
+ * <h2>字段对比</h2>
+ * <ul>
+ *   <li>1.1 compareField：多类字段对比不抛异常（compareField）</li>
+ * </ul>
+ * <h2>包名</h2>
+ * <ul>
+ *   <li>2.1 getFirstPackage：java/javax/jdk/sun 各包前缀（getFirstPackage）</li>
+ * </ul>
+ * <h2>JDK 类判断</h2>
+ * <ul>
+ *   <li>3.1 isJdkClass：java/javax/jdk/sun/com.sun/com.oracle 各类均为 true（isJdkClass）</li>
+ * </ul>
+ * <h2>继承链</h2>
+ * <ul>
+ *   <li>4.1 getSuperClasses：多层/中间层/父类为 Object/接口自身 各场景顺序正确（getSuperClasses）</li>
+ * </ul>
+ * <h2>接口</h2>
+ * <ul>
+ *   <li>5.1 getInterfaces：多层接口顺序去重保序、接口继承不递归、单层、无接口（getInterfaces）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/CClassUtilsTests.adoc"
+ * @version 1.0
  */
 public class CClassUtilsTests {
 
     /**
      * 测试类字段对比
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：多类字段对比不抛异常
      */
     @Test
     public void compareField() {
@@ -48,7 +88,7 @@ public class CClassUtilsTests {
 
     /**
      * 测试获取类所在包的首段名称
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：java/javax/jdk/sun 各包前缀
      */
     @Test
     public void getFirstPackage() {
@@ -62,7 +102,7 @@ public class CClassUtilsTests {
 
     /**
      * 测试是否为 JDK 类
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：java/javax/jdk/sun/com.sun/com.oracle 各类均为 true
      */
     @Test
     public void isJdkClass() {
@@ -79,7 +119,7 @@ public class CClassUtilsTests {
     /**
      * 测试获取类及其所有父类（不含 Object）
      * <p>顺序约定：类本身在前，沿继承链由子至父，直至顶层父类（Object 除外）</p>
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：多层/中间层/父类为 Object/接口自身 各场景顺序正确
      */
     @Test
     public void getSuperClasses() {
@@ -121,7 +161,7 @@ public class CClassUtilsTests {
      * <p>顺序约定：按父类链由子至父遍历，每层按 getInterfaces 声明顺序，
      * LinkedHashSet 去重保序；只取各类直接实现的接口，不递归接口继承
      * （如 ICCreateUpdateBy 是 ICCreateUpdateByAndTime 的父接口，不会出现）</p>
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：多层接口顺序去重保序、接口继承不递归、单层、无接口
      */
     @Test
     public void getInterfaces() {

@@ -24,19 +24,44 @@ import java.util.List;
  * <p>覆盖 CSpringHttpUtils 的请求头构建与消息转换器配置逻辑，
  * 通过静态 setter 注入 CSpringJacksonConfig</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证消息转换器配置的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对消息转换器配置的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：消息转换器配置的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>Spring HTTP 工具</h2>
+ * <ul>
+ *   <li>1.1 验证消息转换器配置（对应测试方法 1.1-1.8）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/spring/CSpringHttpUtilsTests.adoc"
+ * @version 1.0
  */
 public class CSpringHttpUtilsTests {
 
     private CSpringJacksonConfig jacksonConfig;
 
+    /**
+     * 每个用例执行前的准备
+     */
     @BeforeEach
     public void setUp() {
         jacksonConfig = new CSpringJacksonConfig();
         CSpringHttpUtils.setJacksonConfig(jacksonConfig);
     }
 
+    /**
+     * 每个用例执行后的清理
+     */
     @AfterEach
     public void tearDown() {
         // 还原静态 jacksonConfig，避免污染其他用例
@@ -46,8 +71,8 @@ public class CSpringHttpUtilsTests {
     // ---------- getPostHeaders ----------
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证消息转换器配置（对应测试方法 1.1-1.8）
+         */
     @Test
     public void getPostHeaders() {
         // 正例：内容类型与接收类型均为 JSON
@@ -61,8 +86,8 @@ public class CSpringHttpUtilsTests {
     // ---------- getGetHeaders ----------
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     public void getGetHeaders() {
         // 正例：接收类型为 JSON，无内容类型
@@ -76,8 +101,8 @@ public class CSpringHttpUtilsTests {
     // ---------- configureMessageConverters ----------
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     public void configureMessageConverters_whenJacksonAndJson5() {
         // 正例：包含 Jackson 转换器且开启 json5 时，追加 json5 媒体类型
@@ -93,8 +118,8 @@ public class CSpringHttpUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4
+         */
     @Test
     public void configureMessageConverters_whenJacksonAndNotJson5() {
         // 反例：开启 json5 为 false 时不追加 json5 媒体类型
@@ -110,8 +135,8 @@ public class CSpringHttpUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.5
-     */
+         * 对应测试用例 1.5
+         */
     @Test
     public void configureMessageConverters_whenUnknownConverter() {
         // 反例：未知类型转换器时无配置逻辑且不抛异常
@@ -129,8 +154,8 @@ public class CSpringHttpUtilsTests {
     // ---------- configureJackson2HttpMessageConverter ----------
 
         /**
-     * 对应测试用例 1.6
-     */
+         * 对应测试用例 1.6
+         */
     @Test
     public void configureJackson2HttpMessageConverter_whenJson5() {
         // 正例：开启 json5 时追加 json5 媒体类型
@@ -144,8 +169,8 @@ public class CSpringHttpUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.7
-     */
+         * 对应测试用例 1.7
+         */
     @Test
     public void configureJackson2HttpMessageConverter_whenNotJson5() {
         // 反例：未开启 json5 时不追加 json5 媒体类型
@@ -161,8 +186,8 @@ public class CSpringHttpUtilsTests {
     // ---------- configureJson5 ----------
 
         /**
-     * 对应测试用例 1.8
-     */
+         * 对应测试用例 1.8
+         */
     @Test
     public void configureJson5() {
         // 正例：直接追加 json5 媒体类型

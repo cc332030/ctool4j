@@ -16,8 +16,43 @@ import java.util.stream.Collectors;
  * Description: CMethodArgumentNotValidExceptionHandler
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(MethodArgumentNotValidException.class)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
+ *   <li>返回 {@code CStrResult&lt;Void&gt;} 错误结果（{@code CStrResult.error(...)}）。</li>
+ *   <li>记录请求 URI 与异常堆栈（log），保证问题可追溯。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>用 {@code CRequestUtils.getRequestURIDefaultNull()} 记录请求 URI 用于日志。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>容器已存在同类型处理器</td>
+ *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
+ *   </tr>
+ *   <tr>
+ *     <td>异常对象为 null</td>
+ *     <td>记录日志并返回错误结果</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>Web 应用统一参数校验失败异常的响应格式。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>依赖 {@code CStrResult} 响应结构，与项目统一响应格式耦合。</li>
+ * </ul>
+ *
  * @since 2026/4/9
- * @see "doc/design/web/CMethodArgumentNotValidExceptionHandler.adoc"
+ * @version 1.0
  */
 @CustomLog
 @RestControllerAdvice

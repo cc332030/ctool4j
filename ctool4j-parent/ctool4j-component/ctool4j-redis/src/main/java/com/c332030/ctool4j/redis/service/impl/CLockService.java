@@ -23,9 +23,70 @@ import java.util.function.Supplier;
  * Description: CLockService
  * </p>
  *
- * @see "doc/design/redis/CLockService.adoc"
- * @see "doc/design/redis/CLockServiceTests.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CLockService} 封装 Redisson 分布式锁，提供：</p>
+ * <ul>
+ *   <li>{@code getLock(key)}：获取指定 key 的 {@code RLock}。</li>
+ *   <li>{@code lock(lockKey)} / {@code lock(format, args...)}：创建 {@code CLockBuilder}（支持格式化 key）。</li>
+ *   <li>{@code tryLock(...)} 系列：尝试加锁。</li>
+ *   <li>{@code tryLockThenRun(...)}（已废弃）：获取锁并执行操作。</li>
+ * </ul>
+ * <p>内部 {@code CLockBuilder} 提供链式配置（waitTime / leaseTime / onLockFail / unlockDelay）， 统一"加锁-执行-解锁"模板。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>获取锁失败</td>
+ *     <td>执行 onLockFail 回调，返回 null（回调决定是否抛异常，默认不抛）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>加锁被中断</td>
+ *     <td>恢复中断标记，记录 error，视为获取失败</td>
+ *   </tr>
+ *   <tr>
+ *     <td>释放锁异常</td>
+ *     <td>记录 error 日志，不抛出</td>
+ *   </tr>
+ *   <tr>
+ *     <td>延迟释放被中断</td>
+ *     <td>恢复中断标记，记录 info</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>需要分布式锁的读-算-写、缓存刷新、幂等控制等场景。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>依赖 Redisson 客户端与 Redis 服务器；单机环境不适用。</li>
+ *   <li>{@code tryLockThenRun} 已废弃，新代码使用 {@code lock()} 构建器。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>默认 leaseTime=-1 依赖 watchdog 自动续期，若 Redis/Redisson 配置不支持续期，锁可能在长任务中过期。</li>
+ *   <li>{@code unlockDelay} 期间锁仍被当前线程持有，其他线程获取会失败/等待，需谨慎配置。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>CLockBuilder 语义</b></p>
+ * <ul>
+ *   <li>{@code waitTime}：等待获取锁超时，默认不等待（{@code Duration.ZERO}）。</li>
+ *   <li>{@code leaseTime}：持锁时间，默认 {@code -1} 启用 Redisson watchdog 自动续期。</li>
+ *   <li>{@code onLockFail}：获取锁失败回调，默认空操作（不抛异常）。</li>
+ *   <li>{@code unlockDelay}：释放锁前延迟（默认不延迟），用于写缓存后延迟释放避免瞬间读到旧数据。</li>
+ * </ul>
+ * <p><b>加锁-执行-解锁模板</b></p>
+ * <ul>
+ *   <li>{@code execute(Runnable)}：无返回值；{@code execute(Supplier)}：有返回值。</li>
+ *   <li>获取锁失败时执行 {@code onLockFail} 回调并返回 null（或 void）。</li>
+ *   <li>{@code unlockSafely}：仅当前线程持有锁时释放；有 unlockDelay 先 sleep 再释放；释放异常仅记录日志。</li>
+ * </ul>
+ *
  * @since 2025/11/3
+ * @version 1.0
  */
 @CustomLog
 @Service
@@ -263,6 +324,10 @@ public class CLockService {
 
     /**
      * 尝试加锁，不等待
+     * <ul>
+     *   <li>基于 {@code RedissonClient}；{@code tryLockWithLeaseTime} 按 waitTime 是否有毫秒选择 {@code tryLock(millis, leaseTime, unit)} 或秒版本。</li>
+     * </ul>
+     *
      * @param key 锁 key
      * @return true 加锁成功
      */

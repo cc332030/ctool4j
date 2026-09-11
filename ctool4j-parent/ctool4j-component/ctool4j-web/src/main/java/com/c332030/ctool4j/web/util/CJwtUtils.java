@@ -24,45 +24,90 @@ import java.util.Map;
  * 密钥由调用方显式传入；依赖配置（{@code CAuthConfig}）与业务载荷接口（{@code ICJwtInfo}）的封装见 ctool4j-auth-base 的
  * {@code CAuthUtils}。</p>
  *
- * <h2>功能说明</h2>
+ * <h2>能力目录</h2>
+ * <p>{@code CJwtUtils}（{@code @UtilityClass}）提供 jwt 的纯编解码能力，密钥由调用方显式传入：</p>
  * <ul>
- *   <li>{@link #create(Object, String)} / {@link #create(Map, String)}：创建 jwt（secret 空白快速失败）；</li>
- *   <li>{@link #verify(String, String)}：校验签名（jwt 为空直接返回 false）；</li>
- *   <li>{@link #parseJwt(String)}：按 "." 拆分为三段；</li>
- *   <li>{@link #getJson(String[], int)} / {@link #getHeaderJson(String)} / {@link #getBodyJson(String)}：取并 base64 解码指定段；</li>
- *   <li>{@link #parseHeader(String, Class)} / {@link #parseBody(String, Class)} / {@link #parseBody(String, TypeReference)}：解析为指定类型。</li>
+ *   <li>{@code getJson(String[], int)} / {@code getHeaderJson(String)} / {@code getBodyJson(String)}：取并 base64 解码指定段</li>
+ *   <li>{@code parseHeader(String, Class)} / {@code parseBody(String, Class)} / {@code parseBody(String, TypeReference)}：解析为指定类型</li>
  * </ul>
- *
- * <h2>设计要点</h2>
- * <ul>
- *   <li>create 前校验 secret 非空白，避免底层库对空密钥的隐式行为；</li>
- *   <li>verify 对空 jwt 直接返回 false，不依赖底层库抛错行为。</li>
- * </ul>
- *
  * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>create / verify：secret 空白</td>
+ *     <td>抛 IllegalArgumentException（快速失败）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>verify：jwt 为 null / 空</td>
+ *     <td>返回 false</td>
+ *   </tr>
+ *   <tr>
+ *     <td>verify：jwt 格式非法</td>
+ *     <td>抛 JWTException（不吞异常，由调用方决定是否容错）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>parseJwt / getJson：输入为空或无对应段</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>getHeaderJson / getBodyJson：jwt 为空或对应段为空</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>parseHeader / parseBody：头段 / 载荷段为空</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
  * <ul>
- *   <li>create/verify：secret 为空白抛 {@link IllegalArgumentException}；</li>
- *   <li>verify：jwt 为 null/空返回 false；jwt 格式非法抛 {@code JWTException}（不吞异常，由调用方决定是否容错）；</li>
- *   <li>parseJwt/getJson/getHeaderJson/getBodyJson：输入为空或无对应段返回 null；</li>
- *   <li>parseHeader/parseBody：头部/载荷为空返回 null。</li>
+ *   <li>需要自行管理密钥的 jwt 编解码场景。</li>
+ *   <li>作为上层封装（{@code CAuthUtils}）的底层实现。</li>
  * </ul>
- *
- * <p>注意：{@code parseHeader}/{@code parseBody} 仅 base64 解码、不校验签名，内容未认证不可信，
- * 需认证时先调用 {@link #verify(String, String)}。</p>
- *
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>需要读取配置、绑定业务载荷的认证场景请用 {@code CAuthUtils}。</li>
+ *   <li>本类不做签名算法选择、不校验过期时间（仅 {@code verify} 签名）。</li>
+ * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li>不感知配置与业务类型，密钥须由调用方显式传入；签名算法由底层 hutool 默认决定。</li>
+ *   <li>{@code verify} 仅校验签名，不做过期校验与声明校验，需由调用方自行处理。</li>
+ *   <li>jwt 格式非法时 {@code verify} 抛 {@code JWTException} 而非返回 false，属刻意取舍（异常与「签名不匹配」语义不同）。</li>
+ *   <li>{@code parseJwt} 对纯空白串走 split 返回非空数组，与 null / 空串的返回 null 行为不同（已知边界）。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>密钥显式传入</b></p>
+ * <ul>
+ *   <li>本类不读取任何配置，密钥完全由调用方传入，保证可单测、可复用（不绑定 Spring 上下文）。</li>
+ * </ul>
+ * <p><b>快速失败</b></p>
+ * <ul>
+ *   <li>{@code create} / {@code verify} 在进入底层库前先校验 secret 非空白，避免底层库对空密钥的隐式行为。</li>
+ *   <li>secret 为空白（null / 空串 / 全空白）时抛 {@code IllegalArgumentException}。</li>
+ * </ul>
+ * <p><b>空值不依赖底层库</b></p>
+ * <ul>
+ *   <li>{@code verify} 对 null / 空 jwt 直接返回 false，不依赖底层库抛错行为。</li>
+ *   <li>{@code parseJwt} / {@code getJson} / {@code getHeaderJson} / {@code getBodyJson} 对空输入或无对应段返回 null。</li>
  * </ul>
  *
  * @author c332030
  * @since 2025/9/25
+ * @version 1.0
  */
 @UtilityClass
 public class CJwtUtils {
 
     /**
      * 创建 jwt
+     * <ul>
+     *   <li>{@link #create(Object, String)} / {@link #create(Map, String)}：创建 jwt（secret 空白快速失败）；</li>
+     *   <li>{@code create(Object, String)} / {@code create(Map, String)}：创建 jwt</li>
+     * </ul>
+     *
      * @param body body
      * @param secret 密钥
      * @return jwt
@@ -95,6 +140,10 @@ public class CJwtUtils {
      *
      * <p>格式非法（如段数不足、非 jwt 串）时不返回 false，而是由底层 hutool 抛 {@code JWTException}；
      * 调用方若需容错应自行捕获（参见 {@code CAuthUtils#getTokenByJwt}）。空 jwt 走短路返回 false。</p>
+     * <ul>
+     *   <li>{@link #verify(String, String)}：校验签名（jwt 为空直接返回 false）；</li>
+     *   <li>{@code verify(String, String)}：校验签名</li>
+     * </ul>
      *
      * @param jwt    jwt，为空时不校验签名，直接返回 false
      * @param secret 密钥，不能为空白
@@ -113,6 +162,10 @@ public class CJwtUtils {
 
     /**
      * 按点拆分 jwt 为头部、载荷、签名三段
+     * <ul>
+     *   <li>{@link #parseJwt(String)}：按 "." 拆分为三段；</li>
+     *   <li>{@code parseJwt(String)}：按 "." 拆分为三段</li>
+     * </ul>
      *
      * @param jwt jwt
      * @return 拆分后的三段数组；jwt 为空时返回 null

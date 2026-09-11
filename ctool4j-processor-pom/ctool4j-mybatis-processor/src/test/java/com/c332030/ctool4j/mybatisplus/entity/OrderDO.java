@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
  * </p>
  *
  * @since 2025/05/16
+ * @version 1.0
  */
 @Data
 @SuperBuilder

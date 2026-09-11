@@ -20,8 +20,54 @@ import org.springframework.stereotype.Component;
  * Description: CXxlJobAspect
  * </p>
  *
- * @see "doc/design/xxljob/CXxlJobAspect.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CXxlJobAspect}（{@code @Aspect}）拦截标注 {@code @XxlJob} 的方法：</p>
+ * <ul>
+ *   <li>参数为空且方法首参为 String 时，用 {@code CXxlJobUtils.getJobParam()} 填充（jobParam 非空时）。</li>
+ *   <li>可按配置打印执行耗时（logCost）与捕获错误（logCatchError）。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>首参为空但 jobParam 为空</td>
+ *     <td>不填充</td>
+ *   </tr>
+ *   <tr>
+ *     <td>异常</td>
+ *     <td>记录后继续抛出</td>
+ *   </tr>
+ *   <tr>
+ *     <td>logCost 关闭</td>
+ *     <td>不打印耗时</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>xxl-job 任务的统一拦截、参数注入与耗时日志。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>仅对首参为 String 的方法注入参数。</li>
+ *   <li>依赖 {@code CXxlJobExecutorLogConfig} 配置。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>参数填充</b></p>
+ * <ul>
+ *   <li>当首参类型为 String 且为空时，用 xxl-job 的任务参数填充。</li>
+ * </ul>
+ * <p><b>环绕逻辑</b></p>
+ * <ul>
+ *   <li>logCost 开启时记录开始时间，finally 打印耗时。</li>
+ *   <li>logCatchError 开启时 catch 记录错误并继续抛出。</li>
+ * </ul>
+ *
  * @since 2025/11/28
+ * @version 1.0
  */
 @CustomLog
 @Aspect

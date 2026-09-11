@@ -9,8 +9,19 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CSpringSecurityRequestMatchersPathConfig
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>配置允许访问的地址</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>放行路径配置</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>实现 ICRequestMatchersConfig</p>
+ *
  * @since 2026/1/24
- * @see "doc/design/spring/CSpringSecurityRequestMatchersPathConfig.adoc"
+ * @version 1.0
  */
 
 @Data

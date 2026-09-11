@@ -17,9 +17,17 @@ import javax.servlet.http.HttpServletResponse;
  * Description: CAuthenticationEntryPoint
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>处理未认证访问，按异常类型生成提示并输出 401</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>输出 401</p>
+ * <h2>适用范围</h2>
+ * <p>未认证处理</p>
+ *
  * @since 2026/1/26
- * @see "doc/design/spring/CAuthenticationEntryPoint.adoc"
- * @see "doc/design/spring/CAuthenticationEntryPointTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 public class CAuthenticationEntryPoint implements AuthenticationEntryPoint {

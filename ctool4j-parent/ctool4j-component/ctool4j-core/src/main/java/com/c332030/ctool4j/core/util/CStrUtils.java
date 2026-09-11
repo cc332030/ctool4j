@@ -27,9 +27,68 @@ import java.util.stream.Collectors;
  * Description: CStrUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CStrUtils} 为字符串工具类，提供丰富的字符串操作：</p>
+ * <ul>
+ *   <li>常量：{@code NULL}/{@code UNDEFINED}、引号、分隔符、{@code NOT_AVAILABLE_*}、{@code UTF8_BOM}</li>
+ *   <li>格式化：{@code format}（{@code {}} 占位符 / {@code ${}} 模板）/{@code formatLookup}/{@code formatByObject}/{@code formatNullToEmpty}</li>
+ *   <li>命名转换：{@code upperUnderscoreToHeaderName}/{@code upperUnderscoreToLowerCamel}/{@code upperCamelToUpperUnderscore} 等</li>
+ *   <li>切割：{@code splitToList}/{@code splitToSet}/{@code splitToIntegerList}/{@code splitToMap}/{@code splitThenGetFirst} 等</li>
+ *   <li>连接：{@code concat}/{@code join}</li>
+ *   <li>可用性：{@code isAvailable}/{@code toAvailable}/{@code convertAvailable}</li>
+ *   <li>其他：{@code incrLastNum}/{@code repeat}/{@code fillAfter}/{@code fillSide}/{@code generateRandomString}/{@code getPrintWidth}/{@code chineseOnly}</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>toAvailable trim 后为空 / 命中 NOT_AVAILABLE_STRINGS</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>toAvailable 前后引号完全覆盖（start &gt; end）</td>
+ *     <td>返回 null</td>
+ *   </tr>
+ *   <tr>
+ *     <td>incrLastNum 无 {@code -} / 末尾非数字 / 解析失败</td>
+ *     <td>原样返回</td>
+ *   </tr>
+ *   <tr>
+ *     <td>format 缺失参数</td>
+ *     <td>使用 defaultValue 兜底</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>模板格式化、命名风格转换、字符串切割/连接、可用性清洗、末尾数字自增、中文提取等。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>toAvailable 基于引号/关键字清洗，复杂清洗规则需自行实现。</li>
+ *   <li>chineseOnly 仅保留 CJK 统一表意文字（\u4e00-\u9fa5），标点/扩展汉字被移除。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>可用性清洗为启发式规则（引号/关键字），覆盖常见脏数据。</li>
+ *   <li>自增仅支持 {@code 前缀-数字} 形态，其他形态原样返回。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>格式化</b></p>
+ * <ul>
+ *   <li>key 经 {@code stringLookup} 查找、缺失时用 {@code defaultValue} 兜底。</li>
+ * </ul>
+ * <p><b>自增与中文提取</b></p>
+ * <ul>
+ *   <li>{@code incrLastNum}：对 {@code 前缀-数字} 形式的末尾数字自增；无 {@code -} 或非数字末尾原样返回，解析失败记录日志。</li>
+ *   <li>{@code chineseOnly}：用正则 {@code [^\u4e00-\u9fa5]} 移除所有非中文字符，提取纯中文。</li>
+ * </ul>
+ *
  * @since 2024/3/15
- * @see "doc/design/core/CStrUtils.adoc"
- * @see "doc/design/core/CStrUtilsTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 @UtilityClass
@@ -60,7 +119,6 @@ public class CStrUtils {
      */
     public static final String DEFAULT_SEPARATOR = ",";
 
-
     /**
      * 不可用字符集合（引号）
      */
@@ -82,6 +140,7 @@ public class CStrUtils {
 
     /**
      * 字符串格式化
+     *
      * @param template 模板 "My name is {}, I come from {}"
      * @param params 参数
      * @return formatted string
@@ -97,6 +156,10 @@ public class CStrUtils {
 
     /**
      * 字符串格式化
+     * <ul>
+     *   <li>{@code formatLookup(key, stringLookup[, defaultValue])}：按 key 查找替换值，key 为空或查得 null 时用 {@code defaultValue} 兜底。</li>
+     * </ul>
+     *
      * @param key 模板
      * @param stringLookup 字符串属性查找函数
      * @return formatted string
@@ -695,9 +758,16 @@ public class CStrUtils {
 
     /**
      * 转换成可用字符串
+     *
+     * <h2>可用性处理（toAvailable）</h2>
+     * <ul>
+     *   <li>trim 后为空返回 null；命中 {@code NOT_AVAILABLE_STRINGS}（null/undefined 等）返回 null。</li>
+     *   <li>删除前后 {@code NOT_AVAILABLE_CHARACTERS}（引号等）字符；{@code start == end} 时保留该非引号字符</li>
+     *   <li>（Q16 修复），仅当前后引号完全覆盖（start &gt; end）时视为无可用内容返回 null。</li>
+     * </ul>
+     *
      * @param string 待转换字符串
-     * @return 可用字符串
-     */
+     * @return 可用字符串*/
     public static String toAvailable(String string) {
 
         string = CStrUtils.trim(string);

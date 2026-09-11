@@ -41,6 +41,7 @@ import java.io.IOException;
  *
  * @author c332030
  * @since 2026/3/16
+ * @version 1.0
  */
 @CustomLog
 public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> extends CAbstractJwtFilter {
@@ -56,6 +57,19 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
     @Autowired
     CAbstractSessionService<SESSION> sessionService;
 
+    /**
+     * 认证过滤器主流程：解析并加载 token 后放行。
+     *
+     * <p>{@code loadToken} 的异常在本方法内被捕获记 error 日志（不中断链路），随后无条件继续
+     * {@code filterChain.doFilter}，由后续 Spring Security 授权规则拦截未认证请求；
+     * 该"失败静默放行"为刻意设计，见类级说明。</p>
+     *
+     * @param request     当前请求
+     * @param response    当前响应
+     * @param filterChain 过滤器链，认证结果写入安全上下文后继续执行
+     * @throws ServletException 链路内下游过滤器/Servlet 抛出时透传
+     * @throws IOException      链路内下游过滤器/Servlet 抛出时透传
+     */
     @Override
     protected void doFilterInternal(
         @NonNull HttpServletRequest request,

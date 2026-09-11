@@ -23,10 +23,55 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * <p>
- * 是 {@link CStringStringRedisService} 的测试用例（对应测试文档
- * <code>doc/design/redis/CStringStringRedisServiceTests.adoc</code>）。
+ * 是 {@link CStringStringRedisService} 的测试用例。
  * </p>
- * @see "doc/design/redis/CStringStringRedisServiceTests.adoc"
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>通过 mock RedisTemplate/ValueOperations 隔离外部 Redis，覆盖 isInvalidKey、setValue（各形态短路/JSON 序列化）、</li>
+ *   <li>getValue（默认值/反序列化/泛型）、getValueOpt、getValueWithTtl。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对空白 key/value 无效、对象 JSON 序列化存储、无效返回默认值、getValueWithTtl 管道读的约定。</li>
+ *   <li>依据白盒/黑盒原则：key/value 空白/null、timeout 非正数、JSON 序列化/反序列化、泛型/Class 读取均覆盖。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：isInvalidKey 空白、setValue 空白 key/null 值/正常序列化/超时非正数/带超时/带 Duration、</li>
+ *   <li>getValue 无效默认/正常反序列化/泛型、getValueOpt、getValueWithTtl 委托回调。</li>
+ *   <li>未覆盖：真实 Redis 读写（依赖环境）。</li>
+ * </ul>
+ * <h2>key/value 有效性</h2>
+ * <ul>
+ *   <li>1.1 空白 key 视为无效（isInvalidKey_blank_isInvalid）</li>
+ * </ul>
+ * <h2>setValue</h2>
+ * <ul>
+ *   <li>2.1 空白 key 短路（setValue_blankKey_shortCircuit）</li>
+ *   <li>2.2 null 值短路（setValue_nullValue_shortCircuit）</li>
+ *   <li>2.3 正常值序列化为 JSON（setValue_normal_serializesToJson）</li>
+ *   <li>2.4 超时非正数短路（setValue_timeout_nonPositive_shortCircuit）</li>
+ *   <li>2.5 带正超时序列化为 JSON（setValue_timeout_positive_serializesToJson）</li>
+ *   <li>2.6 带 Duration 序列化为 JSON（setValue_duration_serializesToJson）</li>
+ * </ul>
+ * <h2>getValue</h2>
+ * <ul>
+ *   <li>3.1 无效 key 返回默认值（getValue_invalidKey_returnsDefault）</li>
+ *   <li>3.2 正常反序列化（getValue_normal_returnsDeserialized）</li>
+ *   <li>3.3 泛型反序列化（getValue_typeReference_normal_returnsDeserialized）</li>
+ * </ul>
+ * <h2>getValueOpt</h2>
+ * <ul>
+ *   <li>4.1 无效 key 返回空 Opt（getValueOpt_invalidKey_empty）</li>
+ *   <li>4.2 有效 key 返回有值 Opt（getValueOpt_validKey_present）</li>
+ * </ul>
+ * <h2>getValueWithTtl</h2>
+ * <ul>
+ *   <li>5.1 委托 RedisCallback 读取（getValueWithTtl_delegatesToRedisCallback）</li>
+ * </ul>
+ *
+ * @since 1.0
+ * @version 1.0
  */
 public class CStringStringRedisServiceTests {
 
@@ -34,6 +79,9 @@ public class CStringStringRedisServiceTests {
     private ValueOperations<String, String> valueOps;
     private CStringStringRedisService service;
 
+    /**
+     * 每个用例执行前的准备
+     */
     @BeforeEach
     public void setUp() {
         redisTemplate = Mockito.mock(RedisTemplate.class);
@@ -45,7 +93,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：空白 key 视为无效
      */
     @Test
     void isInvalidKey_blank_isInvalid() {
@@ -56,7 +104,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：空白 key 短路
      */
     @Test
     void setValue_blankKey_shortCircuit() {
@@ -66,7 +114,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：null 值短路
      */
     @Test
     void setValue_nullValue_shortCircuit() {
@@ -76,7 +124,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：正常值序列化为 JSON
      */
     @Test
     void setValue_normal_serializesToJson() {
@@ -86,7 +134,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 2.4
+     * 对应测试用例 2.4：超时非正数短路
      */
     @Test
     void setValue_timeout_nonPositive_shortCircuit() {
@@ -96,7 +144,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 2.5
+     * 对应测试用例 2.5：带正超时序列化为 JSON
      */
     @Test
     void setValue_timeout_positive_serializesToJson() {
@@ -106,7 +154,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 2.6
+     * 对应测试用例 2.6：带 Duration 序列化为 JSON
      */
     @Test
     void setValue_duration_serializesToJson() {
@@ -116,7 +164,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：无效 key 返回默认值
      */
     @Test
     void getValue_invalidKey_returnsDefault() {
@@ -129,7 +177,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：正常反序列化
      */
     @Test
     void getValue_normal_returnsDeserialized() {
@@ -142,7 +190,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：泛型反序列化
      */
     @Test
     void getValue_typeReference_normal_returnsDeserialized() {
@@ -155,7 +203,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：无效 key 返回空 Opt
      */
     @Test
     void getValueOpt_invalidKey_empty() {
@@ -165,7 +213,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：有效 key 返回有值 Opt
      */
     @Test
     void getValueOpt_validKey_present() {
@@ -178,7 +226,7 @@ public class CStringStringRedisServiceTests {
     }
 
     /**
-     * 对应测试用例 5.1
+     * 对应测试用例 5.1：委托 RedisCallback 读取
      */
     @Test
     void getValueWithTtl_delegatesToRedisCallback() {

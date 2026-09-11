@@ -17,9 +17,66 @@ import java.util.function.Supplier;
  * Description: CAssert
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CAssert} 为断言工具类，提供多种断言方法，条件不满足时抛业务异常：</p>
+ * <ul>
+ *   <li>{@code isTrue}：条件为 true</li>
+ *   <li>{@code equals}：两值相等（Objects.equals 语义）</li>
+ *   <li>{@code isNull} / {@code notNull}：对象为 null / 非 null</li>
+ *   <li>{@code notEmpty}：字符串/byte/int/long/Object 数组/Collection/Map 非空</li>
+ *   <li>{@code notBlank}：字符串非空白</li>
+ * </ul>
+ * <p>每个断言均有「String message」与「Supplier&lt;String&gt;」两个重载。</p>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>断言不满足</td>
+ *     <td>抛 CBusinessException（携带指定信息）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>equals null/null</td>
+ *     <td>视为相等，不抛异常</td>
+ *   </tr>
+ *   <tr>
+ *     <td>notEmpty/notBlank 空值</td>
+ *     <td>抛 CBusinessException</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>参数校验、前置条件断言，失败时抛出统一业务异常。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>抛的是业务异常，非断言类异常（AssertionError）；需严格断言语义时用 JDK assert 或 AssertJ。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>统一抛业务异常，与业务校验语义一致，调用方可按业务异常统一处理。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>断言失败语义</b></p>
+ * <ul>
+ *   <li>断言条件不满足时经 {@code CExceptionUtils.throwBusinessException} 抛 {@code CBusinessException}，携带指定错误信息。</li>
+ * </ul>
+ * <p><b>相等语义</b></p>
+ * <ul>
+ *   <li>{@code equals} 基于 {@code Objects.equals}：两个 null 视为相等；null 与非 null 视为不相等。</li>
+ * </ul>
+ * <p><b>空值语义</b></p>
+ * <ul>
+ *   <li>{@code notEmpty}（字符串）用 {@code StrUtil.isEmpty}（null 或空串视为空）。</li>
+ *   <li>{@code notBlank} 用 {@code StrUtil.isBlank}（null、空串、纯空白视为空）。</li>
+ *   <li>{@code notEmpty}（数组/集合/Map）分别用 {@code ArrayUtil.isEmpty} / {@code CollUtil.isEmpty} / {@code MapUtil.isEmpty}。</li>
+ * </ul>
+ *
  * @since 2025/9/14
- * @see "doc/design/core/CAssert.adoc"
- * @see "doc/design/core/CAssertTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CAssert {

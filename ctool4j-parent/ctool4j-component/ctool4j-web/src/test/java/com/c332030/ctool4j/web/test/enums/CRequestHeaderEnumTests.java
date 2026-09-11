@@ -14,8 +14,38 @@ import org.junit.jupiter.api.Test;
  *
  * <p>覆盖枚举 getHeaderName（下划线转 Header 名）与 getText 描述</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「Header 名 / 描述 / 枚举完整性」多个维度组织。</li>
+ *   <li>Header 名覆盖多段下划线、单段（无下划线）；描述覆盖文本；完整性覆盖数量/顺序/valueOf/非法抛异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对 Header 名推导与枚举元素的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：Header 名（多段/单段）；getText；枚举数量/顺序；valueOf 正常/非法抛异常。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>Header 名</h2>
+ * <ul>
+ *   <li>1.1 多段下划线：{@code X_TRACE_ID} → {@code X-Trace-Id} 等（getHeaderName）</li>
+ *   <li>1.2 单段：{@code AUTHORIZATION} → {@code Authorization}（getHeaderName_singleWord）</li>
+ * </ul>
+ * <h2>描述</h2>
+ * <ul>
+ *   <li>2.1 getText：描述正确（getText）</li>
+ * </ul>
+ * <h2>枚举完整性</h2>
+ * <ul>
+ *   <li>3.1 enumValues：7 个枚举、顺序稳定（enumValues）</li>
+ *   <li>3.2 valueOf：按名取枚举（valueOf）</li>
+ *   <li>3.3 valueOf 非法：抛 IllegalArgumentException（valueOf_invalid_throws）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/web/CRequestHeaderEnumTests.adoc"
+ * @version 1.0
  */
 @CustomLog
 public class CRequestHeaderEnumTests {
@@ -23,7 +53,7 @@ public class CRequestHeaderEnumTests {
     // ---------- getHeaderName ----------
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：多段下划线：{@code X_TRACE_ID} → {@code X-Trace-Id} 等
      */
     @Test
     public void getHeaderName() {
@@ -38,7 +68,7 @@ public class CRequestHeaderEnumTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：单段：{@code AUTHORIZATION} → {@code Authorization}
      */
     @Test
     public void getHeaderName_singleWord() {
@@ -50,7 +80,7 @@ public class CRequestHeaderEnumTests {
     // ---------- getText ----------
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：描述正确
      */
     @Test
     public void getText() {
@@ -62,7 +92,7 @@ public class CRequestHeaderEnumTests {
     // ---------- 枚举完整性 ----------
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：7 个枚举、顺序稳定
      */
     @Test
     public void enumValues() {
@@ -73,7 +103,7 @@ public class CRequestHeaderEnumTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：按名取枚举
      */
     @Test
     public void valueOf() {
@@ -82,7 +112,7 @@ public class CRequestHeaderEnumTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 对应测试用例 3.3：valueOf 非法：抛 IllegalArgumentException
      */
     @Test
     public void valueOf_invalid_throws() {

@@ -16,8 +16,21 @@ import org.springframework.stereotype.Component;
  * Description: CLogAndIgnoreThrowableAspect
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>切面处理 CLogAndIgnoreThrowable，记录日志并吞掉异常</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>异常不抛出</p>
+ * <h2>适用范围</h2>
+ * <p>异常处理</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>依赖切面</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>依赖切面</p>
+ *
  * @since 2025/12/21
- * @see "doc/design/spring/CLogAndIgnoreThrowableAspect.adoc"
+ * @version 1.0
  */
 @CustomLog
 @Aspect

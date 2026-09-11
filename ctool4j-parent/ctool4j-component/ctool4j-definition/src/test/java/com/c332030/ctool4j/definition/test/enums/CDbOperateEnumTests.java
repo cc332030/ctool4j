@@ -9,13 +9,36 @@ import org.junit.jupiter.api.Test;
  * Description: CDbOperateEnumTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证枚举数量、各枚举的描述/名称，以及未知枚举名抛异常。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对枚举元素与描述的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：枚举数量；四枚举 text/name；未知名抛异常。</li>
+ *   <li>未覆盖：无。</li>
+ * </ul>
+ * <h2>枚举</h2>
+ * <ul>
+ *   <li>1.1 values：4 个枚举（values）</li>
+ *   <li>1.2 insert：{@code 插入}/INSERT（insert）</li>
+ *   <li>1.3 select：{@code 查询}/SELECT（select）</li>
+ *   <li>1.4 update：{@code 更新}/UPDATE（update）</li>
+ *   <li>1.5 delete：{@code 删除}/DELETE（delete）</li>
+ *   <li>1.6 未知名抛异常（valueOfUnknown）</li>
+ * </ul>
+ *
  * @since 2026/8/14
- * @see "doc/design/core/CDbOperateEnumTests.adoc"
+ * @version 1.0
  */
 public class CDbOperateEnumTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：4 个枚举
      */
     @Test
     public void values() {
@@ -25,7 +48,7 @@ public class CDbOperateEnumTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：{@code 插入}/INSERT
      */
     @Test
     public void insert() {
@@ -37,7 +60,7 @@ public class CDbOperateEnumTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：{@code 查询}/SELECT
      */
     @Test
     public void select() {
@@ -48,7 +71,7 @@ public class CDbOperateEnumTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：{@code 更新}/UPDATE
      */
     @Test
     public void update() {
@@ -59,7 +82,7 @@ public class CDbOperateEnumTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：{@code 删除}/DELETE
      */
     @Test
     public void delete() {
@@ -70,7 +93,7 @@ public class CDbOperateEnumTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：未知名抛异常
      */
     @Test
     public void valueOfUnknown() {

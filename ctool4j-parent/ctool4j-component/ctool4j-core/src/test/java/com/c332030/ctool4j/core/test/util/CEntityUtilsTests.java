@@ -15,15 +15,50 @@ import java.util.Date;
  * Description: CEntityUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「各类实体清空 / 继承查找」两个维度组织，重点验证按继承距离查找"最近"清除方法的语义。</li>
+ *   <li>各类实体：CBaseEntity、CBaseTimeEntity、CLongId 的公共字段清空，含 Object 重载与类型化重载两入口。</li>
+ *   <li>无公共字段对象：clear(new Object()) 不抛异常。</li>
+ *   <li>继承查找：XBaseTimeEntity 走父类链；XChild 验证接口优先（子类接口 ICCreateUpdateBy 优先于</li>
+ *   <li>父类接口 ICCreateUpdateTime）；XByAndTime 验证深层接口级联清空。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对按继承距离查找"最近" clear、级联清空的约定。</li>
+ *   <li>依据测试方法（分支覆盖/继承层次覆盖）：父类链、接口优先级、深层接口级联、无匹配空函数。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：CBaseEntity/CBaseTimeEntity/CLongId 各重载清空（Object 与类型化两入口）；无公共字段对象</li>
+ *   <li>不抛异常；继承子类命中父类清除；子类接口优先于父类接口；深层接口级联清空。</li>
+ *   <li>未覆盖：{@code CCreateUpdateByAndTime} 以外其余单一接口重载（ICCreateTime 等）的独立调用（被级联路径</li>
+ *   <li>覆盖）；具体断言字段较多但均已覆盖。</li>
+ * </ul>
+ * <h2>各类实体清空</h2>
+ * <ul>
+ *   <li>1.1 CBaseEntity：全公共字段清空（id/by/time），Object 与类型化两入口（clearCBaseEntity）</li>
+ *   <li>1.2 CBaseTimeEntity：id/createTime/updateTime 清空，两入口（clearBaseTimeEntity）</li>
+ *   <li>1.3 CLongId：id 清空，两入口（clearLongId）</li>
+ *   <li>1.4 无公共字段对象：clear(new Object()) 不抛异常（clearNone）</li>
+ * </ul>
+ * <h2>继承距离查找</h2>
+ * <ul>
+ *   <li>2.1 继承子类：XBaseTimeEntity 命中父类 CBaseTimeEntity 清除（clearSubClass）</li>
+ *   <li>2.2 接口优先：XChild 命中子类接口 ICCreateUpdateBy（清 by）、未命中父类接口 ICCreateUpdateTime</li>
+ *   <li>（time 保留）（clearChildInterfaceFirst）</li>
+ *   <li>2.3 深层接口级联：XByAndTime 命中 ICCreateUpdateByAndTime，by 与 time 全清（clearByAndTimeInterface）</li>
+ * </ul>
+ *
  * @author c332030
  * @since 2025/12/20
- * @see "doc/design/core/CEntityUtilsTests.adoc"
+ * @version 1.0
  */
 public class CEntityUtilsTests {
 
     /**
      * 测试清空 CBaseEntity 的公共字段
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：全公共字段清空（id/by/time），Object 与类型化两入口
      */
     @Test
     public void clearCBaseEntity() {
@@ -57,12 +92,11 @@ public class CEntityUtilsTests {
         Assertions.assertNull(entity2.getUpdateBy());
         Assertions.assertNull(entity2.getUpdateTime());
 
-
     }
 
     /**
      * 测试清空 CBaseTimeEntity 的公共字段
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：id/createTime/updateTime 清空，两入口
      */
     @Test
     public void clearBaseTimeEntity() {
@@ -88,7 +122,7 @@ public class CEntityUtilsTests {
 
     /**
      * 测试清空 CLongId 的 id 字段
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：id 清空，两入口
      */
     @Test
     public void clearLongId() {
@@ -108,7 +142,7 @@ public class CEntityUtilsTests {
 
     /**
      * 测试清空无公共字段的普通对象
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：无公共字段对象：clear(new Object()) 不抛异常
      */
     @Test
     public void clearNone() {
@@ -120,7 +154,7 @@ public class CEntityUtilsTests {
     /**
      * 测试无自身 clear 的子类，通过遍历父类/父接口链命中最近的清除方法
      * <p>验证按继承距离查找"最近" clear，而非依赖方法声明顺序</p>
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：继承子类：XBaseTimeEntity 命中父类 CBaseTimeEntity 清除
      */
     @Test
     public void clearSubClass() {
@@ -144,7 +178,7 @@ public class CEntityUtilsTests {
      * <p>XChild 类链（XChild、XParent）均无类级 clear，只能走接口；getInterfaces 按类继承
      * 由近及远取直接接口（子类接口在前），应命中子类接口 {@code ICCreateUpdateBy}（只清 by），
      * 而非父类接口 {@code ICCreateUpdateTime}（清 time）</p>
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：接口优先：XChild 命中子类接口 ICCreateUpdateBy（清 by）、未命中父类接口 ICCreateUpdateTime
      */
     @Test
     public void clearChildInterfaceFirst() {
@@ -174,7 +208,7 @@ public class CEntityUtilsTests {
      * 测试直接实现深层接口的类命中该接口的 clear，清空其全部字段
      * <p>XByAndTime 类链仅自身、无类级 clear，走接口命中 {@code ICCreateUpdateByAndTime}，
      * 该 clear 级联清 by 与 time 全字段</p>
-     * 对应测试用例 2.3
+     * 对应测试用例 2.3：深层接口级联：XByAndTime 命中 ICCreateUpdateByAndTime，by 与 time 全清
      */
     @Test
     public void clearByAndTimeInterface() {

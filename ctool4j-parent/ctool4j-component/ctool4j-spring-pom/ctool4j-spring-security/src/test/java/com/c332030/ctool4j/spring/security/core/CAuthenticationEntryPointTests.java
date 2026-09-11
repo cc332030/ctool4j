@@ -19,8 +19,27 @@ import org.springframework.security.core.AuthenticationException;
  * 通过 Spring 的 Mock 请求/响应运行完整 writeJsonError 链路，不依赖 Spring 容器。
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证按异常类型生成提示并输出 401的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对按异常类型生成提示并输出 401的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：按异常类型生成提示并输出 401的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>未认证入口</h2>
+ * <ul>
+ *   <li>1.1 验证按异常类型生成提示并输出 401（对应测试方法 1.1-1.3）</li>
+ * </ul>
+ *
  * @since 2026/8/17
- * @see "doc/design/spring/CAuthenticationEntryPointTests.adoc"
+ * @version 1.0
  */
 class CAuthenticationEntryPointTests {
 
@@ -36,8 +55,8 @@ class CAuthenticationEntryPointTests {
     }
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证按异常类型生成提示并输出 401（对应测试方法 1.1-1.3）
+         */
     @Test
     void testCommence_credentialsNotFound() throws Exception {
         // 正例：无有效登录用户
@@ -47,8 +66,8 @@ class CAuthenticationEntryPointTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     void testCommence_badCredentials() throws Exception {
         // 正例：凭证错误，提示为异常消息
@@ -57,8 +76,8 @@ class CAuthenticationEntryPointTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     void testCommence_otherExceptionUsesDefaultReason() throws Exception {
         // 边界：其他认证异常时提示回退为 401 默认文案

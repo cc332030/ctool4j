@@ -22,9 +22,56 @@ import java.lang.reflect.Method;
  * 时省略方法名段；业务 id 为空（null/空白）时省略末段。
  * </p>
  *
- * @see "doc/design/redis/CRedisKeyUtils.adoc"
- * @see "doc/design/redis/CRedisKeyUtilsTests.adoc"
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>{@code resolveBizId}：按注解 {@code id()} 的简单 el 表达式从方法参数解析业务 id。</li>
+ *   <li>{@code buildKey}：按统一格式构建 Redis 业务 key。</li>
+ *   <li>{@code isBlankSpecKey}：判断业务 id 是否为空（null/空白），决定是否省略 key 末段。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>id 表达式为空/空白</td>
+ *     <td>resolveBizId 返回 null（省略业务维度）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>id 表达式非法/参数名不存在</td>
+ *     <td>抛 IllegalArgumentException（CElKeyResolveUtils）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>属性链循环引用</td>
+ *     <td>运行期抛 IllegalStateException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>业务 id 为 null/空白</td>
+ *     <td>buildKey 省略末段</td>
+ *   </tr>
+ * </table>
+ * <h2>设计要点</h2>
+ * <p><b>业务 key 统一格式</b></p>
+ * <ul>
+ *   <li>格式：{@code 应用前缀:段简单名[:方法名][:业务id]}。</li>
+ *   <li>段简单名：限流取方法声明类简单名；幂等取注解分组类简单名（由调用方传入）。</li>
+ *   <li>{@code useMethodName} 为 false 时省略方法名段（同段多个方法共享同一 key 维度）。</li>
+ *   <li>业务 id 为空（null/空白字符串）时省略末段。</li>
+ * </ul>
+ * <p><b>业务 id 解析</b></p>
+ * <ul>
+ *   <li>复用 {@code CElKeyResolveUtils}：首次使用时解析并校验表达式（参数名存在、属性链可达），按方法缓存。</li>
+ *   <li>表达式为空/空白返回 null（按段全局不区分业务维度）；表达式非法或属性链循环引用时抛异常。</li>
+ * </ul>
+ * <p><b>key 段分隔</b></p>
+ * <ul>
+ *   <li>沿用 {@code CRedisUtils.KEY_SEPARATOR}（{@code ":"}）作为段分隔符，与应用前缀等其它 key 保持一致。</li>
+ * </ul>
+ *
  * @since 2026/9/9
+ * @version 1.0
  */
 @UtilityClass
 public class CRedisKeyUtils {

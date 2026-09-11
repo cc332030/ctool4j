@@ -8,8 +8,44 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Description: CXxlJobExecutorConfig
  * </p>
  *
- * @see "doc/design/xxljob/CXxlJobExecutorConfig.adoc"
+ * <h2>能力目录</h2>
+ * <p>{@code CXxlJobExecutorConfig}（{@code @Data} + {@code @ConfigurationProperties("xxl.job.executor")}）承载 xxl-job 执行器参数：</p>
+ * <ul>
+ *   <li>{@code appname}：执行器 AppName（为空关闭自动注册）。</li>
+ *   <li>{@code address}：执行器注册地址（优先使用，为空用内嵌 IP:PORT）。</li>
+ *   <li>{@code ip}：执行器 IP（默认为空自动获取）。</li>
+ *   <li>{@code port}：执行器端口（默认 9999，&lt;=0 自动获取）。</li>
+ *   <li>{@code logpath}：执行器日志路径（默认 ./logs/xxl-job/jobhandler）。</li>
+ *   <li>{@code logretentiondays}：日志保存天数（默认 30，&gt;=3 生效，-1 关闭自动清理）。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>未配置</td>
+ *     <td>使用默认值</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>xxl-job 执行器参数来源。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>未做校验，依赖 xxl-job 框架行为。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>默认值</b></p>
+ * <ul>
+ *   <li>port 默认 9999，logpath 默认 {@code ./logs/xxl-job/jobhandler}，logretentiondays 默认 30。</li>
+ * </ul>
+ *
  * @since 2025/11/29
+ * @version 1.0
  */
 @Data
 @ConfigurationProperties("xxl.job.executor")

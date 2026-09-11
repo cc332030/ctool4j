@@ -18,6 +18,7 @@ import java.util.Collection;
  *
  * @author c332030
  * @since 2026/9/11
+ * @version 1.0
  */
 public interface ICSecuritySession extends ICSession {
 

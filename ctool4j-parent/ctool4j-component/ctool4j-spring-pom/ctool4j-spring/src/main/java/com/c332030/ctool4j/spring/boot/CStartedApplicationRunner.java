@@ -11,8 +11,21 @@ import org.springframework.boot.ApplicationRunner;
  * Description: CStartedApplicationRunner
  * </p>
  *
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>ApplicationRunner，应用启动完成后执行 onInit</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>启动完成即执行</p>
+ * <h2>适用范围</h2>
+ * <p>启动后初始化</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>实现 ApplicationRunner</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>实现 ApplicationRunner</p>
+ *
  * @since 2026/5/12
- * @see "doc/design/spring/CStartedApplicationRunner.adoc"
+ * @version 1.0
  */
 public interface CStartedApplicationRunner extends ApplicationRunner {
 

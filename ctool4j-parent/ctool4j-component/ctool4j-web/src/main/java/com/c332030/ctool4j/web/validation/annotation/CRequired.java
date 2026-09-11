@@ -28,8 +28,57 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *   <li>其他对象 → 非 null 即通过</li>
  * </ul>
  *
- * @see "doc/design/web/CRequired.adoc"
- * @see "doc/design/web/CRequiredValidator.adoc"
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>{@code message()}：校验失败提示消息（默认 "不能为空"），字段名前缀由 {@code CMethodArgumentNotValidExceptionHandler} 拼接</li>
+ *   <li>{@code groups()}/{@code payload()}：Bean Validation 标准分组/载荷</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>标注即校验</td>
+ *     <td>required 恒为必填</td>
+ *   </tr>
+ *   <tr>
+ *     <td>message 缺省</td>
+ *     <td>默认 "不能为空"</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>request body DTO 字段/getter 需要必填校验与文档必填标记时标注 {@code @CRequired}。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>request param 方法参数级非必填由 {@code @CNotRequired} 表达（见 {@code CNotRequired.adoc}）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>校验按类型自动分发，依赖 {@code CValidUtils} 各类重载。</li>
+ *   <li>{@code @Target} 与 {@code @NotNull} 一致，允许标注在参数上；request body 场景实际作用于字段。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>标注即必填</b></p>
+ * <ul>
+ *   <li>无 required 属性，标注即执行必填校验；不标注默认非必填（request body 字段默认非必填）。</li>
+ * </ul>
+ * <p><b>文档联动</b></p>
+ * <ul>
+ *   <li>openapi2 的 {@code CRequiredAnnotationPlugin}（参数展开）与 {@code CSchemaAnnotationModelPropertyPlugin}（model 属性）</li>
+ *   <li>读取 {@code @CRequired} 将字段/属性标记为必填。</li>
+ * </ul>
+ * <p><b>与 CSchema 解耦</b></p>
+ * <ul>
+ *   <li>描述由 {@code @CSchema}（纯文档）提供，必填由 {@code @CRequired} 承担，字段可组合标注。</li>
+ * </ul>
+ *
+ * @since 1.0
+ * @version 1.0
  */
 @Target({
     METHOD,

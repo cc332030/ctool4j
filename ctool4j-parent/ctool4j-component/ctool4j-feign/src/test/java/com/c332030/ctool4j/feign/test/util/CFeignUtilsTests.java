@@ -25,11 +25,42 @@ import java.util.concurrent.atomic.AtomicReference;
  * 覆盖：addInterceptor / getApiType / intercept / newResponse / transferHeaders
  * 的正常路径、边界与异常路径
  *
- * <p>是 {@link com.c332030.ctool4j.feign.util.CFeignUtils} 的测试用例（对应测试文档
- * <code>doc/design/feign/CFeignUtilsTests.adoc</code>）。</p>
+ * <p>是 {@link com.c332030.ctool4j.feign.util.CFeignUtils} 的测试用例。</p>
+ *
+ * <h2>用例设计思路与依据</h2>
+ * <ul>
+ *   <li>覆盖 intercept（匹配/不匹配/空 map/无 target 抛 NPE）、getApiType、newResponse（有/无 body）、</li>
+ *   <li>transferHeaders（null 配置/ALL/CUSTOM/NONE）。</li>
+ * </ul>
+ * <h2>intercept 拦截判断</h2>
+ * <ul>
+ *   <li>1.1 按接口类匹配（testInterceptMatchByClass）</li>
+ *   <li>1.2 不匹配（testInterceptNotMatch）</li>
+ *   <li>1.3 空拦截器 map（testInterceptEmptyInterceptorMap）</li>
+ *   <li>1.4 模板无 target 抛 NPE（testInterceptTemplateNoTargetThrowsNpe）</li>
+ * </ul>
+ * <h2>getApiType</h2>
+ * <ul>
+ *   <li>2.1 获取接口类型（testGetApiType）</li>
+ *   <li>2.2 空 target 抛 NPE（testGetApiTypeNullTargetThrowsNpe）</li>
+ * </ul>
+ * <h2>newResponse 响应重建</h2>
+ * <ul>
+ *   <li>3.1 带 body 重建（testNewResponse）</li>
+ *   <li>3.2 null body（testNewResponseNullBody）</li>
+ * </ul>
+ * <h2>transferHeaders header 透传</h2>
+ * <ul>
+ *   <li>4.1 null 配置无操作（testTransferHeadersNullConfigNoOp）</li>
+ *   <li>4.2 ALL 无传播 header 无操作（testTransferHeadersAllNoPropagationHeadersNoOp）</li>
+ *   <li>4.3 ALL 复制来源 header（testTransferHeadersAllCopiesOrigin）</li>
+ *   <li>4.4 CUSTOM 过滤（testTransferHeadersCustomFilters）</li>
+ *   <li>4.5 NONE 不透传（testTransferHeadersNone）</li>
+ * </ul>
  *
  * @author c332030
- * @see "doc/design/feign/CFeignUtilsTests.adoc"
+ * @since 1.0
+ * @version 1.0
  */
 class CFeignUtilsTests {
 
@@ -73,7 +104,7 @@ class CFeignUtilsTests {
     // ==================== addInterceptor / intercept ====================
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：按接口类匹配
      */
     @Test
     void testInterceptMatchByClass() {
@@ -95,7 +126,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：不匹配
      */
     @Test
     void testInterceptNotMatch() {
@@ -110,7 +141,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：空拦截器 map
      */
     @Test
     void testInterceptEmptyInterceptorMap() {
@@ -120,7 +151,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：模板无 target 抛 NPE
      */
     @Test
     void testInterceptTemplateNoTargetThrowsNpe() {
@@ -133,7 +164,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.1
+     * 对应测试用例 2.1：获取接口类型
      */
     @Test
     void testGetApiType() {
@@ -146,7 +177,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 对应测试用例 2.2：空 target 抛 NPE
      */
     @Test
     void testGetApiTypeNullTargetThrowsNpe() {
@@ -160,7 +191,7 @@ class CFeignUtilsTests {
     // ==================== newResponse ====================
 
     /**
-     * 对应测试用例 3.1
+     * 对应测试用例 3.1：带 body 重建
      */
     @Test
     void testNewResponse() throws java.io.IOException {
@@ -192,7 +223,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 对应测试用例 3.2：null body
      */
     @Test
     void testNewResponseNullBody() {
@@ -214,7 +245,7 @@ class CFeignUtilsTests {
     // ==================== transferHeaders ====================
 
     /**
-     * 对应测试用例 4.1
+     * 对应测试用例 4.1：null 配置无操作
      */
     @Test
     void testTransferHeadersNullConfigNoOp() throws Exception {
@@ -230,7 +261,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 对应测试用例 4.2：ALL 无传播 header 无操作
      */
     @Test
     void testTransferHeadersAllNoPropagationHeadersNoOp() throws Exception {
@@ -250,7 +281,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.3
+     * 对应测试用例 4.3：ALL 复制来源 header
      */
     @Test
     void testTransferHeadersAllCopiesOrigin() throws Exception {
@@ -270,7 +301,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.4
+     * 对应测试用例 4.4：CUSTOM 过滤
      */
     @Test
     void testTransferHeadersCustomFilters() throws Exception {
@@ -295,7 +326,7 @@ class CFeignUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.5
+     * 对应测试用例 4.5：NONE 不透传
      */
     @Test
     void testTransferHeadersNone() throws Exception {

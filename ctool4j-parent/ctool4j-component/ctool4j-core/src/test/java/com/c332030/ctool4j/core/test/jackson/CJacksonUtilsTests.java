@@ -14,13 +14,38 @@ import java.util.Date;
  * Description: CJacksonUtilsTests
  * </p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「实例非空 / Long 序列化 / Date 格式 / null 处理 / 下划线 / json5」多个维度组织。</li>
+ *   <li>用 LongBean/DateBean/NullableBean/SnakeBean 验证各 mapper 行为差异。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对各 mapper（Long 转字符串、NON_NULL、snake_case、json5）的约定。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：各 mapper 非空；OBJECT_MAPPER Long 转字符串；Date 统一格式；NON_NULL 忽略 null（LOG 派生同样）；</li>
+ *   <li>OBJECT_MAPPER 默认序列化 null；snake_case；json5 无引号/单引号解析。</li>
+ *   <li>未覆盖：NATIVE mapper 的数值保留行为、getDefinedModule(numberToString=false) 分支（依赖内部行为，未单列）。</li>
+ * </ul>
+ * <h2>实例与序列化行为</h2>
+ * <ul>
+ *   <li>1.1 mappersNotNull：各 mapper 非空（mappersNotNull）</li>
+ *   <li>1.2 Long 转字符串：{@code id} 序列化为 {@code "123"}（longToJsonString）</li>
+ *   <li>1.3 Date 格式：统一 {@code yyyy-MM-dd HH:mm:ss}（dateToFormattedString）</li>
+ *   <li>1.4 null 处理：NON_NULL/LOG 忽略 null、OBJECT_MAPPER 默认序列化 null（nonNullOmitsNull）</li>
+ *   <li>1.5 下划线：{@code userName} → {@code user_name}（snakeCase）</li>
+ *   <li>1.6 json5：无引号字段名与单引号解析（json5UnquotedAndSingleQuotes）</li>
+ * </ul>
+ *
  * @since 2025/12/12
- * @see "doc/design/core/CJacksonUtilsTests.adoc"
+ * @version 1.0
  */
 public class CJacksonUtilsTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：各 mapper 非空
      */
     @Test
     public void mappersNotNull() {
@@ -33,7 +58,7 @@ public class CJacksonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：Long 转字符串：{@code id} 序列化为 {@code "123"}
      */
     @Test
     public void longToJsonString() throws Exception {
@@ -44,7 +69,7 @@ public class CJacksonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 对应测试用例 1.3：Date 格式：统一 {@code yyyy-MM-dd HH:mm:ss}
      */
     @Test
     public void dateToFormattedString() throws Exception {
@@ -56,7 +81,7 @@ public class CJacksonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 对应测试用例 1.4：null 处理：NON_NULL/LOG 忽略 null、OBJECT_MAPPER 默认序列化 null
      */
     @Test
     public void nonNullOmitsNull() throws Exception {
@@ -76,7 +101,7 @@ public class CJacksonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.5
+     * 对应测试用例 1.5：下划线：{@code userName} → {@code user_name}
      */
     @Test
     public void snakeCase() throws Exception {
@@ -87,7 +112,7 @@ public class CJacksonUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.6
+     * 对应测试用例 1.6：无引号字段名与单引号解析
      */
     @Test
     public void json5UnquotedAndSingleQuotes() throws Exception {

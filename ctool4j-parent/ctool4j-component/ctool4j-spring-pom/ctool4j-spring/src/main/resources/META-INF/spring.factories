@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.c332030.ctool4j.spring.configuration.CSpringConfiguration
+  com.c332030.ctool4j.spring.configuration.CSpringConfiguration,\
+  com.c332030.ctool4j.spring.configuration.CAutowiredScanConfiguration

@@ -13,9 +13,69 @@ import java.util.stream.Collectors;
  * Description: CCollectors
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>{@code toUnmodifiableList}：收集为不可变 List</li>
+ *   <li>{@code toUnmodifiableLinkedMap}：收集为不可变 LinkedHashMap（多个重载：仅键 / 键+冲突合并 / 键值 / 键值+冲突合并）</li>
+ *   <li>{@code toLinkedSet}：收集为 LinkedHashSet（保持插入顺序）</li>
+ *   <li>{@code toUnmodifiableSet}：收集为不可变 Set</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>收集后调用 add/put</td>
+ *     <td>抛 UnsupportedOperationException（不可变）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>LinkedMap 键冲突（未提供 merge）</td>
+ *     <td>抛 IllegalStateException（"Conflict key, ..."）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>LinkedMap 键冲突（提供 merge）</td>
+ *     <td>按 mergeFunction 合并</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>Stream 结果需要不可变集合，避免外部误改。</li>
+ *   <li>需要保持插入顺序的 Map（LinkedHashMap）或 Set（LinkedHashSet）。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>键冲突默认抛异常，未显式提供 merge 时对重复键数据不友好；有重复键需传 mergeFunction。</li>
+ *   <li>toUnmodifiableSet 基于 {@code Collectors.toSet()}（HashMap），元素顺序不保证。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>不可变收集为视图而非深拷贝；原集合被并发修改时行为未定义（与 JDK 收集器一致）。</li>
+ *   <li>默认键冲突抛异常，强制调用方显式决策重复键策略，避免静默丢数据。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>不可变收集语义</b></p>
+ * <ul>
+ *   <li>{@code toUnmodifiableList} / {@code toUnmodifiableSet} / {@code toUnmodifiableLinkedMap} 通过</li>
+ *   <li>{@code Collectors.collectingAndThen(..., Collections::unmodifiableXxx)} 收集后再包一层不可变视图，</li>
+ *   <li>调用方后续 {@code add/put} 抛 {@code UnsupportedOperationException}。</li>
+ *   <li>{@code toLinkedSet} 收集为 {@code LinkedHashSet}（可变，保持插入顺序）。</li>
+ * </ul>
+ * <p><b>LinkedHashMap 键冲突约定</b></p>
+ * <ul>
+ *   <li>未显式提供 mergeFunction 的重载，键冲突时默认抛 {@code IllegalStateException}（"Conflict key, ..."）。</li>
+ *   <li>显式传入 mergeFunction 的重载，键冲突时按合并函数处理。</li>
+ * </ul>
+ * <p><b>键值提取</b></p>
+ * <ul>
+ *   <li>仅键的重载值使用 {@code Function.identity()}（元素自身为值）。</li>
+ *   <li>键值重载分别通过 keyMapper/valueMapper 提取。</li>
+ * </ul>
+ *
  * @since 2024/4/18
- * @see "doc/design/core/CCollectors.adoc"
- * @see "doc/design/core/CCollectorsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 public class CCollectors {

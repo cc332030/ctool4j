@@ -23,8 +23,27 @@ import static org.mockito.Mockito.when;
  * <p>覆盖 CAnnotationUtils 的 getAnnotationValue/getAnnotationAttributeValue，
  * 通过 Mockito mock AnnotatedTypeMetadata 验证正例、属性缺失与无注解场景</p>
  *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>验证读取注解属性值的各条路径与边界。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对读取注解属性值的约定。</li>
+ *   <li>依据测试方法（等价类/边界/分支覆盖）。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：读取注解属性值的正常、边界与异常路径。</li>
+ *   <li>未覆盖：真实容器/框架集成场景。</li>
+ * </ul>
+ * <h2>注解工具</h2>
+ * <ul>
+ *   <li>1.1 验证读取注解属性值（对应测试方法 1.1-1.5）</li>
+ * </ul>
+ *
  * @since 2026/8/16
- * @see "doc/design/spring/CAnnotationUtilsTests.adoc"
+ * @version 1.0
  */
 public class CAnnotationUtilsTests {
 
@@ -37,8 +56,8 @@ public class CAnnotationUtilsTests {
     // ---------- getAnnotationValue ----------
 
         /**
-     * 对应测试用例 1.1
-     */
+         * 对应测试用例 1.1：验证读取注解属性值（对应测试方法 1.1-1.5）
+         */
     @Test
     public void getAnnotationValue() {
         // 正例：存在注解且含 value 属性时返回属性值
@@ -52,8 +71,8 @@ public class CAnnotationUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.2
-     */
+         * 对应测试用例 1.2
+         */
     @Test
     public void getAnnotationValue_whenAttributeAbsent() {
         // 边界：存在注解但无 value 属性时返回 null
@@ -67,8 +86,8 @@ public class CAnnotationUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.3
-     */
+         * 对应测试用例 1.3
+         */
     @Test
     public void getAnnotationValue_whenNoAnnotation() {
         // 反例：无该注解时返回 null
@@ -83,8 +102,8 @@ public class CAnnotationUtilsTests {
     // ---------- getAnnotationAttributeValue ----------
 
         /**
-     * 对应测试用例 1.4
-     */
+         * 对应测试用例 1.4
+         */
     @Test
     public void getAnnotationAttributeValue() {
         // 正例：存在注解且含指定属性时返回属性值
@@ -98,8 +117,8 @@ public class CAnnotationUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.5
-     */
+         * 对应测试用例 1.5
+         */
     @Test
     public void getAnnotationAttributeValue_whenNoAnnotation() {
         // 反例：无该注解时返回 null

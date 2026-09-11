@@ -17,9 +17,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * Description: CAuthenticationUtils
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CAuthenticationUtils}：认证工具。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>密码编码等认证工具</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>无</p>
+ * <h2>适用范围</h2>
+ * <p>认证处理</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>静态工具</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>静态工具</p>
+ *
  * @since 2026/1/24
- * @see "doc/design/spring/CAuthenticationUtils.adoc"
- * @see "doc/design/spring/CAuthenticationUtilsTests.adoc"
+ * @version 1.0
  */
 @UtilityClass
 @CAutowiredScan

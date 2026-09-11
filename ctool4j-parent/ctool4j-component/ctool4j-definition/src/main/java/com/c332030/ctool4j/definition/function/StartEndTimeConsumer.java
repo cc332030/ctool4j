@@ -7,9 +7,27 @@ import java.time.Instant;
  * Description: StartEndTimeConsumer
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code StartEndTimeConsumer} 为起止时间消费者接口，扩展 {@code CBiConsumer&lt;Instant, Instant&gt;}，专门消费起止时间：</p>
+ * <ul>
+ *   <li>{@code acceptThrowable(Instant startTime, Instant endTime)}：可抛受检异常</li>
+ * </ul>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>消费起止时间范围（如分页时间区间处理）。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>为 CBiConsumer&lt;Instant, Instant&gt; 的类型化别名。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <p><b>语义</b></p>
+ * <ul>
+ *   <li>固定参数为起止时间（Instant），复用 CBiConsumer 的受检异常包装与工具方法，重声明 acceptThrowable。</li>
+ * </ul>
+ *
  * @since 2025/10/31
- * @see "doc/design/core/StartEndTimeConsumer.adoc"
- * @see "doc/design/core/StartEndTimeConsumerTests.adoc"
+ * @version 1.0
  */
 @FunctionalInterface
 public interface StartEndTimeConsumer extends CBiConsumer<Instant, Instant> {

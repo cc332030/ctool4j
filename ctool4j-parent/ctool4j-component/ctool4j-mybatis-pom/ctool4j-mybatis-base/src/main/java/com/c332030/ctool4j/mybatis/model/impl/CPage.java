@@ -17,8 +17,23 @@ import java.util.List;
  * Description: CPage
  * </p>
  *
+ * <h2>能力目录</h2>
+ * <p>{@code CPage}：分页模型。</p>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>实现 ICPage，pageNum/pageSize/orders 默认值</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <p>pageNum=1、pageSize=默认、orders=空</p>
+ * <h2>适用范围</h2>
+ * <p>分页参数载体</p>
+ * <h2>不适用与边界场景</h2>
+ * <p>字段默认值</p>
+ * <h2>已知限制与取舍</h2>
+ * <p>字段默认值</p>
+ *
  * @since 2025/12/2
- * @see "doc/design/mybatis/CPage.adoc"
+ * @version 1.0
  */
 @Data
 @SuperBuilder
