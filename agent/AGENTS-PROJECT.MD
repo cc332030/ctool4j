@@ -9,6 +9,7 @@
   - 接口（interface）按类型区分前缀：
     - **纯字段接口**（仅为数据对象提供属性/字段契约的接口，如 `ICId`、`ICName`、`ICCreateBy`）统一使用 `IC` 固定前缀。
     - **功能型接口**（定义行为/能力方法、作为组件或框架扩展点被实现，含 function 接口）**不要求** `IC` 前缀（非禁止，而是不强制），可使用 `C` 前缀（如 `CFunction`、`CBiConsumer`、`CService`）。
+  - **禁止裸 `I` 前缀**：类型名（类与接口）必须以 `C` 或 `IC` 开头，不得仅以 `I` 开头（如 `ISecuritySession` 应为 `ICSecuritySession`、`IFoo` 应为 `ICFoo`）。
 
 ## Spring 配置
 

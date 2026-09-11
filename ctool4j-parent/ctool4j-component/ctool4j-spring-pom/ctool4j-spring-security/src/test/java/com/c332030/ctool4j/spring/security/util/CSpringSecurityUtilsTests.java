@@ -16,11 +16,19 @@ import java.util.Collections;
  * Description: CSpringSecurityUtilsTests
  * </p>
  * <p>
- * 仅测试基于 SecurityContextHolder 的纯逻辑方法，不依赖 Spring 容器。
+ * `com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils` 的测试用例，仅测试基于 SecurityContextHolder 的纯逻辑方法，
+ * 不依赖 Spring 容器。
  * </p>
  *
+ * <p><b>用例设计思路</b>：验证获取安全上下文、当前用户/用户详情的各条路径与边界。</p>
+ * <p><b>设计依据</b>：依据 CSpringSecurityUtils 对获取安全上下文、当前用户的约定，及等价类/边界/分支覆盖。</p>
+ * <p><b>覆盖场景</b>：获取认证信息、主体（字符串/UserDetails/null 主体）、用户详情（UserDetails/字符串强转异常/空上下文）。</p>
+ * <p><b>未覆盖</b>：真实容器/框架集成场景。</p>
+ *
+ * <p><b>用例编号索引</b>：1 Security 工具（1.1-1.9），各测试方法 javadoc 标注其编号与说明。</p>
+ *
+ * @author c332030
  * @since 2026/8/14
- * @see "doc/design/spring/CSpringSecurityUtilsTests.adoc"
  */
 class CSpringSecurityUtilsTests {
 
@@ -30,7 +38,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.1
+     * 1.1 空上下文获取认证信息返回 null
      */
     @Test
     void testGetAuthentication_emptyContext_returnsNull() {
@@ -39,7 +47,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.2
+     * 1.2 空上下文获取主体返回 null
      */
     @Test
     void testGetPrincipal_emptyContext_returnsNull() {
@@ -48,7 +56,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.3
+     * 1.3 设置后获取认证信息返回同一对象
      */
     @Test
     void testSetAndGetAuthentication() {
@@ -58,7 +66,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.4
+     * 1.4 主体为字符串时获取主体返回该字符串
      */
     @Test
     void testGetPrincipal_stringPrincipal() {
@@ -68,7 +76,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.5
+     * 1.5 主体为 UserDetails 时获取主体返回该对象
      */
     @Test
     void testGetPrincipal_userDetailsPrincipal() {
@@ -79,7 +87,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.6
+     * 1.6 主体为 null 时获取主体返回 null
      */
     @Test
     void testGetPrincipal_nullPrincipal() {
@@ -89,7 +97,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.7
+     * 1.7 主体为 UserDetails 时获取用户详情返回该对象
      */
     @Test
     void testGetUserDetails_userDetailsPrincipal() {
@@ -101,7 +109,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.8
+     * 1.8 主体非 UserDetails（字符串）时强转失败，抛 ClassCastException
      */
     @Test
     void testGetUserDetails_stringPrincipal() {
@@ -115,7 +123,7 @@ class CSpringSecurityUtilsTests {
     }
 
         /**
-     * 对应测试用例 1.9
+     * 1.9 空上下文获取用户详情返回 null
      */
     @Test
     void testGetUserDetails_emptyContext_returnsNull() {

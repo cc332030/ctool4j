@@ -1,7 +1,9 @@
-package com.c332030.ctool4j.web.test.util;
+package com.c332030.ctool4j.auth.test.util;
 
 import cn.hutool.jwt.JWTException;
-import com.c332030.ctool4j.web.util.CJwtUtils;
+import com.c332030.ctool4j.auth.config.CAuthConfig;
+import com.c332030.ctool4j.auth.interfaces.ICJwtInfo;
+import com.c332030.ctool4j.auth.util.CJwtUtils;
 import lombok.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,12 +15,20 @@ import java.util.Map;
  * <p>
  * Description: CJwtUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.web.util.CJwtUtils`（CJwtUtils）的测试用例</p>
+ * <p>`com.c332030.ctool4j.auth.util.CJwtUtils` 的测试用例，覆盖 jwt 创建/验证/解析/JSON 提取等易出错方法。</p>
  *
- * <p>覆盖 jwt 创建、验证、解析（header/body/JSON 提取）等容易出错的方法</p>
+ * <p><b>用例设计思路</b>：按 create / verify / parse / getJson 多个维度组织，覆盖正常、空值、异常路径。</p>
+ * <p><b>设计依据</b>：依据 CJwtUtils 对 secret 非空白、jwt 空兜底等约定。</p>
+ * <p><b>覆盖场景</b>：create（Map/Object secret、null/空 secret 抛异常）；verify（正确/错误 secret、非法 jwt、
+ * 空 jwt、null/空 secret 抛异常）；parseJwt（正常/空/null/无点）；getJson（正常/null 数组/越界）；
+ * getHeaderJson/getBodyJson（正常/空 jwt/空段）；parseHeader/parseBody（正常/空 jwt/往返）；setJwt（生成并回填）。</p>
+ * <p><b>未覆盖</b>：无（已覆盖核心行为）。</p>
  *
+ * <p><b>用例编号索引</b>：1 create（1.1-1.4）；2 verify（2.1-2.6）；3 parseJwt（3.1-3.3）；4 getJson/头载荷（4.1-4.8）；
+ * 5 parseHeader（5.1-5.2）；6 parseBody（6.1-6.3）；7 setJwt（7.1）。各测试方法 javadoc 标注其编号与说明。</p>
+ *
+ * @author c332030
  * @since 2026/8/14
- * @see "doc/design/web/CJwtUtilsTests.adoc"
  */
 @CustomLog
 public class CJwtUtilsTests {
@@ -28,7 +38,7 @@ public class CJwtUtilsTests {
     // ---------- create ----------
 
     /**
-     * 对应测试用例 1.1
+     * 1.1 Map secret 创建 jwt（创建后可正常验证）
      */
     @Test
     public void create_mapSecret() {
@@ -41,7 +51,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 1.2 Object secret 创建 jwt（经 CBeanUtils.toMap 转换）
      */
     @Test
     public void create_objectSecret() {
@@ -52,7 +62,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.3
+     * 1.3 null secret 快速失败（IllegalArgumentException）
      */
     @Test
     public void create_nullSecret_throws() {
@@ -64,7 +74,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 1.4
+     * 1.4 空/纯空白 secret 快速失败（IllegalArgumentException）
      */
     @Test
     public void create_emptySecret_throws() {
@@ -82,7 +92,7 @@ public class CJwtUtilsTests {
     // ---------- verify ----------
 
     /**
-     * 对应测试用例 2.1
+     * 2.1 正确密钥验证通过
      */
     @Test
     public void verify_correctSecret() {
@@ -92,7 +102,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.2
+     * 2.2 错误密钥验证失败
      */
     @Test
     public void verify_wrongSecret() {
@@ -102,7 +112,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.3
+     * 2.3 非法 jwt（段数不足）抛 JWTException
      */
     @Test
     public void verify_invalidJwt() {
@@ -114,7 +124,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.4
+     * 2.4 空 jwt 不校验签名直接返回 false
      */
     @Test
     public void verify_emptyJwt_returnsFalse() {
@@ -124,7 +134,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.5
+     * 2.5 null secret 快速失败（IllegalArgumentException）
      */
     @Test
     public void verify_nullSecret_throws() {
@@ -136,7 +146,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 2.6
+     * 2.6 空/纯空白 secret 快速失败（IllegalArgumentException）
      */
     @Test
     public void verify_emptySecret_throws() {
@@ -154,7 +164,7 @@ public class CJwtUtilsTests {
     // ---------- parseJwt ----------
 
     /**
-     * 对应测试用例 3.1
+     * 3.1 parseJwt：按 . 拆分三段
      */
     @Test
     public void parseJwt() {
@@ -166,7 +176,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.2
+     * 3.2 parseJwt：空 jwt 返回 null
      */
     @Test
     public void parseJwt_empty_returnsNull() {
@@ -176,7 +186,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 3.3
+     * 3.3 parseJwt：无 . 的字符串拆分为单元素
      */
     @Test
     public void parseJwt_noDot() {
@@ -189,7 +199,7 @@ public class CJwtUtilsTests {
     // ---------- getJson ----------
 
     /**
-     * 对应测试用例 4.1
+     * 4.1 getJson：提取并 base64 解码第 index 段
      */
     @Test
     public void getJson() {
@@ -202,7 +212,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.2
+     * 4.2 getJson：null/空数组返回 null
      */
     @Test
     public void getJson_nullArr() {
@@ -212,7 +222,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.3
+     * 4.3 getJson：越界 index 返回 null
      */
     @Test
     public void getJson_outOfIndex() {
@@ -225,7 +235,7 @@ public class CJwtUtilsTests {
     // ---------- getHeaderJson / getBodyJson ----------
 
     /**
-     * 对应测试用例 4.4
+     * 4.4 getHeaderJson：jwt 字符串提取 header json
      */
     @Test
     public void getHeaderJson() {
@@ -237,7 +247,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.5
+     * 4.5 getHeaderJson：空 jwt 返回 null
      */
     @Test
     public void getHeaderJson_emptyJwt() {
@@ -247,7 +257,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.6
+     * 4.6 getBodyJson：jwt 字符串提取 body json
      */
     @Test
     public void getBodyJson() {
@@ -259,7 +269,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.7
+     * 4.7 getBodyJson：空 jwt 返回 null
      */
     @Test
     public void getBodyJson_emptyJwt() {
@@ -269,7 +279,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.8
+     * 4.8 getBodyJson：body 段为空返回 null
      */
     @Test
     public void getBodyJson_emptySegment_returnsNull() {
@@ -280,7 +290,7 @@ public class CJwtUtilsTests {
     // ---------- parseHeader / parseBody ----------
 
     /**
-     * 对应测试用例 5.1
+     * 5.1 parseHeader：header 解析为 Map
      */
     @Test
     @SuppressWarnings("unchecked")
@@ -292,7 +302,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 5.2
+     * 5.2 parseHeader：空 jwt 返回 null
      */
     @Test
     public void parseHeader_emptyJwt_returnsNull() {
@@ -302,7 +312,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.1
+     * 6.1 parseBody：body 解析为 Map，字段可回读
      */
     @Test
     @SuppressWarnings("unchecked")
@@ -317,7 +327,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.2
+     * 6.2 parseBody：空 jwt 返回 null
      */
     @Test
     public void parseBody_emptyJwt_returnsNull() {
@@ -327,7 +337,7 @@ public class CJwtUtilsTests {
     }
 
     /**
-     * 对应测试用例 6.3
+     * 6.3 parseBody：create 后 parseBody 还原原始数据（往返）
      */
     @Test
     public void parseBody_roundTrip() {
@@ -338,6 +348,35 @@ public class CJwtUtilsTests {
         val jwt = CJwtUtils.create(original, SECRET);
         Map<String, Object> body = CJwtUtils.parseBody(jwt, Map.class);
         Assertions.assertEquals(original, body);
+    }
+
+    // ---------- setJwt ----------
+
+    /**
+     * 7.1 setJwt：由 ICJwtInfo 生成 jwt 并回填 token，结果可 verify
+     */
+    @Test
+    public void setJwt() {
+        // 正例：由 ICJwtInfo 生成 jwt 并回填 token，生成结果可验证
+        CAuthConfig config = new CAuthConfig();
+        config.setJwtSecret(SECRET);
+        CJwtUtils.setAuthConfig(config);
+
+        JwtInfoStub info = new JwtInfoStub();
+        info.setName("tom");
+
+        JwtInfoStub result = CJwtUtils.setJwt(info);
+
+        Assertions.assertSame(info, result);
+        Assertions.assertNotNull(result.getToken());
+        Assertions.assertTrue(CJwtUtils.verify(result.getToken(), SECRET));
+    }
+
+    // 内部测试用 ICJwtInfo 桩
+    @Data
+    public static class JwtInfoStub implements ICJwtInfo {
+        private String name;
+        private String token;
     }
 
     // 内部测试用 DTO

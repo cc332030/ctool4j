@@ -8,24 +8,37 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * <p>
  * Description: CSpringSecurityUtils
  * </p>
  *
+ * <p>Spring Security 工具类：获取/设置当前安全上下文与认证信息，获取当前主体/用户详情，以及以 JSON 形式输出认证错误。</p>
+ *
+ * <p>说明：基于 {@code SecurityContextHolder} 的静态工具；{@code getUserDetails()} 在 principal 非 {@code UserDetails} 时
+ * 会因强转抛 {@code ClassCastException}，空上下文返回 null。</p>
+ *
+ * @author c332030
  * @since 2026/1/23
- * @see "doc/design/spring/CSpringSecurityUtils.adoc"
- * @see "doc/design/spring/CSpringSecurityUtilsTests.adoc"
  */
 @UtilityClass
 public class CSpringSecurityUtils {
+
+    /**
+     * 匿名权限（ROLE_ANONYMOUS），用于构造匿名认证信息
+     */
+    public static final List<GrantedAuthority> ANONYMOUS_AUTHORITIES =
+        AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
 
     /**
      * 获取安全上下文
