@@ -104,7 +104,7 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
      * @param session 会话
      * @return true 表示匿名/未认证，将构造匿名认证信息；false 表示已认证
      */
-    abstract boolean isAnonymous(SESSION session);
+    public abstract boolean isAnonymous(SESSION session);
 
     private boolean loadMockSession() {
 
