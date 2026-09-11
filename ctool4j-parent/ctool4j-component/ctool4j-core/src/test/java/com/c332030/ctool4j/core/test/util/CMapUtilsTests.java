@@ -15,6 +15,7 @@ import java.util.*;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CMapUtilsTests.adoc"
  */
 public class CMapUtilsTests {
 

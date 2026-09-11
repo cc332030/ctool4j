@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @since 2026/6/16
+ * @see "doc/design/cache/CCacheAspectTests.adoc"
  */
 @CTool4jSpringBootTest
 public class CCacheAspectTests {

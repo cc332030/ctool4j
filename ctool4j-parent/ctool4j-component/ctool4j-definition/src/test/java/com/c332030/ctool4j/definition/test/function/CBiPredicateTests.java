@@ -13,6 +13,7 @@ import java.util.function.BiPredicate;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CBiPredicateTests.adoc"
  */
 public class CBiPredicateTests {
 

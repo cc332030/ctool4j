@@ -14,6 +14,7 @@ import java.util.List;
  * </p>
  *
  * @since 2025/9/10
+ * @see "doc/design/core/CArrUtilsTests.adoc"
  */
 public class CArrUtilsTests {
 

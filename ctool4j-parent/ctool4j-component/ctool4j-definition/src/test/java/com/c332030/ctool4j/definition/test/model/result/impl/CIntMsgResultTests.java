@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CIntMsgResultTests.adoc"
  */
 public class CIntMsgResultTests {
 
@@ -32,12 +33,16 @@ public class CIntMsgResultTests {
     }
 
     /**
-     * 对应测试用例 1.2
+     * 对应测试用例 1.2：全参构建（统一使用 builder，禁止依赖 lombok 生成的全参构造器）
      */
     @Test
-    public void allArgsConstructor() {
+    public void builderAllFields() {
 
-        CIntMsgResult<String> result = new CIntMsgResult<>(200, "OK", "data");
+        CIntMsgResult<String> result = CIntMsgResult.<String>builder()
+            .code(200)
+            .msg("OK")
+            .data("data")
+            .build();
 
         Assertions.assertEquals(200, result.getCode());
         Assertions.assertEquals("OK", result.getMsg());

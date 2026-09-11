@@ -21,6 +21,7 @@ import java.util.Map;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CJsonUtilsTests.adoc"
  */
 public class CJsonUtilsTests {
 

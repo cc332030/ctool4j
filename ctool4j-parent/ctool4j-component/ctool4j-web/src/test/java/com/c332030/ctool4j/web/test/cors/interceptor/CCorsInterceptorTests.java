@@ -18,6 +18,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * <p>覆盖 CCorsInterceptor.preHandle：未启用时放行、预检请求返回 false、普通请求放行</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CCorsInterceptorTests.adoc"
  */
 
 public class CCorsInterceptorTests {

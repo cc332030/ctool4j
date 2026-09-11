@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
  * <p>覆盖 CCorsFilter.doFilter：未启用时放行、预检请求直接 204 结束、普通请求放行</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CCorsFilterTests.adoc"
  */
 
 public class CCorsFilterTests {

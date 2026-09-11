@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
  * 测试用例分类与编号见 doc/design/core/CMethodHandleUtilsTests.adoc，各测试方法在 javadoc 中标注对应编号</p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CMethodHandleUtilsTests.adoc"
  */
 public class CMethodHandleUtilsTests {
     /**

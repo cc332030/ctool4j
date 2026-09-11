@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/12/6
+ * @see "doc/design/core/COptTests.adoc"
  */
 public class COptTests {
 

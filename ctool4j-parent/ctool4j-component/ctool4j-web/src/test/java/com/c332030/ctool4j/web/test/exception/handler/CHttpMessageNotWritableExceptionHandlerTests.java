@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
  *
  * @since 2026/8/16
  * <p>`com.c332030.ctool4j.web.exception.handler.CHttpMessageNotWritableExceptionHandler`（CHttpMessageNotWritableExceptionHandler）的测试用例</p>
+ * @see "doc/design/web/CHttpMessageNotWritableExceptionHandlerTests.adoc"
  */
 public class CHttpMessageNotWritableExceptionHandlerTests {
 

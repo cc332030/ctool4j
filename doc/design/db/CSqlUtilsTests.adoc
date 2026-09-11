@@ -1,10 +1,10 @@
 = CSqlUtils 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.db.util.CSqlUtils`（db 模块）——SQL 片段拼接与字段名转换工具。
 
-对应测试类：`com.c332030.ctool4j.db.test.util.CSqlUtilsTests`（主）、`com.c332030.ctool4j.db.test.util.CSqlUtilsTest`（`toColumnName(String)` 补充）
+对应测试类：`com.c332030.ctool4j.db.test.util.CSqlUtilsTests`
 
 对应设计文档：`doc/design/db/CSqlUtils.adoc`（功能设计，测试内容以本文档为准）。
 
@@ -47,7 +47,7 @@ LastModified: 2026-08-21
 == 4. 列名转换
 
 - 4.1 lambda 字段名转列名：id / user_name / user_first_name（toColumnNameFunc）
-- 4.2 字符串转列名：id / user_id（含 UserId）/ user_first_name（CSqlUtilsTest.toColumnName）
+- 4.2 字符串转列名：id / user_id（含 UserId）/ user_first_name（toColumnName）
 
 == 5. 多列拼接
 
@@ -68,4 +68,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | Q11：删除重复测试类 CSqlUtilsTest，测试类引用更正为 CSqlUtilsTests
 - 1.0 | 2026-08-21 | 初始落地

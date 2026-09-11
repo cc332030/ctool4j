@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CValueUtilsTests.adoc"
  */
 public class CValueUtilsTests {
 

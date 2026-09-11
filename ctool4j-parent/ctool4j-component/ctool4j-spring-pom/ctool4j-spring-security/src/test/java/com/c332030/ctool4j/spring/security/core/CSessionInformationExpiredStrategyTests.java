@@ -19,6 +19,7 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
  * </p>
  *
  * @since 2026/8/17
+ * @see "doc/design/spring/CSessionInformationExpiredStrategyTests.adoc"
  */
 class CSessionInformationExpiredStrategyTests {
 

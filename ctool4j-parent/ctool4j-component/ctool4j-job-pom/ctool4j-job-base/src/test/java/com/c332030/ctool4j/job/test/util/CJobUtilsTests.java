@@ -22,6 +22,7 @@ import java.time.temporal.ChronoUnit;
  *
  * @author c332030
  * @since 2026/8/14
+ * @see "doc/design/job/CJobUtilsTests.adoc"
  */
 class CJobUtilsTests {
 

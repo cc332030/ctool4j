@@ -25,6 +25,7 @@ import java.util.Map;
  * 测试用例分类与编号见 doc/design/feign/CFeignLoggerTests.adoc，各测试方法在 javadoc 中标注对应编号
  *
  * @author c332030
+ * @see "doc/design/feign/CFeignLoggerTests.adoc"
  */
 class CFeignLoggerTests {
 

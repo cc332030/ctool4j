@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
  * 验证切点方法获取与异常解包逻辑</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/spring/CAspectUtilsTests.adoc"
  */
 public class CAspectUtilsTests {
 

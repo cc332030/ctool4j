@@ -1,7 +1,7 @@
 = CDateUtils 设计文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CDateUtils
 状态：已落地
@@ -22,8 +22,8 @@ LastModified: 2026-08-21
 === 2.1 格式化/解析
 
 - `formatDate`/`formatTime`/`formatDateTime` 分别输出 `yyyy-MM-dd`/`HH:mm:ss`/`yyyy-MM-dd HH:mm:ss`。
-- `parseMaybeMills(text)`：先尝试按"毫秒/秒时间戳"解析（text 长度 ≥ MIN_MILLS 位数视为毫秒，
-  否则按秒），失败回退按日期时间格式解析；支持日期/时间/日期时间/时间戳多种形态。
+- `parseMaybeMills(text)`：先尝试按"毫秒/秒时间戳"解析——数值 `<= MIN_MILLS`（1e10）视为秒并乘 1000，
+  否则视为毫秒，负数视为非法输入返回 null；失败回退按日期时间格式解析；支持日期/时间/日期时间/时间戳多种形态。
 
 === 2.2 类型转换
 
@@ -39,7 +39,7 @@ LastModified: 2026-08-21
 | 场景 | 兜底行为 |
 |------|---------|
 | toDate/toInstant 入参为 null | 返回 null |
-| parseMaybeMills 时间戳位数判断 | 按长度区分毫秒/秒，失败回退日期时间格式 |
+| parseMaybeMills 时间戳判定 | 数值 `<= MIN_MILLS` 按秒处理、否则按毫秒；负数返回 null；失败回退日期时间格式 |
 
 == 4. 适用范围
 
@@ -49,7 +49,8 @@ LastModified: 2026-08-21
 
 === 4.2 不适用/边界场景
 
-- parseMaybeMills 依赖长度区分毫秒/秒时间戳，极短时间戳可能误判；需明确语义时用精确解析方法。
+- parseMaybeMills/toMillis 以数值阈值（`MIN_MILLS`=1e10）区分秒/毫秒，该区间存在固有歧义
+  （1e10 同时是 2286-11-20 的秒值与 1973-03-03 的毫秒值）；需明确语义时用精确解析方法。
 
 == 5. 已知限制与取舍
 
@@ -60,4 +61,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | 修正 parseMaybeMills 秒/毫秒判定描述：按数值阈值 `MIN_MILLS`（非字符串长度）判定，负数返回 null，与代码一致
 - 1.0 | 2026-08-21 | 初始落地

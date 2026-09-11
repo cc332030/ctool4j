@@ -21,6 +21,7 @@ import java.util.Optional;
  * <p>
  * 是 {@link COperationAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/COperationAnnotationPluginTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/COperationAnnotationPluginTests.adoc"
  */
 class COperationAnnotationPluginTests {
 

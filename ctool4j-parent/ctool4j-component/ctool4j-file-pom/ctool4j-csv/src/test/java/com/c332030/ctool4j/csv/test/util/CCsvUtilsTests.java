@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author c332030
  * @since 2026/8/14
+ * @see "doc/design/csv/CCsvUtilsTests.adoc"
  */
 class CCsvUtilsTests {
 

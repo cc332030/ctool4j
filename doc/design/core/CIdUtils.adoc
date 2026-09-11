@@ -1,7 +1,7 @@
 = CIdUtils 设计文档
 
-Version: 1.4
-LastModified: 2026-09-09
+Version: 1.10
+LastModified: 2026-09-10
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.util.CIdUtils
 状态：已落地

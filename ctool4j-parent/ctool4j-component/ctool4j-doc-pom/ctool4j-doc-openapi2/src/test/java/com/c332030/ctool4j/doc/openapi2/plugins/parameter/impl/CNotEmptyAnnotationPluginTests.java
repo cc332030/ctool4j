@@ -23,6 +23,7 @@ import java.util.Optional;
  * <p>
  * 是 {@link CNotEmptyAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CNotEmptyAnnotationPluginTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/CNotEmptyAnnotationPluginTests.adoc"
  */
 class CNotEmptyAnnotationPluginTests {
 

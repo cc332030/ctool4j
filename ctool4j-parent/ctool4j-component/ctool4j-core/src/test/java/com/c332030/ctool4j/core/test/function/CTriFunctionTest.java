@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/11/6
+ * @see "doc/design/core/CTriFunctionTest.adoc"
  */
 public class CTriFunctionTest {
 

@@ -13,6 +13,7 @@ import java.util.function.Supplier;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CSupplierTests.adoc"
  */
 public class CSupplierTests {
 

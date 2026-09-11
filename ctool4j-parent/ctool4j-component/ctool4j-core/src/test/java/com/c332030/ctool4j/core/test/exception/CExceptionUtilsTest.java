@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  * <p>`com.c332030.ctool4j.core.exception.CExceptionUtils`（CExceptionUtils）的测试用例</p>
  *
  * @since 2025/9/14
+ * @see "doc/design/core/CExceptionUtilsTest.adoc"
  */
 @CustomLog
 public class CExceptionUtilsTest {

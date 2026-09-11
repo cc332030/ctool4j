@@ -12,15 +12,19 @@ import org.junit.jupiter.api.Test;
  * 是 {@link CValueWithTtl} 的测试用例（对应测试文档
  * <code>doc/design/redis/CValueWithTtlTests.adoc</code>）。
  * </p>
+ * @see "doc/design/redis/CValueWithTtlTests.adoc"
  */
 public class CValueWithTtlTests {
 
     /**
-     * 对应测试用例 1.1
+     * 对应测试用例 1.1：全参构建（统一使用 builder，禁止依赖 lombok 生成的全参构造器）
      */
     @Test
-    void allArgsConstructor_setsFields() {
-        CValueWithTtl<String> valueWithTtl = new CValueWithTtl<>("value", 100L);
+    void builderAllFields_setsFields() {
+        CValueWithTtl<String> valueWithTtl = CValueWithTtl.<String>builder()
+            .value("value")
+            .ttl(100L)
+            .build();
 
         Assertions.assertEquals("value", valueWithTtl.getValue());
         Assertions.assertEquals(100L, valueWithTtl.getTtl());
@@ -70,7 +74,10 @@ public class CValueWithTtlTests {
      */
     @Test
     void toString_containsFields() {
-        CValueWithTtl<String> valueWithTtl = new CValueWithTtl<>("value", 100L);
+        CValueWithTtl<String> valueWithTtl = CValueWithTtl.<String>builder()
+            .value("value")
+            .ttl(100L)
+            .build();
 
         String str = valueWithTtl.toString();
         Assertions.assertTrue(str.contains("value"));

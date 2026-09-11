@@ -1,7 +1,7 @@
 = CBenchmarkReport 设计文档
 
-Version: 1.1
-LastModified: 2026-08-21
+Version: 1.2
+LastModified: 2026-09-10
 模块：ctool4j-core
 类：com.c332030.ctool4j.core.benchmark.CBenchmarkReport
 状态：已落地
@@ -39,5 +39,6 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.2 | 2026-09-10 | Q1：新增 @SuperBuilder，对象创建统一改用 builder
 - 1.1 | 2026-08-21 | 补充对应测试用例与测试文档（doc/design/core/CBenchmarkReportTests.adoc）
 - 1.0 | 2026-08-21 | 初始落地

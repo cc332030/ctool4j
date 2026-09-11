@@ -13,6 +13,7 @@ import java.util.function.BiFunction;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CBiFunctionTests.adoc"
  */
 public class CBiFunctionTests {
 

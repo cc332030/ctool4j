@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/ICopyTests.adoc"
  */
 public class ICopyTests {
 

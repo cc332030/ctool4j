@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/21
+ * @see "doc/design/core/CBenchmarkResultTests.adoc"
  */
 public class CBenchmarkResultTests {
 
@@ -23,7 +24,11 @@ public class CBenchmarkResultTests {
     @Test
     public void avgNanosNormal() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 1000, 5000);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(5000)
+            .build();
 
         Assertions.assertEquals(5.0, result.avgNanos());
 
@@ -35,7 +40,11 @@ public class CBenchmarkResultTests {
     @Test
     public void avgNanosSingleIteration() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 1, 5000);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1)
+            .elapsedNanos(5000)
+            .build();
 
         Assertions.assertEquals(5000.0, result.avgNanos());
 
@@ -47,7 +56,11 @@ public class CBenchmarkResultTests {
     @Test
     public void avgNanosZeroElapsed() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 1000, 0);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(0)
+            .build();
 
         Assertions.assertEquals(0.0, result.avgNanos());
 
@@ -59,7 +72,11 @@ public class CBenchmarkResultTests {
     @Test
     public void avgNanosZeroIterations() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 0, 5000);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(0)
+            .elapsedNanos(5000)
+            .build();
 
         // double 除零返回 Infinity，不抛异常
         Assertions.assertEquals(Double.POSITIVE_INFINITY, result.avgNanos());
@@ -72,7 +89,11 @@ public class CBenchmarkResultTests {
     @Test
     public void avgNanosFraction() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 3, 1);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(3)
+            .elapsedNanos(1)
+            .build();
 
         Assertions.assertEquals(1.0 / 3.0, result.avgNanos(), 1e-12);
 
@@ -84,7 +105,11 @@ public class CBenchmarkResultTests {
     @Test
     public void opsPerSecondNormal() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 1000, 1_000_000_000);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(1_000_000_000)
+            .build();
 
         Assertions.assertEquals(1000.0, result.opsPerSecond());
 
@@ -96,7 +121,11 @@ public class CBenchmarkResultTests {
     @Test
     public void opsPerSecondZeroElapsed() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 1000, 0);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(0)
+            .build();
 
         // double 除零返回 Infinity，不抛异常
         Assertions.assertEquals(Double.POSITIVE_INFINITY, result.opsPerSecond());
@@ -109,7 +138,11 @@ public class CBenchmarkResultTests {
     @Test
     public void opsPerSecondHalfTime() {
 
-        CBenchmarkResult result = new CBenchmarkResult("case", 1000, 2_000_000_000);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(2_000_000_000)
+            .build();
 
         Assertions.assertEquals(500.0, result.opsPerSecond());
 
@@ -121,7 +154,11 @@ public class CBenchmarkResultTests {
     @Test
     public void fieldsReturnedAsIs() {
 
-        CBenchmarkResult result = new CBenchmarkResult("copy", 100, 200);
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("copy")
+            .iterations(100)
+            .elapsedNanos(200)
+            .build();
 
         Assertions.assertEquals("copy", result.getName());
         Assertions.assertEquals(100, result.getIterations());

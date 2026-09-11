@@ -1,7 +1,7 @@
 = CTraceInfoProvider 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.web.test.spi` 对应 ICTraceInfoProvider.getTraceInfo：获取链路追踪信息。
 
 对应测试类：`com.c332030.ctool4j.web.test.spi.CTraceInfoProviderTests`
@@ -28,4 +28,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | Q18：提供者 lambda 创建 CTraceInfo 改用 builder
 - 1.0 | 2026-08-21 | 初始落地

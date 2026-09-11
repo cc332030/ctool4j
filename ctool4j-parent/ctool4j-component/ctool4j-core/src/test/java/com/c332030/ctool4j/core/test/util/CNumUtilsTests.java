@@ -12,6 +12,7 @@ import java.math.BigDecimal;
  * </p>
  *
  * @since 2025/12/22
+ * @see "doc/design/core/CNumUtilsTests.adoc"
  */
 public class CNumUtilsTests {
 

@@ -25,6 +25,7 @@ import java.util.Set;
  * 不依赖 Spring 容器，通过静态 setter 注入 CCorsConfig</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CCorsUtilsTests.adoc"
  */
 public class CCorsUtilsTests {
 

@@ -23,6 +23,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/db/CSqlUtilsTests.adoc"
  */
 public class CSqlUtilsTests {
 

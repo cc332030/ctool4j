@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/StartEndTimeConsumerTests.adoc"
  */
 public class StartEndTimeConsumerTests {
 

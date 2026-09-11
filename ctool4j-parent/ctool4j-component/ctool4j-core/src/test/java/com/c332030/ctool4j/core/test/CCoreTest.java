@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2025/11/5
+ * @see "doc/design/core/CCoreTest.adoc"
  */
 public class CCoreTest {
 

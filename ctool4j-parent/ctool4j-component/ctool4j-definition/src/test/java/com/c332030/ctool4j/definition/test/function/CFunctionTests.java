@@ -13,6 +13,7 @@ import java.util.function.Function;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CFunctionTests.adoc"
  */
 public class CFunctionTests {
 

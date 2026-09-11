@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CLocalCacheUtilsTests.adoc"
  */
 public class CLocalCacheUtilsTests {
 

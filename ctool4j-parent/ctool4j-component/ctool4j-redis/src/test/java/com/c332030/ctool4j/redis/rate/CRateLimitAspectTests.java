@@ -31,6 +31,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/9/8
+ * @see "doc/design/redis/CRateLimitAspectTests.adoc"
  */
 class CRateLimitAspectTests {
 

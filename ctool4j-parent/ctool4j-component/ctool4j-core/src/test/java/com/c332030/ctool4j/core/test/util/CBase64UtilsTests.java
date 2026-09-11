@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
  * </p>
  *
  * @since 2026/1/4
+ * @see "doc/design/core/CBase64UtilsTests.adoc"
  */
 public class CBase64UtilsTests {
 

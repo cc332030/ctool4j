@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
  * </p>
  *
  * @since 2026/9/8
+ * @see "doc/design/core/CElKeyResolveUtilsTests.adoc"
  */
 class CElKeyResolveUtilsTests {
 

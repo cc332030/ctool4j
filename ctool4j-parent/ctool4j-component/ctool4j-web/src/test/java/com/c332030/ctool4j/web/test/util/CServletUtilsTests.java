@@ -20,6 +20,7 @@ import java.util.Map;
  * <p>覆盖 writeJson 两个重载：状态码、content-type、写入内容、字符集</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CServletUtilsTests.adoc"
  */
 
 @CustomLog

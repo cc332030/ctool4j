@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.benchmark;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
  * @see "doc/design/core/CBenchmarkResultTests.adoc"
  */
 @Getter
+@SuperBuilder
 @RequiredArgsConstructor
 public class CBenchmarkResult {
 
@@ -24,6 +26,8 @@ public class CBenchmarkResult {
 
     /**
      * 平均耗时（纳秒/次）
+     *
+     * @return 平均耗时（纳秒/次）
      */
     public double avgNanos() {
         return elapsedNanos * 1.0 / iterations;
@@ -31,6 +35,8 @@ public class CBenchmarkResult {
 
     /**
      * 每秒执行次数
+     *
+     * @return 每秒执行次数
      */
     public double opsPerSecond() {
         return iterations * 1.0 / (elapsedNanos / 1_000_000_000.0);

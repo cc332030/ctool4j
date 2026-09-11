@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/test/UserTests.adoc"
  */
 class UserTests {
 

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  * <p>覆盖 ICTraceInfoProvider 契约：每次调用返回独立实例</p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CTraceInfoProviderTests.adoc"
  */
 
 public class CTraceInfoProviderTests {
@@ -23,7 +24,9 @@ public class CTraceInfoProviderTests {
      */
     @Test
     public void getTraceInfo() {
-        ICTraceInfoProvider<CTraceInfo> provider = () -> new CTraceInfo("trace-1");
+        ICTraceInfoProvider<CTraceInfo> provider = () -> CTraceInfo.builder()
+            .traceId("trace-1")
+            .build();
 
         val first = provider.getTraceInfo();
         val second = provider.getTraceInfo();

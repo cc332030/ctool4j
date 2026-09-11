@@ -18,6 +18,7 @@ import org.mockito.Mockito;
  * 是 {@link CCacheUtils} 的测试用例（对应测试文档
  * <code>doc/design/cache/CCacheUtilsTests.adoc</code>）。
  * </p>
+ * @see "doc/design/cache/CCacheUtilsTests.adoc"
  */
 public class CCacheUtilsTests {
 

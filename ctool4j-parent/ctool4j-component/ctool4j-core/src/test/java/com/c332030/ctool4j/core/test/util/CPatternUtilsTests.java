@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CPatternUtilsTests.adoc"
  */
 public class CPatternUtilsTests {
 

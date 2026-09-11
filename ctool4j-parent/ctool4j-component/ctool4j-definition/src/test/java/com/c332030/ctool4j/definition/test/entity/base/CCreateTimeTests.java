@@ -12,6 +12,7 @@ import java.util.Date;
  * </p>
  *
  * @since 2026/8/16
+ * @see "doc/design/core/CCreateTimeTests.adoc"
  */
 public class CCreateTimeTests {
 

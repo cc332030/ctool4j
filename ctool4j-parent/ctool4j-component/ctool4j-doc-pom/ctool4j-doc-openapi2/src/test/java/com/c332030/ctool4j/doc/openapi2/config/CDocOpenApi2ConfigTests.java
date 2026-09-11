@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * 是 {@link CDocOpenApi2Config} 的测试用例（对应测试文档 <code>doc/design/openapi2/CDocOpenApi2ConfigTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/CDocOpenApi2ConfigTests.adoc"
  */
 class CDocOpenApi2ConfigTests {
 

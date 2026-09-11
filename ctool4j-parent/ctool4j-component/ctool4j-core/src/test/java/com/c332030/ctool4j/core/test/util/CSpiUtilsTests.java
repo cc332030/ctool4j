@@ -15,6 +15,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CSpiUtilsTests.adoc"
  */
 public class CSpiUtilsTests {
 

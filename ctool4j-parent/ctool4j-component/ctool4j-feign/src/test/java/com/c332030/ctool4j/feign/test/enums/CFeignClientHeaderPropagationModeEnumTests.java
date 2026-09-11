@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  * <code>doc/design/feign/CFeignClientHeaderPropagationModeEnumTests.adoc</code>）。</p>
  *
  * @author c332030
+ * @see "doc/design/feign/CFeignClientHeaderPropagationModeEnumTests.adoc"
  */
 class CFeignClientHeaderPropagationModeEnumTests {
 

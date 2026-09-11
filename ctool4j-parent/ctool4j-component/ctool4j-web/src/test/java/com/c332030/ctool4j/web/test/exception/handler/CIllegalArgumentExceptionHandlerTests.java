@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
  *
  * @since 2026/8/16
  * <p>`com.c332030.ctool4j.web.exception.handler.CIllegalArgumentExceptionHandler`（CIllegalArgumentExceptionHandler）的测试用例</p>
+ * @see "doc/design/web/CIllegalArgumentExceptionHandlerTests.adoc"
  */
 public class CIllegalArgumentExceptionHandlerTests {
 

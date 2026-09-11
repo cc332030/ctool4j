@@ -26,6 +26,7 @@ import java.util.List;
  * </p>
  *
  * @since 2026/8/21
+ * @see "doc/design/core/CBenchmarkReportTests.adoc"
  */
 public class CBenchmarkReportTests {
 
@@ -37,11 +38,14 @@ public class CBenchmarkReportTests {
     private static CBenchmarkReport reportWithTwoResults() {
 
         List<CBenchmarkResult> results = Arrays.asList(
-            new CBenchmarkResult("base", 1000, 1_000_000_000),
-            new CBenchmarkResult("fast", 1000, 500_000_000)
+            CBenchmarkResult.builder().name("base").iterations(1000).elapsedNanos(1_000_000_000).build(),
+            CBenchmarkResult.builder().name("fast").iterations(1000).elapsedNanos(500_000_000).build()
         );
 
-        return new CBenchmarkReport("benchmark", results);
+        return CBenchmarkReport.builder()
+            .title("benchmark")
+            .results(results)
+            .build();
 
     }
 
@@ -52,10 +56,13 @@ public class CBenchmarkReportTests {
     public void fieldsReturnedAsIs() {
 
         List<CBenchmarkResult> results = Arrays.asList(
-            new CBenchmarkResult("base", 1000, 1000)
+            CBenchmarkResult.builder().name("base").iterations(1000).elapsedNanos(1000).build()
         );
 
-        CBenchmarkReport report = new CBenchmarkReport("title", results);
+        CBenchmarkReport report = CBenchmarkReport.builder()
+            .title("title")
+            .results(results)
+            .build();
 
         Assertions.assertEquals("title", report.getTitle());
         Assertions.assertSame(results, report.getResults());
@@ -86,10 +93,13 @@ public class CBenchmarkReportTests {
     public void toMarkdownWithSingleResult() {
 
         List<CBenchmarkResult> results = Arrays.asList(
-            new CBenchmarkResult("only", 1000, 1_000_000_000)
+            CBenchmarkResult.builder().name("only").iterations(1000).elapsedNanos(1_000_000_000).build()
         );
 
-        CBenchmarkReport report = new CBenchmarkReport("benchmark", results);
+        CBenchmarkReport report = CBenchmarkReport.builder()
+            .title("benchmark")
+            .results(results)
+            .build();
 
         String markdown = report.toMarkdown();
 
@@ -103,7 +113,10 @@ public class CBenchmarkReportTests {
     @Test
     public void toMarkdownWithEmptyResults() {
 
-        CBenchmarkReport report = new CBenchmarkReport("benchmark", Collections.emptyList());
+        CBenchmarkReport report = CBenchmarkReport.builder()
+            .title("benchmark")
+            .results(Collections.<CBenchmarkResult>emptyList())
+            .build();
 
         Assertions.assertThrowsExactly(
             IndexOutOfBoundsException.class,

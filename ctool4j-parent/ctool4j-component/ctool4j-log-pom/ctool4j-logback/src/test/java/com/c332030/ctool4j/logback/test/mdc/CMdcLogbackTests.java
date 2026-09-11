@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author c332030
  * @since 2026/8/14
+ * @see "doc/design/log/CMdcLogbackTests.adoc"
  */
 class CMdcLogbackTests {
 

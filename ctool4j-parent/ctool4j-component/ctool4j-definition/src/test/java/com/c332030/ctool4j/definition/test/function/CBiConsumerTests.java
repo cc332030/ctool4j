@@ -13,6 +13,7 @@ import java.util.function.BiConsumer;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/core/CBiConsumerTests.adoc"
  */
 public class CBiConsumerTests {
 

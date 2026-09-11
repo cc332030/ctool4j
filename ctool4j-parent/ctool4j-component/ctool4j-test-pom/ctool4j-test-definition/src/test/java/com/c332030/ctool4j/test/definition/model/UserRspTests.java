@@ -13,6 +13,7 @@ import java.util.Date;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/test/UserRspTests.adoc"
  */
 class UserRspTests {
 

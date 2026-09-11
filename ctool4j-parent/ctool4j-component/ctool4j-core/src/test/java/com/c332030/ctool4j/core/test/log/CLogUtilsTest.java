@@ -13,6 +13,7 @@ import javax.sql.DataSource;
  * </p>
  *
  * @since 2025/9/14
+ * @see "doc/design/core/CLogUtilsTest.adoc"
  */
 public class CLogUtilsTest {
 

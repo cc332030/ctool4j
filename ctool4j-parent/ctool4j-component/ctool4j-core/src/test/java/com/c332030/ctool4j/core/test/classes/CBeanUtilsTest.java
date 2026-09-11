@@ -18,6 +18,7 @@ import java.math.BigDecimal;
  * </p>
  *
  * @since 2025/11/20
+ * @see "doc/design/core/CBeanUtilsTest.adoc"
  */
 public class CBeanUtilsTest {
 

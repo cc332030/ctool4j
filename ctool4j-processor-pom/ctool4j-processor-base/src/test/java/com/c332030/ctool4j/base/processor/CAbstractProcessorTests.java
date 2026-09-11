@@ -23,6 +23,7 @@ import java.util.Set;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/base/CAbstractProcessorTests.adoc"
  */
 public class CAbstractProcessorTests {
 

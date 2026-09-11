@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/1/4
+ * @see "doc/design/core/CDesUtilsTests.adoc"
  */
 public class CDesUtilsTests {
 

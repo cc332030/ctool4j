@@ -60,7 +60,7 @@ LastModified: 2026-08-21
 - ignore 吞异常换取不中断，牺牲失败可见性。
 - SPI 提供者支持自定义业务异常类型，灵活可扩展。
 
-测试内容见 `doc/design/core/CExceptionUtilsTests.adoc`。
+测试内容见 `doc/design/core/CExceptionUtilsTest.adoc`。
 
 == 变更日志
 

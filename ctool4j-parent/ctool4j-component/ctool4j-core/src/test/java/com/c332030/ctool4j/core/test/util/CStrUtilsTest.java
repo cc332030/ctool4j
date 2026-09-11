@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
  * <p>`com.c332030.ctool4j.core.util.CStrUtils`（CStrUtils）的测试用例</p>
  *
  * @since 2025/9/16
+ * @see "doc/design/core/CStrUtilsTest.adoc"
  */
 @CustomLog
 public class CStrUtilsTest {

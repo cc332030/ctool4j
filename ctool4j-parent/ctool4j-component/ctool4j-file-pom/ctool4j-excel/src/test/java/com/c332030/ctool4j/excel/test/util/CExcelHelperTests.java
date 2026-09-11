@@ -25,6 +25,7 @@ import java.util.List;
  *
  * @author c332030
  * @since 2026/8/14
+ * @see "doc/design/excel/CExcelHelperTests.adoc"
  */
 class CExcelHelperTests {
 

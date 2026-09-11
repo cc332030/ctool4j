@@ -12,6 +12,7 @@ import java.util.*;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/test/UserDtoTests.adoc"
  */
 class UserDtoTests {
 

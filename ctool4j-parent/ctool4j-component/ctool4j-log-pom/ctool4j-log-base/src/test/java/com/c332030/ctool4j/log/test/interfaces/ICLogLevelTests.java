@@ -17,6 +17,7 @@ import org.slf4j.event.Level;
  *
  * @author c332030
  * @since 2026/8/14
+ * @see "doc/design/log/ICLogLevelTests.adoc"
  */
 class ICLogLevelTests {
 

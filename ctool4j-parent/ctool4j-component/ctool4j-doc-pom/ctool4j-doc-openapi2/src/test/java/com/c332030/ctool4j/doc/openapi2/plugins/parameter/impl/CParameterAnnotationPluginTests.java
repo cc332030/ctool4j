@@ -23,6 +23,7 @@ import java.util.Optional;
  * <p>
  * 是 {@link CParameterAnnotationPlugin} 的测试用例（对应测试文档 <code>doc/design/openapi2/CParameterAnnotationPluginTests.adoc</code>）。
  * </p>
+ * @see "doc/design/openapi2/CParameterAnnotationPluginTests.adoc"
  */
 class CParameterAnnotationPluginTests {
 

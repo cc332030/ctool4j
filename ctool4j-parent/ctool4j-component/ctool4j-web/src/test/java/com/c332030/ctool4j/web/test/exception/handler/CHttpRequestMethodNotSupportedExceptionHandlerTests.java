@@ -16,6 +16,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
  *
  * @since 2026/8/16
  * <p>`com.c332030.ctool4j.web.exception.handler.CHttpRequestMethodNotSupportedExceptionHandler`（CHttpRequestMethodNotSupportedExceptionHandler）的测试用例</p>
+ * @see "doc/design/web/CHttpRequestMethodNotSupportedExceptionHandlerTests.adoc"
  */
 public class CHttpRequestMethodNotSupportedExceptionHandlerTests {
 

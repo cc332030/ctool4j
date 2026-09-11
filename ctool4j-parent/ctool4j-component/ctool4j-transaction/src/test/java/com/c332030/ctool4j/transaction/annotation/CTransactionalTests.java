@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * </p>
  *
  * @since 2026/8/14
+ * @see "doc/design/transaction/CTransactionalTests.adoc"
  */
 class CTransactionalTests {
 

@@ -19,6 +19,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * 依赖 Spring 容器的方法（无参 getToken/setToken 等）不在本测试覆盖范围</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CAuthUtilsTests.adoc"
  */
 @CustomLog
 public class CAuthUtilsTests {

@@ -15,6 +15,7 @@ import java.util.Map;
  * </p>
  *
  * @since 2025/12/12
+ * @see "doc/design/core/CValidateUtilsTests.adoc"
  */
 public class CValidateUtilsTests {
 

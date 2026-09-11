@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
  * <p>覆盖枚举 getHeaderName（下划线转 Header 名）与 getText 描述</p>
  *
  * @since 2026/8/14
+ * @see "doc/design/web/CRequestHeaderEnumTests.adoc"
  */
 @CustomLog
 public class CRequestHeaderEnumTests {

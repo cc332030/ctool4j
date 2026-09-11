@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
  * </p>
  *
  * @since 2026/8/16
+ * @see "doc/design/web/CErrorControllerTests.adoc"
  */
 class CErrorControllerTests {
 

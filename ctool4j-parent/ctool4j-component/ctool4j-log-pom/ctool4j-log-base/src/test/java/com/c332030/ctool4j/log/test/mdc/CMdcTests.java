@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
  * </p>
  *
  * @since 2026/8/31
+ * @see "doc/design/log/CMdcTests.adoc"
  */
 class CMdcTests {
 

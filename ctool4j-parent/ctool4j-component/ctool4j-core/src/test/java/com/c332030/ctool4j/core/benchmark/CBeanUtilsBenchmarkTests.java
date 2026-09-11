@@ -33,6 +33,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2026/8/16
+ * @see "doc/design/core/CBeanUtilsBenchmarkTests.adoc"
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CBeanUtilsBenchmarkTests {

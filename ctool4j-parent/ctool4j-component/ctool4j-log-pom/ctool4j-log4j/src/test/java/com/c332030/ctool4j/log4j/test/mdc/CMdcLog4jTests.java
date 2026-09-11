@@ -18,6 +18,7 @@ import java.util.Map;
  * </p>
  *
  * @since 2026/8/31
+ * @see "doc/design/log4j/CMdcLog4jTests.adoc"
  */
 class CMdcLog4jTests {
 

@@ -1,7 +1,7 @@
 = CBenchmarkReport 测试用例文档
 
-Version: 1.0
-LastModified: 2026-08-21
+Version: 1.1
+LastModified: 2026-09-10
 所属功能：`com.c332030.ctool4j.core.benchmark.CBenchmarkReport`（core benchmark 包）——性能基准报告，含标题与按耗时升序的结果列表（首项为基线），支持导出 markdown 表格与写文件。
 
 对应测试类：`com.c332030.ctool4j.core.test.benchmark.CBenchmarkReportTests`
@@ -49,4 +49,5 @@ LastModified: 2026-08-21
 
 == 变更日志
 
+- 1.1 | 2026-09-10 | Q1：测试对象创建改用 builder（禁止 new Xxx(参数…)）
 - 1.0 | 2026-08-21 | 初始落地（为 CBenchmarkReport 补测试用例与测试文档）

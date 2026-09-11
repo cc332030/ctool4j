@@ -12,6 +12,7 @@ import java.math.BigDecimal;
  * </p>
  *
  * @since 2025/12/18
+ * @see "doc/design/core/CAmountUtilsTests.adoc"
  */
 public class CAmountUtilsTests {
 

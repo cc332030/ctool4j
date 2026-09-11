@@ -142,7 +142,7 @@ public class CLazyRefTests {
     @Test
     public void of_nullSupplier_throws() {
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> CLazyRef.of(null));
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> CLazyRef.of(null));
     }
 
     /**
