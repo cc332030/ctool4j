@@ -28,7 +28,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 
 /**
- * 处理并记录日志文件
+ * <p>
+ * Description: CLogUtils
+ * </p>
+ *
+ * <p>处理并记录日志文件</p>
  * <p>本类自身保留 slf4j 原生 @Slf4j 而非 @CustomLog（原因详见设计文档）</p>
  * @see "doc/design/core/CLogUtils.adoc"
  * @see "doc/design/core/CLogUtilsTests.adoc"

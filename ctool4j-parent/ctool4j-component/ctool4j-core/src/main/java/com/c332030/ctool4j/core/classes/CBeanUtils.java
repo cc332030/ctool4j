@@ -28,6 +28,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * <p>
+ * Description: CBeanUtils
+ * </p>
+ *
  * <p>JavaBean 属性复制与对象转 Map 工具类。</p>
  * <p>核心能力：对象间属性复制（{@code copy} 直连字段、避免 toMap 中转）、对象转 Map
  * （{@code toMap} 系列，支持原名/下划线/注解 key）、Map 转对象、数组/集合批量复制；

@@ -13,8 +13,10 @@ import java.io.OutputStream;
 
 /**
  * <p>
- * MinIO 对象存储服务，封装 MinIO 客户端常用操作。
+ * Description: CMinioService
  * </p>
+ *
+ * <p>MinIO 对象存储服务，封装 MinIO 客户端常用操作。</p>
  *
  * @see "doc/design/minio/CMinioService.adoc"
  * @since 2026/7/15
