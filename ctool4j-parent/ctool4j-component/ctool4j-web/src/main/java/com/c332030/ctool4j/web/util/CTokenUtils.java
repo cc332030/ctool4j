@@ -3,6 +3,7 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.validation.CAssert;
+import com.c332030.ctool4j.definition.interfaces.ICToken;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -21,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  * <ul>
  *   <li><b>请求/响应头</b>：{@link #TOKEN_PREFIX} 默认前缀 "Bearer"，{@link #removePrefix(String)} 移除前缀，
  *       {@link #getHeaderToken()} 系列从请求 Authorization 头取 token，{@link #setHeaderToken(String)} 系列设置响应 Authorization 头；</li>
- *   <li><b>请求属性</b>：{@link #TOKEN} 为属性名，{@link #getToken()}/{@link #setToken(HttpServletRequest, String)}
+ *   <li><b>请求属性</b>：{@link ICToken#TOKEN} 为属性名，{@link #getToken()}/{@link #setToken(HttpServletRequest, String)}
  *       读写当前请求属性中的 token，{@link #getTokenOrNew()} 缺省生成。</li>
  * </ul>
  *
@@ -61,7 +62,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * <p>注意：依赖当前请求上下文的方法（无参 {@code getHeaderToken}/{@code setHeaderToken}/{@code getToken}/{@code setToken(String)}/{@code getTokenOrNew}）
  * 在非请求线程调用时，因 {@code CRequestUtils} 取不到请求/响应而抛 {@link IllegalArgumentException}；
- * 接收 {@code request}/{@code response} 入参的重载不依赖上下文。{@link #TOKEN} 为请求属性名，与 jwt 载荷字段名的语义区分见
+ * 接收 {@code request}/{@code response} 入参的重载不依赖上下文。{@link ICToken#TOKEN} 为请求属性名，与 jwt 载荷字段名的语义区分见
  * ctool4j-auth-base 的 {@code CAuthUtils#getTokenByJwt}。</p>
  *
  * @author c332030
@@ -75,11 +76,6 @@ public class CTokenUtils {
      * token 前缀
      */
     public final String TOKEN_PREFIX = "Bearer";
-
-    /**
-     * 请求属性名
-     */
-    public final String TOKEN = "token";
 
     // ---------- 请求/响应头 ----------
 
@@ -206,7 +202,7 @@ public class CTokenUtils {
      * @param token   token
      */
     public void setToken(HttpServletRequest request, String token) {
-        request.setAttribute(TOKEN, token);
+        request.setAttribute(ICToken.TOKEN, token);
     }
 
     /**
@@ -218,7 +214,7 @@ public class CTokenUtils {
 
         val request = CRequestUtils.getRequest();
         CAssert.notNull(request, "非请求环境");
-        return (String) request.getAttribute(TOKEN);
+        return (String) request.getAttribute(ICToken.TOKEN);
     }
 
     /**

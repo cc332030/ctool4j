@@ -200,6 +200,7 @@ public class CAuthUtilsTests {
     @Data
     public static class JwtInfoStub implements ICJwtInfo {
         private String name;
+        private String token;
     }
 
 }

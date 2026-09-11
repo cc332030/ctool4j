@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.auth.config.CAuthConfig;
 import com.c332030.ctool4j.auth.interfaces.ICJwtInfo;
 import com.c332030.ctool4j.core.util.CMapUtils;
+import com.c332030.ctool4j.definition.interfaces.ICToken;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.web.util.CJwtUtils;
@@ -28,7 +29,7 @@ import lombok.val;
  * <ul>
  *   <li>{@link #getTokenByJwt(String)}：jwt 先经 {@code CTokenUtils.removePrefix} 去除前缀；空白返回 null；
  *   以配置密钥校验，校验异常记 debug 日志并返回 null（不向上抛）；校验通过后解析载荷，取字段
- *   {@code CTokenUtils.TOKEN} 对应值。
+ *   {@link ICToken#TOKEN} 对应值。
  *   <p><b>静默失败为刻意设计</b>：本方法服务于接口权限控制，传入的可能是任意来源的 jwt
  *   （非本系统签发、被篡改、已过期等）。解析失败不构成业务错误，返回 null 交由调用方按「无 token」处理即可，
  *   因此统一吞掉异常不向上抛，避免非本系统凭据导致接口报错。</p></li>
@@ -112,7 +113,7 @@ public class CAuthUtils {
 
         try {
             val jwtBody = CJwtUtils.parseBody(jwt, CMapUtils.MAP_STRING_OBJECT_TYPE_REFERENCE);
-            val token = CMapUtils.get(jwtBody, CTokenUtils.TOKEN);
+            val token = CMapUtils.get(jwtBody, ICToken.TOKEN);
             return StrUtil.toStringOrNull(token);
         } catch (Exception e) {
             log.debug("parse jwt error", e);
