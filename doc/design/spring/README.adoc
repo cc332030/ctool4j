@@ -7,6 +7,11 @@ Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-clou
 == 功能文档
 
 - link:ip.adoc[ip]
+- link:real-class-name.adoc[代理场景取真实业务类/类名/包名]：`ICRealClass` 契约与 `CProxyUtils` 代理解析
+
+== 模块内其他文档
+
+- link:../../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/perf.adoc[ctool4j-spring 性能测试记录]（随模块就近存放）
 
 == 相关入口
 

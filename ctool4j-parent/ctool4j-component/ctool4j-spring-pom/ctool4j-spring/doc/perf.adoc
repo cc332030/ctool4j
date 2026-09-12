@@ -1,0 +1,63 @@
+= ctool4j-spring 性能测试记录
+
+本模块对公共流程热路径上的方法做性能对比测试，记录实测结果与结论。性能测试类以 `PerfTests` 结尾
+（规范定式，需显式触发、由根 `pom.xml` 的排除规则挡在常规测试之外），测试类的类/方法级细节见各自 javadoc。
+
+本模块的 `BenchmarkTests` 命名是定式之前的存量（如 core/web 模块的基准类），按「存量随动迁移、不一次性收敛」
+保持原样，不新增该类命名；根 `pom.xml` 一并排除该后缀，仅为不让存量性能测试随常规测试执行。
+
+== 环境与口径
+
+- 环境：JDK 8（Temurin 8u504）、Maven 3.9.16；结果为单容器实测值，非固定 CPU、仅用于量级与相对比较。
+- 口径：同一对象形态下横比多种实现、再纵比各类对象形态；每次调用消费返回值避免循环被优化消除；
+  每个实现多轮取中位数抑制噪声；测两遍，第二遍（全部实现初始化完成后）结果作为结论。
+- 触发：
+
+[source,bash]
+----
+mvn -pl ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring -Dtest=CProxyUtilsPerfTests -Dsurefire.failIfNoSpecifiedTests=false test
+----
+
+== CProxyUtils 真实业务类名解析
+
+用例：`com.c332030.ctool4j.spring.util.CProxyUtilsPerfTests`。度量 `getRealClassName` 相关解析路径的**单次调用**成本（ns/call）：
+
+[cols="3,2,2,2,2", options="header"]
+|===
+| 对象形态 | `getClass()` 基线 | 非 Spring 代理快速返回 | 惰性解包装（当前实现） | `AopUtils#getTargetClass` 全程
+
+| 普通对象
+| 4.2 | 19.3 | 19.8 | 32.3
+
+| Spring CGLIB 代理（有目标实例）
+| 4.2 | 26.3 | 34.3 | 6.5
+
+| Spring JDK 动态代理（有目标实例）
+| 4.3 | 33.4 | 35.9 | 14.2
+
+| Spring JDK 动态代理（无目标实例）
+| 4.2 | 37.4 | 41.4 | 16.1
+
+| 裸 JDK 动态代理
+| 4.2 | 19.3 | 20.3 | 34.3
+|===
+
+=== 差异原因
+
+- **类层次遍历的固定成本**：「全程 `AopUtils#getTargetClass`」对任何对象都要做类层次遍历（`ClassUtils.isCglibProxyClass` 按类名反射查名），
+  普通对象与裸 JDK 动态代理因此各多付约 13~15ns/次；「非 Spring 代理快速返回」用一次 `instanceof Advised` 判定挡掉了这部分（19.3 vs 32.3）。
+- **解析顺序**：「全程 `AopUtils#getTargetClass`」先解析静态目标类型再取目标实例，Spring JDK 动态代理（最常见形态）因此多走一次
+  类型解析（35.9 vs 14.2）；当前实现先取目标实例、取不到才解析静态目标类型，使两类 Spring 代理都只走必要路径。
+- **剩余构成**：`instanceof Advised` 约 15ns、Spring 元数据读取 3~16ns。`getClass()` 本身约 4ns，是理论下限。
+
+=== 结论与方案
+
+- 解析成本在纳秒量级（相对基线几十倍以内），公共流程直接调用即可；需要更低的唯一手段是缓存，而本项目不缓存解析结果
+  （实例在调用间不保证复用、缓存即内存泄漏），故**不引入缓存**、维持现状。
+- 极端热路径（每请求数万次以上调用）由调用方按对象生命周期复用类名，不依赖本模块缓存。
+- 用例内置等价性断言：所有解析实现对五类对象形态的取值必须完全一致，性能对比不得以改变行为为代价。
+
+== 相关入口
+
+- 设计文档：link:../../../../../doc/design/spring/real-class-name.adoc[代理场景取真实业务类/类名/包名]
+- 文档分层与索引：link:../../../../../doc/design/README.adoc[设计文档索引]

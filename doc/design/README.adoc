@@ -18,6 +18,10 @@
 |===
 | 模块目录 | 定位 | 功能级设计文档
 
+| link:core/[core]
+| 核心工具库（ctool4j-core）：字符串、集合、日期、反射、日志、校验
+| （见各类 javadoc）
+
 | link:definition/[definition]
 | 基础定义（ctool4j-definition）：统一返回体、实体基类、枚举、注解、函数式接口
 | link:definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
@@ -28,7 +32,7 @@
 
 | link:spring/[spring]
 | Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-cloud）
-| link:spring/ip.adoc[ip]
+| link:spring/ip.adoc[ip]、link:spring/real-class-name.adoc[真实业务类/类名/包名]
 
 |===
 

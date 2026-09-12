@@ -45,7 +45,7 @@
 | `CBeanUtils` | 工具类 | 对象属性拷贝、Map↔Bean 转换 |
 | `CReflectUtils` | 工具类 | 反射操作：方法调用、字段读写、注解扫描 |
 | `CObjUtils` | 工具类 | 对象判空、类型解析（含 lambda 方法引用的泛型解析） |
-| `CClassUtils` | 工具类 | Class 加载、实例化 |
+| `CClassUtils` | 工具类 | Class 加载/判断、继承链探测、包扫描 |
 | `CConvertUtils` | 工具类 | 类型转换（含枚举、日期） |
 | `CEnumUtils` | 工具类 | 枚举按 code/name 查找 |
 | `CLog` | 门面类 | 日志门面，输出 JSON 结构化日志 |
