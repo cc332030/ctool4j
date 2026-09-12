@@ -1,0 +1,132 @@
+= 代理场景取真实业务类/类名/包名 设计文档
+
+模块：ctool4j-spring（`ICRealClass` + `CProxyUtils`）
+状态：已落地
+适用范围：代理场景下取真实业务类/类名/包名的基类与公共流程
+
+在基类/公共流程中需要「当前业务类是谁」时，直接调用 `getClass()`，在代理场景下会拿到代理框架生成的类：
+
+- CGLIB：`com.example.OrderService$$EnhancerBySpringCGLIB$$1a2b3c4d`
+- JDK 动态代理：`com.sun.proxy.$Proxy12`
+
+类名与包名都不是业务类的，日志、路由、指标等公共流程会因此取到错误归属。
+
+== 两条路径
+
+=== 一、契约：`ICRealClass`（`ctool4j-spring` 的 `interfaces` 包）
+
+由业务基类 `implements ICRealClass` 声明，带默认实现、不写方法体：
+
+[source,java]
+----
+public abstract class BaseService implements ICRealClass {
+    // 公共流程里直接用，代理场景也可用
+    String name = getRealClassName();
+}
+----
+
+- `getRealClass()` / `getRealClassName()` / `getRealPackageName()` 默认委托 `CProxyUtils` 的同名方法。
+- 需要定制返回值时再覆盖（可选，不是使用前提）。
+- 「当前实现是谁」由基类自己声明，比事后对代理对象做探测更直接。
+
+=== 二、工具类：`CProxyUtils`（`ctool4j-spring` 的 `util` 包）
+
+改不了代码的对象（第三方对象、只想临时解析某个代理对象）用工具类：
+
+[source,java]
+----
+Class<?> clazz = CProxyUtils.getRealClass(orderService);
+String className = CProxyUtils.getRealClassName(orderService);
+String packageName = CProxyUtils.getRealPackageName(orderService);
+----
+
+解析顺序（按目标元数据位置依次尝试）：
+
+1. 非 Spring 代理对象（不含 `Advised` 元数据、不可能持有目标实例）直接返回自身类型
+2. 惰性剥离多层代理：每层取 `TargetSource` 的目标实例，取到即返回其实例类型（实例可能被工厂换过实现，实例自带的信息最准），不在中间层做无用的类型解析
+3. 没有目标实例时取静态目标类型（`AopUtils#getTargetClass`，如 CGLIB 子类代理的父类）
+4. 对象自身类型（不猜测业务类型）
+
+`CProxyUtils` 为代理解析的唯一入口：与 `ICRealClass` 同模块，代理解析依赖 spring-aop，不进入 `ctool4j-core`。
+
+== 兜底行为
+
+[cols="2,3", options="header"]
+|===
+| 场景 | 兜底行为
+
+| `object` 为 null
+| 返回 null
+
+| 非代理对象
+| 返回对象自身类型（与 `getClass()` 等价）
+
+| 携带不了目标元数据的代理（裸 `Proxy.newProxyInstance`、MyBatis Mapper 等）
+| 返回代理类自身，不猜测业务类型；需要精确语义时由实现方实现 `ICRealClass` 显式声明
+
+| `getPackage()` 与类加载器的包定义都取不到（如数组类、基础类型）
+| `getPackageName` / `getRealPackageName` 返回 null（JDK 代理类由类加载器定义包名，可正常取到）
+|===
+
+== 适用范围
+
+- 需要真实业务类/类名/包名的公共流程：日志、幂等键、路由、指标、权限等。
+- 希望「实现契约即得正确值、不写样板方法体」的业务基类。
+
+== 不适用与边界场景
+
+- 只解析类型归属，不做代理解包后的行为调用。
+- 不承载 Bean 名语义：Bean 名是容器内的实例标识，与类名不是同一概念。
+- 改不了其代码的第三方/代理对象，`ICRealClass` 无能为力（用 `CProxyUtils` 解析）。
+
+== 性能
+
+被测方法是公共流程热路径（日志、幂等键、路由、指标等每次请求都会取名），故按对比测试度量单次调用成本，
+用例见 `CProxyUtilsPerfTests`（`PerfTests` 为规范定式后缀，需显式触发、由根 `pom.xml` 排除规则挡在常规测试之外）。
+
+实测口径：JDK 8 + `ProxyFactory` 织入的五类对象形态，每实现多轮取中位数，单次调用纳秒数（ns/call）：
+
+[cols="3,2,2,2,2", options="header"]
+|===
+| 对象形态 | `getClass()` 基线 | 非 Spring 代理快速返回 | 惰性解包装（当前实现） | `AopUtils#getTargetClass` 全程
+
+| 普通对象
+| 4.2 | 19.3 | 19.8 | 32.3
+
+| Spring CGLIB 代理（有目标实例）
+| 4.2 | 26.3 | 34.3 | 6.5
+
+| Spring JDK 动态代理（有目标实例）
+| 4.3 | 33.4 | 35.9 | 14.2
+
+| Spring JDK 动态代理（无目标实例）
+| 4.2 | 37.4 | 41.4 | 16.1
+
+| 裸 JDK 动态代理
+| 4.2 | 19.3 | 20.3 | 34.3
+|===
+
+- 「非 Spring 代理快速返回」即 `instanceof Advised` 判定的固定成本（约 15ns），对普通对象与裸 JDK 动态代理省去了
+  `AopUtils#getTargetClass` 的类层次遍历（约 13~15ns/次）。
+- 「全程 `AopUtils#getTargetClass`」是修复前的写法：它**先**解析静态目标类型、**再**取目标实例，
+  导致 Spring JDK 动态代理这一最常见形态多走一次类型解析（35.9 → 15.7，约 56%）；CGLIB 代理则相反
+  （6.5 → 34.3），故当前实现按「先取目标实例、取不到再解析静态目标类型」的顺序，两者都只走必要的路径。
+- 成本构成：除 `getClass()` 基线外，余量主要来自 `instanceof Advised`（约 15ns）与 Spring 元数据读取（3~16ns）。
+  要再降只能为「类 → 是否代理」做记忆化缓存，而本项目实例在调用间不保证复用、且按取舍不引入缓存（见下），故不再降。
+- 数量级结论（供公共流程选择调用点）：解析实现相对 `getClass()` 基线在几十倍以内，属纳秒量级；
+  在需要真实类名的公共流程里直接调用即可，无需自建缓存；但**不适用于每请求数万次以上的极端热路径**
+  （该场景应把类名取一次后按对象生命周期复用）。
+
+== 已知限制与取舍
+
+- 「真实类」来自代理对象自带的元数据：非 Spring 生成的代理携带不了这份元数据，返回代理类自身；
+  需要精确语义时由实现方显式声明，属「显式声明优于魔法探测」的取舍。
+- 不作缓存：被解析对象在调用间不保证复用，缓存解析结果即内存泄漏；热路径如需缓存由调用方按生命周期自行决策。
+  本模块也不缓存「类 → 解析结果」：解析成本已是纳秒量级，而按类名或类层次做的启发式判定会误判业务类
+  （业务类名同样可能含 `$$` 等代理特征），代价高于收益。
+
+== 相关入口
+
+- 模块索引：link:../README.adoc[设计文档索引]
+- 性能测试：link:../../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/perf.adoc[性能测试记录]
+- 源码：`com.c332030.ctool4j.spring.interfaces.ICRealClass`、`com.c332030.ctool4j.spring.util.CProxyUtils`

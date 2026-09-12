@@ -205,7 +205,9 @@
                 </configuration>
             </plugin>
 
-            <!-- 性能测试类（命名 *BenchmarkTests）在常规测试/打包时排除，需显式运行 -->
+            <!-- 性能测试类（PerfTests）在常规测试/打包时排除，需显式运行 -->
+            <!-- 命名契约：性能测试类以 PerfTests 结尾（规范定式，见 specs/stack/java-testing.adoc「测试类命名」） -->
+            <!-- BenchmarkTests 是不合定式的存量命名随动保留项（存量不一次性收敛），故一并排除，不新增该后缀 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -213,6 +215,20 @@
                 <configuration>
                     <excludes>
                         <exclude>**/*BenchmarkTests.java</exclude>
+                        <exclude>**/*PerfTests.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- 集成测试阶段同样排除，避免 verify/package 阶段又把性能测试带起来（无显式配置时 surefire 的排除不继承到 failsafe） -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*BenchmarkTests.java</exclude>
+                        <exclude>**/*PerfTests.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

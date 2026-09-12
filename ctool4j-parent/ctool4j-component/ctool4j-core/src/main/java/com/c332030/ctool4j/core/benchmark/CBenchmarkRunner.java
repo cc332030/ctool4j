@@ -12,7 +12,7 @@ import java.util.List;
  * </p>
  * <p>
  * 架构说明：本框架置于 core 主代码，各模块性能基准用例放各模块测试源码目录
- * （JUnit 测试类命名以 BenchmarkTests 结尾，surefire 打包/测试时排除），
+ * （JUnit 性能测试类命名以 PerfTests 结尾，由根 pom.xml 的排除规则挡在常规测试之外），
  * 由测试方法调用 {@link #run(List, String)} 触发基准，返回报告后可写入文件。
  * </p>
  * <p>
