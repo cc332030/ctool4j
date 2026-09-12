@@ -22,7 +22,8 @@ import lombok.var;
  *
  * <h2>能力目录</h2>
  * <ul>
- *   <li>{@code UUID} / {@code simpleUUID}：生成带/不带 '-' 的 UUID 字符串（UUID v7，时间有序）——<b>可选能力</b></li>
+ *   <li>{@code UUID} / {@code simpleUUID}：生成带/不带 '-' 的随机 UUID 字符串（UUID v4，无序）——强能力</li>
+ *   <li>{@code UUIDv7} / {@code simpleUUIDv7}：生成带/不带 '-' 的时间有序 UUID 字符串（UUID v7）——<b>可选能力</b></li>
  *   <li>{@code nextId}：生成雪花 ID（Long）（core 强能力，基于 hutool）</li>
  *   <li>{@code ulid}：生成 ULID 字符串（26 字符，Crockford Base32 大写，时间可排序）——<b>可选能力</b></li>
  *   <li>否则取类名大写字母去 {@code DO}）</li>
@@ -51,7 +52,7 @@ import lombok.var;
  * </table>
  * <h2>适用范围</h2>
  * <ul>
- *   <li>需要 UUID / 雪花 ID / Nano ID 作为主键/业务 ID。</li>
+ *   <li>需要 UUID（随机 v4 / 时间有序 v7）/ 雪花 ID / Nano ID 作为主键/业务 ID。</li>
  *   <li>需要按类生成带稳定前缀的雪花 ID（{@code @CBizId} 注解或类名约定）。</li>
  *   <li>需要较短、URL 友好、无序的 ID（Nano ID）。</li>
  *   <li>需要较短、URL 友好、时间可排序的 ID（ULID）。</li>
@@ -67,17 +68,17 @@ import lombok.var;
  *   <li>{@code getPrefixFromId} 语义简单（数字前字符），不做复杂的前缀分隔规则。</li>
  *   <li>Nano ID 依赖 jnanoid（{@code com.aventrix.jnanoid:jnanoid} 2.0.0，MIT，零传递依赖）：该库为社区事实标准 Java nanoid 实现、多年稳定（版本未再更新），算法简单可靠；Nano ID 无序、不含时间信息，不适合需要排序/可追溯的 ID。</li>
  *   <li>ULID 依赖 ulid-creator（{@code com.github.f4b6a3:ulid-creator} 5.2.4，MIT，Java 8）。</li>
- *   <li>{@code UUID}/{@code simpleUUID}、{@code nanoId}、{@code ulid} 为<b>可选能力</b>：若使用方未引入对应依赖却调用对应方法，会抛 {@code NoClassDefFoundError}；未调用对应方法时不影响 {@code nextId}/{@code getPrefix} 等强能力（生成器懒加载）。判断 ID 是否需要可排序时选型：UUID v7/雪花（时间有序）、Nano ID（短无序）、ULID（短时间有序）。</li>
+ *   <li>{@code UUIDv7}/{@code simpleUUIDv7}、{@code nanoId}、{@code ulid} 为<b>可选能力</b>：若使用方未引入对应依赖却调用对应方法，会抛 {@code NoClassDefFoundError}；未调用对应方法时不影响 {@code UUID}/{@code simpleUUID}/{@code nextId}/{@code getPrefix} 等强能力（生成器懒加载）。判断 ID 是否需要可排序时选型：UUID v7/雪花（时间有序）、UUID v4/Nano ID（无序）、ULID（短时间有序）。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>可选依赖说明（重要）</b></p>
  * <p>以下 ID 生成能力对应的实现库均为 <b>Maven {@code optional} 可选依赖</b>（默认<b>不会</b>传递给使用 ctool4j-core 的下游）， 使用方用到对应方法时须在自己的 pom 显式引入：</p>
  * <ul>
- *   <li>{@code UUID} / {@code simpleUUID}（UUID v7）依赖 {@code java-uuid-generator}</li>
+ *   <li>{@code UUIDv7} / {@code simpleUUIDv7}（UUID v7）依赖 {@code java-uuid-generator}</li>
  *   <li>{@code ulid} 依赖 {@code ulid-creator}</li>
  * </ul>
  * <pre>
- * &lt;!-- 使用 CIdUtils.UUID/simpleUUID 时引入 --&gt;
+ * &lt;!-- 使用 CIdUtils.UUIDv7/simpleUUIDv7 时引入 --&gt;
  * &lt;dependency&gt;
  *     &lt;groupId&gt;com.fasterxml.uuid&lt;/groupId&gt;
  *     &lt;artifactId&gt;java-uuid-generator&lt;/artifactId&gt;
@@ -95,17 +96,27 @@ import lombok.var;
  * </pre>
  * <p><b>UUID 生成（UUID / simpleUUID）</b></p>
  * <ul>
+ *   <li>默认实现使用 hutool {@code IdUtil.fastUUID()}（随机 UUID v4，长度 36 位、带 '-'），
+ *   随机源为 {@code ThreadLocalRandom}（非 {@code SecureRandom}）——<b>无序</b>、不携带时间信息，
+ *   换取更短的生成耗时；不需要可排序时选它。</li>
+ *   <li>hutool 为 ctool4j-core 的<b>强依赖</b>（{@code nextId} 亦用之），故 {@code UUID}/{@code simpleUUID} 为强能力，
+ *   不涉及可选依赖与懒加载。</li>
+ *   <li>输出为带 '-' 的标准 UUID 字符串（36 位）；{@code simpleUUID} 在其基础上去除 '-'（32 位）。</li>
+ *   <li>需要<b>时间有序</b>的 UUID 时用 {@code UUIDv7} / {@code simpleUUIDv7}（见下）。</li>
+ * </ul>
+ * <p><b>UUID v7 生成（UUIDv7 / simpleUUIDv7）</b></p>
+ * <ul>
  *   <li>使用 {@code com.fasterxml.uuid.Generators.timeBasedEpochGenerator()} 生成 <b>UUID v7</b>（时间有序），</li>
  *   <li>相比 v4 随机 UUID，索引友好、可排序，且无需维护状态即可保证全局唯一。</li>
  *   <li>生成器以类级字段 {@code UUID_V7_GENERATOR} 懒加载缓存复用，双重检查锁样板由 {@code CLazyRef} 统一封装，
  *   避免每次调用重复创建实例、也避免在工具类里散落 DCL 代码；</li>
- *   <li>仅在调用 {@code UUID}/{@code simpleUUID} 时才初始化，类加载不触发；该生成器本身<b>线程安全</b></li>
+ *   <li>仅在调用 {@code UUIDv7}/{@code simpleUUIDv7} 时才初始化，类加载不触发；该生成器本身<b>线程安全</b></li>
  *   <li>（内部 {@code synchronized} 保护时间戳/熵状态），可安全并发共享。</li>
  *   <li>字段声明为 {@code CLazyRef&lt;Object&gt;} + lambda 且<b>返回类型擦除为 {@code Object}</b>：{@code CLazyRef.of(() -&gt; (Object) Generators.timeBasedEpochGenerator())}，</li>
  *   <li>擦除是<b>必需</b>的（非可选优化）：若声明为 {@code CLazyRef&lt;TimeBasedEpochGenerator&gt;} 且 lambda 返回具体类型，</li>
  *   <li>lambda 引导生成的 {@code instantiatedMethodType} 会引用该可选类型，导致 {@code CIdUtils} <b>类初始化即加载</b></li>
  *   <li>java-uuid-generator，在未引入该依赖的模块（如 {@code ctool4j-mybatis-base}）中抛 {@code NoClassDefFoundError}。</li>
- *   <li>输出为带 '-' 的标准 UUID 字符串（36 位）；{@code simpleUUID} 在其基础上去除 '-'（32 位）。</li>
+ *   <li>输出为带 '-' 的标准 UUID 字符串（36 位）；{@code simpleUUIDv7} 在其基础上去除 '-'（32 位）。</li>
  * </ul>
  * <p><b>前缀计算规则（CLASS_PREFIX）</b></p>
  * <ul>
@@ -115,7 +126,7 @@ import lombok.var;
  * </ul>
  *
  * @since 2025/11/27
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CIdUtils {
@@ -123,7 +134,7 @@ public class CIdUtils {
     /**
      * UUID v7 生成器：懒加载（{@link CLazyRef} 封装双重检查锁，线程安全）。
      * 不在此急切初始化，避免类加载时依赖可选的 java-uuid-generator；
-     * 仅调用 UUID/simpleUUID 时才初始化，nextId/getPrefix 等强能力方法不受影响。
+     * 仅调用 UUIDv7/simpleUUIDv7 时才初始化，UUID/nextId/getPrefix 等强能力方法不受影响。
      * <p>
      * 注意：泛型与 lambda 返回类型必须擦除为 {@link Object}（{@code (Object) ...}）。
      * 若声明为 {@code CLazyRef<TimeBasedEpochGenerator>} 且 lambda 返回具体类型，lambda 引导生成的
@@ -140,26 +151,56 @@ public class CIdUtils {
         CLazyRef.of(() -> Generators.timeBasedEpochGenerator());
 
     /**
-     * 生成 UUID 字符串
+     * 生成 UUID 字符串（随机 UUID v4，36 位、带 '-'）
      * <ul>
-     *   <li>{@code UUID()} 取 {@code get()} 后强转为 {@code TimeBasedEpochGenerator} 再 {@code generate()}。</li>
+     *   <li>封装 hutool {@code IdUtil.fastUUID()}：随机源为 {@code ThreadLocalRandom}（非 {@code SecureRandom}），</li>
+     *   <li>版本位为 4、variant 位为 {@code 8/9/a/b}；<b>无序</b>、不含时间信息，生成速度快。</li>
+     *   <li><b>易误用点</b>：随机源非密码学安全（{@code ThreadLocalRandom}），<b>不得</b>用于令牌、密钥、会话 ID 等安全敏感场景；</li>
+     *   <li>安全敏感场景须使用密码学安全的随机源（NIST SP 800-63B），或改用 {@link #UUIDv7()}（其熵源为共享 {@code SecureRandom}）。</li>
+     *   <li>需要可排序的 UUID 时改用 {@link #UUIDv7()}。</li>
      * </ul>
      *
-     * @return UUID 字符串
+     * @return 随机 UUID 字符串（36 位、带 '-'）
      */
     public String UUID() {
+        return IdUtil.fastUUID();
+    }
+
+    /**
+     * 生成不带 '-' 的随机 UUID 字符串（随机 UUID v4 去连字符，32 位）
+     *
+     * @return 不带 '-' 的随机 UUID 字符串（32 位）
+     */
+    public String simpleUUID() {
+        return UUID()
+            .replace("-", "")
+            ;
+    }
+
+    /**
+     * 生成 UUID v7 字符串（时间有序，36 位、带 '-'）
+     * <ul>
+     *   <li>{@code UUIDv7()} 取 {@code get()} 后强转为 {@code TimeBasedEpochGenerator} 再 {@code generate()}。</li>
+     *   <li>依赖 Maven {@code optional} 的可选依赖 {@code java-uuid-generator}：未引入该依赖的使用方调用本方法会抛</li>
+     *   <li>{@code NoClassDefFoundError}（生成器懒加载，未调用不影响其他能力）。</li>
+     * </ul>
+     *
+     * @return UUID v7 字符串（36 位、带 '-'，时间有序）
+     */
+    public String UUIDv7() {
         return ((TimeBasedEpochGenerator) UUID_V7_GENERATOR.get()).generate()
             .toString()
             ;
     }
 
     /**
-     * 没有 '-' 的uuid
+     * 生成不带 '-' 的 UUID v7 字符串（32 位，时间有序）
+     * <p>同样依赖可选依赖 {@code java-uuid-generator}，未引入时调用抛 {@code NoClassDefFoundError}。</p>
      *
-     * @return 没有 '-' 的 UUID 字符串
+     * @return 不带 '-' 的 UUID v7 字符串（32 位）
      */
-    public String simpleUUID() {
-        return UUID()
+    public String simpleUUIDv7() {
+        return UUIDv7()
             .replace("-", "")
             ;
     }

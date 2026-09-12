@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -33,15 +34,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：UUID v7 带/不带连字符形态（{@code UUID}/{@code simpleUUID}）、并发多线程下无重复（验证生成器缓存复用后仍线程安全）；雪花 ID 正数且递增；类前缀（含注解优先、类名大写去 DO）、前缀截取边界；</li>
+ *   <li>覆盖：随机 UUID v4 带/不带连字符形态（{@code UUID}/{@code simpleUUID}）、UUID v7 带/不带连字符形态（{@code UUIDv7}/{@code simpleUUIDv7}）、并发多线程下无重复（验证生成器缓存复用后仍线程安全）；雪花 ID 正数且递增；类前缀（含注解优先、类名大写去 DO）、前缀截取边界；</li>
  *   <li>带前缀雪花 ID（字符串/类/类+长度三种入口）；前缀解析（含前缀、纯字母、数字开头、空、null、转换函数）。</li>
  *   <li>未覆盖：{@code @CBizId} 注解优先路径（测试类无注解，仅覆盖类名回退路径；注解路径依赖注解声明，未在单测中构造）。</li>
  * </ul>
  * <h2>UUID 生成</h2>
  * <ul>
- *   <li>1.1 UUID：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）（UUID）</li>
+ *   <li>1.1 UUID：36 位且含 '-'，版本位为 4、variant 位为 8/9/a/b（随机 UUID v4 格式特征）（UUID）</li>
  *   <li>1.2 simpleUUID：32 位且不含 '-'（simpleUUID）</li>
- *   <li>1.3 并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确（UUID_concurrent_unique）</li>
+ *   <li>1.3 UUIDv7：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）（UUIDv7）</li>
+ *   <li>1.4 simpleUUIDv7：32 位且不含 '-'（simpleUUIDv7）</li>
+ *   <li>1.5 并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确（UUID_concurrent_unique）</li>
  * </ul>
  * <h2>雪花 ID 生成</h2>
  * <ul>
@@ -82,13 +85,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>7.3 时间戳可解码：前 10 字符解码回毫秒，落在生成时刻附近（ulid_timestampDecodable）</li>
  * </ul>
  *
+ * @see CIdUtils
+ *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  */
 public class CIdUtilsTests {
 
     /**
-     * 对应测试用例 1.1：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）
+     * 对应测试用例 1.1：36 位且含 '-'，版本位为 4、variant 位为 8/9/a/b（随机 UUID v4 格式特征）
      */
     @Test
     public void UUID() {
@@ -99,8 +104,8 @@ public class CIdUtilsTests {
         Assertions.assertEquals(36, uuid.length());
         Assertions.assertTrue(uuid.contains("-"));
 
-        // UUID v7 格式特征：版本位（下标14）为 '7'，variant 位（下标19）为 8/9/a/b
-        Assertions.assertEquals('7', uuid.charAt(14));
+        // 随机 UUID v4 格式特征：版本位（下标14）为 '4'，variant 位（下标19）为 8/9/a/b
+        Assertions.assertEquals('4', uuid.charAt(14));
         Assertions.assertTrue("89ab".indexOf(uuid.charAt(19)) >= 0);
 
     }
@@ -117,13 +122,64 @@ public class CIdUtilsTests {
         Assertions.assertEquals(32, uuid.length());
         Assertions.assertFalse(uuid.contains("-"));
 
+        // 去 '-' 后仍保留 v4 的版本位（下标 12）
+        Assertions.assertEquals('4', uuid.charAt(12));
+
     }
 
     /**
-     * 对应测试用例 1.3：并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确
+     * 对应测试用例 1.3：36 位且含 '-'，版本位为 7、variant 位为 8/9/a/b（UUID v7 格式特征）
+     */
+    @Test
+    public void UUIDv7() {
+
+        String uuid = CIdUtils.UUIDv7();
+
+        Assertions.assertNotNull(uuid);
+        Assertions.assertEquals(36, uuid.length());
+        Assertions.assertTrue(uuid.contains("-"));
+
+        // UUID v7 格式特征：版本位（下标14）为 '7'，variant 位（下标19）为 8/9/a/b
+        Assertions.assertEquals('7', uuid.charAt(14));
+        Assertions.assertTrue("89ab".indexOf(uuid.charAt(19)) >= 0);
+
+    }
+
+    /**
+     * 对应测试用例 1.4：32 位且不含 '-'
+     */
+    @Test
+    public void simpleUUIDv7() {
+
+        String uuid = CIdUtils.simpleUUIDv7();
+
+        Assertions.assertNotNull(uuid);
+        Assertions.assertEquals(32, uuid.length());
+        Assertions.assertFalse(uuid.contains("-"));
+
+        // 去 '-' 后仍保留 v7 的版本位（下标 12）
+        Assertions.assertEquals('7', uuid.charAt(12));
+
+    }
+
+    /**
+     * 对应测试用例 1.5：并发唯一性：8 线程 × 100 次并发生成，无重复且总数正确（UUID 与 UUIDv7 各一轮）
      */
     @Test
     public void UUID_concurrent_unique() throws InterruptedException {
+
+        // 两代实现各自并发生成，均须无重复（UUID 走 hutool 无状态随机、UUIDv7 走懒加载生成器）
+        assertConcurrentUnique(CIdUtils::UUID);
+        assertConcurrentUnique(CIdUtils::UUIDv7);
+
+    }
+
+    /**
+     * 按给定生成器并发抽样，断言无重复且总数正确
+     *
+     * @param supplier UUID 生成器
+     */
+    private static void assertConcurrentUnique(Supplier<String> supplier) throws InterruptedException {
 
         int threadCount = 8;
         int perThread = 100;
@@ -140,7 +196,7 @@ public class CIdUtilsTests {
                     try {
                         start.await();
                         for (int j = 0; j < perThread; j++) {
-                            if (!uuids.add(CIdUtils.UUID())) {
+                            if (!uuids.add(supplier.get())) {
                                 duplicate.set(true);
                             }
                         }

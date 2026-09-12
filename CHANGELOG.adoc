@@ -2,6 +2,7 @@
 
 本文件为 ctool4j 项目的统一变更日志，按时间**倒序**记录（最新在最上方）。版本号在各源文件的 javadoc `@version` 中维护。
 
+- 1.1 | 2026-09-12 | 破坏性变更：`CIdUtils.UUID`/`simpleUUID` 默认改为随机 UUID v4，不再时间有序且随机源非密码学安全；原 UUID v7 逻辑改为 `UUIDv7`/`simpleUUIDv7`，需要可排序 UUID 的调用方须改用新方法
 - 1.1 | 2026-09-12 | 新增 `ICRealClass` 契约（`ctool4j-spring` 的 `interfaces` 包）与 `CProxyUtils` 代理解析类（`ctool4j-spring`）：代理场景下取真实业务类/类名/包名，契约带默认实现、业务侧不写方法体；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本纳秒量级（Spring JDK 代理较原实现降约一半）
 - 1.1 | 2026-09-11 | 修复并行构建下自动注入偶发失败，业务模块无需额外配置即可生效
 - 1.0 | 2026-09-11 | 新增 `CAuthUtils`、`CTokenUtils` 认证/令牌工具，及 `ICToken`、`ICCreateMillis` 语义接口
