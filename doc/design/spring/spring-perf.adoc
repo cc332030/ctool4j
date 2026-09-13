@@ -61,5 +61,5 @@ mvn -Pperf -pl ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-sprin
 
 == 相关入口
 
-- 设计文档：link:../../../../../doc/design/spring/real-class-name.adoc[代理场景取真实业务类/类名/包名]
-- 文档分层与索引：link:../../../../../doc/design/README.adoc[设计文档索引]
+- 设计文档：link:real-class-name.adoc[代理场景取真实业务类/类名/包名]
+- 文档分层与索引：link:../README.adoc[设计文档索引]

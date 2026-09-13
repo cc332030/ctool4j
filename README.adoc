@@ -25,36 +25,8 @@ ctool4j（根，packaging=pom）
 
 == 模块依赖关系
 
-基础依赖链自底向上为：+definition → core → spring →（web / redis / ...）+。
-
-[source,text]
-----
-ctool4j-definition（基础定义，无依赖）
-        │
-        ▼
-ctool4j-core（核心工具库，依赖 definition）
-        │
-        ▼
-ctool4j-spring（Spring 基础设施，依赖 core + autowired-processor）
-        │
-        ├──► ctool4j-spring-cloud（依赖 spring）
-        ├──► ctool4j-web（依赖 spring）
-        │        └──► ctool4j-spring-security（依赖 web）
-        ├──► ctool4j-redis（依赖 spring）
-        │        └──► ctool4j-cache（依赖 redis）
-        └──► ctool4j-transaction（依赖 spring）
-
-ctool4j-core ──► ctool4j-db
-
-ctool4j-spring-cloud + ctool4j-log-base ──► ctool4j-feign
-
-ctool4j-log-base（依赖 spring / web / spring-cloud / core）
-ctool4j-mybatis-base（依赖 core / definition / spring / redis）
-ctool4j-job-base（依赖 spring）
-ctool4j-nacos-discovery（依赖 spring）
-
-ctool4j-web ──► ctool4j-auth-base ──► ctool4j-auth-spring（auth-spring 另依赖 cache / spring-security）
-----
+完整的模块依赖关系（全部模块清单 + UML 依赖图 + 直接依赖表）见 link:doc/dependency.adoc[doc/dependency.adoc]——那是**模块间依赖的唯一视图**，
+判断"某模块能不能依赖某模块、新依赖该不该加"以该文件为准，本处不重复描述（避免第二真源）。
 
 == 模块文档索引
 
@@ -103,7 +75,7 @@ ctool4j-web ──► ctool4j-auth-base ──► ctool4j-auth-spring（auth-spr
     **测试方法上方写详细设计**（引用用例编码、测试意图、测试范围、测试意义、断言取舍）。
   - +doc/design/<模块>/<功能>.adoc+：**跨类的功能/模块级**设计文档（方案取舍、兜底策略、适用范围、已知限制与波及影响），
     按功能命名、不与源文件同名；类级细节一律链接到对应源码 javadoc。
-  - +doc/README.adoc+、+doc/design/README.adoc+ 及各级模块 README：文档目录索引，构成「总览 → 模块 → 功能」导航。
+  - +doc/README.adoc+：**全项目文档导航入口**（逐级指向模块 README 与功能文档的固定落点）；各级 +doc/README.adoc+ 索引页只在确有下级内容处保留。
   - 源文件版本由各源码 javadoc 的 +@version+ 维护；全项目变更记录统一在 +CHANGELOG.adoc+（时间倒序）。
   - 除上述总结/规划性文档（含各级 README）、+CHANGELOG.adoc+、+TODO.adoc+ 与规范文件外，仓库不再保留其他文档。
   配套规范见远端统一规范的文档规范与 link:agent/AGENTS-PROJECT.MD[项目特有规范]。

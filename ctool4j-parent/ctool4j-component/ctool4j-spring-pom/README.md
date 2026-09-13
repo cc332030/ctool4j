@@ -132,3 +132,17 @@
 - 仅用 Spring 基础能力 → 引入 `ctool4j-spring`
 - 需要登录认证 → 追加 `ctool4j-spring-security`
 - 微服务场景 → 追加 `ctool4j-spring-cloud`（及 feign / nacos 等）
+
+---
+
+## 文档
+
+本模块的**类级与方法级内容由源码 javadoc 承载**；功能级/跨类设计文档与模块间依赖见下。
+
+| 内容 | 文档 |
+|------|------|
+| 代理场景取真实业务类/类名/包名（设计取舍与适用边界） | [doc/design/spring/real-class-name.adoc](../../../doc/design/spring/real-class-name.adoc) |
+| IP 相关能力设计 | [doc/design/spring/ip.adoc](../../../doc/design/spring/ip.adoc) |
+| 公共流程热路径的性能实测记录 | [doc/design/spring/spring-perf.adoc](../../../doc/design/spring/spring-perf.adoc) |
+| 模块间依赖关系（全项目唯一视图） | [doc/dependency.adoc](../../../doc/dependency.adoc) |
+| 文档目录导航入口 | [doc/README.adoc](../../../doc/README.adoc) |
