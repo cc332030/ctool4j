@@ -7,8 +7,7 @@ import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CRedisUtils;
 import com.c332030.ctool4j.session.config.CSessionConfig;
-import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
-import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
+import com.c332030.ctool4j.session.interfaces.ICSession;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import org.springframework.lang.NonNull;
 
 /**
  * <p>
- * Description: CAbstractSessionService
+ * Description: CAbstractBaseSessionService
  * </p>
  *
  * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link IGenericType} 解析子类指定的
@@ -30,10 +29,10 @@ import org.springframework.lang.NonNull;
  * @version 1.0
  */
 @CustomLog
-public abstract class CAbstractSessionService<SESSION extends ICSecuritySession> implements IGenericType<SESSION> {
+public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
 
     /**
-     * 泛型 SESSION 的运行时 Class，由子类 {@code extends CAbstractSessionService<Xxx>} 的泛型实参解析而来
+     * 泛型 SESSION 的运行时 Class，由子类 {@code extends CAbstractBaseSessionService<Xxx>} 的泛型实参解析而来
      */
     final Class<SESSION> sessionClass = getGenericClass();
 

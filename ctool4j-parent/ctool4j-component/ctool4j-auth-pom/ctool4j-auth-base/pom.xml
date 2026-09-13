@@ -17,6 +17,11 @@
             <artifactId>ctool4j-web</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-cache</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -4,7 +4,7 @@ import com.c332030.ctool4j.auth.config.CAbstractSpringSecurityMockSessionConfig;
 import com.c332030.ctool4j.auth.util.CAuthUtils;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
-import com.c332030.ctool4j.session.service.CAbstractSessionService;
+import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
 import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import com.c332030.ctool4j.web.util.CTokenUtils;
@@ -55,7 +55,7 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
     CAbstractSpringSecurityMockSessionConfig<SESSION> mockSessionConfig;
 
     @Autowired
-    CAbstractSessionService<SESSION> sessionService;
+    CAbstractBaseSessionService<SESSION> sessionService;
 
     /**
      * 认证过滤器主流程：解析并加载 token 后放行。
