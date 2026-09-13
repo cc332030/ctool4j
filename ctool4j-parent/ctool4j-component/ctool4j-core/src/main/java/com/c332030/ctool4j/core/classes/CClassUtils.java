@@ -10,6 +10,7 @@ import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import lombok.var;
+import org.slf4j.event.Level;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -341,7 +342,11 @@ public class CClassUtils {
                 .collect(Collectors.toList());
         } finally {
             val cost = System.currentTimeMillis() - startMills;
-            log.info("find {} classes cost: {}", packageName, cost);
+            var level = Level.DEBUG;
+            if(cost > 500) {
+                level = Level.WARN;
+            }
+            log.log(level, "find {} classes cost: {}", packageName, cost);
         }
     }
 
