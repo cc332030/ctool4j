@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * {@code get()}/{@code check()} 的当前会话来源由子类实现的 {@link #getDefaultNull()} 决定（Security 场景见
  * auth-spring 的子类），仅当前请求线程可用。</p>
  *
- * <p>继承约束：{@link #getDefaultNull()} 为 {@code protected}，子类可在<b>任意包</b>直接继承本类并实现该钩子
+ * <p>继承约束：{@link #getDefaultNull()} 为 {@code public}，子类可在<b>任意包</b>直接继承本类并实现该钩子
  * （无需与本类同包）。</p>
  *
  * @author c332030
@@ -155,12 +155,12 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
     /**
      * 获取当前会话（未授权返回 null，不抛异常）
      *
-     * <p>子类扩展点：由子类实现「当前会话从哪里取」（如 Spring Security 安全上下文）；{@code protected} 使子类
-     * 可在任意包直接继承本类，无需与本类同包。</p>
+     * <p>子类扩展点：由子类实现「当前会话从哪里取」（如 Spring Security 安全上下文）；{@code public} 使子类
+     * 可在任意包直接继承本类，无需与本类同包，外部也可按需直接取「未授权时为 null」的会话。</p>
      *
      * @return 当前会话；未授权返回 null
      */
-    protected abstract SESSION getDefaultNull();
+    public abstract SESSION getDefaultNull();
 
     /**
      * 获取当前会话

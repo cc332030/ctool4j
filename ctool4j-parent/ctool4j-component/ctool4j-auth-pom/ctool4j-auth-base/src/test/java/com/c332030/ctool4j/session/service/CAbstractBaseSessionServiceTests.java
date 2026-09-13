@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * <p>{@code com.c332030.ctool4j.session.service.CAbstractBaseSessionService}（CAbstractBaseSessionService）的测试用例</p>
  *
  * <p>覆盖「当前会话」链路：子类扩展点 {@code getDefaultNull()} 与基于它的 {@code get()} / {@code check()}；
- * {@code getDefaultNull()} 为 {@code protected}，跨包继承见 {@code CAbstractBaseAuthFilterTests} 中的会话服务替身
+ * {@code getDefaultNull()} 为 {@code public}，跨包继承见 {@code CAbstractBaseAuthFilterTests} 中的会话服务替身
  * （位于 {@code com.c332030.ctool4j.auth.filter} 包，其可编译即证明任意包可继承）。</p>
  *
  * <p><b>用例设计思路</b>：以「子类实现 {@code getDefaultNull()} 的返回值」为唯一变量驱动 {@code get()} / {@code check()}
@@ -141,7 +141,7 @@ class CAbstractBaseSessionServiceTests {
         SessionStub session;
 
         @Override
-        protected SessionStub getDefaultNull() {
+        public SessionStub getDefaultNull() {
             return session;
         }
 

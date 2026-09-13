@@ -28,7 +28,7 @@ public abstract class CAbstractSessionService<SESSION extends ICSession> extends
      * @return 当前会话；未授权返回 null
      */
     @Override
-    protected SESSION getDefaultNull() {
+    public SESSION getDefaultNull() {
         return CSpringSecurityUtils.getPrincipal();
     }
 

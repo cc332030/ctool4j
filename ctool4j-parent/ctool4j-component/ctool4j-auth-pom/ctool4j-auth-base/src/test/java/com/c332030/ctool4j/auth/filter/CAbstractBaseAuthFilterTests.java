@@ -377,7 +377,7 @@ class CAbstractBaseAuthFilterTests {
         }
 
         @Override
-        protected SessionStub getDefaultNull() {
+        public SessionStub getDefaultNull() {
             return sessionToLoad;
         }
 
