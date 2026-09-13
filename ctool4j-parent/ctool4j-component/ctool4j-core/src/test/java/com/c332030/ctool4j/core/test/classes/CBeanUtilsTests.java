@@ -14,15 +14,17 @@ import java.math.BigDecimal;
 
 /**
  * <p>
- * Description: CBeanUtilsTest
+ * Description: CBeanUtilsTests
  * </p>
  *
  * <h2>测试架构与组织</h2>
- * <p>测试按"验证职责"分三类，避免单类测试文件膨胀：</p>
+ * <p>测试按"验证职责"分为四个类，避免单类测试文件膨胀。本类（{@code CBeanUtilsTests}）承载
+ * <b>跨入口的代表性用例</b>（对象/Map 两个源的合并与跳过、类型不匹配、对象间类型转换），
+ * 其余用例按下表归属到对应测试类，本类仅保留索引指向：</p>
  * <ul>
- *   <li>{@code CBeanUtilsCompatibilityTests}（13 用例）：功能完整性测试——重构/优化前后行为一致性验证。</li>
- *   <li>{@code CBeanUtilsMoreTests}（36 用例）：正例、反例、边界与新增行为验证。</li>
- *   <li>{@code CBeanUtilsBenchmarkTests}（12 用例）+ {@code CBenchmarkRunner}：性能对比基准，独立于单元测试执行。</li>
+ *   <li>{@code CBeanUtilsCompatibilityTests}（13 用例）：功能完整性测试——重构/优化前后行为一致性验证（下列 5.x 条目）。</li>
+ *   <li>{@code CBeanUtilsMoreTests}（36 用例）：正例、反例、边界与新增行为验证（下列 1.1/1.2/1.3.1-1.3.3/2.x/3.x/4.1-4.12 条目）。</li>
+ *   <li>{@code CBeanUtilsBenchmarkTests}（12 用例）+ {@code CBenchmarkRunner}：性能对比基准，独立于单元测试执行（6.1）。</li>
  * </ul>
  * <h2>测试手法：内嵌旧语义参考实现</h2>
  * <p>兼容性测试的核心手法：在测试类内嵌旧语义参考实现（{@code oldCopy}/{@code oldCopyMap}/{@code oldToMap}/ {@code oldCopyFromArr}，按重构前"copy 经 toMap 中转、运行期按实际值类型转换"语义实现）， 逐字段对比新旧实现结果 equal。</p>
@@ -173,12 +175,12 @@ import java.math.BigDecimal;
  * </ul>
  * <h2>复制边界</h2>
  * <ul>
- *   <li>1.3.1 源/目标为 null 边界（copyNullEdge）</li>
- *   <li>1.3.2 JDK 类源不复制（copyJdkClassSource）</li>
- *   <li>1.3.3 对象→对象复制（copyClassEntry 相关覆盖）</li>
- *   <li>1.3.4 复制合并已有对象（copyMerge，CBeanUtilsTest）</li>
- *   <li>1.3.5 类型不匹配复制（copyTypeUnmatched，CBeanUtilsTest）</li>
- *   <li>1.3.6 复制跳过集合与 Map（copySkipCollectionAndMap，CBeanUtilsTest）</li>
+ *   <li>1.3.1 源/目标为 null 边界（copyNullEdge，见 {@code CBeanUtilsMoreTests}）</li>
+ *   <li>1.3.2 JDK 类源不复制（copyJdkClassSource，见 {@code CBeanUtilsMoreTests}）</li>
+ *   <li>1.3.3 对象→对象复制（copyClassEntry 相关覆盖，见 {@code CBeanUtilsMoreTests}）</li>
+ *   <li>1.3.4 复制合并已有对象（copyMerge，本类）</li>
+ *   <li>1.3.5 类型不匹配复制（copyTypeUnmatched，本类）</li>
+ *   <li>1.3.6 复制跳过集合与 Map（copySkipCollectionAndMap，本类）</li>
  * </ul>
  * <h2>集合/数组复制（copyList/copyListFromMap/copyFromArr）</h2>
  * <ul>
@@ -211,29 +213,29 @@ import java.math.BigDecimal;
  *   <li>4.10 枚举→Integer/String（copyEnumToValue）</li>
  *   <li>4.11 objectStr 优先级最低（copyObjectStrLowestPriority）</li>
  *   <li>4.12 String→数字/布尔（copyStrToNumber：toInt/toLong/toBigDecimal/toFloat/toDouble/toBoolean）</li>
- *   <li>4.13 对象间类型转换（copyTypeConvert，CBeanUtilsTest：UserDto↔UserRsp 的 sex/status/score/grade/时间互转）</li>
+ *   <li>4.13 对象间类型转换（copyTypeConvert，本类：UserDto↔UserRsp 的 sex/status/score/grade/时间互转）</li>
  * </ul>
  * <h2>复制兼容性</h2>
  * <ul>
- *   <li>5.1.1 全字段复制兼容（copyFullCompatibility）</li>
- *   <li>5.1.2 原始类型同型写入兼容（copyPrimitiveTypeFields，按新语义断言并标注差异）</li>
- *   <li>5.1.3 JDK 源兼容（copyJdkSourceCompatibility）</li>
- *   <li>5.1.4 null 源兼容（copyNullSourceCompatibility）</li>
- *   <li>5.1.5 Map 源兼容（copyMapCompatibility）</li>
- *   <li>5.1.6 entry 入口兼容（copyEntryCompatibility）</li>
- *   <li>5.1.7 数组反序覆盖兼容（copyFromArrCompatibility）</li>
- *   <li>5.1.8 列表复制兼容（copyListCompatibility）</li>
- *   <li>5.1.9 supplier 入口经 Map 中转与直连一致性（copySupplierViaMapConsistency）</li>
+ *   <li>5.1.1 全字段复制兼容（copyFullCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.2 原始类型同型写入兼容（copyPrimitiveTypeFields，按新语义断言并标注差异，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.3 JDK 源兼容（copyJdkSourceCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.4 null 源兼容（copyNullSourceCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.5 Map 源兼容（copyMapCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.6 entry 入口兼容（copyEntryCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.7 数组反序覆盖兼容（copyFromArrCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.8 列表复制兼容（copyListCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.1.9 supplier 入口经 Map 中转与直连一致性（copySupplierViaMapConsistency，见 {@code CBeanUtilsCompatibilityTests}）</li>
  * </ul>
  * <h2>转 Map 兼容性</h2>
  * <ul>
- *   <li>5.2.1 toMap 兼容（toMapCompatibility）</li>
- *   <li>5.2.2 toMap 命名兼容（toMapNamedCompatibility）</li>
- *   <li>5.2.3 toMap JDK/null 兼容（toMapJdkNullCompatibility）</li>
+ *   <li>5.2.1 toMap 兼容（toMapCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.2.2 toMap 命名兼容（toMapNamedCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
+ *   <li>5.2.3 toMap JDK/null 兼容（toMapJdkNullCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
  * </ul>
  * <h2>newInstance 兼容性</h2>
  * <ul>
- *   <li>5.3.1 newInstance 正常与无参构造器缺失（newInstanceCompatibility）</li>
+ *   <li>5.3.1 newInstance 正常与无参构造器缺失（newInstanceCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
  * </ul>
  * <h2>性能基准（BenchmarkTests，独立于单元测试）</h2>
  * <ul>
@@ -243,11 +245,11 @@ import java.math.BigDecimal;
  * @since 2025/11/20
  * @version 1.0
  */
-public class CBeanUtilsTest {
+public class CBeanUtilsTests {
 
     /**
      * 测试属性复制时合并已有对象
-     * 对应测试用例 1.3.4：复制合并已有对象（copyMerge，CBeanUtilsTest）
+     * 对应测试用例 1.3.4：复制合并已有对象（copyMerge，本类）
      */
     @Test
     public void copyMerge() {
@@ -276,7 +278,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性类型不匹配时的复制行为
-     * 对应测试用例 1.3.5：类型不匹配复制（copyTypeUnmatched，CBeanUtilsTest）
+     * 对应测试用例 1.3.5：类型不匹配复制（copyTypeUnmatched，本类）
      */
     @Test
     public void copyTypeUnmatched() {
@@ -301,7 +303,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性复制时的类型转换
-     * 对应测试用例 4.13：对象间类型转换（copyTypeConvert，CBeanUtilsTest：UserDto↔UserRsp 的 sex/status/score/grade/时间互转）
+     * 对应测试用例 4.13：对象间类型转换（copyTypeConvert，本类：UserDto↔UserRsp 的 sex/status/score/grade/时间互转）
      */
     @Test
     public void copyTypeConvert() {
@@ -309,7 +311,7 @@ public class CBeanUtilsTest {
         val sexInt = 1;
         val statusInt = 1;
         val score = 99;
-        val grade = new Long(5);
+        val grade = 5L;
 
         val dateStr = "2025-11-20 00:00:00";
 
@@ -326,7 +328,7 @@ public class CBeanUtilsTest {
         Assertions.assertEquals(String.valueOf(sexInt), userRsp.getSex());
         Assertions.assertEquals(statusInt, userRsp.getStatus());
         Assertions.assertEquals(score, userRsp.getScore());
-        Assertions.assertEquals(grade.intValue(), userRsp.getGrade());
+        Assertions.assertEquals((int) grade, userRsp.getGrade());
         Assertions.assertEquals(dateStr, userRsp.getCreateTime());
         Assertions.assertEquals(dateStr, DateUtil.formatDateTime(userRsp.getUpdateTime()));
 
@@ -334,7 +336,7 @@ public class CBeanUtilsTest {
 
     /**
      * 测试属性复制时跳过集合与 Map
-     * 对应测试用例 1.3.6：复制跳过集合与 Map（copySkipCollectionAndMap，CBeanUtilsTest）
+     * 对应测试用例 1.3.6：复制跳过集合与 Map（copySkipCollectionAndMap，本类）
      */
     @Test
     public void copySkipCollectionAndMap() {

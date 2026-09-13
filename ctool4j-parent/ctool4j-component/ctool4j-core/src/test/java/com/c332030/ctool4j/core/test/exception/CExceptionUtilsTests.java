@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>
- * Description: CExceptionUtilsTest
+ * Description: CExceptionUtilsTests
  * </p>
  * <p>`com.c332030.ctool4j.core.exception.CExceptionUtils`（CExceptionUtils）的测试用例</p>
  *
@@ -96,7 +96,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @see CExceptionUtils
  */
 @CustomLog
-public class CExceptionUtilsTest {
+public class CExceptionUtilsTests {
 
     /**
      * 对应测试用例 1.1：仅信息：返回 CBusinessException

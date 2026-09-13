@@ -58,7 +58,7 @@ import java.util.Map;
 public class CRequiredValidatorBenchmarkTests {
 
     /**
-     * 基准执行入口（显式运行：mvn test -Dtest=CRequiredValidatorBenchmarkTests -DfailIfNoTests=false）
+     * 基准执行入口（显式运行：mvn -Pperf test -Dtest=CRequiredValidatorBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
      */
 

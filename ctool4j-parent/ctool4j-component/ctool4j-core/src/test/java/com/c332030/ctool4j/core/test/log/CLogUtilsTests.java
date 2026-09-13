@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 /**
  * <p>
- * Description: CLogUtilsTest
+ * Description: CLogUtilsTests
  * </p>
  *
  * <p>`com.c332030.ctool4j.core.log.CLogUtils`（CLogUtils）的测试用例</p>
@@ -106,7 +106,7 @@ import java.util.HashMap;
  * @version 1.0
  * @see CLogUtils
  */
-public class CLogUtilsTest {
+public class CLogUtilsTests {
 
     /**
      * 对应测试用例 1.1：基础判断：CResult 为 true、String/DataSource 为 false

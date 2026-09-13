@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * <p>
- * Description: CBiFunctionTest
+ * Description: CBiFunctionTests
  * </p>
  *
  * <h2>设计思路</h2>
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  * @since 2025/11/6
  * @version 1.0
  */
-public class CBiFunctionTest {
+public class CBiFunctionTests {
 
     /**
      * 测试取第一个参数
