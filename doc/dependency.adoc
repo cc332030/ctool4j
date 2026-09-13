@@ -1,0 +1,291 @@
+= 模块间依赖关系
+
+本文件是 ctool4j **模块间依赖关系的唯一视图**（多模块项目的固定落点，见远端规范
+`specs/general/doc-design.adoc`「依赖关系文档（模块间依赖的唯一视图）」）。
+
+只回答一个问题：**这个模块能不能直接用某个模块的能力**（谁依赖谁、方向如何）。据此判断"新增依赖该不该加、是不是已经在依赖里"，
+读完即止、不再解析依赖树。第三方库的版本与传递关系属 `pom.xml` 与 BOM 的范围，本文件**不复制**（避免第二真源）。
+
+== 阅读方式
+
+* 依赖关系**以 UML 图为主**（Mermaid `graph`）：虚线开放箭头表示依赖，**箭头由依赖方指向被依赖方**（`A -.-> B` 读作「A 依赖 B」）；
+  被多条箭头汇聚的模块即公共基础模块。
+* **模块清单表为本文件的核对面**：`模块 | 直接依赖 | 说明/约束` 逐行可核（图的完整覆盖、方向、作用域约束都在表中如实列出）。
+* 依据：ISO/IEC/IEEE 42010（架构描述须可支持架构决策与影响判断）、UML（OMG，依赖关系记法）、ISO/IEC/IEEE 29148（可追溯性）。
+* 图的渲染：Mermaid 由 Git 平台 / 支持 Mermaid 的 AsciiDoc 渲染器 / IDE 插件解析，图源为下述文本块，可随代码演进在提交里逐行 diff。
+* 维护：模块间增删依赖、新增/拆分模块后，**同一提交内**更新本文件；与构建文件冲突时以 `pom.xml` 实际解析结果为准并立即修正本文件。
+
+== 构建基础设施与聚合模块
+
+构建基础设施（BOM / 聚合 pom）位于依赖链的旁侧：业务模块**通过 `ctool4j-dependencies`、`ctool4j-bom` 统一版本**（import 而非传递依赖），
+业务项目引入 `ctool4j-bom` 即可获得一致的第三方版本；四个聚合 pom 只是 `<modules>` 容器，除模块结构外不引入依赖。
+
+[source,mermaid]
+----
+graph LR
+  root["ctool4j（根 pom）"] --> dep["ctool4j-dependencies（BOM）"]
+  root --> bom["ctool4j-bom（BOM）"]
+  root --> procPom["ctool4j-processor-pom"]
+  root --> parent["ctool4j-parent"]
+  bom -. "import" .-> dep
+  parent -. "import" .-> bom
+  parent --> pom["ctool4j-pom"]
+  parent --> comp["ctool4j-component"]
+  pom --> boot["ctool4j-boot-parent"]
+  pom --> procParent["ctool4j-processor-parent"]
+  procPom --> procBase["ctool4j-processor-base"]
+  procPom --> autowiredP["ctool4j-autowired-processor"]
+  procPom --> mybatisP["ctool4j-mybatis-processor"]
+  procPom --> mqP["ctool4j-mq-processor"]
+  autowiredP -.-> procBase
+  mqP -.-> procBase
+  mybatisP -.-> procBase
+
+根 pom 与各聚合模块的模块结构（`<modules>`）如下表；`ctool4j-parent` 的四个直接依赖对**全部组件模块生效**（继承），
+故组件模块无需重复声明：
+
+[cols="1,3,2", options="header"]
+|===
+| 聚合模块 | 子模块 | 容器内直接依赖
+
+| ctool4j（根）
+| ctool4j-dependencies、ctool4j-bom、ctool4j-processor-pom、ctool4j-parent
+| 无（仅 modules）
+
+| ctool4j-processor-pom
+| ctool4j-processor-base、ctool4j-autowired-processor、ctool4j-mybatis-processor、ctool4j-mq-processor
+| 无（仅 modules）
+
+| ctool4j-parent
+| ctool4j-pom、ctool4j-component
+| ctool4j-bom（import）；lombok（provided）、ctool4j-autowired-processor（provided）、spring-boot-starter-test（test）
+
+| ctool4j-pom
+| ctool4j-boot-parent、ctool4j-processor-parent
+| 无（仅 modules）
+
+| ctool4j-component
+| definition、core、web、feign、redis、cache、transaction、db、spring-pom、auth-pom、log-pom、mybatis-pom、nacos-pom、mq-pom、job-pom、file-pom、doc-pom、test-pom（18 个）
+| spring-boot-starter-web（provided）、spring-boot-starter-validation（provided）、spring-boot-starter-logging（provided）、spring-cloud-commons（provided）、spring-cloud-context（provided）、guava（optional）、mapstruct（provided）
+|===
+
+== 基础层依赖链
+
+自底向上单向流：`definition → core → spring → application`。**下层不得反向依赖上层**（无环，见「依赖方向与分层约束」）。
+
+[source,mermaid]
+----
+graph LR
+  definition["ctool4j-definition"]
+  core["ctool4j-core"]
+  spring["ctool4j-spring"]
+  springCloud["ctool4j-spring-cloud"]
+  web["ctool4j-web"]
+  springSecurity["ctool4j-spring-security"]
+  redis["ctool4j-redis"]
+  cache["ctool4j-cache"]
+  transaction["ctool4j-transaction"]
+  db["ctool4j-db"]
+  logBase["ctool4j-log-base"]
+  feign["ctool4j-feign"]
+  authBase["ctool4j-auth-base"]
+  authSpring["ctool4j-auth-spring"]
+  docOpenapi2["ctool4j-doc-openapi2"]
+
+  core -.-> definition
+  spring -.-> core
+  springCloud -.-> spring
+  web -.-> spring
+  springSecurity -.-> web
+  redis -.-> spring
+  cache -.-> redis
+  transaction -.-> spring
+  db -.-> core
+  logBase -.-> spring
+  logBase -.-> springCloud
+  logBase -.-> web
+  feign -.-> springCloud
+  feign -.-> logBase
+  authBase -.-> web
+  authBase -.-> cache
+  authSpring -.-> authBase
+  authSpring -.-> springSecurity
+  docOpenapi2 -.-> web
+
+  autowired["ctool4j-autowired-processor"]
+  spring -.-> autowired
+
+== 中间件与配套模块
+
+各中间件模块均依赖基础层（多为 `ctool4j-spring`），互不依赖；`mybatis-pom` 内部有 `base → 版本适配` 的分层。
+
+[source,mermaid]
+----
+graph LR
+  spring["ctool4j-spring"]
+  springCloud["ctool4j-spring-cloud"]
+  core["ctool4j-core"]
+  definition["ctool4j-definition"]
+  transaction["ctool4j-transaction"]
+  db["ctool4j-db"]
+  redis["ctool4j-redis"]
+
+  mybatisBase["ctool4j-mybatis-base"]
+  mybatis33["ctool4j-mybatis-33"]
+  mybatis34["ctool4j-mybatis-34"]
+  mybatis["ctool4j-mybatis"]
+  mybatisP["ctool4j-mybatis-processor"]
+
+  mqBase["ctool4j-mq-base"]
+  rabbitmq["ctool4j-rabbitmq"]
+  rocketmq["ctool4j-rocketmq"]
+
+  jobBase["ctool4j-job-base"]
+  xxlJob["ctool4j-xxl-job"]
+
+  logBase["ctool4j-log-base"]
+  logback["ctool4j-logback"]
+  log4j["ctool4j-log4j"]
+
+  nacosConfig["ctool4j-nacos-config"]
+  nacosDiscovery["ctool4j-nacos-discovery"]
+
+  csv["ctool4j-csv"]
+  excel["ctool4j-excel"]
+  minio["ctool4j-minio"]
+
+  testDef["ctool4j-test-definition"]
+  testCore["ctool4j-test-core"]
+  testSpring["ctool4j-test-spring"]
+
+  mybatisBase -.-> transaction
+  mybatisBase -.-> db
+  mybatisBase -.-> redis
+  mybatis33 -.-> mybatisBase
+  mybatis34 -.-> mybatisBase
+  mybatis -.-> mybatisBase
+  mybatisP -.-> mybatis
+
+  mqBase -.-> spring
+  rabbitmq -.-> mqBase
+  rocketmq -.-> mqBase
+
+  jobBase -.-> spring
+  xxlJob -.-> jobBase
+
+  logBase -.-> spring
+  logback -.-> logBase
+  log4j -.-> logBase
+
+  nacosConfig -.-> springCloud
+  nacosDiscovery -.-> springCloud
+
+  csv -.-> core
+  excel -.-> core
+  minio -.-> spring
+
+  testCore -.-> core
+  testDef -.-> definition
+  testSpring -.-> spring
+  testSpring -.-> testCore
+
+  definition
+  core -.-> definition
+  spring -.-> core
+  springCloud -.-> spring
+
+== 模块清单表（直接依赖，逐行核对）
+
+只列**模块间**的直接依赖；第三方依赖（Spring Boot Starter、MyBatis-Plus、Redisson、xxl-job、MinIO 等）不在本节范围。
+作用域标注：`provided` / `optional` / `test` 依赖在 Maven 语义下**不传递给使用方**，使用方需自行引入——这是判断"能不能直接用"时的关键约束。
+
+[cols="1,3,2", options="header"]
+|===
+| 模块 | 直接依赖（模块间） | 说明/约束
+
+| ctool4j-dependencies | 无 | BOM：统一管理 ctool4j 自研构件版本（经 `ctool4j-bom` import 生效）
+| ctool4j-bom | 无（import `ctool4j-dependencies`） | BOM：统一管理第三方依赖版本，业务项目引入即可获得一致版本
+| ctool4j-parent | 无（import `ctool4j-bom`） | 组件模块的公共父：lombok（provided）、ctool4j-autowired-processor（provided）、spring-boot-starter-test（test）
+
+| ctool4j-processor-base | 无 | 注解处理器基础（SPI 骨架）
+| ctool4j-autowired-processor | ctool4j-processor-base | 处理 @CAutowired / @CAutowiredScan，生成静态字段注入类
+| ctool4j-mybatis-processor | ctool4j-processor-base；ctool4j-mybatis（test） | 处理 @CAutoBizService，生成业务 Service 接口
+| ctool4j-mq-processor | ctool4j-processor-base | 占位，待实现
+
+| ctool4j-definition | 无 | 基础定义层（返回体、实体基类、注解、函数式接口等），不含 ctool4j 模块依赖
+| ctool4j-core | ctool4j-definition；ctool4j-test-definition（test） | 核心工具库；可选能力（uuid/ulid/nanoId、httpmime）标 optional，用方可选引入
+
+| ctool4j-spring | ctool4j-core、ctool4j-autowired-processor | Spring 基础设施（容器、切面、代理、请求、文件、初始化）
+| ctool4j-spring-cloud | ctool4j-spring | Spring Cloud 基础封装
+| ctool4j-spring-security | ctool4j-web | Security 装配；redis session / data-redis 标 optional
+
+| ctool4j-web | ctool4j-spring | Web MVC 通用能力（全局异常、跨域、JWT、请求日志、traceId）；另有 spring-boot-starter-web（provided）
+| ctool4j-redis | ctool4j-spring | Redis 操作、Redisson 分布式锁、@CRateLimit / @CIdempotent
+| ctool4j-cache | ctool4j-redis | 二级缓存（本地 + Redis）防击穿/防雪崩；spring-boot-starter-data-redis 为 provided
+| ctool4j-transaction | ctool4j-spring | @CTransactional 事务注解约定；spring-boot-starter-jdbc 为 optional
+| ctool4j-db | ctool4j-core | SQL 拼接工具（不依赖 Spring）
+
+| ctool4j-log-base | ctool4j-spring、ctool4j-spring-cloud、ctool4j-web | 日志基础：请求日志、traceId 透传、MDC、日志级别热更新
+| ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）
+| ctool4j-log4j | ctool4j-log-base | log4j2 后端适配（spring-boot-starter-logging + starter-log4j2）
+
+| ctool4j-feign | ctool4j-spring-cloud、ctool4j-log-base | Feign 增强（请求头传播、日志、拦截器）；feign-httpclient 为 optional
+| ctool4j-auth-base | ctool4j-web、ctool4j-cache | 认证基础（过滤器骨架、mock 会话、会话加载），与 Spring Security 解耦
+| ctool4j-auth-spring | ctool4j-auth-base、ctool4j-spring-security | 认证的 Security 落地（认证构造、安全上下文）
+
+| ctool4j-mybatis-base | ctool4j-transaction、ctool4j-db、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础；MP、jdbc 等由使用方提供
+| ctool4j-mybatis-33 | ctool4j-mybatis-base | MyBatis-Plus 3.3 适配（旧版分页插件签名）
+| ctool4j-mybatis-34 | ctool4j-mybatis-base | MyBatis-Plus 3.4 适配；mybatis-plus-join 为 optional
+| ctool4j-mybatis | ctool4j-mybatis-base | MyBatis-Plus 全套适配；mybatis-plus-join 为 optional
+
+| ctool4j-nacos-discovery | ctool4j-spring-cloud | Feign 本地实例注册/反注册
+| ctool4j-nacos-config | ctool4j-spring-cloud | 占位（暂无源码，配置中心待实现；config starter 已声明）
+
+| ctool4j-mq-base | ctool4j-spring | 消息队列基础（占位）
+| ctool4j-rabbitmq | ctool4j-mq-base | RabbitMQ 适配（占位）
+| ctool4j-rocketmq | ctool4j-mq-base | RocketMQ 适配（占位）
+
+| ctool4j-job-base | ctool4j-spring | 定时任务基础（任务参数、时间计算）
+| ctool4j-xxl-job | ctool4j-job-base | xxl-job 自动配置、@XxlJob 切面
+
+| ctool4j-csv | ctool4j-core | CSV 读写（commons-csv）
+| ctool4j-excel | ctool4j-core | Excel 读写（EasyExcel）
+| ctool4j-minio | ctool4j-spring | MinIO 对象存储
+
+| ctool4j-doc-openapi2 | ctool4j-web | OpenAPI2（knife4j/springfox）接口文档增强
+
+| ctool4j-test-definition | ctool4j-definition | 共享测试模型（部分占位）
+| ctool4j-test-core | ctool4j-core、ctool4j-test-definition | 测试支撑（部分占位）
+| ctool4j-test-spring | ctool4j-spring、ctool4j-test-core | Spring 测试支撑；spring-boot-starter-test 为 provided
+|===
+
+=== 传递依赖的可用范围（易误用点）
+
+模块 A 依赖 B 时，B 的 `compile` 依赖会传递到 A，但**以下三类不传递**，B 中"仅靠 provided/optional 能满足"的能力，
+到 A 处会缺依赖、编译或运行失败——此时应由 A 显式声明，**不属于重复声明**：
+
+* `provided`：如 `ctool4j-web` 的 spring-boot-starter-web、`ctool4j-mybatis-base` 的 mybatis-plus-boot-starter 与 `ctool4j-redis`
+  （前者依赖由使用方提供）。
+* `optional`：如 `ctool4j-core` 的 guava、java-uuid-generator、jnanoid、ulid-creator、httpmime。
+* `test`：如 `ctool4j-mybatis-processor` 的 ctool4j-mybatis（仅供其测试使用）。
+
+已在**直接或间接**依赖中的模块，**不得再在依赖清单里重复声明**（判定以本文件为准）。
+
+== 依赖方向与分层约束
+
+* 依赖方向单向、无环：`definition → core → spring → （web / redis / transaction / ...）→ 应用层`；下层不得反向依赖上层。
+* `ctool4j-definition` 是唯一的"零模块依赖"底座，任何模块都可安全依赖。
+* 认证链保持单向：`web → auth-base → auth-spring`；`auth-spring` 另依赖 `spring-security`，不得反向。
+* 中间件模块（log / mybatis / nacos / mq / job / file / doc）只依赖基础层，**彼此之间不互相依赖**；
+  组合使用（如 `ctool4j-feign` + `ctool4j-log-base`）由使用方按需引入。
+* 请求链路保持单向：`web → feign`、`feign → log-base`；`auth-base` 依赖 `web` 与 `cache`（会话存储），
+  `auth-spring` 再叠 `spring-security`——不得反向依赖认证模块。
+* `ctool4j-spring` 依赖 `ctool4j-autowired-processor`（编译期注解处理器，非运行时依赖）；
+  `ctool4j-mybatis-processor` 对 `ctool4j-mybatis` 的依赖为 test 作用域（该依赖不随处理器传递到使用方）。
+
+== 相关入口
+
+- 依赖引入与升级口径：远端规范 `specs/general/dependency.adoc`
+- 本视图的规范依据：远端规范 `specs/general/doc-design.adoc`「依赖关系文档（模块间依赖的唯一视图）」
+- 模块文档索引：link:../README.adoc[README]（模块全景与各模块 README）
+- 项目文档索引：link:README.adoc[doc/README.adoc]
