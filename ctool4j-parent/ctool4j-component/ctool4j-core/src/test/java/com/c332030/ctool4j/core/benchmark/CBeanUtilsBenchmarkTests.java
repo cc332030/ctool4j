@@ -59,7 +59,7 @@ public class CBeanUtilsBenchmarkTests {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
-     * 基准执行入口（显式运行：mvn test -Dtest=CBeanUtilsBenchmarkTests -DfailIfNoTests=false）
+     * 基准执行入口（显式运行：mvn -Pperf test -Dtest=CBeanUtilsBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
      * 对应测试用例 6.1：CBeanUtils 复制性能对比基准（多实现方式对比）
      */

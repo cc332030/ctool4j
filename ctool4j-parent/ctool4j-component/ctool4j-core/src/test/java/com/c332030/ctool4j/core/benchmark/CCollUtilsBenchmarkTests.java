@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  * </ul>
  * <h2>执行方式</h2>
  * <ul>
- *   <li>性能测试独立于单元测试，仅在明确命令执行时才运行（{@code mvn test -Dtest=CCollUtilsBenchmarkTests}）。</li>
+ *   <li>性能测试独立于单元测试，仅在明确命令执行时才运行（{@code mvn -Pperf test -Dtest=CCollUtilsBenchmarkTests}）。</li>
  *   <li>排除初始化干扰：先对所有用例做一轮全局预热，触发全部实现方式初始化/加载，首次结果不计入。</li>
  *   <li>充分预热 + 足够迭代：预热 50 万次触发 JIT 至 C2 稳态，单轮计时 100 万次、取 5 轮平均，降低测量噪声。</li>
  *   <li>结果写入 {@code tmp/benchmark-report-ccollutils.md} 报告，分析性能差异原因并给出方案。</li>
@@ -93,7 +93,7 @@ import java.util.stream.Collectors;
 public class CCollUtilsBenchmarkTests {
 
     /**
-     * 基准执行入口（显式运行：mvn test -Dtest=CCollUtilsBenchmarkTests -DfailIfNoTests=false）
+     * 基准执行入口（显式运行：mvn -Pperf test -Dtest=CCollUtilsBenchmarkTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 BenchmarkTests 结尾）
      * 对应测试用例 1.1：CCollUtils 集合转换与取首尾/最值性能对比基准（convert/toMap/toMap 过滤+提取/groupingBy/filter/first/last/min/max 多实现方式对比）
      */

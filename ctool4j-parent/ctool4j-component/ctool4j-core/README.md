@@ -16,7 +16,7 @@
 - JSON 工具 `CJsonUtils` + Jackson 定制（日期/枚举序列化、`@CLogBlob` 大字段日志序列化）
 - 异常体系：`CBusinessException`（业务异常）、`CExceptionUtils`、异常提供者 SPI
 - 日志工具：`CLog`（JSON 日志门面）、`CLogUtils`
-- 校验工具：`CAssert`（断言）、`CValidateUtils`
+- 校验工具：`CAssert`（断言）、`CValidUtils`（有效性判断）；`CValidateUtils` 已废弃、不再改用
 - 其他：`CIdUtils`、`CUrlUtils`、`CDesUtils`、`CEnumUtils`、`CComparatorUtils`、`COpt`、`CResultUtils`、`CSpiUtils`、`CPageUtils`、`CThreadLocalUtils`、本地缓存工具等
 
 ## 包结构
@@ -28,7 +28,7 @@
 | `jackson` | Jackson 定制：日期与枚举序列化、`CLogBlobSerializer`、反序列化器 |
 | `log` | 日志：`CLog` JSON 日志、`CLogUtils` |
 | `exception` | 异常体系：业务异常、异常工具、异常提供者 SPI |
-| `validation` | 校验：断言、校验工具 |
+| `validation` | 校验：断言（`CAssert`）、有效性判断（`CValidUtils`）|
 | `cache` | Class 值缓存工具（含强引用/弱引用实现） |
 | `config` / `enums` / `interfaces` / `mapstruct` | 配置、枚举、语义接口、MapStruct 配置 |
 
@@ -53,7 +53,7 @@
 | `CBusinessException` | 异常 | 业务异常基类 |
 | `CExceptionUtils` | 工具类 | 异常封装：受检异常转非受检、日志输出 |
 | `CAssert` | 工具类 | 断言校验，失败抛业务异常 |
-| `CValidateUtils` | 工具类 | 通用校验 |
+| `CValidUtils` | 工具类 | 有效性判断（按类型分派：字符串按 blank、集合/Map/数组按 empty、其他按 null） |
 | `CLogBlobSerializer` | 序列化器 | `@CLogBlob` 大字段的日志序列化（脱敏/截断） |
 | `CJacksonUtils` | 工具类 | Jackson ObjectMapper 封装与配置 |
 

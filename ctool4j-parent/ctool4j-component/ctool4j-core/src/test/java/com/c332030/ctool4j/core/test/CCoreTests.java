@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * <p>
- * Description: CCoreTest
+ * Description: CCoreTests
  * </p>
  *
  * <p>
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
  * @since 2025/11/5
  * @version 1.0
  */
-public class CCoreTest {
+public class CCoreTests {
 
     /**
      * 占位测试方法

@@ -2,6 +2,10 @@
 
 本文件为 ctool4j 项目的统一变更日志，按时间**倒序**记录（最新在最上方）。版本号在各源文件的 javadoc `@version` 中维护。
 
+- 1.1 | 2026-09-13 | 修复 `CClassUtilsTests` 引用仅 JDK 8 存在的 JDK 内部类型（`jdk.Exported`、`com.oracle.net.Sdp`）导致测试代码在 JDK 9+ 无法编译、`mvn clean install` 失败；样本改用跨版本稳定的公开类型，`compareField` 由空断言改为可观察行为断言
+- 1.1 | 2026-09-13 | 性能测试可显式触发：新增 `perf` profile，`mvn -Pperf -Dtest=<XxxPerfTests> test` 才能真正执行（`surefire` 的 `excludes` 优先于 `-Dtest`，此前文档给的触发命令实际无效）
+- 1.1 | 2026-09-13 | 测试类命名随动迁移为 `Tests` 定式（7 个）：`CBeanUtilsTests`、`CExceptionUtilsTests`、`CBiFunctionTests`、`CTriFunctionTests`、`CLogUtilsTests`、`CStrUtilsTests`、`CCoreTests`
+- 1.1 | 2026-09-13 | 修正文档与测试用例编号不一致：`ctool4j-core` README 的校验工具改为 `CValidUtils`（`CValidateUtils` 已废弃）；`CBeanUtilsTests` 类索引改为标注各用例实际所属测试类
 - 1.1 | 2026-09-12 | 破坏性变更：`CIdUtils.UUID`/`simpleUUID` 默认改为随机 UUID v4，不再时间有序且随机源非密码学安全；原 UUID v7 逻辑改为 `UUIDv7`/`simpleUUIDv7`，需要可排序 UUID 的调用方须改用新方法
 - 1.1 | 2026-09-12 | 新增 `ICRealClass` 契约（`ctool4j-spring` 的 `interfaces` 包）与 `CProxyUtils` 代理解析类（`ctool4j-spring`）：代理场景下取真实业务类/类名/包名，契约带默认实现、业务侧不写方法体；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本纳秒量级（Spring JDK 代理较原实现降约一半）
 - 1.1 | 2026-09-11 | 修复并行构建下自动注入偶发失败，业务模块无需额外配置即可生效
@@ -9,4 +13,4 @@
 - 1.0 | 2026-09-11 | `CRequired` 必填校验与 `CJwtUtils` 迁移到 web 模块，供全量组件复用
 - 1.0 | 2026-09-11 | 文档收敛为「javadoc 承载类/方法级、`doc/` 只放功能级总结」，删除逐类文档 623 份
 - 1.0 | 2026-09-11 | 建立本统一变更日志（首版），此后变更统一在此登记
-- 1.0 | 2026-09-11 | 全量测试补齐至 1690 个用例，全部通过（Failures=0 Errors=0）
+- 1.0 | 2026-09-11 | 补齐大量单元测试用例，全部通过（Failures=0 Errors=0）

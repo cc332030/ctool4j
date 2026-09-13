@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * <p>
- * Description: CStrUtilsTest
+ * Description: CStrUtilsTests
  * </p>
  * <p>`com.c332030.ctool4j.core.util.CStrUtils`（CStrUtils）的测试用例</p>
  *
@@ -80,7 +80,7 @@ import org.junit.jupiter.api.Test;
  * @see CStrUtils
  */
 @CustomLog
-public class CStrUtilsTest {
+public class CStrUtilsTests {
 
     /**
      * 测试模板中缺失参数格式化为空字符串

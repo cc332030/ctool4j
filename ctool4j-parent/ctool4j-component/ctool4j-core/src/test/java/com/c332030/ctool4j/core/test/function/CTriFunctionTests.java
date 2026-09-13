@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * <p>
- * Description: CTriFunctionTest
+ * Description: CTriFunctionTests
  * </p>
  *
  * <h2>设计思路</h2>
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
  * @since 2025/11/6
  * @version 1.0
  */
-public class CTriFunctionTest {
+public class CTriFunctionTests {
 
     /**
      * 测试取第一个参数

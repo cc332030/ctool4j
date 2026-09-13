@@ -3,6 +3,8 @@
 本模块对公共流程热路径上的方法做性能对比测试，记录实测结果与结论。性能测试类以 `PerfTests` 结尾
 （规范定式，需显式触发、由根 `pom.xml` 的排除规则挡在常规测试之外），测试类的类/方法级细节见各自 javadoc。
 
+触发性能测试须带 `-Pperf` profile：`surefire` 的 `excludes` 优先于 `-Dtest`，不带该 profile 时指定测试类也不会执行。
+
 本模块的 `BenchmarkTests` 命名是定式之前的存量（如 core/web 模块的基准类），按「存量随动迁移、不一次性收敛」
 保持原样，不新增该类命名；根 `pom.xml` 一并排除该后缀，仅为不让存量性能测试随常规测试执行。
 
@@ -15,7 +17,7 @@
 
 [source,bash]
 ----
-mvn -pl ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring -Dtest=CProxyUtilsPerfTests -Dsurefire.failIfNoSpecifiedTests=false test
+mvn -Pperf -pl ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring -Dtest=CProxyUtilsPerfTests -Dsurefire.failIfNoSpecifiedTests=false test
 ----
 
 == CProxyUtils 真实业务类名解析

@@ -218,6 +218,8 @@
                         <exclude>**/*PerfTests.java</exclude>
                     </excludes>
                 </configuration>
+                <!-- 性能测试的显式触发：-Pperf（见下方 perf profile）。surefire 的 excludes 优先于 -Dtest，
+                     故必须由该 profile 把 excludes 覆盖为空，`mvn -Pperf -Dtest=XxxPerfTests test` 才能真正执行 -->
             </plugin>
 
             <!-- 集成测试阶段同样排除，避免 verify/package 阶段又把性能测试带起来（无显式配置时 surefire 的排除不继承到 failsafe） -->
@@ -274,6 +276,30 @@
         </plugins>
 
     </build>
+
+    <profiles>
+
+        <!-- 性能测试（PerfTests / 存量 BenchmarkTests）的显式执行入口。
+             默认构建（test/package/install/verify）一律不执行性能测试；需要时用
+             mvn -Pperf -pl <模块> -am -Dtest=XxxPerfTests -Dsurefire.failIfNoSpecifiedTests=false test 显式触发。
+             覆盖 excludes 为空是必要的：surefire 的 excludes 优先于 -Dtest，不覆盖则指定测试类也不会执行。 -->
+        <profile>
+            <id>perf</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes combine.self="override"/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
 
     <distributionManagement>
         <snapshotRepository>
