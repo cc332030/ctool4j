@@ -1,118 +1,116 @@
 package com.c332030.ctool4j.auth.filter;
 
-import com.c332030.ctool4j.auth.config.CAbstractSpringSecurityMockSessionConfig;
-import com.c332030.ctool4j.auth.util.CAuthUtils;
-import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
-import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
-import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
-import com.c332030.ctool4j.web.util.CTokenUtils;
-import lombok.CustomLog;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * <p>
  * Description: CAbstractAuthFilter
  * </p>
  *
- * <p>认证 JWT 过滤器抽象基类，继承 {@link CAbstractJwtFilter}。请求进入时：可选注入 mock 会话 → 解析 jwt 得到 token
- * → 加载会话 → 构造 Spring Security 认证信息写入安全上下文。</p>
+ * <p>Spring Security 认证过滤器抽象基类，<b>业务侧直接继承本类</b>。在 auth-base 的
+ * {@link CAbstractBaseAuthFilter}（过滤器骨架、mock 会话加载、会话加载）之上，只负责 Security 相关部分：
+ * 将会话构造成 {@code Authentication} 并写入安全上下文。</p>
  *
+ * <p>继承链自下而上：{@code com.c332030.ctool4j.web.filter.CAbstractWebAuthFilter}（web：类型契约）→
+ * {@link CAbstractBaseAuthFilter}（auth-base：过滤器骨架与公共会话加载）→ 本类（auth-spring：Security 认证构造）。
+ * 因此安全过滤器链按 web 的类型契约注入时，注入到的即业务继承本类而来的过滤器 bean。</p>
+ *
+ * <h2>能力目录</h2>
  * <ul>
- *   <li>匿名判定：抽象方法 {@link #isAnonymous} 返回 true 视为匿名，构造 {@link AnonymousAuthenticationToken}
+ *   <li>{@link #setAuthentication}：普通会话构造 Security 认证信息并写入安全上下文（匿名 / 已认证两态）。</li>
+ *   <li>{@link #setMockAuthentication}：mock 会话无条件构造为已认证（不经 {@link #isAnonymous} 判定）。</li>
+ *   <li>{@link #isAnonymous}：抽象方法，业务实现会话是否匿名的判定。</li>
+ * </ul>
+ * <h2>设计要点</h2>
+ * <ul>
+ *   <li>匿名判定：{@link #isAnonymous} 返回 true 视为匿名，构造 {@link AnonymousAuthenticationToken}
  *       （key 用固定常量 {@code ANONYMOUS_KEY}，避免随会话 token 变化影响 hashCode）；否则构造
  *       {@link UsernamePasswordAuthenticationToken#authenticated}。</li>
  *   <li>凭据：会话不持有 credentials，构造认证时一律传 {@code null}。</li>
+ *   <li>mock 会话语义：{@code enable = true} 且配置了会话时无条件视为已登录（见 {@link #setMockAuthentication}），
+ *       与真实会话的匿名判定无关；仅供开发/测试，禁止生产启用。</li>
+ * </ul>
+ * <h2>兜底设计</h2>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>mock 未启用（或启用但未配置 session）</td>
+ *     <td>走基类真实会话加载流程（未配置 session 时由基类记 warn 日志）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>会话不存在（未携带 token / 解析失败 / 查不到会话）</td>
+ *     <td>不写认证信息，请求保持未认证状态（基类 {@link CAbstractBaseAuthFilter#loadAuthentication} 行为）</td>
+ *   </tr>
+ * </table>
+ * <h2>适用范围</h2>
+ * <ul>
+ *   <li>引入 Spring Security 的请求级认证过滤器（业务继承并实现 {@link #isAnonymous}）。</li>
+ * </ul>
+ * <h2>不适用与边界场景</h2>
+ * <ul>
+ *   <li>不引入 Spring Security 的场景应继承 {@link CAbstractBaseAuthFilter}，不应引入本类。</li>
+ *   <li>"解析失败即拒绝请求"需覆写 {@link #doFilterInternal} 改造，基类失败静默放行。</li>
+ * </ul>
+ * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>认证构造依赖 {@link CSpringSecurityUtils} 的线程内安全上下文，异步线程不自动传递。</li>
+ *   <li>{@link #isAnonymous} 由业务实现，判定错误会导致匿名/已认证态与预期不符（如误把已登录会话判为匿名）。</li>
  * </ul>
  *
- * <p>注意：{@code loadToken} 抛出的异常会被 {@code doFilterInternal} 捕获并继续放行（由后续 Security 授权规则拦截），
- * 若期望"解析失败即拒绝"需在此处改造；mock（{@link CAbstractSpringSecurityMockSessionConfig}）仅供开发/测试。</p>
+ * @param <SESSION> 会话类型（Security 相关，下界 {@link ICSecuritySession}）
  *
  * @author c332030
  * @since 2026/3/16
- * @version 1.0
+ * @version 1.1
  */
-@CustomLog
-public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> extends CAbstractJwtFilter {
+public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> extends CAbstractBaseAuthFilter<SESSION> {
 
     /**
      * 匿名认证 token 的固定 key（用于 hashCode/equals，避免随会话 token 变化）
      */
     private static final String ANONYMOUS_KEY = "anonymous";
 
-    @Autowired
-    CAbstractSpringSecurityMockSessionConfig<SESSION> mockSessionConfig;
-
-    @Autowired
-    CAbstractBaseSessionService<SESSION> sessionService;
-
     /**
-     * 认证过滤器主流程：解析并加载 token 后放行。
+     * 构造普通会话的 Security 认证信息并写入当前安全上下文。
      *
-     * <p>{@code loadToken} 的异常在本方法内被捕获记 error 日志（不中断链路），随后无条件继续
-     * {@code filterChain.doFilter}，由后续 Spring Security 授权规则拦截未认证请求；
-     * 该"失败静默放行"为刻意设计，见类级说明。</p>
+     * <p>{@link #isAnonymous} 为 true 构造 {@link AnonymousAuthenticationToken}（权限取
+     * {@link CSpringSecurityUtils#ANONYMOUS_AUTHORITIES}）；否则构造已认证的
+     * {@link UsernamePasswordAuthenticationToken}（权限取 {@link ICSecuritySession#getAuthorities()}，凭据为 null）。</p>
      *
-     * @param request     当前请求
-     * @param response    当前响应
-     * @param filterChain 过滤器链，认证结果写入安全上下文后继续执行
-     * @throws ServletException 链路内下游过滤器/Servlet 抛出时透传
-     * @throws IOException      链路内下游过滤器/Servlet 抛出时透传
+     * @param session 已加载的会话（非 null）
      */
     @Override
-    protected void doFilterInternal(
-        @NonNull HttpServletRequest request,
-        @NonNull HttpServletResponse response,
-        @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
-
-        try {
-            loadToken(request);
-        } catch (Exception e) {
-            log.error("loadToken error", e);
-        }
-
-        filterChain.doFilter(request, response);
-
-    }
-
-    private void loadToken(HttpServletRequest request) {
-
-        if(loadMockSession()) {
-            return;
-        }
-
-        // 可能收到其他系统误传的 token：jwt 解析失败（内部静默返回 null）或按 token 查不到会话时直接返回，
-        // 不写入认证信息，请求保持未认证状态，交由后续 Spring Security 授权规则决定放行/拦截；
-        // 解析失败静默处理不影响接口安全。
-        val jwt = CTokenUtils.getHeaderToken(request);
-        val token = CAuthUtils.getTokenByJwt(jwt);
-        if(CValidUtils.isNotValid(token)) {
-            log.debug("no token");
-            return;
-        }
-        val session = sessionService.get(token);
-        if(session == null) {
-            log.debug("can't find session, token: {}", token);
-            return;
-        }
-        CTokenUtils.setToken(request, token);
+    protected void setAuthentication(SESSION session) {
 
         val authentication = isAnonymous(session)
             ? new AnonymousAuthenticationToken(ANONYMOUS_KEY, session, CSpringSecurityUtils.ANONYMOUS_AUTHORITIES)
             : UsernamePasswordAuthenticationToken.authenticated(session, null, session.getAuthorities());
 
+        CSpringSecurityUtils.setAuthentication(authentication);
+
+    }
+
+    /**
+     * 构造 mock 会话的 Security 认证信息：mock 会话语义上为已登录态，无条件按已认证处理，不经 {@link #isAnonymous} 判定。
+     *
+     * @param session mock 会话（非 null）
+     */
+    @Override
+    protected void setMockAuthentication(SESSION session) {
+
+        val authentication = UsernamePasswordAuthenticationToken.authenticated(
+            session,
+            null,
+            session.getAuthorities()
+        );
         CSpringSecurityUtils.setAuthentication(authentication);
 
     }
@@ -124,26 +122,5 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
      * @return true 表示匿名/未认证，将构造匿名认证信息；false 表示已认证
      */
     public abstract boolean isAnonymous(SESSION session);
-
-    private boolean loadMockSession() {
-
-        if(!mockSessionConfig.getEnable()) {
-            return false;
-        }
-
-        val session = mockSessionConfig.getSession();
-        if(null == session) {
-            log.warn("未配置 mock session");
-            return false;
-        }
-        val authentication = UsernamePasswordAuthenticationToken.authenticated(
-            session,
-            null,
-            session.getAuthorities()
-        );
-        CSpringSecurityUtils.setAuthentication(authentication);
-
-        return true;
-    }
 
 }

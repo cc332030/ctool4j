@@ -14,6 +14,7 @@
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称
 - **MVC 配置**：`CWebMvcConfigurer`（拦截器、静态资源配置）、静态资源过滤器 `CResourceFilter`
 - **统一错误页**：`CErrorController`
+- **认证过滤器契约**：`CAbstractWebAuthFilter`（抽象基类，仅类型契约）作为认证过滤器继承链顶层，供 auth 模块继承、安全过滤器链按其注入认证过滤器
 - **请求/响应体增强抽象**：`ICBaseRequestBodyAdvice` / `ICBaseResponseBodyAdvice`（供日志等模块继承）
 - **HTTP 请求日志**：`CRequestLogUtils` 构造 / 保存 / 输出 `CRequestLog`（HTTP 格式 dump），`CCommUtils.appendHttpLog` 统一拼接，支持 URI 排除、请求体记录
 - **traceId 透传**：`CTraceUtils` 从请求头读取 traceId（无则生成），写入 ThreadLocal + MDC（key = `c-trace-id`），支持 SPI 定制提供者（`ICTraceInfoProvider`）
@@ -46,6 +47,8 @@
 | `CTokenUtils` | 工具类 | token 前缀、请求头/响应头与请求属性读写 |
 | `CRequestHeaderEnum` | 枚举 | 请求头名称统一管理 |
 | `CErrorController` | 控制器 | 统一错误页 |
+| `CAbstractWebAuthFilter` | 过滤器基类 | 认证过滤器类型契约（继承链顶层，auth 模块继承之） |
+| `ICFilter` / `CResourceFilter` | 接口/过滤器 | 项目统一过滤器接口与静态资源忽略过滤器 |
 | `CWebMvcConfigurer` | 配置 | MVC 拦截器与资源映射 |
 | `ICBaseResponseBodyAdvice` | 接口 | 响应体增强抽象（日志模块使用） |
 | `CRequestLogUtils` | 工具类 | 请求日志构造 / 保存 / 输出（HTTP 格式 dump） |

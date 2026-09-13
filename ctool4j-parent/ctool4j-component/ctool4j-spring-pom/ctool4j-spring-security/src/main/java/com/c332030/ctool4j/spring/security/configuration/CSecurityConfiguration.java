@@ -5,8 +5,8 @@ import com.c332030.ctool4j.spring.security.config.CSpringSecurityRequestMatchers
 import com.c332030.ctool4j.spring.security.core.CAccessDeniedHandler;
 import com.c332030.ctool4j.spring.security.core.CAuthenticationEntryPoint;
 import com.c332030.ctool4j.spring.security.core.CSessionInformationExpiredStrategy;
-import com.c332030.ctool4j.spring.security.filter.CAbstractJwtFilter;
 import com.c332030.ctool4j.spring.security.service.impl.CEmptyUserDetailService;
+import com.c332030.ctool4j.web.filter.CAbstractWebAuthFilter;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
@@ -51,7 +51,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * <p>@Configuration</p>
  *
  * @since 2026/1/22
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @Configuration
@@ -137,7 +137,7 @@ public class CSecurityConfiguration {
      * @param accessDeniedHandler             访问拒绝处理器
      * @param sessionInformationExpiredStrategy 会话过期策略
      * @param requestMatchersPathConfig       请求匹配路径配置
-     * @param jwtFilter                       JWT 过滤器
+     * @param authFilter                      认证过滤器（类型契约见 {@link CAbstractWebAuthFilter}，实现由业务继承提供）
      * @return 安全过滤器链
      * @throws Exception 构建过滤器链失败时抛出
      */
@@ -155,7 +155,7 @@ public class CSecurityConfiguration {
         AccessDeniedHandler accessDeniedHandler,
         SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
         CSpringSecurityRequestMatchersPathConfig requestMatchersPathConfig,
-        CAbstractJwtFilter jwtFilter
+        CAbstractWebAuthFilter authFilter
     ) throws Exception {
 
         val chain = http
@@ -167,7 +167,7 @@ public class CSecurityConfiguration {
             // 启用“记住我”功能的。允许用户在关闭浏览器后，仍然保持登录状态，直到他们主动注销或超出设定的过期时间。
             .rememberMe(Customizer.withDefaults())
             // 验证
-            .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(authFilter, UsernamePasswordAuthenticationFilter.class)
             // 关键：关闭默认的 401/403 页面跳转，交由全局异常处理器处理
             .exceptionHandling( ex -> ex
                 .authenticationEntryPoint(authenticationEntryPoint)

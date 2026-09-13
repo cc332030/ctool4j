@@ -73,7 +73,7 @@
 ### 功能特性
 
 - 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`）
-- JWT 认证过滤器基类 `CAbstractJwtFilter`（业务继承实现 token 校验）
+- 安全过滤器链装配时按类型契约 `CAbstractWebAuthFilter`（`ctool4j-web`）注入认证过滤器，实现由 `ctool4j-auth-*` 模块提供（本模块不再提供过滤器基类）
 - 未认证 / 拒绝访问 / 会话过期统一处理（JSON 返回）
 - 用户认证服务抽象：`ICUserDetailsService` / `ICAuthenticationUserDetailsService` / `ICUserDetailsPasswordService`
 - 安全上下文与认证工具：`CSpringSecurityUtils` / `CAuthenticationUtils`
@@ -85,7 +85,6 @@
 | 类 | 类型 | 职责 |
 |----|------|------|
 | `CSecurityConfiguration` | 配置 | SecurityFilterChain 装配与初始化 |
-| `CAbstractJwtFilter` | 过滤器 | JWT 认证过滤器基类 |
 | `CAuthenticationEntryPoint` | 处理器 | 未认证统一处理 |
 | `CAccessDeniedHandler` | 处理器 | 拒绝访问统一处理 |
 | `CSessionInformationExpiredStrategy` | 处理器 | 会话过期处理 |
@@ -101,8 +100,8 @@
 |------|------|
 | `ctool4j-web` | Web 通用能力 |
 | `spring-boot-starter-security` | Security |
-| `spring-session-data-redis`（provided） | Redis Session |
-| `spring-boot-starter-data-redis`（provided） | Redis |
+| `spring-session-data-redis`（optional） | Redis Session |
+| `spring-boot-starter-data-redis`（optional） | Redis |
 
 ---
 

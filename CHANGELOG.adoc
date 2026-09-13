@@ -2,7 +2,10 @@
 
 本文件为 ctool4j 项目的统一变更日志，按时间**倒序**记录（最新在最上方）。版本号在各源文件的 javadoc `@version` 中维护。
 
-- 1.1 | 2026-09-13 | 修复 `CClassUtilsTests` 引用仅 JDK 8 存在的 JDK 内部类型（`jdk.Exported`、`com.oracle.net.Sdp`）导致测试代码在 JDK 9+ 无法编译、`mvn clean install` 失败；样本改用跨版本稳定的公开类型，`compareField` 由空断言改为可观察行为断言
+- 1.1 | 2026-09-13 | `CAbstractBaseSessionService#getDefaultNull` 由包私有放宽为 `protected`：业务侧可在任意包直接继承会话服务基类（原仅限 `com.c332030.ctool4j.session.service` 包）
+- 1.1 | 2026-09-13 | 破坏性变更：`CAbstractJwtFilter` 改名 `CAbstractWebAuthFilter` 并下沉到 ctool4j-web，`CSecurityConfiguration` 改按该类型注入认证过滤器，引用方需改 import
+- 1.1 | 2026-09-13 | 新增 `CAbstractBaseAuthFilter`（ctool4j-auth-base）：抽离认证过滤器中与 Spring Security 无关的过滤器骨架、mock 会话加载与会话加载，Security 认证构造留在 auth-spring 子类；mock 开关为 null 视为未启用（修复拆箱 NPE），并补链路单元测试
+- 1.1 | 2026-09-13 | 测试口径明确为「只保证 JDK 8 编译」：`CClassUtilsTests` 样本用仅 JDK 8 存在的 `jdk.Exported`（该类型 JDK 9+ 已移除，测试代码在 JDK 9+ 无法编译），并在类级备注该约束；`compareField` 由空断言改为可观察行为断言
 - 1.1 | 2026-09-13 | 性能测试可显式触发：新增 `perf` profile，`mvn -Pperf -Dtest=<XxxPerfTests> test` 才能真正执行（`surefire` 的 `excludes` 优先于 `-Dtest`，此前文档给的触发命令实际无效）
 - 1.1 | 2026-09-13 | 测试类命名随动迁移为 `Tests` 定式（7 个）：`CBeanUtilsTests`、`CExceptionUtilsTests`、`CBiFunctionTests`、`CTriFunctionTests`、`CLogUtilsTests`、`CStrUtilsTests`、`CCoreTests`
 - 1.1 | 2026-09-13 | 修正文档与测试用例编号不一致：`ctool4j-core` README 的校验工具改为 `CValidUtils`（`CValidateUtils` 已废弃）；`CBeanUtilsTests` 类索引改为标注各用例实际所属测试类

@@ -2,16 +2,21 @@ package com.c332030.ctool4j.session.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.auth.util.CAuthUtils;
+import com.c332030.ctool4j.core.exception.CBusinessException;
 import com.c332030.ctool4j.core.interfaces.IGenericType;
 import com.c332030.ctool4j.core.validation.CAssert;
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CRedisUtils;
 import com.c332030.ctool4j.session.config.CSessionConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
+import com.c332030.ctool4j.web.util.CTokenUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -22,11 +27,15 @@ import org.springframework.lang.NonNull;
  * 会话类型 {@code SESSION}（子类须以具体类型直接继承，否则泛型解析可能失败）。</p>
  *
  * <p>说明：{@code sessionClass} 为实例初始化字段（{@code final}），不参与 {@code @AllArgsConstructor} 构造参数；
- * {@code get()}/{@code check()} 依赖 Spring Security 上下文，仅请求线程可用。</p>
+ * {@code get()}/{@code check()} 的当前会话来源由子类实现的 {@link #getDefaultNull()} 决定（Security 场景见
+ * auth-spring 的子类），仅当前请求线程可用。</p>
+ *
+ * <p>继承约束：{@link #getDefaultNull()} 为 {@code protected}，子类可在<b>任意包</b>直接继承本类并实现该钩子
+ * （无需与本类同包）。</p>
  *
  * @author c332030
  * @since 2026/9/10
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
@@ -104,9 +113,40 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
     }
 
     /**
+     * 从当前请求解出 token 并加载会话
+     *
+     * <p>流程：取请求 Authorization 头 token → 经 {@link CAuthUtils#getTokenByJwt} 校验并解析出业务 token
+     * → 按 token 查会话 → 命中则把 token 写入请求属性（{@link CTokenUtils#setToken(HttpServletRequest, String)}）。</p>
+     *
+     * <p>可能收到其他系统误传的 token：解析失败（内部静默返回 null）或查不到会话时直接返回 null，
+     * 不写入请求属性，由调用方决定后续处理（如保持未认证状态）。</p>
+     *
+     * @param request 当前请求
+     * @return 会话；token 缺失/解析失败/会话不存在返回 null
+     */
+    public SESSION loadSession(HttpServletRequest request) {
+
+        val jwt = CTokenUtils.getHeaderToken(request);
+        val token = CAuthUtils.getTokenByJwt(jwt);
+        if(CValidUtils.isNotValid(token)) {
+            log.debug("no token");
+            return null;
+        }
+
+        val session = get(token);
+        if(session == null) {
+            log.debug("can't find session, token: {}", token);
+            return null;
+        }
+
+        CTokenUtils.setToken(request, token);
+        return session;
+    }
+
+    /**
      * 校验当前已授权
      *
-     * @throws IllegalArgumentException 未授权
+     * @throws CBusinessException 未授权（由 {@link CAssert#notNull(Object, String)} 抛出）
      */
     public void check() {
         get();
@@ -115,17 +155,18 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
     /**
      * 获取当前会话（未授权返回 null，不抛异常）
      *
+     * <p>子类扩展点：由子类实现「当前会话从哪里取」（如 Spring Security 安全上下文）；{@code protected} 使子类
+     * 可在任意包直接继承本类，无需与本类同包。</p>
+     *
      * @return 当前会话；未授权返回 null
      */
-    public SESSION getDefaultNull() {
-        return CSpringSecurityUtils.getPrincipal();
-    }
+    protected abstract SESSION getDefaultNull();
 
     /**
      * 获取当前会话
      *
      * @return 当前会话
-     * @throws IllegalArgumentException 未授权
+     * @throws CBusinessException 未授权（由 {@link CAssert#notNull(Object, String)} 抛出）
      */
     public SESSION get() {
         val session = getDefaultNull();

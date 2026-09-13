@@ -3,15 +3,7 @@ package com.c332030.ctool4j.core.test.classes;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
-import com.c332030.ctool4j.definition.entity.base.CBaseCreateTimeEntity;
-import com.c332030.ctool4j.definition.entity.base.CBaseEntity;
-import com.c332030.ctool4j.definition.entity.base.CBaseTimeEntity;
-import com.c332030.ctool4j.definition.entity.base.CId;
-import com.c332030.ctool4j.definition.entity.base.ICCreateUpdateBy;
-import com.c332030.ctool4j.definition.entity.base.ICCreateUpdateByAndTime;
-import com.c332030.ctool4j.definition.entity.base.ICCreateUpdateTime;
-import com.c332030.ctool4j.definition.entity.base.ICCreateTime;
-import com.c332030.ctool4j.definition.entity.base.ICId;
+import com.c332030.ctool4j.definition.entity.base.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 import lombok.var;
@@ -28,7 +20,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -37,12 +28,16 @@ import java.util.HashSet;
  * </p>
  * <p>{@code com.c332030.ctool4j.core.classes.CClassUtils}（CClassUtils）的测试用例</p>
  *
+ * <p><b>JDK 版本约束（重要备注）</b>：本测试<b>只保证在 JDK 8 下编译运行</b>——样本含 {@code jdk.Exported}
+ * 等仅 JDK 8 存在的类型（JDK 9+ 已移除，测试代码在 JDK 9+ 无法编译）；本项目同样只允许 JDK 8 编译运行
+ * （构建与 CI 均为 JDK 8），<b>不追求跨 JDK 版本通用</b>。若未来升级编译 JDK，须同步更换这些样本
+ * （{@code jdk.Exported} 在 JDK 9+ 可换成 {@code jdk.jfr.Event}）并更新本备注。</p>
+ *
  * <p><b>用例设计思路</b>：按「字段对比 / 包名 / JDK 类判断 / 继承链 / 接口」五个维度组织，样本与断言口径如下：</p>
  * <ul>
- *   <li><b>样本只取跨编译 JDK 稳定存在的公开类型</b>：包名前缀与 JDK 类判断覆盖 {@code BASE_PACKAGES} 的
- *       java/javax/jdk/sun 四段与 com.sun/com.oracle 的 com 首段，每段取一个 Java 8 与 Java 9+ 都存在的样本
- *       （{@code jdk.jfr.Event}、{@code sun.misc.Unsafe}、{@code com.sun.net.httpserver.HttpServer}）。历史版本用 {@code jdk.Exported}、{@code com.oracle.net.Sdp}
- *       做样本——这两个类型仅 JDK 8 存在、在 JDK 9+ 已移除，导致测试代码在新 JDK 上无法编译（本次修正的直接原因）；</li>
+ *   <li><b>样本只取 JDK 8 存在的类型</b>（见上「JDK 版本约束」）：包名前缀与 JDK 类判断覆盖
+ *       {@code BASE_PACKAGES} 的 java/javax/jdk/sun 四段与 com.sun/com.oracle 的 com 首段，
+ *       样本为 {@code jdk.Exported}、{@code sun.misc.Unsafe}、{@code com.sun.net.httpserver.HttpServer}；</li>
  *   <li><b>字段对比按可观察输出断言</b>：{@code compareField} 是"打印差异表格"的诊断入口（无返回值），
  *       故断言其可观察结果与依赖的打印约定——日志门面按类型分派打印形态（表格载体 {@code StringBuilder}
  *       等 {@code CharSequence} 原样返回，保证对比表格不会被打成占位文本；业务类型按 {@code [类名]} 占位），
@@ -144,16 +139,16 @@ public class CClassUtilsTests {
     /**
      * 测试获取类所在包的首段名称
      * 对应测试用例 2.1：java/javax/jdk/sun/com.sun/com.oracle 各包前缀
-     * <p>样本：{@code BASE_PACKAGES} 各段取一个跨 JDK 版本稳定的公开类型
+     * <p>样本：{@code BASE_PACKAGES} 各段取一个 JDK 8 存在的类型
      * （java/javax/jdk/sun 四段各取一个，com.sun/com.oracle 两段同属 {@code com} 首段、取 com.sun 样本），
-     * 使该用例在 JDK 8 与 JDK 9+ 下都能编译运行。</p>
+     * 仅保证 JDK 8 下可编译（jdk 段的 {@code jdk.Exported} 为 JDK 8 专有类型，见类级「JDK 版本约束」）。</p>
      */
     @Test
     public void getFirstPackage() {
 
         Assertions.assertEquals("java", CClassUtils.getFirstPackage(String.class));
         Assertions.assertEquals("javax", CClassUtils.getFirstPackage(DataSource.class));
-        Assertions.assertEquals("jdk", CClassUtils.getFirstPackage(jdk.jfr.Event.class));
+        Assertions.assertEquals("jdk", CClassUtils.getFirstPackage(jdk.Exported.class));
         Assertions.assertEquals("sun", CClassUtils.getFirstPackage(sun.misc.Unsafe.class));
         Assertions.assertEquals("com", CClassUtils.getFirstPackage(com.sun.net.httpserver.HttpServer.class));
 
@@ -170,7 +165,7 @@ public class CClassUtilsTests {
 
         Assertions.assertTrue(CClassUtils.isJdkClass(String.class));
         Assertions.assertTrue(CClassUtils.isJdkClass(DataSource.class));
-        Assertions.assertTrue(CClassUtils.isJdkClass(jdk.jfr.Event.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(jdk.Exported.class));
         Assertions.assertTrue(CClassUtils.isJdkClass(sun.misc.Unsafe.class));
         Assertions.assertTrue(CClassUtils.isJdkClass(com.sun.net.httpserver.HttpServer.class));
 
@@ -235,7 +230,7 @@ public class CClassUtilsTests {
 
         // 各层直接接口按父类链由子至父顺序：CBaseEntity->ICCreateUpdateByAndTime、
         // CBaseTimeEntity->ICCreateUpdateTime、CBaseCreateTimeEntity->ICCreateTime、CId->ICId
-        val expected = Arrays.<Class<?>>asList(
+        val expected = Arrays.asList(
             ICCreateUpdateByAndTime.class,
             ICCreateUpdateTime.class,
             ICCreateTime.class,
