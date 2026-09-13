@@ -128,5 +128,5 @@ String packageName = CProxyUtils.getRealPackageName(orderService);
 == 相关入口
 
 - 模块索引：link:../README.adoc[设计文档索引]
-- 性能测试：link:../../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/perf.adoc[性能测试记录]
+- 性能测试：link:spring-perf.adoc[性能测试记录]
 - 源码：`com.c332030.ctool4j.spring.interfaces.ICRealClass`、`com.c332030.ctool4j.spring.util.CProxyUtils`

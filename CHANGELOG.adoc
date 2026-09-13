@@ -2,6 +2,8 @@
 
 本文件为 ctool4j 项目的统一变更日志，按时间**倒序**记录（最新在最上方）。版本号在各源文件的 javadoc `@version` 中维护。
 
+- 1.1 | 2026-09-13 | 文档导航收敛为单一入口：删除 48 个模块级 `doc/README.adoc` 重复索引页（模块级内容归模块 README、功能级归 `doc/design/`、依赖归 `doc/dependency.adoc`），`doc/README.adoc` 改为全项目文档导航入口；`ctool4j-spring` 的 `perf.adoc` 移至 `doc/design/spring/spring-perf.adoc`（功能级文档统一落点）
+- 1.1 | 2026-09-13 | 新增模块间依赖关系文档 link:doc/dependency.adoc[doc/dependency.adoc]（唯一视图，含全部模块清单与 UML 依赖图），原 README 的文字版依赖描述改为指向该文件
 - 1.1 | 2026-09-13 | `CAbstractBaseSessionService#getDefaultNull` 由包私有放宽为 `protected`：业务侧可在任意包直接继承会话服务基类（原仅限 `com.c332030.ctool4j.session.service` 包）
 - 1.1 | 2026-09-13 | 破坏性变更：`CAbstractJwtFilter` 改名 `CAbstractWebAuthFilter` 并下沉到 ctool4j-web，`CSecurityConfiguration` 改按该类型注入认证过滤器，引用方需改 import
 - 1.1 | 2026-09-13 | 新增 `CAbstractBaseAuthFilter`（ctool4j-auth-base）：抽离认证过滤器中与 Spring Security 无关的过滤器骨架、mock 会话加载与会话加载，Security 认证构造留在 auth-spring 子类；mock 开关为 null 视为未启用（修复拆箱 NPE），并补链路单元测试

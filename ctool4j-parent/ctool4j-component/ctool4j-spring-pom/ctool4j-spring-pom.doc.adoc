@@ -1,0 +1,22 @@
+= ctool4j-spring-pom 文档指针
+
+[NOTE]
+====
+本模块自本版起不再设 `doc/` 目录：本模块的**类级与方法级内容由源码 javadoc 承载**，功能级文档统一落在项目设计文档目录（`doc/design/spring/`）；
+下方仅为「本模块有哪些文档」的指针表，模块文档索引入口见 link:../../../doc/README.adoc[doc/README.adoc]。
+====
+
+
+聚合模块（`ctool4j-spring` / `ctool4j-spring-security` / `ctool4j-spring-cloud`）的模块职责、子模块清单与能力见 link:README.md[模块 README]。
+
+本模块的功能级/跨类设计文档统一存放于项目设计文档目录，见下（模块内不再单设 `doc/`）。
+
+[cols="1,2", options="header"]
+|===
+| 内容 | 文档
+
+| 代理场景取真实业务类/类名/包名（设计取舍与适用边界） | link:../../../doc/design/spring/real-class-name.adoc[real-class-name]
+| IP 相关能力设计 | link:../../../doc/design/spring/ip.adoc[ip]
+| 公共流程热路径的性能实测记录 | link:../../../doc/design/spring/spring-perf.adoc[spring-perf]
+| 模块间依赖关系（全项目唯一视图） | link:../../../doc/dependency.adoc[doc/dependency.adoc]
+|===
