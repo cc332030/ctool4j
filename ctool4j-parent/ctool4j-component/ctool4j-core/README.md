@@ -16,7 +16,7 @@
 - JSON 工具 `CJsonUtils` + Jackson 定制（日期/枚举序列化、`@CLogBlob` 大字段日志序列化）
 - 异常体系：`CBusinessException`（业务异常）、`CExceptionUtils`、异常提供者 SPI
 - 日志工具：`CLog`（JSON 日志门面）、`CLogUtils`
-- 校验工具：`CAssert`（断言）、`CValidUtils`（有效性判断）；`CValidateUtils` 已废弃、不再改用
+- 校验工具：`CAssert`（断言，含按数据类型分派的 `valid`/`notValid`）、`CValidUtils`（有效性判断）；`CValidateUtils` 已废弃、不再改用
 - 其他：`CIdUtils`、`CUrlUtils`、`CDesUtils`、`CEnumUtils`、`CComparatorUtils`、`COpt`、`CResultUtils`、`CSpiUtils`、`CPageUtils`、`CThreadLocalUtils`、本地缓存工具等
 
 ## 包结构
@@ -52,7 +52,7 @@
 | `CLogUtils` | 工具类 | 日志格式化工具 |
 | `CBusinessException` | 异常 | 业务异常基类 |
 | `CExceptionUtils` | 工具类 | 异常封装：受检异常转非受检、日志输出 |
-| `CAssert` | 工具类 | 断言校验，失败抛业务异常 |
+| `CAssert` | 工具类 | 断言校验，失败抛业务异常；`valid`/`notValid` 按数据类型分派（语义同 `CValidUtils`） |
 | `CValidUtils` | 工具类 | 有效性判断（按类型分派：字符串按 blank、集合/Map/数组按 empty、其他按 null） |
 | `CLogBlobSerializer` | 序列化器 | `@CLogBlob` 大字段的日志序列化（脱敏/截断） |
 | `CJacksonUtils` | 工具类 | Jackson ObjectMapper 封装与配置 |
@@ -74,6 +74,8 @@ String json = CJsonUtils.toJson(user);
 // 异常
 throw new CBusinessException("用户不存在");
 CAssert.notNull(obj, "对象不能为空");
+CAssert.valid(list, "集合不能为空");
+CAssert.notValid(str, "字符串不能为空白");
 
 // 日志
 CLog.info("用户操作", CLogUtils.of("userId", 1L, "action", "login"));
