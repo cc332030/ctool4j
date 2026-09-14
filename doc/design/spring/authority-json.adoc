@@ -94,6 +94,36 @@ Jackson 对 `SimpleGrantedAuthority` 的默认行为就是取 `getAuthority()` �
 与具体实现类 `SimpleGrantedAuthority` 注册同一反序列化器；只注册接口时，声明为具体类会因
 「no delegate- or property-based Creator」失败（有回归用例固化）。
 
+== 读回陷阱：SetterlessProperty（USE_GETTERS_AS_SETTERS）
+
+`ICSecuritySession#getAuthorities()` 是**只读派生属性**：实现类若没有 authorities 的可写成员（无 setter、无可见字段），
+Jackson 的 `MapperFeature.USE_GETTERS_AS_SETTERS`（默认开启）会走 `SetterlessProperty`，把 JSON 中的 `authorities`
+**合并进 getter 的返回值**，而不是忽略它。默认实现返回共享常量时，线上两次报错
+（`CAbstractBaseAuthFilter : loadAuthentication error`）：
+
+[cols="3,4", options="header"]
+|===
+| 默认实现返回的容器 | 行为
+
+| 共享可变 `ArrayList`（`AuthorityUtils#createAuthorityList`）
+| 每次会话读回都往**全局常量**里追加一条（静默污染；早期因权限反序列化先失败才未暴露）
+
+| 共享不可修改 `SingletonList`（`CList.of`，本方案早期做法）
+| `add` 抛 `UnsupportedOperationException`（显式故障，堆栈：`SetterlessProperty.deserializeAndSet` →
+  `CollectionDeserializer._deserializeFromArray` → `AbstractList.add`）
+|===
+
+**修法**：默认实现返回**一次性副本**（`new ArrayList<>(ANONYMOUS_AUTHORITIES)`）——共享常量保持只读契约，
+合并落在一次性容器上（语义上等同忽略）；会话自身持久化权限时提供可写成员，Jackson 走 setter 路径，不受影响。
+**未采用**的替代方案：
+
+- 全局关闭 `USE_GETTERS_AS_SETTERS`：会让「私有字段 + 仅 getter」的 DTO 静默丢数据，影响面外溢到所有业务 DTO。
+- `@JsonIgnoreProperties(..., allowSetters = true)`：会让**带 setter 的会话在序列化时丢掉 authorities**，改变线上数据形态。
+- `@JsonProperty(access = READ_ONLY)`：注解会随重写方法继承，连「真有 setter」的会话也一并禁用写入，误伤权限持久化。
+
+同类隐患：`ICPage#getOrders()` 默认同样返回 `CList.of()`（不可修改空集合），若某分页对象没有 orders 可写成员
+且入参 JSON 带 `orders`，会触发同一路径；已登记到 link:../../../TODO.adoc[TODO.adoc]（未复现，不随本次改动处理）。
+
 == 权限常量池
 
 权限是高频、值域有限的枚举式数据（`ROLE_ADMIN` 等）。会话每次从 Redis 读回都会新建 `SimpleGrantedAuthority`，
@@ -122,6 +152,8 @@ Jackson 对 `SimpleGrantedAuthority` 的默认行为就是取 `getAuthority()` �
   `CSpringSecurityUtils.ANONYMOUS_AUTHORITIES` 改取常量池，并由可变的 `AuthorityUtils#createAuthorityList` 改为
   `CList.of` 的**不可修改集合**（共享常量不再可被就地改写）。
 - 依赖 `CJacksonUtils` 的任意模块：其预置 mapper 在构建时经 `findAndRegisterModules` 自动获得该能力，
+  会话读回链路已由线上堆栈证实走这里（`CAbstractBaseSessionService#loadSession` → `CStringStringRedisService#getValueObj`
+  → `CJsonUtils#fromJson` → `CJacksonUtils.OBJECT_MAPPER`）；
   只要 `ctool4j-spring-security` 在 classpath 上即生效，无需业务侧配置；经 `CJacksonUtils.configure(mapper)`
   配置过的 mapper（如开启 `spring.jackson.json5` 后的 Spring 容器 `ObjectMapper`）同样生效。
 - **不覆盖（默认）：Spring 容器内的 `ObjectMapper`**（即 Spring MVC 的 `@RequestBody` / `@ResponseBody`）。

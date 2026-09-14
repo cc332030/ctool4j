@@ -2,6 +2,7 @@
 
 本文件为 ctool4j 项目的统一变更日志，按时间**倒序**记录（最新在最上方）。版本号在各源文件的 javadoc `@version` 中维护。
 
+- 1.1 | 2026-09-14 | 修复会话读回故障（`CAbstractBaseAuthFilter : loadAuthentication error`）：`ICSecuritySession#getAuthorities()` 默认实现不再返回共享常量——Jackson 的 `MapperFeature.USE_GETTERS_AS_SETTERS`（`SetterlessProperty`）会把 JSON 中的 authorities 合并进 getter 的返回值，共享不可修改常量会抛 `UnsupportedOperationException`，共享可变常量则被逐次追加而污染全局；改为返回一次性副本，会话自身持久化权限（有可写成员）仍走 setter 路径不受影响。陷阱说明见 link:doc/design/spring/authority-json.adoc[会话权限的 JSON 读写]
 - 1.1 | 2026-09-14 | 修复会话含权限字段的 JSON 反序列化失败（`GrantedAuthority` 为接口、JSON 无类型信息导致 `InvalidDefinitionException`）：`ctool4j-spring-security` 新增 `CSecurityJacksonModule`（接口与 `SimpleGrantedAuthority` 同注册反序列化器）并以 `META-INF/services/com.fasterxml.jackson.databind.Module` 声明为 Jackson SPI，由 `ObjectMapper#findAndRegisterModules()` 自动装配；新增权限常量池 `CGrantedAuthorityUtils`（同 authority 全局复用同一实例），反序列化与匿名权限统一取自常量池（`ANONYMOUS_AUTHORITIES` 一并改为不可修改集合）；序列化沿用 Jackson 原生形态 `{"authority":"ROLE_XXX"}`（不引入 default typing 的 `@class`）；匿名权限名落为 `CSpringSecurityUtils.ROLE_ANONYMOUS` 常量（Spring 官方未提供该常量，取值以其实现为准）。设计说明见 link:doc/design/spring/authority-json.adoc[会话权限的 JSON 读写]
 - 1.1 | 2026-09-13 | `CAbstractBaseSessionService#getDefaultNull` 由包私有放宽为 `public`：业务侧可在任意包直接继承会话服务基类（原仅限 `com.c332030.ctool4j.session.service` 包）
 - 1.1 | 2026-09-13 | 文档导航收敛为单一入口：删除 48 个模块级 `doc/README.adoc` 重复索引页（模块级内容归模块 README、功能级归 `doc/design/`、依赖归 `doc/dependency.adoc`），`doc/README.adoc` 改为全项目文档导航入口；`ctool4j-spring` 的 `perf.adoc` 移至 `doc/design/spring/spring-perf.adoc`（功能级文档统一落点）

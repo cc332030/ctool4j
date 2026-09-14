@@ -102,6 +102,9 @@ public class CSpringSecurityUtils {
      * 匿名权限（ROLE_ANONYMOUS），用于构造匿名认证信息
      * <p>实例取自权限常量池（{@link CGrantedAuthorityUtils}），与反序列化得到的同权限为同一实例；
      * 集合经 {@code CList.of} 构造，<b>不可修改</b>（共享常量，请勿 add/remove）</p>
+     * <p>注意：本常量不可直接作为无 setter 的 getter 返回值——Jackson 的 {@code USE_GETTERS_AS_SETTERS}
+     * 会把 JSON 数据合并进 getter 的返回值，共享集合会因此报错或被污染；需要默认值时返回副本
+     * （见 {@code ICSecuritySession#getAuthorities()}）。</p>
      */
     public static final List<GrantedAuthority> ANONYMOUS_AUTHORITIES =
         CList.of(CGrantedAuthorityUtils.get(ROLE_ANONYMOUS));

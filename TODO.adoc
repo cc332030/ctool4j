@@ -15,4 +15,5 @@
 | | 兼容 log4j2
 | ✓ | log with level
 | ✓ | Instant 格式化
+| | ICPage#getOrders() 默认返回不可修改空集合（CList.of），若分页对象无 orders 可写成员且入参 JSON 带 orders，Jackson 的 USE_GETTERS_AS_SETTERS（SetterlessProperty）会向该返回值合并而抛 UnsupportedOperationException；修法参考 ICSecuritySession#getAuthorities()（返回一次性副本），另需先确认分页对象默认空排序的语义
 |===
