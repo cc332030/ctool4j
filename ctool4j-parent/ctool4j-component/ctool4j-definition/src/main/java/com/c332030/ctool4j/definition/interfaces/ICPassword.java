@@ -38,10 +38,4 @@ public interface ICPassword {
     @CSchema("密码")
     String getPassword();
 
-    /**
-     * 设置密码
-     * @param password 密码
-     */
-    void setPassword(String password);
-
 }

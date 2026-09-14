@@ -23,10 +23,4 @@ public interface ICToken {
      */
     String getToken();
 
-    /**
-     * 设置 token
-     * @param token token
-     */
-    void setToken(String token);
-
 }

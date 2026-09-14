@@ -38,10 +38,4 @@ public interface ICUsername {
     @CSchema("用户名")
     String getUsername();
 
-    /**
-     * 设置用户名
-     * @param username 用户名
-     */
-    void setUsername(String username);
-
 }
