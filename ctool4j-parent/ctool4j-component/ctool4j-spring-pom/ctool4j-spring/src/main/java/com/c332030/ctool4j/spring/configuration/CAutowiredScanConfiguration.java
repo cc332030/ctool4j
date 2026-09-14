@@ -1,33 +1,31 @@
 package com.c332030.ctool4j.spring.configuration;
 
-import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
+import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.definition.constant.CTool4jConstants;
+import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.util.CAutowiredUtils;
 import com.c332030.ctool4j.spring.util.CSpringUtils;
 import lombok.val;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.ClassUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.util.CStrUtils;
+import org.springframework.util.ClassUtils;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -55,6 +53,13 @@ import java.util.Set;
  *   <li><b>注册与注入落在容器生命周期的两个节点</b>：注册必须早于容器实例化
  *   （{@link BeanDefinitionRegistryPostProcessor}），注入必须晚于容器就绪
  *   （{@link ContextRefreshedEvent}），两者的前置条件相反，故不由同一个回调完成。</li>
+ *   <li><b>{@code proxyBeanMethods = false}</b>：本类无 {@code @Bean} 方法，且自身是
+ *   {@link BeanDefinitionRegistryPostProcessor}——容器在后置处理器阶段就要实例化它（回调注册），
+ *   早于 {@code ConfigurationClassPostProcessor} 的 CGLIB 增强，Spring 会打印
+ *   "singleton instance has been created too early" 的 INFO 并跳过增强（该提示里的"典型原因"指返回后置处理器的
+ *   {@code @Bean} 方法，与本类无关）。显式声明不启用方法代理，既消除该日志，也把"无需代理"的意图写进代码；
+ *   若将来本类需要 {@code @Bean} 方法并与其它 Bean 互相引用，应把注册处理器拆成独立类（或改用 {@code static} 工厂方法），
+ *   而不是打开方法代理。</li>
  *   <li>生成类为「构造器注入、无字段、无生命周期方法」的简单类，注册
  *   {@link BeanDefinition#setBeanClassName(String)} 走无参构造即可，无需工厂方法。</li>
  * </ul>
@@ -103,7 +108,7 @@ import java.util.Set;
  * @see CAutowiredUtils#autowiredScan(ApplicationContext)
  */
 @Lazy(false)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class CAutowiredScanConfiguration implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
     /**
