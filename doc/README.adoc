@@ -35,7 +35,7 @@
 * link:design/definition/[definition]：ctool4j-definition（基础定义）— link:design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
 * link:design/redis/[redis]：ctool4j-redis — link:design/redis/rate-limit-idempotent.adoc[限流与幂等]
 * link:design/spring/[spring]：ctool4j-spring / spring-security / spring-cloud —
-  link:design/spring/ip.adoc[ip]、link:design/spring/real-class-name.adoc[真实业务类/类名/包名]、link:design/spring/spring-perf.adoc[性能实测]
+  link:design/spring/ip.adoc[ip]、link:design/spring/real-class-name.adoc[真实业务类/类名/包名]、link:design/spring/authority-json.adoc[会话权限的 JSON 读写]、link:design/spring/spring-perf.adoc[性能实测]
 
 == 约定
 

@@ -1,0 +1,142 @@
+= 会话权限的 JSON 读写（序列化/反序列化/常量池） 设计文档
+
+模块：ctool4j-spring-security（`CSecurityJacksonModule` + `CGrantedAuthorityDeserializer` + `CGrantedAuthorityUtils`）
+状态：已落地
+适用范围：会话/用户对象中 `GrantedAuthority` 集合的 JSON 读写（Redis 会话持久化读回等）
+
+== 背景
+
+线上 `loadAuthentication error`：`GrantedAuthority` 是接口，序列化后的 JSON 不含类型信息：
+
+[source,json]
+----
+"authorities":[{"authority":"ROLE_ANONYMOUS"}]
+----
+
+反序列化时 Jackson 无法推断实现类，抛 `InvalidDefinitionException`（abstract types either need to be mapped to concrete
+types, have custom deserializer, or contain additional type information）——会话持久化到 Redis 再读回时必然触发。
+
+== 读写能力结论速览
+
+[cols="1,1,2", options="header"]
+|===
+| 方向 | 是否原生支持 | 落点
+
+| 序列化（对象 → JSON）
+| 支持，无需自研
+| Jackson 默认按 `getAuthority()` 输出 `{"authority":"ROLE_XXX"}`，形态由测试固化
+
+| 反序列化（JSON → 对象）
+| 不支持，必须自研
+| `CGrantedAuthorityDeserializer`（对象/字符串两种形态归一）
+
+| 模块装配
+| 官方模块不适用，改 SPI 自动发现
+| `CSecurityJacksonModule` + `META-INF/services/com.fasterxml.jackson.databind.Module`
+
+| 实例复用
+| 无现成能力，自建
+| 权限常量池 `CGrantedAuthorityUtils`
+|===
+
+== 序列化：为什么不自研
+
+Jackson 对 `SimpleGrantedAuthority` 的默认行为就是取 `getAuthority()` 属性，输出 `{"authority":"ROLE_XXX"}`，
+与既有数据形态一致；自研 serializer 只会多一处需要维护的形态定义，故不写。
+形态契约由 `CSecurityJacksonModuleTests` 固化（含「不得引入 `@class`」的反向断言）。
+
+== 反序列化：为什么不复用 Spring 官方模块
+
+`spring-security-core` 自带 `org.springframework.security.jackson2.CoreJackson2Module`（内含 `SimpleGrantedAuthorityMixin`），
+但三条理由使其不适用于本场景：
+
+. **不是 Jackson SPI**：包内无 `META-INF/services/com.fasterxml.jackson.databind.Module` 声明，
+  `findAndRegisterModules()` 发现不到，只能手工注册（与「自动发现」目标相悖）。
+. **依赖 default typing**：`SimpleGrantedAuthorityMixin` 标注 `@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)`，
+  模块 `setupModule` 还调用 `SecurityJackson2Modules.enableDefaultTyping(...)`；采用后 JSON 会带 `@class`，
+  与既有数据形态不兼容——**历史数据仍然读不回来**，只对新数据有效。
+. **安全面更大**：default typing 需配合 `SecurityJackson2Modules` 的白名单解析器使用，否则等于开放多态反序列化入口。
+
+故保留自研反序列化器，只借鉴官方「按 `authority` 字段构造」的语义。
+
+== 反序列化器：支持形态与兜底
+
+[cols="2,1,2", options="header"]
+|===
+| 输入 | 结果 | 说明
+
+| `{"authority":"ROLE_A"}`
+| `ROLE_A` 权限
+| 对象形态
+
+| `"ROLE_A"`
+| `ROLE_A` 权限
+| 字符串形态（简写兼容）
+
+| `{}` / `{"other":1}`
+| `null`
+| 取不到 authority
+
+| `""` / `"   "` / `{"authority":"  "}`
+| `null`
+| 空白拦在入口，不触发构造断言
+
+| `null`
+| `null`
+| —
+
+| `123` / `true` / `["ROLE_A"]`
+| `null`
+| 非对象非文本节点，取不到 authority，不抛异常
+|===
+
+**按声明类型注册**：Jackson 按字段/集合元素的**声明类型**查找反序列化器，故模块对接口 `GrantedAuthority`
+与具体实现类 `SimpleGrantedAuthority` 注册同一反序列化器；只注册接口时，声明为具体类会因
+「no delegate- or property-based Creator」失败（有回归用例固化）。
+
+== 权限常量池
+
+权限是高频、值域有限的枚举式数据（`ROLE_ADMIN` 等）。会话每次从 Redis 读回都会新建 `SimpleGrantedAuthority`，
+热路径上会产生大量同值对象、加重 GC。常量池（`CGrantedAuthorityUtils`）以 authority 字符串为键、
+`ConcurrentHashMap` 承载，`computeIfAbsent` 保证同一键只创建一次（并发安全）。
+
+- 构造入口统一收敛：反序列化、匿名权限（`CSpringSecurityUtils.ANONYMOUS_AUTHORITIES`）均取自池。
+- 权限名常量：`ROLE_ANONYMOUS` 以 `CSpringSecurityUtils.ROLE_ANONYMOUS` 声明（与 `ANONYMOUS_AUTHORITIES` 同源，
+  避免字面量散落到调用方）。Spring Security 自身并无该常量（`AnonymousAuthenticationFilter` 为内联字面量、
+  `AuthorityUtils` 只有构造方法、无角色常量），也没有角色枚举，故按「值随使用它的类型走」落常量：
+  不新建全局常量类、不引入枚举——业务权限是开放的字符串集合（由数据决定），库无法也不应枚举。
+- 键按**原文精确匹配**：不 trim、区分大小写；**不归一化是有意取舍**——权限判定依赖精确字符串，
+  静默改写权限值（如把 `" ROLE_A"` 改成 `"ROLE_A"`）的风险高于省下的那点内存。
+- null/空白不入池并返回 `null`：`SimpleGrantedAuthority` 构造对空白入参会抛 `IllegalArgumentException`（内部断言），
+  在池入口拦掉，避免把构造异常抛给调用方。
+
+== 已知限制与取舍
+
+- 不启用 default typing：JSON 不写类型信息，自定义 `GrantedAuthority` 实现类无法还原（需要时由业务侧自行标注 `@JsonTypeInfo`）。
+- 常量池无上限、无淘汰：写入源包含反序列化数据，若会话数据不可信或权限码按用户动态生成，值域由数据源决定，需调用方自行控制。
+- SPI 依赖 `META-INF/services` 被正确打包：若外部打包工具裁剪或未合并（如 shade 未使用 `ServicesResourceTransformer`），自动发现会失效。
+
+== 影响面
+
+- `ctool4j-spring-security`：新增模块类、反序列化器、常量池与 SPI 声明文件；
+  `CSpringSecurityUtils.ANONYMOUS_AUTHORITIES` 改取常量池，并由可变的 `AuthorityUtils#createAuthorityList` 改为
+  `CList.of` 的**不可修改集合**（共享常量不再可被就地改写）。
+- 依赖 `CJacksonUtils` 的任意模块：其预置 mapper 在构建时经 `findAndRegisterModules` 自动获得该能力，
+  只要 `ctool4j-spring-security` 在 classpath 上即生效，无需业务侧配置；经 `CJacksonUtils.configure(mapper)`
+  配置过的 mapper（如开启 `spring.jackson.json5` 后的 Spring 容器 `ObjectMapper`）同样生效。
+- **不覆盖（默认）：Spring 容器内的 `ObjectMapper`**（即 Spring MVC 的 `@RequestBody` / `@ResponseBody`）。
+  依据：Spring Framework 的 `Jackson2ObjectMapperBuilder#findModulesViaServiceLoader` 默认 `false`，
+  Spring Boot 的 `JacksonAutoConfiguration` 只安装容器内的 `Module` Bean、不开启 SPI 模块发现；
+  本项目的 `CJacksonInit` 也只在 `spring.jackson.json5=true` 时才调用 `CJacksonUtils.configure(objectMapper)`。
+  需要覆盖时按 Spring 原生方式声明 `Module` Bean（或开启 `findModulesViaServiceLoader`）；但需评估：这会把
+  「请求体内的权限字段」从报错变为静默接受（若存在此类 DTO 则属设计缺陷，报错反而是保护），属安全取舍，故默认不做。
+
+== 相关入口
+
+- 模块索引：link:../README.adoc[设计文档索引]
+- 源码：`com.c332030.ctool4j.spring.security.jackson.CSecurityJacksonModule`、
+  `com.c332030.ctool4j.spring.security.jackson.deserializer.CGrantedAuthorityDeserializer`、
+  `com.c332030.ctool4j.spring.security.util.CGrantedAuthorityUtils`、
+  `com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils`
+- 配置：`ctool4j-spring-security/src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`
+- 变更记录：link:../../../CHANGELOG.adoc[CHANGELOG.adoc]

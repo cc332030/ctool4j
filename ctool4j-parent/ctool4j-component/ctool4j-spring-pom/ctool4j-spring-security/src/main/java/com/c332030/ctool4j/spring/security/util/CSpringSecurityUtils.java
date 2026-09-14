@@ -2,6 +2,7 @@ package com.c332030.ctool4j.spring.security.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.web.util.CServletUtils;
 import lombok.experimental.UtilityClass;
@@ -9,7 +10,6 @@ import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +33,8 @@ import java.util.List;
  * <ul>
  *   <li>{@code getAuthentication()} / {@code setAuthentication(Authentication)}：获取 / 设置当前安全上下文的认证信息</li>
  *   <li>认证错误输出：以 JSON 形式输出认证失败信息（供未认证 / 拒绝访问处理器复用）</li>
+ *   <li>常量 {@code ROLE_ANONYMOUS}：匿名权限名（取值与 Spring Security 匿名认证一致，供权限比对与构造复用）</li>
+ *   <li>常量 {@code ANONYMOUS_AUTHORITIES}：匿名权限，实例取自权限常量池 {@code CGrantedAuthorityUtils}，为不可修改集合</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -88,10 +90,21 @@ import java.util.List;
 public class CSpringSecurityUtils {
 
     /**
+     * 匿名权限名（Spring Security 匿名认证的内置权限取值）
+     * <p>Spring Security 未对外提供该常量：其 {@code AnonymousAuthenticationFilter} 为内联字面量
+     * {@code AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")}，{@code AuthorityUtils} 亦只有构造方法、无角色常量，
+     * 官方也没有角色枚举。故按「值随使用它的类型走」的方式，在本类（匿名权限的归属类型）声明常量，
+     * 取值与官方实现保持一致，避免字面量在调用方散落</p>
+     */
+    public static final String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+
+    /**
      * 匿名权限（ROLE_ANONYMOUS），用于构造匿名认证信息
+     * <p>实例取自权限常量池（{@link CGrantedAuthorityUtils}），与反序列化得到的同权限为同一实例；
+     * 集合经 {@code CList.of} 构造，<b>不可修改</b>（共享常量，请勿 add/remove）</p>
      */
     public static final List<GrantedAuthority> ANONYMOUS_AUTHORITIES =
-        AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+        CList.of(CGrantedAuthorityUtils.get(ROLE_ANONYMOUS));
 
     /**
      * 获取安全上下文

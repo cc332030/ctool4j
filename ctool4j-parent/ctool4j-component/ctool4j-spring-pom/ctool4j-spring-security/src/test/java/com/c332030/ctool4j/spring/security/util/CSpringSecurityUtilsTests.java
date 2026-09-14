@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.spring.security.util;
 
+import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ import java.util.Collections;
  * <p><b>覆盖场景</b>：获取认证信息、主体（字符串/UserDetails/null 主体）、用户详情（UserDetails/字符串强转异常/空上下文）。</p>
  * <p><b>未覆盖</b>：真实容器/框架集成场景。</p>
  *
- * <p><b>用例编号索引</b>：1 Security 工具（1.1-1.9），各测试方法 javadoc 标注其编号与说明。</p>
+ * <p><b>用例编号索引</b>：1 Security 工具（1.1-1.10），各测试方法 javadoc 标注其编号与说明。</p>
  *
  * <h2>设计思路</h2>
  * <ul>
@@ -43,6 +44,7 @@ import java.util.Collections;
  * <ul>
  *   <li>覆盖：空上下文取认证信息 / 主体返回 null；设置后取回同一认证信息；字符串主体、{@code UserDetails} 主体、null 主体的主体获取；</li>
  *   <li>{@code UserDetails} 主体的用户详情原样返回；字符串主体取用户详情抛 {@code ClassCastException}；空上下文取用户详情返回 null。</li>
+ *   <li>另覆盖 {@code ANONYMOUS_AUTHORITIES} 常量口径：权限名与 Spring 匿名认证取值一致，且元素取自权限常量池。</li>
  *   <li>未覆盖：真实 Spring 容器/框架装配的集成场景（认证/授权链路由集成用例覆盖）。</li>
  * </ul>
  * <h2>Security 工具</h2>
@@ -56,6 +58,7 @@ import java.util.Collections;
  *   <li>1.7 UserDetails 主体取用户详情原样返回（testGetUserDetails_userDetailsPrincipal）</li>
  *   <li>1.8 字符串主体取用户详情抛 ClassCastException（testGetUserDetails_stringPrincipal）</li>
  *   <li>1.9 空上下文取用户详情返回 null（testGetUserDetails_emptyContext_returnsNull）</li>
+ *   <li>1.10 匿名权限名与常量池实例衔接（testAnonymousAuthorities_roleConstantFromPool）</li>
  * </ul>
  *
  * @author c332030
@@ -172,5 +175,26 @@ class CSpringSecurityUtilsTests {
         // 边界：空上下文时 getPrincipal 返回 null，anyType((Object)null) 返回 null
         SecurityContextHolder.clearContext();
         Assertions.assertNull(CSpringSecurityUtils.getUserDetails());
+    }
+
+        /**
+         * 对应测试用例 1.10：匿名权限名与 Spring 匿名认证取值一致，权限实例取自常量池，且集合不可修改
+         */
+    @Test
+    void testAnonymousAuthorities_roleConstantFromPool() {
+        // 正例：常量值锁定与 Spring 官方实现的约定（Spring 无该公共常量，取值以其 AnonymousAuthenticationFilter 为准）；
+        // 权限元素与反序列化等入口共用同一实例
+        Assertions.assertEquals("ROLE_ANONYMOUS", CSpringSecurityUtils.ROLE_ANONYMOUS);
+
+        Assertions.assertEquals(1, CSpringSecurityUtils.ANONYMOUS_AUTHORITIES.size());
+        val authority = CSpringSecurityUtils.ANONYMOUS_AUTHORITIES.get(0);
+        Assertions.assertEquals(CSpringSecurityUtils.ROLE_ANONYMOUS, authority.getAuthority());
+        Assertions.assertSame(CGrantedAuthorityUtils.get(CSpringSecurityUtils.ROLE_ANONYMOUS), authority);
+
+        // 共享常量不可修改：锁定该行为，避免调用方就地改写全局匿名权限集合（原实现为可变 ArrayList）
+        Assertions.assertThrowsExactly(
+            UnsupportedOperationException.class,
+            () -> CSpringSecurityUtils.ANONYMOUS_AUTHORITIES.add(CGrantedAuthorityUtils.get("ROLE_X"))
+        );
     }
 }

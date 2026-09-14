@@ -34,7 +34,7 @@
 
 | link:spring/[spring]
 | Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-cloud）
-| link:spring/ip.adoc[ip]、link:spring/real-class-name.adoc[真实业务类/类名/包名]、link:spring/spring-perf.adoc[性能实测]
+| link:spring/ip.adoc[ip]、link:spring/real-class-name.adoc[真实业务类/类名/包名]、link:spring/authority-json.adoc[会话权限的 JSON 读写]、link:spring/spring-perf.adoc[性能实测]
 
 |===
 
