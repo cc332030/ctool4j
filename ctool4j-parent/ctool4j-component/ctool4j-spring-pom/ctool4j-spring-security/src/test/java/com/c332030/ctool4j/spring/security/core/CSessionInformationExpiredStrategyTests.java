@@ -14,7 +14,7 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
  * Description: CSessionInformationExpiredStrategyTests
  * </p>
  * <p>
- * 覆盖会话过期处理：输出 401 与 "Expired" 提示。
+ * 覆盖会话过期处理：输出 401 与 "Expired" 提示（文案不含请求路径）。
  * 通过 Spring 的 Mock 请求/响应运行完整 writeJsonError 链路，不依赖 Spring 容器。
  * </p>
  *
@@ -38,7 +38,7 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
  * </ul>
  *
  * @since 2026/8/17
- * @version 1.0
+ * @version 1.1
  */
 class CSessionInformationExpiredStrategyTests {
 
@@ -49,7 +49,7 @@ class CSessionInformationExpiredStrategyTests {
          */
     @Test
     void testOnExpiredSessionDetected_write401() throws Exception {
-        // 正例：会话过期输出 401，文案为 Expired + 请求路径
+        // 正例：会话过期输出 401，文案为 Expired
         val request = new MockHttpServletRequest("GET", "/api/user");
         val response = new MockHttpServletResponse();
 
@@ -62,6 +62,7 @@ class CSessionInformationExpiredStrategyTests {
         Assertions.assertTrue(response.getContentType().contains("application/json"));
         val content = response.getContentAsString();
         Assertions.assertTrue(content.contains("Expired"));
-        Assertions.assertTrue(content.contains("/api/user"));
+        // 文案不含请求路径：响应体只由入参文案决定
+        Assertions.assertFalse(content.contains("/api/user"));
     }
 }

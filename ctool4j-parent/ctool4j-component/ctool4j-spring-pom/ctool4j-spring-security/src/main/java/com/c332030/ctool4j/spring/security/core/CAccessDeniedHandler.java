@@ -53,7 +53,7 @@ public class CAccessDeniedHandler implements AccessDeniedHandler {
 
         CSpringSecurityUtils.writeJsonError(
             HttpStatus.FORBIDDEN,
-            request, response
+            response
         );
 
     }

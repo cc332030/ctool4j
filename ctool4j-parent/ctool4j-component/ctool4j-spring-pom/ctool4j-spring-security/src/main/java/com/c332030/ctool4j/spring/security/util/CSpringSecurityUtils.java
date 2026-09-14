@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import java.util.List;
  * <p>{@code CSpringSecurityUtils}（{@code @UtilityClass}）提供 Spring Security 的静态访问入口：</p>
  * <ul>
  *   <li>{@code getAuthentication()} / {@code setAuthentication(Authentication)}：获取 / 设置当前安全上下文的认证信息</li>
- *   <li>认证错误输出：以 JSON 形式输出认证失败信息（供未认证 / 拒绝访问处理器复用）</li>
+ *   <li>认证错误输出：以 JSON 形式输出认证失败信息（供未认证 / 拒绝访问处理器复用），可指定自定义文案</li>
  *   <li>常量 {@code ROLE_ANONYMOUS}：匿名权限名（取值与 Spring Security 匿名认证一致，供权限比对与构造复用）</li>
  *   <li>常量 {@code ANONYMOUS_AUTHORITIES}：匿名权限，实例取自权限常量池 {@code CGrantedAuthorityUtils}，为不可修改集合</li>
  * </ul>
@@ -81,10 +80,16 @@ import java.util.List;
  * <ul>
  *   <li>主体类型由认证方式决定：{@code UsernamePasswordAuthenticationToken} 常为字符串主体，{@code UserDetails} 认证为 {@code UserDetails} 主体。</li>
  * </ul>
+ * <p><b>认证错误输出的文案口径</b></p>
+ * <ul>
+ *   <li>响应体为统一结构 {@code CStrResult}，业务码取 HTTP 状态码；{@code message} 为空时回退为状态码默认文案（{@code ReasonPhrase}）。</li>
+ *   <li>文案只由入参决定：不拼接请求路径（requestURI），路径与查询串均不进入响应体（需要时由调用方日志 / 网关掌握），
+ *   故本方法不依赖请求对象、调用方无需传请求。</li>
+ * </ul>
  *
  * @author c332030
  * @since 2026/1/23
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CSpringSecurityUtils {
@@ -170,15 +175,13 @@ public class CSpringSecurityUtils {
      * 以 JSON 形式输出认证错误
      *
      * @param httpStatus HTTP 状态码
-     * @param request    请求
      * @param response   响应
      */
     public void writeJsonError(
         HttpStatus httpStatus,
-        HttpServletRequest request,
         HttpServletResponse response
     ) {
-        writeJsonError(httpStatus, null, request, response);
+        writeJsonError(httpStatus, null, response);
     }
 
     /**
@@ -186,22 +189,18 @@ public class CSpringSecurityUtils {
      *
      * @param httpStatus HTTP 状态码
      * @param message    错误信息，为空时取状态码默认文案
-     * @param request    请求
      * @param response   响应
      */
     public void writeJsonError(
         HttpStatus httpStatus,
         String message,
-        HttpServletRequest request,
         HttpServletResponse response
     ) {
-
-        val requestUrl = request.getRequestURI();
 
         message = StrUtil.blankToDefault(message, httpStatus.getReasonPhrase());
         val forbiddenResult = CStrResult.error(
             String.valueOf(httpStatus.value()),
-            message + "：" + requestUrl
+            message
         );
 
         CServletUtils.writeJson(response, httpStatus, forbiddenResult);

@@ -41,7 +41,7 @@ public class CSessionInformationExpiredStrategy implements SessionInformationExp
         CSpringSecurityUtils.writeJsonError(
             HttpStatus.UNAUTHORIZED,
             "Expired",
-            event.getRequest(), event.getResponse()
+            event.getResponse()
         );
 
     }

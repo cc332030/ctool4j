@@ -8,7 +8,7 @@
 
 ## 功能特性
 
-- **全局异常处理**：内置多类异常处理器（业务异常、参数校验异常、HTTP 方法不支持、消息不可写、客户端中断、非法参数/状态、兜底 Throwable），通过 `@ConditionalOnMissingExceptionHandler` 支持业务自定义覆盖
+- **全局异常处理**：内置多类异常处理器（业务异常、参数校验异常、请求体缺失/不可读、必填参数缺失、参数类型不匹配、HTTP 方法不支持、消息不可写、客户端中断、非法参数/状态、兜底 Throwable），通过 `@ConditionalOnMissingExceptionHandler` 支持业务自定义覆盖
 - **跨域全面支持**：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强多层方案
 - **JWT 与 token**：`CJwtUtils`（JWT 生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头与请求属性读写）
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称

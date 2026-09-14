@@ -13,7 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
  * Description: CAccessDeniedHandlerTests
  * </p>
  * <p>
- * 覆盖访问被拒绝时的错误响应输出：状态码 403、默认提示文案与请求路径拼接。
+ * 覆盖访问被拒绝时的错误响应输出：状态码 403 与默认提示文案（文案仅由状态码决定，不含请求路径）。
  * 通过 Spring 的 Mock 请求/响应运行完整 writeJsonError 链路，不依赖 Spring 容器。
  * </p>
  *
@@ -37,7 +37,7 @@ import org.springframework.security.access.AccessDeniedException;
  * </ul>
  *
  * @since 2026/8/17
- * @version 1.0
+ * @version 1.1
  */
 class CAccessDeniedHandlerTests {
 
@@ -47,8 +47,8 @@ class CAccessDeniedHandlerTests {
          * 对应测试用例 1.1：验证处理访问被拒绝，输出 403（对应测试方法 1.1-1.2）
          */
     @Test
-    void testHandle_write403WithReasonAndUrl() throws Exception {
-        // 正例：输出 403，文案为默认 ReasonPhrase + 请求路径
+    void testHandle_write403WithReason() throws Exception {
+        // 正例：输出 403，文案为默认 ReasonPhrase
         val request = new MockHttpServletRequest("GET", "/api/user");
         val response = new MockHttpServletResponse();
 
@@ -59,23 +59,25 @@ class CAccessDeniedHandlerTests {
         val content = response.getContentAsString();
         Assertions.assertTrue(content.contains("403"));
         Assertions.assertTrue(content.contains(HttpStatus.FORBIDDEN.getReasonPhrase()));
-        Assertions.assertTrue(content.contains("/api/user"));
+        // 文案不含请求路径：响应体只由状态码（+ 可选自定义文案）决定
+        Assertions.assertFalse(content.contains("/api/user"));
     }
 
         /**
          * 对应测试用例 1.2
          */
     @Test
-    void testHandle_withQueryStringUsesRequestUri() throws Exception {
-        // 边界：带查询串时仍以 requestURI 作为路径
-        val request = new MockHttpServletRequest("GET", "/api/user");
+    void testHandle_responseIndependentOfRequestUrl() throws Exception {
+        // 边界：换路径 / 带查询串后响应体不变——请求信息（路径与查询串）均不进入响应
+        val request = new MockHttpServletRequest("GET", "/api/other");
         request.setQueryString("a=1");
         val response = new MockHttpServletResponse();
 
         handler.handle(request, response, new AccessDeniedException("denied"));
 
         val content = response.getContentAsString();
-        Assertions.assertTrue(content.contains("/api/user"));
+        Assertions.assertFalse(content.contains("/api/other"));
         Assertions.assertFalse(content.contains("a=1"));
+        Assertions.assertTrue(content.contains(HttpStatus.FORBIDDEN.getReasonPhrase()));
     }
 }

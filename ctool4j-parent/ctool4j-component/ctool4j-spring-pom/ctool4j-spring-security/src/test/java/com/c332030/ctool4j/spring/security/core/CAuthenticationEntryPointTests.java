@@ -15,7 +15,7 @@ import org.springframework.security.core.AuthenticationException;
  * Description: CAuthenticationEntryPointTests
  * </p>
  * <p>
- * 覆盖未认证访问时的错误响应输出：按异常类型生成提示文案并输出 401。
+ * 覆盖未认证访问时的错误响应输出：按异常类型生成提示文案并输出 401（文案不含请求路径）。
  * 通过 Spring 的 Mock 请求/响应运行完整 writeJsonError 链路，不依赖 Spring 容器。
  * </p>
  *
@@ -39,7 +39,7 @@ import org.springframework.security.core.AuthenticationException;
  * </ul>
  *
  * @since 2026/8/17
- * @version 1.0
+ * @version 1.1
  */
 class CAuthenticationEntryPointTests {
 
@@ -62,7 +62,8 @@ class CAuthenticationEntryPointTests {
         // 正例：无有效登录用户
         val content = run(new AuthenticationCredentialsNotFoundException("no user"));
         Assertions.assertTrue(content.contains("无有效登录用户"));
-        Assertions.assertTrue(content.contains("/api/user"));
+        // 文案不含请求路径：响应体只由异常类型（+ 状态码默认文案）决定
+        Assertions.assertFalse(content.contains("/api/user"));
     }
 
         /**
