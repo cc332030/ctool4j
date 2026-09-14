@@ -8,6 +8,7 @@
   - 类（class）统一使用 `C` 固定前缀。
   - 接口（interface）按类型区分前缀：
     - **纯字段接口**（仅为数据对象提供属性/字段契约的接口，如 `ICId`、`ICName`、`ICCreateBy`）统一使用 `IC` 固定前缀。
+    - **纯字段接口（`IC` 开头的接口）不声明 set 方法**（除非确有必要）：接口只暴露读取契约，写入能力由实现类承担（lombok `@Data`/`@Setter`、构造器、Builder）。原因是 `void setXxx(...)` 与 lombok 链式访问器不兼容：`@Accessors(chain = true)` 生成的 setter 返回 `this`，而返回值类型无法重写 `void` 方法，实现类无法同时满足「链式访问器」与「接口契约」——即"接口里一个 void setter 会挡掉所有想用链式 setter 的实现"，实现类编译失败。确有必要时（如需框架按接口写入）必须同时确认实现类不使用链式访问器，并在接口 javadoc 写明该约束。
     - **功能型接口**（定义行为/能力方法、作为组件或框架扩展点被实现，含 function 接口）**不要求** `IC` 前缀（非禁止，而是不强制）：新增的使用 `C` 前缀（如 `CFunction`、`CBiConsumer`、`CService`）；沿用 JDK/Hutool 等既有命名的函数式接口保持原名（如 `StringFunction`、`ToStringFunction`、`StartEndTimeConsumer`）。
   - **禁止新增裸 `I` 前缀**类型：不得仅以 `I` 开头（如 `ISecuritySession` 应为 `ICSecuritySession`、`IFoo` 应为 `ICFoo`）；既有裸 `I` 类型（如 `IGenericType`）随变更迁移。
 
@@ -19,6 +20,7 @@
 
 - 项目在根目录 `lombok.config` 全局配置 `lombok.toString.callSuper=call`、`lombok.equalsAndHashCode.callSuper=call`：继承场景下 lombok 自动在 `toString`/`equals`/`hashCode` 中包含父类字段，子类**无需**再显式标注 `@ToString(callSuper=true)`/`@EqualsAndHashCode(callSuper=true)`（标注属冗余，禁止新增）
 - 全局配置 `lombok.fieldDefaults.defaultPrivate=true`：字段默认 private（显式 `public`/`protected` 字段不受影响）
+- 接口中声明 `void setXxx(...)` 会与链式访问器（`@Accessors(chain = true)`）冲突：生成的 setter 返回 `this`，无法重写 `void` 方法，实现类编译失败。约束与例外见「命名前缀 - 纯字段接口」。
 
 ## Java 反射（项目自有方法句柄工具）
 
