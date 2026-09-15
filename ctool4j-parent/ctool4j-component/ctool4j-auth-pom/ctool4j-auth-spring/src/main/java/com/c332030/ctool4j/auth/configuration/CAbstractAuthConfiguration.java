@@ -92,7 +92,7 @@ import org.springframework.context.annotation.Bean;
  *   <li>{@code @Bean} 方法名遵循项目规范以 {@code c} 前缀命名，bean 名为 {@code cAuthFilter}。</li>
  * </ul>
  *
- * @param <T> 会话类型（Security 相关，下界 {@link ICSecuritySession}）
+ * @param <SESSION> 会话类型（Security 相关，下界 {@link ICSecuritySession}）
  *
  * @author c332030
  * @since 2026/9/14
@@ -101,7 +101,7 @@ import org.springframework.context.annotation.Bean;
  * @see CAbstractAuthFilter
  */
 //@Configuration
-public abstract class CAbstractAuthConfiguration<T extends ICSecuritySession> extends CAbstractAuthBaseConfiguration<T> {
+public abstract class CAbstractAuthConfiguration<SESSION extends ICSecuritySession> extends CAbstractAuthBaseConfiguration<SESSION> {
 
     /**
      * 判断会话是否为匿名（未认证）
@@ -113,7 +113,7 @@ public abstract class CAbstractAuthConfiguration<T extends ICSecuritySession> ex
      * @param session 会话
      * @return true 表示匿名/未认证，将构造匿名认证信息；false 表示已认证（默认实现）
      */
-    protected boolean isAuthAnonymous(T session) {
+    protected boolean isAuthAnonymous(SESSION session) {
         return false;
     }
 
@@ -126,10 +126,10 @@ public abstract class CAbstractAuthConfiguration<T extends ICSecuritySession> ex
      */
     @Bean
     @ConditionalOnMissingBean(CAbstractAuthFilter.class)
-    public CAbstractAuthFilter<T> cAuthFilter() {
-        return new CAbstractAuthFilter<T>() {
+    public CAbstractAuthFilter<SESSION> cAuthFilter() {
+        return new CAbstractAuthFilter<SESSION>() {
             @Override
-            public boolean isAnonymous(T session) {
+            public boolean isAnonymous(SESSION session) {
                 return isAuthAnonymous(session);
             }
         };

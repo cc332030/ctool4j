@@ -75,20 +75,20 @@ import org.springframework.context.annotation.Bean;
  * @version 1.0
  */
 //@Configuration
-public abstract class CAbstractAuthBaseConfiguration<T extends ICSession> {
+public abstract class CAbstractAuthBaseConfiguration<SESSION extends ICSession> {
 
     /**
      * 提供默认的 mock 会话配置 bean（业务已提供同类型 bean 时跳过）
      *
-     * <p>返回的是绑定到本类会话类型 {@code T} 的匿名子类实例，默认关闭（{@code enable=false}、{@code session=null}），
+     * <p>返回的是绑定到本类会话类型 {@code SESSION} 的匿名子类实例，默认关闭（{@code enable=false}、{@code session=null}），
      * 不会对认证流程产生任何影响。</p>
      *
      * @return 默认 mock 会话配置
      */
     @Bean
     @ConditionalOnMissingBean(CAbstractSessionMockConfig.class)
-    public CAbstractSessionMockConfig<T> cSessionMockConfig() {
-        return new CAbstractSessionMockConfig<T>() {};
+    public CAbstractSessionMockConfig<SESSION> cSessionMockConfig() {
+        return new CAbstractSessionMockConfig<SESSION>() {};
     }
 
 }
