@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.session.service;
 
-import com.c332030.ctool4j.session.interfaces.ICSession;
+import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import lombok.CustomLog;
 
@@ -20,7 +20,7 @@ import lombok.CustomLog;
  * @version 1.0
  */
 @CustomLog
-public abstract class CAbstractSessionService<SESSION extends ICSession> extends CAbstractBaseSessionService<SESSION> {
+public abstract class CAbstractSessionService<SESSION extends ICSecuritySession> extends CAbstractBaseSessionService<SESSION> {
 
     /**
      * 获取当前会话（未授权返回 null，不抛异常）
