@@ -48,7 +48,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @version 1.0
  */
 @Data
-@ConfigurationProperties("c-doc.openapi2")
+@ConfigurationProperties("doc.openapi2")
 public class CDocOpenApi2Config {
 
     /**
