@@ -11,13 +11,14 @@ import org.springframework.context.annotation.Bean;
  * </p>
  *
  * <p>认证模块装配基类（auth-spring）：在 auth-base 的 {@link CAbstractAuthBaseConfiguration}（mock 会话配置落点）
- * 之上，追加 Spring Security 认证过滤器的默认装配；业务侧继承本类、实现 {@link #isAuthAnonymous}，即可同时获得二者。</p>
+ * 之上，追加 Spring Security 认证过滤器的默认装配；业务侧继承本类、（按需）覆写 {@link #isAuthAnonymous}，
+ * 即可同时获得二者。</p>
  *
  * <h2>能力目录</h2>
  * <ul>
  *   <li>{@code cAuthFilter()}：业务未自建 {@link CAbstractAuthFilter} 时，提供一个默认（匿名子类）实现，
  *   其匿名判定委派给 {@link #isAuthAnonymous}</li>
- *   <li>{@link #isAuthAnonymous}：模板方法，业务子类实现"会话是否匿名"的判定</li>
+ *   <li>{@link #isAuthAnonymous}：可覆写的判定方法（"会话是否匿名"），<b>不覆写时按默认值（非匿名＝已认证）处理</b></li>
  *   <li>继承 {@link CAbstractAuthBaseConfiguration}：同时获得默认 mock 会话配置 bean（{@code cSessionMockConfig}）</li>
  * </ul>
  *
@@ -32,9 +33,13 @@ import org.springframework.context.annotation.Bean;
  * <p><b>为什么再包一层 {@link #isAuthAnonymous}</b></p>
  * <ul>
  *   <li>{@link CAbstractAuthFilter#isAnonymous} 是过滤器契约上的公开方法，而业务在本类只需回答"会话是否匿名"这一个问题，
- *   故收口为模板方法：业务子类实现 {@link #isAuthAnonymous}，默认过滤器负责把判定接进过滤器。</li>
- *   <li>该方法为 {@code protected} 而非包私有：业务子类与本类<b>不同包</b>，包私有的抽象方法跨包无法被实现
- *   （子类即使声明同签名方法也不构成覆写），会导致子类编译失败——跨包可继承是本类的硬约束（有测试固化）。</li>
+ *   故收口为可覆写方法：业务子类覆写 {@link #isAuthAnonymous}，默认过滤器负责把判定接进过滤器。</li>
+ *   <li>该方法为 {@code protected} 而非包私有：业务子类与本类<b>不同包</b>，包私有方法跨包不构成覆写——子类即使写了
+ *   同签名方法也不会被调用，而是静默走默认实现（契约失效且不报错），故必须以 {@code protected} 暴露给子类
+ *   （委派用例可捕捉该回归）。</li>
+ *   <li>默认实现返回 {@code false}（非匿名＝已认证），即"有会话即视为已登录"：本类<b>不做</b>兜底拒绝，
+ *   是否匿名由业务语义决定（如访客会话应覆写为 {@code true}）。这是显式取舍而非"安全默认"，
+ *   漏覆写的后果见「已知限制与取舍」。</li>
  * </ul>
  * <p><b>本类自身不加 {@code @Configuration}（当前为注释状态）</b></p>
  * <ul>
@@ -53,14 +58,14 @@ import org.springframework.context.annotation.Bean;
  *   <td>注册默认过滤器：匿名判定委派给子类的 {@link #isAuthAnonymous}</td></tr>
  *   <tr><td>业务已提供同类型 bean</td>
  *   <td>{@code @ConditionalOnMissingBean} 跳过默认实现，不覆盖业务过滤器</td></tr>
- *   <tr><td>业务子类未实现 {@link #isAuthAnonymous}</td>
- *   <td>编译期报错（抽象方法），不会在运行期静默按"非匿名"处理</td></tr>
+ *   <tr><td>业务子类未覆写 {@link #isAuthAnonymous}</td>
+ *   <td>使用默认实现：按"非匿名"处理（会话被视为已认证），不报错</td></tr>
  * </table>
  *
  * <h2>适用范围</h2>
  * <ul>
- *   <li>引入 Spring Security 的业务装配：继承本类 + 加 {@code @Configuration} + 实现 {@link #isAuthAnonymous}，
- *   即同时获得"mock 会话配置落点"与"认证过滤器"。</li>
+ *   <li>引入 Spring Security 的业务装配：继承本类 + 加 {@code @Configuration} +（按需）覆写
+ *   {@link #isAuthAnonymous}，即同时获得"mock 会话配置落点"与"认证过滤器"。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>
@@ -69,10 +74,16 @@ import org.springframework.context.annotation.Bean;
  *   （本类装配的 {@link CAbstractAuthFilter} 需要 Spring Security 在类路径上），二者择一。</li>
  *   <li>需自定义过滤器行为（如解析失败即拒绝、额外埋点）时，应自建 {@link CAbstractAuthFilter} bean，
  *   本类的默认实现会自动让位。</li>
+ *   <li>会话可能是"未登录访客"（如仅持有匿名会话）时<b>必须</b>覆写 {@link #isAuthAnonymous} 返回 {@code true}，
+ *   否则访客会话会被当作已认证。</li>
  * </ul>
  *
  * <h2>已知限制与取舍</h2>
  * <ul>
+ *   <li>默认"非匿名"意味着<b>漏覆写不会报错</b>：会话一旦存在即被构造为已认证
+ *   （{@code UsernamePasswordAuthenticationToken}，而非 {@code AnonymousAuthenticationToken}），
+ *   {@code authenticated()} 级别的授权规则会放行；此时权限仅为会话默认权限
+ *   （{@code ICSecuritySession#getAuthorities()} 默认 {@code ROLE_ANONYMOUS}），按角色/权限的规则仍会拦截。</li>
  *   <li>{@code @ConditionalOnMissingBean} 在本类（非自动配置类）上按注册顺序评估，与基类一致：业务过滤器
  *   <b>先于本类注册</b>时才被感知并跳过默认实现；本类先注册时两个过滤器 bean 并存（按类型注入出现歧义，
  *   需 {@code @Primary} 或按名注入）。自动配置天然最后加载，业务侧显式注册时需自行保证顺序。</li>
@@ -85,7 +96,7 @@ import org.springframework.context.annotation.Bean;
  *
  * @author c332030
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.1
  * @see CAbstractAuthBaseConfiguration
  * @see CAbstractAuthFilter
  */
@@ -95,19 +106,21 @@ public abstract class CAbstractAuthConfiguration<T extends ICSecuritySession> ex
     /**
      * 判断会话是否为匿名（未认证）
      *
-     * <p>模板方法：业务子类实现本方法，默认过滤器 {@code cAuthFilter} 把判定结果接到
+     * <p>可覆写方法：默认返回 {@code false}（非匿名＝已认证，即"有会话即视为已登录"）；业务按自身会话语义覆写
+     * （如访客会话返回 {@code true}）。默认过滤器 {@code cAuthFilter} 把判定结果接到
      * {@link CAbstractAuthFilter#isAnonymous} 上。</p>
      *
      * @param session 会话
-     * @return true 表示匿名/未认证，将构造匿名认证信息；false 表示已认证
+     * @return true 表示匿名/未认证，将构造匿名认证信息；false 表示已认证（默认实现）
      */
-    protected abstract boolean isAuthAnonymous(T session);
+    protected boolean isAuthAnonymous(T session) {
+        return false;
+    }
 
     /**
      * 提供默认的认证过滤器 bean（业务已提供同类型 bean 时跳过）
      *
-     * <p>返回绑定到本类会话类型 {@code T} 的匿名子类实例，其匿名判定委派给 {@link #isAuthAnonymous}；
-     * 子类未实现 {@link #isAuthAnonymous} 时本类无法被继承（编译期报错）。</p>
+     * <p>返回绑定到本类会话类型 {@code T} 的匿名子类实例，其匿名判定委派给 {@link #isAuthAnonymous}。</p>
      *
      * @return 默认认证过滤器
      */
