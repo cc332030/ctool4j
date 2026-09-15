@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.auth.config;
 
+import com.c332030.ctool4j.auth.configuration.CAbstractAuthBaseConfiguration;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import lombok.val;
@@ -11,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>
- * Description: CAbstractAuthConfigurationTests
+ * Description: CAbstractAuthBaseConfigurationTests
  * </p>
  * <p>
- * 验证 {@link CAbstractAuthConfiguration} 的默认装配契约：未提供 mock 配置时给出关闭态默认 bean、
+ * 验证 {@link CAbstractAuthBaseConfiguration} 的默认装配契约：未提供 mock 配置时给出关闭态默认 bean、
  * 业务子类继承后按泛型绑定会话类型、以及业务自建配置时不被覆盖。
  * </p>
  *
@@ -58,13 +59,13 @@ import org.springframework.context.annotation.Configuration;
  * @since 2026/9/14
  * @version 1.0
  */
-class CAbstractAuthConfigurationTests {
+class CAbstractAuthBaseConfigurationTests {
 
     /**
      * 默认装配运行器：仅注册基类，等价于业务侧显式引入本类（基类自身不带 {@code @Configuration}，组件扫描发现不到）
      */
     private static final ApplicationContextRunner DEFAULT_RUNNER =
-        new ApplicationContextRunner().withUserConfiguration(CAbstractAuthConfiguration.class);
+        new ApplicationContextRunner().withUserConfiguration(CAbstractAuthBaseConfiguration.class);
 
     /**
      * 对应测试用例 1.1：未提供业务配置时注册关闭态默认 bean
@@ -88,7 +89,7 @@ class CAbstractAuthConfigurationTests {
     @Test
     void cSessionMockConfig_subclass_beanBoundToSessionType() {
         new ApplicationContextRunner()
-            .withUserConfiguration(UserAuthConfiguration.class)
+            .withUserConfiguration(UserAuthBaseConfiguration.class)
             .run(context -> {
                 // 正例：子类只需固定泛型 + 加 @Configuration，基类 @Bean 方法被继承
                 val bean = context.getBean(CAbstractSessionMockConfig.class);
@@ -112,7 +113,7 @@ class CAbstractAuthConfigurationTests {
     @Test
     void cSessionMockConfig_userConfigRegisteredFirst_skipsDefault() {
         new ApplicationContextRunner()
-            .withUserConfiguration(UserMockConfig.class, CAbstractAuthConfiguration.class)
+            .withUserConfiguration(UserMockConfig.class, CAbstractAuthBaseConfiguration.class)
             .run(context -> {
                 val names = context.getBeanNamesForType(CAbstractSessionMockConfig.class);
 
@@ -128,7 +129,7 @@ class CAbstractAuthConfigurationTests {
     @Test
     void cSessionMockConfig_selfRegisteredFirst_conditionMissesUserConfig() {
         new ApplicationContextRunner()
-            .withUserConfiguration(CAbstractAuthConfiguration.class, UserMockConfig.class)
+            .withUserConfiguration(CAbstractAuthBaseConfiguration.class, UserMockConfig.class)
             .run(context -> {
                 // 边界：@ConditionalOnMissingBean 按注册顺序评估，本类先注册时业务定义尚未存在，
                 // 默认实现与业务实现并存（按类型注入将出现歧义，需 @Primary 或按名注入）
@@ -143,7 +144,7 @@ class CAbstractAuthConfigurationTests {
      * 业务侧基类子类：固定会话类型（复现业务用法）
      */
     @Configuration
-    static class UserAuthConfiguration extends CAbstractAuthConfiguration<TestSession> {
+    static class UserAuthBaseConfiguration extends CAbstractAuthBaseConfiguration<TestSession> {
 
     }
 

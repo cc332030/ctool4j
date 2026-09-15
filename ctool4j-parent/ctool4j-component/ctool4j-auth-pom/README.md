@@ -21,7 +21,7 @@
 
 | 子模块 | 定位 |
 |--------|------|
-| `ctool4j-auth-base` | 认证基础：`CAuthUtils`、`CAuthConfig`、`CSessionConfig`、`CAbstractAuthConfiguration`、`ICJwtInfo`、`ICSession`、`CAbstractBaseAuthFilter`、`CAbstractBaseSessionService`、`CAbstractSessionMockConfig` |
+| `ctool4j-auth-base` | 认证基础：`CAuthUtils`、`CAuthConfig`、`CSessionConfig`、`CAbstractAuthBaseConfiguration`、`ICJwtInfo`、`ICSession`、`CAbstractBaseAuthFilter`、`CAbstractBaseSessionService`、`CAbstractSessionMockConfig` |
 | `ctool4j-auth-spring` | Spring Security 集成：`CAbstractAuthFilter`、`CAbstractSessionService`、`ICSecuritySession` |
 
 ## 核心类
@@ -31,7 +31,7 @@
 | `CAuthUtils` | auth-base | 工具类 | 以配置密钥校验 jwt 并解析 token；生成 jwt 并写入响应头 |
 | `CAuthConfig` | auth-base | 配置类 | 认证配置（`jwtSecret`） |
 | `CSessionConfig` | auth-base | 配置类 | 会话配置（`expire`） |
-| `CAbstractAuthConfiguration` | auth-base | 装配基类 | 认证模块默认装配：业务未自建 `CAbstractSessionMockConfig` 时提供关闭态默认 bean；业务子类加 `@Configuration` 继承其 `@Bean` 方法并固定会话类型 |
+| `CAbstractAuthBaseConfiguration` | auth-base | 装配基类 | 认证模块默认装配：业务未自建 `CAbstractSessionMockConfig` 时提供关闭态默认 bean；业务子类加 `@Configuration` 继承其 `@Bean` 方法并固定会话类型 |
 | `ICJwtInfo` | auth-base | 接口 | jwt body（载荷）标记接口，实现类字段即载荷内容 |
 | `CAbstractBaseAuthFilter` | auth-base | 过滤器基类 | 认证过滤器公共部分：过滤器骨架、mock 会话加载、加载会话；不依赖 Spring Security |
 | `CAbstractAuthFilter` | auth-spring | 过滤器基类 | 业务直接继承：构造 Security 认证信息（普通会话按匿名判定、mock 会话无条件已认证） |

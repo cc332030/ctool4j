@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.auth.config;
+package com.c332030.ctool4j.auth.configuration;
 
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
@@ -7,11 +7,11 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * <p>
- * Description: CAbstractAuthConfiguration
+ * Description: CAbstractAuthBaseConfiguration
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CAbstractAuthConfiguration} 为认证模块的装配基类，向业务模块提供默认的 mock 会话配置 bean：</p>
+ * <p>{@code CAbstractAuthBaseConfiguration} 为认证模块的装配基类，向业务模块提供默认的 mock 会话配置 bean：</p>
  * <ul>
  *   <li>{@code cSessionMockConfig()}：业务未自建 {@link CAbstractSessionMockConfig} 时，提供一个默认（禁用态）实现</li>
  * </ul>
@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Bean;
  * <h2>设计要点</h2>
  * <p><b>为什么是泛型基类 + 匿名子类</b></p>
  * <ul>
- *   <li>本类不确定会话类型，由业务子类继承时固定（{@code CAbstractAuthConfiguration<UserSession>}）；
+ *   <li>本类不确定会话类型，由业务子类继承时固定（{@code CAbstractAuthBaseConfiguration<UserSession>}）；
  *   基类的 {@code @Bean} 方法再以匿名子类 {@code new CAbstractSessionMockConfig<T>() {}} 把该类型绑定到 bean 上。</li>
  *   <li>Spring 会处理配置类<b>声明及继承</b>的 {@code @Bean} 方法，故业务子类加 {@code @Configuration} 即可获得默认装配，
  *   无需重复定义方法体。</li>
@@ -68,7 +68,7 @@ import org.springframework.context.annotation.Bean;
  * @version 1.0
  */
 //@Configuration
-public class CAbstractAuthConfiguration<T extends ICSession> {
+public abstract class CAbstractAuthBaseConfiguration<T extends ICSession> {
 
     /**
      * 提供默认的 mock 会话配置 bean（业务已提供同类型 bean 时跳过）
