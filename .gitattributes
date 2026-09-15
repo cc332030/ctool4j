@@ -1,6 +1,6 @@
 
-*.cmd           text working-tree-encoding=UTF-8 eol=crlf
-*.bat           text working-tree-encoding=UTF-8 eol=crlf
+*.cmd           text working-tree-encoding=GBK eol=crlf
+*.bat           text working-tree-encoding=GBK eol=crlf
 *.ps1           text working-tree-encoding=UTF-8 eol=crlf
 
 # 代码生成模板（FreeMarker）：不参与文本行尾归一化，保持模板原样
