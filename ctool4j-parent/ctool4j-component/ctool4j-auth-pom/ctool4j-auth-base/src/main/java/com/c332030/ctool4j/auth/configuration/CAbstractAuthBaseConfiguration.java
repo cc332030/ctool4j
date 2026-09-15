@@ -23,11 +23,16 @@ import org.springframework.context.annotation.Bean;
  *   基类的 {@code @Bean} 方法再以匿名子类 {@code new CAbstractSessionMockConfig<T>() {}} 把该类型绑定到 bean 上。</li>
  *   <li>Spring 会处理配置类<b>声明及继承</b>的 {@code @Bean} 方法，故业务子类加 {@code @Configuration} 即可获得默认装配，
  *   无需重复定义方法体。</li>
+ *   <li>本类声明为 {@code abstract}：会话类型必须由子类固定，故不支持直接实例化或直接注册进容器
+ *   （注册抽象类会因不可实例化而启动失败），业务侧一律通过子类使用。</li>
  * </ul>
  * <p><b>本类自身不加 {@code @Configuration}（当前为注释状态）</b></p>
  * <ul>
  *   <li>本类不带 {@code @Component}/{@code @Configuration}，不会被组件扫描发现——避免"基类"被当成配置重复注册；
  *   生效方式是由业务子类加 {@code @Configuration}，或显式 {@code @Import} 本类。</li>
+ *   <li>业务子类<b>必须</b>加 {@code @Configuration}（或在子类中声明自己的 {@code @Bean} 方法）：继承来的
+ *   {@code @Bean} 方法只有在子类自身是配置候选时才会被处理；子类无注解、无 {@code @Bean} 时不会注册任何默认 bean，
+ *   且<i>不报错</i>（静默无 bean，有测试固化）。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -43,6 +48,8 @@ import org.springframework.context.annotation.Bean;
  * <h2>适用范围</h2>
  * <ul>
  *   <li>认证模块的默认装配：为业务提供"免登录 mock 会话配置"的落点，业务侧继承并加 {@code @Configuration} 即可。</li>
+ *   <li>引入 Spring Security 的场景改继承 auth-spring 的 {@code CAbstractAuthConfiguration}：它在本类之上追加认证过滤器
+ *   装配，二者按是否引入 Spring Security 择一继承。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>
