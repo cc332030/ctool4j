@@ -15,6 +15,7 @@
 ## Spring 配置
 
 - @Bean 的方法名以 `c` 作为固定前缀
+- 配置属性（`@ConfigurationProperties`）的 Bean 由 **ctool4j-spring 全局注册**：其 `@ConfigurationPropertiesScan` 扫描 `com.c332030.ctool4j`（`@CSpringBootApplication` 亦已开启该扫描），故各模块的属性类只声明 `@ConfigurationProperties` 即可，**不重复声明** `@EnableConfigurationProperties`（依赖链中已含 ctool4j-spring，属性绑定天然生效）
 
 ## Lombok
 

@@ -36,9 +36,6 @@
 |--------|--------|------|
 | `doc.openapi2.pathMapping` | `/` | 路径映射，一般是 nginx 做了反向代理、knife4j 检测不到路径时使用 |
 
-属性类 `CDocOpenApi2Config` 由 `@ConfigurationProperties` + 容器内的属性扫描注册（ctool4j-spring 的
-`@ConfigurationPropertiesScan` 覆盖 `com.c332030.ctool4j`；仅引本模块时需业务自行开启扫描或显式注册）。
-
 ## 已知限制
 
 - **springfox 的分组名由控制器类名硬编码**：`WebMvcRequestHandler#groupName()` 直接调用
