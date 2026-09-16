@@ -2,6 +2,7 @@ package com.c332030.ctool4j.doc.openapi2.test.model;
 
 import com.c332030.ctool4j.doc.annotation.CSchema;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,7 @@ import lombok.Setter;
  * <ul>
  *   <li>{@code header}：未标注 @CSchema，验证允许值保持可提交「枚举名」、description 展示「枚举名(text)」。</li>
  *   <li>{@code headerWithSchema}：标注 {@code @CSchema("带描述枚举头")}，验证自定义描述不被 text 说明覆盖。</li>
+ *   <li>{@code legacyHeaderWithDescription}：标注存量 {@code @ApiModelProperty("遗留描述头")}，验证存量注解描述同样不被 text 说明覆盖。</li>
  * </ul>
  * <h2>适用场景</h2>
  * <ul>
@@ -28,7 +30,7 @@ import lombok.Setter;
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Getter
 @Setter
@@ -44,5 +46,11 @@ public class CTextEnumTestDTO {
      */
     @CSchema("带描述枚举头")
     private CRequestHeaderEnum headerWithSchema;
+
+    /**
+     * 实现 ICText 的枚举字段（带存量 @ApiModelProperty 描述：description 保持该描述，不被 text 覆盖）
+     */
+    @ApiModelProperty("遗留描述头")
+    private CRequestHeaderEnum legacyHeaderWithDescription;
 
 }

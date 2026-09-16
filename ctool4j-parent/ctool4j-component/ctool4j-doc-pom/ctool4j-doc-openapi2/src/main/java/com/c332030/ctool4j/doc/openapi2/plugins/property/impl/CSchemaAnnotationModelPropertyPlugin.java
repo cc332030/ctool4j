@@ -117,7 +117,8 @@ public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilde
      * </ul>
      *
      * @param delimiter 文档类型（本插件不区分类型，null 也视为支持）
-     * @return 恒为 true，对所有文档类型生效*/
+     * @return 恒为 true，对所有文档类型生效
+     */
     @Override
     public boolean supports(@NonNull DocumentationType delimiter) {
         // 与项目其余插件约定一致：默认支持（null 也视为支持）

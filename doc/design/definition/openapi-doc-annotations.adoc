@@ -62,7 +62,7 @@ ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包）。
 | 注解 | openapi2 落地插件（类级细节见其源码 javadoc） |
 |------|------------------|
 | `@CSchema` | `CSchemaAnnotationModelPropertyPlugin`（描述） |
-| `@CTag` | `CTagAnnotationPlugin` |
+| `@CTag` | `CTagAnnotationPlugin`（operation 级 tag）、`CTagGroupingStrategy`（控制器级分组名与描述） |
 | `@COperation` | `COperationAnnotationPlugin` |
 | `@CParameter` | `CParameterAnnotationPlugin` |
 | `@CRequired` | `CRequiredAnnotationPlugin`、`CSchemaAnnotationModelPropertyPlugin`（必填） |

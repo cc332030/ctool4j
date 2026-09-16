@@ -53,7 +53,9 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>依赖 {@code @CParameter}（ctool4j-definition 模块）与 {@code @CNotRequired}（web 模块）注解定义。</li>
- *   <li>{@code @CNotRequired} 与 {@code @RequestParam} 同时标注时，文档非必填语义由 {@code @RequestParam} 覆盖（绑定以 @RequestParam 为准）。</li>
+ *   <li>必填语义只由本插件按注解写入（{@code @CNotRequired} → 非必填；{@code @CParameter} → 必填），
+ *   不与 {@code @RequestParam} 联动：两者语义冲突时（如 {@code @CNotRequired} 叠加 {@code @RequestParam(required = true)}）
+ *   文档与运行时绑定会不一致，应避免冲突标注。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>注解读取</b></p>
@@ -79,8 +81,9 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
     /**
      * 将 {@code @CParameter} 的 value/required 写入参数描述与必填标记。
      *
-     * <p>注解缺失时不做任何修改；value 为空白时描述不写入，必填只在 required 为 true 时置为必填
-     * （不覆盖对方已有的 true）。</p>
+     * <p>注解缺失时不做任何修改；value/name/example 为空白时对应字段不写入。必填按注解语义写入：
+     * 标注 {@code @CNotRequired} 置为非必填（独立生效，无需同时标注 {@code @CParameter}）；
+     * 否则标注 {@code @CParameter} 时置为必填（默认必填，与 {@code @RequestParam} 默认一致）。</p>
      *
      * @param context parameter 构建上下文，用于查找注解并写入字段
      */

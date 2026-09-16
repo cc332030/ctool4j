@@ -4,6 +4,7 @@ import com.c332030.ctool4j.doc.annotation.COperation;
 import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.doc.openapi2.test.model.CTextEnumTestDTO;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
+import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
  * <ul>
  *   <li>{@code body(@RequestBody CTextEnumTestDTO)}：POST {@code /c-text-enum/body}，DTO 含实现 {@code ICText} 的枚举字段</li>
  *   <li>（验证 model 字段枚举允许值可提交、description 展示 text）。</li>
- *   <li>{@code query(@RequestParam CRequestHeaderEnum header)}：POST {@code /c-text-enum/query}，枚举请求参数</li>
- *   <li>（验证 query 参数枚举允许值可提交、description 展示 text）。</li>
+ *   <li>{@code query(@RequestParam CRequestHeaderEnum header, @ApiParam CRequestHeaderEnum legacyHeader)}：POST {@code /c-text-enum/query}，枚举请求参数</li>
+ *   <li>（验证 query 参数枚举允许值可提交、description 展示 text；{@code legacyHeader} 验证存量 {@code @ApiParam} 描述不被覆盖）。</li>
  * </ul>
  * <h2>适用场景</h2>
  * <ul>
@@ -35,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @RestController
 @CTag("枚举 text 集成测试")
@@ -56,12 +57,18 @@ public class CTextEnumTestController {
     /**
      * query 参数枚举：@RequestParam 枚举参数
      *
-     * @param header 枚举参数
+     * <p>{@code legacyHeader} 标注存量 {@code @ApiParam("遗留参数描述")}：验证存量注解描述同样不被 text 说明覆盖。</p>
+     *
+     * @param header       枚举参数
+     * @param legacyHeader 存量注解描述的枚举参数
      * @return 成功标识
      */
     @COperation("枚举 text query")
     @PostMapping("/c-text-enum/query")
-    public String query(@RequestParam("header") CRequestHeaderEnum header) {
+    public String query(
+        @RequestParam("header") CRequestHeaderEnum header,
+        @ApiParam("遗留参数描述") @RequestParam(value = "legacyHeader", required = false) CRequestHeaderEnum legacyHeader
+    ) {
         return "ok";
     }
 

@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CDocOpenApi2Config}（{@code @Data} + {@code @ConfigurationProperties("c-doc.openapi2")}）承载 OpenAPI2 文档相关配置：</p>
+ * <p>{@code CDocOpenApi2Config}（{@code @Data} + {@code @ConfigurationProperties("doc.openapi2")}）承载 OpenAPI2 文档相关配置：</p>
  * <ul>
  *   <li>{@code pathMapping}：路径映射，一般用于 nginx 反向代理后 knife4j 检测不到路径的情况，默认 {@code "/"}。</li>
  * </ul>

@@ -1,11 +1,12 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl;
 
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.doc.annotation.CParameter;
 import com.c332030.ctool4j.doc.openapi2.util.CTextEnumUtils;
+import io.swagger.annotations.ApiParam;
 import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
-import org.springframework.util.StringUtils;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.ParameterBuilderPlugin;
 import springfox.documentation.spi.service.contexts.ParameterContext;
@@ -21,7 +22,7 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  *
  * <p>
  * 仅改文档展示，不影响运行时传值（允许值仍为可提交的枚举名）。
- * 若参数已标注 {@code @CParameter} 且提供说明（description），则不覆盖该描述，text 说明跳过。
+ * 若参数已自带描述（{@code @CParameter.value}，或存量的 {@code @ApiParam.value}），则不覆盖该描述，text 说明跳过。
  * </p>
  *
  * <h2>影响范围</h2>
@@ -44,8 +45,8 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  *     <td>不覆写</td>
  *   </tr>
  *   <tr>
- *     <td>已标 @CParameter(value) 自定义描述</td>
- *     <td>不写 text 说明（description 由 @CParameter 提供）</td>
+ *     <td>已自带描述（{@code @CParameter(value)} 或存量 {@code @ApiParam(value)}）</td>
+ *     <td>不写 text 说明（描述由该注解提供）</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -55,6 +56,8 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>允许值保持可提交的枚举名（与运行时一致）；text 可读性通过 description 提供，两者兼顾。</li>
+ *   <li>描述防覆盖只识别注解声明的描述（{@code @CParameter}/{@code @ApiParam}）：springfox 由类型或校验注解推导出的
+ *   描述不在判定范围内，写法上避免与推导来源混用。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>处理时机</b></p>
@@ -65,12 +68,13 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  * </ul>
  * <p><b>描述防覆盖</b></p>
  * <ul>
- *   <li>若参数已标注 {@code @CParameter} 且 {@code value} 非空（提供自定义说明），则不写入 text 说明，避免覆盖既有描述。</li>
+ *   <li>参数已自带描述（{@code @CParameter.value} 或存量 {@code @ApiParam.value} 非空）时不写入 text 说明，
+ *   避免覆盖业务声明的描述（存量 Swagger 注解与 {@code @Api} 兼容口径一致）。</li>
  * </ul>
  *
  * @author c332030
  * @since 2026/9/6
- * @version 1.0
+ * @version 1.1
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class CTextEnumParameterPlugin implements ParameterBuilderPlugin {
@@ -78,8 +82,8 @@ public class CTextEnumParameterPlugin implements ParameterBuilderPlugin {
     /**
      * 为 text 枚举类型的参数写入允许值列表与 text 可读描述。
      *
-     * <p>非 text 枚举类型直接跳过；允许值恒为可提交的「枚举名」列表；描述仅在参数未通过
-     * {@code @CParameter(value)} 自定义说明时写入，避免覆盖既有描述。</p>
+     * <p>非 text 枚举类型直接跳过；允许值恒为可提交的「枚举名」列表；描述仅在参数未自带描述
+     * （{@code @CParameter.value} 或存量 {@code @ApiParam.value}）时写入，避免覆盖既有描述。</p>
      *
      * @param context parameter 构建上下文，用于取参数类型并写入允许值/描述
      */
@@ -99,17 +103,23 @@ public class CTextEnumParameterPlugin implements ParameterBuilderPlugin {
 
         // 允许值：可提交的「枚举名」列表（运行时按枚举名传值）
         val allowableValues = CTextEnumUtils.enumAllowableValues(parameterType);
-        if (null != allowableValues) {
+        if (CValidUtils.isValid(allowableValues)) {
             parameterBuilder.allowableValues(allowableValues);
         }
 
-        // 描述：仅在参数未标注 @CParameter(value) 自定义说明时写入 text 可读说明，避免覆盖既有描述
-        val hasCustomDescription = resolvedMethodParameter.findAnnotation(CParameter.class)
-            .map(cParameter -> StringUtils.hasText(cParameter.value()))
+        // 描述：仅在参数未自带描述（@CParameter.value / 存量 @ApiParam.value）时写入 text 可读说明，避免覆盖既有描述
+        val hasCParameterDescription = resolvedMethodParameter.findAnnotation(CParameter.class)
+            .map(CParameter::value)
+            .map(value -> CValidUtils.isValid(value))
             .orElse(false);
-        if (!hasCustomDescription) {
+        val hasApiParamDescription = resolvedMethodParameter.findAnnotation(ApiParam.class)
+            .map(ApiParam::value)
+            .map(value -> CValidUtils.isValid(value))
+            .orElse(false);
+
+        if (!hasCParameterDescription && !hasApiParamDescription) {
             val description = CTextEnumUtils.textEnumDescription(parameterType);
-            if (null != description) {
+            if (CValidUtils.isValid(description)) {
                 parameterBuilder.description(description);
             }
         }

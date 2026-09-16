@@ -57,12 +57,20 @@ import java.util.Set;
  *   <li>分组 tag = 类级分组名 并集 方法 {@code @COperation.tags}（均为空则不处理）。</li>
  *   <li>通过 {@code context.operationBuilder().tags(...)} 写入。</li>
  * </ul>
+ * <p><b>执行顺序（契约）</b></p>
+ * <ul>
+ *   <li>{@code @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER + 1)}：值越大越晚执行。springfox 的
+ *   {@code SwaggerOperationTagsReader} 用同一 order 且<b>总会写入 tags</b>（无 {@code @Api}/{@code @ApiOperation} 时
+ *   写入默认分组名），两者同序时谁后执行取决于 Bean 顺序（不确定）；故本插件显式取更大一档，
+ *   确保覆盖 springfox 写入的默认 tags，使 {@code @CTag} 的中文分组名生效。</li>
+ *   <li>该顺序关系有测试固化（{@code CTagAnnotationPluginTests#order_laterThanSpringfoxOperationTagsReader}），调整 order 需同步该用例。</li>
+ * </ul>
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
-@Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
+@Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER + 1)
 public class CTagAnnotationPlugin implements OperationBuilderPlugin {
 
     /**

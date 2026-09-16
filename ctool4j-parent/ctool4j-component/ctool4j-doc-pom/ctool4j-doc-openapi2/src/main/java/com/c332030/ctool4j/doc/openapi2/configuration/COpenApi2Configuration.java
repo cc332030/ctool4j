@@ -3,6 +3,7 @@ package com.c332030.ctool4j.doc.openapi2.configuration;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
+import com.c332030.ctool4j.doc.openapi2.plugins.grouping.impl.CTagGroupingStrategy;
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.COperationAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.CTagAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
  * <h2>能力目录</h2>
  * <p>{@code COpenApi2Configuration}（{@code @Configuration}）提供 OpenAPI2（springfox）文档的自动配置：</p>
  * <ul>
- *   <li>注册 {@code @NotEmpty}、{@code @CSchema} 及 {@code @CTag}/{@code @COperation}/{@code @CParameter} 等参数/属性/操作插件 Bean。</li>
+ *   <li>注册 {@code @NotEmpty}、{@code @CSchema} 及 {@code @CTag}/{@code @COperation}/{@code @CParameter} 等参数/属性/操作/分组插件 Bean。</li>
  *   <li>注册 Swagger {@code Docket}（收集标注 {@code @Api} 或 {@code @CTag} 注解的接口：{@code @CTag} 为本族新注解，{@code @Api} 为存量 Swagger 注解，二者兼容纳入）。</li>
  *   <li>注册 BeanPostProcessor 修复 springfox 的 handlerMappings 空指针问题。</li>
  * </ul>
@@ -64,7 +65,7 @@ import java.util.stream.Collectors;
  *   <li>{@code cModelPropertyCSchema}（model 属性描述与必填：@CSchema 写描述、@CRequired 标必填）</li>
  *   <li>{@code cModelPropertyTextEnum}（枚举 model 属性：允许值保持枚举名，text 进 description）</li>
  *   <li>{@code cParameterTextEnum}（枚举参数：允许值保持枚举名，text 进 description）</li>
- *   <li>{@code cOperationCOperation}、{@code cOperationCTag}、{@code cParameterCParameter}</li>
+ *   <li>{@code cOperationCOperation}、{@code cOperationCTag}、{@code cGroupingCTag}（{@code @CTag} 的控制器级分组名与描述）、{@code cParameterCParameter}</li>
  * </ul>
  * <p><b>Docket</b></p>
  * <ul>
@@ -187,6 +188,16 @@ public class COpenApi2Configuration {
     @Bean
     public CTagAnnotationPlugin cOperationCTag() {
         return new CTagAnnotationPlugin();
+    }
+
+    /**
+     * 分组策略插件（@CTag，控制器级分组名与描述，替代 springfox 默认的类名英文分组）
+     *
+     * @return 分组策略
+     */
+    @Bean
+    public CTagGroupingStrategy cGroupingCTag() {
+        return new CTagGroupingStrategy();
     }
 
     /**

@@ -40,7 +40,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <ul>
  *   <li>覆盖：model 字段枚举允许值含 AUTHORIZATION（可提交）、不含 text 形式；description 含 AUTHORIZATION(鉴权)；</li>
  *   <li>query 参数枚举允许值含 AUTHORIZATION、description 含 AUTHORIZATION(鉴权)；</li>
- *   <li>已标注 @CSchema 自定义描述的属性（headerWithSchema）description 不被 text 说明覆盖。</li>
+ *   <li>已标注 @CSchema 自定义描述的属性（headerWithSchema）description 不被 text 说明覆盖；</li>
+ *   <li>已标注存量 @ApiModelProperty 描述的属性（legacyHeaderWithDescription）description 同样不被覆盖；</li>
+ *   <li>已标注存量 @ApiParam 描述的 query 参数（legacyHeader）description 同样不被覆盖。</li>
  *   <li>未覆盖：非 ICText 枚举保持默认（未断言）；运行时绑定不受影响（允许值即枚举名，可直接使用）。</li>
  * </ul>
  * <h2>model 字段枚举</h2>
@@ -49,15 +51,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *   <li>1.2 description 展示「枚举名(text)」（modelFieldEnum_showsTextInDescription）</li>
  *   <li>1.3 允许值全为裸枚举名、数量一致且 description 含 text 说明（modelFieldEnum_allValuesCallableAndTextual）</li>
  *   <li>1.4 @CSchema 自定义描述不被 text 覆盖（modelFieldEnum_keepCSchemaDescription）</li>
+ *   <li>1.5 存量 @ApiModelProperty 描述不被 text 覆盖（modelFieldEnum_keepLegacyApiModelPropertyDescription）</li>
  * </ul>
  * <h2>query 参数枚举</h2>
  * <ul>
  *   <li>2.1 允许值可提交、description 展示 text（queryParamEnum_callableValueAndTextDescription）</li>
+ *   <li>2.2 存量 @ApiParam 描述不被 text 覆盖（queryParamEnum_keepLegacyApiParamDescription）</li>
  * </ul>
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest
@@ -120,6 +124,22 @@ public class CTextEnumIntegrationTests {
     }
 
     /**
+     * model 字段枚举：存量 {@code @ApiModelProperty} 描述不被 text 说明覆盖
+     * <p>对应测试用例 1.5</p>
+     */
+    @Test
+    public void modelFieldEnum_keepLegacyApiModelPropertyDescription() throws Exception {
+        JsonNode root = readApiDocs();
+        JsonNode description = root.path("definitions")
+            .path("CTextEnumTestDTO")
+            .path("properties")
+            .path("legacyHeaderWithDescription")
+            .path("description");
+        assertEquals("遗留描述头", description.asText(),
+            "存量 @ApiModelProperty 描述应保留，不被 text 说明覆盖，实际 " + description.asText());
+    }
+
+    /**
      * model 字段枚举：所有允许值均为裸枚举名（数量与常量一致），text 说明完整
      * <p>对应测试用例 1.3</p>
      */
@@ -164,6 +184,30 @@ public class CTextEnumIntegrationTests {
             }
         }
         assertTrue(found, "应找到 header query 参数");
+    }
+
+    /**
+     * query 参数枚举：存量 {@code @ApiParam} 描述不被 text 说明覆盖
+     * <p>对应测试用例 2.2</p>
+     */
+    @Test
+    public void queryParamEnum_keepLegacyApiParamDescription() throws Exception {
+        JsonNode root = readApiDocs();
+        JsonNode parameters = root.path("paths")
+            .path("/c-text-enum/query")
+            .path("post")
+            .path("parameters");
+        boolean found = false;
+        for (JsonNode p : parameters) {
+            if ("legacyHeader".equals(p.path("name").asText())) {
+                found = true;
+                assertEquals("遗留参数描述", p.path("description").asText(),
+                    "存量 @ApiParam 描述应保留，不被 text 说明覆盖");
+                assertTrue(toStringList(p.path("enum")).contains("AUTHORIZATION"),
+                    "允许值仍应保持可提交枚举名");
+            }
+        }
+        assertTrue(found, "应找到 legacyHeader query 参数");
     }
 
     private JsonNode readApiDocs() throws Exception {

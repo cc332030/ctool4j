@@ -6,9 +6,12 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.Order;
 import springfox.documentation.builders.OperationBuilder;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.OperationContext;
+import springfox.documentation.swagger.readers.operation.SwaggerOperationTagsReader;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -27,15 +30,18 @@ import java.util.Optional;
  * <ul>
  *   <li>依据功能设计对"分组 = 类级 name 并集方法级 tags"的约定。</li>
  *   <li>依据分支覆盖：有/无 @CTag、是否合并方法级分组均验证。</li>
+ *   <li>依据执行顺序契约：springfox 的 {@code SwaggerOperationTagsReader} 总会写入 tags（无注解时写默认分组名），
+ *   故本插件必须晚于它执行，否则 {@code @CTag} 的分组名会被默认值覆盖。</li>
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：supports（含 null）、apply 类级分组/合并/无注解。</li>
+ *   <li>覆盖：supports（含 null）、apply 类级分组/合并/无注解、执行顺序相对 springfox tags 读取器。</li>
  *   <li>未覆盖：在真实 springfox 文档生成链路上的端到端分组行为。</li>
  * </ul>
  * <h2>支持性</h2>
  * <ul>
  *   <li>1.1 支持 SWAGGER_2/12 与 null（supports）</li>
+ *   <li>1.2 执行顺序严格晚于 springfox 的 operation tags 读取器（order_laterThanSpringfoxOperationTagsReader）</li>
  * </ul>
  * <h2>apply 分支输出</h2>
  * <ul>
@@ -49,7 +55,7 @@ import java.util.Optional;
  * </p>
  *
  * @since 2026/9/4
- * @version 1.0
+ * @version 1.1
  */
 class CTagAnnotationPluginTests {
 
@@ -63,6 +69,24 @@ class CTagAnnotationPluginTests {
         Assertions.assertTrue(plugin.supports(DocumentationType.SWAGGER_2));
         Assertions.assertTrue(plugin.supports(DocumentationType.SWAGGER_12));
         Assertions.assertTrue(plugin.supports(null));
+    }
+
+    /**
+     * 执行顺序：严格晚于 springfox 的 operation tags 读取器
+     * <p>对应测试用例 1.2</p>
+     */
+    @Test
+    void order_laterThanSpringfoxOperationTagsReader() {
+        val self = AnnotationUtils.findAnnotation(CTagAnnotationPlugin.class, Order.class);
+        val springfoxTagsReader = AnnotationUtils.findAnnotation(SwaggerOperationTagsReader.class, Order.class);
+
+        Assertions.assertNotNull(self, "本插件需显式声明 @Order");
+        Assertions.assertNotNull(springfoxTagsReader, "springfox 读取器需可读出 order");
+        // 值越大越晚执行：必须严格晚于 springfox 的 tags 读取器，否则 @CTag 的分组名会被其默认 tags 覆盖
+        Assertions.assertTrue(
+            self.value() > springfoxTagsReader.value(),
+            "本插件 order 必须大于 springfox operation tags 读取器"
+        );
     }
 
     /**
