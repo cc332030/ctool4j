@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.operation.impl;
 
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.doc.annotation.COperation;
 import com.c332030.ctool4j.doc.annotation.CTag;
 import lombok.val;
@@ -68,7 +69,7 @@ import java.util.Set;
  *
  * @author c332030
  * @since 1.0
- * @version 1.1
+ * @version 1.2
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER + 1)
 public class CTagAnnotationPlugin implements OperationBuilderPlugin {
@@ -89,7 +90,7 @@ public class CTagAnnotationPlugin implements OperationBuilderPlugin {
         Set<String> tags = new LinkedHashSet<>();
 
         classTagOpt.ifPresent(cTag -> {
-            if (hasText(cTag.value())) {
+            if (CValidUtils.isValid(cTag.value())) {
                 tags.add(cTag.value());
             }
         });
@@ -97,7 +98,7 @@ public class CTagAnnotationPlugin implements OperationBuilderPlugin {
         methodOperationOpt.ifPresent(cOperation -> {
             if (cOperation.tags().length > 0) {
                 Arrays.stream(cOperation.tags())
-                    .filter(CTagAnnotationPlugin::hasText)
+                    .filter(tag -> CValidUtils.isValid(tag))
                     .forEach(tags::add);
             }
         });
@@ -116,9 +117,5 @@ public class CTagAnnotationPlugin implements OperationBuilderPlugin {
     @Override
     public boolean supports(@NonNull DocumentationType delimiter) {
         return true;
-    }
-
-    private static boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
     }
 }

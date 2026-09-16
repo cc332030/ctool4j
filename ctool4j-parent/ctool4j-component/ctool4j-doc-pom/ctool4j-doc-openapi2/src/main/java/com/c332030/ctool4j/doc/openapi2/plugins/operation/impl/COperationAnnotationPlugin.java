@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.operation.impl;
 
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.doc.annotation.COperation;
 import lombok.val;
 import org.springframework.core.annotation.Order;
@@ -60,7 +61,7 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class COperationAnnotationPlugin implements OperationBuilderPlugin {
@@ -80,10 +81,10 @@ public class COperationAnnotationPlugin implements OperationBuilderPlugin {
         annotationOpt.ifPresent(cOperation -> {
             val operationBuilder = context.operationBuilder();
 
-            if (hasText(cOperation.value())) {
+            if (CValidUtils.isValid(cOperation.value())) {
                 operationBuilder.summary(cOperation.value());
             }
-            if (hasText(cOperation.description())) {
+            if (CValidUtils.isValid(cOperation.description())) {
                 operationBuilder.notes(cOperation.description());
             }
             if (cOperation.deprecated()) {
@@ -101,9 +102,5 @@ public class COperationAnnotationPlugin implements OperationBuilderPlugin {
     @Override
     public boolean supports(@NonNull DocumentationType delimiter) {
         return true;
-    }
-
-    private static boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
     }
 }

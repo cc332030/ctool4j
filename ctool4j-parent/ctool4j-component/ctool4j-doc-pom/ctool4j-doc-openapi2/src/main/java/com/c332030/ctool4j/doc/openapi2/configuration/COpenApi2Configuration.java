@@ -3,7 +3,6 @@ package com.c332030.ctool4j.doc.openapi2.configuration;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
-import com.c332030.ctool4j.doc.openapi2.plugins.grouping.impl.CTagGroupingStrategy;
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.COperationAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.operation.impl.CTagAnnotationPlugin;
 import com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl.CNotEmptyAnnotationPlugin;
@@ -65,16 +64,18 @@ import java.util.stream.Collectors;
  *   <li>{@code cModelPropertyCSchema}（model 属性描述与必填：@CSchema 写描述、@CRequired 标必填）</li>
  *   <li>{@code cModelPropertyTextEnum}（枚举 model 属性：允许值保持枚举名，text 进 description）</li>
  *   <li>{@code cParameterTextEnum}（枚举参数：允许值保持枚举名，text 进 description）</li>
- *   <li>{@code cOperationCOperation}、{@code cOperationCTag}、{@code cGroupingCTag}（{@code @CTag} 的控制器级分组名与描述）、{@code cParameterCParameter}</li>
+ *   <li>{@code cOperationCOperation}、{@code cOperationCTag}（{@code @CTag} 的 operation tag）、{@code cParameterCParameter}</li>
  * </ul>
  * <p><b>Docket</b></p>
  * <ul>
  *   <li>{@code @ConditionalOnMissingBean(Docket.class)}，{@code cDocket(config)} 通过 {@code CSpringFoxUtils} 构建。</li>
  *   <li>收集标注 {@code @Api} 或 {@code @CTag} 注解的接口（二者任一命中即纳入，兼容存量 {@code @Api} 与迁移 {@code @CTag}）；全局参数含 {@code AUTHORIZATION} 请求头。</li>
  * </ul>
- * <p><b>springfox 空指针修复</b></p>
+ * <p><b>springfox 适配</b></p>
  * <ul>
  *   <li>{@code cSpringfoxHandlerProviderBeanPostProcessor}：对 {@code WebMvcRequestHandlerProvider} 过滤掉含 {@code PatternParser} 的 mapping，避免空指针。</li>
+ *   <li>{@code cEmptyTagBeanPostProcessor}：swagger 模型生成后清除"无接口引用"的空分组（springfox 分组名由控制器类名硬编码，
+ *   与 {@code @CTag} 的 operation tag 不一致时会出现英文空分组）。</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -191,13 +192,18 @@ public class COpenApi2Configuration {
     }
 
     /**
-     * 分组策略插件（@CTag，控制器级分组名与描述，替代 springfox 默认的类名英文分组）
+     * 空分组清理后置处理器（swagger 模型生成后，清除"无接口引用"的分组声明）
      *
-     * @return 分组策略
+     * <p>springfox 的分组名由控制器类名硬编码（{@code WebMvcRequestHandler#groupName()}，不经过
+     * {@code ResourceGroupingStrategy}，注解与插件都改不了），而接口 tag 由 {@code @CTag} 决定；
+     * 二者不一致时分组列表会多出英文空分组，故在 {@code ServiceModelToSwagger2Mapper#mapDocumentation}
+     * 之后清除无人引用的分组声明。</p>
+     *
+     * @return BeanPostProcessor
      */
     @Bean
-    public CTagGroupingStrategy cGroupingCTag() {
-        return new CTagGroupingStrategy();
+    public static BeanPostProcessor cEmptyTagBeanPostProcessor() {
+        return new CEmptyTagBeanPostProcessor();
     }
 
     /**

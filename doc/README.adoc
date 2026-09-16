@@ -22,6 +22,7 @@
 | 模块职责、能力清单、核心类（模块级） | 各模块 +README.md+（索引见 link:../README.adoc[README]）
 | 跨类的功能级设计（方案取舍、兜底、已知限制） | link:design/[doc/design/<模块>/]
 | **模块间依赖关系（全项目唯一视图）** | link:dependency.adoc[doc/dependency.adoc]
+| **依赖升级兼容性 / 已知问题登记（全项目唯一视图）** | link:compatibility.adoc[doc/compatibility.adoc]
 | 全部变更记录（时间倒序） | link:../CHANGELOG.adoc[CHANGELOG.adoc]
 | 待办清单 | link:../TODO.adoc[TODO.adoc]
 | 项目规范入口 | link:../AGENTS.md[AGENTS.md]（引用远端统一规范 + link:../agent/AGENTS-PROJECT.MD[项目特有规范]）

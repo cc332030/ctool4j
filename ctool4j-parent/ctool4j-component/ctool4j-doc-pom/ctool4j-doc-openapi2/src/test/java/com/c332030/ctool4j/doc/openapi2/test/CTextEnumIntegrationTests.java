@@ -10,7 +10,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,10 +60,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *   <li>2.1 允许值可提交、description 展示 text（queryParamEnum_callableValueAndTextDescription）</li>
  *   <li>2.2 存量 @ApiParam 描述不被 text 覆盖（queryParamEnum_keepLegacyApiParamDescription）</li>
  * </ul>
+ * <h2>分组列表</h2>
+ * <ul>
+ *   <li>3.1 不残留无接口引用的空分组（tags_noUnreferencedTag）</li>
+ * </ul>
  *
  * @author c332030
  * @since 1.0
- * @version 1.1
+ * @version 1.2
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest
@@ -208,6 +214,37 @@ public class CTextEnumIntegrationTests {
             }
         }
         assertTrue(found, "应找到 legacyHeader query 参数");
+    }
+
+    /**
+     * 分组列表：不出现"声明了却没有任何接口引用"的空分组
+     *
+     * <p>springfox 的分组名由控制器类名硬编码（{@code WebMvcRequestHandler#groupName()} →
+     * {@code ControllerNamingUtils.controllerNameAsGroup}），注解与插件都改不了；而接口 tag 是
+     * {@code @CTag} 值——两者不一致时分组列表会多出英文空分组。本模块在 swagger 模型生成后清除
+     * 无人引用的分组声明，使分组列表与接口 tag 一致。</p>
+     *
+     * <p>对应测试用例 3.1</p>
+     */
+    @Test
+    public void tags_noUnreferencedTag() throws Exception {
+        JsonNode root = readApiDocs();
+
+        Set<String> used = new LinkedHashSet<>();
+        root.path("paths").forEach(path -> path.forEach(operation -> {
+            if (operation.path("tags").isArray()) {
+                operation.path("tags").forEach(tag -> used.add(tag.asText()));
+            }
+        }));
+
+        List<String> declared = new ArrayList<>();
+        root.path("tags").forEach(tag -> declared.add(tag.path("name").asText()));
+
+        for (String name : declared) {
+            assertTrue(used.contains(name), "分组 " + name + " 无任何接口引用（空分组），实际接口 tag=" + used);
+        }
+
+        assertTrue(used.contains("枚举 text 集成测试"), "接口 tag 应保留，实际 " + used);
     }
 
     private JsonNode readApiDocs() throws Exception {

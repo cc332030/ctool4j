@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.parameter.impl;
 
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.doc.annotation.CParameter;
 import com.c332030.ctool4j.web.validation.annotation.CNotRequired;
 import lombok.val;
@@ -73,7 +74,7 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
@@ -99,13 +100,13 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
         annotationOpt.ifPresent(cParameter -> {
             val parameterBuilder = context.parameterBuilder();
 
-            if (hasText(cParameter.value())) {
+            if (CValidUtils.isValid(cParameter.value())) {
                 parameterBuilder.description(cParameter.value());
             }
-            if (hasText(cParameter.name())) {
+            if (CValidUtils.isValid(cParameter.name())) {
                 parameterBuilder.name(cParameter.name());
             }
-            if (hasText(cParameter.example())) {
+            if (CValidUtils.isValid(cParameter.example())) {
                 parameterBuilder.scalarExample(cParameter.example());
             }
         });
@@ -127,9 +128,5 @@ public class CParameterAnnotationPlugin implements ParameterBuilderPlugin {
     @Override
     public boolean supports(@NonNull DocumentationType delimiter) {
         return true;
-    }
-
-    private static boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
     }
 }

@@ -41,11 +41,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * <p><b>pathMapping</b></p>
  * <ul>
  *   <li>默认值为 {@code "/"}。</li>
- *   <li>可通过配置文件 {@code c-doc.openapi2.pathMapping} 覆盖。</li>
+ *   <li>可通过配置文件 {@code doc.openapi2.pathMapping} 覆盖（前缀以 {@code @ConfigurationProperties("doc.openapi2")} 为准）。</li>
  * </ul>
  *
  * @since 2026/1/6
- * @version 1.0
+ * @version 1.1
  */
 @Data
 @ConfigurationProperties("doc.openapi2")

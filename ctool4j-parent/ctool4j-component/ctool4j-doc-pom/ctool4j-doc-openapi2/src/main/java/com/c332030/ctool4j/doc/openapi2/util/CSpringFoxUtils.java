@@ -20,6 +20,11 @@ import java.util.stream.Collectors;
  *
  * <h2>能力目录</h2>
  * <p>{@code CSpringFoxUtils}（{@code @UtilityClass}）提供 springfox（OpenAPI2）的工具能力：</p>
+ * <ul>
+ *   <li>{@code getDocketBuilder()}：构建 {@code Docket}（{@code SWAGGER_2}，开启代码生成模式）。</li>
+ *   <li>{@code globalParameterList(headers)}：请求头定义集合转全局参数列表（先过滤 null 元素）。</li>
+ *   <li>{@code getHeaderParameter(requestHeader)}：单个请求头定义转 Swagger 参数（类型固定 header）。</li>
+ * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
  *   <caption>兜底行为</caption>
@@ -67,7 +72,7 @@ import java.util.stream.Collectors;
  *
  * @author c332030
  * @since 2024/8/27
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CSpringFoxUtils {

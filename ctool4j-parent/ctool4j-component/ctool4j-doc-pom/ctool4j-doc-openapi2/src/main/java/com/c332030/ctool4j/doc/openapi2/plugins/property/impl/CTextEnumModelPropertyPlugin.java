@@ -2,6 +2,7 @@ package com.c332030.ctool4j.doc.openapi2.plugins.property.impl;
 
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.doc.annotation.CSchema;
+import com.c332030.ctool4j.doc.openapi2.util.CModelPropertyAnnotationUtils;
 import com.c332030.ctool4j.doc.openapi2.util.CTextEnumUtils;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.val;
@@ -11,11 +12,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.schema.ModelPropertyBuilderPlugin;
 import springfox.documentation.spi.schema.contexts.ModelPropertyContext;
 import springfox.documentation.swagger.common.SwaggerPluginSupport;
-
-import java.util.Optional;
-
-import static java.util.Optional.empty;
-import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
 
 /**
  * <p>
@@ -71,6 +67,10 @@ import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
  *   <li>由 {@code CTextEnumUtils.enumAllowableValues} 生成可提交允许值并覆写 builder.allowableValues；</li>
  *   <li>由 {@code CTextEnumUtils.textEnumDescription} 生成可读说明写入 description。</li>
  * </ul>
+ * <p><b>注解查找</b></p>
+ * <ul>
+ *   <li>复用 {@code CModelPropertyAnnotationUtils#findAnnotation}（annotatedElement 优先，其次 beanPropertyDefinition）。</li>
+ * </ul>
  * <p><b>描述防覆盖</b></p>
  * <ul>
  *   <li>属性已自带描述（{@code @CSchema.value} 或存量 {@code @ApiModelProperty.value} 非空）时不写入 text 说明，
@@ -79,7 +79,7 @@ import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
  *
  * @author c332030
  * @since 2026/9/6
- * @version 1.1
+ * @version 1.2
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class CTextEnumModelPropertyPlugin implements ModelPropertyBuilderPlugin {
@@ -138,41 +138,17 @@ public class CTextEnumModelPropertyPlugin implements ModelPropertyBuilderPlugin 
      */
     private static boolean hasCustomDescription(ModelPropertyContext context) {
 
-        val schemaDescription = findAnnotation(context, CSchema.class)
+        val schemaDescription = CModelPropertyAnnotationUtils.findAnnotation(context, CSchema.class)
             .map(CSchema::value)
             .orElse(null);
         if (CValidUtils.isValid(schemaDescription)) {
             return true;
         }
 
-        val apiModelPropertyDescription = findAnnotation(context, ApiModelProperty.class)
+        val apiModelPropertyDescription = CModelPropertyAnnotationUtils.findAnnotation(context, ApiModelProperty.class)
             .map(ApiModelProperty::value)
             .orElse(null);
         return CValidUtils.isValid(apiModelPropertyDescription);
     }
 
-    /**
-     * 从 annotatedElement 或 beanPropertyDefinition 上查找指定注解
-     *
-     * @param context        Model 属性上下文
-     * @param annotationType 注解类型
-     * @param <T>            注解类型泛型
-     * @return 注解
-     */
-    private static <T extends java.lang.annotation.Annotation> Optional<T> findAnnotation(
-        ModelPropertyContext context, Class<T> annotationType
-    ) {
-
-        Optional<T> annotation = empty();
-
-        if (context.getAnnotatedElement().isPresent()) {
-            annotation = Optional.ofNullable(
-                context.getAnnotatedElement().get().getAnnotation(annotationType));
-        }
-        if (!annotation.isPresent() && context.getBeanPropertyDefinition().isPresent()) {
-            annotation = findPropertyAnnotation(context.getBeanPropertyDefinition().get(), annotationType);
-        }
-
-        return annotation;
-    }
 }

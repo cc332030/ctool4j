@@ -52,7 +52,7 @@ import java.lang.annotation.Annotation;
  * </ul>
  *
  * @since 2025/12/17
- * @version 1.0
+ * @version 1.1
  */
 public interface ICAnnotationExpandedParameterBuilderPlugin<T extends Annotation> extends ICExpandedParameterBuilderPlugin {
 
@@ -73,10 +73,10 @@ public interface ICAnnotationExpandedParameterBuilderPlugin<T extends Annotation
      * 注解命中时是否标记为必填（默认 true：无 required 开关的注解如 {@code @NotEmpty}、{@code @CRequired} 命中即必填；
      * 需按注解属性定制判定时可覆写本方法）
      *
-     * @param annotation 命中的注解
+     * @param annotation 命中的注解（即目标注解类型 {@code T}）
      * @return 是否必填
      */
-    default boolean isRequired(Annotation annotation) {
+    default boolean isRequired(T annotation) {
         return true;
     }
 

@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.doc.openapi2.plugins.property.impl;
 
 import com.c332030.ctool4j.doc.annotation.CSchema;
+import com.c332030.ctool4j.doc.openapi2.util.CModelPropertyAnnotationUtils;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
@@ -11,9 +12,6 @@ import springfox.documentation.spi.schema.contexts.ModelPropertyContext;
 import springfox.documentation.swagger.common.SwaggerPluginSupport;
 
 import java.util.Optional;
-
-import static java.util.Optional.empty;
-import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
 
 /**
  * <p>
@@ -66,7 +64,7 @@ import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
  * <h2>设计要点</h2>
  * <p><b>注解查找</b></p>
  * <ul>
- *   <li>优先从 {@code context.getAnnotatedElement()} 取注解，其次从 {@code getBeanPropertyDefinition()} 查找。</li>
+ *   <li>注解查找复用 {@code CModelPropertyAnnotationUtils#findAnnotation}（annotatedElement 优先，其次 beanPropertyDefinition）。</li>
  * </ul>
  * <p><b>处理</b></p>
  * <ul>
@@ -77,7 +75,7 @@ import static springfox.documentation.schema.Annotations.findPropertyAnnotation;
  *
  * @author c332030
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilderPlugin {
@@ -93,7 +91,7 @@ public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilde
     @Override
     public void apply(@NonNull ModelPropertyContext context) {
 
-        Optional<CSchema> schemaAnnotation = findAnnotation(context, CSchema.class);
+        Optional<CSchema> schemaAnnotation = CModelPropertyAnnotationUtils.findAnnotation(context, CSchema.class);
         schemaAnnotation.ifPresent(cSchema -> {
             // value 非空时写入描述，为空则保留已有描述（避免空串覆盖）
             if (StringUtils.hasText(cSchema.value())) {
@@ -102,8 +100,8 @@ public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilde
         });
 
         // 必填：标注 @CRequired 即必填（兼容 @Repeatable：重复标注时注解存于容器 @CRequired.List）
-        if (findAnnotation(context, CRequired.class).isPresent()
-            || findAnnotation(context, CRequired.List.class).isPresent()) {
+        if (CModelPropertyAnnotationUtils.findAnnotation(context, CRequired.class).isPresent()
+            || CModelPropertyAnnotationUtils.findAnnotation(context, CRequired.List.class).isPresent()) {
             context.getBuilder().required(true);
         }
     }
@@ -125,29 +123,4 @@ public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilde
         return true;
     }
 
-    /**
-     * 从 annotatedElement 或 beanPropertyDefinition 上查找指定注解
-     *
-     * @param context       Model 属性上下文
-     * @param annotationType 注解类型
-     * @param <T>           注解类型泛型
-     * @return 注解
-     */
-    private static <T extends java.lang.annotation.Annotation> Optional<T> findAnnotation(
-        ModelPropertyContext context, Class<T> annotationType
-    ) {
-
-        Optional<T> annotation = empty();
-
-        if (context.getAnnotatedElement().isPresent()) {
-            annotation = Optional.ofNullable(
-                context.getAnnotatedElement().get().getAnnotation(annotationType));
-        }
-        if (context.getBeanPropertyDefinition().isPresent()) {
-            annotation = annotation.isPresent() ? annotation : findPropertyAnnotation(
-                context.getBeanPropertyDefinition().get(), annotationType);
-        }
-
-        return annotation;
-    }
 }
