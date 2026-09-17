@@ -2,9 +2,8 @@ package com.c332030.ctool4j.session.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.auth.util.CAuthUtils;
-import com.c332030.ctool4j.core.exception.CBusinessException;
+import com.c332030.ctool4j.core.exception.CUnauthorizedException;
 import com.c332030.ctool4j.core.interfaces.IGenericType;
-import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CRedisUtils;
@@ -35,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author c332030
  * @since 2026/9/10
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
@@ -146,7 +145,7 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
     /**
      * 校验当前已授权
      *
-     * @throws CBusinessException 未授权（由 {@link CAssert#notNull(Object, String)} 抛出）
+     * @throws CUnauthorizedException 未授权（由 {@link #get()} 抛出）
      */
     public void check() {
         get();
@@ -166,11 +165,13 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
      * 获取当前会话
      *
      * @return 当前会话
-     * @throws CBusinessException 未授权（由 {@link CAssert#notNull(Object, String)} 抛出）
+     * @throws CUnauthorizedException 未授权（当前会话为 null）
      */
     public SESSION get() {
         val session = getDefaultNull();
-        CAssert.notNull(session, "未授权");
+        if (null == session) {
+            throw new CUnauthorizedException("未授权");
+        }
         return session;
     }
 
