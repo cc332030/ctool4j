@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * <p>
@@ -31,7 +34,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *   跨字段共享引用去重、深度上限降级、同源实现与接口降级、comparator 保留、EnumMap/EnumSet、视图替换、
  *   raw 与泛型变量、接口字段、无无参构造降级、跨类型、Map（JSON）来源、null/空/空元素、
  *   Optional（含原始值包装的 OptionalInt/Long/Double）、身份表按需创建（分配层面）。</li>
- *   <li>覆盖（容器写回）：目标声明类型为容器接口时的实现保持与可写回判定（7.2 不兼容跳过、7.3 兼容保持）。</li>
+ *   <li>覆盖（容器形态）：目标声明类型为容器接口/具体实现类时的按目标重建（7.2 跨接口、7.3 兼容保持、
+ *   7.4 父类→子类实现类与具体有序实现）、一次性视图的重建（7.5 迭代器/集合视图/流）、
+ *   不可实例化目标类的登记与跳过（7.6）、数组↔容器跨形态转换（7.7）、{@code Map.Entry} 物化（7.8）、
+ *   {@code java.sql} 时间子类保真（7.9）、{@code Optional} 拆包（7.10）、跨容器族声明的跳过（7.11）、
+ *   按目标类折叠的深拷贝计划的降级分支优先级（7.12）。</li>
  *   <li>未覆盖：record（无可用无参构造、含 final 字段，实现明确降级为共享引用）、transient 语义。</li>
  * </ul>
  * <h2>用例</h2>
@@ -66,14 +73,24 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>6.8 含 final 实例字段的目标降级为共享引用（finalField_sharedReference）</li>
  *   <li>6.9 OptionalInt/OptionalLong/OptionalDouble 只包原始值 ⇒ 共享（optionalPrimitive_shared）</li>
  *   <li>7.1 身份表按需创建的语义等价性：标量 DTO、深拷贝字段全为 null 时结果正确（identityMap_createdOnDemand）</li>
- *   <li>7.2 容器目标声明类型与源接口形态不兼容 ⇒ 跳过不写入（containerWriteBack_incompatibleInterfaceSkipped，
- *   内含兼容目标的逐元素深拷贝对照：跨接口跳过只发生在不兼容的目标声明上）</li>
+ *   <li>7.2 跨接口容器按目标声明类型重建（crossInterfaceContainer_rebuiltByTargetDeclaration，含 List/Collection 声明对照）</li>
  *   <li>7.3 兼容的容器目标按源接口形态降级且可写回（containerWriteBack_compatibleKept）</li>
+ *   <li>7.4 父类向子类实现类转换：目标声明比源更具体时按目标类型重建（container_concreteTargetImplRebuilt）</li>
+ *   <li>7.5 迭代器/集合视图/流按目标声明类型重建（iteratorAndStream_rebuiltByTargetDeclaration）</li>
+ *   <li>7.6 有无参构造但构造体抛异常的目标类：登记「不支持的目标类集合」、只尝试一次（uninstantiableByThrowingCtor_registeredOnceAndSkipped）</li>
+ *   <li>7.7 数组 ↔ 容器按目标声明跨形态转换（arrayAndContainer_convertedByTargetDeclaration）</li>
+ *   <li>7.8 {@code Map.Entry} 按目标声明物化（Map / 容器两向）（mapEntry_materializedByTargetDeclaration）</li>
+ *   <li>7.9 {@code java.sql} 时间子类按目标类型保真（sqlDateSubclasses_keptByTargetType）</li>
+ *   <li>7.10 {@code Optional} 拆包写入非 Optional 声明的目标字段（optional_unwrappedForNonOptionalTarget）</li>
+ *   <li>7.11 跨容器族声明（源集合 → 目标 {@code Map} 声明）整条跳过不写入、且不抛异常
+ *   （crossFamilyContainer_skippedWithoutCasting）</li>
+ *   <li>7.12 按目标类折叠的深拷贝计划：含 final 字段优先于不可实例化（final 优先共享、
+ *   不因折叠而改变降级分支）（deepPlan_finalFieldTakesPrecedenceOverUninstantiable）</li>
  * </ul>
  *
  * @author c332030
  * @since 2026/9/17
- * @version 1.2
+ * @version 1.3
  * @see CBeanUtils
  * @see CBeanUtilsTests
  * @see CBeanUtilsCopyContractTests
@@ -625,15 +642,19 @@ class CBeanUtilsDeepCopyTests {
     }
 
     /**
-     * <p>对应测试用例 7.2：容器目标声明类型与源容器接口形态不兼容 ⇒ 跳过不写入</p>
+     * <p>对应测试用例 7.2：跨接口容器按<b>目标声明类型</b>重建（源 List → 目标 Set 声明）</p>
      *
-     * <p>回归点：拷贝结果按类写回目标字段时，若目标声明类型是另一容器接口（如源 List、目标 Set），
-     * 写回必然 {@code ClassCastException}；旧实现先拷贝再写、把该异常吞成 debug"字段写入失败，跳过"，
-     * 表现为"字段静默为空 + 每次多一次注定失败的拷贝"。现改为拷贝前判定、该字段跳过不写入
-     * （共享引用同样写不回目标接口，故只有"跳过"是自洽语义）。</p>
+     * <p>回归点（原实现为"跳过不写入"，此处改为受支持并断言写回成功）：拷贝结果曾按源实现类创建，
+     * 写回目标字段声明为另一容器接口（如源 {@code List}、目标 {@code Set}）时必然 {@code ClassCastException}，
+     * 该异常被吞成 debug"字段写入失败，跳过"，表现为"字段静默为空 + 每次多一次注定失败的拷贝"。
+     * 现改为<b>按目标声明类型重建容器</b>：源 {@code List} → 目标 {@code Set} 声明时建 {@code LinkedHashSet}，
+     * 写回目标接口天然成立、元素照常深拷贝（有序优先，见 {@code containerFor}）。</p>
+     *
+     * <p>断言口径：①容器与元素都是副本（{@code assertNotSame}）；②结果为 {@code Set} 且元素等价源元素；
+     * ③对照项——目标声明 {@code List} 时仍是 {@code List}、目标声明 {@code Collection} 时按目标族建 {@code ArrayList}。</p>
      */
     @Test
-    void containerWriteBack_incompatibleInterfaceSkipped() {
+    void crossInterfaceContainer_rebuiltByTargetDeclaration() {
 
         val inner = new Inner();
         inner.setName("inner");
@@ -641,18 +662,385 @@ class CBeanUtilsDeepCopyTests {
         val source = new MismatchSourceHolder();
         source.setItems(new ArrayList<>(Collections.singletonList(inner)));
 
-        // 对照：目标声明 List<Inner> 与源兼容 ⇒ 正常深拷贝（容器与元素都是副本）
+        // 对照：目标声明 List<Inner> 与源同族 ⇒ 正常深拷贝（容器与元素都是副本）
         val copied = CBeanUtils.copy(source, MismatchListTargetHolder.class);
         Assertions.assertNotSame(source.getItems(), copied.getItems());
         Assertions.assertNotSame(source.getItems().get(0), copied.getItems().get(0));
 
-        // 目标声明 Set、源为 List ⇒ 目标接口装不下源容器：跳过不写入（字段保持 null）
+        // 目标声明 Set、源为 List ⇒ 按目标声明类型重建（LinkedHashSet），不再是"跳过不写入"
         val mismatched = CBeanUtils.copy(source, MismatchSetTargetHolder.class);
-        Assertions.assertNotSame(source, mismatched, "目标对象本身仍正常创建");
-        Assertions.assertNull(
-                mismatched.getItems(),
-                "目标声明接口装不下源容器时应跳过不写入（而非尝试写回后静默失败）"
+        Assertions.assertNotNull(mismatched.getItems(), "跨接口容器应按目标声明类型重建、不再跳过不写入");
+        Assertions.assertTrue(
+                mismatched.getItems() instanceof LinkedHashSet,
+                "目标声明为 Set（接口）时应重建为有序的 LinkedHashSet，实际："
+                        + mismatched.getItems().getClass().getName()
         );
+        Assertions.assertNotSame(source.getItems(), mismatched.getItems());
+        Assertions.assertEquals(1, mismatched.getItems().size());
+        val copiedInner = mismatched.getItems().iterator().next();
+        Assertions.assertNotSame(inner, copiedInner, "元素也应是深拷贝副本");
+        Assertions.assertEquals("inner", copiedInner.getName());
+
+        // 目标声明 Collection、源为 List ⇒ 按目标族重建为 ArrayList
+        val collectionTarget = CBeanUtils.copy(source, MismatchCollectionTargetHolder.class);
+        Assertions.assertNotNull(collectionTarget.getItems());
+        Assertions.assertTrue(
+                collectionTarget.getItems() instanceof ArrayList,
+                "目标声明为 Collection 时应重建为 ArrayList，实际："
+                        + collectionTarget.getItems().getClass().getName()
+        );
+    }
+
+    /**
+     * <p>对应测试用例 7.4：父类向子类实现类转换（目标声明为源容器族的更具体实现）</p>
+     *
+     * <p>覆盖（与 7.2 同源漏点）：目标声明为<b>具体实现类</b>且比源更具体时（{@code ArrayList} 源 →
+     * {@code LinkedList} 目标），按目标声明类型重建该实现——旧实现用源实现类兜底、或用目标类重建却
+     * 不校验，两者都会与"具体看目标属性的类型"的语义不符；此处断言结果就是目标声明的那一个实现。
+     * 同时覆盖 {@code Queue} 声明（建 {@code ArrayDeque}）与具体有序实现（{@code TreeSet} 保目标语义）。</p>
+     */
+    @Test
+    void container_concreteTargetImplRebuilt() {
+
+        val source = new ConcreteSourceHolder();
+        source.setList(new ArrayList<>(Arrays.asList("a", "b")));
+        source.setQueue(new ArrayList<>(Collections.singletonList("q")));
+        source.setSet(new HashSet<>(Collections.singletonList("s")));
+
+        ConcreteTargetHolder copied = CBeanUtils.copy(source, ConcreteTargetHolder.class);
+
+        // ArrayList 源 → LinkedList 目标声明：按目标声明类型重建
+        Assertions.assertTrue(
+                copied.getList() instanceof LinkedList,
+                "目标声明为 LinkedList 时应按目标类型重建，实际：" + copied.getList().getClass().getName()
+        );
+        Assertions.assertEquals(Arrays.asList("a", "b"), new ArrayList<>(copied.getList()));
+        Assertions.assertNotSame(source.getList(), copied.getList());
+
+        // ArrayList 源 → Queue 目标声明：按目标接口族建 ArrayDeque
+        Assertions.assertTrue(
+                copied.getQueue() instanceof ArrayDeque,
+                "目标声明为 Queue 时应重建为 ArrayDeque，实际：" + copied.getQueue().getClass().getName()
+        );
+        Assertions.assertEquals(Collections.singletonList("q"), new ArrayList<>(copied.getQueue()));
+
+        // HashSet 源 → TreeSet 目标声明：按目标声明重建（目标的有序语义优先于源的插入序）
+        Assertions.assertTrue(
+                copied.getSet() instanceof TreeSet,
+                "目标声明为 TreeSet 时应按目标类型重建，实际：" + copied.getSet().getClass().getName()
+        );
+        Assertions.assertEquals(Collections.singletonList("s"), new ArrayList<>(copied.getSet()));
+    }
+
+    /**
+     * <p>对应测试用例 7.5：迭代器（{@code Iterator}）与原始流（{@code Stream}/{@code IntStream}）按目标声明类型重建</p>
+     *
+     * <p>回归点（本类同源漏点）：{@code Iterator}、集合视图（{@code keySet()}/{@code values()}/{@code entrySet()}）
+     * 与 {@code java.util.stream.*} 都是"无无参构造、非集合"的一次性视图，旧实现把它们当"不可实例化 Bean"
+     * ⇒ <b>静默共享引用</b>（共享出去的是一个对齐到源集合状态、不可复用的视图，既非副本也不可复用）。
+     * 现改为：按<b>迭代顺序</b>物化后按目标声明类型重建标准容器。</p>
+     *
+     * <p>断言口径：①迭代器 → {@code List} 声明得到 {@code ArrayList}、元素已取出、源被消费；
+     * ②对象流 → {@code Set} 声明得到 {@code LinkedHashSet}；③原始流 → {@code List} 声明得到
+     * {@code ArrayList} 且元素为包装类型（自动装箱）。</p>
+     */
+    @Test
+    void iteratorAndStream_rebuiltByTargetDeclaration() {
+
+        val source = new ViewSourceHolder();
+        source.setFromIterator(new ArrayList<>(Arrays.asList("i1", "i2")).iterator());
+        source.setFromKeySet(new LinkedHashMap<String, String>() {{ put("k", "v"); }}.keySet());
+        source.setFromStream(Stream.of("s1", "s2"));
+        source.setFromIntStream(IntStream.of(1, 2));
+
+        ViewTargetHolder copied = CBeanUtils.copy(source, ViewTargetHolder.class);
+
+        // 迭代器 → List 声明：物化并按目标族重建（不是共享那个一次性迭代器）
+        Assertions.assertTrue(
+                copied.getFromIterator() instanceof ArrayList,
+                "迭代器应按目标声明重建为 ArrayList，实际：" + copied.getFromIterator().getClass().getName()
+        );
+        Assertions.assertEquals(Arrays.asList("i1", "i2"), copied.getFromIterator());
+
+        // 集合视图 → Set 声明：重建为有序 Set（源 keySet 不是 Set 副本）
+        Assertions.assertTrue(
+                copied.getFromKeySet() instanceof LinkedHashSet,
+                "集合视图应按目标声明重建为 LinkedHashSet，实际：" + copied.getFromKeySet().getClass().getName()
+        );
+        Assertions.assertEquals(new LinkedHashSet<>(Collections.singletonList("k")), copied.getFromKeySet());
+
+        // 对象流 → List 声明
+        Assertions.assertTrue(copied.getFromStream() instanceof ArrayList);
+        Assertions.assertEquals(Arrays.asList("s1", "s2"), copied.getFromStream());
+
+        // 原始流 → List 声明（元素自动装箱）
+        Assertions.assertTrue(copied.getFromIntStream() instanceof ArrayList);
+        Assertions.assertEquals(Arrays.asList(1, 2), copied.getFromIntStream());
+    }
+
+    /**
+     * <p>对应测试用例 7.6：有无参构造、但构造体必定抛异常的目标类 ⇒ 登记「不支持的目标类集合」并跳过</p>
+     *
+     * <p>回归点（用户指出的第二类不可实例化）：{@code checkInstantiable} 只能在准备阶段判"有无无参构造"，
+     * 判不出"构造体必定抛异常"（如内部 {@code throw new UnsupportedOperationException()}）——
+     * 旧实现每次深拷贝到该类型都要重新反射构造、重新抛异常、重新打日志（热点路径上退化成"每次一个异常"）。
+     * 现改为：首次实例化失败即<b>登记进不支持的目标类集合</b>（打一次 error 日志），其后该类型一律跳过。</p>
+     *
+     * <p>断言口径：①首次拷贝该类型字段被跳过（保持目标对象既有值、不共享、不抛错）；
+     * ②重复拷贝仍跳过且行为一致（幂等，不因登记状态改变结果）；③<b>其他类再碰到该类型也直接跳过</b>
+     * （跨源类复用同一集合）——这正是用户要的"下一次其他的类碰到这个类，就可以跳过"；
+     * ④由 {@code throwingCtorInvocationCount} 断言<b>只尝试实例化一次</b>（不是每次一个异常）。</p>
+     */
+    @Test
+    void uninstantiableByThrowingCtor_registeredOnceAndSkipped() {
+
+        ThrowingCtorTarget.resetInvocationCount();
+
+        // 首次：源值本身可构造（用不受构造异常影响的同类型替代）——
+        // 目标字段声明为 ThrowingCtorTarget，深拷贝按声明类型实例化时失败 ⇒ 登记，字段跳过（保持既有值）
+        ThrowingCtorSource first = new ThrowingCtorSource();
+        first.setTarget(ThrowingCtorTarget.sample());
+        ThrowingCtorSource firstCopied = CBeanUtils.copy(first, new ThrowingCtorSource());
+        Assertions.assertNull(firstCopied.getTarget(), "不可实例化的目标类字段应跳过不写入");
+        Assertions.assertEquals(1, ThrowingCtorTarget.invocationCount(), "首次应尝试实例化一次");
+
+        // 重复：仍跳过，且不再尝试实例化（命中不支持集合后直接返回）
+        ThrowingCtorSource secondCopied = CBeanUtils.copy(first, new ThrowingCtorSource());
+        Assertions.assertNull(secondCopied.getTarget());
+        Assertions.assertEquals(1, ThrowingCtorTarget.invocationCount(), "登记后不应再次尝试实例化");
+
+        // 其他源类碰到同一目标类型：同样直接跳过（跨源类复用「不支持的目标类集合」）
+        OtherThrowingCtorSource other = new OtherThrowingCtorSource();
+        other.setTarget(ThrowingCtorTarget.sample());
+        OtherThrowingCtorSource otherCopied = CBeanUtils.copy(other, new OtherThrowingCtorSource());
+        Assertions.assertNull(otherCopied.getTarget(), "其他类碰到该类型也应直接跳过");
+        Assertions.assertEquals(1, ThrowingCtorTarget.invocationCount(), "其他类不应再尝试实例化");
+
+        // Map 源入口共用同一决议链，同样跳过
+        val mapSource = new LinkedHashMap<String, Object>();
+        mapSource.put("target", ThrowingCtorTarget.sample());
+        ThrowingCtorSource fromMap = CBeanUtils.copy(mapSource, new ThrowingCtorSource());
+        Assertions.assertNull(fromMap.getTarget(), "Map 源入口同样跳过");
+        Assertions.assertEquals(1, ThrowingCtorTarget.invocationCount());
+    }
+
+    /**
+     * <p>对应测试用例 7.7：数组 ↔ 容器的跨形态转换（两向都不再"跳过不写入"）</p>
+     *
+     * <p>回归点（本次补全的漏点）：数组与集合在"有序、按元素遍历"这一语义上同构，
+     * 但旧实现里两侧都按"目标声明装不下源实现"处理 ⇒ <b>整条跳过</b>（字段保持 null，静默丢数据）：</p>
+     * <ul>
+     *   <li>源数组 → 目标 {@code List}/{@code Set} 声明：数组写不回集合，写回时 {@code ClassCastException}；</li>
+     *   <li>源集合 → 目标数组声明：集合写不回数组，同样失败。</li>
+     * </ul>
+     *
+     * <p>断言口径：①{@code String[]} → {@code List<String>} 得到 {@code ArrayList} 且元素深拷贝；
+     * ②{@code Inner[]} → {@code Set<Inner>} 得到 {@code LinkedHashSet}；③{@code Set<Inner>} →
+     * {@code Inner[]} 得到目标组件类型的数组、元素为副本；④{@code int[]} → {@code List<Integer>}
+     * 元素自动装箱；⑤{@code Object[]} 含不可转换元素（{@code Integer}）而目标为 {@code String[]} 时
+     * <b>跳过该槽位而非整体失败</b>。</p>
+     */
+    @Test
+    void arrayAndContainer_convertedByTargetDeclaration() {
+
+        val source = new ArraySourceHolder();
+        source.setStrings(new String[]{"a", "b"});
+        source.setBeans(new ArraySourceHolder.Inner[]{new ArraySourceHolder.Inner("x")});
+        source.setBeansAsCollection(new LinkedHashSet<>(Arrays.asList(new ArraySourceHolder.Inner("y"))));
+        source.setInts(new int[]{1, 2});
+
+        val copied = CBeanUtils.copy(source, ArrayTargetHolder.class);
+
+        // ① 数组 → List 声明
+        Assertions.assertTrue(copied.getStrings() instanceof ArrayList, "String[] 应按目标声明重建为 ArrayList");
+        Assertions.assertEquals(Arrays.asList("a", "b"), copied.getStrings());
+
+        // ② 数组 → Set 声明
+        Assertions.assertTrue(copied.getBeans() instanceof LinkedHashSet, "Inner[] 应按目标声明重建为 LinkedHashSet");
+        Assertions.assertEquals(1, copied.getBeans().size());
+        Assertions.assertNotSame(source.getBeans()[0], copied.getBeans().iterator().next(), "元素应为副本");
+
+        // ③ 集合 → 数组声明（组件类型取自声明，元素为副本）
+        Assertions.assertNotNull(copied.getBeansAsCollection(), "集合应能写入数组声明字段（不再跳过）");
+        Assertions.assertEquals(ArraySourceHolder.Inner[].class, copied.getBeansAsCollection().getClass());
+        Assertions.assertEquals(1, copied.getBeansAsCollection().length);
+        Assertions.assertNotSame(
+                source.getBeansAsCollection().iterator().next(), copied.getBeansAsCollection()[0], "元素应为副本"
+        );
+
+        // ④ 基本类型数组 → 容器声明（自动装箱）
+        Assertions.assertEquals(Arrays.asList(1, 2), copied.getInts());
+
+        // ⑤ 组件类型不兼容：跳过该槽位、不整体失败
+        val mismatch = new ObjectArraySourceHolder();
+        mismatch.setValues(new Object[]{"ok", 1});
+        val mismatchCopied = CBeanUtils.copy(mismatch, StringArrayTargetHolder.class);
+        Assertions.assertNotNull(mismatchCopied.getValues(), "组件类型不匹配不应导致整条跳过");
+        Assertions.assertEquals("ok", mismatchCopied.getValues()[0]);
+        Assertions.assertNull(mismatchCopied.getValues()[1], "装不进目标组件类型的槽位应跳过（保持默认值）");
+    }
+
+    /**
+     * <p>对应测试用例 7.8：{@code Map.Entry} 按目标声明类型物化（Map / 容器 两向）</p>
+     *
+     * <p>回归点（本次补全的漏点）：{@code AbstractMap.SimpleEntry} 这类键值对视图<b>有无参构造、但不是 Map</b>，
+     * 旧实现把它当普通 Bean 深拷贝 ⇒ 拷出的是同型 Entry（内容为空），写回目标 {@code Map} 声明字段时
+     * {@code ClassCastException}、整条跳过。</p>
+     *
+     * <p>断言口径：①{@code Map.Entry} → {@code Map} 声明建出单条记录且键值均为副本；
+     * ②{@code Map.Entry} → {@code List} 声明物化为"键、值"两项。</p>
+     */
+    @Test
+    void mapEntry_materializedByTargetDeclaration() {
+
+        val entrySource = new EntrySourceHolder();
+        entrySource.setEntry(new AbstractMap.SimpleEntry<>("k", new ArraySourceHolder.Inner("v")));
+
+        val copied = CBeanUtils.copy(entrySource, EntryTargetHolder.class);
+
+        // ① Entry → Map 声明（字段同名 entry）
+        Assertions.assertNotNull(copied.getEntry(), "Entry 应能写入 Map 声明字段（不再跳过）");
+        Assertions.assertEquals(1, copied.getEntry().size());
+        Assertions.assertEquals("v", copied.getEntry().get("k").name, "值应为源的副本");
+
+        // ② Entry → List 声明：物化为 [键, 值]
+        val listSource = new EntryListSourceHolder();
+        listSource.setEntry(new AbstractMap.SimpleEntry<>("k", new ArraySourceHolder.Inner("v")));
+        val listCopied = CBeanUtils.copy(listSource, EntryListTargetHolder.class);
+        Assertions.assertNotNull(listCopied.getEntry(), "Entry 应能写入容器声明字段");
+        Assertions.assertEquals(2, listCopied.getEntry().size());
+        Assertions.assertEquals("k", listCopied.getEntry().get(0));
+    }
+
+    /**
+     * <p>对应测试用例 7.9：{@code java.sql} 时间子类按目标声明类型保真（不降级为 {@code java.util.Date}）</p>
+     *
+     * <p>回归点（本次补全的漏点）：旧实现一律 {@code new Date(getTime())} ⇒ {@code java.sql.Date}/
+     * {@code Time}/{@code Timestamp} 全部降级为 {@code java.util.Date}：写回 {@code java.sql.*} 声明字段时
+     * {@code ClassCastException}（丢字段），写回 {@code Object} 声明时值类型静默变化（{@code Timestamp}
+     * 的纳秒精度同样丢失）。</p>
+     *
+     * <p>断言口径：①{@code java.sql.Date} → {@code java.sql.Date} 声明保持实现类；②{@code Timestamp} →
+     * {@code Timestamp} 保持实现类且<b>纳秒不丢</b>；③{@code java.util.Date} → {@code java.util.Date}
+     * 声明按运行时类保真，不被"目标父类型"改写成 {@code java.sql.Date}。</p>
+     */
+    @Test
+    void sqlDateSubclasses_keptByTargetType() {
+
+        val source = new SqlDateSourceHolder();
+        source.setSqlDate(new java.sql.Date(1_000_000L));
+        val timestamp = new java.sql.Timestamp(2_000_000L);
+        // setNanos 后 getTime() 会把纳秒折算进毫秒（JDK 语义），故以 setNanos 后的 getTime() 为基准断言
+        timestamp.setNanos(123_456_789);
+        source.setTimestamp(timestamp);
+        source.setUtilDate(new java.util.Date(3_000_000L));
+
+        val copied = CBeanUtils.copy(source, SqlDateTargetHolder.class);
+
+        Assertions.assertEquals(java.sql.Date.class, copied.getSqlDate().getClass(), "java.sql.Date 不应降级");
+        Assertions.assertEquals(1_000_000L, copied.getSqlDate().getTime());
+
+        Assertions.assertEquals(java.sql.Timestamp.class, copied.getTimestamp().getClass(), "Timestamp 不应降级");
+        Assertions.assertEquals(timestamp.getTime(), copied.getTimestamp().getTime(), "毫秒值应与源一致");
+        Assertions.assertEquals(123_456_789, copied.getTimestamp().getNanos(), "纳秒精度不应丢失");
+
+        Assertions.assertEquals(java.util.Date.class, copied.getUtilDate().getClass(), "java.util.Date 不应被改写为子类");
+        Assertions.assertEquals(3_000_000L, copied.getUtilDate().getTime());
+    }
+
+    /**
+     * <p>对应测试用例 7.10：{@code Optional} 拆包写入非 Optional 声明的目标字段</p>
+     *
+     * <p>回归点（本次补全的漏点）：源字段 {@code Optional<List<Inner>>}、目标字段 {@code List<Inner>}
+     * 时，旧实现把内部值拷好后<b>重新包回 {@code Optional}</b>，写回 {@code List} 声明
+     * {@code ClassCastException}、整条跳过。</p>
+     *
+     * <p>断言口径：①{@code Optional<List<Inner>>} → {@code List<Inner>} 拆包写入且元素为副本；
+     * ②空 {@code Optional} → 非 Optional 声明写 {@code null}；③{@code Optional<List<Inner>>} →
+     * {@code Optional<List<Inner>>} 声明仍包回 {@code Optional}（原语义不变）。</p>
+     */
+    @Test
+    void optional_unwrappedForNonOptionalTarget() {
+
+        val source = new OptionalUnwrapSourceHolder();
+        val inner = new ArraySourceHolder.Inner("o");
+        source.setOptionalList(Optional.of(new ArrayList<>(Collections.singletonList(inner))));
+        source.setEmptyOptional(Optional.empty());
+
+        val copied = CBeanUtils.copy(source, OptionalUnwrapTargetHolder.class);
+
+        Assertions.assertNotNull(copied.getOptionalList(), "Optional 应能拆包写入容器声明字段（不再跳过）");
+        Assertions.assertEquals(1, copied.getOptionalList().size());
+        Assertions.assertNotSame(inner, copied.getOptionalList().get(0), "元素应为副本");
+
+        Assertions.assertNull(copied.getEmptyOptional(), "空 Optional 拆包后应写 null");
+
+        // 目标仍为 Optional 声明时保持原语义（包回 Optional）
+        val keeper = new OptionalUnwrapSourceHolder();
+        keeper.setOptionalList(Optional.of(new ArrayList<>(Collections.singletonList(new ArraySourceHolder.Inner("p")))));
+        val kept = CBeanUtils.copy(keeper, OptionalKeepTargetHolder.class);
+        Assertions.assertTrue(kept.getOptionalList().isPresent(), "Optional 声明目标应保持 Optional 包装");
+        Assertions.assertEquals("p", kept.getOptionalList().get().get(0).name);
+    }
+
+    /**
+     * <p>对应测试用例 7.11：跨容器族的容器声明（源集合 → 目标 {@code Map} 声明）整条跳过、且不抛异常</p>
+     *
+     * <p><b>回归点</b>：目标声明为<b>另一容器族</b>时（源 {@code List}/{@code Set} → 声明 {@code Map}，
+     * 或反向），集合与 {@code Map} 在"逐元素深拷贝"的形态上不同构（{@code Map} 的元素是键值对而非元素），
+     * 无法从源单向物化目标形态，故按"跳过不写入"处理。</p>
+     *
+     * <p>压测面有二，缺一即回归：</p>
+     * <ol>
+     *   <li><b>不按声明族的实现去强转源容器</b>：曾按目标接口族把拷贝体归一成 {@code LinkedHashMap}，
+     *   随后走集合路径把结果强转为 {@code Collection} → {@code ClassCastException}；</li>
+     *   <li><b>不把源类写进目标声明族的 setter</b>：曾退回源运行时类（{@code Collections$EmptyList} 等），
+     *   写回时在 MethodHandle 签名层抛 {@code ClassCastException}。</li>
+     * </ol>
+     * <p>两者都会被 {@code applyCopyAction} / 写回兜底的 catch 吞成 debug 日志，从而"看起来只是字段为空"，
+     * 故本条按"无异常 + 字段保持既有值 + 其余字段照常拷贝"三项一并断言（用例用
+     * {@code DefaultUncaughtExceptionHandler} 无法观测被吞异常，改以"不抛出"与字段值双向判定）。</p>
+     *
+     * <p>断言口径：①源 {@code ArrayList} → 声明 {@code Map}：不抛异常、字段保持 {@code null}；
+     * ②空集合（{@code Collections.emptyList()}，其运行时类是包私有的 {@code Collections$EmptyList}）
+     * 同样不抛异常、字段保持 {@code null}；③反向（源 {@code Map} → 声明 {@code List}）同样跳过；
+     * ④同一目标对象上的可拷贝字段不受影响（跳过只作用于该字段）。</p>
+     */
+    @Test
+    void crossFamilyContainer_skippedWithoutCasting() {
+
+        // ① 源 ArrayList → 目标声明 Map
+        val collectionSource = new CrossFamilyCollectionSourceHolder();
+        collectionSource.setItems(new ArrayList<>(Collections.singletonList("a")));
+        collectionSource.setName("kept");
+
+        val mapTarget = CBeanUtils.copy(collectionSource, CrossFamilyMapTargetHolder.class);
+        Assertions.assertNull(mapTarget.getItems(), "跨容器族应跳过不写入（保持既有值，不构造半成品）");
+        Assertions.assertEquals("kept", mapTarget.getName(), "跳过只作用于该字段，其余字段照常拷贝");
+
+        // ② 空集合：运行时类为包私有的 Collections$EmptyList（曾据此被误当作 Map 族）
+        val emptySource = new CrossFamilyCollectionSourceHolder();
+        emptySource.setItems(Collections.emptyList());
+
+        val emptyCopied = CBeanUtils.copy(emptySource, CrossFamilyMapTargetHolder.class);
+        Assertions.assertNull(emptyCopied.getItems(), "空集合同样按跨族跳过，且不得抛异常");
+
+        // ③ 反向：源 Map → 目标声明 List
+        val mapSource = new CrossFamilyMapSourceHolder();
+        val map = new LinkedHashMap<String, String>();
+        map.put("k", "v");
+        mapSource.setItems(map);
+
+        val listTarget = CBeanUtils.copy(mapSource, CrossFamilyListTargetHolder.class);
+        Assertions.assertNull(listTarget.getItems(), "Map 源 → List 声明应跳过不写入");
+
+        // ④ 目标对象既有值保留（跳过 = 不写入，不是写 null）
+        val preset = new CrossFamilyMapTargetHolder();
+        val presetMap = new LinkedHashMap<String, String>();
+        presetMap.put("p", "q");
+        preset.setItems(presetMap);
+        CBeanUtils.copy(collectionSource, preset);
+        Assertions.assertSame(presetMap, preset.getItems(), "跳过不写入应保留目标对象既有值");
     }
 
     /**
@@ -689,6 +1077,56 @@ class CBeanUtilsDeepCopyTests {
                 new ArrayList<>(source.getSortedMap().keySet()),
                 new ArrayList<>(copied.getSortedMap().keySet())
         );
+    }
+
+    /**
+     * <p>对应测试用例 7.12：按目标类折叠的深拷贝计划——"含 final 字段"的降级语义不被折叠改变</p>
+     *
+     * <p><b>回归点</b>：{@code deepCopyBean} 原先在运行期依次判"含 final 实例字段 → 是否已登记不支持
+     * → 可否无参构造"，优化后这些按类恒定的判定折叠进一次 {@code ClassValue} 查表（{@code DeepPlan}）。
+     * 折叠不得改变对外可观测的降级语义：<b>含 final 字段 ⇒ 共享引用</b>（既有 {@code copy} 契约不写
+     * final 字段，结构拷贝会产出"部分字段为空"的对象），且这类目标类<b>不会被尝试构造</b>
+     * （不产生"构造体抛异常"的 error 日志、不进「不支持的目标类集合」）。</p>
+     *
+     * <p><b>断言口径</b>：①含 final 字段的目标类，字段<b>共享</b>（{@code assertSame}，非副本、非跳过）；
+     * ②该类型的<b>构造尝试次数恒为 0</b>（含 final 判定优先，不进入构造）；③同一目标类型重复复制
+     * 结果一致（计划按类缓存后幂等）；④含 final 但可实例化的类同样共享。</p>
+     *
+     * <p><b>等价性说明（为何②是有效判据）</b>：含 final 字段的类若构造失败，其失败会在
+     * {@code UNSUPPORTED_TARGET_CLASSES} 登记——但登记的前提是"尝试过构造"，而含 final 判定在此之先，
+     * 故该类型永远不会被登记。因此"含 final ⇒ 共享"与"含 final ⇒ 跳过"在本实现下不可能同时可达；
+     * ②（构造计数为 0）正是把这一"不可能被登记"保证钉住的可观测判据。</p>
+     *
+     * <p><b>测试数据选择理由</b>：源值经 {@code sample()}（绕过构造体）取得——该类型构造体必抛异常，
+     * 无法直接 {@code new}；同时触发"含 final 字段"与"构造体抛异常"两条降级路径，最能暴露折叠改错次序。</p>
+     */
+    @Test
+    void deepPlan_finalFieldTakesPrecedenceOverUninstantiable() {
+
+        FinalAndUninstantiable.resetCtorCount();
+
+        val first = new FinalAndUninstantiableHolder();
+        first.setTarget(FinalAndUninstantiable.sample());
+        val firstCopied = CBeanUtils.copy(first, new FinalAndUninstantiableHolder());
+
+        Assertions.assertSame(first.getTarget(), firstCopied.getTarget(),
+                "含 final 字段 ⇒ 共享引用（不得因折叠而变为跳过不写入或副本）");
+        Assertions.assertEquals(0, FinalAndUninstantiable.ctorCount(),
+                "含 final 字段的类不应被尝试构造");
+
+        // 计划按类缓存后幂等：重复复制结果一致、仍不尝试构造
+        val second = new FinalAndUninstantiableHolder();
+        second.setTarget(FinalAndUninstantiable.sample());
+        val secondCopied = CBeanUtils.copy(second, new FinalAndUninstantiableHolder());
+        Assertions.assertSame(second.getTarget(), secondCopied.getTarget(), "计划折叠后行为幂等");
+        Assertions.assertEquals(0, FinalAndUninstantiable.ctorCount(), "计划按类缓存后仍不应尝试构造");
+
+        // 含 final 但可实例化：同样共享（不因"可实例化"而尝试构造副本）
+        val finalOnly = new FinalOnlySource();
+        finalOnly.setTarget(new FinalOnlyTarget());
+        val finalOnlyCopied = CBeanUtils.copy(finalOnly, new FinalOnlySource());
+        Assertions.assertSame(finalOnly.getTarget(), finalOnlyCopied.getTarget(),
+                "含 final 字段的可实例化类仍共享引用");
     }
 
     /**
@@ -1081,6 +1519,381 @@ class CBeanUtilsDeepCopyTests {
         private Queue<String> queue;
         private SortedSet<String> sortedSet;
         private SortedMap<String, String> sortedMap;
+    }
+
+    /**
+     * Collection 目标声明（与源 List 不同族，用于 7.2 的按目标族重建断言）
+     */
+    @Data
+    static class MismatchCollectionTargetHolder {
+
+        private Collection<Inner> items;
+    }
+
+    /**
+     * 具体实现类源：List/Queue/Set 三种具体实现声明
+     */
+    @Data
+    static class ConcreteSourceHolder {
+
+        private ArrayList<String> list;
+        private ArrayList<String> queue;
+        private HashSet<String> set;
+    }
+
+    /**
+     * 具体实现类目标：目标声明比源更具体（LinkedList/TreeSet）或换族（Queue）
+     */
+    @Data
+    static class ConcreteTargetHolder {
+
+        private LinkedList<String> list;
+        private Queue<String> queue;
+        private TreeSet<String> set;
+    }
+
+    /**
+     * 一次性视图源：迭代器 / 集合视图 / 对象流 / 原始流
+     */
+    @Data
+    static class ViewSourceHolder {
+
+        private Iterator<String> fromIterator;
+        private Set<String> fromKeySet;
+        private Stream<String> fromStream;
+        private IntStream fromIntStream;
+    }
+
+    /**
+     * 一次性视图目标：容器声明均与源形态不同族，验证按目标类型重建
+     */
+    @Data
+    static class ViewTargetHolder {
+
+        private List<String> fromIterator;
+        private Set<String> fromKeySet;
+        private List<String> fromStream;
+        private List<Integer> fromIntStream;
+    }
+
+    /**
+     * 有无参构造、但构造体必定抛异常的目标类（准备阶段判不出，只能"试一次才知道"）
+     *
+     * <p>静态计数器用于断言"只尝试实例化一次"——这正是「不支持的目标类集合」的判据：
+     * 首次失败即登记，其后任何源类再碰到该类型都不再尝试。</p>
+     *
+     * <p>样本值由 {@link #sample()} 经序列化绕开构造体取得（构造体必抛异常，无法直接 {@code new}）——
+     * 测试要的是"值存在、但目标类型无法实例化"这一组合。</p>
+     */
+    static class ThrowingCtorTarget {
+
+        private static final AtomicInteger INVOCATION_COUNT = new AtomicInteger();
+
+        private String name;
+
+        private boolean failed;
+
+        ThrowingCtorTarget() {
+            INVOCATION_COUNT.incrementAndGet();
+            throw new UnsupportedOperationException("构造体必定抛异常（模拟不可初始化）");
+        }
+
+        /**
+         * 取一个不经构造体的样本实例（供测试构造源值）
+         *
+         * <p>构造体必抛异常，故不能用 {@code new}；此处用 {@code sun.misc.Unsafe#allocateInstance}
+         * 的等价能力（反射调 {@code Object} 层）不可行，改用 JDK 自带的"绕过构造"入口——
+         * {@code ReflectionFactory}。它属 JDK 内部 API，测试环境可用（生产代码不用）。</p>
+         *
+         * @return 未初始化的样本实例
+         */
+        static ThrowingCtorTarget sample() {
+            try {
+                val factory = Class.forName("sun.reflect.ReflectionFactory").getMethod("getReflectionFactory").invoke(null);
+                val method = factory.getClass().getMethod("newConstructorForSerialization", Class.class, java.lang.reflect.Constructor.class);
+                val ctor = (java.lang.reflect.Constructor<?>) method.invoke(factory, ThrowingCtorTarget.class, Object.class.getDeclaredConstructor());
+                ctor.setAccessible(true);
+                return (ThrowingCtorTarget) ctor.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException("测试样本创建失败", e);
+            }
+        }
+
+        static int invocationCount() {
+            return INVOCATION_COUNT.get();
+        }
+
+        static void resetInvocationCount() {
+            INVOCATION_COUNT.set(0);
+        }
+    }
+
+    /**
+     * 持有不可实例化目标类字段的源
+     */
+    @Data
+    static class ThrowingCtorSource {
+
+        private ThrowingCtorTarget target;
+    }
+
+    /**
+     * 同时含 final 实例字段、且构造体抛异常的目标类（7.12：折叠后降级分支优先级）
+     *
+     * <p>用于验证折叠计划不改变原有判定次序：含 final 字段的判定先于"可实例化"判定，
+     * 故结果应为<b>共享引用</b>。样本值同样经「绕过构造」取得。</p>
+     */
+    static class FinalAndUninstantiable {
+
+        private static final AtomicInteger CTOR_COUNT = new AtomicInteger();
+
+        private final String name = "final";
+
+        FinalAndUninstantiable() {
+            CTOR_COUNT.incrementAndGet();
+            throw new UnsupportedOperationException("构造体必定抛异常（7.12 复合降级场景）");
+        }
+
+        static int ctorCount() {
+            return CTOR_COUNT.get();
+        }
+
+        static void resetCtorCount() {
+            CTOR_COUNT.set(0);
+        }
+
+        static FinalAndUninstantiable sample() {
+            try {
+                val factory = Class.forName("sun.reflect.ReflectionFactory").getMethod("getReflectionFactory").invoke(null);
+                val method = factory.getClass().getMethod("newConstructorForSerialization", Class.class, java.lang.reflect.Constructor.class);
+                val ctor = (java.lang.reflect.Constructor<?>) method.invoke(
+                        factory, FinalAndUninstantiable.class, Object.class.getDeclaredConstructor());
+                ctor.setAccessible(true);
+                return (FinalAndUninstantiable) ctor.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException("测试样本创建失败", e);
+            }
+        }
+    }
+
+    /**
+     * 持有 {@link FinalAndUninstantiable} 字段的源（7.12）
+     */
+    @Data
+    static class FinalAndUninstantiableHolder {
+
+        private FinalAndUninstantiable target;
+    }
+
+    /**
+     * 含 final 实例字段、但可正常实例化的目标类（7.12：final 优先共享）
+     */
+    static class FinalOnlyTarget {
+
+        private final String name = "final";
+    }
+
+    /**
+     * 持有 {@link FinalOnlyTarget} 字段的源（7.12）
+     */
+    @Data
+    static class FinalOnlySource {
+
+        private FinalOnlyTarget target;
+    }
+
+    /**
+     * 另一个持有同一不可实例化目标类的源（验证跨源类复用「不支持的目标类集合」）
+     */
+    @Data
+    static class OtherThrowingCtorSource {
+
+        private ThrowingCtorTarget target;
+    }
+
+    /**
+     * 数组型源：数组 ↔ 容器两向转换的样本
+     */
+    @Data
+    static class ArraySourceHolder {
+
+        private String[] strings;
+        private Inner[] beans;
+        private Set<Inner> beansAsCollection;
+        private int[] ints;
+
+        @Data
+        static class Inner {
+
+            private String name;
+
+            Inner() {
+            }
+
+            Inner(String name) {
+                this.name = name;
+            }
+        }
+    }
+
+    /**
+     * 容器型目标：全部按容器声明接收源数组
+     */
+    @Data
+    static class ArrayTargetHolder {
+
+        private List<String> strings;
+        private Set<ArraySourceHolder.Inner> beans;
+        private ArraySourceHolder.Inner[] beansAsCollection;
+        private List<Integer> ints;
+    }
+
+    /**
+     * {@code Object[]} 源（含装不进目标组件类型的元素，用于验证"跳过槽位而非整体失败"）
+     */
+    @Data
+    static class ObjectArraySourceHolder {
+
+        private Object[] values;
+    }
+
+    /**
+     * {@code String[]} 目标（组件类型比源更具体）
+     */
+    @Data
+    static class StringArrayTargetHolder {
+
+        private String[] values;
+    }
+
+    /**
+     * {@code Map.Entry} 源：键值对视图 → Map / 容器 两向物化
+     */
+    @Data
+    static class EntrySourceHolder {
+
+        private Map.Entry<String, ArraySourceHolder.Inner> entry;
+    }
+
+    /**
+     * {@code Map.Entry} 目标：Map 声明与容器声明各一
+     */
+    @Data
+    static class EntryTargetHolder {
+
+        /**
+         * 与源同名为 {@code entry}（copy 按同名字段配对），声明为 Map 形态
+         */
+        private Map<String, ArraySourceHolder.Inner> entry;
+    }
+
+    /**
+     * {@code Map.Entry} 目标是容器声明的源（字段同名，声明为 List 形态）
+     */
+    @Data
+    static class EntryListSourceHolder {
+
+        private Map.Entry<String, ArraySourceHolder.Inner> entry;
+    }
+
+    /**
+     * {@code Map.Entry} 目标是容器声明
+     */
+    @Data
+    static class EntryListTargetHolder {
+
+        private List<Object> entry;
+    }
+
+    /**
+     * {@code java.sql} 时间子类源
+     */
+    @Data
+    static class SqlDateSourceHolder {
+
+        private java.sql.Date sqlDate;
+        private java.sql.Timestamp timestamp;
+        private java.util.Date utilDate;
+    }
+
+    /**
+     * 时间目标：与源同型声明（验证按声明/运行时类型保真）
+     */
+    @Data
+    static class SqlDateTargetHolder {
+
+        private java.sql.Date sqlDate;
+        private java.sql.Timestamp timestamp;
+        private java.util.Date utilDate;
+    }
+
+    /**
+     * {@code Optional} 源：内部值可深拷贝
+     */
+    @Data
+    static class OptionalUnwrapSourceHolder {
+
+        private Optional<List<ArraySourceHolder.Inner>> optionalList;
+        private Optional<String> emptyOptional;
+    }
+
+    /**
+     * 非 {@code Optional} 目标：接收拆包后的内部值
+     */
+    @Data
+    static class OptionalUnwrapTargetHolder {
+
+        private List<ArraySourceHolder.Inner> optionalList;
+        private String emptyOptional;
+    }
+
+    /**
+     * {@code Optional} 目标：保持 {@code Optional} 包装语义
+     */
+    @Data
+    static class OptionalKeepTargetHolder {
+
+        private Optional<List<ArraySourceHolder.Inner>> optionalList;
+    }
+
+    /**
+     * 跨容器族源：集合（{@code List} 声明）
+     */
+    @Data
+    static class CrossFamilyCollectionSourceHolder {
+
+        private List<String> items;
+
+        private String name;
+    }
+
+    /**
+     * 跨容器族目标：{@code Map} 声明（与集合源不同族，应跳过不写入）
+     */
+    @Data
+    static class CrossFamilyMapTargetHolder {
+
+        private Map<String, String> items;
+
+        private String name;
+    }
+
+    /**
+     * 跨容器族源：{@code Map} 声明（与集合目标反向）
+     */
+    @Data
+    static class CrossFamilyMapSourceHolder {
+
+        private Map<String, String> items;
+    }
+
+    /**
+     * 跨容器族目标：{@code List} 声明
+     */
+    @Data
+    static class CrossFamilyListTargetHolder {
+
+        private List<String> items;
     }
 
     /**

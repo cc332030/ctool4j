@@ -26,10 +26,10 @@
 |===
 | 版本 | 日期 | 条目数
 
-| link:#_1_1_20260730[1.1.20260730] | 2026-09-18 | 45
+| link:#_1_1_20260730[1.1.20260730] | 2026-09-18 | 48
 | link:#_1_0_20260715[1.0.20260715] | 2026-07-30 | 概览（历史条目未按版本留存）
 | link:#_1_0_20260703[1.0.20260703] | 2026-07-15 | 概览（历史条目未按版本留存）
-| link:#_1_0_20260612[1.0.20260612] | 2026-06-12 | 概览（历史条目未按版本留存）
+| link:#_1_0_20260612[1.0.20260612] | 2026-06-17 | 概览（历史条目未按版本留存）
 | 1.0.20260617 及更早 | 2026-07-03 及更早 | 见下「更早版本」
 |===
 
@@ -54,7 +54,7 @@
 
 | [.breaking]#破坏性变更#
 | `ctool4j-core`：`CBeanUtils.copy` 系列对集合/Map/数组/Bean/Date 字段改为**深拷贝**
-| 由「跳过 / 共享引用」改为递归深拷贝（元素与键值递归，环状与跨字段共享引用只拷一份）。需要保留共享引用的调用方须改用 `toMap` 或在复制后自行恢复；跨接口容器（如源 `List` → 目标 `Set` 声明）按「跳过不写入」处理，不再静默丢字段
+| 由「跳过 / 共享引用」改为递归深拷贝（元素与键值递归，环状与跨字段共享引用只拷一份）。需要保留共享引用的调用方须改用 `toMap` 或在复制后自行恢复；**跨接口容器（如源 `List` → 目标 `Set` 声明）按目标声明类型重建容器写入**（支持，不再跳过）
 
 | [.breaking]#破坏性变更#
 | `ctool4j-web`：`CAbstractJwtFilter` 改名 `CAbstractWebAuthFilter`
@@ -81,6 +81,26 @@
 | 引用方须按新坐标与包名调整 import；`ctool4j-web` 自带 `CRequestLogConfig` / `CRequestLogBaseConfig` 装配入口
 
 | 新增
+| `ctool4j-core`：`CBeanUtils` 支持跨接口容器（源 `List` → 目标 `Set` 声明）与一次性视图（`Iterator` / `Stream`）——按**目标声明类型**重建容器
+| 跨接口容器不再「跳过不写入」，该字段照常写入（有序优先：目标 `Set` 建 `LinkedHashSet`、`Map` 建 `LinkedHashMap`、`List`/`Collection` 建 `ArrayList`）；目标声明为具体实现类（如 `ArrayList` 源 → `LinkedList` 目标）时按其重建。此前会被静默跳过、字段为空，排查字段缺失时看这里
+
+| 修复
+| `ctool4j-core`：`CBeanUtils` 跨容器族的容器声明（源 `List`/`Set` → 目标 `Map` 声明，或反向）改为整条跳过、不再抛异常
+| 该场景此前会把拷贝体按目标族归一后仍按源码形态强转，抛 `ClassCastException`（被吞成 debug 日志）；另有一处把源运行时类写进目标声明族的 setter、在 MethodHandle 签名层抛异常。两者在集合类源（如 `Collections.emptyList()`）命中 Map 声明字段时每次复制都触发。现按「跳过不写入、字段保持既有值」处理，与跨接口容器的旧语义一致
+
+| 修复
+| `ctool4j-core`：`CBenchmarkReport` 基线均值为 0 时不再输出 `NaN`/`Infinity`
+| 相对基线与吞吐此前按 `x/0` 取值，渲染成 `NaNx`/`Infinityx` 与 `Infinity`——会被误读为"极快/极慢"，实际是基线无有效耗时、比值无意义；现按「不可比」输出文字
+
+| 修复
+| `ctool4j-core`：`CReflectUtils` 构造器查询只取 public 构造器
+| 包私有/受保护构造器此前取不到（`Class#getConstructors()` 只返回 public），导致这类类被判为「不可实例化」；现按 `Class#getDeclaredConstructors()` 取全部构造器（本工具类已 `setAccessible`），可实例化范围恢复正确
+
+| 新增
+| `ctool4j-core`：`CBeanUtils` 新增「不支持的目标类集合」——有无参构造但构造体必定抛异常的目标类，首次实例化失败即登记（打一次 error 日志），其后该类型一律跳过不写入、不再重复报错
+| 此前每次都重新反射构造、重新抛异常、重新打日志（热路径上退化成「每次一个异常」）；注意被跳过的类型其字段保持目标对象既有值（不是共享引用）。无可用无参构造的类仍按共享引用处理（只打一次 debug）
+
+| 新增
 | `ctool4j-core`：`CUnauthorizedException`（不携带错误码，语义为「未认证」）
 | 未认证与普通业务失败区分开；配套 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 返回响应体业务码 401 + HTTP 状态 401，调用方以响应体业务码 401 识别未认证（见 link:doc/design/web/unauthorized-401.adoc[未授权统一返回业务码 401]）
 
@@ -97,7 +117,7 @@
 | 同一业务 key 任一时刻只允许一个调用执行业务，其余并发或重复调用抛 `CIdempotentException`，防重复提交与并发穿透；幂等 key = 应用前缀 + 分组类简单名 + 方法名 + 业务 id，业务 id 用 el 表达式从方法参数取值
 
 | 新增
-| `ctool4j-core`：日志能力——`CLogUtils` 的 JSON 日志分支、`@CLogSensitive` 敏感字段脱敏、`@CLogBlob` 大字段截断
+| 日志能力——`ctool4j-core`：`CLogUtils` 的 JSON 日志分支；`ctool4j-definition`：`@CLogSensitive` 敏感字段脱敏、`@CLogBlob` 大字段截断
 | 日志专用 mapper 输出时按注解脱敏（默认保留前 3 后 4 位，长度不足全部打码）与截断大字段；**全局 ObjectMapper 无此行为**，业务序列化仍输出真实内容
 
 | 新增
@@ -129,11 +149,11 @@
 | 按数据类型分派的有效性断言，覆盖 Object、CharSequence、Iterable、Collection、Map 与 9 种数组，语义与 `CValidUtils#isValid` 一致（字符串按 blank、集合/Map/数组按 empty、其他对象按 null）；`notEmpty` / `notBlank` 改为复用 `CValidUtils`，对外语义不变
 
 | 新增
-| `ctool4j-spring`：`CList` / `CMap` / `CSet` 的不可变实时视图（`CListView` / `CMapView` / `CSetView`）、`CLog` 按级别打印
+| `ctool4j-core`：`CList` / `CMap` / `CSet` 的不可变实时视图（`CListView` / `CMapView` / `CSetView`）、`CLog` 按级别打印
 | 持有可变实例同时暴露不可变视图；日志可按 `Level` 选择打印方式（null 兜底 error）
 
 | 新增
-| `ctool4j-definition`：语义接口 `ICToken`、`ICCreateMillis`；`ctool4j-auth-base` 与 `ctool4j-web`：`CAuthUtils`、`CTokenUtils`
+| `ctool4j-definition`：语义接口 `ICToken`、`ICCreateMillis`；`ctool4j-auth-base`：`CAuthUtils`；`ctool4j-web`：`CTokenUtils`
 | 认证 / 令牌工具与语义契约集中在定义层与认证层，供全量组件复用
 
 | 新增
@@ -210,7 +230,7 @@
 
 | 移除
 | 文档：逐类文档与模块级重复索引页
-| 删除逐类文档 623 份与 48 个模块级 `doc/README.adoc` 重复索引页——类/方法级内容承载在 javadoc，模块级内容归模块 `README.md`，功能级内容归 `doc/design/`，依赖关系归 `doc/dependency.adoc`；`doc/README.adoc` 为全项目文档导航入口
+| 删除逐类文档与模块级重复索引页（`doc/design/<模块>/<类名>.adoc` 一族）——类/方法级内容承载在 javadoc，模块级内容归模块 `README.md`，功能级内容归 `doc/design/`，依赖关系归 `doc/dependency.adoc`；`doc/README.adoc` 为全项目文档导航入口
 
 | 文档
 | 新增 link:doc/dependency.adoc[doc/dependency.adoc]（模块间依赖唯一视图，含全部模块清单与 UML 依赖图）、link:doc/compatibility.adoc[doc/compatibility.adoc]（依赖升级已知问题登记）
@@ -255,6 +275,7 @@
 | 版本 | 日期
 
 | 1.0.20260617 | 2026-07-03
+| 1.0.20260612 | 2026-06-17
 | 1.0.20260522 | 2026-06-12
 | 1.0.20260517 | 2026-05-22
 | 1.0.20260429 | 2026-05-17

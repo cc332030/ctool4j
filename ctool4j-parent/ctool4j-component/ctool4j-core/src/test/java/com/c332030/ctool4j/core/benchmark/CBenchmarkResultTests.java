@@ -48,6 +48,20 @@ import org.junit.jupiter.api.Test;
  * <ul>
  *   <li>3.1 正例：构造后 {@code getName} / {@code getIterations} / {@code getElapsedNanos} 原样返回构造入参</li>
  * </ul>
+ * <h2>逐轮采样下的 avgNanos / opsPerSecond（有离散度取值来源时）</h2>
+ * <ul>
+ *   <li>4.1 正例：{@code roundAvgNanos=[4,6,5]} → {@code avgNanos}=5.0（不再是 elapsedNanos/iterations 那一路）</li>
+ *   <li>4.2 边界：{@code roundAvgNanos=null} → 退化为 {@code elapsedNanos / iterations}</li>
+ *   <li>4.3 边界：{@code roundAvgNanos} 为空数组 → 退化为 {@code elapsedNanos / iterations}</li>
+ * </ul>
+ * <h2>dispersionNanos / dispersionRatio（离散度）</h2>
+ * <ul>
+ *   <li>5.1 正例：{@code [4,6,5]} → 极差 2.0（最慢 − 最快）</li>
+ *   <li>5.2 边界：单轮（不足 2 个采样）→ 0.0（无从计算离散度）</li>
+ *   <li>5.3 边界：{@code roundAvgNanos=null} → 0.0</li>
+ *   <li>5.4 边界：均值为 0 → 相对离散度为 0.0（不产生除零/NaN）</li>
+ *   <li>5.5 正例：{@code [4,6]} → 相对离散度 0.4（极差 2 / 均值 5）</li>
+ * </ul>
  *
  * @since 2026/8/21
  * @version 1.0
@@ -199,6 +213,142 @@ public class CBenchmarkResultTests {
         Assertions.assertEquals("copy", result.getName());
         Assertions.assertEquals(100, result.getIterations());
         Assertions.assertEquals(200, result.getElapsedNanos());
+
+    }
+
+    /**
+     * 对应测试用例 4.1：正例：有逐轮采样时 avgNanos 取各轮单次均摊耗时的均值（而非 elapsedNanos/iterations）
+     */
+    @Test
+    public void avgNanosUsesRoundAverages() {
+
+        // elapsedNanos/iterations = 1000/10 = 100，但逐轮均值是 5 —— 断言取的是后者
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(10)
+            .elapsedNanos(1000)
+            .roundAvgNanos(new double[] {4.0, 6.0, 5.0})
+            .build();
+
+        Assertions.assertEquals(5.0, result.avgNanos());
+
+    }
+
+    /**
+     * 对应测试用例 4.2：边界：无逐轮采样（null）→ 退化为 elapsedNanos / iterations
+     */
+    @Test
+    public void avgNanosFallsBackWhenRoundsAbsent() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(5000)
+            .build();
+
+        Assertions.assertEquals(5.0, result.avgNanos());
+
+    }
+
+    /**
+     * 对应测试用例 4.3：边界：逐轮采样为空数组 → 退化为 elapsedNanos / iterations
+     */
+    @Test
+    public void avgNanosFallsBackWhenRoundsEmpty() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1000)
+            .elapsedNanos(5000)
+            .roundAvgNanos(new double[0])
+            .build();
+
+        Assertions.assertEquals(5.0, result.avgNanos());
+
+    }
+
+    /**
+     * 对应测试用例 5.1：正例：离散度取极差（最慢 − 最快）
+     */
+    @Test
+    public void dispersionNanosIsRange() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1)
+            .elapsedNanos(1)
+            .roundAvgNanos(new double[] {4.0, 6.0, 5.0})
+            .build();
+
+        Assertions.assertEquals(2.0, result.dispersionNanos());
+
+    }
+
+    /**
+     * 对应测试用例 5.2：边界：单轮采样 → 离散度 0（不足 2 个采样无从计算）
+     */
+    @Test
+    public void dispersionNanosZeroForSingleRound() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1)
+            .elapsedNanos(1)
+            .roundAvgNanos(new double[] {4.0})
+            .build();
+
+        Assertions.assertEquals(0.0, result.dispersionNanos());
+
+    }
+
+    /**
+     * 对应测试用例 5.3：边界：无逐轮采样（null）→ 离散度 0
+     */
+    @Test
+    public void dispersionNanosZeroWhenRoundsAbsent() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1)
+            .elapsedNanos(1)
+            .build();
+
+        Assertions.assertEquals(0.0, result.dispersionNanos());
+
+    }
+
+    /**
+     * 对应测试用例 5.4：边界：均值为 0 → 相对离散度 0（不产生除零/NaN）
+     */
+    @Test
+    public void dispersionRatioZeroWhenAverageZero() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1)
+            .elapsedNanos(0)
+            .roundAvgNanos(new double[] {0.0, 0.0})
+            .build();
+
+        Assertions.assertEquals(0.0, result.dispersionRatio());
+
+    }
+
+    /**
+     * 对应测试用例 5.5：正例：相对离散度 = 极差 / 均值
+     */
+    @Test
+    public void dispersionRatioIsRangeOverAverage() {
+
+        CBenchmarkResult result = CBenchmarkResult.builder()
+            .name("case")
+            .iterations(1)
+            .elapsedNanos(1)
+            .roundAvgNanos(new double[] {4.0, 6.0})
+            .build();
+
+        // 均值 5、极差 2 → 0.4
+        Assertions.assertEquals(0.4, result.dispersionRatio());
 
     }
 

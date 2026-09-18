@@ -51,6 +51,7 @@ import java.util.List;
  *   <li>2.1 正例：多结果，表格含「实现方式 / Avg(ns/op) / ops/s / 相对基线」各列，相对基线以首项为基线</li>
  *   <li>2.2 边界：单结果，相对基线为 1.00x</li>
  *   <li>2.3 异常：空结果列表 → 抛 IndexOutOfBoundsException</li>
+ *   <li>2.4 边界：基线均值为 0 → 相对基线与吞吐输出"不可比"文字，不出现 {@code NaN}/{@code Infinity}</li>
  * </ul>
  * <h2>writeTo(Path)</h2>
  * <ul>
@@ -60,7 +61,7 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/8/21
- * @version 1.0
+ * @version 1.1
  */
 public class CBenchmarkReportTests {
 
@@ -72,8 +73,10 @@ public class CBenchmarkReportTests {
     private static CBenchmarkReport reportWithTwoResults() {
 
         List<CBenchmarkResult> results = Arrays.asList(
-            CBenchmarkResult.builder().name("base").iterations(1000).elapsedNanos(1_000_000_000).build(),
-            CBenchmarkResult.builder().name("fast").iterations(1000).elapsedNanos(500_000_000).build()
+            CBenchmarkResult.builder().name("base").iterations(1000).elapsedNanos(1_000_000_000)
+                    .roundAvgNanos(new double[] {1_000_000.0, 1_000_100.0, 1_000_200.0}).build(),
+            CBenchmarkResult.builder().name("fast").iterations(1000).elapsedNanos(500_000_000)
+                    .roundAvgNanos(new double[] {500_000.0, 500_050.0, 500_100.0}).build()
         );
 
         return CBenchmarkReport.builder()
@@ -114,9 +117,17 @@ public class CBenchmarkReportTests {
         String markdown = report.toMarkdown();
 
         Assertions.assertTrue(markdown.startsWith("# benchmark\n\n"));
-        Assertions.assertTrue(markdown.contains("| 实现方式 | Avg(ns/op) | ops/s | 相对基线 |"));
-        Assertions.assertTrue(markdown.contains("| base | 1000000.0 | 1000 | 1.00x |"));
-        Assertions.assertTrue(markdown.contains("| fast | 500000.0 | 2000 | 0.50x |"));
+        // 终值与离散度同表同格（缺离散度的成绩不成立）
+        Assertions.assertTrue(
+                markdown.contains("| 实现方式 | Avg(ns/op) | 离散度(极差 ns/op) | 相对离散度 | ops/s | 相对基线 | 结论 |"),
+                "表头应含离散度与结论列"
+        );
+        // 基线行：均值 1000100.0、极差 200.0、结论固定为「基线」
+        Assertions.assertTrue(markdown.contains("| base | 1000100.0 | 200.0 | "), "基线行应含终值与极差");
+        Assertions.assertTrue(markdown.contains("| 1.00x | 基线 |"), "基线行结论应为「基线」");
+        // 快 50% 且差异远超两者离散度 → 判为「优于基线」
+        Assertions.assertTrue(markdown.contains("| fast | 500050.0 | 100.0 | "), "fast 行应含终值与极差");
+        Assertions.assertTrue(markdown.contains("| 0.50x | 优于基线 |"), "差异远超离散度应判为优于基线");
 
     }
 
@@ -127,7 +138,8 @@ public class CBenchmarkReportTests {
     public void toMarkdownWithSingleResult() {
 
         List<CBenchmarkResult> results = Collections.singletonList(
-            CBenchmarkResult.builder().name("only").iterations(1000).elapsedNanos(1_000_000_000).build()
+            CBenchmarkResult.builder().name("only").iterations(1000).elapsedNanos(1_000_000_000)
+                    .roundAvgNanos(new double[] {1_000_000.0, 1_000_000.0, 1_000_000.0}).build()
         );
 
         CBenchmarkReport report = CBenchmarkReport.builder()
@@ -137,7 +149,7 @@ public class CBenchmarkReportTests {
 
         String markdown = report.toMarkdown();
 
-        Assertions.assertTrue(markdown.contains("| only | 1000000.0 | 1000 | 1.00x |"));
+        Assertions.assertTrue(markdown.contains("| only | 1000000.0 | 0.0 | 0.0% | 1000 | 1.00x | 基线 |"), "单结果应给出终值/离散度与基线结论");
 
     }
 
@@ -157,6 +169,39 @@ public class CBenchmarkReportTests {
             report::toMarkdown
         );
 
+    }
+
+    /**
+     * 测试基线均值为 0 时的取数：比值与吞吐按"不可比"输出文字
+     * 对应测试用例 2.4：基线均值为 0 → 不出现 NaN/Infinity
+     *
+     * <p><b>回归点</b>：基线均值为 0 时 {@code avgNanos / baselineAvg} 得 {@code NaN} 或
+     * {@code Infinity}，格式化后渲染成 {@code NaNx}/{@code Infinityx}，Ops 列也会输出 {@code Infinity}——
+     * 性能结论里出现 {@code NaN}/{@code Infinity} 会被误读为"极快/极慢"，而实际是"基线无有效耗时、
+     * 比值无意义"。现按"不可比"输出文字，数字列不再出现非有限值。</p>
+     *
+     * <p>断言口径：①基线行（均值为 0）与其余行的「相对基线」列均为"不可比（基线为 0）"；
+     * ②基线行「ops/s」列为"-（均值为 0）"；③整份报告不含 {@code NaN} 与 {@code Infinity} 文本。</p>
+     */
+    @Test
+    public void toMarkdownWithZeroBaseline() {
+
+        List<CBenchmarkResult> results = Arrays.asList(
+            CBenchmarkResult.builder().name("zero").iterations(1000).elapsedNanos(0).build(),
+            CBenchmarkResult.builder().name("other").iterations(1000).elapsedNanos(5).build()
+        );
+
+        CBenchmarkReport report = CBenchmarkReport.builder()
+            .title("zeroBaseline")
+            .results(results)
+            .build();
+
+        String markdown = report.toMarkdown();
+
+        Assertions.assertTrue(markdown.contains("| 不可比（基线为 0） | 基线 |"), "基线行相对基线应为不可比");
+        Assertions.assertTrue(markdown.contains("| -（均值为 0） | 不可比（基线为 0） |"), "零均值行吞吐应为不可比");
+        Assertions.assertFalse(markdown.contains("NaN"), "零基线不应渲染出 NaN");
+        Assertions.assertFalse(markdown.contains("Infinity"), "零基线不应渲染出 Infinity");
     }
 
     /**
