@@ -19,13 +19,18 @@ import javax.servlet.http.HttpServletRequest;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CSessionUtils}（{@code @UtilityClass} + {@code @CAutowiredScan}）为会话读取的静态门面：<b>当前全部方法都是透传</b>
- * ——只做转发与泛型适配，不新增判定、默认值或转换，返回值/null/异常语义均来自容器内的 {@link CAbstractBaseSessionService}：</p>
+ * <p>{@code CSessionUtils}（{@code @UtilityClass} + {@code @CAutowiredScan}）为会话读写的静态门面：<b>当前全部方法都是透传</b>
+ * ——只做转发与泛型适配，不新增判定、默认值或转换，返回值/null/异常语义均来自容器内的 {@link CAbstractBaseSessionService}；
+ * 方法顺序与服务层一致，便于逐方法对照：</p>
  * <ul>
+ *   <li>{@link #get(String)}：按 token 取会话（无需请求上下文），查不到返回 null（{@code @Nullable}）。</li>
+ *   <li>{@link #save(String, ICSession)}：按 token 写入会话（过期时间等由服务层决定）。</li>
+ *   <li>{@link #remove(String)}：按 token 删除会话。</li>
+ *   <li>{@link #getByJwt(String)}：由 jwt 解析 token 后取会话，查不到返回 null（{@code @Nullable}）。</li>
  *   <li>{@link #load(HttpServletRequest)}：按请求加载会话（取请求内 token），无会话返回 null、不抛异常。</li>
+ *   <li>{@link #check()}：校验当前已授权，未授权抛 {@link CUnauthorizedException}。</li>
  *   <li>{@link #getDefaultNull()}：取当前会话，无会话返回 null（{@code @Nullable}）。</li>
  *   <li>{@link #get()}：取当前会话，无会话抛 {@link CUnauthorizedException}。</li>
- *   <li>{@link #get(String)}：按 token 取会话（无需请求上下文），查不到返回 null（{@code @Nullable}）。</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -39,7 +44,7 @@ import javax.servlet.http.HttpServletRequest;
  *     <td>返回 null（由调用方决定后续处理，如保持未认证状态）</td>
  *   </tr>
  *   <tr>
- *     <td>无会话 + 调 {@link #get()}</td>
+ *     <td>无会话 + 调 {@link #get()} / {@link #check()}</td>
  *     <td>抛 {@link CUnauthorizedException}（与 {@link CAbstractBaseSessionService#get()} 同语义）</td>
  *   </tr>
  *   <tr>
@@ -51,18 +56,22 @@ import javax.servlet.http.HttpServletRequest;
  * <ul>
  *   <li>在过滤器、工具类或业务代码中读取会话、而不想在每个调用方注入会话服务的场景。</li>
  *   <li>没有当前请求上下文的场景（如异步线程、定时任务）按已知 token 取会话：用 {@link #get(String)}。</li>
+ *   <li>会话的写入与清理（登录后写入、登出/续期时删除）：用 {@link #save(String, ICSession)} / {@link #remove(String)}。</li>
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>泛型返回值按调用方声明的类型自动适配、<b>不做校验</b>（{@code CObjUtils.anyType} 直转）：
  *   声明类型与实际会话类型不符时，在使用点抛 {@code ClassCastException}。</li>
- *   <li>"无会话是否算异常"完全由服务层对应方法决定（本类透传）：{@link #load(HttpServletRequest)} / {@link #getDefaultNull()} / {@link #get(String)} 返回 null，
- *   {@link #get()} 抛异常——调用方按场景选择。同理，{@link #get()} 与 {@link #get(String)} <b>同名但缺会话语义不同</b>也不是本类引入的：
+ *   <li>"无会话是否算异常"完全由服务层对应方法决定（本类透传）：{@link #load(HttpServletRequest)} / {@link #getDefaultNull()} / {@link #get(String)} / {@link #getByJwt(String)} 返回 null，
+ *   {@link #get()} / {@link #check()} 抛异常——调用方按场景选择。同理，{@link #get()} 与 {@link #get(String)} <b>同名但缺会话语义不同</b>也不是本类引入的：
  *   前者取"当前会话"、缺失即未授权；后者取"指定 token 的会话"、缺失只表示该 token 无效（两者语义均照搬服务层）。</li>
+ *   <li>写入的会话类型不做校验（{@link #save(String, ICSession)}）：字段为通配类型（{@code CAbstractBaseSessionService<? extends ICSession>}），
+ *   门面内部做不受检的适配转换后透传；传入的会话类型与服务不一致时，由服务层（序列化/反序列化）暴露。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <ul>
  *   <li>静态注入（{@code @CAutowiredScan} + {@code @CAutowired}）与项目其他 C 工具类一致，避免调用方到处注入会话服务。</li>
+ *   <li>方法集合与顺序均对齐 {@link CAbstractBaseSessionService} 的公开方法（除与本类无关的 {@code getGenericClass()}），便于逐方法对照。</li>
  *   <li>方法名不再重复 {@code Session} 后缀（类名已表意）；各方法只做透传与泛型适配，语义与其在 {@link CAbstractBaseSessionService}
  *   上的对应方法一致（含 {@code getDefaultNull} 的 {@code @Nullable} 传递），本类不额外判定、不改变返回或异常语义。</li>
  *   <li><b>透传是当前现状，不作为长期约束</b>：本类当前全部方法都是直通委托（不新增判定/默认值/转换）；后续若某个方法引入
@@ -70,7 +79,7 @@ import javax.servlet.http.HttpServletRequest;
  * </ul>
  *
  * @since 2026/9/18
- * @version 1.4
+ * @version 1.5
  */
 @UtilityClass
 @CAutowiredScan
@@ -84,7 +93,64 @@ public class CSessionUtils {
     CAbstractBaseSessionService<? extends ICSession> sessionService;
 
     /**
+     * 按 token 取会话（无需请求上下文；查不到返回 null）
+     *
+     * <p>透传 {@link CAbstractBaseSessionService#get(String)}：与之同语义——按 token 读、查不到返回 null、不抛异常；
+     * 与 {@link #get()} 同名但缺会话语义不同：本方法取"指定 token 的会话"、查不到只表示该 token 无效。
+     * 典型场景：异步线程、定时任务等没有当前请求上下文、但持有 token 的地方。</p>
+     *
+     * @param token token（不可为 null）
+     * @param <T>   会话类型（由调用方声明，不做校验）
+     * @return 会话；按 token 查不到时返回 null
+     */
+    @Nullable
+    public <T extends ICSession> T get(@NonNull String token) {
+        return CObjUtils.anyType(sessionService.get(token));
+    }
+
+    /**
+     * 按 token 写入会话
+     *
+     * <p>透传 {@link CAbstractBaseSessionService#save(String, ICSession)}：过期时间等由服务层决定（取配置），本类不设默认值；
+     * 会话类型不做校验——按调用方传入的对象透传，类型不符时由服务层暴露。</p>
+     *
+     * @param token   token（不可为 null）
+     * @param session 会话
+     */
+    @SuppressWarnings("unchecked")
+    public void save(@NonNull String token, ICSession session) {
+        ((CAbstractBaseSessionService<ICSession>) sessionService).save(token, session);
+    }
+
+    /**
+     * 按 token 删除会话
+     *
+     * <p>透传 {@link CAbstractBaseSessionService#remove(String)}。</p>
+     *
+     * @param token token（不可为 null）
+     */
+    public void remove(@NonNull String token) {
+        sessionService.remove(token);
+    }
+
+    /**
+     * 由 jwt 解析 token 后取会话（查不到返回 null）
+     *
+     * <p>透传 {@link CAbstractBaseSessionService#getSessionByJwt(String)}：jwt 中 token 为空或按 token 查不到会话时返回 null、不抛异常。</p>
+     *
+     * @param jwt jwt
+     * @param <T> 会话类型（由调用方声明，不做校验）
+     * @return 会话；jwt 中 token 为空或按 token 查不到时返回 null
+     */
+    @Nullable
+    public <T extends ICSession> T getByJwt(String jwt) {
+        return CObjUtils.anyType(sessionService.getSessionByJwt(jwt));
+    }
+
+    /**
      * 按请求加载会话（取请求内 token）
+     *
+     * <p>透传 {@link CAbstractBaseSessionService#loadSession(HttpServletRequest)}：命中时由服务层把 token 写入请求属性。</p>
      *
      * @param request 当前请求
      * @param <T>     会话类型（由调用方声明，不做校验）
@@ -92,6 +158,17 @@ public class CSessionUtils {
      */
     public <T extends ICSession> T load(HttpServletRequest request) {
         return CObjUtils.anyType(sessionService.loadSession(request));
+    }
+
+    /**
+     * 校验当前已授权（未授权抛异常）
+     *
+     * <p>透传 {@link CAbstractBaseSessionService#check()}：服务层内部委托 {@code get()} 取当前会话，故未授权语义与 {@link #get()} 一致。</p>
+     *
+     * @throws CUnauthorizedException 未授权（当前请求无有效会话）
+     */
+    public void check() {
+        sessionService.check();
     }
 
     /**
@@ -114,22 +191,6 @@ public class CSessionUtils {
      */
     public <T extends ICSession> T get() {
         return CObjUtils.anyType(sessionService.get());
-    }
-
-    /**
-     * 按 token 取会话（无需请求上下文；查不到返回 null）
-     *
-     * <p>透传 {@link CAbstractBaseSessionService#get(String)}：与之同语义——按 token 读、查不到返回 null、不抛异常；
-     * 与 {@link #get()} 同名但缺会话语义不同：本方法取"指定 token 的会话"、查不到只表示该 token 无效。
-     * 典型场景：异步线程、定时任务等没有当前请求上下文、但持有 token 的地方。</p>
-     *
-     * @param token token（不可为 null）
-     * @param <T>   会话类型（由调用方声明，不做校验）
-     * @return 会话；按 token 查不到时返回 null
-     */
-    @Nullable
-    public <T extends ICSession> T get(@NonNull String token) {
-        return CObjUtils.anyType(sessionService.get(token));
     }
 
 }

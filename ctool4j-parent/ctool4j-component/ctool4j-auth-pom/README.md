@@ -36,7 +36,7 @@
 | `CAbstractAuthConfiguration` | auth-spring | 装配基类 | 在 `CAbstractAuthBaseConfiguration` 之上追加默认认证过滤器（`cAuthFilter`）与会话服务（`cSessionService`）bean：业务子类实现 `isAuthAnonymous` 即得；业务自建同类型 bean 时不覆盖 |
 | `ICJwtInfo` | auth-base | 接口 | jwt body（载荷）标记接口，实现类字段即载荷内容 |
 | `CAbstractBaseAuthFilter` | auth-base | 过滤器基类 | 认证过滤器公共部分：过滤器骨架、mock 会话加载、加载会话；不依赖 Spring Security |
-| `CSessionUtils` | auth-base | 工具类 | 会话读取静态门面（方法名不带 `Session` 后缀；**当前全部方法均为透传**，语义取自 `CAbstractBaseSessionService` 对应方法）：`load(request)` 按请求加载、`getDefaultNull()` / `get()` 取当前会话（无会话分别返回 null / 抛 `CUnauthorizedException`）、`get(token)` 按 token 取会话（查不到返回 null）；泛型按调用方声明自动适配 |
+| `CSessionUtils` | auth-base | 工具类 | 会话读写静态门面（方法名不带 `Session` 后缀、方法集合与顺序对齐 `CAbstractBaseSessionService`；**当前全部方法均为透传**）：`get(token)` / `load(request)` / `getDefaultNull()` / `getByJwt(jwt)` 读取（查不到返回 null）、`get()` / `check()` 取当前会话（无会话抛 `CUnauthorizedException`）、`save(token, session)` / `remove(token)` 写入与删除；泛型按调用方声明自动适配 |
 | `CAbstractAuthFilter` | auth-spring | 过滤器基类 | 业务直接继承：构造 Security 认证信息（普通会话按匿名判定、mock 会话无条件已认证） |
 | `CAbstractSessionService` | auth-spring | 服务基类 | 基于 Redis 的会话存取、按 jwt 取会话、当前会话获取 |
 
