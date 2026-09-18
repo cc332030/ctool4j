@@ -217,17 +217,99 @@ case "${MVNW_PASSWORD:+has-password}" in
 has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
 esac
 
-if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
-  verbose "Found wget ... using wget"
-  wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$distributionUrl" -O "$TMP_DOWNLOAD_DIR/$distributionUrlName" || die "wget: Failed to fetch $distributionUrl"
-elif [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
-  verbose "Found curl ... using curl"
-  curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L -o "$TMP_DOWNLOAD_DIR/$distributionUrlName" "$distributionUrl" || die "curl: Failed to fetch $distributionUrl"
-elif set_java_home; then
-  verbose "Falling back to use Java to download"
-  javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
-  targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
-  cat >"$javaSource" <<-END
+# 下载 Maven 发行包：支持镜像回退 + 重试。
+# 背景：repo.maven.apache.org（Cloudflare 前置）对匿名请求常返回 HTTP 429 限流，
+# 且本仓库开启了 set -euf，一次失败即整条流水线失败。故按候选源顺序重试，
+# 全部失败后才降级到 Java 下载兜底。
+# 可用 MVNW_MIRRORS 覆盖候选源（空格分隔，按 /org/apache/maven/ 之后的相对路径拼接）。
+# 本地文件路径（file:// 或绝对路径）直接下载，不拼接镜像基址。
+mvnw_download_ok=false
+mvnw_download_rc=1
+
+mvnw_download_target="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+
+# 统一按 curl -> wget 顺序尝试；两者都不可用时返回 127 交由 Java 兜底
+download_url() {
+  # 注意：函数内需用具名变量而非 $1，避免嵌套调用时位置参数被覆盖
+  mvnw_dl_url="$1"
+  if [ -z "${MVNW_USERNAME-}" ] && command -v curl >/dev/null; then
+    verbose "Downloading with curl: $mvnw_dl_url"
+    curl ${__MVNW_QUIET_CURL:+"$__MVNW_QUIET_CURL"} -f -L --retry 3 --retry-delay 2 \
+      -o "$mvnw_download_target" "$mvnw_dl_url"
+    return $?
+  fi
+  if [ -z "${MVNW_USERNAME-}" ] && command -v wget >/dev/null; then
+    verbose "Downloading with wget: $mvnw_dl_url"
+    wget ${__MVNW_QUIET_WGET:+"$__MVNW_QUIET_WGET"} "$mvnw_dl_url" -O "$mvnw_download_target"
+    return $?
+  fi
+  return 127
+}
+
+# 构造候选下载地址列表
+if [ -n "${MVNW_MIRRORS-}" ]; then
+  mvnw_mirror_list="$MVNW_MIRRORS"
+else
+  mvnw_mirror_list="https://repo.maven.apache.org/maven2/ https://maven.aliyun.com/repository/public/ https://repo1.maven.org/maven2/"
+fi
+
+case "$distributionUrl" in
+file://* | /*)
+  mvnw_candidate_urls="$distributionUrl"
+  ;;
+*)
+  mvnw_rel_path="$distributionUrl"
+  case "$mvnw_rel_path" in
+  *"${_MVNW_REPO_PATTERN-}"*) mvnw_rel_path="${mvnw_rel_path#*"$_MVNW_REPO_PATTERN"}" ;;
+  esac
+  mvnw_candidate_urls=""
+  for mvnw_mirror in $mvnw_mirror_list; do
+    # 归一：去掉镜像末尾斜杠、补上仓库前缀（_MVNW_REPO_PATTERN 末尾已带 /）
+    mvnw_mirror="${mvnw_mirror%/}"
+    mvnw_candidate_urls="$mvnw_candidate_urls $mvnw_mirror${_MVNW_REPO_PATTERN-}$mvnw_rel_path"
+  done
+  # 候选源均未命中原始地址时，追加原地址兜底
+  case " $mvnw_candidate_urls " in
+  *" $distributionUrl "*) ;;
+  *) mvnw_candidate_urls="$mvnw_candidate_urls $distributionUrl" ;;
+  esac
+  ;;
+esac
+
+for mvnw_candidate_url in $mvnw_candidate_urls; do
+  [ "$mvnw_download_ok" = true ] && break
+  mvnw_attempt=1
+  while [ "$mvnw_attempt" -le 3 ]; do
+    verbose "Downloading Maven distribution from: $mvnw_candidate_url (attempt $mvnw_attempt)"
+    # 关闭 set -e 以捕获真实返回码：if 语句自身的状态恒为 0，不能用作判断依据
+    mvnw_download_rc=0
+    download_url "$mvnw_candidate_url" || mvnw_download_rc=$?
+    if [ "$mvnw_download_rc" = 0 ]; then
+      mvnw_download_ok=true
+      break
+    fi
+    if [ "$mvnw_download_rc" = 127 ]; then
+      # 无 curl / wget（或配置了认证信息走 Java 下载），后续候选源同样不可用，直接退出双层循环
+      mvnw_attempt=99
+      break
+    fi
+    mvnw_attempt=$((mvnw_attempt + 1))
+    [ "$mvnw_attempt" -le 3 ] && sleep 2
+  done
+done
+
+if [ "$mvnw_download_ok" != true ] && [ "$mvnw_download_rc" = 127 ]; then
+  mvnw_download_ok=jar
+fi
+
+if [ "$mvnw_download_ok" = true ]; then
+  verbose "Maven distribution downloaded successfully"
+elif [ "$mvnw_download_ok" = jar ]; then
+  if set_java_home; then
+    verbose "Falling back to use Java to download"
+    javaSource="$TMP_DOWNLOAD_DIR/Downloader.java"
+    targetZip="$TMP_DOWNLOAD_DIR/$distributionUrlName"
+    cat >"$javaSource" <<-END
 	public class Downloader extends java.net.Authenticator
 	{
 	  protected java.net.PasswordAuthentication getPasswordAuthentication()
@@ -241,11 +323,12 @@ elif set_java_home; then
 	  }
 	}
 	END
-  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
-  verbose " - Compiling Downloader.java ..."
-  "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
-  verbose " - Running Downloader.java ..."
-  "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+    # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+    verbose " - Compiling Downloader.java ..."
+    "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+    verbose " - Running Downloader.java ..."
+    "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
+  fi
 fi
 
 # If specified, validate the SHA-256 sum of the Maven distribution zip file
