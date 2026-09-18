@@ -1,0 +1,87 @@
+= 未授权统一返回业务码 401（异常语义 + Web 处理器） 设计文档
+
+模块：ctool4j-core（`CUnauthorizedException`）+ ctool4j-auth-base（`CAbstractBaseSessionService#get()`）+ ctool4j-web（`CUnauthorizedExceptionHandler`）
+状态：已落地
+适用范围：请求处理链路上「当前会话缺失/失效」等未认证语义的统一表达与响应体错误码
+
+== 背景
+
+本项目的对外响应契约是**统一响应体**（`CStrResult` 等）：成功与否由响应体里的业务码表达，HTTP 响应状态不是判据
+（模块内异常处理器一律 HTTP 200 + 响应体业务码表意）。
+
+`CAbstractBaseSessionService#get()` 判定「当前会话缺失」时原先抛 `CBusinessException`，与普通业务失败共用同一业务码，
+调用方无法从响应体直接区分「未认证」与「业务处理失败」，只能匹配异常消息：
+
+* 未认证的响应体业务码口径应与认证链路（过滤器阶段）一致，不应与普通业务失败混用；
+* 前端/调用方按统一响应体判断时，缺少一个稳定的「需要重新认证」信号。
+
+== 方案
+
+新增未授权专用异常与专用处理器，让未认证在响应体里带上稳定的业务码 401：
+
+[cols="1,2,2", options="header"]
+|===
+| 组件 | 模块 | 职责
+
+| `CUnauthorizedException`
+| ctool4j-core
+| 「未认证」语义载体，继承 `CException`、`@StandardException` 生成标准构造，**不携带错误码**
+
+| `CAbstractBaseSessionService#get()`
+| ctool4j-auth-base
+| 当前会话缺失时抛该异常（`check()` 仍委托 `get()`，判定只此一处）
+
+| `CUnauthorizedExceptionHandler`
+| ctool4j-web
+| `@ExceptionHandler` 统一转为 `CStrResult`（`code = "401"`）；随附 HTTP 状态 401（见下「为什么同时设置 HTTP 状态」）
+|===
+
+=== 为什么异常放 ctool4j-core
+
+auth-base 需要能抛、ctool4j-web 需要能接，二者彼此不依赖（见 link:../../dependency.adoc[模块依赖关系]）。
+放在双方都已依赖的 ctool4j-core，两端都不必为对方引入依赖。
+
+=== 为什么不携带错误码
+
+业务码由处理器按 401 固定判定，避免每个抛出点各自指定码（`CBusinessException` 之所以带码，
+是因为业务失败的类型开放、必须由抛出处决定；未认证只有一种语义）。更细的原因（凭据过期、签名无效）用消息区分。
+
+=== 为什么同时设置 HTTP 状态 401
+
+对外契约是响应体业务码 401（与模块内其余处理器同一「响应体业务码表意」口径）；HTTP 状态 401 是随附信息，
+让网关、通用客户端与监控在**不解析响应体**时也能识别未认证。两者未必被所有调用方一致对待，故调用方应以响应体业务码为准。
+
+=== 与认证过滤器链路的响应形状一致
+
+过滤器阶段（`CAuthenticationEntryPoint`、`CSessionInformationExpiredStrategy`，经 `CSpringSecurityUtils#writeJsonError`）
+已输出业务码 401。本处理器取同一口径，使「同一次未认证」无论由过滤器拦截、还是由业务代码取当前会话失败触发，
+响应形状一致。
+
+== 兜底与边界
+
+[cols="2,3", options="header"]
+|===
+| 场景 | 行为
+
+| 异常消息为 null/空 | `code = "401"`，`message` 回退 401 状态原因短语
+| 容器已存在业务自定义的同类型处理器 | `@ConditionalOnMissingExceptionHandler(CUnauthorizedException.class)` 使本处理器不生效
+| 已认证但无权限 | 属 403（Forbidden），**不得**抛 `CUnauthorizedException`
+| 业务校验/流程失败 | 仍用 `CBusinessException`（响应体业务码表意，HTTP 200）
+|===
+
+== 已知限制与取舍
+
+* **HTTP 响应状态口径不统一**：本处理器随附 HTTP 401，模块内其余处理器为 HTTP 200。判据是响应体业务码，但若调用方
+  以 HTTP 状态判断成功与否，会与以业务码判断的结果不一致（已记入 link:../../../CHANGELOG.adoc[CHANGELOG.adoc]）。
+* **未设置 `WWW-Authenticate` 响应头**（HTTP 层 401 的建议响应头）：当前未输出该头，需要时另行补充。
+* **依赖 `CStrResult`**：与项目统一响应格式耦合。
+
+== 相关入口
+
+- 源码：`com.c332030.ctool4j.core.exception.CUnauthorizedException`、
+  `com.c332030.ctool4j.session.service.CAbstractBaseSessionService`、
+  `com.c332030.ctool4j.web.exception.handler.CUnauthorizedExceptionHandler`
+- 测试：`CUnauthorizedExceptionTests`、`CAbstractBaseSessionServiceTests`、`CUnauthorizedExceptionHandlerTests`
+- 模块文档：link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web README]、
+  link:../../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom README]
+- 变更记录：link:../../../CHANGELOG.adoc[CHANGELOG.adoc]
