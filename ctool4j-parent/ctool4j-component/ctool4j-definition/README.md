@@ -45,24 +45,6 @@
 | `CClientTypeEnum` / `CPlatformTypeEnum` | 枚举 | 客户端 / 平台类型 |
 | `CFunction<T, R>` 等 | 函数接口 | 可抛异常的 Supplier / Function / Consumer / TriFunction 族 |
 
-## 使用示例
-
-```java
-// 统一返回体
-return CResult.success(user);            // code=200, msg=OK
-return CResult.error("用户不存在");      // 服务端错误返回
-return CResult.error(1001, "参数错误");  // 自定义错误码
-
-// 实体继承基类
-public class User extends CBaseCreateTimeEntity {
-    // 自动拥有 id、createTime 等公共字段
-}
-```
-
-## 配置项
-
-无（纯类型定义模块，不涉及运行时配置）。
-
 ## 依赖
 
 | 依赖 | 说明 |
@@ -70,3 +52,7 @@ public class User extends CBaseCreateTimeEntity {
 | `hutool` | 字符串等基础工具 |
 | `spring-web`（HttpStatus） | 返回体状态码 |
 | `lombok` | 编译期简化 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/definition.adoc`](../../../doc/use/definition.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

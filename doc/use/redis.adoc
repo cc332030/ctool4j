@@ -1,0 +1,98 @@
+= 使用：ctool4j-redis（Redis 操作 / 分布式锁 / 限流 / 幂等）
+
+坐标：+com.c332030:ctool4j-redis+　｜　依赖：+ctool4j-spring+、spring-boot-starter-data-redis、redisson-spring-boot-starter
+
+== 一览
+
+* *Redis 服务*：`ICRedisService` 统一抽象；`CStringStringRedisService`（String 键值）、`CObjectValueRedisService`（对象序列化存取）；`CValueWithTtl`（值 + 过期时间）。
+* *分布式锁*：`CLockService`（`lock` 链式 builder / `tryLock`；`tryLockThenRun` 已 `@Deprecated`）、静态门面 `CLockUtils`（`tryLockThenRun` / `lock`）。
+* *限流*：`@CRateLimit` + `CRateLimitAspect`（Redis 固定窗口计数），触发抛 `CRateLimitException`。
+* *幂等*：`@CIdempotent` + `CIdempotentAspect`（基于分布式锁防重复提交/并发穿透），冲突抛 `CIdempotentException`。
+* *工具*：`CRedisUtils`（Redis 静态门面）、`CRedisKeyUtils`（业务 key 构建与业务 id 解析）。
+* *自动装配*：`CRedisConfiguration` / `CRedisInit` 随依赖生效（启动期初始化），`CStringStringRedisService` / `CObjectValueRedisService` / `CLockService` 注入即用，无需手工 `@Bean`。
+
+== 用法
+
+=== 值读写
+
+[source,java]
+----
+redisService.setValue("user:" + id, user, Duration.ofMinutes(30));  // 值无效（null）时不写入
+User user = redisService.getValue("user:" + id);                     // 返回 V（此处为 Object）
+// 抽象键值需按泛型取回时用 CObjectValueRedisService（实现类，非 ICRedisService 接口方法）：
+User typed = objectService.getValueForGenericType("user:" + id);
+// 需要转换或给默认值时（接口自身提供的重载，转换函数入参是原始值 V）：
+Long count = stringService.getValue("counter:" + id, Long::valueOf);
+String name = stringService.getValue("name:" + id, v -> v, "默认名");
+----
+
+=== 分布式锁
+
+[source,java]
+----
+// 推荐：tryLock 拿 RLock，自行在 finally 里解锁（CLockService 的 tryLockThenRun 已 @Deprecated）
+RLock lock = lockService.getLock("order:" + orderId);
+if (!lockService.tryLock(lock, 10, TimeUnit.SECONDS)) {
+    throw new CBusinessException("订单处理中，请稍后重试");
+}
+try {
+    // 临界区
+} finally {
+    lock.unlock();
+}
+
+// 链式 builder（waitTime / leaseTime / onLockFail / execute）
+lockService.lock("order:" + orderId).waitTime(Duration.ofSeconds(10)).execute(() -> { ... });
+
+// 静态门面 CLockUtils：只有 tryLockThenRun(...) 与 lock(...)，没有 tryLock
+CLockUtils.tryLockThenRun("key", () -> { ... });
+----
+
+=== 限流与幂等
+
+[source,java]
+----
+// 60 秒内每个用户最多 3 次
+@CRateLimit(id = "userId", count = 3, interval = 60)
+public Order createOrder(Long userId, OrderReq req) { ... }
+
+// 同一 userId 同一时刻仅允许一次下单
+@CIdempotent(group = Order.class, id = "userId")
+public Order submitOrder(Long userId, OrderReq req) { ... }
+----
+
+[cols="2,3,3", options="header"]
+|===
+| 注解 | 关键属性 | 说明
+
+| `@CRateLimit`
+| `id` / `count` / `interval` / `useMethodName` / `message`
+| `id` 为简单 el 表达式（`参数名.属性名…`，如 `userId`、`req.orderId`），取值作业务维度；`count`/`interval` 必填且须为正
+
+| `@CIdempotent`
+| `group`（必填）/ `id` / `useMethodName` / `message`
+| `group` 的简单名作 key 的类段，多个方法指定同一 `group` 即共享同一幂等维度
+|===
+
+* 两者 key 格式统一为 `应用前缀:段简单名[:方法名][:业务id]`（由 `CRedisKeyUtils` 构建）；`useMethodName=false` 时去掉方法名段，同类/同组多方法共享同一限流桶或执行权。
+* **切面需被组件扫描到**：`com.c332030.ctool4j.redis.rate` / `...redis.idempotent` 包须在业务扫描范围内。
+
+== 配置
+
+|===
+| 配置 | 说明
+| +spring.data.redis.*+ / +spring.redis.*+ | Spring Data Redis 标准配置
+|===
+
+== 注意（使用前必读）
+
+* 计算与锁**完全依赖 Redis 可用性**：Redis 异常时判定直接抛异常（非降级放行），故障策略由调用方决定。
+* 固定窗口限流在窗口翻转临界点允许冲过一次阈值；幂等只在持锁期间生效（方法执行完锁释放，后续新请求可再次获取执行权）。
+* 同名重载方法共用同一 key，需区分时在业务 id 中体现差异。
+* `@CIdempotent` 当前固定不等待锁，加锁失败立即抛异常。
+
+以上限制的完整清单（含状态）与其实现方案、取舍见开发文档：link:../design/redis/rate-limit-idempotent.adoc[限流与幂等]。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/README.md[ctool4j-redis README]

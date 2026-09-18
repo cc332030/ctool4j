@@ -1,0 +1,72 @@
+= 使用：ctool4j-spring（Spring 基础设施）
+
+坐标：+com.c332030:ctool4j-spring+　｜　依赖：+ctool4j-core+　｜　当前基线：Spring Boot 2.7 / Spring Cloud 2021
+
+== 一览
+
+* *入口*：`@CSpringBootApplication`（组合注解，替代 `@SpringBootApplication`，含属性扫描与配置初始化）。
+* *注入*：`@CAutowired` / `@CAutowiredScan` —— 编译期生成注入代码，**解决静态工具类无法 `@Autowired` 的问题**（依赖 +ctool4j-autowired-processor+）。
+* *工具类*：`CSpringUtils`（容器/Bean）、`CRequestUtils`、`CFileUtils`、`CRestTemplateUtils`、`CSpringHttpUtils`（HTTP 报文与媒体类型）、`CIpUtils`（IP 段解析，见下）、`CAnnotationUtils`、`CAspectUtils`、`CAutowiredUtils`、`CProxyUtils`。
+* *生命周期*：`ICSpringInit`（初始化回调）、`CStartedApplicationRunner`（启动完成后执行）。
+* *契约*：`ICRealClass`（真实业务类/类名/包名，带默认实现）、`ICOrdered`。
+* *异常忽略*：`@CLogAndIgnoreThrowable` + 切面（记录后忽略，不中断流程）。
+* *测试*：`@CTool4jSpringBootTest`。
+
+== 用法
+
+=== 静态字段注入
+
+[source,java]
+----
+@CAutowiredScan            // 类上开启扫描（或与 @CAutowired 同用）
+public class OrderHelper {
+
+    @CAutowired
+    private static OrderService orderService;   // 静态字段也可注入（编译期生成构造器注入类）
+}
+----
+
+* 注解处理由 +ctool4j-autowired-processor+ 在**编译期**生成注入类，因此业务模块需确保注解处理器在编译路径上（引入 +ctool4j-spring+ 即随依赖带入）。
+* 注入发生在容器初始化阶段；不要在静态初始化块中使用被注入的字段。
+
+=== 代理场景取真实类名
+
+公共流程（日志、幂等键、路由、指标）里 `getClass()` 在代理场景会拿到代理类，用 `ICRealClass` 或 `CProxyUtils`：
+
+[source,java]
+----
+public abstract class BaseService implements ICRealClass {
+    // 自动获得 getRealClass / getRealClassName / getRealPackageName，业务基类不写方法体
+}
+
+String name = CProxyUtils.getRealClassName(orderService);   // 改不了代码的对象用工具类
+----
+
+* 只支持 Spring 生成的代理（CGLIB / JDK 动态代理）；裸动态代理、MyBatis Mapper 等携带不了目标元数据，返回代理类自身。
+* 适用与边界（性能、不缓存的取舍）见开发文档：link:../design/spring/real-class-name.adoc[real-class-name]。
+
+=== 启动与初始化
+
+[source,java]
+----
+@CSpringBootApplication          // 启动类
+public class Application { }
+
+public class MyInit implements ICSpringInit {    // 初始化回调
+    @Override
+    public void init() { }
+}
+----
+
+== 配置
+
+|===
+| 配置 | 说明
+| +spring.application.*+ | `CSpringApplicationConfig`（`group` / `name` 等应用级配置）
+| +spring.jackson.json5+ | 为 true 时用 Jackson 的 JSON5 支持并同步配置容器内 `ObjectMapper`
+|===
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom README]
+- IP 段解析工具（`CIpUtils`，+ctool4j-spring+）：边界与误用点见 link:../design/spring/ip.adoc[ip]

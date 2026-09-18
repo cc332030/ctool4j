@@ -1,0 +1,48 @@
+= 使用：ctool4j-bom / dependencies / processor-*（构建基础设施）
+
+这些构件不是业务能力，而是**依赖版本与编译期生成**的支撑，业务项目需知道怎么引、什么会被自动带进来。
+
+== ctool4j-bom（第三方 + 自研版本，推荐入口）
+
+坐标：+com.c332030:ctool4j-bom+（packaging=pom）
+
+* 统一管理第三方依赖版本（Spring Boot / Spring Cloud / MyBatis-Plus / Redis / MQ / 工具库等），并 import +ctool4j-dependencies+。
+* 业务项目以 `import` 方式引入后，声明 ctool4j 构件与纳管第三方依赖都**无需写版本号**（引入方式见 link:README.adoc[客户端引入]）。
+
+== ctool4j-dependencies（自研构件版本）
+
+坐标：+com.c332030:ctool4j-dependencies+（packaging=pom）
+
+* 只管理 ctool4j 自研构件版本；由 +ctool4j-bom+ import，业务项目**一般无需单独引入**。
+
+== 注解处理器
+
+|===
+| 坐标 | 作用 | 引入方式
+
+| +ctool4j-processor-base+
+| 处理器公共基座（SPI 骨架）
+| 被下列处理器依赖
+
+| +ctool4j-autowired-processor+
+| 处理 `@CAutowired` / `@CAutowiredScan`，为静态字段生成注入类
+| +ctool4j-spring+ 已带（provided）
+
+| +ctool4j-mybatis-processor+
+| 处理 `@CAutoBizService`，按实体 getter 生成业务 Service 接口
+| **业务项目按需引入（scope=provided）**
+
+| +ctool4j-mq-processor+
+| 占位，未实现
+| 无
+|===
+
+== 注意
+
+* 业务项目**不要跳过 BOM 手写版本号**：ctool4j 各构件与第三方版本是配套校验过的组合，手写易出现不一致。
+* 注解处理器只在**编译期**生效，不影响运行时依赖；出现「生成的类找不到」时先确认处理器在编译路径上。
+
+== 相关
+
+- 模块 README：link:../../ctool4j-bom/README.md[bom]、link:../../ctool4j-dependencies/README.md[dependencies]、link:../../ctool4j-processor-pom/README.md[processor-pom]
+- 模块间依赖关系（唯一视图）：link:../dependency.adoc[doc/dependency.adoc]

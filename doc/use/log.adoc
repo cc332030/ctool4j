@@ -1,0 +1,32 @@
+= 使用：ctool4j-log-base / ctool4j-logback / ctool4j-log4j（日志）
+
+坐标：+ctool4j-log-base+（请求日志埋点，必选）、+ctool4j-logback+ / +ctool4j-log4j+（日志后端 MDC 适配，**二选一**）
+
+== 选型
+
+[cols="1,2", options="header"]
+|===
+| 日志后端 | 引入
+
+| logback（Spring Boot 默认）
+| +ctool4j-log-base+ + +ctool4j-logback+
+
+| log4j2
+| +ctool4j-log-base+ + +ctool4j-log4j+
+
+| 只要请求日志埋点
+| 只引 +ctool4j-log-base+
+|===
+
+* `ctool4j-logback` / `ctool4j-log4j` 内置 `log4j2-spring.xml` 等后端配置模板，并自动**排除冲突桥接**（log4j2 场景排除 logback 与 logback→slf4j 反向桥接）；MDC 适配由 `CMdcLogback` / `CMdcLog4j`（统一接口 `CMdc`）承担，日志级别热更新经 `ICLogLevel`。
+* 请求日志的 HTTP 报文 dump 由 +ctool4j-web+ 的 `CLogRequestBodyAdvice` / `CLogResponseBodyAdvice` 与 `CRequestLogHandlerInterceptor` 落地。
+* 请求日志配置由 +ctool4j-web+ 的 `CRequestLogConfig`（+logging.request-log.*+）控制，见 link:web.adoc[web]。
+* traceId 的产生与请求头读取在 +ctool4j-web+ 的 `CTraceUtils`（MDC key = `c-trace-id`）；本模块负责 MDC 承载，**线程池场景 traceId 不丢**。
+
+== 注意
+
+* logback 与 log4j2 模块**互斥**：底层实现不同（slf4j 门面统一），同时引入会冲突。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-log-pom/README.md[ctool4j-log-pom README]

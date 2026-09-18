@@ -1,0 +1,22 @@
+= 使用：ctool4j-nacos-discovery（本地实例注册）
+
+坐标：+com.c332030:ctool4j-nacos-discovery+　｜　场景：本地多服务联调时，把 Feign 调用的目标实例手动注册进 Nacos
+
+[source,yaml]
+----
+feign:
+  client:
+    local-instance:
+      enabled: true                 # 仅本地环境开启
+      urls:
+        order-service: 127.0.0.1:8081
+        user-service: 127.0.0.1:8082
+----
+
+* 启动时批量注册（`registerInstance`）、关闭时自动反注册（`deregisterInstance`），避免残留脏实例。
+* 由 `@ConditionalOnProperty` 控制开关，**默认不启用**；自动装配类为 `CFeignLocalClientConfig`（配置绑定）与 `CFeignLocalClientInit`（注册/反注册），引入依赖即生效。
+* 同聚合下的 +ctool4j-nacos-config+ 是**空占位模块**（配置中心待实现）；需要 Nacos 配置中心时自行引入 `spring-cloud-starter-alibaba-nacos-config`。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-nacos-pom/README.md[ctool4j-nacos-pom README]

@@ -32,3 +32,7 @@
 | `ctool4j-definition` | 接口文档描述注解（`doc.annotation` 包） |
 | `ctool4j-web` | 请求头枚举 `CRequestHeaderEnum`、校验注解 `CRequired` / `CNotRequired` |
 | `ctool4j-core`（经 `ctool4j-web` → `ctool4j-spring` 传递） | 请求头接口 `ICRequestHeader`、工具类 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/doc-openapi2.adoc`](../../../doc/use/doc-openapi2.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

@@ -59,24 +59,6 @@
 | `ICTraceInfo` / `CTraceInfo` | 模型 | traceId 载体接口与默认实现 |
 | `ICTraceInfoProvider` | SPI | traceInfo 提供者 SPI |
 
-## 使用示例
-
-```java
-// 业务异常（由 CCBusinessExceptionHandler 统一转为 JSON 返回）
-throw new CBusinessException("订单不存在");
-
-// JWT 工具
-String jwt = CJwtUtils.create(body, secret);
-boolean valid = CJwtUtils.verify(jwt, secret);
-
-// token 工具（请求头/请求属性）
-String token = CTokenUtils.getHeaderToken(request);
-```
-
-## 配置项
-
-无独立配置前缀；异常处理装配受 `@ConditionalOnMissingExceptionHandler` 控制，业务可自行定义同类型 Bean 覆盖默认行为。
-
 ## 依赖
 
 | 依赖 | 说明 |
@@ -85,3 +67,7 @@ String token = CTokenUtils.getHeaderToken(request);
 | `ctool4j-core` | 业务异常、工具 |
 | `spring-boot-starter-web` | Web MVC |
 | `validation` | 参数校验 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/web.adoc`](../../../doc/use/web.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

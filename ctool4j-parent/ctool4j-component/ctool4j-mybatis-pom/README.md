@@ -86,38 +86,6 @@
 | CServiceImpl | 重写 getEntityClass | 不重写 | 不重写 |
 | CSqlInjector 签名 | 3.3 单参 | 3.4 三参 | 3.4 三参 |
 
-## 使用示例
+## 使用与配置（引用方）
 
-```java
-// Service 继承分层契约
-@Service
-public class UserService extends CBaseServiceImpl<CBaseMapper<User>, User>
-    implements ICService<User>, ICBizService<User> {
-}
-
-// Mapper
-public interface UserMapper extends CBaseMapper<User> {
-}
-
-// Controller
-@RestController
-@RequestMapping("/user")
-public class UserController extends CMpController<ICService<User>, User> {
-}
-
-// 业务 ID 维度操作
-userService.getByBizId(bizId);
-userService.listByBizId(bizIds);
-userService.countByBizId(bizId);
-```
-
-## 配置项
-
-| 配置 | 说明 |
-|------|------|
-| `mybatis-plus.*` | MyBatis-Plus 标准配置 |
-
-## 模块选择建议
-
-- 项目使用 MyBatis-Plus 3.3 → `ctool4j-mybatis-33`
-- 项目使用 MyBatis-Plus 3.4+ → `ctool4j-mybatis-34` 或聚合版 `ctool4j-mybatis`
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/mybatis.adoc`](../../../doc/use/mybatis.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

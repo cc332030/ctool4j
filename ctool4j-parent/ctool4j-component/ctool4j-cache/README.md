@@ -40,31 +40,6 @@
 | `CCacheService.CCacheBuilder` | 构建器 | 链式缓存取值：expireDuration / refreshWindow / waitTime / computeIfAbsent |
 | `CCacheUtils` | 工具类 | 静态门面，代理 `cacheBuilder` |
 
-## 使用示例
-
-```java
-// 声明式缓存
-@CCacheable(namespace = "user", expire = 60)
-public User getById(Long id) {
-    return userMapper.selectById(id);
-}
-
-// 编程式缓存（链式）
-User user = cacheService.cacheBuilder("user:" + id, User.class)
-    .expireDuration(Duration.ofMinutes(30))       // 固定过期
-    .refreshWindow(Duration.ofMinutes(5))         // 临期异步刷新
-    .waitTime(Duration.ofSeconds(10))             // 锁等待时长
-    .onLockFail(lock -> log.warn("抢锁失败，key={}", lock.getName()))
-    .computeIfAbsent(() -> userMapper.selectById(id));
-```
-
-## 配置项
-
-| 配置前缀 | 说明 |
-|----------|------|
-| `spring.redis.*` / `spring.data.redis.*` | Redis 连接配置 |
-| `jetcache.*` | jetcache 本地缓存配置（Caffeine/Guava） |
-
 ## 依赖
 
 | 依赖 | 说明 |
@@ -72,3 +47,7 @@ User user = cacheService.cacheBuilder("user:" + id, User.class)
 | `ctool4j-redis` | Redis 操作与分布式锁 |
 | `jetcache-starter-redis-lettuce` | 本地 + Redis 二级缓存实现 |
 | `spring-boot-starter-data-redis`（provided） | Redis 客户端 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/cache.adoc`](../../../doc/use/cache.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

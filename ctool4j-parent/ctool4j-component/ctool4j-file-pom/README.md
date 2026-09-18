@@ -78,33 +78,13 @@
 | `CMinioConfig` | 配置 | 连接信息（前缀 `minio`） |
 | `CMinioOkHttpConfig` | 配置 | OkHttp 超时（前缀 `minio.okhttp`） |
 
-### 使用示例
-
-```yaml
-minio:
-  endpoint: http://127.0.0.1:9000
-  access-key: admin
-  secret-key: admin123
-```
-
-```java
-@Autowired
-private CMinioService minioService;
-
-// 上传
-minioService.upload(bucket, objectName, inputStream, contentType);
-```
-
-### 配置项
-
-| 配置前缀 | 说明 |
-|----------|------|
-| `minio.*` | 连接信息 |
-| `minio.okhttp.*` | OkHttp 超时 |
-
 ### 依赖
 
 | 依赖 | 说明 |
 |------|------|
 | `ctool4j-core` | 工具 |
 | `minio` / `okhttp` | 对象存储客户端 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/file.adoc`](../../../doc/use/file.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。
