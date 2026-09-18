@@ -49,7 +49,7 @@
 
 * *字段说明*：如无特别说明，文档中的模块名即 Maven 模块目录名（+ctool4j-xxx+）。
 * *依赖落点*：模块间增删依赖须在同一提交内同步更新 link:dependency.adoc[dependency.adoc]。
-* *版本与变更*：源文件版本在各源码 javadoc 的 +@version+ 中维护；全项目变更记录统一在 link:../CHANGELOG.adoc[CHANGELOG.adoc]（按发布 tag 分组，条目格式见 link:../agent/AGENTS-PROJECT.MD[项目特有规范]「变更日志的组织与条目形态」）。
+* *版本与变更*：源文件版本在各源码 javadoc 的 +@version+ 中维护；全项目变更记录统一在 link:../CHANGELOG.adoc[CHANGELOG.adoc]（按发布 tag 分组、版本内按模块与变更类型分类，条目形态见 link:../CHANGELOG.adoc[CHANGELOG.adoc]「怎么读本文件」）。
 
 == 相关入口
 
