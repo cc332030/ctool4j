@@ -82,13 +82,34 @@ public class CBenchmarkRunner {
      * @return 基准报告（可用于导出 markdown 文件）
      */
     public static CBenchmarkReport run(List<CBenchmarkCase> cases, String title) {
+        return run(cases, title, WARMUP_ITERATIONS, MEASURE_ITERATIONS, MEASURE_ROUNDS);
+    }
+
+    /**
+     * 运行一组基准用例（预热 + 多轮计时取均值），可指定迭代参数
+     *
+     * <p>不同通道的用例耗时量级差异大（如深拷贝各类型场景为标量复制的数十倍），
+     * 用同一组迭代参数会让慢通道整体耗时过长；故迭代参数开放给调用方，
+     * 由调用方按用例耗时量级选择（默认值见 {@link #WARMUP_ITERATIONS} /
+     * {@link #MEASURE_ITERATIONS} / {@link #MEASURE_ROUNDS}）。</p>
+     *
+     * @param cases             基准用例列表
+     * @param title             报告标题
+     * @param warmupIterations  预热次数（不计时，触发 JIT 编译）
+     * @param measureIterations 单轮计时迭代次数
+     * @param measureRounds     采样轮数
+     * @return 基准报告（可用于导出 markdown 文件）
+     */
+    public static CBenchmarkReport run(
+            List<CBenchmarkCase> cases, String title,
+            int warmupIterations, int measureIterations, int measureRounds) {
 
         // 第一轮：对所有用例预热，触发全部实现方式初始化/加载（结果不计入）
         for (CBenchmarkCase bc : cases) {
 
             bc.prepare();
 
-            for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            for (int i = 0; i < warmupIterations; i++) {
                 bc.run();
             }
         }
@@ -100,18 +121,18 @@ public class CBenchmarkRunner {
 
             long totalNanos = 0;
 
-            for (int round = 0; round < MEASURE_ROUNDS; round++) {
+            for (int round = 0; round < measureRounds; round++) {
 
                 bc.prepare();
 
                 // 每轮开始前充分预热，保证测量在稳态下进行
-                for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+                for (int i = 0; i < warmupIterations; i++) {
                     bc.run();
                 }
 
                 long blackhole = 0;
                 long start = System.nanoTime();
-                for (int i = 0; i < MEASURE_ITERATIONS; i++) {
+                for (int i = 0; i < measureIterations; i++) {
                     blackhole += System.identityHashCode(bc.run());
                 }
                 long elapsed = System.nanoTime() - start;
@@ -127,7 +148,7 @@ public class CBenchmarkRunner {
             // 累计全部迭代的耗时与迭代次数，得到精确的平均耗时
             results.add(CBenchmarkResult.builder()
                 .name(bc.name())
-                .iterations((long) MEASURE_ITERATIONS * MEASURE_ROUNDS)
+                .iterations((long) measureIterations * measureRounds)
                 .elapsedNanos(totalNanos)
                 .build());
         }

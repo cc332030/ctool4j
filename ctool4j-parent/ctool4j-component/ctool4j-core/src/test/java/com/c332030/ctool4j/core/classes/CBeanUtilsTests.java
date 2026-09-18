@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.test.classes;
+package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
@@ -18,13 +18,15 @@ import java.math.BigDecimal;
  * </p>
  *
  * <h2>测试架构与组织</h2>
- * <p>测试按"验证职责"分为四个类，避免单类测试文件膨胀。本类（{@code CBeanUtilsTests}）承载
- * <b>跨入口的代表性用例</b>（对象/Map 两个源的合并与跳过、类型不匹配、对象间类型转换），
+ * <p>测试按"验证职责"分为五类，避免单类测试文件膨胀。本类（{@code CBeanUtilsTests}）承载
+ * <b>跨入口的代表性用例</b>（对象/Map 两个源的合并与深拷贝、类型不匹配、对象间类型转换），
  * 其余用例按下表归属到对应测试类，本类仅保留索引指向：</p>
  * <ul>
  *   <li>{@code CBeanUtilsCompatibilityTests}（13 用例）：功能完整性测试——重构/优化前后行为一致性验证（下列 5.x 条目）。</li>
- *   <li>{@code CBeanUtilsMoreTests}（36 用例）：正例、反例、边界与新增行为验证（下列 1.1/1.2/1.3.1-1.3.3/2.x/3.x/4.1-4.12 条目）。</li>
- *   <li>{@code CBeanUtilsBenchmarkTests}（12 用例）+ {@code CBenchmarkRunner}：性能对比基准，独立于单元测试执行（6.1）。</li>
+ *   <li>{@code CBeanUtilsMoreTests}（37 用例）：正例、反例、边界与新增行为验证（下列 1.1/1.2/1.3.1-1.3.3/2.x/3.x/4.1-4.12 条目）。</li>
+ *   <li>{@code CBeanUtilsCopyContractTests}（12 用例）：单属性复制契约——(值类型, 目标声明类型) 到"共享/转换/深拷贝/跳过"的决议表逐行固化，以及对象源、Map 源、supplier 入口一致性。</li>
+ *   <li>{@code CBeanUtilsDeepCopyTests}（27 用例）：深拷贝语义——集合/Map/数组/Bean/Date/Calendar/Optional 元素与键值、环状与共享引用、深度上限、容器实现、声明泛型、函数式接口与降级边界。</li>
+ *   <li>{@code CBeanUtilsPerfTests} + {@code CBenchmarkRunner}：性能对比基准（6.1 简单 copy / 6.2 深拷贝按类型 / 6.3 对象转 Map），独立于常规测试执行。</li>
  * </ul>
  * <h2>测试手法：内嵌旧语义参考实现</h2>
  * <p>兼容性测试的核心手法：在测试类内嵌旧语义参考实现（{@code oldCopy}/{@code oldCopyMap}/{@code oldToMap}/ {@code oldCopyFromArr}，按重构前"copy 经 toMap 中转、运行期按实际值类型转换"语义实现）， 逐字段对比新旧实现结果 equal。</p>
@@ -33,7 +35,7 @@ import java.math.BigDecimal;
  *   <li>对比基准选"旧语义参考实现"而非断言具体值：即使具体值变化也能暴露语义差异；若断言具体值，</li>
  *   <li>重构后新值正确但语义不同（如 Date 格式化 vs toString）无法被发现。</li>
  *   <li>参考实现独立于被测实现书写（不调用被测方法），保证基准不受重构污染。</li>
- *   <li>覆盖场景刻意包含"语义易错点"：objectStr 优先级、集合跳过、无转换器跳过、原始类型同型、</li>
+ *   <li>覆盖场景刻意包含"语义易错点"：objectStr 优先级、集合与 Map 深拷贝、无转换器跳过、原始类型同型、</li>
  *   <li>宽声明类型（Object/父类）等——这些是计划期/运行期分派最容易出偏差的地方。</li>
  * </ul>
  * <h2>用例设计依据</h2>
@@ -41,19 +43,19 @@ import java.math.BigDecimal;
  *   <li>依据功能设计的功能目标与计划预计算方案：copy 直连目标字段、</li>
  *   <li>运行期仅遍历字段数组 + null 判断</li>
  *   <li>依据需求对边界行为的约定：null 过滤、key 冲突抛异常、结果不可变、空结果 {@code CMap.of()}、JDK 源不复制</li>
- *   <li>依据测试方法（等价类/边界值/分支覆盖）：宽声明类型回退、无转换器跳过、objectStr 优先级为分派分支</li>
+ *   <li>依据测试方法（等价类/边界值/分支覆盖）：宽声明类型回退、无转换器字段（改走深拷贝）、objectStr 优先级为分派分支</li>
  * </ul>
  * <h2>覆盖场景</h2>
  * <ul>
  *   <li>全字段复制：基础/包装/日期/Object/父类型声明/继承/null/final/集合/无转换器字段</li>
  *   <li>objectStr 优先级：Object/Serializable 声明实际 Date 转 String 命中格式化（{@code copyObjectStrLowestPriority}）</li>
  *   <li>JDK 源不复制（{@code toMapJdkClass} 等）、null 源/目标边界</li>
- *   <li>Map 源：基础/null/类型转换/final/集合跳过</li>
+ *   <li>Map 源：基础/null/类型转换/final/集合与 Map 深拷贝</li>
  *   <li>四个复制入口：Object+Class/supplier、Map+Class/supplier</li>
  *   <li>copyFromArr 反序覆盖、copyList/copyListFromMap</li>
  *   <li>toMap：null 过滤/final/集合/不可变/下划线/json 命名/null/JDK 源/key 冲突抛异常</li>
  *   <li>newInstance：正常类、无 public 无参构造器抛异常</li>
- *   <li>无转换器跳过：{@code copyNoConverterSkip}（StringBuilder→StringBuffer）</li>
+ *   <li>无转换器字段跳过：{@code copyNoConverterSkip}（StringBuilder→StringBuffer，JDK 非拷贝协议类型不做结构拷贝）</li>
  *   <li>原始类型同型：{@code copyPrimitiveTypeFields}（int→int 直接写入）</li>
  *   <li>类型转换覆盖（CClassConvert 注册转换器、对象路径计划期 fast 写入）：</li>
  *   <li>包装→基础拆箱 {@code copyWrapperToPrimitive}、Long→int {@code copyLongToInt}、int→Long {@code copyIntToLong}</li>
@@ -76,7 +78,7 @@ import java.math.BigDecimal;
  *   <li>边界行为锁定期望：null key 过滤、null 值跳过、key 冲突抛 IllegalStateException、结果不可变</li>
  *   <li>（{@code Collections.unmodifiableMap}）、空结果返回 {@code CMap.of()}。</li>
  *   <li>已知取舍（测试侧）：原始类型同型（int→int）旧实现跳过、新实现写入，兼容性测试按新语义断言</li>
- *   <li>并标注差异；集合父类型实际持集合同理。</li>
+ *   <li>并标注差异；集合/Map/数组/可变 Bean 字段由旧实现"跳过"改为"深拷贝写入"同理（差异以"旧为 null、新为副本"标注）。</li>
  * </ul>
  * <h2>已知限制与未覆盖场景</h2>
  * <ul>
@@ -85,7 +87,7 @@ import java.math.BigDecimal;
  *   <li>{@code ClassUtil.isAssignable} 判定可直接赋值后，装箱值经 Map 中转可拆箱直写原始类型字段；</li>
  *   <li>已补兼容性用例 {@code copySupplierViaMapConsistency} 锁定 supplier 入口与直接路径一致行为。</li>
  *   <li>极端场景未专门设计用例：超大字段数 Bean（基准仅覆盖 8 字段典型 Bean）、深继承层级</li>
- *   <li>同名字段冲突（按名称匹配的固有语义）、自引用 Bean（copy 仅按同名字段复制、非深拷贝，</li>
+ *   <li>同名字段冲突（按名称匹配的固有语义）、自引用 Bean（深拷贝以身份表保持环状引用、不重复复制，</li>
  *   <li>无循环风险）。风险低，暂不补，记录备查。</li>
  *   <li>多线程并发预热竞争：计划缓存基于 {@code ClassValue}（线程安全），未做专门并发压力测试。</li>
  * </ul>
@@ -106,9 +108,12 @@ import java.math.BigDecimal;
  *   <li>多线程并发压力：本地无压测基准，未实测高并发下缓存 get 竞争开销（ClassValue 已保证</li>
  *   <li>线程安全，风险低）。</li>
  * </ul>
- * <h2>性能数据（100000 次迭代，第二轮全部初始化后计时）</h2>
+ * <h2>性能数据（口径：预热 50 万 + 5 轮 × 100 万迭代取均值；历史混合口径快照，最新同路径对比见两个 PerfTests 报告）</h2>
+ * <p>数据为"单次决议 + 单次执行 + 集合字段深拷贝"改造、并经一轮性能优化后的最近一次重跑
+ * （同一台机器、同一次运行内对比；与改造前的历史数值不可直接比较：机器/JVM 不同，且集合字段由"跳过/共享"变为深拷贝。
+ * 轮间抖动约 ±3%，跨轮比较请用"手工 setter"归一化）。</p>
  * <table border="1">
- *   <caption>兜底行为</caption>
+ *   <caption>性能对比</caption>
  *   <tr>
  *     <th>实现方式</th>
  *     <th>Avg(ns/op)</th>
@@ -116,46 +121,54 @@ import java.math.BigDecimal;
  *   </tr>
  *   <tr>
  *     <td>手工 setter</td>
- *     <td>29.9</td>
- *     <td>基线</td>
+ *     <td>15.1</td>
+ *     <td>基线（集合字段共享引用）</td>
  *   </tr>
  *   <tr>
  *     <td>cglib BeanCopier</td>
- *     <td>33.0</td>
- *     <td>对比</td>
+ *     <td>15.2</td>
+ *     <td>对比（集合字段共享引用）</td>
  *   </tr>
  *   <tr>
  *     <td>CBeanUtils.copy（复用目标）</td>
- *     <td>107.2</td>
- *     <td>~16 次 handle 调用 ≈ 6.7 ns/次</td>
+ *     <td>184.4</td>
+ *     <td>16 次 handle + 逐字段决议 + 集合深拷贝 ≈ 23 ns/字段</td>
  *   </tr>
  *   <tr>
  *     <td>手工 toMap</td>
- *     <td>149.9</td>
+ *     <td>73.8</td>
  *     <td>基线</td>
  *   </tr>
  *   <tr>
  *     <td>CBeanUtils.copy</td>
- *     <td>225.4</td>
- *     <td>相对 Spring 927.6 快 4.1 倍、hutool 6138.2 快 27 倍</td>
+ *     <td>303.4</td>
+ *     <td>相对 Spring 296.4 相当、hutool 2203.0 快 7.3 倍（差额为目标实例化）</td>
  *   </tr>
  *   <tr>
  *     <td>CBeanUtils.toMap</td>
- *     <td>353.2</td>
- *     <td>相对手工 149.9 慢 2.4 倍，瓶颈在 map 写入（预期内）</td>
+ *     <td>135.9</td>
+ *     <td>相对手工 73.8 慢 1.8 倍，瓶颈在 map 写入（预期内）</td>
  *   </tr>
  *   <tr>
  *     <td>Spring BeanUtils</td>
- *     <td>927.6</td>
- *     <td>对比</td>
+ *     <td>296.4</td>
+ *     <td>对比（集合字段共享引用）</td>
  *   </tr>
  *   <tr>
  *     <td>hutool BeanUtil</td>
- *     <td>6138.2</td>
- *     <td>对比</td>
+ *     <td>2203.0</td>
+ *     <td>对比（集合字段共享引用）</td>
  *   </tr>
  * </table>
- * <p>MethodHandle 动态分发（含 Object 签名类型检查）相对编译期静态内联存在固有差距， 排除字节码方向后无法进一步消除。</p>
+ * <p>口径说明：被测 Bean 含 1 个集合字段，CBeanUtils 行按深拷贝语义执行（新建容器 + 递归拷贝元素 + 环状引用身份表），
+ * 其余实现共享引用，故该行成本天然更高，不等于"慢"。</p>
+ * <p>已完成的两项优化（同轮归一化后复用目标 -8.9%~-10%、新建目标 -11.3%~-12.4%，三轮一致）：
+ * ① 最高频的 {@code SHARE} 分支在计划循环内直写（决议仍为同一处，只特化执行路径）；
+ * ② 标准容器（ArrayList/HashMap/HashSet/LinkedHashMap/LinkedHashSet，且源与目标实现一致）直接构造并按源大小预分配。
+ * 已实测拒绝的变体：构造句柄改用 {@code invokeExact}（与优化前同口径等价，无增益，已回滚）。</p>
+ * <p>剩余固有开销（据实说明，未做"全局最优"结论）：Object 签名 MethodHandle 每字段 2 次调用 + 原始类型装箱/拆箱
+ * （long/double 装箱有新分配）是主要项，消除需走字节码生成方向（ASM/ByteBuddy 逐字段直写），属换实现路线；
+ * 不可拷贝判定与"可按类实例化"判定已按类缓存（{@code CClassValue}），热路径无重复反射与重复判断。</p>
  * <h2>对象源复制</h2>
  * <ul>
  *   <li>1.1.1 对象→对象基础复制（copyObjectToObject）</li>
@@ -180,7 +193,7 @@ import java.math.BigDecimal;
  *   <li>1.3.3 对象→对象复制（copyClassEntry 相关覆盖，见 {@code CBeanUtilsMoreTests}）</li>
  *   <li>1.3.4 复制合并已有对象（copyMerge，本类）</li>
  *   <li>1.3.5 类型不匹配复制（copyTypeUnmatched，本类）</li>
- *   <li>1.3.6 复制跳过集合与 Map（copySkipCollectionAndMap，本类）</li>
+ *   <li>1.3.6 复制深拷贝集合与 Map（copyDeepCopyCollectionAndMap，本类）</li>
  * </ul>
  * <h2>集合/数组复制（copyList/copyListFromMap/copyFromArr）</h2>
  * <ul>
@@ -239,11 +252,18 @@ import java.math.BigDecimal;
  * </ul>
  * <h2>性能基准（BenchmarkTests，独立于单元测试）</h2>
  * <ul>
- *   <li>6.1 copy/toMap 各入口与手工基线、cglib/Spring/hutool/Jackson 对比（100000 迭代，两轮：预热 + 计时），结果与分析见设计文档 §5 性能数据</li>
+ *   <li>6.1 copy/toMap 各入口与手工基线、cglib/Spring/hutool/Jackson 对比（预热 + 多轮计时），报告由基准运行器写出；
+ *   同路径对比见 {@code CBeanUtilsPerfTests}（6.1 简单 copy / 6.2 深拷贝按类型 / 6.3 对象转 Map）</li>
  * </ul>
  *
  * @since 2025/11/20
- * @version 1.0
+ * @version 1.1
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @see CBeanUtilsMoreTests
+ * @see CBeanUtilsCompatibilityTests
+ * @see CBeanUtilsCopyContractTests
+ * @see CBeanUtilsDeepCopyTests
+ * @see com.c332030.ctool4j.core.benchmark.CBeanUtilsPerfTests
  */
 public class CBeanUtilsTests {
 
@@ -335,11 +355,14 @@ public class CBeanUtilsTests {
     }
 
     /**
-     * 测试属性复制时跳过集合与 Map
-     * 对应测试用例 1.3.6：复制跳过集合与 Map（copySkipCollectionAndMap，本类）
+     * 测试属性复制时集合与 Map 字段深拷贝（源与副本不共享，元素/键值一致）
+     *
+     * <p>语义变更说明：旧实现跳过集合/Map/数组字段（不写入），现按深拷贝写入。</p>
+     *
+     * 对应测试用例 1.3.6：复制深拷贝集合与 Map（copyDeepCopyCollectionAndMap，本类）
      */
     @Test
-    public void copySkipCollectionAndMap() {
+    public void copyDeepCopyCollectionAndMap() {
 
         val roles = CList.of("role1", "role1");
         val tags = CMap.of("tag1", "tag1");
@@ -349,8 +372,10 @@ public class CBeanUtilsTests {
                 .build();
 
         val userRsp = CBeanUtils.copy(user, UserRsp.class);
-        Assertions.assertNull(userRsp.getRoles());
-        Assertions.assertNull(userRsp.getTags());
+        Assertions.assertEquals(roles, userRsp.getRoles());
+        Assertions.assertNotSame(roles, userRsp.getRoles());
+        Assertions.assertEquals(tags, userRsp.getTags());
+        Assertions.assertNotSame(tags, userRsp.getTags());
 
     }
 

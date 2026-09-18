@@ -74,8 +74,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <ul>
  *   <li>源为 Collection/Map/数组时直接返回 null（不转换）。</li>
  *   <li>{@code ClassUtil.isAssignable(toClass, fromClass)}（含基本类型/包装等价）时返回 {@code CFunction.SELF}。</li>
- *   <li>遍历已注册转换器，源/目标类型匹配即命中；Object 源兜底转换器（Object→String）优先级最低，</li>
- *   <li>仅在无更精确转换器时命中，避免抢占 Date→String 等特殊转换。</li>
+ *   <li>遍历已注册转换器，源/目标类型按 {@code ClassUtil.isAssignable} 匹配（含基本类型/包装等价），
+ *   故 {@code toInt(String)→Integer} 也能匹配 {@code int} 目标字段。</li>
+ *   <li>Object 源兜底转换器（Object→String）优先级最低，
+ *   仅在无更精确转换器时命中，避免抢占 Date→String 等特殊转换。</li>
  * </ul>
  * <p><b>转换语义</b></p>
  * <ul>
@@ -83,7 +85,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  *
  * @since 2025/11/22
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -182,8 +184,10 @@ public class CConvertUtils {
 
         CFunction<Object, ?> objectFallback = null;
         for (val classConverter : CLASS_CONVERTERS) {
-            if(classConverter.getFromClass().isAssignableFrom(fromClass)
-                    && classConverter.getToClass().isAssignableFrom(toClass)) {
+            // ClassUtil.isAssignable 与上面的 SELF 判定同口径：支持原始类型与包装类等价，
+            // 否则 Integer 返回值的转换器匹配不到 int 字段（toInt(String)→Integer 对 int 目标失效）
+            if(ClassUtil.isAssignable(classConverter.getFromClass(), fromClass)
+                    && ClassUtil.isAssignable(classConverter.getToClass(), toClass)) {
 
                 if(classConverter.getFromClass() == Object.class) {
                     // Object 源兜底最后匹配（优先级最低），记录后继续找更精确的
