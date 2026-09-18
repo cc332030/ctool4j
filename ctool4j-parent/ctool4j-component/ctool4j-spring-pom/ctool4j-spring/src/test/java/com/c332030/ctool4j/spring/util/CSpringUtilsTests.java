@@ -46,10 +46,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试获取当前激活环境
+     * 对应测试用例 1.1：验证激活 profile 相关（对应测试方法 1.1-1.7）
      */
-        /**
-         * 对应测试用例 1.1：验证激活 profile 相关（对应测试方法 1.1-1.7）
-         */
     @Test
     public void getActiveProfile() {
 
@@ -59,10 +57,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试获取当前激活环境文本
+     * 对应测试用例 1.2
      */
-        /**
-         * 对应测试用例 1.2
-         */
     @Test
     public void getActiveProfileText() {
 
@@ -72,10 +68,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试环境名前缀拼接
+     * 对应测试用例 1.3
      */
-        /**
-         * 对应测试用例 1.3
-         */
     @Test
     public void profilePrefix() {
 
@@ -85,10 +79,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试生产环境外的环境名前缀拼接
+     * 对应测试用例 1.4
      */
-        /**
-         * 对应测试用例 1.4
-         */
     @Test
     public void profilePrefixExcludeProd() {
 
@@ -98,10 +90,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试环境名后缀拼接
+     * 对应测试用例 1.5
      */
-        /**
-         * 对应测试用例 1.5
-         */
     @Test
     public void profileSuffix() {
 
@@ -111,10 +101,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试生产环境外的环境名后缀拼接
+     * 对应测试用例 1.6
      */
-        /**
-         * 对应测试用例 1.6
-         */
     @Test
     public void profileSuffixExcludeProd() {
 
@@ -124,10 +112,8 @@ public class CSpringUtilsTests {
 
     /**
      * 测试环境文本后缀拼接
+     * 对应测试用例 1.7
      */
-        /**
-         * 对应测试用例 1.7
-         */
     @Test
     public void profileTextSuffix() {
 

@@ -324,8 +324,10 @@ elif [ "$mvnw_download_ok" = jar ]; then
 	}
 	END
     # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+    # -encoding UTF-8：内联 Java 源码为 UTF-8（含中文注释），javac 默认取平台编码，
+    # 在 POSIX/ASCII locale（如 LANG=C）下会因无法映射多字节字符而编译失败
     verbose " - Compiling Downloader.java ..."
-    "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
+    "$(native_path "$JAVACCMD")" -encoding UTF-8 "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
     verbose " - Running Downloader.java ..."
     "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
   fi
@@ -414,8 +416,10 @@ public class Extractor {
   }
 }
 END
+  # -encoding UTF-8：Extractor.java 含中文注释，须显式指定源码编码（javac 默认取平台编码，
+  # POSIX/ASCII locale 下会报 unmappable character for encoding ASCII 而编译失败）
   verbose "Compiling Extractor.java with javac ..."
-  if "$(native_path "$JAVACCMD")" "$(native_path "$javaExtractor")" \
+  if "$(native_path "$JAVACCMD")" -encoding UTF-8 "$(native_path "$javaExtractor")" \
       && "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Extractor \
          "$(native_path "$TMP_DOWNLOAD_DIR/$distributionUrlName")" "$(native_path "$TMP_DOWNLOAD_DIR")"; then
     _extracted=true

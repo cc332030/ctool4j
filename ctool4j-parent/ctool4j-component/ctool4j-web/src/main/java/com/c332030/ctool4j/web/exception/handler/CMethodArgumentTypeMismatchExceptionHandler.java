@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -45,8 +46,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回固定「参数类型不正确」错误结果</td>
  *   </tr>
  *   <tr>
  *     <td>参数名不可得</td>
@@ -69,7 +70,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -79,6 +80,9 @@ public class CMethodArgumentTypeMismatchExceptionHandler {
 
     /**
      * 处理方法参数类型不匹配异常
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null），
+     * 这里兜底返回固定错误结果（不读 {@code getName()} 等异常内容）；见类 javadoc「兜底设计」。
+     * 参数名为 null 时只返回固定文案、不拼 {@code null}。</p>
      *
      * @param e 方法参数类型不匹配异常
      * @return 错误结果
@@ -88,7 +92,17 @@ public class CMethodArgumentTypeMismatchExceptionHandler {
 
         log.debug("handle MethodArgumentTypeMismatchException，requestURI: {}",
             CRequestUtils.getRequestURIDefaultNull(), e);
-        return CStrResult.error("参数类型不正确：" + e.getName());
+
+        if (null == e) {
+            return CStrResult.error("参数类型不正确");
+        }
+
+        val name = e.getName();
+        if (null == name) {
+            return CStrResult.error("参数类型不正确");
+        }
+
+        return CStrResult.error("参数类型不正确：" + name);
     }
 
 }

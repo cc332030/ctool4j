@@ -37,12 +37,13 @@ import org.junit.jupiter.api.Test;
  *   <li>1.1 error 为 null：返回默认 500 + 扩展消息（{@code handle_whenErrorNull}）</li>
  *   <li>1.2 error 非 null 无扩展：透传错误码与错误消息（{@code handle_whenErrorWithoutMsgExtend}）</li>
  *   <li>1.3 error 非 null 有扩展：追加扩展信息（{@code handle_whenErrorWithMsgExtend}）</li>
+ *   <li>1.4 异常对象为 null（非预期入参）：返回默认错误结果、不抛 NPE（{@code handle_whenExceptionNull}）</li>
  * </ul>
  *
  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 public class CCBusinessExceptionHandlerTests {
 
@@ -88,6 +89,20 @@ public class CCBusinessExceptionHandlerTests {
 
         Assertions.assertEquals("100", result.getCode());
         Assertions.assertEquals("boom: detail", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.4：异常对象为 null（非预期入参）返回默认错误结果、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（兜底不取异常内容，故 message 为固定文案）。</p>
+     */
+    @Test
+    public void handle_whenExceptionNull() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("业务异常", result.getMessage());
     }
 
     /**

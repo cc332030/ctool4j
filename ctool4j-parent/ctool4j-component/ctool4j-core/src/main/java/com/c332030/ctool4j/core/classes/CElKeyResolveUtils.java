@@ -9,6 +9,8 @@ import lombok.val;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -121,19 +123,29 @@ public class CElKeyResolveUtils {
     private final Pattern IDENTIFIER_PATTERN = Pattern.compile("[A-Za-z_$][A-Za-z0-9_$]*");
 
     /**
-     * 表达式解析器缓存：key 弱引用（Method → Resolver），避免类加载器无法回收
+     * 表达式解析器缓存：key 弱引用（Method →（表达式 → Resolver）），避免类加载器无法回收
+     *
+     * <p>二级结构是必要的：{@code keyExpr} 是方法调用时传入的独立参数，
+     * 同一 {@code Method} 可承载多个不同表达式（如同一方法同时标注
+     * {@code @CCacheRemove(key="a.b")} 与 {@code @CCacheUpdate(key="a.c")}，
+     * 或 {@code @CRateLimit(id=...)} 与 {@code @CIdempotent(id=...)} 各用各的表达式）。
+     * 若只以 {@code Method} 为 key，先解析的表达式会成为该方法后续所有调用的解析器，
+     * 造成「后一个表达式静默沿用前一个」的取错值（缓存 key / 限流与幂等业务 id 全部错位），
+     * 故内层再按表达式区分。</p>
      */
-    private final Cache<Method, Resolver> RESOLVER_CACHE =
-        CLocalCacheUtils.<Method, Resolver>cacheBuilder()
+    private final Cache<Method, Map<String, Resolver>> RESOLVER_CACHE =
+        CLocalCacheUtils.<Method, Map<String, Resolver>>cacheBuilder()
             .weakKeys()
             .build();
 
     /**
      * 获取指定方法在指定表达式下的解析器（首次使用时解析一次并缓存）。
      * <p>表达式非法（空/空白/非法段/参数名不存在）时立即抛出 {@link IllegalArgumentException}，
-     * 实现首次使用即校验（懒校验）；合法后按方法缓存，后续调用零解析开销。</p>
+     * 实现首次使用即校验（懒校验）；合法后按「方法 + 表达式」缓存，后续调用零解析开销。</p>
+     * <p>缓存按「方法 + 表达式」两级：同一方法的不同表达式各得独立解析器，互不串用
+     * （原实现只以 {@code Method} 为 key，后一个表达式会静默复用先解析的那个，见 {@link #RESOLVER_CACHE}）。</p>
      * <ul>
-     *   <li>{@code getResolver(Method, String)}：解析并校验表达式，按方法缓存解析器。</li>
+     *   <li>{@code getResolver(Method, String)}：解析并校验表达式，按「方法 + 表达式」缓存解析器。</li>
      * </ul>
      *
      * @param method    方法
@@ -143,11 +155,17 @@ public class CElKeyResolveUtils {
     public Resolver getResolver(Method method, String keyExpr) {
 
         // 先直接读，命中即返回，避免热路径每次创建 lambda 与重复并发读
-        val cached = RESOLVER_CACHE.getIfPresent(method);
-        if (null != cached) {
-            return cached;
+        val cachedByExpr = RESOLVER_CACHE.getIfPresent(method);
+        if (null != cachedByExpr) {
+            val resolver = cachedByExpr.get(keyExpr);
+            if (null != resolver) {
+                return resolver;
+            }
         }
-        return RESOLVER_CACHE.get(method, k -> parse(method, keyExpr));
+
+        // 内层按表达式区分：同一方法的不同表达式各得一个解析器（见 RESOLVER_CACHE 的说明）
+        return RESOLVER_CACHE.get(method, k -> new ConcurrentHashMap<>())
+            .computeIfAbsent(keyExpr, expr -> parse(method, expr));
     }
 
     /**
@@ -160,14 +178,17 @@ public class CElKeyResolveUtils {
                 "el 表达式为空，方法: " + method);
         }
 
-        val segments = keyExpr.split("\\.");
+        // limit = -1 保留末尾空串：String#split 默认丢弃末尾空串，会使 "a." 被切成 ["a"]、
+        // 末尾空段逃过 validateSegment 而被静默接受（与"空段报错"的契约不符），故显式取 -1
+        val segments = keyExpr.split("\\.", -1);
         if (segments.length == 0) {
             throw new IllegalArgumentException(
                 "el 表达式非法: [" + keyExpr + "]，方法: " + method);
         }
 
-        // 参数名 → 下标
+        // 参数名 → 下标（首段同样过段校验，保持「每段须为合法 Java 标识符」的契约一致）
         val paramName = segments[0];
+        validateSegment(method, keyExpr, paramName);
         val paramIndex = findParamIndex(method, paramName);
         if (paramIndex < 0) {
             throw new IllegalArgumentException(

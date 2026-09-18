@@ -129,8 +129,10 @@ public class CSecurityConfiguration {
         return new CEmptyUserDetailService();
     }
 
+    // 安全过滤链绑定了 permit/deny 等安全路径配置（CSpringSecurityRequestMatchersPathConfig），
+    // 该配置可来自配置中心（如 Nacos/Spring Cloud Config），使用 @RefreshScope 使安全规则变更即时生效，无需重启应用
     /**
-     * 创建安全过滤器链，配置认证、授权、异常处理与会话管理
+     * 创建安全过滤器链，配置认证、授权、异常处理与会话管理（{@code @RefreshScope} 使安全规则变更即时生效）
      *
      * @param http                            HttpSecurity
      * @param authenticationEntryPoint        认证入口
@@ -142,11 +144,6 @@ public class CSecurityConfiguration {
      * @throws Exception 构建过滤器链失败时抛出
      */
     @Bean
-    // 安全过滤链绑定了 permit/deny 等安全路径配置（CSpringSecurityRequestMatchersPathConfig），
-    // 该配置可来自配置中心（如 Nacos/Spring Cloud Config），使用 @RefreshScope 使安全规则变更即时生效，无需重启应用
-    /**
-     * 构建安全过滤链（{@code @RefreshScope} 使安全规则变更即时生效）
-     */
     @RefreshScope
     @ConditionalOnMissingBean(SecurityFilterChain.class)
     public SecurityFilterChain cFilterChain(

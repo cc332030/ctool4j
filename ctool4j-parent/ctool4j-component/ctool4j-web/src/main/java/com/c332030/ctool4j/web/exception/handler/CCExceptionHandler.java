@@ -5,6 +5,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,8 +40,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回「通用异常」或异常类型名，避免 message: null</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -53,7 +54,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.C_EXCEPTION_FALLBACK)
@@ -63,6 +64,9 @@ public class CCExceptionHandler {
 
     /**
      * 处理通用异常
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null），
+     * 这里兜底返回固定错误结果（不读异常内容）；见类 javadoc「兜底设计」。</p>
+     * <p>异常消息为 null（如 {@code new CException((String) null)}）时用异常类型简单名兜底，空消息（非 null）原样返回。</p>
      *
      * @param e 通用异常
      * @return 错误结果
@@ -70,9 +74,18 @@ public class CCExceptionHandler {
     @ExceptionHandler(CException.class)
     public CStrResult<Void> handle(CException e) {
 
+        if (null == e) {
+            return CStrResult.error("通用异常");
+        }
+
         log.debug("handle CException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
 
-        return CStrResult.error(e.getMessage());
+        val message = e.getMessage();
+        if (null == message) {
+            return CStrResult.error(e.getClass().getSimpleName());
+        }
+
+        return CStrResult.error(message);
     }
 
 }

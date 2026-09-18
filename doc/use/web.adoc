@@ -26,6 +26,7 @@ throw new CBusinessException("订单不存在");   // → {"code":..., "msg":"�
 
 * 需要自定义某一类异常的处理：自行声明同类型处理器 Bean；内置处理器带 `@ConditionalOnMissingExceptionHandler`，业务自定义时**自动让位**。
 * 客户端问题（参数缺失/类型不匹配/请求体不可读）返回固定文案、日志降为 debug，不透出内部类型与堆栈。
+* **非预期 null 不穿透为 500**（防御分支，正常链路不可达）：容器显式传入 null 异常对象时，各处理器返回固定文案而不抛 NPE；异常消息为 null（如 `new IllegalArgumentException()`）时用异常类型简单名兜底，不会出现 `message: null`。
 
 === 未认证（响应体业务码 401）
 

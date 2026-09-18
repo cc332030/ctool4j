@@ -24,6 +24,7 @@ CSqlUtils.forUpdate();    // for update
 ----
 
 * 分隔符枚举 `CSqlSeparatorEnum` 取值为 `COMMA` / `AND` / `OR`（仅影响多条件拼接的连词）。
+* 集合入参为空或 null 时返回空串（不抛 NPE）：多列 `getColumnsSql`、多条件 `getEqualsSql(Collection, ...)` 同一口径——空串**不可**直接拼进 `WHERE` / `SELECT`，调用方需自行判空。
 * 只做**字符级 SQL 片段拼接**，不校验、不参数化——最终 SQL 的执行与注入安全仍由调用方与持久层框架负责。
 * 用于 MyBatis-Plus 自定义 SQL（XML/注解）时，列名口径与 MP 的下划线策略一致。
 

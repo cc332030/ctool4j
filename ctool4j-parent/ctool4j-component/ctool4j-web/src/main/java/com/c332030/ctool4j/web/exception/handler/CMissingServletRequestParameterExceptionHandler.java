@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,8 +46,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回固定「缺少必填参数」错误结果</td>
  *   </tr>
  *   <tr>
  *     <td>参数名不可得</td>
@@ -68,7 +69,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -78,6 +79,9 @@ public class CMissingServletRequestParameterExceptionHandler {
 
     /**
      * 处理必填请求参数缺失异常
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null），
+     * 这里兜底返回固定错误结果（不读 {@code getParameterName()} 等异常内容）；见类 javadoc「兜底设计」。
+     * 参数名为 null 时只返回固定文案、不拼 {@code null}。</p>
      *
      * @param e 必填请求参数缺失异常
      * @return 错误结果
@@ -87,7 +91,17 @@ public class CMissingServletRequestParameterExceptionHandler {
 
         log.debug("handle MissingServletRequestParameterException，requestURI: {}",
             CRequestUtils.getRequestURIDefaultNull(), e);
-        return CStrResult.error("缺少必填参数：" + e.getParameterName());
+
+        if (null == e) {
+            return CStrResult.error("缺少必填参数");
+        }
+
+        val parameterName = e.getParameterName();
+        if (null == parameterName) {
+            return CStrResult.error("缺少必填参数");
+        }
+
+        return CStrResult.error("缺少必填参数：" + parameterName);
     }
 
 }
