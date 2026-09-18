@@ -2,10 +2,15 @@ package com.c332030.ctool4j.core.classes;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * <p>
@@ -33,7 +38,7 @@ import java.lang.reflect.Method;
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：一级/多级表达式、属性值、参数为 null、链中某级 null、空白表达式、参数名不存在、非法段（含末尾空段）、运行期属性缺失、循环引用、无环不误报、第二参数引用、三级以上深链、同一方法多表达式互不串用。</li>
+ *   <li>覆盖：一级/多级表达式、属性值、参数为 null、链中某级 null、空白表达式、参数名不存在、非法段（含末尾空段）、运行期属性缺失、循环引用、无环不误报、第二参数引用、三级以上深链、同一方法多表达式互不串用（含<strong>缓存条目分别持有</strong>与<strong>并发交替</strong>）。</li>
  *   <li>未覆盖：真实 Spring AOP 拦截下的端到端取 key（由 cache 模块集成测试覆盖）；接口/泛型动态类型（运行期验证）。</li>
  * </ul>
  * <h2>CElKeyResolveUtils 解析与取值</h2>
@@ -56,10 +61,11 @@ import java.lang.reflect.Method;
  *   <li>1.16 表达式以点结尾（末尾空段）：抛异常，不再被静默接受（testParse_trailingDot_throws）</li>
  *   <li>1.17 同一方法的不同表达式各自独立解析（testResolve_sameMethodDifferentExprs）</li>
  *   <li>1.18 同一方法的不同表达式反复交替调用仍各取各值（testResolve_sameMethodDifferentExprs_repeat）</li>
+ *   <li>1.19 同一方法不同表达式在多线程并发下仍各取各值（testResolve_sameMethodDifferentExprs_concurrent）</li>
  * </ul>
  *
  * @since 2026/9/8
- * @version 1.0
+ * @version 1.2
  */
 class CElKeyResolveUtilsTests {
 
@@ -374,4 +380,67 @@ class CElKeyResolveUtilsTests {
         }
     }
 
+    /**
+     * 对应测试用例 1.19：同一方法的不同表达式在多线程并发下仍各取各值（线程安全）
+     *
+     * <p>并发的意义在于「线程安全」而非「竞态检出」：{@code getResolver} 的缓存读路径
+     * （{@code getIfPresent}）与外层 {@code computeIfAbsent} 都是并发入口，须确认多线程下两个表达式
+     * 的取值始终各归各、不因并发装载而串用。</p>
+     *
+     * <p><b>子线程断言须解包</b>：{@code Callable} 内抛出的 {@code AssertionError} 会被
+     * {@code Future.get()} 包成 {@code ExecutionException}，JUnit 不会自动解包——只调 {@code get()}
+     * 的写法在断言失败时仍是用例通过（断言失效），故经 {@link #awaitAssertions(Future[])} 解包。</p>
+     */
+    @Test
+    void testResolve_sameMethodDifferentExprs_concurrent() throws Exception {
+
+        Method method = method("keyInner");
+        Outer outer = new Outer(new Inner(1L));
+        Object[] args = new Object[] { outer, "TAG" };
+
+        val byId = (Callable<Object>)() -> {
+            for (int i = 0; i < 20; i++) {
+                Assertions.assertEquals(1L,
+                    CElKeyResolveUtils.getResolver(method, "outer.inner.id").resolve(args));
+            }
+            return null;
+        };
+        val byTag = (Callable<Object>)() -> {
+            for (int i = 0; i < 20; i++) {
+                Assertions.assertEquals("TAG",
+                    CElKeyResolveUtils.getResolver(method, "tag").resolve(args));
+            }
+            return null;
+        };
+
+        val pool = Executors.newFixedThreadPool(4);
+        try {
+            // 子线程的断言失败经 Future.get() 抛 ExecutionException，须解包成 AssertionError，
+            // 否则用例会「断言失败但仍通过」（JUnit 5 不会自动解包；assertAll 只接受 Executable、
+            // 不能直接传 Future）
+            awaitAssertions(pool.submit(byId), pool.submit(byTag), pool.submit(byId), pool.submit(byTag));
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    /**
+     * 等待并发任务结束并把子线程的断言失败解包为 {@link AssertionError}
+     *
+     * <p>{@code Callable} 内抛出的 {@code AssertionError} 会被 {@code Future.get()} 包进
+     * {@code ExecutionException}——不解包就等于没断言，用例恒通过。本方法逐个 get 并解包，
+     * 使子线程的断言失败如实反映到用例结果上。</p>
+     *
+     * @param futures 并发任务
+     */
+    private static void awaitAssertions(Future<?>... futures) throws Exception {
+
+        for (val future : futures) {
+            try {
+                future.get();
+            } catch (ExecutionException e) {
+                throw new AssertionError(e.getCause());
+            }
+        }
+    }
 }

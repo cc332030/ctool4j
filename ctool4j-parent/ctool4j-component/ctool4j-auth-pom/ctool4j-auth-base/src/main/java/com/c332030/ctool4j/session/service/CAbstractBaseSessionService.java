@@ -24,9 +24,10 @@ import javax.servlet.http.HttpServletRequest;
  * </p>
  *
  * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link IGenericType} 解析子类指定的
- * 会话类型 {@code SESSION}（子类须以具体类型直接继承，否则泛型解析可能失败）。</p>
+ * 会话类型 {@code SESSION}（子类须以具体类型直接继承，或在创建点经构造显式传入）。</p>
  *
- * <p>说明：{@code sessionClass} 为实例字段（构造期确定，见下方「泛型解析的两条构造路径」）；
+ * <p>说明：{@code sessionClass} 为实例字段，构造期确定——默认构造按子类泛型实参解析，或经
+ * {@code CAbstractBaseSessionService(Class)} 显式传入（见下方「泛型解析的两条构造路径」）；
  * {@code get()}/{@code check()} 的当前会话来源由子类实现的 {@link #getDefaultNull()} 决定（Security 场景见
  * auth-spring 的子类），仅当前请求线程可用。</p>
  *

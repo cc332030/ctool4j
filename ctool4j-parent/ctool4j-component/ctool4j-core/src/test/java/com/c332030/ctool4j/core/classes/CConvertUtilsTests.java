@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.Map;
  *   <li>按「基础转换 / 特殊源类型 / 枚举 / Opt / 注册」多个维度组织。</li>
  *   <li>基础转换覆盖 String→Integer/Long/Double、Integer→String、同类型、null。</li>
  *   <li>特殊源类型（Collection/Map/数组）验证返回 null；枚举转 String 验证 toString 回退。</li>
- *   <li>Opt 包装验证 present/empty；addConverter 无入参方法跳过注册不抛异常（Q16）。</li>
+ *   <li>Opt 包装验证 present/empty；addConverter 无入参方法跳过注册（已注册数量不变，Q16）。</li>
  * </ul>
  * <h2>设计依据</h2>
  * <ul>
@@ -56,7 +57,7 @@ import java.util.Map;
  * </ul>
  * <h2>注册</h2>
  * <ul>
- *   <li>5.1 addConverter 无入参方法：跳过注册不抛异常（addConverterNoArgMethod，Q16）</li>
+ *   <li>5.1 addConverter 无入参方法：跳过注册（已注册数量不变）（addConverterNoArgMethod，Q16）</li>
  * </ul>
  *
  * @since 2025/12/12
@@ -182,14 +183,48 @@ public class CConvertUtilsTests {
     }
 
     /**
-     * 测试注册无参方法为转换器：不抛异常并跳过注册（Q16）
-     * 对应测试用例 5.1：addConverter 无入参方法：跳过注册不抛异常（addConverterNoArgMethod，Q16）
+     * 对应测试用例 5.1：{@code addConverter} 注册无入参方法：跳过注册（不新增转换器）
+     *
+     * <p><b>断言有效性（回归点）</b>：原用例只断言 {@code assertDoesNotThrow}——而"跳过注册"的失败形态
+     * 是<strong>越界异常</strong>（{@code method.getParameterTypes()[0]} 对无参方法抛
+     * {@code ArrayIndexOutOfBoundsException}），{@code assertDoesNotThrow} 恰好能接住它；
+     * 但若实现改成"静默注册一个无效转换器"（不抛异常、却污染转换器表），本用例仍全绿。
+     * 故改为断言<strong>可观测的行为结果</strong>：注册前后已注册转换器数量不变。</p>
+     *
+     * <p>转换器表（{@code CLASS_CONVERTERS}）为类静态、全局共享，用例以
+     * {@code CReflectUtils#getValue} 读取（项目统一的字段入口，静态字段经 {@code Field#get} 兜底，
+     * 不使用原生反射）并做前后比对。</p>
      */
     @Test
     public void addConverterNoArgMethod() throws NoSuchMethodException {
 
         val method = NoArgConverterBean.class.getDeclaredMethod("noArg");
+
+        val before = converterCount();
         Assertions.assertDoesNotThrow(() -> CConvertUtils.addConverter(method));
+        Assertions.assertEquals(before, converterCount(),
+            "注册无入参方法应跳过注册，不得新增转换器（也不得抛越界异常）");
+
+    }
+
+    /**
+     * 读当前已注册转换器数量（{@code CLASS_CONVERTERS} 为私有静态字段）
+     *
+     * <p>静态字段不能用 {@code CMethodHandleUtils} 的 getter 句柄（{@code unreflectGetter} 对静态字段
+     * 返回 {@code ()Object}，{@code invoke(Class)} 会抛 {@code WrongMethodTypeException}），
+     * 故经项目统一的字段入口 {@code CReflectUtils#getValue} 读取。</p>
+     *
+     * @return 已注册转换器数量
+     */
+    private static int converterCount() {
+
+        try {
+            val field = CConvertUtils.class.getDeclaredField("CLASS_CONVERTERS");
+            val converters = (Collection<?>)CReflectUtils.getValue(CConvertUtils.class, field);
+            return converters.size();
+        } catch (Throwable t) {
+            throw new AssertionError(t);
+        }
 
     }
 

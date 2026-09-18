@@ -49,7 +49,7 @@ import java.io.IOException;
  *
  * <p><b>覆盖场景</b>：{@code doFilterInternal} 正常与异常路径；{@code loadAuthentication} 的 mock 命中、
  * mock 未配置降级、mock 未启用、会话不存在、mock 认证默认实现；{@code loadMockSession} 的未启用、
- * {@code enable} 为 null、启用且有会话、启用且无会话。{@code loadSession} 为直通委托，不单独覆盖。</p>
+ * {@code enable} 为 null、启用且有会话、启用且无会话；{@code loadSession} 的门面委托（有/无会话）。</p>
  * <p><b>未覆盖</b>：真实 Redis 会话存取与 jwt 解析（分别由 {@code CAbstractBaseSessionServiceTests}、
  * {@code CAuthUtilsTests} 的用例覆盖）；{@code OncePerRequestFilter} 自身的请求去重（框架行为，由 Spring 保证）。</p>
  *
@@ -73,9 +73,14 @@ import java.io.IOException;
  *   <li>3.3 启用且有会话返回该会话（loadMockSession_enabledWithSession_returnsSession）</li>
  *   <li>3.4 启用但会话为空返回 null（loadMockSession_enabledWithoutSession_returnsNull）</li>
  * </ul>
+ * <h2>加载会话（直通委托门面）</h2>
+ * <ul>
+ *   <li>4.1 有会话：loadSession() 返回门面（会话服务）给出的会话，并把请求原样透传（loadSession_withSession_delegatesToFacade）</li>
+ *   <li>4.2 无会话：loadSession() 返回 null、不抛异常（loadSession_withoutSession_returnsNull）</li>
+ * </ul>
  *
  * @since 2026/9/13
- * @version 1.3
+ * @version 1.5
  * @see CAbstractBaseAuthFilter
  */
 class CAbstractBaseAuthFilterTests {
@@ -98,11 +103,13 @@ class CAbstractBaseAuthFilterTests {
     }
 
     /**
-     * 清理注入到静态门面的会话服务：静态状态不会随用例结束回收，避免逃逸到其他测试类
+     * 清理静态状态：静态门面与被测替身（{@code sessionService} 为实例字段、用例间不共享，
+     * 但其记录字段会跨用例保留同一实例）不随用例结束回收，避免状态逃逸到其他用例或测试类
      */
     @AfterEach
     public void tearDown() {
         CSessionUtils.setSessionService(null);
+        sessionService.reset();
     }
 
     // ---------- 过滤器骨架 ----------
@@ -238,6 +245,43 @@ class CAbstractBaseAuthFilterTests {
 
         Assertions.assertSame(mockSession, filter.authenticated);
         Assertions.assertEquals(0, sessionService.loadSessionCount);
+
+    }
+
+    // ---------- 加载会话（直通委托门面） ----------
+
+    /**
+     * 对应测试用例 4.1：loadSession() 返回门面（会话服务）给出的会话，并把请求原样透传
+     *
+     * <p>回归点：{@code loadSession} 由"直接持有会话服务字段"改为委托 {@code CSessionUtils.load(request)}，
+     * 本用例把该委托契约显式固化——会话来源经静态门面、请求入参原样透传。</p>
+     */
+    @Test
+    void loadSession_withSession_delegatesToFacade() {
+
+        // 正例：门面按请求加载会话，请求原样透传到会话服务，返回值即服务给出的会话
+        val session = new SessionStub();
+        val filter = newFilter(newMockConfig(false, null));
+        sessionService.sessionToLoad = session;
+
+        Assertions.assertSame(session, filter.loadSession(request));
+        Assertions.assertEquals(1, sessionService.loadSessionCount);
+        Assertions.assertSame(request, sessionService.lastRequest);
+
+    }
+
+    /**
+     * 对应测试用例 4.2：loadSession() 无会话时返回 null、不抛异常
+     */
+    @Test
+    void loadSession_withoutSession_returnsNull() {
+
+        // 边界：查不到会话 → null（交由调用方判定），不抛异常
+        val filter = newFilter(newMockConfig(false, null));
+        sessionService.sessionToLoad = null;
+
+        Assertions.assertNull(filter.loadSession(request));
+        Assertions.assertEquals(1, sessionService.loadSessionCount);
 
     }
 
@@ -379,6 +423,16 @@ class CAbstractBaseAuthFilterTests {
          * {@code loadSession} 调用次数
          */
         int loadSessionCount;
+
+        /**
+         * 清空记录：{@code setUp} 每个用例都会新建替身，但本方法让「用例不依赖执行顺序」显式化
+         * （记录字段与返回值一并归零，避免上一个用例的 {@code lastRequest}/{@code loadSessionCount} 被误读）
+         */
+        void reset() {
+            sessionToLoad = null;
+            lastRequest = null;
+            loadSessionCount = 0;
+        }
 
         @Override
         public SessionStub loadSession(HttpServletRequest request) {

@@ -25,7 +25,8 @@ import java.lang.reflect.Method;
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：id 表达式为空/空白/取参数本身/取属性链/参数为 null/参数名不存在/属性不可解析的 {@code resolveBizId}；</li>
+ *   <li>覆盖：id 表达式为空/空白/取参数本身/取属性链/参数为 null/参数名不存在/属性不可解析的 {@code resolveBizId}，
+ *   <strong>以及同一方法两个不同表达式（限流/幂等各配一套 id 表达式的真实形态）互不串用</strong>；</li>
  *   <li>key 含方法名与业务 id/无业务 id/空白业务 id/去方法名段/去方法名段含业务 id 的 {@code buildKey}；</li>
  *   <li>null/空白/非空白/非字符串的 {@code isBlankSpecKey}。</li>
  *   <li>未覆盖：真实 Redis 集成（纯工具逻辑，无外部依赖）。</li>
@@ -39,6 +40,8 @@ import java.lang.reflect.Method;
  *   <li>1.5 参数为 null：返回 null（resolveBizId_nullParam_returnsNull）</li>
  *   <li>1.6 表达式参数名不存在：抛 IllegalArgumentException（resolveBizId_unknownParam_throws）</li>
  *   <li>1.7 属性在类型上不可解析：抛 IllegalStateException（resolveBizId_unknownProp_throws）</li>
+ *   <li>1.8 同一方法被两个不同表达式解析：各自取到对应业务 id、不串用（resolveBizId_sameMethodTwoExprs_distinctIds）</li>
+ *   <li>1.9 同一方法两个表达式反复交替解析：业务 id 始终各归各（resolveBizId_sameMethodTwoExprs_repeat）</li>
  * </ul>
  * <h2>CRedisKeyUtils.buildKey（key 构建）</h2>
  * <ul>
@@ -71,6 +74,40 @@ class CRedisKeyUtilsTests {
     @SuppressWarnings("unused")
     private static String sampleOrder(OrderRequest req) {
         return "ok";
+    }
+
+    /**
+     * 同方法两个表达式用例（1.8/1.9）的样例方法：
+     * 参数 {@link PairRequest} 同时有 {@code userId} 与 {@code orderNo} 两个可取属性。
+     */
+    @SuppressWarnings("unused")
+    private static String samplePair(PairRequest req) {
+        return "ok";
+    }
+
+    /**
+     * 承载两个不同业务维度的请求对象（限流按用户、幂等按单号的实际形态）
+     */
+    static class PairRequest {
+
+        private final Long userId;
+
+        private final String orderNo;
+
+        PairRequest(Long userId, String orderNo) {
+            this.userId = userId;
+            this.orderNo = orderNo;
+        }
+
+        @SuppressWarnings("unused")
+        public Long getUserId() {
+            return userId;
+        }
+
+        @SuppressWarnings("unused")
+        public String getOrderNo() {
+            return orderNo;
+        }
     }
 
     static class OrderRequest {
@@ -242,6 +279,47 @@ class CRedisKeyUtilsTests {
     @Test
     void isBlankSpecKey_nonString() {
         Assertions.assertFalse(CRedisKeyUtils.isBlankSpecKey(10L));
+    }
+
+    /**
+     * 对应测试用例 1.8：同一方法被两个不同表达式解析时，各自取到对应业务 id、不串用
+     *
+     * <p>回归点：el 解析器缓存曾只以 {@code Method} 为 key——同一方法先解析的表达式（如限流的
+     * {@code "req.userId"}）会成为后续所有调用的解析器，后配的表达式（如幂等的 {@code "req.orderNo"}）
+     * 静默沿用前一个，导致限流/幂等业务 id 全部错位（用户维度被单号维度顶替）。
+     * 本用例从**真实入口** {@link CRedisKeyUtils#resolveBizId}(args, method, idExpr) 出发，
+     * 对**同一个 Method** 先后用两个表达式取值，断言分别得到各自属性的值。</p>
+     */
+    @Test
+    void resolveBizId_sameMethodTwoExprs_distinctIds() {
+
+        Method m = method("samplePair");
+        Object[] args = new Object[] { new PairRequest(1001L, "NO-9") };
+
+        Object byUser = CRedisKeyUtils.resolveBizId(args, m, "req.userId");
+        Object byOrder = CRedisKeyUtils.resolveBizId(args, m, "req.orderNo");
+
+        Assertions.assertEquals(1001L, byUser);
+        Assertions.assertEquals("NO-9", byOrder);
+        Assertions.assertNotEquals(byUser, byOrder);
+    }
+
+    /**
+     * 对应测试用例 1.9：同一方法两个表达式反复交替解析，业务 id 始终各归各
+     *
+     * <p>与 1.8 互补：1.8 只覆盖「先 A 后 B」一次；本用例反复交替，确认解析器缓存的命中路径
+     * 也不会串用表达式（限流与幂等在同一方法上各用各的 id 表达式时反复调用仍正确）。</p>
+     */
+    @Test
+    void resolveBizId_sameMethodTwoExprs_repeat() {
+
+        Method m = method("samplePair");
+        Object[] args = new Object[] { new PairRequest(7L, "N7") };
+
+        for (int i = 0; i < 3; i++) {
+            Assertions.assertEquals(7L, CRedisKeyUtils.resolveBizId(args, m, "req.userId"));
+            Assertions.assertEquals("N7", CRedisKeyUtils.resolveBizId(args, m, "req.orderNo"));
+        }
     }
 
 }

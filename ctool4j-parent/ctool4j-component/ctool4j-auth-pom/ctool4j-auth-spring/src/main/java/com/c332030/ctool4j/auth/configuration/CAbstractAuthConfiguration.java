@@ -65,7 +65,8 @@ import org.springframework.context.annotation.Bean;
  *   <tr><td>业务子类未覆写 {@link #isAuthAnonymous}</td>
  *   <td>使用默认实现：按"非匿名"处理（会话被视为已认证），不报错</td></tr>
  *   <tr><td>业务未提供 {@link CAbstractSessionService} bean</td>
- *   <td>注册默认会话服务：匿名子类 {@code new CAbstractSessionService<T>(sessionClass()) {}}（显式传入会话类型），会话读写行为由基类提供</td></tr>
+ *   <td>注册默认会话服务：匿名子类 {@code new CAbstractSessionService<T>(sessionClass()) {}}（会话类型由业务配置子类的泛型实参解析后显式传入），
+ *   会话读写行为由基类提供</td></tr>
  * </table>
  *
  * <h2>适用范围</h2>
