@@ -141,14 +141,19 @@ public class CClassUtilsTests {
      * <p>样本：{@code BASE_PACKAGES} 各段取一个 JDK 8 存在的类型
      * （java/javax/jdk/sun 四段各取一个，com.sun/com.oracle 两段同属 {@code com} 首段、取 com.sun 样本），
      * 仅保证 JDK 8 下可编译（jdk 段的 {@code jdk.Exported} 为 JDK 8 专有类型，见类级「JDK 版本约束」）。</p>
+     *
+     * <p>{@code sun} 段样本经 {@link Class#forName(String)} 按名取类（而非直接引用 {@code sun.misc.Unsafe}）：
+     * 直接引用会触发 javac 的 {@code Unsafe is internal proprietary API} 警告，而该警告在 JDK 8 下<b>无法用
+     * {@code @SuppressWarnings} 抑制</b>（实测 {@code sunapi}/{@code all} 等键均无效），按名取类既不产生警告、
+     * 也仍以真实的 {@code sun.*} 类作为样本。</p>
      */
     @Test
-    public void getFirstPackage() {
+    public void getFirstPackage() throws ClassNotFoundException {
 
         Assertions.assertEquals("java", CClassUtils.getFirstPackage(String.class));
         Assertions.assertEquals("javax", CClassUtils.getFirstPackage(DataSource.class));
         Assertions.assertEquals("jdk", CClassUtils.getFirstPackage(jdk.Exported.class));
-        Assertions.assertEquals("sun", CClassUtils.getFirstPackage(sun.misc.Unsafe.class));
+        Assertions.assertEquals("sun", CClassUtils.getFirstPackage(Class.forName("sun.misc.Unsafe")));
         Assertions.assertEquals("com", CClassUtils.getFirstPackage(com.sun.net.httpserver.HttpServer.class));
 
     }
@@ -158,14 +163,17 @@ public class CClassUtilsTests {
      * 对应测试用例 3.1：六类包与基本类型为 true、应用自有包与第三方包为 false
      * <p>边界：应用自有包（本测试类）、第三方包（Jackson、Spring）不属于 {@code BASE_PACKAGES}，须为 false；
      * 基本类型（{@code int}）按 {@code BASE_CLASSES} 判定为 true。</p>
+     *
+     * <p>同 {@code getFirstPackage}：{@code sun} 段样本经 {@link Class#forName(String)} 按名取类，
+     * 避免引用 {@code sun.misc.Unsafe} 触发 JDK 8 下无法抑制的 javac 警告。</p>
      */
     @Test
-    public void isJdkClass() {
+    public void isJdkClass() throws ClassNotFoundException {
 
         Assertions.assertTrue(CClassUtils.isJdkClass(String.class));
         Assertions.assertTrue(CClassUtils.isJdkClass(DataSource.class));
         Assertions.assertTrue(CClassUtils.isJdkClass(jdk.Exported.class));
-        Assertions.assertTrue(CClassUtils.isJdkClass(sun.misc.Unsafe.class));
+        Assertions.assertTrue(CClassUtils.isJdkClass(Class.forName("sun.misc.Unsafe")));
         Assertions.assertTrue(CClassUtils.isJdkClass(com.sun.net.httpserver.HttpServer.class));
 
         // 基本类型走 BASE_CLASSES
