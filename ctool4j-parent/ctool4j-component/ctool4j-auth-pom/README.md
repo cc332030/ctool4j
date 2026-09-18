@@ -13,7 +13,7 @@
 
 - **JWT 校验与签发**：`CAuthUtils` 以配置密钥校验 jwt 并解析其中的 token；为 jwt body 生成 jwt 并写入响应 `Authorization` 头
 - **token 读写**：请求/响应头与请求属性的 token 读写由 `ctool4j-web` 的 `CTokenUtils` 提供
-- **会话服务**：`CAbstractSessionService` 基于 Redis 提供会话存取、按 jwt 取会话、当前会话获取；当前会话缺失（未授权）时 `get()`/`check()` 抛 `CUnauthorizedException`，由 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 统一转为响应体业务码 401（随附 HTTP 状态 401）
+- **会话服务**：`CAbstractSessionService` 基于 Redis 提供会话存取、按 jwt 取会话、当前会话获取；当前会话缺失（未授权）时 `get()`/`check()` 抛 `CUnauthorizedException`，由 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 统一转为响应体业务码 401（随附 HTTP 状态 401，见 [未授权统一返回业务码 401 设计文档](../../../doc/design/web/unauthorized-401.adoc)）
 - **认证过滤器**：`CAbstractAuthFilter` 解析 token → 加载会话 → 构造 Spring Security 认证信息写入安全上下文；解析失败静默放行，交由后续授权规则拦截
 - **认证过滤器继承链**（自下而上，业务继承链末端）：`CAbstractWebAuthFilter`（`ctool4j-web`，类型契约）→ `CAbstractBaseAuthFilter`（auth-base，会话加载与过滤器骨架，不依赖 Spring Security）→ `CAbstractAuthFilter`（auth-spring，Security 认证构造）
 - **认证装配基类**：`CAbstractAuthBaseConfiguration`（auth-base）提供 mock 会话配置落点；`CAbstractAuthConfiguration`（auth-spring）在其上追加默认认证过滤器 bean，业务子类只需实现 `isAuthAnonymous`（二者按是否引入 Spring Security 择一继承）
@@ -39,29 +39,13 @@
 | `CAbstractAuthFilter` | auth-spring | 过滤器基类 | 业务直接继承：构造 Security 认证信息（普通会话按匿名判定、mock 会话无条件已认证） |
 | `CAbstractSessionService` | auth-spring | 服务基类 | 基于 Redis 的会话存取、按 jwt 取会话、当前会话获取 |
 
-## 使用示例
-
-```java
-// 校验 jwt 并解析其中携带的 token（失败静默返回 null）
-String token = CAuthUtils.getTokenByJwt(jwt);
-
-// 以 jwt body 生成 jwt 并写入响应 Authorization 头
-CAuthUtils.setJwt(jwtInfo);
-
-// 按 jwt 读取会话
-SESSION session = sessionService.getSessionByJwt(jwt);
-```
-
-## 配置项
-
-| 配置 | 说明 |
-|------|------|
-| `CAuthConfig#jwtSecret` | jwt 校验/签发所用密钥 |
-| `CSessionConfig#expire` | 会话过期时间 |
-
 ## 依赖
 
 | 子模块 | 依赖 |
 |--------|------|
 | `ctool4j-auth-base` | `ctool4j-web`（JWT 编解码 `CJwtUtils`、token 读写 `CTokenUtils`）、`ctool4j-cache`（会话存储） |
 | `ctool4j-auth-spring` | `ctool4j-auth-base`、`ctool4j-spring-security`（安全上下文与工具） |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/auth.adoc`](../../../doc/use/auth.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

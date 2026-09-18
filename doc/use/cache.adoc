@@ -1,0 +1,50 @@
+= 使用：ctool4j-cache（二级缓存）
+
+坐标：+com.c332030:ctool4j-cache+　｜　依赖：+ctool4j-redis+、jetcache（本地 Caffeine + Redis 二级）
+
+== 一览
+
+* *声明式*：`@CCacheable`（+ `CCacheAspect`）+ `@CCacheId`（标记实体中作缓存 key 的字段）；key 生成策略可用 `ICCacheIdConverter` 替换（默认 `CDefaultCacheIdConverter`）。
+* *编程式*：`CCacheService.cacheBuilder(key, tClass)`（实例方法，Spring 注入 `CCacheService`）返回链式构建器 `CCacheService.CCacheBuilder`（**内部类**，非独立顶层类）；静态门面 `CCacheUtils.cacheBuilder(key, tClass)`（容器内取 Bean 转发，**未初始化容器时 NPE**）。
+* *分流策略*：按缓存剩余有效期自动分流——充足直返、临期异步刷新、过期加锁双检查计算。
+
+== 用法
+
+=== 声明式
+
+[source,java]
+----
+@CCacheable(namespace = User.class, expire = 60)   // namespace 是 Class，不是字符串；expire 单位秒、0 表示永久
+public User getById(Long id) {
+    return userMapper.selectById(id);
+}
+----
+
+=== 编程式（链式）
+
+[source,java]
+----
+User user = cacheService.cacheBuilder("user:" + id, User.class)
+    .expireDuration(Duration.ofMinutes(30))    // 固定或按值动态计算过期时间
+    .refreshWindow(Duration.ofMinutes(5))      // 临期异步刷新（不阻塞主线程）
+    .waitTime(Duration.ofSeconds(10))          // 分布式锁等待时长
+    .onLockFail(lock -> log.warn("抢锁失败，key={}", lock.getName()))
+    .computeIfAbsent(() -> userMapper.selectById(id));
+----
+
+== 配置
+
+|===
+| 配置 | 说明
+| +spring.redis.*+ / +spring.data.redis.*+ | Redis 连接
+| +jetcache.*+ | 本地缓存（Caffeine/Guava）配置
+|===
+
+== 注意
+
+* `key` 里的业务维度可用简单 el 表达式（与 `@CRateLimit` / `@CIdempotent` 的 `id` 同一套语法与解析器）。
+* 本质是「本地 + Redis」两级 + 分布式锁的读路径封装：**多实例间一致性依赖 Redis 与锁**；本地缓存过量（如 L1 永不失效）会使数据变更延迟可见，配置时留意各级 TTL。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-cache/README.md[ctool4j-cache README]

@@ -1,0 +1,28 @@
+= 使用：ctool4j-spring-security（Security 装配）
+
+坐标：+com.c332030:ctool4j-spring-security+　｜　依赖：+ctool4j-web+、spring-boot-starter-security
+
+== 能力
+
+* 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`）：引入依赖即生效，无需业务手工配 `@Bean`。
+* 未认证 / 拒绝访问 / 会话过期**统一 JSON 返回**（`CAuthenticationEntryPoint`、`CAccessDeniedHandler`、`CSessionInformationExpiredStrategy`）。
+* 认证过滤器**按类型契约注入**：过滤器链注入 `CAbstractWebAuthFilter`（+ctool4j-web+ 的类型契约），实现由 auth 模块提供（见 link:auth.adoc[auth]）。
+* 用户认证服务抽象：`ICUserDetailsService` / `ICAuthenticationUserDetailsService` / `ICUserDetailsPasswordService`（不实现时用 `CEmptyUserDetailService` 兜底）。
+* 放行/禁止路径配置（`ICRequestMatchersConfig`、`CSpringSecurityRequestMatchersPathConfig`）。
+* 工具类：`CSpringSecurityUtils`（安全上下文、匿名权限常量 `ROLE_ANONYMOUS`）、`CAuthenticationUtils`。
+
+== 配置
+
+|===
+| 配置 | 说明
+| +spring.security.request-matchers.path.*+ | 放行（`permits`）/ 禁止（`denies`）路径（`CSpringSecurityRequestMatchersPathConfig`）
+|===
+
+== 注意
+
+* 需 Redis Session 时自行引入 `spring-session-data-redis`（本模块为 optional）。
+* 会话/用户对象里带 `GrantedAuthority` 时，JSON 读回依赖 `CSecurityJacksonModule`（本模块提供，经 Jackson SPI 自动装配）——经 `CJacksonUtils` 的 mapper 或开启 `spring.jackson.json5` 的容器 mapper 均生效；**Spring MVC 的 `@RequestBody`/`@ResponseBody` 默认不覆盖**。陷阱与取舍见开发文档：link:../design/spring/authority-json.adoc[authority-json]。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom README]

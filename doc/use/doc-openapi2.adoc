@@ -1,0 +1,41 @@
+= 使用：ctool4j-doc-openapi2（接口文档增强）
+
+坐标：+com.c332030:ctool4j-doc-openapi2+　｜　框架：OpenAPI2（springfox / knife4j）
+
+== 能力
+
+* 自动装配 Docket（`COpenApi2Configuration`）：收集标注 `@Api` 或 `@CTag` 的 Controller，并注入全局请求头。
+* 读取 C 前缀文档注解并落地为 Swagger：
+  `@CTag`（分组）、`@COperation`（摘要/说明）、`@CParameter`（参数）、`@CSchema`（属性描述）——注解定义在 +ctool4j-definition+ 的 +com.c332030.ctool4j.doc.annotation+ 包。
+* 必填映射：`@CRequired` / `@NotEmpty` 标注的参数在文档中标记必填。
+* text 枚举：实现 `ICText` 的枚举在 model/参数描述中展示 text。
+* 全局请求头：`CSpringFoxUtils` 把 `ICRequestHeader`（如 `CRequestHeaderEnum.AUTHORIZATION`）写入全局参数。
+* 兼容修复：修复 springfox handlerMappings 空指针；清理「无任何接口引用」的空分组声明（`CEmptyTagBeanPostProcessor`）。
+
+== 用法
+
+[source,java]
+----
+@CTag("订单")
+@RestController
+public class OrderController {
+
+    @COperation("创建订单")
+    public CResult<Long> add(@RequestBody @CRequired OrderReq req) { }
+}
+----
+
+* 注解是**纯声明**，不依赖文档框架；翻译逻辑在本模块插件中（`CTagAnnotationPlugin`、`COperationAnnotationPlugin`、`CParameterAnnotationPlugin`、`CSchemaAnnotationModelPropertyPlugin`、`CRequiredAnnotationPlugin`、`CNotEmptyAnnotationPlugin`、`CTextEnumModelPropertyPlugin`、`CTextEnumParameterPlugin`），因此业务只依赖 +ctool4j-definition+ 的注解也能编译。
+* request body 字段默认非必填：需要必填时标 `@CRequired`；request param 需非必填时标 `@CNotRequired`（`@CNotRequired` 在 +ctool4j-web+）。
+
+== 配置
+
+|===
+| 配置 | 说明
+| +doc.openapi2.pathMapping+ | 文档路径映射（`CDocOpenApi2Config`），默认 `"/"`；用于 nginx 反向代理后 knife4j 检测不到路径的场景
+|===
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[ctool4j-doc-pom README]
+- 注解族设计（开发文档）：link:../design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]

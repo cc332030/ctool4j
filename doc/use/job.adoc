@@ -1,0 +1,40 @@
+= 使用：ctool4j-job-base / ctool4j-xxl-job（定时任务）
+
+坐标：+ctool4j-job-base+（时间计算）、+ctool4j-xxl-job+（xxl-job 集成）
+
+== 用法
+
+[source,java]
+----
+@Component
+public class OrderJob implements ICTask<OrderJob> {   // ICTask 自代理，保证切面生效
+
+    @Override
+    public void execute(String param) {
+        String raw = CXxlJobUtils.getJobParam();                    // 原始参数字符串（param 为 null 时也取得到）
+        OrderParam p = CXxlJobUtils.parseJobParam(OrderParam.class); // 解析为对象；空白/解析失败返回 null
+        // 业务处理
+    }
+}
+----
+
+* `CXxlJobConfiguration` 条件装配 `XxlJobSpringExecutor`（配置由 `CXxlJobAdminConfig` / `CXxlJobExecutorConfig` / `CXxlJobExecutorLogConfig` 绑定）；`CXxlJobAspect` 为 `@XxlJob` 方法自动注入任务参数、打印耗时、捕获并记录错误。
+* `CJobUtils`（job-base）：计算每日/多日定时任务的开始、结束时间。
+
+== 配置
+
+|===
+| 配置前缀 | 说明
+| +xxl.job.enabled+ | 总开关
+| +xxl.job.admin.*+ | 调度中心地址 / token / 超时
+| +xxl.job.executor.*+ | 执行器 appname / ip / port / logpath
+| +xxl.job.executor.log.*+ | 耗时打印、错误捕获开关
+|===
+
+== 注意
+
+* 任务处理器须实现 `ICTask`（或确保被代理），否则自动注入参数、耗时打印与错误记录的切面不生效。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-job-pom/README.md[ctool4j-job-pom README]

@@ -1,0 +1,23 @@
+= 使用：ctool4j-transaction（事务注解）
+
+坐标：+com.c332030:ctool4j-transaction+　｜　注解：`@CTransactional`（Spring `@Transactional` 的别名注解）
+
+* 默认 `rollbackFor = Exception.class`：**受检异常也回滚**，避免 Spring 默认只回滚运行时异常导致的「异常了但没回滚」。
+* 完整透传 Spring 事务属性（传播行为、隔离级别、只读），类级与方法级均可用。
+
+[source,java]
+----
+@CTransactional
+public void transfer(Long fromId, Long toId, BigDecimal amount) {
+    // 任何异常都回滚
+}
+
+@CTransactional(readOnly = true)
+public List<Order> queryList() { ... }
+----
+
+* 事务是否生效仍取决于调用方式（同类内部调用、非 Spring Bean 调用不生效）——这是 Spring 事务的通用约束，本注解不改变。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[ctool4j-transaction README]

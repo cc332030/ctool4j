@@ -1,0 +1,16 @@
+= 使用：ctool4j-mq-*（消息队列，未实现）
+
+坐标：+ctool4j-mq-base+、+ctool4j-rabbitmq+、+ctool4j-rocketmq+　｜　状态：**空占位模块（仅 pom，无源码）**
+
+|===
+| 子模块 | 规划能力
+| +ctool4j-mq-base+ | 消息体封装、发送/监听抽象
+| +ctool4j-rabbitmq+ | RabbitMQ 生产者/消费者封装
+| +ctool4j-rocketmq+ | RocketMQ 生产者/消费者封装
+|===
+
+当前**不要引入**：没有可用能力，引入只会占用依赖位。需要消息队列时先用上游框架自身能力。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-mq-pom/README.md[ctool4j-mq-pom README]

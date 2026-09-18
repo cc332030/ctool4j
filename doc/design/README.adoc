@@ -36,6 +36,10 @@
 | Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-cloud）
 | link:spring/ip.adoc[ip]、link:spring/real-class-name.adoc[真实业务类/类名/包名]、link:spring/authority-json.adoc[会话权限的 JSON 读写]、link:spring/spring-perf.adoc[性能实测]
 
+| link:web/[web]
+| Web MVC 通用能力（ctool4j-web）：全局异常、跨域、JWT/token、请求日志、traceId
+| link:web/unauthorized-401.adoc[未授权统一返回业务码 401]
+
 |===
 
 == 相关入口

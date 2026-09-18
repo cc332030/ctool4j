@@ -127,13 +127,9 @@
 | `ctool4j-spring` | Spring 基础设施 |
 | `spring-cloud-commons` | Spring Cloud 基础 |
 
-## 模块选择建议
+## 使用与配置（引用方）
 
-- 仅用 Spring 基础能力 → 引入 `ctool4j-spring`
-- 需要登录认证 → 追加 `ctool4j-spring-security`
-- 微服务场景 → 追加 `ctool4j-spring-cloud`（及 feign / nacos 等）
-
----
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/spring.adoc`](../../../doc/use/spring.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。
 
 ## 文档
 

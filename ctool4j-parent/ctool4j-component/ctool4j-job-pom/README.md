@@ -55,30 +55,6 @@
 | `CXxlJobExecutorLogConfig` | 配置 | 耗时打印 / 错误捕获开关（前缀 `xxl.job.executor.log`） |
 | `CXxlJobConfig` | 配置 | 总开关（前缀 `xxl.job`） |
 
-### 使用示例
-
-```java
-// 任务实现（ICTask 自代理，保证切面生效）
-@Component
-public class OrderJob implements ICTask {
-
-    @XxlJob("order-stat")
-    public void stat(String param) {
-        Map<String, String> params = CXxlJobUtils.parseJobParam(param);
-        // 业务处理
-    }
-}
-```
-
-### 配置项
-
-| 配置前缀 | 说明 |
-|----------|------|
-| `xxl.job.enabled` | 是否启用 xxl-job |
-| `xxl.job.admin.*` | 调度中心配置 |
-| `xxl.job.executor.*` | 执行器配置 |
-| `xxl.job.executor.log.*` | 日志行为开关 |
-
 ### 依赖
 
 | 依赖 | 说明 |
@@ -86,3 +62,7 @@ public class OrderJob implements ICTask {
 | `ctool4j-core` / `ctool4j-definition` | 工具与类型 |
 | `ctool4j-spring` | 切面、代理 |
 | `xxl-job-core` | xxl-job 客户端 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/job.adoc`](../../../doc/use/job.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

@@ -46,40 +46,6 @@
 | `CIdempotentException` | 异常 | 幂等冲突异常 |
 | `CRedisConfiguration` | 配置 | Redis 自动装配 |
 
-## 使用示例
-
-```java
-// 对象读写
-redisService.setValue("user:" + id, user, Duration.ofMinutes(30));
-User user = redisService.getValue("user:" + id, User.class);
-
-// 分布式锁
-lockService.tryLockThenRun("order:" + orderId, Duration.ofSeconds(10), () -> {
-    // 临界区
-});
-
-// 静态工具
-CLockUtils.tryLock("key", () -> { ... });
-
-// 限流：60 秒内每个用户最多 3 次
-@CRateLimit(id = "userId", count = 3, interval = 60)
-public Order createOrder(Long userId, OrderReq req) {
-    return orderService.create(req);
-}
-
-// 幂等：同一 userId 同一时刻仅允许一次下单（防重复提交/并发穿透）
-@CIdempotent(group = Order.class, id = "userId")
-public Order submitOrder(Long userId, OrderReq req) {
-    return orderService.submit(req);
-}
-```
-
-## 配置项
-
-| 配置前缀 | 说明 |
-|----------|------|
-| `spring.data.redis.*` | Spring Data Redis 标准配置 |
-
 ## 依赖
 
 | 依赖 | 说明 |
@@ -87,3 +53,7 @@ public Order submitOrder(Long userId, OrderReq req) {
 | `ctool4j-spring` | Spring 基础设施 |
 | `spring-boot-starter-data-redis` | Redis 客户端 |
 | `redisson-spring-boot-starter` | Redisson 分布式锁 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/redis.adoc`](../../../doc/use/redis.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。
