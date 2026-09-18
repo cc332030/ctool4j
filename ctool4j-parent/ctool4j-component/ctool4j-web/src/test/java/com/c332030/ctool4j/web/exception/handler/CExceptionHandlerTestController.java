@@ -13,6 +13,8 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -45,7 +47,7 @@ import java.io.IOException;
  *
  * @author c332030
  * @since 2026/9/18
- * @version 1.1
+ * @version 1.3
  */
 @RestController
 public class CExceptionHandlerTestController {
@@ -331,6 +333,36 @@ public class CExceptionHandlerTestController {
     }
 
     /**
+     * 文件上传超限（multipart 超限异常，上限 1MB 便于断言）
+     *
+     * @return 不返回
+     */
+    @GetMapping("/c-exception-handler/upload-size-exceeded")
+    public String uploadSizeExceeded() {
+        throw new MaxUploadSizeExceededException(1048576L);
+    }
+
+    /**
+     * multipart 解析失败（非超限）
+     *
+     * @return 不返回
+     */
+    @GetMapping("/c-exception-handler/multipart-error")
+    public String multipartError() {
+        throw new MultipartException("multipart 解析失败");
+    }
+
+    /**
+     * 上传超限（容器私有类型名，模拟 Tomcat 裸抛、未经 Spring 包装）
+     *
+     * @return 不返回
+     */
+    @GetMapping("/c-exception-handler/upload-size-exceeded-by-name")
+    public String uploadSizeExceededByName() {
+        throw new FileSizeLimitExceededException("The field file exceeds its maximum permitted size of 1048576 bytes.");
+    }
+
+    /**
      * 构造带错误码的业务错误（错误码区别于默认 500）
      *
      * @return 统一返回体错误码载体
@@ -527,6 +559,22 @@ public class CExceptionHandlerTestController {
          * @param message 消息
          */
         public CTestRuntimeException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * 模拟容器（Tomcat）的上传超限异常：简单类名与容器私有类型一致，
+     * 用于验证"按类名识别"（主代码不引用该类，运行环境缺失该类也不报错）
+     */
+    public static class FileSizeLimitExceededException extends RuntimeException {
+
+        /**
+         * 构造
+         *
+         * @param message 消息
+         */
+        public FileSizeLimitExceededException(String message) {
             super(message);
         }
     }

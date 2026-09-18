@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * <ul>
  *   <li>兜底优先级：{@code @Order(CExceptionHandlerOrder.THROWABLE_FALLBACK)}（兜底区最后一档，见 {@code CExceptionHandlerOrder}）——Spring 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，
  *   故内置具体类型处理器（{@code @Order(CExceptionHandlerOrder.CONCRETE)}）与 {@code CException} 兜底先被咨询，本处理器只在无其他匹配时兜底。</li>
+ *   <li>上传超限的容器私有异常（如 Tomcat 裸抛的 {@code FileSizeLimitExceededException}）：按<b>简单类名</b>识别后委托 {@code CFileUploadExceptionHandler}，返回业务码 413 + 明确提示。</li>
  *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(Throwable.class)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
  *   <li>返回 {@code CStrResult&lt;Void&gt;} 错误结果（{@code CStrResult.error(...)}）。</li>
  *   <li>记录请求 URI 与异常堆栈（log），保证问题可追溯。</li>
@@ -52,7 +53,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.THROWABLE_FALLBACK)
@@ -71,6 +72,13 @@ public class CThrowableHandler {
      */
     @ExceptionHandler(Throwable.class)
     public CStrResult<Void> handle(Throwable e) {
+
+        // 上传超限的容器私有异常（Tomcat 等裸抛，如 FileSizeLimitExceededException）：按简单类名识别、委托上传处理器，
+        // 给出业务码 413 + 明确提示；纯字符串比较，缺失该类也不报错
+        if (CFileUploadExceptionHandler.isUploadSizeExceeded(e)) {
+            log.debug("handle upload size exceeded by class name，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
+            return CFileUploadExceptionHandler.uploadSizeExceededResult(e);
+        }
 
         log.error("handle Throwable，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
         return CStrResult.error("未知异常");

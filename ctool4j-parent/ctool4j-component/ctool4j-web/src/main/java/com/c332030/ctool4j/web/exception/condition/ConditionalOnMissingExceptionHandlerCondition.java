@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * <h2>能力目录</h2>
  * <p>核心方法 {@code matches(ConditionContext, AnnotatedTypeMetadata)}：</p>
  * <ul>
- *   <li>从注解元数据读取要检查的异常类型 {@code value()}</li>
+ *   <li>从注解元数据读取要检查的异常类型：{@code valueName()}（全限定类名，字符串比较）优先，其次 {@code value()}</li>
  *   <li>取容器中所有 {@code ControllerAdvice} 标注的 bean</li>
  *   <li>无任何 ControllerAdvice 时返回 true（启用默认 Handler）</li>
  *   <li>遍历各 bean 方法，若任一方法用 {@code @ExceptionHandler} 处理了该异常类型，返回 false（禁用默认 Handler）</li>
@@ -64,11 +64,17 @@ import java.util.stream.Collectors;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>用反射遍历 bean 方法，性能开销可接受（仅 Spring 启动装配时执行一次）。</li>
+ *   <li>按类名比较时只比类型名、不比继承关系（与按类型比较一致：{@code @ExceptionHandler} 声明的是具体类型）。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>反射遍历</b></p>
  * <ul>
  *   <li>用 {@code CReflectUtils.getMethods} 获取 bean 方法，检查 {@code @ExceptionHandler} 注解的 {@code value()} 是否包含目标异常类型。</li>
+ * </ul>
+ * <p><b>类名匹配（valueName）</b></p>
+ * <ul>
+ *   <li>{@code valueName} 非空时只取类名、<b>不解析目标类</b>，与各 advice 的 {@code @ExceptionHandler} 声明类型名比较——
+ *   使容器私有/可选依赖的类型（如 Tomcat 的 {@code ClientAbortException}）在缺失该类的环境也能完成条件判断。</li>
  * </ul>
  * <p><b>空安全</b></p>
  * <ul>
@@ -76,11 +82,16 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @AllArgsConstructor
 public class ConditionalOnMissingExceptionHandlerCondition implements Condition {
+
+    /**
+     * 注解属性名：待检查异常类型的全限定类名
+     */
+    private static final String VALUE_NAME = "valueName";
 
     /**
      * 匹配条件：无任何 ControllerAdvice 或均未处理该异常类型时返回 true
@@ -93,13 +104,17 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
         val annotationType = ConditionalOnMissingExceptionHandler.class;
-        Class<Throwable> throwableClass = CAnnotationUtils.getAnnotationValue(
-            metadata,
-            annotationType
-        );
-        Assert.notNull(throwableClass, () -> "注解不存在：" + annotationType.getName());
 
-        val throwableClassName = throwableClass.getSimpleName();
+        // 优先按类名匹配（valueName）：容器私有/可选依赖的异常类型（如 Tomcat 的 ClientAbortException）
+        // 在缺失该类的环境无法解析为 Class，按字符串比较可避免类加载失败
+        String valueName = CAnnotationUtils.getAnnotationAttributeValue(metadata, annotationType, VALUE_NAME);
+        val byName = null != valueName && !valueName.isEmpty();
+        Class<Throwable> throwableClass = byName ? null : CAnnotationUtils.getAnnotationValue(metadata, annotationType);
+        if (!byName) {
+            Assert.notNull(throwableClass, () -> "注解不存在：" + annotationType.getName());
+        }
+
+        val throwableClassName = byName ? valueName : throwableClass.getSimpleName();
         log.debug("ExceptionHandlerCondition matches {}", throwableClassName);
 
         val beanFactory = context.getBeanFactory();
@@ -131,7 +146,11 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
                     .map(Arrays::asList)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
-                if(annotationValues.contains(throwableClass)) {
+                // valueName 按类名比较、value 按类型比较
+                val matched = byName
+                    ? annotationValues.stream().map(Class::getName).anyMatch(valueName::equals)
+                    : annotationValues.contains(throwableClass);
+                if(matched) {
                     log.debug("disable default @ExceptionHandler for {} because {}.{} defined",
                         throwableClassName, beanClass.getSimpleName(), method.getName());
                     return false;

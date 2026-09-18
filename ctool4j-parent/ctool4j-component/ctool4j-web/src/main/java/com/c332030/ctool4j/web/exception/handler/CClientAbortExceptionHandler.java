@@ -4,6 +4,7 @@ import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
 import org.apache.catalina.connector.ClientAbortException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *
  * <h2>能力目录</h2>
  * <ul>
- *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(ClientAbortException.class)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
+ *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(valueName = ...)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
+ *   <li>通过 {@code @ConditionalOnClass(name = ...)} 控制：仅在存在 Tomcat 的 {@code ClientAbortException} 时装配，Jetty/Undertow 下自动跳过。</li>
  *   <li>返回 void（直接结束响应，不写响应体）。</li>
  *   <li>记录请求 URI 与异常堆栈（log），保证问题可追溯。</li>
  * </ul>
@@ -45,17 +47,25 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li>依赖 {@code CStrResult} 响应结构，与项目统一响应格式耦合。</li>
+ *   <li>仅处理 Tomcat（含 Spring Boot 内嵌 Tomcat）下的客户端中断：该异常为容器专有类型，Jetty/Undertow 下本处理器不装配。</li>
+ *   <li>注解只引用类名字符串（{@code @ConditionalOnClass(name)} + {@code valueName}）：不解析容器私有类，
+ *   避免在缺失该类的环境读取注解属性时类加载失败；方法签名仍声明该类型，但被条件排除时不会被解析。</li>
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
 @RestControllerAdvice
-@ConditionalOnMissingExceptionHandler(ClientAbortException.class)
+@ConditionalOnClass(name = CClientAbortExceptionHandler.CLIENT_ABORT_EXCEPTION_CLASS_NAME)
+@ConditionalOnMissingExceptionHandler(valueName = CClientAbortExceptionHandler.CLIENT_ABORT_EXCEPTION_CLASS_NAME)
 public class CClientAbortExceptionHandler {
+
+    /**
+     * 客户端中断异常的全限定类名（Tomcat 专有类型；注解按类名引用，避免无该类环境解析失败）
+     */
+    public static final String CLIENT_ABORT_EXCEPTION_CLASS_NAME = "org.apache.catalina.connector.ClientAbortException";
 
     /**
      * 处理客户端连接中断异常，仅记录日志

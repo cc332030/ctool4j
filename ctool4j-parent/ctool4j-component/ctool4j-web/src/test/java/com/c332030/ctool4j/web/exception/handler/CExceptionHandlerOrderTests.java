@@ -32,7 +32,7 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/9/18
- * @version 1.0
+ * @version 1.1
  * @see CExceptionHandlerOrder
  */
 public class CExceptionHandlerOrderTests {
@@ -43,6 +43,7 @@ public class CExceptionHandlerOrderTests {
     private static final List<Class<?>> CONCRETE_HANDLERS = Arrays.asList(
         CCBusinessExceptionHandler.class,
         CClientAbortExceptionHandler.class,
+        CFileUploadExceptionHandler.class,
         CHttpMessageNotReadableExceptionHandler.class,
         CHttpMessageNotWritableExceptionHandler.class,
         CHttpRequestMethodNotSupportedExceptionHandler.class,
