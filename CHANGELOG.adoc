@@ -2,7 +2,7 @@
 
 [IMPORTANT]
 ====
-**登记时机：仅在用户明确要求时追加条目**——日常改动不写本文件（项目口径，见 link:agent/AGENTS-PROJECT.MD[agent/AGENTS-PROJECT.MD]「与远端规范的差异（项目覆盖）」）。
+**登记时机：仅在用户明确要求时追加条目**——日常改动不写本文件（项目口径，见 link:agent/AGENTS-PROJECT.MD[agent/AGENTS-PROJECT.MD]）。
 ====
 
 本文件是 ctool4j 的变更日志，**按版本分组、版本内按模块与变更类型分类**：版本号即发布 tag（CalVer，`<主>.<次>.<yyyyMMdd>`），日期取 tag 创建日（ISO 8601）。
