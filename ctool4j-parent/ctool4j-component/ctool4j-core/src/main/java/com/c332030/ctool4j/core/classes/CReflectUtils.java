@@ -2,6 +2,7 @@ package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.c332030.ctool4j.core.cache.impl.CClassValue;
 import com.c332030.ctool4j.core.util.CArrUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -38,6 +39,8 @@ import java.util.stream.Collectors;
  *   <li>方法：{@code getMethods} / {@code getAllMethods} / {@code getAllMethodsCached} / {@code getAllMethodsByName}</li>
  *   <li>字段：{@code getAllFieldMap} / {@code getInstanceFieldMap} / {@code getField} / {@code getFieldMap}</li>
  *   <li>读写：{@code getValue} / {@code setValue}（按字段或字段名，MethodHandle 快速路径）</li>
+ *   <li>调用：{@code invoke} / {@code invokeIgnoreNoMethod} / {@code invokeMustHaveMethod}（按方法名调用，MethodHandle）</li>
+ *   <li>填充：{@code fillValues}（按字段值 Map 创建/填充对象，字段写入经 {@code setValue}）</li>
  *   <li>方法句柄：{@code getGetterHandleMap} / {@code getSetterHandleMap}</li>
  *   <li>注解：{@code getAnnotationCached} / {@code getFieldName}</li>
  *   <li>判断：{@code isStatic} / {@code isFinal}</li>
@@ -54,17 +57,25 @@ import java.util.stream.Collectors;
  *     <td>抛 IllegalArgumentException</td>
  *   </tr>
  *   <tr>
- *     <td>final 字段 setValue</td>
- *     <td>回退 Field.set</td>
+ *     <td>final 字段 setValue / fillValues</td>
+ *     <td>回退 Field.set（handle 缓存排除 final 字段）</td>
  *   </tr>
  *   <tr>
  *     <td>静态字段读写</td>
  *     <td>回退 Field 原生路径</td>
  *   </tr>
+ *   <tr>
+ *     <td>调用不存在的方法（{@code ignoreNoMethod} 为 false）</td>
+ *     <td>抛 IllegalStateException</td>
+ *   </tr>
+ *   <tr>
+ *     <td>实参类型不匹配</td>
+ *     <td>抛 ClassCastException（原生反射为 IllegalArgumentException），见「已知限制与取舍」</td>
+ *   </tr>
  * </table>
  * <h2>适用范围</h2>
  * <ul>
- *   <li>反射获取字段/方法/构造器、字段快速读写、注解查询。</li>
+ *   <li>反射获取字段/方法/构造器、字段快速读写、方法/构造器调用、注解查询。</li>
  * </ul>
  * <h2>不适用与边界场景</h2>
  * <ul>
@@ -73,6 +84,8 @@ import java.util.stream.Collectors;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>实例字段走 MethodHandle 快速路径提升性能，final/静态字段回退保证兼容。</li>
+ *   <li>实参类型不匹配时抛 ClassCastException（原生 Field.set / Method.invoke 抛 IllegalArgumentException）：
+ *   句柄调用按签名做类型适配，不额外做类型校验，为性能取舍；调用方需自行保证实参类型。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>缓存</b></p>
@@ -85,9 +98,21 @@ import java.util.stream.Collectors;
  *   <li>final 字段 setValue 回退 Field.set（handle 缓存排除 final 字段）。</li>
  *   <li>父类声明字段可经子类实例读写；按字段名读写时字段不存在快速失败（抛 IllegalArgumentException）。</li>
  * </ul>
+ * <p><b>方法/构造器调用（invoke/newInstance/fillValues）</b></p>
+ * <ul>
+ *   <li>方法调用与构造器实例化统一经 {@link CMethodHandleUtils} 的方法/构造器句柄做变长实参调用
+ *   （不再使用 {@code Method#invoke}、{@code Constructor#newInstance}）；句柄生成时统一 {@code setAccessible}，
+ *   私有成员亦可直接调用。</li>
+ *   <li>实例方法句柄以接收者为首参（{@code bindTo} 绑定接收者），静态方法句柄不带接收者。</li>
+ *   <li>句柄获取按调用频次选择：多次访问用缓存版 {@code getHandle}（弱 key 缓存，命中免 unreflect）；
+ *   一次性（句柄由调用方长期持有）用生成版 {@code toHandle}。判定规则见 {@link CMethodHandleUtils} 「API 选用」。</li>
+ *   <li>{@code fillValues} 的字段写入统一委托 {@link #setValue(Object, Field, Object, boolean)}，
+ *   与单字段写入同一路径（非 final 走 setter 句柄，final 按既有约定回退）。</li>
+ * </ul>
  *
  * @since 2024/4/2
- * @version 1.0
+ * @version 1.1
+ * @see "doc/design/core/method-handle.adoc"
  */
 @CustomLog
 @UtilityClass
@@ -259,6 +284,9 @@ public class CReflectUtils {
 
     /**
      * 无参构造器 MethodHandle 缓存（按类）
+     * <p>句柄经 {@code getHandle}（缓存版）获取：该无参构造器可能已由其他调用点
+     * （如 {@link #newInstance(Constructor, Object...)}）生成并缓存同一句柄，命中即共享、免去重复 unreflect；
+     * 本处按类只计算一次，弱 key 缓存查找不构成重复开销</p>
      */
     private static final CClassValue<MethodHandle> NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE =
             CClassValue.of(type -> {
@@ -271,15 +299,22 @@ public class CReflectUtils {
 
     /**
      * 通过构造器实例化对象
+     * <p>经 {@link CMethodHandleUtils} 的构造器方法句柄做变长实参调用（等价于按实参反射调用），
+     * 不使用 {@code Constructor#newInstance}；句柄生成时统一 {@code setAccessible}，私有构造器亦可实例化</p>
      *
      * @param constructor 构造器
-     * @param args        实参
+     * @param args        实参（为 null 视为无实参）
      * @param <T>         类型
      * @return 实例
      */
     @SneakyThrows
     public <T> T newInstance(Constructor<T> constructor, Object... args) {
-        return constructor.newInstance(args);
+
+        // 多次访问：同一构造器会被反复实例化，句柄按 Constructor 弱 key 缓存（命中即免去重复 unreflect）
+        val handle = CMethodHandleUtils.getHandle(constructor);
+        val invokerArgs = ObjectUtil.defaultIfNull(args, CArrUtils.EMPTY_OBJECT_ARRAY);
+        return CObjUtils.anyType(handle.invokeWithArguments(invokerArgs));
+
     }
 
     /**
@@ -601,6 +636,8 @@ public class CReflectUtils {
 
     /**
      * 按字段值 Map 填充对象
+     * <p>字段写入统一委托 {@link #setValue(Object, Field, Object, boolean)}（非 final 字段走缓存的 setter 句柄快速路径，
+     * final 字段按既有约定回退），不再直接 {@code Field#set}；字段名在实例字段中不存在时跳过、不报错</p>
      *
      * @param object        对象
      * @param fieldValueMap 字段值 Map
@@ -622,7 +659,8 @@ public class CReflectUtils {
             if (null == field) {
                 continue;
             }
-            field.set(object, value);
+            // 经 setValue 统一写入：非 final 字段走缓存的 setter 句柄快速路径；字段来自实例字段缓存，已 setAccessible 故传 true
+            setValue(object, field, value, true);
         }
 
     }
@@ -675,13 +713,17 @@ public class CReflectUtils {
 
     /**
      * 调用对象方法
+     * <p>经 {@link CMethodHandleUtils} 的方法句柄做变长实参调用（等价于按实参反射调用），
+     * 不使用 {@code Method#invoke}；实例方法句柄以接收者为首参（{@code bindTo} 绑定），静态方法句柄不带接收者</p>
      *
      * @param value          对象
      * @param methodName     方法名
      * @param ignoreNoMethod 方法不存在时是否忽略
-     * @param args           实参
+     * @param args           实参（为 null 视为无实参）
      * @param <T>            返回值类型
      * @return 方法返回值
+     * @throws IllegalStateException 方法不存在且 {@code ignoreNoMethod} 为 false 时抛出
+     * @throws ClassCastException    实参类型与形参不匹配时抛出（原生反射为 IllegalArgumentException，见「已知限制与取舍」）
      */
     @SneakyThrows
     public <T> T invoke(Object value, String methodName, boolean ignoreNoMethod, Object... args) {
@@ -697,7 +739,16 @@ public class CReflectUtils {
             throw new IllegalStateException("can't find method: " + methodName + " in class: " + clazz);
         }
 
-        return CObjUtils.anyType(method.invoke(value, args));
+        // 多次访问：按方法名反复调用（业务侧循环/逐字段处理），句柄按 Method 弱 key 缓存；
+        // 实例方法句柄须绑定接收者，bindTo 每次新建——接收者逐次不同，绑定句柄不可缓存（缓存会持有接收者引用）
+        val handle = CMethodHandleUtils.getHandle(method);
+        var invoker = handle;
+        if (!isStatic(method)) {
+            invoker = handle.bindTo(value);
+        }
+        val invokerArgs = ObjectUtil.defaultIfNull(args, CArrUtils.EMPTY_OBJECT_ARRAY);
+        return CObjUtils.anyType(invoker.invokeWithArguments(invokerArgs));
+
     }
 
     /**

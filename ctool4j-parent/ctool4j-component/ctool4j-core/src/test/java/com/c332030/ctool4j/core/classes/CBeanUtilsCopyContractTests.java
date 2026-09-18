@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
-import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.util.CList;
 import lombok.Data;
 import lombok.val;

@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.classes;
 
-import com.c332030.ctool4j.core.classes.CBeanUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -9,32 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -691,8 +665,8 @@ class CBeanUtilsDeepCopyTests {
     void containerWriteBack_compatibleKept() {
 
         val source = new CompatibleSourceHolder();
-        source.setList(new LinkedList<>(Arrays.asList("a")));
-        source.setSet(new LinkedHashSet<>(Arrays.asList("b")));
+        source.setList(new LinkedList<>(Collections.singletonList("a")));
+        source.setSet(new LinkedHashSet<>(Collections.singletonList("b")));
         source.setQueue(new ArrayDeque<>(Collections.singletonList("q")));
         source.setSortedSet(new TreeSet<>(Comparator.reverseOrder()));
         source.getSortedSet().addAll(Arrays.asList("x", "y"));

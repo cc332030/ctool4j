@@ -79,7 +79,9 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
      */
     public void save(@NonNull String token, SESSION session) {
 
-        log.info("save session, token: {}, session: {}", token, session);
+        log.info("save session, token: {}, session: {}, expire: {}",
+            token, session, sessionConfig.getExpire()
+        );
         redisService.setValue(getKey(token), session, sessionConfig.getExpire());
 
     }

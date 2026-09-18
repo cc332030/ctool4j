@@ -16,85 +16,51 @@ import java.lang.reflect.Method;
  * <p>
  * Description: CMethodHandleUtils
  * </p>
- * <p>MethodHandle 的创建、缓存与统一 Object 签名适配工具类，功能设计与用例设计见设计文档。</p>
+ * <p>MethodHandle 的创建、缓存与统一 Object 签名适配工具类；跨方法的设计内容见设计文档，用例设计见 {@code CMethodHandleUtilsTests} 的用例目录。</p>
  *
+ * <h2>能力目录</h2>
+ * <ul>
+ *   <li>签名常量：{@code GETTER_HANDLE_TYPE} / {@code SETTER_HANDLE_TYPE}（统一 Object 签名，原始类型由 asType 适配器自动装箱/拆箱）</li>
+ *   <li>生成版（不缓存）：{@code toGetterHandle} / {@code toSetterHandle} / {@code toHandle(Method)} / {@code toHandle(Constructor)} / {@code toHandleSpecial}</li>
+ *   <li>缓存版（弱 key）：{@code getGetterHandle} / {@code getSetterHandle} / {@code getGetterHandleAsType} / {@code getSetterHandleAsType} / {@code getHandle(Method)} / {@code getHandle(Constructor)}</li>
+ *   <li>选用判定：见下「API 选用（一次性 / 多次访问）」</li>
+ * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
  *   <caption>兜底行为</caption>
  *   <tr>
  *     <th>场景</th>
- *     <th>兜底</th>
- *     <th>触发条件</th>
- *     <th>边界</th>
+ *     <th>兜底行为</th>
  *   </tr>
- * </table>
- * <p>| 类无无参构造器 | CAssert.notNull 快速失败 | newInstance(Class) 且目标类无无参构造器 | - | 静态/final 字段 | getValue/setValue 回退 Field.get/set | 非静态字段无对应 handle | -</p>
- * <table border="1">
- *   <caption>兜底行为</caption>
  *   <tr>
+ *     <td>取 final 字段的 setter 句柄</td>
+ *     <td>不兜底：JDK 禁止 final 字段 unreflectSetter，直接抛 IllegalAccessException（调用方须传非 final 字段）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>原始类型字段</td>
+ *     <td>asType 适配器自动装箱/拆箱</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
  * <ul>
- *   <li>适用：MethodHandle 的创建、缓存与统一签名（{@code CMethodHandleUtils}）、按类 handle map 缓存（{@code CReflectUtils}）、MethodHandle → Lambda 转换（{@code CLambdaUtils}）</li>
- *   <li>不适用：反射元数据查询（字段/方法/构造器/注解）仍归 {@code CReflectUtils}；Lambda 业务语义（非 MethodHandle 场景）不在 {@code CLambdaUtils}</li>
- *   <li>已知取舍：{@code getGetterHandle}/{@code getGetterHandleAsType} 并存；统一签名常量收敛至 {@code CMethodHandleUtils}（原 {@code CReflectUtils}/{@code CBeanUtils} 重复定义已消除）</li>
+ *   <li>适用：MethodHandle 的创建、缓存与统一签名适配。</li>
+ *   <li>不适用：按类 handle map 缓存归 {@code CReflectUtils}，MethodHandle → Lambda 转换归 {@code CLambdaUtils}（职责分布与不收敛原因见设计文档）。</li>
  * </ul>
- * <h2>设计要点</h2>
- * <p><b>原方案</b></p>
- * <p>曾将上述 MethodHandle 相关代码全部收敛到 {@code CMethodHandleUtils}，并删除 {@code CLambdaUtils}：</p>
+ * <h2>API 选用（一次性 / 多次访问）</h2>
  * <ul>
- *   <li>从 {@code CReflectUtils} 迁入：统一签名常量、按类缓存的 handle map 及其查询方法、无参构造器 handle 缓存</li>
- *   <li>从 {@code CLambdaUtils} 整体迁入：{@code LOOKUP}/{@code getLookup}、{@code getGetterMethodHandle}/{@code getSetterMethodHandle}、{@code getFieldGetLambda}/{@code getFieldSetLambda}</li>
- *   <li>删除 {@code CBeanUtils} 重复常量，改引 {@code CMethodHandleUtils} 常量</li>
- *   <li>删除 {@code CLambdaUtils} 类，测试并入 {@code CMethodHandleUtilsTests}</li>
+ *   <li>判定维度：获取语句的<b>执行频次</b>与句柄的<b>持有方式</b>，两者共同决定用生成版还是缓存版。</li>
+ *   <li><b>一次性</b>（语句只执行一次，句柄由调用方长期持有／存入自身缓存与闭包）：用 {@code toXxxHandle}／{@code toHandle}，
+ *   不进句柄缓存——缓存对唯一持有者无复用价值，条目却随 Member 存活而常驻（弱键只在类卸载时回收）。</li>
+ *   <li><b>多次访问</b>（同一 Field/Method/Constructor 会被反复获取，且句柄不被调用方持有）：用 {@code getXxxHandle}／{@code getHandle}，
+ *   命中即免去重复 unreflect。</li>
+ *   <li>频次不可知（对外公共 API，调用方任意）：默认用缓存版，不做无据的优化假设。</li>
+ *   <li>注意：{@code getGetterHandleAsType}／{@code getSetterHandleAsType} 只缓存 unreflect 结果，{@code asType} 适配句柄每次调用都会新建，
+ *   故一次性场景用缓存版无收益（{@code toXxxHandle(field).asType(...)} 等价且不占缓存）。</li>
  * </ul>
- * <p><b>撤销原因</b></p>
- * <p>收敛后 {@code CMethodHandleUtils} 承载职责过多（handle 生成/缓存、签名适配、按类 map 缓存、构造器缓存、Lookup、Lambda 转换）， 按类缓存的 handle map 与 Lambda 转换能力并不适合全部塞入 MethodHandle 工具类： 职责边界反而更模糊。决定不使用该类收敛方案，整体还原到原分布。</p>
- * <p><b>还原方式</b></p>
- * <ul>
- *   <li>{@code CMethodHandleUtils}：只保留 handle 生成与缓存（toXxxHandle/getXxxHandle），移除迁移进来的常量、按类缓存、Lookup 与 Lambda 转换</li>
- *   <li>{@code CReflectUtils}：恢复统一签名常量、按类 handle map 缓存与查询方法、无参构造器 handle 缓存</li>
- *   <li>{@code CLambdaUtils}：恢复原类（Lookup、按类权限方法句柄、Lambda 转换），原测试一并还原</li>
- *   <li>{@code CBeanUtils}：恢复重复常量（与 {@code CReflectUtils} 各自持有，属历史现状）</li>
- *   <li>行为约定：还原后各 API 签名、语义、缓存键与缓存策略与收敛前完全一致</li>
- * </ul>
- * <p><b>CMethodHandleUtils</b></p>
- * <p>handle 生成与缓存（统一入口）：</p>
- * <ul>
- *   <li>{@code GETTER_HANDLE_TYPE}/{@code SETTER_HANDLE_TYPE}：统一 Object 签名（运行期 invokeExact 无签名适配开销；原始类型字段由 asType 适配器自动装箱/拆箱），自 {@code CReflectUtils}/{@code CBeanUtils} 收敛（消除两处重复定义）</li>
- *   <li>{@code toGetterHandle(Field)} / {@code getGetterHandle(Field)}：getter handle 生成 + 按 Field 弱 key 缓存（原始签名）</li>
- *   <li>{@code toSetterHandle(Field)} / {@code getSetterHandle(Field)}：setter handle 生成 + 缓存（原始签名）</li>
- *   <li>{@code toHandle(Method)} / {@code getHandle(Method)}：方法 handle 生成 + 缓存</li>
- *   <li>{@code toHandle(Constructor)} / {@code getHandle(Constructor)}：构造器 handle 生成 + 缓存</li>
- * </ul>
- * <p><b>CReflectUtils</b></p>
- * <ul>
- *   <li>{@code GETTER_HANDLE_MAP_CLASS_VALUE}/{@code SETTER_HANDLE_MAP_CLASS_VALUE}：按类缓存的实例字段（非静态，setter 另排除 final）handle map，生成函数引用 {@code CMethodHandleUtils} 的 asType 版本（统一 Object 签名，供 invokeExact 快速路径直接调用）</li>
- *   <li>{@code getGetterHandleMap(Class)}/{@code getSetterHandleMap(Class)}：查询入口，供 {@code getValue}/{@code setValue} 快速路径使用（handle 不存在时回退 {@code Field.get/set}）</li>
- *   <li>{@code NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE}：按类缓存无参构造器 handle，供 {@code newInstance(Class)} 快速路径</li>
- * </ul>
- * <p><b>收敛调整（MethodHandle/MethodType 相关内容归入 CMethodHandleUtils）</b></p>
- * <ul>
- *   <li>返回值为 {@code MethodHandle} 的方法统一归 {@code CMethodHandleUtils}：</li>
- *   <li>{@code getGetterHandleAsType(Field)}/{@code getSetterHandleAsType(Field)} 自 {@code CReflectUtils} 私有</li>
- *   <li>{@code getGetterHandle(Field)}/{@code getSetterHandle(Field)} 迁入（合并为公共方法 + 复用现有缓存，消除重复实现）。</li>
- *   <li>{@code MethodType} 常量（{@code GETTER_HANDLE_TYPE}/{@code SETTER_HANDLE_TYPE}）统一归 {@code CMethodHandleUtils}：</li>
- *   <li>消除 {@code CReflectUtils}/{@code CBeanUtils} 的重复定义，两处改为引用公共常量。</li>
- *   <li>项目内无返回 {@code MethodType} 的方法，故仅收敛常量。</li>
- *   <li>Lookup 链路删除：原 {@code CLambdaUtils.getLookup(Class)}（LOOKUP.in(clazz) 提升权限）仅服务于</li>
- *   <li>{@code getGetterMethodHandle}/{@code getSetterMethodHandle}，而后者仅服务于 {@code getFieldGetLambda}/{@code getFieldSetLambda}，</li>
- *   <li>形成同包互引闭环且无外部价值。简化后 {@code getFieldGetLambda}/{@code getFieldSetLambda} 直接引用</li>
- *   <li>asType 方法（setAccessible 语义），{@code LOOKUP}/{@code getLookup}/{@code getGetterMethodHandle}/{@code getSetterMethodHandle} 全部删除。</li>
- * </ul>
- * <p><b>CLambdaUtils</b></p>
- * <ul>
- *   <li>{@code getFieldGetLambda(Field)}/{@code getFieldSetLambda(Field)}：MethodHandle → {@code CFunction}/{@code CBiConsumer} 转换（委托 {@code MethodHandle.invoke} 调用，JDK 8 的 LambdaMetafactory 不支持 getField/putField 类方法句柄），内部引用 {@code CMethodHandleUtils} 的 asType 方法（setAccessible 语义，不受跨包访问级别限制，故无需 clazz 参数）</li>
- * </ul>
- * <p><b>语义区分</b></p>
  *
  * @since 2026/6/17
  * @version 1.0
+ * @see "doc/design/core/method-handle.adoc"
  */
 @UtilityClass
 public class CMethodHandleUtils {

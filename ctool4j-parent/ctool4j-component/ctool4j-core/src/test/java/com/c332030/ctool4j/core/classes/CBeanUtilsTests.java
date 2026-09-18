@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
-import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.test.definition.model.UserDto;
@@ -250,7 +249,7 @@ import java.math.BigDecimal;
  * <ul>
  *   <li>5.3.1 newInstance 正常与无参构造器缺失（newInstanceCompatibility，见 {@code CBeanUtilsCompatibilityTests}）</li>
  * </ul>
- * <h2>性能基准（BenchmarkTests，独立于单元测试）</h2>
+ * <h2>性能基准（PerfTests，独立于单元测试）</h2>
  * <ul>
  *   <li>6.1 copy/toMap 各入口与手工基线、cglib/Spring/hutool/Jackson 对比（预热 + 多轮计时），报告由基准运行器写出；
  *   同路径对比见 {@code CBeanUtilsPerfTests}（6.1 简单 copy / 6.2 深拷贝按类型 / 6.3 对象转 Map）</li>

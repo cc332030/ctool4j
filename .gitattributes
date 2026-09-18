@@ -1,3 +1,25 @@
+# 行尾基准（依据 specs/general/encoding.adoc「换行符」）：仓库内容一律 LF，例外按解释器要求落盘（见下方）
+* text eol=lf
+
+# 二进制：禁止任何行尾/编码转换
+*.jar binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.xls binary
+*.xlsx binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.jks binary
+*.keystore binary
+*.p12 binary
 
 *.cmd           text working-tree-encoding=GBK eol=crlf
 *.bat           text working-tree-encoding=GBK eol=crlf
