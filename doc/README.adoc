@@ -28,7 +28,7 @@
 | 跨类的功能级设计（方案取舍、兜底、已知限制） | link:design/[doc/design/<模块>/]
 | **模块间依赖关系（全项目唯一视图）** | link:dependency.adoc[doc/dependency.adoc]
 | **依赖升级兼容性 / 已知问题登记（全项目唯一视图）** | link:compatibility.adoc[doc/compatibility.adoc]
-| 全部变更记录（时间倒序） | link:../CHANGELOG.adoc[CHANGELOG.adoc]
+| 全部变更记录（按版本分组、版本内分类） | link:../CHANGELOG.adoc[CHANGELOG.adoc]
 | 待办清单 | link:../TODO.adoc[TODO.adoc]
 | 项目规范入口 | link:../AGENTS.md[AGENTS.md]（引用远端统一规范 + link:../agent/AGENTS-PROJECT.MD[项目特有规范]）
 | **使用文档（面向引用本库的项目及其 AI）** | link:use/README.adoc[doc/use/]（整体开放为静态服务，与开发文档隔离）
@@ -49,7 +49,7 @@
 
 * *字段说明*：如无特别说明，文档中的模块名即 Maven 模块目录名（+ctool4j-xxx+）。
 * *依赖落点*：模块间增删依赖须在同一提交内同步更新 link:dependency.adoc[dependency.adoc]。
-* *版本与变更*：源文件版本在各源码 javadoc 的 +@version+ 中维护；全项目变更记录统一在 link:../CHANGELOG.adoc[CHANGELOG.adoc]。
+* *版本与变更*：源文件版本在各源码 javadoc 的 +@version+ 中维护；全项目变更记录统一在 link:../CHANGELOG.adoc[CHANGELOG.adoc]（按发布 tag 分组，条目格式见 link:../agent/AGENTS-PROJECT.MD[项目特有规范]「变更日志的组织与条目形态」）。
 
 == 相关入口
 

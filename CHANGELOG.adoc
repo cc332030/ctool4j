@@ -2,46 +2,283 @@
 
 [IMPORTANT]
 ====
-**登记时机：仅在用户明确要求时追加条目**——日常改动不写本文件（项目口径，见 `agent/AGENTS-PROJECT.MD`「与远端规范的差异（项目覆盖）」）。
+**登记时机：仅在用户明确要求时追加条目**——日常改动不写本文件（项目口径，见 link:agent/AGENTS-PROJECT.MD[agent/AGENTS-PROJECT.MD]「与远端规范的差异（项目覆盖）」）。
 ====
 
-本文件为 ctool4j 项目的统一变更日志，按时间**倒序**记录（最新在最上方）。版本号在各源文件的 javadoc `@version` 中维护。
-条目格式（单行）：`- <项目版本前缀> | <YYYY-MM-DD> | <描述>`；改动意图见源文件 javadoc 与 `doc/design/`，逐条沿革用 `git log` 回溯。
-2026-09-18 之前的条目按当时"凡改动即登记"的做法写入，作为历史保留，不代表现行登记口径。
+本文件是 ctool4j 的变更日志，**按版本分组、版本内按模块与变更类型分类**：版本号即发布 tag（CalVer，`<主>.<次>.<yyyyMMdd>`），日期取 tag 创建日（ISO 8601）。
+条目写「给引用方带来什么影响」（对外可见的能力、契约、默认值、配置、坐标），不写实现过程；内部重构、测试补强、文档搬家等对外无感知的改动只在其产生可感知结果时记录。
+破坏性变更以 [.breaking]#破坏性变更# 标注，须按「影响」列的迁移方式处理。
 
-// 追加条目前先确认：用户是否明确要求登记？未要求则本文件一行都不加（改动意图写源文件 javadoc 与 doc/design/）。
+== 怎么读本文件
 
-- 1.1 | 2026-09-17 | 新增未授权异常 `CUnauthorizedException`（`ctool4j-core`，不携带错误码、语义为「未认证」）与 `CUnauthorizedExceptionHandler`（`ctool4j-web`，响应体业务码 401）：`CAbstractBaseSessionService#get()`/`check()` 由抛 `CBusinessException` 改为抛 `CUnauthorizedException`，当前会话缺失不再与普通业务失败同码；该处理器随附 HTTP 状态 401，调用方以响应体业务码 401 识别未认证（设计说明见 link:doc/design/web/unauthorized-401.adoc[未授权统一返回业务码 401]）
+[cols="1,3", options="header"]
+|===
+| 列 | 含义
 
-- 1.1 | 2026-09-18 | 破坏性变更：`CBeanUtils.copy` 系列集合/Map/数组/Bean/Date 字段由"跳过/共享"改为**深拷贝**（元素与键值递归、环状与跨字段共享引用只拷一份），需要共享引用的调用方改用 `toMap` 或在复制后自行恢复；跨接口容器（源 List → 目标 Set 声明等）按"跳过不写入"处理（此前会先拷贝再写、以 `ClassCastException` 被吞成"字段写入失败"而静默丢字段）
-- 1.1 | 2026-09-16 | ctool4j-doc-openapi2：`CEmptyTagBeanPostProcessor` 在 `paths` 为空时不再清理分组声明（无接口信息无法判定引用关系，避免误删业务用 `Docket.tags(...)` 声明的占位分组；类文档兜底表口径已对齐，用例随动）
-- 1.1 | 2026-09-16 | ctool4j-doc-openapi2 整理与加固：新增 `CModelPropertyAnnotationUtils`（收敛 model 属性注解查找：annotatedElement 优先、其次 beanPropertyDefinition），合并 `CSchemaAnnotationModelPropertyPlugin` 与 `CTextEnumModelPropertyPlugin` 两份写法不一致的私有实现；`ICAnnotationExpandedParameterBuilderPlugin#isRequired` 由裸 `Annotation` 改为泛型 `T`；三个插件的私有 `hasText`（3 份重复）统一改用 `CValidUtils#isValid`；`CEmptyTagBeanPostProcessor` 补双层异常兜底（代理创建失败回退原 Bean、清理失败仅 warn 后保留原模型），两者均不再可能阻断启动或文档接口，日志降为 debug 并补"knife4j 关文档时无 Bean 匹配、零副作用"的兜底说明；修正 `CDocOpenApi2Config` 文档键名（`c-doc.openapi2` → `doc.openapi2`）与 `CSpringFoxUtils` 空缺的能力目录
-- 1.1 | 2026-09-16 | ctool4j-doc-openapi2 修复 swagger "英文空分组"：经查 springfox 的分组名由控制器类名硬编码（`WebMvcRequestHandler#groupName()` → `ControllerNamingUtils.controllerNameAsGroup(handlerMethod)`，类名 splitCamelCase 转 kebab 小写），**不经过 `ResourceGroupingStrategy`**，注解与插件都改不了——故此前新增的 `CTagGroupingStrategy` 方案无效（类与 bean 注册一并删除），接口 tag（`@CTag` 中文）与分组名（英文类名）不一致时会多出无接口引用的空分组；改为新增 `CEmptyTagBeanPostProcessor`：包装容器 bean `ServiceModelToSwagger2Mapper`（MapStruct 生成的抽象类，走 CGLIB 代理），在 `mapDocumentation` 之后清除"无任何接口引用"的分组声明，只删空分组、接口与其 tag 一律不动（`CEmptyTagBeanPostProcessor` 新增，`COpenApi2Configuration` 注册 `cEmptyTagBeanPostProcessor`）；集成用例 3.1 改为断言不残留空分组（`tags_noUnreferencedTag`），配套删除 `CTagGroupingStrategyTests`
-- 1.1 | 2026-09-15 | `CAbstractAuthConfiguration#isAuthAnonymous` 由抽象方法改为默认实现（返回 `false`＝非匿名）：业务子类可不覆写，默认语义为"有会话即视为已认证"（会话被构造为已认证而非匿名认证）；漏覆写不会报错，仅按角色/权限的规则仍会拦截——已写入类文档、兜底表与"访客会话须显式覆写为 true"的边界说明；补 1 例固化默认值，并注明包私有可见性会令跨包覆写静默失效（由委派用例捕捉）
-- 1.1 | 2026-09-15 | 新增 `CAbstractAuthConfiguration`（auth-spring 认证装配基类）：继承 auth-base 的 `CAbstractAuthBaseConfiguration` 并在其上追加默认认证过滤器 bean（`cAuthFilter`，bean 名同方法名），业务的匿名判定收口为模板方法 `isAuthAnonymous`（`protected`——业务子类必然跨包，包私有抽象方法跨包无法被实现、子类会编译不过）；业务自建同类型过滤器时不覆盖（`@ConditionalOnMissingBean`）；补齐类文档（能力目录/设计要点/兜底/边界/已知限制）与用例 1 例（直调 `@Bean` 方法验证委派、不启容器：过滤器依赖的会话服务会连带 Redis 装配；用例置于被测类之外的包，使跨包继承成为硬约束；容器级条件语义与基类同一机制，由基类用例覆盖）；修复改名后失败的 `CAbstractAuthBaseConfigurationTests` 3 例（基类改为 `abstract` 后不可直接注册进容器，全部改为注册具体子类）并随类移包（`auth.config` → `auth.test.configuration`）、新增边界 1 例（子类未加 `@Configuration` 且自身无 `@Bean` 时不是配置候选，继承的 `@Bean` 不生效且不报错，共 5 例）；补基类 `abstract` 约束、"子类必须加 `@Configuration`"约束与"基类 / auth-spring 装配基类择一继承"的说明
-- 1.1 | 2026-09-14 | 破坏性变更：`CSpringSecurityUtils#writeJsonError` 两个重载去掉 `HttpServletRequest` 入参，认证错误响应的 message 不再拼接 requestURI（此前为「文案：路径」，路径与查询串均不再进入响应体，文案只由入参决定）；`CAccessDeniedHandler`、`CAuthenticationEntryPoint`、`CSessionInformationExpiredStrategy` 调用方同步；3 个处理器的测试用例断言随动（改为反向断言响应体不含请求路径与查询串）
-- 1.1 | 2026-09-14 | `CAssert` 新增按数据类型分派的有效性断言 `valid` / `notValid`（各带 `String` 与 `Supplier<String>` 重载），参数类型重载覆盖 Object、CharSequence、Iterable、Collection、Map 与 9 种数组，语义与 `CValidUtils#isValid/isNotValid` 一致（字符串按 blank、集合/Map/数组按 empty、其他对象按 null）；`notEmpty` / `notBlank` 实现改为复用 `CValidUtils`，对外语义不变
-- 1.1 | 2026-09-14 | 新增 `CMissingServletRequestParameterExceptionHandler` 与 `CMethodArgumentTypeMismatchExceptionHandler`（ctool4j-web）：统一处理必填参数缺失与参数类型不匹配（此前落兜底 `CThrowableHandler`，返回"未知异常"并打 error 堆栈）；文案保留参数名（调用方据此修正请求），不透出 Java 类型名与嵌套异常等内部信息，客户端问题降为 debug 日志；配套测试各 1 例
-- 1.1 | 2026-09-14 | 新增 `CHttpMessageNotReadableExceptionHandler`（ctool4j-web）：统一处理请求体缺失/不可读（`HttpMessageNotReadableException`，如 `@RequestBody` 必填未传、JSON 格式或类型不合法）；返回固定文案（不透出异常自身消息——该消息含控制器方法签名等内部信息），客户端问题降为 debug 日志，不再落兜底 `CThrowableHandler` 的 error 堆栈；配套测试 1 例
-- 1.1 | 2026-09-14 | `CAutowiredScanConfiguration` 显式声明 `@Configuration(proxyBeanMethods = false)`：该类自身是 `BeanDefinitionRegistryPostProcessor`，容器在后置处理器阶段即实例化它、早于 CGLIB 增强，Spring 会打印 "singleton instance has been created too early" 的 INFO 并跳过增强；关闭方法代理可消除该日志（本类无 `@Bean` 方法，行为不变，日志提示里的"典型原因"与本类无关）
-- 1.1 | 2026-09-14 | 新增 `CAbstractAuthBaseConfiguration`（auth-base 认证装配基类）：业务未自建 mock 会话配置时提供关闭态默认 bean（`enable=false`、`session=null`），业务子类加 `@Configuration` 继承其 `@Bean` 方法并固定会话类型；`@Bean` 方法名按规范以 `c` 前缀命名（bean 名 `cSessionMockConfig`）；补齐类文档（含 `@Configuration` 注释原因、`@ConditionalOnMissingBean` 的顺序敏感性）与装配测试 4 例
-- 1.1 | 2026-09-14 | 修复会话读回故障（`CAbstractBaseAuthFilter : loadAuthentication error`）：`ICSecuritySession#getAuthorities()` 默认实现不再返回共享常量——Jackson 的 `MapperFeature.USE_GETTERS_AS_SETTERS`（`SetterlessProperty`）会把 JSON 中的 authorities 合并进 getter 的返回值，共享不可修改常量会抛 `UnsupportedOperationException`，共享可变常量则被逐次追加而污染全局；改为返回一次性副本，会话自身持久化权限（有可写成员）仍走 setter 路径不受影响。陷阱说明见 link:doc/design/spring/authority-json.adoc[会话权限的 JSON 读写]
-- 1.1 | 2026-09-14 | 修复会话含权限字段的 JSON 反序列化失败（`GrantedAuthority` 为接口、JSON 无类型信息导致 `InvalidDefinitionException`）：`ctool4j-spring-security` 新增 `CSecurityJacksonModule`（接口与 `SimpleGrantedAuthority` 同注册反序列化器）并以 `META-INF/services/com.fasterxml.jackson.databind.Module` 声明为 Jackson SPI，由 `ObjectMapper#findAndRegisterModules()` 自动装配；新增权限常量池 `CGrantedAuthorityUtils`（同 authority 全局复用同一实例），反序列化与匿名权限统一取自常量池（`ANONYMOUS_AUTHORITIES` 一并改为不可修改集合）；序列化沿用 Jackson 原生形态 `{"authority":"ROLE_XXX"}`（不引入 default typing 的 `@class`）；匿名权限名落为 `CSpringSecurityUtils.ROLE_ANONYMOUS` 常量（Spring 官方未提供该常量，取值以其实现为准）。设计说明见 link:doc/design/spring/authority-json.adoc[会话权限的 JSON 读写]
-- 1.1 | 2026-09-13 | `CAbstractBaseSessionService#getDefaultNull` 由包私有放宽为 `public`：业务侧可在任意包直接继承会话服务基类（原仅限 `com.c332030.ctool4j.session.service` 包）
-- 1.1 | 2026-09-13 | 文档导航收敛为单一入口：删除 48 个模块级 `doc/README.adoc` 重复索引页（模块级内容归模块 README、功能级归 `doc/design/`、依赖归 `doc/dependency.adoc`），`doc/README.adoc` 改为全项目文档导航入口；`ctool4j-spring` 的 `perf.adoc` 移至 `doc/design/spring/spring-perf.adoc`（功能级文档统一落点）
-- 1.1 | 2026-09-13 | 新增模块间依赖关系文档 link:doc/dependency.adoc[doc/dependency.adoc]（唯一视图，含全部模块清单与 UML 依赖图），原 README 的文字版依赖描述改为指向该文件
-- 1.1 | 2026-09-13 | `CAbstractBaseSessionService#getDefaultNull` 由包私有放宽为 `protected`：业务侧可在任意包直接继承会话服务基类（原仅限 `com.c332030.ctool4j.session.service` 包）
-- 1.1 | 2026-09-13 | 破坏性变更：`CAbstractJwtFilter` 改名 `CAbstractWebAuthFilter` 并下沉到 ctool4j-web，`CSecurityConfiguration` 改按该类型注入认证过滤器，引用方需改 import
-- 1.1 | 2026-09-13 | 新增 `CAbstractBaseAuthFilter`（ctool4j-auth-base）：抽离认证过滤器中与 Spring Security 无关的过滤器骨架、mock 会话加载与会话加载，Security 认证构造留在 auth-spring 子类；mock 开关为 null 视为未启用（修复拆箱 NPE），并补链路单元测试
-- 1.1 | 2026-09-13 | 测试口径明确为「只保证 JDK 8 编译」：`CClassUtilsTests` 样本用仅 JDK 8 存在的 `jdk.Exported`（该类型 JDK 9+ 已移除，测试代码在 JDK 9+ 无法编译），并在类级备注该约束；`compareField` 由空断言改为可观察行为断言
-- 1.1 | 2026-09-13 | 性能测试可显式触发：新增 `perf` profile，`mvn -Pperf -Dtest=<XxxPerfTests> test` 才能真正执行（`surefire` 的 `excludes` 优先于 `-Dtest`，此前文档给的触发命令实际无效）
-- 1.1 | 2026-09-13 | 测试类命名随动迁移为 `Tests` 定式（7 个）：`CBeanUtilsTests`、`CExceptionUtilsTests`、`CBiFunctionTests`、`CTriFunctionTests`、`CLogUtilsTests`、`CStrUtilsTests`、`CCoreTests`
-- 1.1 | 2026-09-13 | 修正文档与测试用例编号不一致：`ctool4j-core` README 的校验工具改为 `CValidUtils`（`CValidateUtils` 已废弃）；`CBeanUtilsTests` 类索引改为标注各用例实际所属测试类
-- 1.1 | 2026-09-12 | 破坏性变更：`CIdUtils.UUID`/`simpleUUID` 默认改为随机 UUID v4，不再时间有序且随机源非密码学安全；原 UUID v7 逻辑改为 `UUIDv7`/`simpleUUIDv7`，需要可排序 UUID 的调用方须改用新方法
-- 1.1 | 2026-09-12 | 新增 `ICRealClass` 契约（`ctool4j-spring` 的 `interfaces` 包）与 `CProxyUtils` 代理解析类（`ctool4j-spring`）：代理场景下取真实业务类/类名/包名，契约带默认实现、业务侧不写方法体；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本纳秒量级（Spring JDK 代理较原实现降约一半）
-- 1.1 | 2026-09-11 | 修复并行构建下自动注入偶发失败，业务模块无需额外配置即可生效
-- 1.0 | 2026-09-11 | 新增 `CAuthUtils`、`CTokenUtils` 认证/令牌工具，及 `ICToken`、`ICCreateMillis` 语义接口
-- 1.0 | 2026-09-11 | `CRequired` 必填校验与 `CJwtUtils` 迁移到 web 模块，供全量组件复用
-- 1.0 | 2026-09-11 | 文档收敛为「javadoc 承载类/方法级、`doc/` 只放功能级总结」，删除逐类文档 623 份
-- 1.0 | 2026-09-11 | 建立本统一变更日志（首版），此后变更统一在此登记
-- 1.0 | 2026-09-11 | 补齐大量单元测试用例，全部通过（Failures=0 Errors=0）
+| 类型 | `新增` 能力 / `变更` 对外行为或默认值 / `修复` 缺陷 / `移除` 对外能力 / `文档` 与 `构建` 面向引用方的说明与坐标
+| 变更点 | 受影响的类、配置项、注解或文档落点（模块名 = Maven 模块目录名 `ctool4j-xxx`）
+| 影响 | 引用方要做什么、能感知到什么；含约束、边界与默认值
+|===
+
+== 版本索引
+
+[cols="1,1,1", options="header"]
+|===
+| 版本 | 日期 | 条目数
+
+| link:#_1_1_20260730[1.1.20260730] | 2026-09-18 | 45
+| link:#_1_0_20260715[1.0.20260715] | 2026-07-30 | 概览（历史条目未按版本留存）
+| link:#_1_0_20260703[1.0.20260703] | 2026-07-15 | 概览（历史条目未按版本留存）
+| link:#_1_0_20260612[1.0.20260612] | 2026-06-12 | 概览（历史条目未按版本留存）
+| 1.0.20260617 及更早 | 2026-07-03 及更早 | 见下「更早版本」
+|===
+
+[NOTE]
+====
+2026-09-11 起本项目才建立统一变更日志，更早的 tag 没有逐条记录，只在「更早版本」保留 tag 时间线。上文 `1.1.20260730` 的条目是**按当时的日期流水登记、本次重组回该版本**的结果。
+====
+
+== 1.1.20260730
+
+*发布日期：2026-09-18 ｜ 上一版本：1.0.20260715（2026-07-30）*
+
+本版本是本项目截至目前改动最大的一个版本：认证组件重构为分层模块、缓存新增主动失效注解、Redis 新增限流与幂等、代理解析与 UUID 语义调整；期间还完成了一次全局文档与规范收敛，并出现 8 项破坏性变更（见下表标注）。
+
+[cols="1,3,4", options="header"]
+|===
+| 类型 | 变更点 | 影响
+
+| [.breaking]#破坏性变更#
+| `ctool4j-core`：`CIdUtils.UUID()` / `simpleUUID()` 默认实现改为随机 UUID v4
+| 默认值不再时间有序、随机源非密码学安全；需要可排序 UUID 改用 `UUIDv7()` / `simpleUUIDv7()`（原 v7 逻辑迁入，仍依赖可选依赖 `java-uuid-generator`）。**不得**用于令牌、密钥、会话 ID 等安全场景
+
+| [.breaking]#破坏性变更#
+| `ctool4j-core`：`CBeanUtils.copy` 系列对集合/Map/数组/Bean/Date 字段改为**深拷贝**
+| 由「跳过 / 共享引用」改为递归深拷贝（元素与键值递归，环状与跨字段共享引用只拷一份）。需要保留共享引用的调用方须改用 `toMap` 或在复制后自行恢复；跨接口容器（如源 `List` → 目标 `Set` 声明）按「跳过不写入」处理，不再静默丢字段
+
+| [.breaking]#破坏性变更#
+| `ctool4j-web`：`CAbstractJwtFilter` 改名 `CAbstractWebAuthFilter`
+| 类下沉到 `ctool4j-web`，`CSecurityConfiguration` 改按该类型注入认证过滤器；引用方须改 import
+
+| [.breaking]#破坏性变更#
+| `ctool4j-spring-security`：`CSpringSecurityUtils#writeJsonError` 两个重载去掉 `HttpServletRequest` 入参
+| 认证错误响应的 message 不再拼接 requestURI（路径与查询串均不进入响应体），文案只由入参决定；3 个处理器（`CAccessDeniedHandler`、`CAuthenticationEntryPoint`、`CSessionInformationExpiredStrategy`）调用方同步
+
+| [.breaking]#破坏性变更#
+| `ctool4j-doc-openapi2`：文档配置键名 `c-doc.openapi2` → `doc.openapi2`
+| 引用方若有该配置前缀须改名，否则配置不生效
+
+| [.breaking]#破坏性变更#
+| `ctool4j-web`：`CRequired` 必填校验迁入本模块（`CJwtUtils` 同期归位到 `web`，供全量组件复用）
+| 引用方的依赖坐标与 import 随迁移调整，否则编译不到对应类型
+
+| [.breaking]#破坏性变更#
+| `ctool4j-core` → `ctool4j-spring`：`CProxyUtils` 迁入 `spring` 模块
+| 引用方须改 import 与依赖坐标（`ctool4j-spring` 已在依赖链中时只需改 import）
+
+| [.breaking]#破坏性变更#
+| 日志模块迁移：请求日志、traceId 透传、MDC（`CRequestLogUtils`、`CTraceUtils`、`CMdc` 等）由 `ctool4j-log-*` 迁入 `ctool4j-web` / `ctool4j-logback` / `ctool4j-log4j`
+| 引用方须按新坐标与包名调整 import；`ctool4j-web` 自带 `CRequestLogConfig` / `CRequestLogBaseConfig` 装配入口
+
+| 新增
+| `ctool4j-core`：`CUnauthorizedException`（不携带错误码，语义为「未认证」）
+| 未认证与普通业务失败区分开；配套 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 返回响应体业务码 401 + HTTP 状态 401，调用方以响应体业务码 401 识别未认证（见 link:doc/design/web/unauthorized-401.adoc[未授权统一返回业务码 401]）
+
+| 新增
+| `ctool4j-redis`：`@CRateLimit` 限流注解与 `CRateLimitAspect`
+| 按业务 id（el 表达式，空则按方法全局限流）+ 窗口次数/秒数限流，超阈值抛 `CRateLimitException`。固定窗口计数，窗口临界点可能瞬时冲过阈值一次；同名重载方法共用同一 key（见 link:doc/design/redis/rate-limit-idempotent.adoc[限流与幂等]）
+
+| 新增
+| `ctool4j-cache`：`@CCacheRemove` / `@CCacheUpdate` 注解
+| update/delete 方法执行成功后主动更新/删除缓存，不必等过期；方法抛异常时不删不写，update 返回 null 不写，key 解析为 null 时跳过
+
+| 新增
+| `ctool4j-redis`：`@CIdempotent` 幂等/防并发注解
+| 同一业务 key 任一时刻只允许一个调用执行业务，其余并发或重复调用抛 `CIdempotentException`，防重复提交与并发穿透；幂等 key = 应用前缀 + 分组类简单名 + 方法名 + 业务 id，业务 id 用 el 表达式从方法参数取值
+
+| 新增
+| `ctool4j-core`：日志能力——`CLogUtils` 的 JSON 日志分支、`@CLogSensitive` 敏感字段脱敏、`@CLogBlob` 大字段截断
+| 日志专用 mapper 输出时按注解脱敏（默认保留前 3 后 4 位，长度不足全部打码）与截断大字段；**全局 ObjectMapper 无此行为**，业务序列化仍输出真实内容
+
+| 新增
+| `ctool4j-core`：`CElKeyResolveUtils`（el 表达式解析/取值，由 cache 模块的 `CCacheKeyResolver` 迁入并更名，去掉 spring-core 依赖）
+| 缓存与限流复用同一套 el 解析，业务侧可用 `参数名.属性…` 形式取业务 id
+
+| 新增
+| `ctool4j-spring`：`ICRealClass` 契约与 `CProxyUtils`（由 `ctool4j-core` 迁入本模块）
+| 代理（CGLIB / JDK 动态代理）场景下取真实业务类/类名/包名；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本纳秒量级。非 Spring 生成的代理（裸 `Proxy.newProxyInstance`、MyBatis Mapper 等）返回代理类自身、不猜测业务类型；`spring-core` 为 provided，首次调用按类加载器可达性判定（见 link:doc/design/spring/real-class-name.adoc[真实业务类/类名/包名]）
+
+| 新增
+| `ctool4j-auth-pom`：认证拆分为 `auth-base`（过滤器骨架、mock 会话加载、会话加载）与 `auth-spring`（Security 认证构造）两个模块
+| 引用方按需选择坐标；框架层能力从业务实现中分离
+
+| 新增
+| `ctool4j-auth-spring`：`CAbstractAuthConfiguration` 装配基类
+| 提供默认认证过滤器 bean（`cAuthFilter`），匿名判定收口为 `protected` 模板方法 `isAuthAnonymous`（子类必然跨包，故为 `protected`）；业务自建同类型过滤器时不覆盖。配套 `CAbstractAuthBaseConfiguration`（auth-base）在业务未自建 mock 会话配置时提供关闭态默认 bean（`enable=false`、`session=null`）
+
+| 新增
+| `ctool4j-spring-security`：`CSecurityJacksonModule` + `CGrantedAuthorityUtils` 权限常量池
+| 会话含 `GrantedAuthority` 字段的 JSON 读写可用（接口类型无 `@class` 也能反序列化，序列化沿用 `{"authority":"ROLE_XXX"}` 原生形态）；同 authority 全局复用同一实例（见 link:doc/design/spring/authority-json.adoc[会话权限的 JSON 读写]）
+
+| 新增
+| `ctool4j-web`：`CHttpMessageNotReadableExceptionHandler`、`CMissingServletRequestParameterExceptionHandler`、`CMethodArgumentTypeMismatchExceptionHandler`
+| 请求体缺失/不可读、必填参数缺失、参数类型不匹配不再落兜底处理器返回「未知异常」；文案保留参数名、不透出类型名与嵌套异常，客户端问题降为 debug 日志
+
+| 新增
+| `ctool4j-core`：`CAssert.valid` / `notValid`（各带 `String` 与 `Supplier<String>` 重载）
+| 按数据类型分派的有效性断言，覆盖 Object、CharSequence、Iterable、Collection、Map 与 9 种数组，语义与 `CValidUtils#isValid` 一致（字符串按 blank、集合/Map/数组按 empty、其他对象按 null）；`notEmpty` / `notBlank` 改为复用 `CValidUtils`，对外语义不变
+
+| 新增
+| `ctool4j-spring`：`CList` / `CMap` / `CSet` 的不可变实时视图（`CListView` / `CMapView` / `CSetView`）、`CLog` 按级别打印
+| 持有可变实例同时暴露不可变视图；日志可按 `Level` 选择打印方式（null 兜底 error）
+
+| 新增
+| `ctool4j-definition`：语义接口 `ICToken`、`ICCreateMillis`；`ctool4j-auth-base` 与 `ctool4j-web`：`CAuthUtils`、`CTokenUtils`
+| 认证 / 令牌工具与语义契约集中在定义层与认证层，供全量组件复用
+
+| 新增
+| `ctool4j-web`：请求链路 traceId 透传（`CTraceInfo` / `ICTraceInfo` / `CTraceInfoProvider`）与 `CMdc`（logback / log4j 两套实现）
+| 请求链路信息可跨线程与跨服务透传，日志 MDC 可携带 traceId
+
+| 新增
+| `ctool4j-definition` + `ctool4j-web`：`@CInnerApi` 内部接口标记与 `CInnerApiInterceptor` IP 白名单校验
+| 标注在 Controller 类或方法上即视为内部接口，默认仅允许配置的内部 IP/IP 段（CIDR）访问；白名单由 `CInnerApiConfig` 统一提供，未配置（为空）时全部放行
+
+| 新增
+| `ctool4j-spring`：`CIpUtils`（IPv4 地址与 CIDR 网段解析/判断）
+| 供 IP 白名单/黑名单场景复用；当前仅实现 IPv4，IPv6 字符串与规则安全返回 `false`（不抛异常），入口方法版本无关
+
+| 新增
+| `ctool4j-core`：`CValidUtils`（按类型分派的有效性判断）与 `CThreadUtils`、`CLazyRef`、`CCharsets`
+| 判空统一走 `CValidUtils`（字符串按 blank、集合/Map/数组按 empty、其他对象按 null）；`CValidateUtils` 已废弃，新代码不得使用
+
+| 新增
+| `ctool4j-core`：`CBenchmarkRunner` 性能基准工具
+| 供性能测试显式跑基准与输出报告（配合 `perf` profile）
+
+| 变更
+| `ctool4j-core`：`CAbstractBaseSessionService#getDefaultNull` 由包私有放宽为 `public`
+| 业务侧可在任意包直接继承会话服务基类（原仅限 `com.c332030.ctool4j.session.service` 包）；会话类型须以具体类型直接继承，或在创建点经 `CAbstractBaseSessionService(Class)` 显式传入
+
+| 变更
+| `ctool4j-auth-spring`：`CAbstractAuthConfiguration#isAuthAnonymous` 由抽象方法改为默认实现（返回 `false` ＝ 非匿名）
+| 业务子类可不覆写，默认语义为「有会话即视为已认证」，漏覆写不报错；访客会话须显式覆写为 `true`。包私有一级的可见性会令跨包覆写静默失效，`protected` 是硬约束
+
+| 变更
+| `ctool4j-spring`：`CAutowiredScanConfiguration` 显式声明 `@Configuration(proxyBeanMethods = false)`
+| 消除 Spring 的 "singleton instance has been created too early" INFO 日志；本类无 `@Bean` 方法，行为不变
+
+| 变更
+| 构建：新增 `perf` profile
+| 性能测试可显式触发——`mvn -Pperf -Dtest=<XxxPerfTests> test`；`surefire` 的 `excludes` 优先于 `-Dtest`，此前文档给的命令实际不执行任何用例
+
+| 修复
+| `ctool4j-auth-base`：会话服务 bean 构造异常（`ClassCastException: TypeVariableImpl cannot be cast to Class`）
+| 默认会话服务此前以匿名子类直接构造，未解析的类型变量原样传入导致启动失败；现在会话类型由业务配置子类的泛型实参解析后经构造显式传入
+
+| 修复
+| `ctool4j-spring-security`：会话权限字段的 JSON 反序列化失败（`InvalidDefinitionException`）
+| `GrantedAuthority` 为接口且 JSON 无类型信息导致读写失败；现由 `CSecurityJacksonModule` 以 SPI 自动注册，无需业务配置
+
+| 修复
+| `ctool4j-auth-base`：会话读回故障（`ICSecuritySession#getAuthorities()` 返回共享常量）
+| Jackson 的 `USE_GETTERS_AS_SETTERS` 会把 JSON 中的 authorities 合并进 getter 返回值——共享不可修改常量会抛 `UnsupportedOperationException`，共享可变常量会被逐次追加污染全局；现返回一次性副本，会话自身持久化权限不受影响
+
+| 修复
+| `ctool4j-cache`：本地缓存分组上限守卫丢失
+| 不同 expire 的 Cache 实例曾无界累积；现按 javadoc 已声明语义就地补回上限（超限复用过期时间最长的分组）
+
+| 修复
+| `ctool4j-core`：el 表达式解析器缓存串用
+| 此前缓存只以方法为 key，同一方法首次解析的表达式会被后续调用沿用，导致限流/幂等业务 id 全部错位；现按「方法 + 表达式」两级缓存；表达式末段为空（如 `outer.`）现按契约报错
+
+| 修复
+| `ctool4j-cache` / `ctool4j-redis`：缓存击穿与 null NPE
+| 空值场景不再直接抛 NPE，缓存击穿路径收敛
+
+| 修复
+| 构建：并行构建下自动注入偶发失败
+| 业务模块无需额外配置即可生效
+
+| 修复
+| `ctool4j-core`：`CEntityUtils.CLEAN_ENTITY_CONSUMER` 按继承距离找最近的 `clear`
+| 原实现依赖 `getDeclaredMethods()` 的返回顺序（JLS 未保证），可能选错重载、漏清字段；现按继承距离确定性命中，公开 API 语义不变
+
+| 修复
+| `ctool4j-core`：`CStrUtils.upperUnderscoreToLowerCamel`、`CRedisUtils.setIfNotEquals` 的 Lua 脚本、字段 javadoc 与实际含义不符（3 类 5 处）
+| `setIfNotEquals` 此前把 TTL 当值写入、TTL 恒不生效，且序列化模板与同族方法不一致；现写值并正确设置过期，改用字符串模板
+
+| 移除
+| 文档：逐类文档与模块级重复索引页
+| 删除逐类文档 623 份与 48 个模块级 `doc/README.adoc` 重复索引页——类/方法级内容承载在 javadoc，模块级内容归模块 `README.md`，功能级内容归 `doc/design/`，依赖关系归 `doc/dependency.adoc`；`doc/README.adoc` 为全项目文档导航入口
+
+| 文档
+| 新增 link:doc/dependency.adoc[doc/dependency.adoc]（模块间依赖唯一视图，含全部模块清单与 UML 依赖图）、link:doc/compatibility.adoc[doc/compatibility.adoc]（依赖升级已知问题登记）
+| 判断「某模块能不能依赖某模块、新依赖该不该加」以该文件为准；README 的文字版依赖描述改为指向该文件，避免第二真源
+
+| 文档
+| 使用文档与开发文档隔离：新增 `doc/use/`（面向引用本库的项目，可开放为静态服务）
+| 引用方按依赖坐标选分册，模块 README 的「使用示例 / 配置项 / 快速上手」改为指回使用文档
+|===
+
+=== 本版本的验收口径
+
+* 校验链：`mvn clean install` 全量通过；`javadoc:jar` 在 `failOnError=true` 下通过（JDK 8）
+* 构建工具：`mvnw` 下载 Maven 发行包支持镜像回退（`repo.maven.apache.org` 限流 429 时自动切备选源），修复 Javadoc 阻断构建
+* 测试基线：全仓用例数逐次递增、Failures=0 / Errors=0 / Skipped=0；测试口径明确为「只保证 JDK 8 编译」（部分用例样本仅 JDK 8 存在，JDK 9+ 无法编译）
+* 文档口径：`@see` 不得指向测试类（javadoc 类路径不含测试源，会使构建失败），需要提及时用纯文本类名
+
+== 1.0.20260715
+
+*发布日期：2026-07-30 ｜ 上一版本：1.0.20260703（2026-07-15）*
+
+本版本与其前的 tag 未建立统一变更日志，条目未逐条留存。版本号自 `1.0.20260326` 起改为 `<主>.<次>.<yyyyMMdd>` 形式（此前为 `1.0.0` / `1.0.1` 语义化形式）；版本号中的日期是**下一次发布版本**的日期，与 tag 创建日不一致时以本文件所记的 tag 创建日为准（下「更早版本」同此口径）。该版本的对外能力以各模块 `README.md` 与 link:doc/use/README.adoc[doc/use/] 的当前形态为准。
+
+== 1.0.20260703
+
+*发布日期：2026-07-15*
+
+同「1.0.20260715」——未建立逐条记录。
+
+== 1.0.20260612
+
+*发布日期：2026-06-12*
+
+同「1.0.20260715」——未建立逐条记录。
+
+== 更早版本
+
+以下 tag 的时间早于统一变更日志的建立（2026-09-11），无逐条记录，仅保留时间线用于版本追溯（日期取 tag 创建日）：
+
+[cols="1,1", options="header"]
+|===
+| 版本 | 日期
+
+| 1.0.20260617 | 2026-07-03
+| 1.0.20260522 | 2026-06-12
+| 1.0.20260517 | 2026-05-22
+| 1.0.20260429 | 2026-05-17
+| 1.0.20260421 | 2026-04-29
+| 1.0.20260408 | 2026-04-21
+| 1.0.20260326 | 2026-04-08
+| 1.0.1 | 2026-03-26
+| 1.0.0 | 2026-03-20
+| 0.0.9 | 2026-03-12
+| 0.0.8 及更早（`0.0.1`–`0.0.8`） | 2025-09-23 起
+|===
+
+`0.0.x` 为立项初期版本，未建立任何变更记录，仅在制品库留存。
+
+== 维护说明
+
+* **条目来源**：合并请求正文与 tag 之间的提交记录；逐条沿革可用 `git log <上一版本tag>..<本版本tag>` 回溯。
+* **登记时机**：仅在用户明确要求时追加条目（见文首 IMPORTANT），改动意图写源文件 javadoc 与 `doc/design/`。
+* **版本号**：源文件版本在各源码 javadoc 的 `@version` 中维护；本文件的版本号为发布 tag。
+* **格式依据**：按版本分组、版本内按类型分类、日期用 ISO 8601——参考 Keep a Changelog 1.1.0 的组织方式与 Semantic Versioning 2.0.0 的破坏性变更标注要求。
+
+== 相关入口
+
+- 项目根索引：link:README.adoc[README]
+- 依赖升级兼容性：link:doc/compatibility.adoc[doc/compatibility.adoc]
+- 开发文档导航：link:doc/README.adoc[doc/README.adoc]
+- 使用文档：link:doc/use/README.adoc[doc/use/README.adoc]
