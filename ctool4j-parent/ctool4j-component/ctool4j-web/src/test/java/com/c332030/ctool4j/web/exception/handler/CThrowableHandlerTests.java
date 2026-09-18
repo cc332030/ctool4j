@@ -46,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <h2>未识别异常处理</h2>
  * <ul>
  *   <li>1.1 handle：验证未识别异常处理结果</li>
+ *   <li>1.2 handle(null)：异常对象为 null（非预期入参）返回固定「未知异常」、不抛 NPE（handle_nullThrowable）</li>
  * </ul>
  * <h2>真实链路：兜底与"不截走具体异常"（含子类）</h2>
  * <ul>
@@ -73,7 +74,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>2.22 JDK 错误子类（AssertionError）：本处理器兜底</li>
  * </ul>
  *
- * <p>`CThrowableHandler` 的测试用例</p>
+ * <p>`com.c332030.ctool4j.web.exception.handler.CThrowableHandler`（CThrowableHandler）的测试用例</p>
  *
  * @since 2026/8/16
  * @version 1.3
@@ -93,6 +94,20 @@ public class CThrowableHandlerTests {
     @Test
     public void handle() {
         CStrResult<Void> result = handler.handle(new RuntimeException("boom"));
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("未知异常", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.2：异常对象为 null（非预期入参）返回固定「未知异常」、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（并覆盖委托上传处理器分支前的 null 守卫；旧实现在此处 NPE）。</p>
+     */
+    @Test
+    public void handle_nullThrowable() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
 
         Assertions.assertEquals("500", result.getCode());
         Assertions.assertEquals("未知异常", result.getMessage());

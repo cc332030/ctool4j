@@ -38,8 +38,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回默认错误结果（不读 message，避免二次 NPE）</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -62,6 +62,8 @@ public class CCBusinessExceptionHandler {
 
     /**
      * 处理业务异常
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null），
+     * 这里兜底返回默认错误结果（不读异常字段，避免二次 NPE）；见类 javadoc「兜底设计」。</p>
      *
      * @param e 业务异常
      * @return 错误结果
@@ -70,6 +72,9 @@ public class CCBusinessExceptionHandler {
     public CStrResult<Void> handle(CBusinessException e) {
 
         log.debug("handle CBusinessException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
+        if (null == e) {
+            return CStrResult.error("业务异常");
+        }
 
         val error = e.getError();
         if(null == error) {

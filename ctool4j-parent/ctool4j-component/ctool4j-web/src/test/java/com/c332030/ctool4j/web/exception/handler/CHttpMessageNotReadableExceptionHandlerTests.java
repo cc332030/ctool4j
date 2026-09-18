@@ -32,10 +32,11 @@ import org.springframework.mock.http.MockHttpInputMessage;
  * <h2>请求体不可读异常处理</h2>
  * <ul>
  *   <li>1.1 请求体不可读异常的处理结果（handle）</li>
+ *   <li>1.2 异常对象为 null（非预期入参）：返回固定错误结果、不抛 NPE（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.1
  */
 public class CHttpMessageNotReadableExceptionHandlerTests {
 
@@ -57,6 +58,20 @@ public class CHttpMessageNotReadableExceptionHandlerTests {
         Assertions.assertEquals("500", result.getCode());
         Assertions.assertEquals("请求体缺失或格式不正确", result.getMessage());
         Assertions.assertFalse(result.getMessage().contains("Required request body is missing"));
+    }
+
+    /**
+     * 对应测试用例 1.2：异常对象为 null（非预期入参）返回固定错误结果、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（与正常路径同一固定文案）。</p>
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("请求体缺失或格式不正确", result.getMessage());
     }
 
 }

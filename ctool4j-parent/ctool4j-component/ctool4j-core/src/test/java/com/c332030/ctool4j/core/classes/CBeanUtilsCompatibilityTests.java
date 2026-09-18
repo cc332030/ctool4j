@@ -66,8 +66,8 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.2
- * @see CBeanUtils
+ * @version 1.1
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
  * @see CBeanUtilsTests
  * @see CBeanUtilsCopyContractTests
  * @see CBeanUtilsDeepCopyTests

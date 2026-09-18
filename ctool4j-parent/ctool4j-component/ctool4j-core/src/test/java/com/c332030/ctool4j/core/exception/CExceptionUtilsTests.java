@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * Description: CExceptionUtilsTests
  * </p>
- * <p>`CExceptionUtils` 的测试用例</p>
+ * <p>`com.c332030.ctool4j.core.exception.CExceptionUtils`（CExceptionUtils）的测试用例</p>
  *
  * <p><b>用例设计思路</b>：按「创建业务异常 / 抛出业务异常 / 忽略执行 / 异常链信息」四个维度组织：</p>
  * <ul>
@@ -85,7 +85,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </ul>
  *
  * @since 2025/9/14
- * @version 1.1
+ * @version 1.0
  * @see CExceptionUtils
  */
 @CustomLog

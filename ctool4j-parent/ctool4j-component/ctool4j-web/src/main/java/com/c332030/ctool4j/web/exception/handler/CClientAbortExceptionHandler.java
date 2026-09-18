@@ -37,8 +37,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并直接结束响应</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，仅记录请求 URI（无响应体）</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -53,7 +53,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -70,10 +70,17 @@ public class CClientAbortExceptionHandler {
     /**
      * 处理客户端连接中断异常，仅记录日志
      *
-     * @param e 客户端连接中断异常
+     * @param e 客户端连接中断异常（为 null 属非预期入参，仅记日志、不写响应；见类 javadoc「兜底设计」）
      */
     @ExceptionHandler(ClientAbortException.class)
     public void handle(ClientAbortException e) {
+
+        // null 属非预期入参（Spring MVC 命中 @ExceptionHandler 时异常对象不为 null）：不取异常内容、直接返回
+        if (null == e) {
+            log.debug("handle null ClientAbortException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull());
+            return;
+        }
+
         log.debug("handle ClientAbortException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
     }
 

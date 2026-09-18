@@ -32,10 +32,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * <h2>方法参数类型不匹配异常处理</h2>
  * <ul>
  *   <li>1.1 方法参数类型不匹配异常的处理结果（handle）</li>
+ *   <li>1.2 参数名为 null：只返回固定文案、不拼 {@code null}（handle_nullName）</li>
+ *   <li>1.3 异常对象为 null（非预期入参）：返回固定文案、不抛 NPE（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.1
  */
 public class CMethodArgumentTypeMismatchExceptionHandlerTests {
 
@@ -57,6 +59,34 @@ public class CMethodArgumentTypeMismatchExceptionHandlerTests {
         Assertions.assertEquals("参数类型不正确：id", result.getMessage());
         // 不透出异常自身消息（含全限定 Java 类型名与嵌套异常信息）
         Assertions.assertFalse(result.getMessage().contains("Failed to convert"));
+    }
+
+    /**
+     * 对应测试用例 1.2：参数名为 null 时只返回固定文案（不拼 {@code null}）
+     */
+    @Test
+    public void handle_nullName() {
+        // 边界：参数名为 null（构造器的 name 传 null）
+        val e = new MethodArgumentTypeMismatchException("abc", Integer.class, null, null, null);
+
+        CStrResult<Void> result = handler.handle(e);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("参数类型不正确", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.3：异常对象为 null（非预期入参）返回固定文案、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（兜底不读 {@code getName()}）。</p>
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("参数类型不正确", result.getMessage());
     }
 
 }

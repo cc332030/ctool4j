@@ -2,7 +2,6 @@ package com.c332030.ctool4j.auth.configuration;
 
 import com.c332030.ctool4j.auth.filter.CAbstractAuthFilter;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
-import com.c332030.ctool4j.session.service.CAbstractSessionService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Bean;
  * <ul>
  *   <li>{@code cAuthFilter()}：业务未自建 {@link CAbstractAuthFilter} 时，提供一个默认（匿名子类）实现，
  *   其匿名判定委派给 {@link #isAuthAnonymous}</li>
- *   <li>{@code cSessionService()}：业务未自建 {@link CAbstractSessionService} 时，提供一个默认（匿名子类）实现</li>
  *   <li>{@link #isAuthAnonymous}：可覆写的判定方法（"会话是否匿名"），<b>不覆写时按默认值（非匿名＝已认证）处理</b></li>
  *   <li>继承 {@link CAbstractAuthBaseConfiguration}：同时获得默认 mock 会话配置 bean（{@code cSessionMockConfig}）</li>
  * </ul>
@@ -62,8 +60,6 @@ import org.springframework.context.annotation.Bean;
  *   <td>{@code @ConditionalOnMissingBean} 跳过默认实现，不覆盖业务过滤器</td></tr>
  *   <tr><td>业务子类未覆写 {@link #isAuthAnonymous}</td>
  *   <td>使用默认实现：按"非匿名"处理（会话被视为已认证），不报错</td></tr>
- *   <tr><td>业务未提供 {@link CAbstractSessionService} bean</td>
- *   <td>注册默认会话服务：匿名子类 {@code new CAbstractSessionService<T>() {}}，会话读写行为由基类提供</td></tr>
  * </table>
  *
  * <h2>适用范围</h2>
@@ -93,14 +89,14 @@ import org.springframework.context.annotation.Bean;
  *   需 {@code @Primary} 或按名注入）。自动配置天然最后加载，业务侧显式注册时需自行保证顺序。</li>
  *   <li>默认过滤器只提供"匿名判定"这一个接缝：其余过滤器行为（会话加载、mock 分支等）仍由
  *   {@link CAbstractAuthFilter} 及其基类实现，本类不做二次封装。</li>
- *   <li>{@code @Bean} 方法名遵循项目规范以 {@code c} 前缀命名，bean 名为 {@code cAuthFilter}、{@code cSessionService}。</li>
+ *   <li>{@code @Bean} 方法名遵循项目规范以 {@code c} 前缀命名，bean 名为 {@code cAuthFilter}。</li>
  * </ul>
  *
  * @param <SESSION> 会话类型（Security 相关，下界 {@link ICSecuritySession}）
  *
  * @author c332030
  * @since 2026/9/14
- * @version 1.2
+ * @version 1.1
  * @see CAbstractAuthBaseConfiguration
  * @see CAbstractAuthFilter
  */
@@ -137,21 +133,6 @@ public abstract class CAbstractAuthConfiguration<SESSION extends ICSecuritySessi
                 return isAuthAnonymous(session);
             }
         };
-    }
-
-    /**
-     * 提供默认的会话服务 bean（业务已提供同类型 bean 时跳过）
-     *
-     * <p>返回绑定到本类会话类型 {@code SESSION} 的匿名子类实例：{@link CAbstractSessionService} 只差泛型绑定，
-     * 会话读写与当前会话获取等行为由基类（Redis）提供；业务需要自定义会话来源时自建同类型 bean，
-     * 本默认实现由 {@code @ConditionalOnMissingBean} 让位。</p>
-     *
-     * @return 默认会话服务
-     */
-    @Bean
-    @ConditionalOnMissingBean(CAbstractSessionService.class)
-    public CAbstractSessionService<SESSION> cSessionService() {
-        return new CAbstractSessionService<SESSION>() {};
     }
 
 }

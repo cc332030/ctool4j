@@ -12,8 +12,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * 都能看到同一类型。</p>
  *
  * <p>继承链自下而上：本类（web：类型契约）→
- * {@code CAbstractBaseAuthFilter}（auth-base：会话加载与过滤器骨架等非 Security 公共逻辑）→
- * {@code CAbstractAuthFilter}（auth-spring：Security 认证信息构造，业务直接继承）。</p>
+ * {@code com.c332030.ctool4j.auth.filter.CAbstractBaseAuthFilter}（auth-base：会话加载与过滤器骨架等非 Security 公共逻辑）→
+ * {@code com.c332030.ctool4j.auth.filter.CAbstractAuthFilter}（auth-spring：Security 认证信息构造，业务直接继承）。</p>
  *
  * <p>本类由 ctool4j-spring-security 的 {@code CAbstractJwtFilter} 改名并下沉到 web：安全过滤器链装配时需按
  * "认证过滤器"这一确定类型注入，若直接按 {@link OncePerRequestFilter} 注入，会与 Spring Boot 内置的同类型 bean
@@ -45,7 +45,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * @author c332030
  * @since 2026/3/19
- * @version 1.2
+ * @version 1.1
  */
 public abstract class CAbstractWebAuthFilter extends OncePerRequestFilter {
 

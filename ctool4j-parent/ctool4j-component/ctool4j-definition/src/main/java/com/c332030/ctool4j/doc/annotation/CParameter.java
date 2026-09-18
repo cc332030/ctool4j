@@ -14,7 +14,7 @@ import java.lang.annotation.*;
  *
  * <p>纯文档描述注解，不参与运行时绑定；参数绑定与必填由 SpringMVC 原生
  * {@code @RequestParam(required = ...)} 控制（可叠加标注
- * {@code CNotRequired} 表达文档非必填）。</p>
+ * {@code com.c332030.ctool4j.web.validation.annotation.CNotRequired} 表达文档非必填）。</p>
  *
  * <h2>能力目录</h2>
  * <ul>
@@ -75,7 +75,7 @@ import java.lang.annotation.*;
  * @author c332030
  * @see "doc/design/definition/openapi-doc-annotations.adoc"
  * @since 1.0
- * @version 1.1
+ * @version 1.0
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

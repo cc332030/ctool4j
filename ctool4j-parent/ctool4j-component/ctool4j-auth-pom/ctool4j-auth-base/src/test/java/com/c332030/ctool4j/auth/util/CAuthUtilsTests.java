@@ -21,7 +21,7 @@ import java.util.Collections;
  * <p>
  * Description: CAuthUtilsTests
  * </p>
- * <p>`CAuthUtils` 的测试用例</p>
+ * <p>`com.c332030.ctool4j.auth.util.CAuthUtils`（CAuthUtils）的测试用例</p>
  *
  * <p>覆盖依赖配置的 jwt 能力：由 jwt 校验并解析 token（getTokenByJwt）、为 jwt body 生成 jwt 并写入响应头（setJwt）；
  * token 前缀与请求头/请求属性读写等纯逻辑见 ctool4j-web 的 CTokenUtils 测试。</p>
@@ -73,7 +73,7 @@ import java.util.Collections;
  * </ul>
  *
  * @since 2026/9/11
- * @version 1.1
+ * @version 1.0
  * @see CAuthUtils
  */
 @CustomLog

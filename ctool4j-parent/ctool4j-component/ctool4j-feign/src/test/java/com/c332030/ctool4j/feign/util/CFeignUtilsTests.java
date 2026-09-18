@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 覆盖：addInterceptor / getApiType / intercept / newResponse / transferHeaders
  * 的正常路径、边界与异常路径
  *
- * <p>是 {@link CFeignUtils} 的测试用例。</p>
+ * <p>是 {@link com.c332030.ctool4j.feign.util.CFeignUtils} 的测试用例。</p>
  *
  * <h2>用例设计思路与依据</h2>
  * <ul>
@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author c332030
  * @since 1.0
- * @version 1.1
+ * @version 1.0
  */
 class CFeignUtilsTests {
 

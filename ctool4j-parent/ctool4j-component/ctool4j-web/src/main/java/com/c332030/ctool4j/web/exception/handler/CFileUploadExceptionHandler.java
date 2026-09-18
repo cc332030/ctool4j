@@ -56,8 +56,8 @@ import java.util.Set;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>按泛化提示返回</td>
+ *     <td>异常对象为 null（{@link #isUploadSizeExceeded(Throwable)} / {@link #uploadSizeExceededResult(Throwable)} 的公开契约允许）</td>
+ *     <td>不取异常内容，按泛化提示返回</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>

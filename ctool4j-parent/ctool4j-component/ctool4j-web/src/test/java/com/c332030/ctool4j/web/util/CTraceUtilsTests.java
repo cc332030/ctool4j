@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CTraceUtilsTests
  * </p>
- * <p>`CTraceUtils` 的测试用例</p>
+ * <p>`com.c332030.ctool4j.web.util.CTraceUtils`（CTraceUtils）的测试用例</p>
  *
  * <p>补充覆盖 generateTraceId/setTraceId/getTraceId/removeTraceId/removeTraceInfo 等
  * 不依赖 Spring 容器的链路追踪方法；initTrace 依赖容器请求对象，不在本测试覆盖范围</p>
@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.1
+ * @version 1.0
  */
 @CustomLog
 public class CTraceUtilsTests {

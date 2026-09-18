@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,8 +36,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回异常消息（消息为 null 时用异常类型名）</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -49,7 +50,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -59,6 +60,8 @@ public class CIllegalArgumentExceptionHandler {
 
     /**
      * 处理非法参数异常
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null）；
+     * 异常消息为 null（如 {@code new IllegalArgumentException()}）时用异常类型简单名兜底，避免 {@code message: null}；见类 javadoc「兜底设计」。</p>
      *
      * @param e 非法参数异常
      * @return 错误结果
@@ -67,7 +70,13 @@ public class CIllegalArgumentExceptionHandler {
     public CStrResult<Void> handle(IllegalArgumentException e) {
 
         log.debug("handle IllegalArgumentException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
-        return CStrResult.error(e.getMessage());
+
+        val message = null == e ? null : e.getMessage();
+        if (null == message) {
+            return CStrResult.error(null == e ? "非法参数" : e.getClass().getSimpleName());
+        }
+
+        return CStrResult.error(message);
     }
 
 }

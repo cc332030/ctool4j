@@ -37,10 +37,11 @@ import static org.mockito.Mockito.when;
  * <h2>参数校验失败异常处理</h2>
  * <ul>
  *   <li>1.1 handle：验证参数校验失败异常处理结果</li>
+ *   <li>1.3 异常对象为 null（非预期入参）：返回固定错误结果、不抛 NPE（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 public class CMethodArgumentNotValidExceptionHandlerTests {
 
@@ -83,6 +84,20 @@ public class CMethodArgumentNotValidExceptionHandlerTests {
 
         Assertions.assertEquals("500", result.getCode());
         Assertions.assertEquals("", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.3：异常对象为 null（非预期入参）返回固定错误结果、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（兜底不读 {@code getBindingResult()}）。</p>
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("参数校验失败", result.getMessage());
     }
 
     /**

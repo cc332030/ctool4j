@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  * Description: CMethodHandleUtils 测试（handle 生成与缓存、统一 Object 签名适配）
  * </p>
  *
- * <p>`CMethodHandleUtils`（core 工具类）的测试用例；
+ * <p>`com.c332030.ctool4j.core.classes.CMethodHandleUtils`（core 工具类）的测试用例；
  *
  * <h2>设计思路</h2>
  * <ul>
@@ -73,7 +73,7 @@ import java.lang.reflect.Method;
  * </ul>
  *
  * @since 2025/12/12
- * @version 1.1
+ * @version 1.0
  * @see CMethodHandleUtils
  */
 public class CMethodHandleUtilsTests {

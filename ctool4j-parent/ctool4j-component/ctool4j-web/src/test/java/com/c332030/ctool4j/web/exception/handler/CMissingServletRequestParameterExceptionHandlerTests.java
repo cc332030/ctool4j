@@ -31,10 +31,12 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
  * <h2>必填请求参数缺失异常处理</h2>
  * <ul>
  *   <li>1.1 必填请求参数缺失异常的处理结果（handle）</li>
+ *   <li>1.2 参数名为 null：只返回固定文案、不拼 {@code null}（handle_nullParameterName）</li>
+ *   <li>1.3 异常对象为 null（非预期入参）：返回固定文案、不抛 NPE（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.1
  */
 public class CMissingServletRequestParameterExceptionHandlerTests {
 
@@ -55,6 +57,34 @@ public class CMissingServletRequestParameterExceptionHandlerTests {
         Assertions.assertEquals("缺少必填参数：id", result.getMessage());
         // 不透出异常自身消息（含 Java 类型名）
         Assertions.assertFalse(result.getMessage().contains("Required request parameter"));
+    }
+
+    /**
+     * 对应测试用例 1.2：参数名为 null 时只返回固定文案（不拼 {@code null}）
+     */
+    @Test
+    public void handle_nullParameterName() {
+        // 边界：参数名为 null（构造器的 parameterName 传 null）
+        val e = new MissingServletRequestParameterException(null, "java.lang.Long");
+
+        CStrResult<Void> result = handler.handle(e);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("缺少必填参数", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.3：异常对象为 null（非预期入参）返回固定文案、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（兜底不读 {@code getParameterName()}）。</p>
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("缺少必填参数", result.getMessage());
     }
 
 }

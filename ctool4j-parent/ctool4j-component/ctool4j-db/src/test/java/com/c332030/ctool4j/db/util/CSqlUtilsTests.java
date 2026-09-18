@@ -35,7 +35,7 @@ import java.util.List;
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
  *   <li>覆盖：limit（默认/指定/0/1/null）、行锁、表别名（非空/空/空白）、列名（lambda/字符串/复合字段）、</li>
- *   <li>多列拼接（含别名、布尔字段、空集合）、大于条件（含别名）、等值条件（单对/多对/别名/空集合）。</li>
+ *   <li>多列拼接（含别名、布尔字段、空/null 集合）、大于条件（含别名）、等值条件（单对/多对/别名/空/null 集合）。</li>
  *   <li>未覆盖：非空校验之外的非法入参（如非法字段名）；SQL 注入转义（本类不负责）。</li>
  * </ul>
  * <h2>limit 语句</h2>
@@ -72,11 +72,11 @@ import java.util.List;
  *   <li>7.1 单对（无/带/空别名）：id = user_name / t1.id = t2.user_name / 空别名（getEqualsSqlTwoFunc）</li>
  *   <li>7.2 多对按分隔符拼接：COMMA / AND / OR（getEqualsSqlPairs）</li>
  *   <li>7.3 多对带左右别名：t1.id = t2.user_name（getEqualsSqlPairsWithAlias）</li>
- *   <li>7.4 空集合：返回空串（getEqualsSqlPairsEmpty）</li>
+ *   <li>7.4 空/null 集合：返回空串（getEqualsSqlPairsEmpty / getEqualsSqlPairsNull）</li>
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  */
 public class CSqlUtilsTests {
 
@@ -270,6 +270,21 @@ public class CSqlUtilsTests {
         Assertions.assertEquals(
             "",
             CSqlUtils.getEqualsSql(Collections.emptyList(), CSqlSeparatorEnum.AND)
+        );
+    }
+
+    /**
+     * 对应测试用例 7.5：null 集合返回空串（与 {@code getColumnsSql} 的 null 兜底口径一致，不抛 NPE）
+     */
+    @Test
+    public void getEqualsSqlPairsNull() {
+        Assertions.assertEquals(
+            "",
+            CSqlUtils.getEqualsSql(null, CSqlSeparatorEnum.AND)
+        );
+        Assertions.assertEquals(
+            "",
+            CSqlUtils.getEqualsSql(null, "t1", "t2", CSqlSeparatorEnum.AND)
         );
     }
 

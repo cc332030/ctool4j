@@ -60,11 +60,9 @@ public class CRequiredValidatorPerfTests {
     /**
      * 基准执行入口（显式运行：mvn -Pperf test -Dtest=CRequiredValidatorPerfTests -DfailIfNoTests=false）
      * 性能测试类，surefire 打包/常规测试时排除（命名以 PerfTests 结尾）
-     */
-
-    /**
      * 对应测试用例 1.1：benchmark
      */
+
     @Test
     public void benchmark() {
         CBenchmarkReport report = CBenchmarkRunner.run(cases(), "CSchema 校验性能对比");

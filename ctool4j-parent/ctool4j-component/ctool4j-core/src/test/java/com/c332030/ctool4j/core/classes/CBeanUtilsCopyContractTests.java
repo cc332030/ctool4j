@@ -65,9 +65,9 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/9/17
- * @version 1.1
- * @see CBeanUtils
- * @see CConvertUtils
+ * @version 1.0
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @see com.c332030.ctool4j.core.classes.CConvertUtils
  * @see CBeanUtilsTests
  * @see CBeanUtilsMoreTests
  * @see CBeanUtilsDeepCopyTests

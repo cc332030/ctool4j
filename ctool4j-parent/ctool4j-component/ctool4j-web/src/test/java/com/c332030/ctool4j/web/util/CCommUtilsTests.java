@@ -22,7 +22,7 @@ import java.util.Map;
  * Description: CCommUtilsTests
  * </p>
  *
- * <p>`CCommUtils`（web 工具类）请求日志拼接的测试用例，
+ * <p>`com.c332030.ctool4j.web.util.CCommUtils`（web 工具类）请求日志拼接的测试用例，
  * 覆盖容易出错或出错后难发现的方法：headers 拼接、URL/Query 拼接、charset 解析、响应报文头、完整 HTTP 日志拼接等；
  *
  * <h2>设计思路</h2>
@@ -169,7 +169,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.1
+ * @version 1.0
  */
 @CustomLog
 public class CCommUtilsTests {

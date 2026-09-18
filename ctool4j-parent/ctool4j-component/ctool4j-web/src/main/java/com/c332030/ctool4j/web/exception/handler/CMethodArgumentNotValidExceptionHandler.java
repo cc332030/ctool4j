@@ -39,8 +39,8 @@ import java.util.stream.Collectors;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回固定「参数校验失败」错误结果</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -65,6 +65,8 @@ public class CMethodArgumentNotValidExceptionHandler {
      * 处理参数校验异常，拼接全部字段错误信息
      *
      * <p>每个字段错误展示为"字段名 + 校验消息"（如 "name 不能为空"），多个字段错误以"，"分隔。</p>
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null），
+     * 这里兜底返回固定错误结果（不读 {@code getBindingResult()} 等异常内容）；见类 javadoc「兜底设计」。</p>
      *
      * @param e 参数校验异常
      * @return 错误结果
@@ -73,6 +75,9 @@ public class CMethodArgumentNotValidExceptionHandler {
     public CStrResult<Void> handle(MethodArgumentNotValidException e) {
 
         log.debug("参数校验错误，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
+        if (null == e) {
+            return CStrResult.error("参数校验失败");
+        }
 
         val message = e.getBindingResult().getFieldErrors()
             .stream().map(fieldError -> fieldError.getField() + " " + fieldError.getDefaultMessage())

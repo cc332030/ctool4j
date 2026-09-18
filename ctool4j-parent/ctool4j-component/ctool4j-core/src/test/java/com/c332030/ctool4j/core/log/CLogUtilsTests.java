@@ -19,7 +19,7 @@ import java.util.HashMap;
  * Description: CLogUtilsTests
  * </p>
  *
- * <p>`CLogUtils` 的测试用例</p>
+ * <p>`com.c332030.ctool4j.core.log.CLogUtils`（CLogUtils）的测试用例</p>
  *
  * <p><b>用例设计思路</b>：按「JSON 化判断规则 / 动态注册与覆盖 / 参数转换 / 可打印判断与转换」四个维度组织：</p>
  * <ul>
@@ -98,7 +98,7 @@ import java.util.HashMap;
  * </ul>
  *
  * @since 2025/9/14
- * @version 1.1
+ * @version 1.0
  * @see CLogUtils
  */
 public class CLogUtilsTests {
