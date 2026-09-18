@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.test.classes;
+package com.c332030.ctool4j.core.classes;
 
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import lombok.Data;
@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -24,6 +25,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -46,25 +50,32 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：标量/不可变、Date 防御性拷贝、嵌套 Bean、集合/Map/数组及其元素、Map 键、环状引用、
- *   同源实现与接口降级、comparator 保留、EnumMap/EnumSet、视图替换、raw 与泛型变量、接口字段、
- *   无无参构造降级、跨类型、Map（JSON）来源、null/空/空元素。</li>
- *   <li>未覆盖：record/无参构造缺失的不可变对象（实现明确降级为共享引用）、transient 语义。</li>
+ *   <li>覆盖：标量/不可变、Date/Calendar 防御性拷贝、嵌套 Bean、集合/Map/数组及其元素、Map 键、环状引用、
+ *   跨字段共享引用去重、深度上限降级、同源实现与接口降级、comparator 保留、EnumMap/EnumSet、视图替换、
+ *   raw 与泛型变量、接口字段、无无参构造降级、跨类型、Map（JSON）来源、null/空/空元素、
+ *   Optional（含原始值包装的 OptionalInt/Long/Double）、身份表按需创建（分配层面）。</li>
+ *   <li>未覆盖：record（无可用无参构造、含 final 字段，实现明确降级为共享引用）、transient 语义。</li>
  * </ul>
  * <h2>用例</h2>
  * <ul>
  *   <li>1.1 标量与不可变值共享引用（immutableValues_shared）</li>
  *   <li>1.2 Date 防御性拷贝（date_defensiveCopy）</li>
+ *   <li>1.3 Calendar 防御性拷贝（calendar_defensiveCopy）</li>
  *   <li>2.1 嵌套 Bean 递归拷贝（bean_nestedDeepCopy）</li>
  *   <li>2.2 集合/Map 字段及其元素（collectionAndMap_elementsDeepCopied）</li>
  *   <li>2.3 数组（基本类型/对象/多维）（array_deepCopy）</li>
  *   <li>2.4 Map 键深拷贝（map_keysDeepCopied）</li>
+ *   <li>2.5 容器元素为 JDK 非拷贝协议 ⇒ 元素共享（collection_jdkNonCopyableElements_shared）</li>
  *   <li>3.1 自引用与双向引用保持环结构（cycle_preserved）</li>
+ *   <li>3.2 跨字段共享同一实例只拷一份（sharedReference_singleCopy）</li>
+ *   <li>3.3 超过深度上限的层原样返回引用（deepCopyDepthLimit_returnsReference）</li>
  *   <li>4.1 同源实现优先（container_sameImplPreferred）</li>
  *   <li>4.2 接口降级为标准实现且保序（container_fallbackStandardImpl）</li>
  *   <li>4.3 TreeSet/TreeMap 保留 comparator（container_comparatorKept）</li>
  *   <li>4.4 EnumMap/EnumSet 重建（container_enumCollections）</li>
  *   <li>4.5 视图/不可变集合替换为可变实现（container_viewReplaced）</li>
+ *   <li>4.6 非标准容器（ArrayDeque）同源实现深拷贝（container_queueFallbackArrayDeque）</li>
+ *   <li>4.7 空 EnumMap 仍保持 EnumMap 实现（container_emptyEnumMap_copied）</li>
  *   <li>5.1 raw 声明按运行时类型拷贝（generic_rawFallsBackToRuntimeType）</li>
  *   <li>5.2 泛型变量按元素运行时类型拷贝（generic_typeVariableFallsBackToRuntimeType）</li>
  *   <li>6.1 接口字段按运行时类型深拷贝（interfaceField_copiedAsRuntimeType）</li>
@@ -74,11 +85,18 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>6.5 集合批量入口与边界（copyList_andEdge）</li>
  *   <li>6.6 Optional 内部值深拷贝、空 Optional 共享（optional_deepCopy）</li>
  *   <li>6.7 函数式接口（lambda）共享且不重复尝试实例化（functionalInterface_sharedAndCached）</li>
+ *   <li>6.8 含 final 实例字段的目标降级为共享引用（finalField_sharedReference）</li>
+ *   <li>6.9 OptionalInt/OptionalLong/OptionalDouble 只包原始值 ⇒ 共享（optionalPrimitive_shared）</li>
+ *   <li>7.1 身份表按需创建的语义等价性：标量 DTO、深拷贝字段全为 null 时结果正确（identityMap_createdOnDemand）</li>
  * </ul>
  *
  * @author c332030
  * @since 2026/9/17
- * @version 1.0
+ * @version 1.1
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @see CBeanUtilsTests
+ * @see CBeanUtilsCopyContractTests
+ * @see CBeanUtilsMoreTests
  */
 class CBeanUtilsDeepCopyTests {
 
@@ -425,7 +443,7 @@ class CBeanUtilsDeepCopyTests {
         val inner = new Inner();
         inner.setName("inner");
 
-        List<Inner> list = CBeanUtils.copyList(Collections.singletonList(inner), Inner.class);
+        val list = CBeanUtils.copyList(Collections.singletonList(inner), Inner.class);
         Assertions.assertNotSame(inner, list.get(0));
         Assertions.assertEquals("inner", list.get(0).getName());
 
@@ -483,6 +501,195 @@ class CBeanUtilsDeepCopyTests {
         Assertions.assertSame(runner, first.getRunner(), "函数式接口值应共享引用");
         Assertions.assertSame(runner, second.getRunner(), "重复复制同样共享（判定已按类缓存）");
         Assertions.assertEquals("run", second.getRunner().run());
+    }
+
+    /**
+     * <p>对应测试用例 6.8：目标类含 final 实例字段 ⇒ 无法完整结构拷贝，降级为共享引用</p>
+     *
+     * <p>既有 copy 契约不写 final 字段，若强行结构拷贝只会得到"部分字段为空"的对象（静默丢数据），
+     * 故按类判定后整体退化为共享引用（判定按类缓存、只打印一次 debug）。</p>
+     */
+    @Test
+    void finalField_sharedReference() {
+
+        val holder = new FinalFieldHolder();
+        holder.setInner(new FinalFieldInner());
+
+        val copy = CBeanUtils.copy(holder, new FinalFieldHolder());
+
+        Assertions.assertNotSame(holder, copy);
+        Assertions.assertSame(
+                holder.getInner(), copy.getInner(),
+                "目标类含 final 字段无法完整拷贝 ⇒ 共享引用（不产出半空对象）"
+        );
+    }
+
+    /**
+     * <p>对应测试用例 1.3：{@code Calendar} 可变，做防御性拷贝（与 Date 同一原则）</p>
+     */
+    @Test
+    void calendar_defensiveCopy() {
+        val holder = new CalendarHolder();
+        val calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(1700000000000L);
+        holder.setCalendar(calendar);
+
+        val copy = CBeanUtils.copy(holder, new CalendarHolder());
+
+        Assertions.assertNotSame(calendar, copy.getCalendar());
+        Assertions.assertEquals(calendar.getTimeInMillis(), copy.getCalendar().getTimeInMillis());
+
+        copy.getCalendar().setTimeInMillis(0L);
+        Assertions.assertEquals(1700000000000L, calendar.getTimeInMillis(), "副本变更不应影响源");
+    }
+
+    /**
+     * <p>对应测试用例 3.2：跨字段共享同一实例 ⇒ 只拷一份（身份表去重），副本内部保持共享结构</p>
+     *
+     * <p>{@link #newOuter()} 中同一个 {@code inner} 实例被 {@code inner}、{@code inners[0]}、
+     * {@code arr[0]}、{@code map["k"]} 同时引用，复制后应全部指向同一个副本。</p>
+     */
+    @Test
+    void sharedReference_singleCopy() {
+        val outer = newOuter();
+
+        val copy = CBeanUtils.copy(outer, new Outer());
+
+        Assertions.assertNotSame(outer.getInner(), copy.getInner());
+        Assertions.assertSame(copy.getInner(), copy.getInners().get(0), "集合元素应复用字段的同一副本");
+        Assertions.assertSame(copy.getInner(), copy.getArr()[0], "数组元素应复用字段的同一副本");
+        Assertions.assertSame(copy.getInner(), copy.getMap().get("k"), "Map 值应复用字段的同一副本");
+    }
+
+    /**
+     * <p>对应测试用例 3.3：超过深度上限（64）的层原样返回源引用，且不抛错、不栈溢出</p>
+     */
+    @Test
+    void deepCopyDepthLimit_returnsReference() {
+        val head = new Cyclic();
+        head.setV("0");
+        Cyclic tail = head;
+        for (int i = 1; i <= 80; i++) {
+            val next = new Cyclic();
+            next.setV(String.valueOf(i));
+            tail.setOther(next);
+            tail = next;
+        }
+
+        val copy = Assertions.assertDoesNotThrow(() -> CBeanUtils.copy(head, new Cyclic()));
+
+        Assertions.assertNotSame(head, copy);
+        Assertions.assertEquals("0", copy.getV());
+
+        // 沿两条链同步前进，直到副本链上的节点与源链节点为同一实例（即超限层原样返回）
+        Cyclic copied = copy;
+        Cyclic source = head;
+        int depth = 0;
+        while (null != copied && null != source && copied != source) {
+            copied = copied.getOther();
+            source = source.getOther();
+            depth++;
+        }
+        Assertions.assertSame(source, copied, "超过深度上限的层应原样返回源引用");
+        Assertions.assertTrue(depth <= 65, "深度上限应在 64 层附近生效，实际共享于第 " + depth + " 层");
+    }
+
+    /**
+     * <p>对应测试用例 6.9：{@code OptionalInt/OptionalLong/OptionalDouble} 只包装原始值 ⇒ 共享引用</p>
+     */
+    @Test
+    void optionalPrimitive_shared() {
+        val holder = new PrimitiveOptionalHolder();
+        val oi = OptionalInt.of(1);
+        val ol = OptionalLong.of(2L);
+        val od = OptionalDouble.of(3D);
+        holder.setOi(oi);
+        holder.setOl(ol);
+        holder.setOd(od);
+
+        val copy = CBeanUtils.copy(holder, new PrimitiveOptionalHolder());
+
+        Assertions.assertSame(oi, copy.getOi());
+        Assertions.assertSame(ol, copy.getOl());
+        Assertions.assertSame(od, copy.getOd());
+    }
+
+    /**
+     * <p>对应测试用例 7.1：身份表按需创建的语义等价性——标量 DTO、深拷贝字段全为 null 时结果正确</p>
+     *
+     * <p>本用例只断言<b>语义结果</b>（不可变值共享、null 字段保持 null、不抛错）；「身份表是否按需创建」
+     * 属分配行为、无法低成本从外部观测，由实现结构保证（{@code copyWithPlan} 中共享分支与 null 值
+     * 在创建身份表前即 {@code continue}），不在此断言。环引用/共享引用用例覆盖身份表照常创建的场景。</p>
+     */
+    @Test
+    void identityMap_createdOnDemand() {
+        val scalar = new ScalarBean();
+        scalar.setName("n");
+        scalar.setCount(1);
+
+        val scalarCopy = CBeanUtils.copy(scalar, new ScalarBean());
+        Assertions.assertEquals("n", scalarCopy.getName());
+        Assertions.assertEquals(1, scalarCopy.getCount());
+
+        val holder = new Outer();
+        holder.setId("id");
+
+        val holderCopy = CBeanUtils.copy(holder, new Outer());
+        Assertions.assertEquals("id", holderCopy.getId());
+        Assertions.assertNull(holderCopy.getInner());
+        Assertions.assertNull(holderCopy.getInners());
+        Assertions.assertNull(holderCopy.getArr());
+        Assertions.assertNull(holderCopy.getMap());
+        Assertions.assertNull(holderCopy.getNums());
+    }
+
+    /**
+     * <p>对应测试用例 2.5：容器元素为 JDK 非拷贝协议类型（StringBuilder）⇒ 容器副本、元素共享</p>
+     */
+    @Test
+    void collection_jdkNonCopyableElements_shared() {
+        val sb = new StringBuilder("sb");
+        val holder = new SbListHolder();
+        holder.setList(new ArrayList<>(Collections.singletonList(sb)));
+
+        val copy = CBeanUtils.copy(holder, new SbListHolder());
+
+        Assertions.assertNotSame(holder.getList(), copy.getList(), "容器本身应深拷贝");
+        Assertions.assertEquals(1, copy.getList().size());
+        Assertions.assertSame(sb, copy.getList().get(0), "JDK 非拷贝协议元素应共享引用");
+    }
+
+    /**
+     * <p>对应测试用例 4.6：非标准容器（ArrayDeque）按同源实现深拷贝——元素独立、实现保持</p>
+     */
+    @Test
+    void container_queueFallbackArrayDeque() {
+        val holder = new QueueHolder();
+        holder.setDeque(new ArrayDeque<>(Arrays.asList("a", "b")));
+
+        val copy = CBeanUtils.copy(holder, new QueueHolder());
+
+        Assertions.assertNotSame(holder.getDeque(), copy.getDeque());
+        Assertions.assertEquals(ArrayDeque.class, copy.getDeque().getClass());
+        Assertions.assertEquals(new ArrayList<>(holder.getDeque()), new ArrayList<>(copy.getDeque()));
+    }
+
+    /**
+     * <p>对应测试用例 4.7：空 EnumMap 仍保持 EnumMap 实现（保留键类型）且为空</p>
+     *
+     * <p>回归点：{@code EnumMap(Map)} 对空源无法推断键类型会抛异常，故须走 {@code EnumMap(EnumMap)}
+     * 保留键类型的构造；曾误降级为标准 Map，导致写回 {@code EnumMap} 声明字段时 {@code ClassCastException}。</p>
+     */
+    @Test
+    void container_emptyEnumMap_copied() {
+        val holder = new EnumHolder();
+        holder.setEnumMap(new EnumMap<>(Color.class));
+
+        val copy = CBeanUtils.copy(holder, new EnumHolder());
+
+        Assertions.assertNotSame(holder.getEnumMap(), copy.getEnumMap());
+        Assertions.assertTrue(copy.getEnumMap().isEmpty());
+        Assertions.assertEquals(EnumMap.class, copy.getEnumMap().getClass(), "空 EnumMap 仍应保持 EnumMap 实现");
     }
 
     private static Outer newOuter() {
@@ -718,12 +925,61 @@ class CBeanUtilsDeepCopyTests {
     }
 
     /**
+     * 含 final 实例字段的内层 Bean（final 字段不可写 ⇒ 无法完整结构拷贝）
+     */
+    @Data
+    static class FinalFieldInner {
+
+        private final String name = "inner";
+    }
+
+    /**
+     * 持有"含 final 字段内层 Bean"的外层 Bean
+     */
+    @Data
+    static class FinalFieldHolder {
+
+        private FinalFieldInner inner;
+    }
+
+    /**
+     * Calendar 字段（可变值类型，防御性拷贝）
+     */
+    @Data
+    static class CalendarHolder {
+
+        private Calendar calendar;
+    }
+
+    /**
+     * OptionalInt/OptionalLong/OptionalDouble 字段（只包原始值 ⇒ 共享）
+     */
+    @Data
+    static class PrimitiveOptionalHolder {
+
+        private OptionalInt oi;
+
+        private OptionalLong ol;
+
+        private OptionalDouble od;
+    }
+
+    /**
      * 函数式接口
      */
     @FunctionalInterface
     interface Runner {
 
         String run();
+    }
+
+    /**
+     * 持有"JDK 非拷贝协议元素集合"的外层 Bean（元素按共享处理）
+     */
+    @Data
+    static class SbListHolder {
+
+        private List<StringBuilder> list;
     }
 
     /**

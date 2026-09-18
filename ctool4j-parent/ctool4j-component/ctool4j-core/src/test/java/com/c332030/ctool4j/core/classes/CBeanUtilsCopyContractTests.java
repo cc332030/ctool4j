@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.test.classes;
+package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
@@ -8,6 +8,7 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -43,9 +44,13 @@ import java.util.List;
  *       <td>2.5 mutable_unassignable_jdkTarget_skip</td></tr>
  *   <tr><td>可变（JDK 非拷贝协议，如 StringBuilder）</td><td>可赋值（同型）</td><td>共享（不做 JDK 结构拷贝）</td>
  *       <td>2.6 mutable_jdkSameType_shared</td></tr>
+ *   <tr><td>可变（自定义 Bean，非容器声明）</td><td>不可赋值 + 无转换器 + 目标确定不可变</td><td>跳过（运行期决议）</td>
+ *       <td>2.7 mutable_unassignable_immutableTarget_runtimeSkip</td></tr>
  *   <tr><td>Class</td><td>可赋值</td><td>共享（Class 不参与拷贝）</td>
  *       <td>3.1 classField_shared</td></tr>
  * </table>
+ * <p>注：源声明为集合/Map/数组的字段在计划期即内联深拷贝（不走本运行期决议表，见 2.3 用例），
+ * 其目标不兼容时由写回失败降级为跳过；2.7 用非容器声明（自定义 Bean）覆盖真正的运行期"目标确定不可变 → 跳过"分支。</p>
  *
  * <h2>入口一致性（同一决议、同一执行）</h2>
  * <ul>
@@ -62,6 +67,12 @@ import java.util.List;
  *
  * @since 2026/9/17
  * @version 1.0
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @see com.c332030.ctool4j.core.classes.CConvertUtils
+ * @see CBeanUtilsTests
+ * @see CBeanUtilsMoreTests
+ * @see CBeanUtilsDeepCopyTests
+ * @see CBeanUtilsCompatibilityTests
  */
 class CBeanUtilsCopyContractTests {
 
@@ -259,6 +270,23 @@ class CBeanUtilsCopyContractTests {
         Assertions.assertNotSame(from.getInner(), bySupplier.getInner());
     }
 
+    /**
+     * <p>对应测试用例 2.7：可变值不可赋值、无转换器、目标确定不可变 ⇒ 跳过（运行期决议路径）</p>
+     *
+     * <p>用非容器声明（自定义 Bean → BigDecimal）触发"目标确定不可变 ⇒ SKIP"分支：
+     * 源声明为集合/Map/数组的字段会走计划期内联深拷贝（见决议表注），不触达此分支。</p>
+     */
+    @Test
+    void mutable_unassignable_immutableTarget_runtimeSkip() {
+
+        val from = new BeanSource();
+        from.setBean(newInner("inner"));
+
+        val to = CBeanUtils.copy(from, BigDecimalTarget.class);
+
+        Assertions.assertNull(to.getBean(), "无转换器且目标确定不可变 ⇒ 跳过（不写入）");
+    }
+
     private static Inner newInner(String name) {
         val inner = new Inner();
         inner.setName(name);
@@ -401,6 +429,18 @@ class CBeanUtilsCopyContractTests {
     static class ClassTarget {
 
         private Class<?> type;
+    }
+
+    @Data
+    static class BeanSource {
+
+        private Inner bean;
+    }
+
+    @Data
+    static class BigDecimalTarget {
+
+        private BigDecimal bean;
     }
 
 }

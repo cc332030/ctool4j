@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.test.classes;
+package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
@@ -25,8 +25,8 @@ import java.util.*;
  * Description: CBeanUtils 补充测试（覆盖各复制入口与 toMap 语义一致性）
  * </p>
  * <p>
- * 关键语义：集合/Map/数组字段不复制（与转换器对这三类返回空一致）、
- * final/static 字段跳过、null 值跳过、类型不匹配无转换器时跳过、
+ * 关键语义：集合/Map/数组/Bean/Date 字段深拷贝（元素与键值递归拷贝、环状引用保持结构）、
+ * final/static 字段跳过、null 值跳过、类型不匹配且无转换器时跳过（JDK 非拷贝协议类型不做结构拷贝）、
  * toMap 过滤 null 键值并返回不可变 Map。
  * </p>
  * <p>
@@ -45,9 +45,9 @@ import java.util.*;
  * <h2>对象→对象</h2>
  * <ul>
  *   <li>1.1.1 copyObjectToObject：对象间复制</li>
- *   <li>1.1.2 copyObjectToObjectSkipCollectionAndArray：复制跳过集合与数组</li>
+ *   <li>1.1.2 copyObjectToObjectDeepCopyCollectionAndArray：复制深拷贝集合与数组</li>
  *   <li>1.1.3 copyObjectToObjectSkipFinal：复制跳过 final 字段</li>
- *   <li>1.1.4 copyNoConverterSkip：无转换器时跳过</li>
+ *   <li>1.1.4 copyNoConverterSkip：无转换器时跳过（StringBuilder→StringBuffer）</li>
  *   <li>1.1.5 copyParentDeclaredTypeFallback：父类声明类型兜底</li>
  *   <li>1.1.6 copyUserDtoToRsp：UserDto→UserRsp 复制</li>
  * </ul>
@@ -57,7 +57,7 @@ import java.util.*;
  *   <li>1.2.2 copyMapToObjectSkipNull：Map→对象跳过 null</li>
  *   <li>1.2.3 copyMapToObjectTypeConvert：Map→对象类型转换</li>
  *   <li>1.2.4 copyMapUnmodifiable：不可变 Map 复制</li>
- *   <li>1.2.5 copyClassEntrySkipCollectionAndArray：复制跳过集合与数组</li>
+ *   <li>1.2.5 copyClassEntryDeepCopyCollectionAndArray：复制深拷贝集合与数组</li>
  * </ul>
  * <h2>边界</h2>
  * <ul>
@@ -80,6 +80,7 @@ import java.util.*;
  *   <li>3.6 toMapNull：null 转 Map</li>
  *   <li>3.7 toMapIncludesFinal：含 final 字段转 Map</li>
  *   <li>3.8 toMapJdkClass：JDK 类转 Map</li>
+ *   <li>3.9 toMap_shallowReferences：toMap 浅引用（集合/Map 与原对象同一引用）</li>
  * </ul>
  * <h2>类型转换</h2>
  * <ul>
@@ -98,7 +99,12 @@ import java.util.*;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @see CBeanUtilsTests
+ * @see CBeanUtilsCopyContractTests
+ * @see CBeanUtilsDeepCopyTests
+ * @see CBeanUtilsCompatibilityTests
  */
 public class CBeanUtilsMoreTests {
 
@@ -214,17 +220,24 @@ public class CBeanUtilsMoreTests {
     }
 
     /**
-     * 测试对象直接复制跳过集合/Map/数组字段（与转换器对这三类返回空一致）
-     * 对应测试用例 1.1.2：复制跳过集合与数组
+     * 测试对象直接复制时集合/Map/数组字段深拷贝（元素递归拷贝，源与副本不共享）
+     *
+     * <p>语义变更说明：旧实现跳过这三类字段（不写入），现按深拷贝写入——与 CBeanUtils 的深拷贝能力一致。</p>
+     *
+     * 对应测试用例 1.1.2：复制深拷贝集合与数组
      */
     @Test
-    public void copyObjectToObjectSkipCollectionAndArray() {
+    public void copyObjectToObjectDeepCopyCollectionAndArray() {
 
-        val to = CBeanUtils.copy(newFrom(), new ToBean());
+        val from = newFrom();
+        val to = CBeanUtils.copy(from, new ToBean());
 
-        Assertions.assertNull(to.getRoles());
-        Assertions.assertNull(to.getTags());
-        Assertions.assertNull(to.getNums());
+        Assertions.assertNotSame(from.getRoles(), to.getRoles());
+        Assertions.assertEquals(from.getRoles(), to.getRoles());
+        Assertions.assertNotSame(from.getTags(), to.getTags());
+        Assertions.assertEquals(from.getTags(), to.getTags());
+        Assertions.assertNotSame(from.getNums(), to.getNums());
+        Assertions.assertArrayEquals(from.getNums(), to.getNums());
     }
 
     /**
@@ -240,23 +253,28 @@ public class CBeanUtilsMoreTests {
     }
 
     /**
-     * 测试 Class 入口（copy(Object, Class)）同样跳过集合/Map/数组与 final 字段
-     * 对应测试用例 1.2.5：复制跳过集合与数组
+     * 测试 Class 入口（copy(Object, Class)）同样深拷贝集合/Map/数组，final 字段仍跳过
+     * 对应测试用例 1.2.5：复制深拷贝集合与数组
      */
     @Test
-    public void copyClassEntrySkipCollectionAndArray() {
+    public void copyClassEntryDeepCopyCollectionAndArray() {
 
-        val to = CBeanUtils.copy(newFrom(), ToBean.class);
+        val from = newFrom();
+        val to = CBeanUtils.copy(from, ToBean.class);
 
         Assertions.assertEquals("name", to.getName());
-        Assertions.assertNull(to.getRoles());
-        Assertions.assertNull(to.getTags());
-        Assertions.assertNull(to.getNums());
+        Assertions.assertNotSame(from.getRoles(), to.getRoles());
+        Assertions.assertNotSame(from.getTags(), to.getTags());
+        Assertions.assertNotSame(from.getNums(), to.getNums());
         Assertions.assertEquals("to-init", to.getFinalField());
     }
 
     /**
      * 测试类型不匹配且无转换器时跳过（StringBuilder -> StringBuffer）
+     *
+     * <p>说明：目标声明类型为 JDK 类且不属拷贝协议（集合/Map/数组/Date/Calendar）时不做结构深拷贝
+     * （JDK9+ 强封装 + 结构拷贝易得空壳对象），故该字段跳过；需要拷贝应注册显式转换器。</p>
+     *
      * 对应测试用例 1.1.4：无转换器时跳过
      */
     @Test
@@ -304,7 +322,7 @@ public class CBeanUtilsMoreTests {
     }
 
     /**
-     * 测试真实模型 UserDto -> UserRsp：集合/Map 字段跳过、类型转换生效
+     * 测试真实模型 UserDto -> UserRsp：类型转换生效、集合/Map 字段深拷贝
      * 对应测试用例 1.1.6：UserDto→UserRsp 复制
      */
     @Test
@@ -323,8 +341,10 @@ public class CBeanUtilsMoreTests {
         Assertions.assertEquals("u", rsp.getUserName());
         Assertions.assertEquals("1", rsp.getSex());
         Assertions.assertNotNull(rsp.getAmount());
-        Assertions.assertNull(rsp.getRoles());
-        Assertions.assertNull(rsp.getTags());
+        Assertions.assertEquals(user.getRoles(), rsp.getRoles());
+        Assertions.assertNotSame(user.getRoles(), rsp.getRoles());
+        Assertions.assertEquals(user.getTags(), rsp.getTags());
+        Assertions.assertNotSame(user.getTags(), rsp.getTags());
     }
 
     /**
@@ -339,7 +359,8 @@ public class CBeanUtilsMoreTests {
         Assertions.assertEquals(2, list.size());
         for (val to : list) {
             Assertions.assertEquals("name", to.getName());
-            Assertions.assertNull(to.getRoles());
+            Assertions.assertNotNull(to.getRoles());
+            Assertions.assertEquals(2, to.getRoles().size());
         }
     }
 
@@ -528,7 +549,7 @@ public class CBeanUtilsMoreTests {
 
     /**
      * 测试父类型/Object 声明字段走回退路径（计划期无法按声明类型解析转换路径，
-     * 运行期按实际值类型判断，语义与旧实现一致）
+     * 运行期按实际值类型判断），集合值由深拷贝条目写入
      * 对应测试用例 1.1.5：父类声明类型兜底
      */
     @Test
@@ -546,10 +567,31 @@ public class CBeanUtilsMoreTests {
         Assertions.assertEquals(5, to.getNumber());
         // 声明 Object 实际 String，可赋值直接写入
         Assertions.assertEquals("str", to.getData());
-        // 已知取舍：声明 Object 实际持有集合，走回退路径按旧逻辑跳过（不写入）
-        Assertions.assertNull(to.getCollectionData());
+        // 声明 Object 实际持有集合：回退动作对集合返回空（跳过），由深拷贝条目写入副本
+        Assertions.assertEquals(from.getCollectionData(), to.getCollectionData());
+        Assertions.assertNotSame(from.getCollectionData(), to.getCollectionData());
         // 声明 int 实际 Integer（装箱），运行期值类型可赋值直接写入
         Assertions.assertEquals(7, to.getPrimitive());
+    }
+
+    /**
+     * 测试 toMap 返回浅引用（集合/Map/Bean 字段与原对象同一实例，不做深拷贝）
+     *
+     * <p>设计依据：{@code toMap} 是"对象 → Map"的取值视图（用于 JWT claims、分页参数等中转场景），
+     * 深拷贝会给这些场景带来无谓开销、并改变语义（调用方拿到的不是原对象的值）；
+     * 需要副本时用 {@code copy}（默认深拷贝）。断言用 {@code assertSame} 精确锁定引用关系，
+     * 避免"只断言值相等"而漏掉意外拷贝（值相等断言无法区分共享与副本）。</p>
+     *
+     * 对应测试用例 3.9：toMap 浅引用（toMap_shallowReferences）
+     */
+    @Test
+    public void toMap_shallowReferences() {
+
+        val from = newFrom();
+        val map = CBeanUtils.toMap(from);
+
+        Assertions.assertSame(from.getRoles(), map.get("roles"), "集合字段应为同一引用");
+        Assertions.assertSame(from.getTags(), map.get("tags"), "Map 字段应为同一引用");
     }
 
     /**

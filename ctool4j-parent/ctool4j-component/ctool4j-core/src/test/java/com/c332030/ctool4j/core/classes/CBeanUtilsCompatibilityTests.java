@@ -1,4 +1,4 @@
-package com.c332030.ctool4j.core.test.classes;
+package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
@@ -29,8 +29,10 @@ import java.util.stream.Collectors;
  * 以重构前旧语义（copy 经 toMap 中转、运行期按实际值类型转换；toMap 含 final/集合字段、
  * null key/值过滤、冲突抛异常、结果不可变）为基线，内嵌旧语义参考实现，
  * 多场景对比新实现（计划预计算直连）与旧实现结果一致。
- * 已知差异（旧缺口修复，javadoc 已注明）：原始类型同型字段旧实现无转换器跳过、
- * 新实现计划期 SELF 直接写入；源声明集合父类型实际持有集合旧实现跳过、新实现直接写入。
+ * 已知差异（javadoc 已注明）：1）旧缺口修复——原始类型同型字段旧实现无转换器跳过、新实现计划期 SELF 直接写入；
+ * 2）深拷贝能力——集合/Map/数组/可变 Bean 字段旧实现跳过（不写入），新实现按深拷贝写入副本。
+ * 后者无法用旧参考实现表达（其语义就是"跳过"），故这类字段按 {@code KNOWN_DEEP_COPY_FIELDS} 豁免逐值相等对比，
+ * 只断言"旧值必为 null、新值类型匹配字段声明"，副本独立性由 {@code CBeanUtilsDeepCopyTests} 覆盖。
  * </p>
  * <p>
  * 完整测试设计（测试架构、参考实现手法、覆盖场景、未覆盖场景与兼容性考量）见本类 javadoc 各测试方法（含对应编号）。
@@ -68,7 +70,12 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
+ * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @see CBeanUtilsTests
+ * @see CBeanUtilsCopyContractTests
+ * @see CBeanUtilsDeepCopyTests
+ * @see CBeanUtilsMoreTests
  */
 public class CBeanUtilsCompatibilityTests {
 
@@ -368,15 +375,33 @@ public class CBeanUtilsCompatibilityTests {
     }
 
     /**
-     * 逐字段断言两个目标对象字段值一致
+     * 已知深拷贝差异字段：旧参考实现跳过（null）、新实现按深拷贝写入副本
+     *
+     * <p>深拷贝为新能力：集合/Map/数组/可变 Bean 字段不再跳过。旧参考实现的语义就是"跳过"，
+     * 无法表达深拷贝结果，故这些字段只断言"旧值必为 null、新值类型匹配声明"，
+     * 副本独立性与递归拷贝语义由 {@code CBeanUtilsDeepCopyTests} 覆盖。</p>
+     */
+    private static final Set<String> KNOWN_DEEP_COPY_FIELDS = new HashSet<>(Arrays.asList("roles", "tags", "arr", "sb"));
+
+    /**
+     * 逐字段断言两个目标对象字段值一致（深拷贝差异字段按 {@link #KNOWN_DEEP_COPY_FIELDS} 豁免）
      */
     private static void assertBeanFieldSame(Class<?> toClass, Object newTo, Object oldTo) {
 
         val fieldMap = CReflectUtils.getInstanceFieldMap(toClass);
         Assertions.assertFalse(fieldMap.isEmpty(), "字段列表为空，对比无意义: " + toClass);
         fieldMap.forEach((name, field) -> {
+
             val newValue = CReflectUtils.getValue(newTo, field);
             val oldValue = CReflectUtils.getValue(oldTo, field);
+
+            if(KNOWN_DEEP_COPY_FIELDS.contains(name)) {
+                Assertions.assertNull(oldValue, "深拷贝字段旧实现应为跳过（null）: " + name);
+                Assertions.assertTrue(null == newValue || field.getType().isInstance(newValue),
+                        "深拷贝字段新值应类型匹配声明（源无此值时可为 null）: " + name);
+                return;
+            }
+
             Assertions.assertEquals(oldValue, newValue, "field: " + name);
         });
     }
