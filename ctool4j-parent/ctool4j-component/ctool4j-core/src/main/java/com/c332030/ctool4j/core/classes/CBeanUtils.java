@@ -100,7 +100,8 @@ import java.util.stream.Collectors;
  *   <tr><td>{@code Optional}</td><td>深拷贝内部值（空 Optional 共享；{@code OptionalInt/OptionalLong/OptionalDouble} 只包装原始值 ⇒ 共享）</td></tr>
  *   <tr><td>不可变值（String、包装类、Number 系、时间类、枚举、Class、UUID/Locale/Currency/Charset/URI 等）</td><td>共享引用（无拷贝必要）</td></tr>
  *   <tr><td>函数式接口值（lambda / 方法引用）</td><td>共享引用（承载行为而非数据，结构拷贝无意义）</td></tr>
- *   <tr><td>无可用无参构造的类（record、仅带参构造）、接口与抽象类</td><td>共享引用（无法实例化 ⇒ 明确降级，判定按类缓存）</td></tr>
+ *   <tr><td>无可用无参构造的类（仅带参构造的类）、接口与抽象类</td><td>共享引用（无法实例化 ⇒ 明确降级，判定按类缓存）</td></tr>
+ *   <tr><td>容器目标声明类型与源容器接口形态不兼容（如 List 源 → Set 目标声明）</td><td>跳过不写入（拷贝结果与共享引用都无法写回目标接口，静默丢字段改为明确跳过，判定见 {@code isContainerWriteBack}）</td></tr>
  *   <tr><td>含 final 实例字段的类</td><td>共享引用（final 字段不可写，结构拷贝会得到"部分字段为空"的对象 ⇒ 明确降级，判定按类缓存）</td></tr>
  *   <tr><td>JDK 未提供拷贝协议的可变类型（{@code StringBuilder}、{@code Atomic*}、{@code BitSet} 等）</td><td>同型共享、跨类型跳过（JDK9+ 强封装无法反射内部字段，结构拷贝会得到空壳对象；需要拷贝时注册显式转换器）</td></tr>
  *   <tr><td>{@code Class}</td><td>共享（不参与拷贝）</td></tr>
@@ -112,7 +113,8 @@ import java.util.stream.Collectors;
  *   <tr><th>节点</th><th>级别</th><th>频次</th><th>内容</th></tr>
  *   <tr><td>复制计划构建</td><td>debug</td><td>(源类, 目标类) 一次</td><td>条目数、计划期内联决议数、首次取值时决议数</td></tr>
  *   <tr><td>属性决议</td><td>debug</td><td>(值类型, 目标类型) 一次</td><td>决议结果（共享/转换/深拷贝/跳过）；JDK 未提供拷贝协议时说明按共享或跳过处理</td></tr>
- *   <tr><td>深拷贝不可实例化降级</td><td>debug</td><td>按类一次</td><td>无可用无参构造（lambda/record/仅带参构造）⇒ 共享引用</td></tr>
+ *   <tr><td>深拷贝不可实例化降级</td><td>debug</td><td>按类一次</td><td>无可用无参构造（lambda/仅带参构造）⇒ 共享引用</td></tr>
+ *   <tr><td>深拷贝容器写回不兼容</td><td>debug</td><td>属性命中时</td><td>目标声明接口装不下源容器（如 List→Set）⇒ 该字段跳过不写入</td></tr>
  *   <tr><td>深拷贝 final 字段降级</td><td>debug</td><td>按类一次</td><td>目标类含 final 实例字段 ⇒ 共享引用（不产出半空对象）</td></tr>
  *   <tr><td>深拷贝深度上限</td><td>debug</td><td>超限时</td><td>超过 {@code DEEP_COPY_MAX_DEPTH} 原样返回引用（防病态深结构）</td></tr>
  *   <tr><td>字段深拷贝失败</td><td>debug</td><td>异常时</td><td>字段名 + 异常；单字段跳过，不影响其余字段</td></tr>
@@ -129,16 +131,22 @@ import java.util.stream.Collectors;
  *   <li>易误用点：{@link #copy(Object, Object)} 默认<b>深拷贝</b>集合/Map/数组/Bean/Date——需要与原对象共享引用时
  *   不应使用本类（见上「深拷贝覆盖」表）；{@link #toMap(Object)} 与之相反，返回的是<b>浅引用</b>视图。</li>
  *   <li>易误用点：复制只写"有同名源字段且目标可写"的字段；目标 final 字段、无同名源字段一律不动（既有值保留）。</li>
- *   <li>已知限制（状态：已备注）：测试类合并未完成——同一被测类存在多个 {@code *Tests} 类（规范定式为一个被测类一个
- *   {@code <被测类名>Tests}），随下次变动迁移。</li>
+ *   <li>已知限制（状态：已备注）：跨接口容器（源 List → 目标 Set 声明等）无法拷贝也不共享（共享同样写不回目标接口），
+ *   该字段按"跳过不写入"处理，需要赋值时由调用方自行转换。</li>
+ *   <li>已知限制（状态：已备注）：同一被测类存在 5 个 {@code *Tests} 类（规范定式为一个被测类一个
+ *   {@code <被测类名>Tests}）。本次评估过合并为一个 {@code CBeanUtilsTests}（内部 {@code @Nested} 分组），
+ *   但被 {@code CBeanUtilsPerfTests} 复用的公共夹具（如 {@code ScalarBean}）需一并改动，
+ *   属测试结构的独立重构、与本 PR 的行为修复不是一件事，故按"存量随动迁移"保持现状、不在本 PR 内合并。</li>
  * </ul>
  *
  * <p>相关测试（{@code com.c332030.ctool4j.core.classes} / {@code ...core.benchmark}）：
- * {@code CBeanUtilsTests}、{@code CBeanUtilsCopyContractTests}（决议契约）、{@code CBeanUtilsDeepCopyTests}（深拷贝语义）、
- * {@code CBeanUtilsMoreTests}、{@code CBeanUtilsCompatibilityTests}、
- * {@code CBeanUtilsPerfTests}（性能基准：简单 copy / 深拷贝按类型 / 对象转 Map 三通道，显式执行）。
- * 未用 {@code @see} 链接测试类：javadoc 以 {@code failOnError} 构建且类路径不含测试源，链接会报
- * "reference not found" 中断构建（存量先例同此处理，见 {@code CProxyUtils}）。</p>
+ * {@code CBeanUtilsTests}（跨入口代表用例）、{@code CBeanUtilsCopyContractTests}（单属性决议契约）、
+ * {@code CBeanUtilsDeepCopyTests}（深拷贝语义）、{@code CBeanUtilsMoreTests}（各入口与 toMap 语义一致性）、
+ * {@code CBeanUtilsCompatibilityTests}（内嵌旧语义参考实现的兼容性对比）、
+ * {@code CBeanUtilsPerfTests}（性能基准：简单 copy / 深拷贝按类型 / 对象转 Map 三通道，须显式执行）。
+ * 未以 {@code @see} 链接测试类：javadoc 的类路径不含测试源，{@code @see} 会报
+ * "reference not found" 并使 javadoc 退出码非 0，在 {@code failOnError=true} 下中断构建
+ * （已实测确认：javadoc 对未解析的 {@code @see} 返回退出码 1）。</p>
  *
  * @author c332030
  * @since 1.0
@@ -184,6 +192,11 @@ public class CBeanUtils {
      * 深拷贝递归深度上限（超过该层原样返回引用，防病态深结构）
      */
     private static final int DEEP_COPY_MAX_DEPTH = 64;
+
+    /**
+     * 不写入哨兵：决议为跳过、转换结果为 null、深拷贝失败时统一返回该值，调用方据此不写字段
+     */
+    private static final Object SKIP_VALUE = new Object();
 
     /**
      * 视图/不可变封装的类名前缀：这类实现不做同源复制，深拷贝时降级为可变标准实现
@@ -320,7 +333,8 @@ public class CBeanUtils {
      *   <li>返回 {@code to}。</li>
      * </ol>
      *
-     * <p><b>边界与取舍</b>：集合元素类型优先取目标字段声明泛型，解析不到时按元素运行时类型判定；
+     * <p><b>边界与取舍</b>：目标声明接口装不下源容器时（如 List 源 → Set 目标声明）深拷贝返回
+     * {@link #SKIP_VALUE}，该字段整条不写入（拷贝与共享引用都写不回目标接口）；集合元素类型优先取目标字段声明泛型，解析不到时按元素运行时类型判定；
      * 环状引用由 {@code visited} 身份表保持结构（复用同一副本）；{@code depth} 为当前对象所在层级
      * （顶层 0，递归 +1，超过 {@code DEEP_COPY_MAX_DEPTH} 原样返回引用）。</p>
      *
@@ -526,9 +540,19 @@ public class CBeanUtils {
         val toClass = resolveDeepCopyTargetClass(declaredType, fromClass);
 
         if(from instanceof Collection) {
+            if(!isContainerWriteBack(from, toClass)) {
+                log.debug("目标声明接口装不下源容器，属性跳过不写入：{} → {}",
+                        fromClass.getName(), toClass.getName());
+                return SKIP_VALUE;
+            }
             return deepCopyCollection((Collection<?>) from, declaredType, toClass, visited, depth);
         }
         if(from instanceof Map) {
+            if(!isContainerWriteBack(from, toClass)) {
+                log.debug("目标声明接口装不下源容器，属性跳过不写入：{} → {}",
+                        fromClass.getName(), toClass.getName());
+                return SKIP_VALUE;
+            }
             return deepCopyMap((Map<?, ?>) from, declaredType, toClass, visited, depth);
         }
         if(from instanceof Date) {
@@ -644,6 +668,57 @@ public class CBeanUtils {
     }
 
     /**
+     * 默认容器接口判定：容器拷贝结果能否被目标声明类型接收（写回不发生 ClassCastException）
+     *
+     * <p>判据按"源容器的规范接口形态 → 目标声明类型"配对，不用 {@code Collection.class.isAssignableFrom(toClass)}
+     * 这类宽判定：后者对任何容器目标恒为 true，会把"源 List、目标 Set 声明"的跨接口场景也判为可写，
+     * 而实际拷贝结果按类写入必然失败（失败被吞成 debug 日志 ⇒ 静默丢字段）。</p>
+     *
+     * <p>判定为不可写时调用方（{@link #deepCopyValue}）返回 {@link #SKIP_VALUE}、该字段整条不写入：
+     * 强行拷贝再写回只会以 {@code ClassCastException} 被吞成"字段写入失败"（静默丢字段），
+     * 共享引用也写不进去（源实现类不满足目标接口），故按"跳过"处理并保留明确语义。</p>
+     *
+     * @param from    源容器（Collection 或 Map）
+     * @param toClass 目标声明类型
+     * @return true 表示拷贝结果可写回目标声明类型
+     */
+    private static boolean isContainerWriteBack(Object from, Class<?> toClass) {
+
+        // 未声明/宽声明/具体类声明：源实现类可赋值即兼容，其余由写回兜底兜住（不在此误判）
+        if(null == toClass || Object.class == toClass || !toClass.isInterface()) {
+            return true;
+        }
+
+        // 接口声明：判据是"目标接口能否接收拷贝结果的规范容器接口形态"——
+        // 取源容器的规范接口（Map / Set / Queue / List 四选一），再看目标接口是否为其父类型。
+        // 注意方向：是 target.isAssignableFrom(sourceIface)，不是 target.isAssignableFrom(同类接口)
+        // （后者对"List 源 → Set 目标"会误判为兼容：Set.class.isAssignableFrom(Set.class) 恒为 true）
+        val sourceIface = canonicalContainerInterface(from);
+        return toClass.isAssignableFrom(sourceIface);
+    }
+
+    /**
+     * 取容器的规范容器接口：Map / Set / Queue / List 四选一（判据同深拷贝的降级实现选择）
+     *
+     * @param from 源容器
+     * @return 规范容器接口
+     */
+    private static Class<?> canonicalContainerInterface(Object from) {
+
+        if(from instanceof Map) {
+            return Map.class;
+        }
+        if(from instanceof Set) {
+            return Set.class;
+        }
+        if(from instanceof Queue) {
+            return Queue.class;
+        }
+
+        return List.class;
+    }
+
+    /**
      * 集合深拷贝：容器同源优先 + 接口降级，元素按声明泛型/运行时类型递归
      *
      * @param from         源集合
@@ -659,7 +734,7 @@ public class CBeanUtils {
             IdentityHashMap<Object, Object> visited, int depth
     ) {
 
-        val copy = (Collection<Object>) newContainer(from, toClass, Collection.class);
+        val copy = (Collection<Object>) newContainer(from, toClass);
         visited.put(from, copy);
 
         // 元素类型确定不可变（如 List<String>）：直接加入，省去逐元素深拷贝分派（不可变值的拷贝结果即自身）
@@ -688,7 +763,7 @@ public class CBeanUtils {
             IdentityHashMap<Object, Object> visited, int depth
     ) {
 
-        val copy = (Map<Object, Object>) newContainer(from, toClass, Map.class);
+        val copy = (Map<Object, Object>) newContainer(from, toClass);
         visited.put(from, copy);
 
         // 键/值类型确定不可变（如 Map<String,String>）：直接放入，省去逐项深拷贝分派
@@ -741,15 +816,19 @@ public class CBeanUtils {
     }
 
     /**
-     * 创建目标容器：有序容器保 comparator → 同源实现优先 → 接口映射降级
+     * 创建目标容器：有序容器保 comparator → 同源实现优先 → 按源容器接口形态降级
      *
-     * @param from   源容器
+     * <p>降级顺序的判据是"拷贝结果还要按目标声明类型写回"：故同源实现（源实现类与目标声明类型一致）
+     * 优先于一切降级；降级时按<b>源的接口形态</b>选实现（Set 源建 Set、Queue 源建 Queue），
+     * 不用"目标声明类型是哪个接口"近似——源 List、目标 Set 的跨接口场景本就不该拷贝，
+     * 由 {@link #isContainerWriteBack(Object, Class)} 在进入拷贝前拦下。</p>
+     *
+     * @param from    源容器
      * @param toClass 目标实现类
-     * @param iface  容器接口（Collection / Map）
      * @return 新容器实例
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static Object newContainer(Object from, Class<?> toClass, Class<?> iface) {
+    private static Object newContainer(Object from, Class<?> toClass) {
 
         if(from instanceof EnumSet) {
             return EnumSet.copyOf((EnumSet) from);
@@ -761,7 +840,7 @@ public class CBeanUtils {
         }
 
         // 有序容器必须保留 comparator，优先于"同源实现"（无参构造会丢排序语义）
-        if(Map.class == iface && from instanceof SortedMap) {
+        if(from instanceof SortedMap) {
             return new TreeMap<>((Comparator) ((SortedMap<?, ?>) from).comparator());
         }
         if(from instanceof SortedSet) {
@@ -780,7 +859,8 @@ public class CBeanUtils {
             return sameImpl;
         }
 
-        if(Map.class == iface) {
+        // 降级标准实现：按源容器的接口形态选（目标声明类型非具体类时才走到这里，见 isContainerWriteBack）
+        if(from instanceof Map) {
             return from instanceof ConcurrentMap ? new ConcurrentHashMap<>() : new LinkedHashMap<>();
         }
         if(from instanceof Set) {
@@ -1168,11 +1248,6 @@ public class CBeanUtils {
         val to = CReflectUtils.newInstance(toClass);
         return copyFromArr(fromArr, to);
     }
-
-    /**
-     * 不写入哨兵：决议为跳过、转换结果为 null、深拷贝失败时统一返回该值，调用方据此不写字段
-     */
-    private static final Object SKIP_VALUE = new Object();
 
     /**
      * 共享写入动作（不可变值与目标兼容：直接写入同一引用）

@@ -28,7 +28,10 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -54,6 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *   跨字段共享引用去重、深度上限降级、同源实现与接口降级、comparator 保留、EnumMap/EnumSet、视图替换、
  *   raw 与泛型变量、接口字段、无无参构造降级、跨类型、Map（JSON）来源、null/空/空元素、
  *   Optional（含原始值包装的 OptionalInt/Long/Double）、身份表按需创建（分配层面）。</li>
+ *   <li>覆盖（容器写回）：目标声明类型为容器接口时的实现保持与可写回判定（7.2 不兼容跳过、7.3 兼容保持）。</li>
  *   <li>未覆盖：record（无可用无参构造、含 final 字段，实现明确降级为共享引用）、transient 语义。</li>
  * </ul>
  * <h2>用例</h2>
@@ -88,6 +92,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>6.8 含 final 实例字段的目标降级为共享引用（finalField_sharedReference）</li>
  *   <li>6.9 OptionalInt/OptionalLong/OptionalDouble 只包原始值 ⇒ 共享（optionalPrimitive_shared）</li>
  *   <li>7.1 身份表按需创建的语义等价性：标量 DTO、深拷贝字段全为 null 时结果正确（identityMap_createdOnDemand）</li>
+ *   <li>7.2 容器目标声明类型与源接口形态不兼容 ⇒ 跳过不写入（containerWriteBack_incompatibleInterfaceSkipped，
+ *   内含兼容目标的逐元素深拷贝对照：跨接口跳过只发生在不兼容的目标声明上）</li>
+ *   <li>7.3 兼容的容器目标按源接口形态降级且可写回（containerWriteBack_compatibleKept）</li>
  * </ul>
  *
  * @author c332030
@@ -644,6 +651,73 @@ class CBeanUtilsDeepCopyTests {
     }
 
     /**
+     * <p>对应测试用例 7.2：容器目标声明类型与源容器接口形态不兼容 ⇒ 跳过不写入</p>
+     *
+     * <p>回归点：拷贝结果按类写回目标字段时，若目标声明类型是另一容器接口（如源 List、目标 Set），
+     * 写回必然 {@code ClassCastException}；旧实现先拷贝再写、把该异常吞成 debug"字段写入失败，跳过"，
+     * 表现为"字段静默为空 + 每次多一次注定失败的拷贝"。现改为拷贝前判定、该字段跳过不写入
+     * （共享引用同样写不回目标接口，故只有"跳过"是自洽语义）。</p>
+     */
+    @Test
+    void containerWriteBack_incompatibleInterfaceSkipped() {
+
+        val inner = new Inner();
+        inner.setName("inner");
+
+        val source = new MismatchSourceHolder();
+        source.setItems(new ArrayList<>(Collections.singletonList(inner)));
+
+        // 对照：目标声明 List<Inner> 与源兼容 ⇒ 正常深拷贝（容器与元素都是副本）
+        val copied = CBeanUtils.copy(source, MismatchListTargetHolder.class);
+        Assertions.assertNotSame(source.getItems(), copied.getItems());
+        Assertions.assertNotSame(source.getItems().get(0), copied.getItems().get(0));
+
+        // 目标声明 Set、源为 List ⇒ 目标接口装不下源容器：跳过不写入（字段保持 null）
+        val mismatched = CBeanUtils.copy(source, MismatchSetTargetHolder.class);
+        Assertions.assertNotSame(source, mismatched, "目标对象本身仍正常创建");
+        Assertions.assertNull(
+                mismatched.getItems(),
+                "目标声明接口装不下源容器时应跳过不写入（而非尝试写回后静默失败）"
+        );
+    }
+
+    /**
+     * <p>对应测试用例 7.3：兼容的容器目标按源接口形态降级、且拷贝结果可写回目标声明类型</p>
+     *
+     * <p>覆盖：接口声明（List/Set/Queue）与有序容器（SortedSet/SortedMap 保 comparator）。
+     * 判据是"写入后取值与源语义等价且实现可接受"。</p>
+     */
+    @Test
+    void containerWriteBack_compatibleKept() {
+
+        val source = new CompatibleSourceHolder();
+        source.setList(new LinkedList<>(Arrays.asList("a")));
+        source.setSet(new LinkedHashSet<>(Arrays.asList("b")));
+        source.setQueue(new ArrayDeque<>(Collections.singletonList("q")));
+        source.setSortedSet(new TreeSet<>(Comparator.reverseOrder()));
+        source.getSortedSet().addAll(Arrays.asList("x", "y"));
+        source.setSortedMap(new TreeMap<>(Comparator.reverseOrder()));
+        source.getSortedMap().put("k", "v");
+
+        val copied = CBeanUtils.copy(source, CompatibleTargetHolder.class);
+
+        Assertions.assertNotSame(source.getList(), copied.getList());
+        Assertions.assertEquals(new ArrayList<>(source.getList()), new ArrayList<>(copied.getList()));
+        Assertions.assertNotSame(source.getSet(), copied.getSet());
+        Assertions.assertEquals(source.getSet(), copied.getSet());
+        Assertions.assertNotSame(source.getQueue(), copied.getQueue());
+        Assertions.assertEquals(new ArrayList<>(source.getQueue()), new ArrayList<>(copied.getQueue()));
+
+        // 有序容器保 comparator：拷贝后仍是同一排序语义（反序）
+        Assertions.assertNotSame(source.getSortedSet(), copied.getSortedSet());
+        Assertions.assertEquals(Arrays.asList("y", "x"), new ArrayList<>(copied.getSortedSet()));
+        Assertions.assertEquals(
+                new ArrayList<>(source.getSortedMap().keySet()),
+                new ArrayList<>(copied.getSortedMap().keySet())
+        );
+    }
+
+    /**
      * <p>对应测试用例 2.5：容器元素为 JDK 非拷贝协议类型（StringBuilder）⇒ 容器副本、元素共享</p>
      */
     @Test
@@ -980,6 +1054,59 @@ class CBeanUtilsDeepCopyTests {
     static class SbListHolder {
 
         private List<StringBuilder> list;
+    }
+
+    /**
+     * List 源（用于与兼容/不兼容目标声明对照）
+     */
+    @Data
+    static class MismatchSourceHolder {
+
+        private List<Inner> items;
+    }
+
+    /**
+     * List 目标声明（与源兼容）
+     */
+    @Data
+    static class MismatchListTargetHolder {
+
+        private List<Inner> items;
+    }
+
+    /**
+     * Set 目标声明（与源 List 不兼容）
+     */
+    @Data
+    static class MismatchSetTargetHolder {
+
+        private Set<Inner> items;
+    }
+
+    /**
+     * 兼容形态源：接口声明 + 有序容器
+     */
+    @Data
+    static class CompatibleSourceHolder {
+
+        private List<String> list;
+        private Set<String> set;
+        private Queue<String> queue;
+        private SortedSet<String> sortedSet;
+        private SortedMap<String, String> sortedMap;
+    }
+
+    /**
+     * 兼容形态目标：接口声明 + 有序容器
+     */
+    @Data
+    static class CompatibleTargetHolder {
+
+        private List<String> list;
+        private Set<String> set;
+        private Queue<String> queue;
+        private SortedSet<String> sortedSet;
+        private SortedMap<String, String> sortedMap;
     }
 
     /**
