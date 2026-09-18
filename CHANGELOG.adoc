@@ -11,6 +11,8 @@
 
 // 追加条目前先确认：用户是否明确要求登记？未要求则本文件一行都不加（改动意图写源文件 javadoc 与 doc/design/）。
 
+- 1.1 | 2026-09-17 | 新增未授权异常 `CUnauthorizedException`（`ctool4j-core`，不携带错误码、语义为「未认证」）与 `CUnauthorizedExceptionHandler`（`ctool4j-web`，响应体业务码 401）：`CAbstractBaseSessionService#get()`/`check()` 由抛 `CBusinessException` 改为抛 `CUnauthorizedException`，当前会话缺失不再与普通业务失败同码；该处理器随附 HTTP 状态 401，调用方以响应体业务码 401 识别未认证（设计说明见 link:doc/design/web/unauthorized-401.adoc[未授权统一返回业务码 401]）
+
 - 1.1 | 2026-09-18 | 破坏性变更：`CBeanUtils.copy` 系列集合/Map/数组/Bean/Date 字段由"跳过/共享"改为**深拷贝**（元素与键值递归、环状与跨字段共享引用只拷一份），需要共享引用的调用方改用 `toMap` 或在复制后自行恢复；跨接口容器（源 List → 目标 Set 声明等）按"跳过不写入"处理（此前会先拷贝再写、以 `ClassCastException` 被吞成"字段写入失败"而静默丢字段）
 - 1.1 | 2026-09-16 | ctool4j-doc-openapi2：`CEmptyTagBeanPostProcessor` 在 `paths` 为空时不再清理分组声明（无接口信息无法判定引用关系，避免误删业务用 `Docket.tags(...)` 声明的占位分组；类文档兜底表口径已对齐，用例随动）
 - 1.1 | 2026-09-16 | ctool4j-doc-openapi2 整理与加固：新增 `CModelPropertyAnnotationUtils`（收敛 model 属性注解查找：annotatedElement 优先、其次 beanPropertyDefinition），合并 `CSchemaAnnotationModelPropertyPlugin` 与 `CTextEnumModelPropertyPlugin` 两份写法不一致的私有实现；`ICAnnotationExpandedParameterBuilderPlugin#isRequired` 由裸 `Annotation` 改为泛型 `T`；三个插件的私有 `hasText`（3 份重复）统一改用 `CValidUtils#isValid`；`CEmptyTagBeanPostProcessor` 补双层异常兜底（代理创建失败回退原 Bean、清理失败仅 warn 后保留原模型），两者均不再可能阻断启动或文档接口，日志降为 debug 并补"knife4j 关文档时无 Bean 匹配、零副作用"的兜底说明；修正 `CDocOpenApi2Config` 文档键名（`c-doc.openapi2` → `doc.openapi2`）与 `CSpringFoxUtils` 空缺的能力目录
