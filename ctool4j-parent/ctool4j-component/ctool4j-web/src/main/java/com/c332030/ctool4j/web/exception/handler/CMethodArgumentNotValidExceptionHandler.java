@@ -5,6 +5,7 @@ import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
 import lombok.val;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -52,9 +53,10 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
+@Order(CExceptionHandlerOrder.CONCRETE)
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(MethodArgumentNotValidException.class)
 public class CMethodArgumentNotValidExceptionHandler {

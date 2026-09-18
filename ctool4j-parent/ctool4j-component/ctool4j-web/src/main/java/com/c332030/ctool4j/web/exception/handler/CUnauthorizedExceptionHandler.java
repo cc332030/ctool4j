@@ -5,6 +5,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *   同一次「未认证」无论由过滤器拦截还是由业务代码取当前会话失败触发，响应形状一致。</li>
  *   <li>不设置 HTTP 响应状态：未授权的对外契约是<b>响应体业务码 401</b>（与模块内其余处理器同一表意口径——
  *   HTTP 200 + 响应体业务码），避免「以 HTTP 状态判断」与「以业务码判断」两种调用方式结论不一致（口径与取舍见设计文档）。</li>
+ *   <li>优先级：{@code @Order(CExceptionHandlerOrder.CONCRETE)}——Spring 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，
+ *   通用处理器 {@code CCExceptionHandler}（处理基类 {@code CException}）位于 {@code CException} 兜底档，故本处理器先命中（真实链路用例见测试类用例 1.4）。</li>
  *   <li>用 {@code CRequestUtils.getRequestURIDefaultNull()} 记录请求 URI 用于日志。</li>
  * </ul>
  * <h2>兜底设计</h2>
@@ -63,11 +66,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *
  * @author c332030
  * @since 2026/9/17
- * @version 1.2
+ * @version 1.4
  * <p>用例见 {@code CUnauthorizedExceptionHandlerTests}（主代码类注释不 {@code @see} 测试类：javadoc 类路径不含测试源）。</p>
  * @see "doc/design/web/unauthorized-401.adoc"
  */
 @CustomLog
+@Order(CExceptionHandlerOrder.CONCRETE)
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(CUnauthorizedException.class)
 public class CUnauthorizedExceptionHandler {

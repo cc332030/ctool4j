@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * <h2>能力目录</h2>
  * <p>{@code CThrowableHandler} 标注 {@code @RestControllerAdvice}，通过 {@code @ExceptionHandler(Throwable.class)} 处理未识别异常：</p>
  * <ul>
+ *   <li>兜底优先级：{@code @Order(CExceptionHandlerOrder.THROWABLE_FALLBACK)}（兜底区最后一档，见 {@code CExceptionHandlerOrder}）——Spring 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，
+ *   故内置具体类型处理器（{@code @Order(CExceptionHandlerOrder.CONCRETE)}）与 {@code CException} 兜底先被咨询，本处理器只在无其他匹配时兜底。</li>
  *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(Throwable.class)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
  *   <li>返回 {@code CStrResult&lt;Void&gt;} 错误结果（{@code CStrResult.error(...)}）。</li>
  *   <li>记录请求 URI 与异常堆栈（log），保证问题可追溯。</li>
@@ -49,9 +52,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.0
+ * @version 1.2
  */
 @CustomLog
+@Order(CExceptionHandlerOrder.THROWABLE_FALLBACK)
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(Throwable.class)
 public class CThrowableHandler {

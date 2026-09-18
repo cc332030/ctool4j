@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -68,9 +69,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
+@Order(CExceptionHandlerOrder.CONCRETE)
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(MethodArgumentTypeMismatchException.class)
 public class CMethodArgumentTypeMismatchExceptionHandler {

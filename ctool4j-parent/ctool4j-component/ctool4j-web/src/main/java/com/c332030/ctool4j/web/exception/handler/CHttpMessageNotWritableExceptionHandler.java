@@ -3,6 +3,7 @@ package com.c332030.ctool4j.web.exception.handler;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -48,9 +49,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
+@Order(CExceptionHandlerOrder.CONCRETE)
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(HttpMessageNotWritableException.class)
 public class CHttpMessageNotWritableExceptionHandler {

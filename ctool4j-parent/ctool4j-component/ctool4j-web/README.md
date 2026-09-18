@@ -8,7 +8,7 @@
 
 ## 功能特性
 
-- **全局异常处理**：内置多类异常处理器（业务异常、参数校验异常、请求体缺失/不可读、必填参数缺失、参数类型不匹配、HTTP 方法不支持、消息不可写、客户端中断、非法参数/状态、兜底 Throwable），通过 `@ConditionalOnMissingExceptionHandler` 支持业务自定义覆盖
+- **全局异常处理**：内置多类异常处理器（业务异常、参数校验异常、请求体缺失/不可读、必填参数缺失、参数类型不匹配、HTTP 方法不支持、消息不可写、客户端中断、非法参数/状态、兜底 Throwable），通过 `@ConditionalOnMissingExceptionHandler` 支持业务自定义覆盖；**处理器优先级（兜底不抢占）**：三档统一由 `CExceptionHandlerOrder` 定义、整体贴近 `Ordered.LOWEST_PRECEDENCE`——具体类型处理器 `CONCRETE`（`LOWEST_PRECEDENCE - 100`）、`CException` 兜底（`CCExceptionHandler`）`C_EXCEPTION_FALLBACK`（`- 50`）、`Throwable` 兜底（`CThrowableHandler`）`THROWABLE_FALLBACK`（`LOWEST_PRECEDENCE`）；Spring 的 `ExceptionHandlerExceptionResolver` 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，故具体类型档必须先于兜底档（否则子类异常被截走，如未授权 401 被兜底成 500），而内置处理器整体处于兜底区、不抢占业务方——业务方任一显式 `@Order`（如 `@Order(0)`）都可抢先；覆盖两条路径：声明同类型 `@ExceptionHandler`（条件装配使内置处理器不生效，与顺序无关）、处理子类/超类等非精确类型时用显式 `@Order` 排在对应档位之前；**命中回退**：单个 advice 内无精确类型匹配时 Spring 会按异常 **cause** 回退匹配，故"数字参数传非数字"的 `MethodArgumentTypeMismatchException`（cause 为 `NumberFormatException`）由 `CIllegalArgumentExceptionHandler` 命中，而 cause 非 `IllegalArgumentException` 的类型不匹配则由 `CMethodArgumentTypeMismatchExceptionHandler` 命中
 - **跨域全面支持**：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强多层方案
 - **JWT 与 token**：`CJwtUtils`（JWT 生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头与请求属性读写）
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称
