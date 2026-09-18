@@ -48,8 +48,8 @@ import lombok.experimental.StandardException;
  * @author c332030
  * @since 2026/9/17
  * @version 1.1
- * @see "doc/design/web/unauthorized-401.adoc"
  * <p>用例见 {@code CUnauthorizedExceptionTests}（主代码类注释不 {@code @see} 测试类：javadoc 类路径不含测试源）。</p>
+ * @see "doc/design/web/unauthorized-401.adoc"
  */
 @StandardException
 public class CUnauthorizedException extends CException {

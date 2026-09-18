@@ -32,10 +32,13 @@ import javax.servlet.http.HttpServletRequest;
  * <p>继承约束：{@link #getDefaultNull()} 为 {@code public}，子类可在<b>任意包</b>直接继承本类并实现该钩子
  * （无需与本类同包）。</p>
  *
+ * <p>相关测试（{@code com.c332030.ctool4j.session.service}）：{@code CAbstractBaseSessionServiceTests}。
+ * 未以 {@code @see} 链接测试类：javadoc 的类路径不含测试源，{@code @see} 会报 "reference not found"
+ * 并使 javadoc 退出码非 0，在 {@code failOnError=true} 下中断构建。</p>
+ *
  * @author c332030
  * @since 2026/9/10
  * @version 1.3
- * @see CAbstractBaseSessionServiceTests
  */
 @CustomLog
 public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
