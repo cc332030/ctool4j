@@ -55,6 +55,7 @@
 == 已知限制与取舍
 
 * 实参类型不匹配时抛 `ClassCastException`（原生反射抛 `IllegalArgumentException`）：句柄按签名做类型适配、不额外校验，属性能取舍，调用方须保证实参类型。
+* 目标方法/构造器自身抛出的异常**原样透传**，不再经 `InvocationTargetException` 包装：旧实现用 `Method#invoke` / `Constructor#newInstance`，对可访问成员执行时会把目标异常包进 `InvocationTargetException`；改为方法句柄后直接抛出原异常类型（如目标方法抛 `IllegalStateException`，调用方捕获到的就是 `IllegalStateException`）。调用方若依赖旧包装层（`catch InvocationTargetException` 后 `getCause()`）须随动调整；该差异已由用例 `CReflectUtilsTests#invoke_targetThrows_propagates` 固定。
 * 弱 key 缓存的条目在 Member（Field/Method/Constructor）存活期间常驻（弱键只保证类卸载时可回收）：一次性场景应使用生成版，判定口径见 `CMethodHandleUtils` javadoc「API 选用（一次性 / 多次访问）」。
 * `getGetterHandleAsType` / `getSetterHandleAsType` 只缓存 unreflect 结果，`asType` 适配句柄每次调用都会新建——一次性场景用缓存版无收益。
 * 实例方法调用须绑定接收者：`bindTo` 每次调用新建绑定句柄；接收者逐次不同，绑定句柄不可缓存（缓存会持有接收者引用）。

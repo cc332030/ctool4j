@@ -86,6 +86,8 @@ import java.util.stream.Collectors;
  *   <li>实例字段走 MethodHandle 快速路径提升性能，final/静态字段回退保证兼容。</li>
  *   <li>实参类型不匹配时抛 ClassCastException（原生 Field.set / Method.invoke 抛 IllegalArgumentException）：
  *   句柄调用按签名做类型适配，不额外做类型校验，为性能取舍；调用方需自行保证实参类型。</li>
+ *   <li>方法/构造器自身抛出的异常原样透传，不再经 InvocationTargetException 包装（旧实现经 Method#invoke /
+ *   Constructor#newInstance 会包装）；调用方若依赖旧包装层须随动调整。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>缓存</b></p>
@@ -300,7 +302,8 @@ public class CReflectUtils {
     /**
      * 通过构造器实例化对象
      * <p>经 {@link CMethodHandleUtils} 的构造器方法句柄做变长实参调用（等价于按实参反射调用），
-     * 不使用 {@code Constructor#newInstance}；句柄生成时统一 {@code setAccessible}，私有构造器亦可实例化</p>
+     * 不使用 {@code Constructor#newInstance}；句柄生成时统一 {@code setAccessible}，私有构造器亦可实例化。
+     * 构造器自身抛出的异常原样透传，不经 {@code InvocationTargetException} 包装（见类上「已知限制与取舍」）</p>
      *
      * @param constructor 构造器
      * @param args        实参（为 null 视为无实参）
@@ -714,7 +717,8 @@ public class CReflectUtils {
     /**
      * 调用对象方法
      * <p>经 {@link CMethodHandleUtils} 的方法句柄做变长实参调用（等价于按实参反射调用），
-     * 不使用 {@code Method#invoke}；实例方法句柄以接收者为首参（{@code bindTo} 绑定），静态方法句柄不带接收者</p>
+     * 不使用 {@code Method#invoke}；实例方法句柄以接收者为首参（{@code bindTo} 绑定），静态方法句柄不带接收者。
+     * 目标方法自身抛出的异常原样透传，不经 {@code InvocationTargetException} 包装（见类上「已知限制与取舍」）</p>
      *
      * @param value          对象
      * @param methodName     方法名

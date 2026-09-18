@@ -35,7 +35,7 @@ import java.util.HashMap;
  * <ul>
  *   <li>覆盖：getAnnotationCached；实例字段走快速路径；静态字段回退；final 字段 setValue 回退；父类字段经子类
  *   实例读写；按字段名读写存在/不存在抛异常；invoke 实例/静态/私有/无参方法、方法不存在两种策略、实参 null、
- *   实参类型不匹配；newInstance 有参/无参/私有构造器；fillValues 按类创建填充、空 Map 返回 null、按对象填充、
+ *   实参类型不匹配、目标方法抛异常原样透传；newInstance 有参/无参/私有构造器；fillValues 按类创建填充、空 Map 返回 null、按对象填充、
  *   不存在字段跳过且空 Map 不改动。</li>
  *   <li>未覆盖：getAllConstructors/getMethods/getAllMethods/getAnnotationValueCached 等纯元数据查询入口
  *   （当前测试聚焦读写、调用与填充）。</li>
@@ -61,6 +61,7 @@ import java.util.HashMap;
  *   <li>3.5 私有方法：句柄统一 setAccessible 后可直接调用（invoke_privateMethod）</li>
  *   <li>3.6 实参类型不匹配：抛 ClassCastException（invoke_argTypeMismatch_throws）</li>
  *   <li>3.7 无实参：实参省略与显式 null 均可调用（invoke_noArgs）</li>
+ *   <li>3.8 目标方法抛出异常：原样透传、不经 InvocationTargetException 包装（invoke_targetThrows_propagates）</li>
  * </ul>
  * <h2>构造器实例化</h2>
  * <ul>
@@ -279,6 +280,25 @@ public class CReflectUtilsTests {
     }
 
     /**
+     * 测试目标方法抛出异常时原样透传
+     * 对应测试用例 3.8：目标方法抛出异常：原样透传、不经 InvocationTargetException 包装
+     * <p>经方法句柄调用不经 {@code Method#invoke} 的 {@link java.lang.reflect.InvocationTargetException} 包装，
+     * 目标异常类型与信息原样抛出（与旧实现的行为差异，见 {@code doc/design/core/method-handle.adoc}「已知限制与取舍」）</p>
+     */
+    @Test
+    public void invoke_targetThrows_propagates() {
+
+        val bean = new ValueBean();
+
+        val ex = Assertions.assertThrowsExactly(
+            IllegalStateException.class,
+            () -> CReflectUtils.invokeMustHaveMethod(bean, "fail")
+        );
+        Assertions.assertEquals("boom", ex.getMessage());
+
+    }
+
+    /**
      * 测试有参构造器实例化：经构造器句柄创建并赋值
      * 对应测试用例 4.1：有参构造器：经句柄实例化并赋值
      */
@@ -446,6 +466,15 @@ public class CReflectUtilsTests {
          */
         private String joinPrivate(String suffix) {
             return name + "-" + suffix;
+        }
+
+        /**
+         * 抛出异常的方法：验证目标异常经句柄调用原样透传
+         *
+         * @throws IllegalStateException 固定抛出，信息为 {@code boom}
+         */
+        public void fail() {
+            throw new IllegalStateException("boom");
         }
 
     }
