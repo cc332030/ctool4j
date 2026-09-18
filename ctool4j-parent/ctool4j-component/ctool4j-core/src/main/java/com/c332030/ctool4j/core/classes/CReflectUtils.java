@@ -113,7 +113,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/4/2
- * @version 1.1
+ * @version 1.2
  * @see "doc/design/core/method-handle.adoc"
  */
 @CustomLog
@@ -174,12 +174,17 @@ public class CReflectUtils {
             ));
 
     /**
-     * 构造器按参数个数分组的缓存
+     * 构造器按参数个数分组的缓存（取 {@link Class#getDeclaredConstructors()}，含非 public 构造器）
+     *
+     * <p>用 {@code getDeclaredConstructors()} 而非 {@code getConstructors()}：后者<b>只返回 public 构造器</b>，
+     * 会把"包私有/受保护/私有但实际可实例化"的类误判为无构造器可用（本工具类已对取到的构造器
+     * {@code setAccessible(true)}，可访问性不构成限制）。行为副作用：{@code getConstructors(Type, Class...)}
+     * 的匹配面随之扩大到非 public 构造器（按参数类型匹配，不改变匹配语义）。</p>
      */
     private static final CClassValue<Map<Integer, List<Constructor<?>>>> CONSTRUCTOR_MAP_CLASS_VALUE =
             CClassValue.of(type -> {
 
-                val constructors = type.getConstructors();
+                val constructors = type.getDeclaredConstructors();
                 for (val constructor : constructors) {
                     constructor.setAccessible(true);
                 }
@@ -188,10 +193,10 @@ public class CReflectUtils {
             });
 
     /**
-     * 获取类所有构造器（按参数个数分组）
+     * 获取类所有构造器（按参数个数分组，含非 public 构造器）
      *
      * @param tClass 类
-     * @return 构造器分组 Map
+     * @return 构造器分组 Map（key 为参数个数）
      */
     public Map<Integer, List<Constructor<?>>> getAllConstructors(Class<?> tClass) {
         return CONSTRUCTOR_MAP_CLASS_VALUE.get(tClass);
@@ -199,15 +204,24 @@ public class CReflectUtils {
 
     /**
      * 获取类与参数匹配的构造器
+     * <p>实参逐个取运行时类型（{@code null} 实参取 {@code null} 类型）后委托
+     * {@link #getConstructors(Class, Class[])}；{@code args} 为 {@code null} 或空数组时等价于按无参构造器匹配。
+     * 实参类型与形参类型不完全匹配时返回的构造器可能不止一个，调用方需自行按契约取用</p>
      *
      * @param tClass 类
-     * @param args   实参
+     * @param args   实参（元素可为 {@code null}，取 {@code null} 类型参与匹配）
      * @return 匹配的构造器 List
      */
     public List<Constructor<?>> getConstructors(Class<?> tClass, Object... args) {
 
-        val argTypes = CArrUtils.convert(args, Object::getClass);
-        return getConstructors(tClass, argTypes);
+        // 取实参运行时类型：null 实参保留为 null 类型，由类型版按通配处理。
+        // 不得改为 CArrUtils.convert(args, Object::getClass)：遇 null 实参抛空指针；
+        // 也不得直接传 args（Object[] 既匹配本重载又匹配类型版，传 null 数组时重载歧义、
+        // 会按本重载递归调用自身直至栈溢出）
+        val argTypes = ArrayUtil.isEmpty(args)
+                ? CArrUtils.EMPTY_OBJECT_ARRAY
+                : Arrays.stream(args).map(arg -> null == arg ? null : arg.getClass()).toArray(Object[]::new);
+        return getConstructors(tClass, CArrUtils.convert(argTypes, Class[]::new, CObjUtils::anyType));
     }
 
     /**

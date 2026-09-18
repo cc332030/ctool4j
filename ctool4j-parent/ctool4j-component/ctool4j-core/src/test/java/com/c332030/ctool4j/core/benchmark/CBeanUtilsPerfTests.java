@@ -11,6 +11,7 @@ import net.sf.cglib.beans.BeanCopier;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -34,16 +35,46 @@ import java.util.*;
  * <ul>
  *   <li>mvn -Pperf test -Dtest=CBeanUtilsPerfTests -Dsurefire.failIfNoSpecifiedTests=false</li>
  *   <li>性能测试类独立于常规测试（命名 {@code *PerfTests} 被 surefire/failsafe 排除，仅显式触发）。</li>
- *   <li>三通道分写报告：tmp/benchmark-report-cbeanutils-copy.md / -deepcopy.md / -tomap.md。</li>
+ *   <li>三通道分写报告：doc/design/core/perf/benchmark-report-cbeanutils-{copy,deepcopy,tomap}.md。</li>
+ *   <li>测量口径：预热不计时（第一轮全用例预热 + 每轮计时前再预热）；单轮迭代数与轮数见各通道常量
+ *   （简 copy / toMap：默认预热 50 万、单轮 100 万 × 5 轮；深拷贝：预热 10 万、单轮 20 万 × 5 轮）；
+ *   终值为各轮「单次均摊耗时」均值，离散度为极差（最慢 − 最快），两者同表给出。</li>
  *   <li>深拷贝通道耗时量级高，用运行器重载取较小迭代参数（预热 10 万、单轮 20 万 × 3 轮）；
  *   简单 copy 与 toMap 通道用默认迭代（预热 50 万、单轮 100 万 × 5 轮）。</li>
  * </ul>
  *
- * <h2>基准执行</h2>
+ * <h2>基准执行（方案目录）</h2>
  * <ul>
  *   <li>6.1 简单 copy 通道（标量属性，多实现方式同路径对比 + 实例化/缓存/分配诊断项）</li>
  *   <li>6.2 深拷贝通道（按类型分场景 + 手工等价深拷贝基线 + 组合/全空场景）</li>
  *   <li>6.3 对象转 Map 通道（多实现方式对比）</li>
+ * </ul>
+ *
+ * <h2>测量口径</h2>
+ * <ul>
+ *   <li>运行环境：JDK 8（Temurin 8u504）；单容器实测值，非固定 CPU，仅用于量级与相对比较。</li>
+ *   <li>预热/测量：第一轮全用例预热（触发初始化与加载），不计时；随后每用例逐轮
+ *   {@code prepare()} → 预热 → 归集垃圾 → 计时；简 copy / toMap 通道 5 轮 × 100 万次，
+ *   深 copy 通道 5 轮 × 20 万次（耗时量级高，降迭代数）。</li>
+ *   <li>指标与取数：终值 = 各轮「单次均摊耗时」均值；离散度 = 极差（最慢 − 最快）；两者同表给出。
+ *   组间差异小于两者离散度之和即标注「无显著差异」，不据此宣称胜出。</li>
+ *   <li>计时区间：只含被测调用循环——数据构造（{@code prepare}）与报告写出都在区间外；
+ *   结果经 {@code identityHashCode} 累加消费，防 JIT 消除死代码。</li>
+ * </ul>
+ *
+ * <h2>结果与结论（详见 doc/design/core/perf/beanutils-perf.adoc）</h2>
+ * <ul>
+ *   <li>同类对比中 CBeanUtils 明显优于 Spring {@code BeanUtils} 与 hutool {@code BeanUtil}
+ *   （简单 copy 通道相差一个数量级以上）；cglib {@code BeanCopier} 与手工 setter 同量级、优于本类。</li>
+ *   <li>本类与手工 setter 的差距主要来自<b>通用性代价</b>：字段访问统一走 {@code MethodHandle}
+ *   （反射的 1.5 倍速度、且免字节码），而手工 setter 由 JIT 直接内联为字段读写，属不可消除的机制差异
+ *   （禁用字节码处理的前提下的最优选择）。</li>
+ *   <li>深拷贝通道的瓶颈已在 3 轮优化中收敛（详见性能文档的优化日志），
+ *   剩余差距为 MethodHandle 固有成本与每次复制的必要分配。</li>
+ *   <li>第 2 轮（按类折叠候选）同口径 A/B：深拷贝按目标类折叠 `DeepPlan` 有有效收益
+ *   （按一次复制命中的目标类次数线性生效，命中 41 次 -3.5%），已采纳；
+ *   容器创建的 kind 查表与 toMap 的 `put` 返回值判冲突均无显著收益或负收益，未采纳
+ *   （理由与实测数值见 `doc/design/core/perf/beanutils-perf.adoc`）。</li>
  * </ul>
  *
  * @since 2026/9/18
@@ -67,7 +98,7 @@ public class CBeanUtilsPerfTests {
     /**
      * 深拷贝通道采样轮数
      */
-    private static final int DEEP_MEASURE_ROUNDS = 3;
+    private static final int DEEP_MEASURE_ROUNDS = 5;
 
     /**
      * 简单 copy 通道基准（对应测试用例 6.1）
@@ -98,8 +129,26 @@ public class CBeanUtilsPerfTests {
         writeReport(report, "benchmark-report-cbeanutils-tomap.md");
     }
 
+    /**
+     * 报告落点：持久设计文档目录（性能测试内容禁止落 {@code tmp/}，见公共测试规范「性能测试」）
+     *
+     * <p>原始报告为一次性产物，其"取值 + 来源 + 结论"由 {@code doc/design/core/beanutils-perf.adoc}
+     * 与测试类 javadoc 承载；此处按模块相对路径定位（从模块基目录向上找到含 {@code doc/design} 的仓库根）。</p>
+     *
+     * @param report   基准报告
+     * @param fileName 报告文件名
+     */
     private static void writeReport(CBenchmarkReport report, String fileName) {
-        Path reportPath = Paths.get(System.getProperty("user.dir"), "tmp", fileName);
+
+        Path base = Paths.get(System.getProperty("user.dir"));
+        // 模块测试的工作目录为模块目录，逐级向上找仓库根（含 doc/design 者）
+        while(null != base && !Files.isDirectory(base.resolve("doc").resolve("design"))) {
+            base = base.getParent();
+        }
+        Path reportPath = null == base
+                ? Paths.get(System.getProperty("user.dir"), "target", fileName)
+                : base.resolve("doc").resolve("design").resolve("core").resolve("perf").resolve(fileName);
+
         report.writeTo(reportPath);
         System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());
     }

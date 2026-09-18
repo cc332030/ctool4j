@@ -22,7 +22,7 @@
 
 | link:core/[core]
 | 核心工具库（ctool4j-core）：字符串、集合、日期、反射、日志、校验
-| link:core/method-handle.adoc[method-handle]
+| link:core/method-handle.adoc[method-handle]、link:core/perf/beanutils-perf.adoc[CBeanUtils 性能实测]
 
 | link:definition/[definition]
 | 基础定义（ctool4j-definition）：统一返回体、实体基类、枚举、注解、函数式接口

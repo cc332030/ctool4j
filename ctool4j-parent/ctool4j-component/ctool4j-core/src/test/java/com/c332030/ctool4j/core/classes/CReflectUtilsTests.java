@@ -19,7 +19,7 @@ import java.util.HashMap;
  *   <li>按「注解缓存 / 实例字段 / 静态字段 / final 字段 / 继承字段 / 按名读写 / 方法调用 / 构造器实例化 / 按 Map 填充」
  *   多个维度组织。</li>
  *   <li>用 ValueBean（实例 name/静态 STATIC_VALUE/final finalValue + 实例/静态/私有/无参方法）与 SubValueBean（继承）、
- *   CtorBean（有参/无参构造器）、PrivateCtorBean（私有构造器）验证字段读写、方法调用与构造器实例化各路径。</li>
+ *   CtorBean（有参/无参构造器）、PrivateCtorBean（私有构造器）、PackageCtorBean（包私有构造器）验证字段读写、方法调用与构造器实例化各路径。</li>
  *   <li>方法与构造器经 MethodHandle 调用：正例断言返回值/字段值；私有成员经句柄统一 setAccessible 后可直接调用
  *   （用例 3.5/4.3）；实参类型不匹配为句柄路径的已知取舍，按实现精确断言异常类型（用例 3.6）。</li>
  *   <li>按字段名读写验证存在正常、不存在快速失败抛 IllegalArgumentException。</li>
@@ -35,8 +35,8 @@ import java.util.HashMap;
  * <ul>
  *   <li>覆盖：getAnnotationCached；实例字段走快速路径；静态字段回退；final 字段 setValue 回退；父类字段经子类
  *   实例读写；按字段名读写存在/不存在抛异常；invoke 实例/静态/私有/无参方法、方法不存在两种策略、实参 null、
- *   实参类型不匹配、目标方法抛异常原样透传；newInstance 有参/无参/私有构造器；fillValues 按类创建填充、空 Map 返回 null、按对象填充、
- *   不存在字段跳过且空 Map 不改动。</li>
+ *   实参类型不匹配、目标方法抛异常原样透传；newInstance 有参/无参/私有构造器；构造器查询覆盖非 public 构造器、实参含 null、
+ *   实参为 null 数组与无实参；fillValues 按类创建填充、空 Map 返回 null、按对象填充、不存在字段跳过且空 Map 不改动。</li>
  *   <li>未覆盖：getAllConstructors/getMethods/getAllMethods/getAnnotationValueCached 等纯元数据查询入口
  *   （当前测试聚焦读写、调用与填充）。</li>
  * </ul>
@@ -68,6 +68,9 @@ import java.util.HashMap;
  *   <li>4.1 有参构造器：经句柄实例化并赋值（newInstance_withArgs）</li>
  *   <li>4.2 无参构造器：实参为 null（newInstance_noArgs）</li>
  *   <li>4.3 私有构造器：句柄统一 setAccessible 后可实例化（newInstance_privateConstructor）</li>
+ *   <li>4.4 非 public 构造器可被查询到（getConstructors_includesNonPublicConstructors）</li>
+ *   <li>4.5 按实参取类型：实参含 null 时取 null 类型匹配（getConstructors_nullArg）</li>
+ *   <li>4.6 按实参取类型：实参为 null 数组或无实参等价于无参构造器（getConstructors_nullArgs）</li>
  * </ul>
  * <h2>按字段值填充</h2>
  * <ul>
@@ -78,7 +81,7 @@ import java.util.HashMap;
  * </ul>
  *
  * @since 2026/6/16
- * @version 1.1
+ * @version 1.2
  * @see CReflectUtils
  */
 public class CReflectUtilsTests {
@@ -332,7 +335,8 @@ public class CReflectUtilsTests {
 
     /**
      * 测试私有构造器实例化：句柄生成时统一 setAccessible
-     * （getConstructors 只收集 public 构造器，私有构造器经 getDeclaredConstructor 取元数据后交由被测方法）
+     * （构造器元数据可直接经 {@code getDeclaredConstructor} 取，也可经 {@link CReflectUtils#getConstructors}
+     * 取——后者按 {@code getDeclaredConstructors()} 收集，覆盖非 public 构造器）
      * 对应测试用例 4.3：私有构造器：句柄统一 setAccessible 后可实例化
      */
     @Test
@@ -342,6 +346,77 @@ public class CReflectUtilsTests {
         val bean = CReflectUtils.newInstance(constructor);
 
         Assertions.assertInstanceOf(PrivateCtorBean.class, bean);
+
+    }
+
+    /**
+     * 测试构造器查询覆盖非 public 构造器
+     * 对应测试用例 4.4：非 public 无参构造器可被查询到并用于实例化
+     *
+     * <p><b>回归点</b>：构造器收集曾用 {@link Class#getConstructors()}——它<b>只返回 public 构造器</b>，
+     * 于是"包私有/受保护/私有构造器"的类会被判为"无可用构造器"，实例化路径（{@code CBeanUtils} 深拷贝等）
+     * 随之退化为共享引用。改用 {@link Class#getDeclaredConstructors()} 后这类类恢复可实例化
+     * （本工具类已对取到的构造器统一 {@code setAccessible(true)}，可访问性不构成限制）。</p>
+     *
+     * <p>断言口径：①{@code getNoArgConstructor} 能取到包私有构造器类（{@link PackageCtorBean}）的无参构造器；
+     * ②{@code getAllConstructors} 的构造器数量包含非 public 构造器。</p>
+     */
+    @Test
+    public void getConstructors_includesNonPublicConstructors() {
+
+        // 包私有构造器：getConstructors() 取不到，getDeclaredConstructors() 可取到
+        val noArg = CReflectUtils.getNoArgConstructor(PackageCtorBean.class);
+        Assertions.assertNotNull(noArg, "包私有构造器应可被查询到（原实现只收集 public 构造器）");
+
+        val bean = CReflectUtils.newInstance(PackageCtorBean.class);
+        Assertions.assertInstanceOf(PackageCtorBean.class, bean);
+
+        // PrivateCtorBean 为私有静态内部类（构造器私有）：同样应可查到
+        val privateConstructors = CReflectUtils.getAllConstructors(PrivateCtorBean.class);
+        Assertions.assertNotNull(
+                privateConstructors.get(new Integer(0)),
+                "私有构造器应进构造器分组（原实现取不到）"
+        );
+
+    }
+
+    /**
+     * 测试按实参取类型：实参含 null 时取 null 类型参与匹配
+     * 对应测试用例 4.5：按实参取类型：实参含 null 时取 null 类型匹配
+     * <p>回归用例：旧实现经 {@code CArrUtils.convert(args, Object::getClass)} 取类型，遇 null 实参即抛
+     * {@link NullPointerException}（{@code getConstructors} 现已改为 null 实参取 null 类型）</p>
+     */
+    @Test
+    public void getConstructors_nullArg() {
+
+        val constructors = CReflectUtils.getConstructors(CtorBean.class, "name", null);
+
+        // CtorBean 仅有一个两参构造器 (String, int)：null 类型按通配放行，故命中该构造器
+        Assertions.assertEquals(1, constructors.size());
+        Assertions.assertArrayEquals(
+            new Class<?>[]{String.class, int.class},
+            constructors.get(0).getParameterTypes()
+        );
+
+    }
+
+    /**
+     * 测试按实参取类型：实参为 null 数组、无实参均等价于无参构造器
+     * 对应测试用例 4.6：按实参取类型：实参为 null 数组或无实参等价于无参构造器
+     * <p>回归用例：实参为 {@code null} 时原重载解析到类型版、按类型版空数组命中无参构造器；
+     * 旧实现的空数组分支原样返回构造器缓存中的 {@code null}（列表访问即抛
+     * {@link NullPointerException}），实参为 null 数组时更会按本重载递归调用自身直至 {@link StackOverflowError}</p>
+     */
+    @Test
+    public void getConstructors_nullArgs() {
+
+        val noArgs = CReflectUtils.getConstructors(CtorBean.class);
+        val nullArgs = CReflectUtils.getConstructors(CtorBean.class, (Object[]) null);
+
+        Assertions.assertEquals(1, noArgs.size());
+        Assertions.assertEquals(0, noArgs.get(0).getParameterCount());
+        Assertions.assertEquals(1, nullArgs.size());
+        Assertions.assertEquals(0, nullArgs.get(0).getParameterCount());
 
     }
 
@@ -507,6 +582,17 @@ public class CReflectUtilsTests {
      */
     private static class PrivateCtorBean {
 
+    }
+
+    /**
+     * 包私有构造器测试 Bean：显式声明包私有（非 public）构造器
+     *
+     * <p>用于验证构造器查询覆盖非 public 构造器——{@code Class#getConstructors()} 取不到它。</p>
+     */
+    static class PackageCtorBean {
+
+        PackageCtorBean() {
+        }
     }
 
 }
