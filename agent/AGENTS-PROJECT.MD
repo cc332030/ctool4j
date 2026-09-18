@@ -21,6 +21,10 @@
 
 - 项目在根目录 `lombok.config` 全局配置 `lombok.toString.callSuper=call`、`lombok.equalsAndHashCode.callSuper=call`：继承场景下 lombok 自动在 `toString`/`equals`/`hashCode` 中包含父类字段，子类**无需**再显式标注 `@ToString(callSuper=true)`/`@EqualsAndHashCode(callSuper=true)`（标注属冗余，禁止新增）
 - 全局配置 `lombok.fieldDefaults.defaultPrivate=true`：字段默认 private（显式 `public`/`protected` 字段不受影响）
+- 全局配置 `lombok.addLombokGeneratedAnnotation=true`：lombok 在其生成的成员（getter/setter、构造器、`equals`/`hashCode`/`toString`、Builder 等）上标注 `@lombok.Generated`（**`CLASS` 保留**），供 JaCoCo/PIT 等按字节码分析的工具识别并**排除自动生成代码**，覆盖率/变异统计只计手写逻辑（对齐远端 `specs/general/testing.adoc`「覆盖率统计须排除自动生成的代码（lombok 生成…）」）。要点：
+  - 标记写在 `.class` 字节码里，**不要求**源码引用 lombok、也**不要求**注解类出现在运行时（lombok 为 `provided`）：工具按注解**简单名** `Generated` 匹配即可排除；反之**运行时反射读该注解读不到**（`CLASS` 保留），需要运行时读注解的场景不适用。
+  - 按简单名匹配 ⇒ **同名即排除**：手写方法不得标注任何简单名为 `Generated` 的注解（含 `javax.annotation.Generated`、`javax.annotation.processing.Generated`、自定义 `@Generated`），否则会被一并排除在统计之外。
+  - 接入 JaCoCo/PIT 时无需再手工排除 lombok 生成代码（本配置已提供标记）；未接入覆盖率/变异工具时，该配置不产生统计效果。
 - 接口中声明 `void setXxx(...)` 会与链式访问器（`@Accessors(chain = true)`）冲突：生成的 setter 返回 `this`，无法重写 `void` 方法，实现类编译失败。约束与例外见「命名前缀 - 纯字段接口」。
 
 ## Java 反射（项目自有方法句柄工具）

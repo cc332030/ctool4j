@@ -54,9 +54,15 @@ import org.springframework.core.Ordered;
  *   <li>存在性覆盖（与顺序无关）：声明同一异常类型的 {@code @ExceptionHandler}，内置处理器因条件装配不生效。</li>
  *   <li>顺序覆盖：处理子类/超类等非精确类型时，用显式 {@code @Order}（值小于对应档位）排在前面。</li>
  * </ul>
+ * <p><b>为何显式写 {@code static}</b></p>
+ * <ul>
+ *   <li>常量被用作 {@code @Order} 的<b>注解值</b>：{@code @UtilityClass} 虽会生成 {@code static}（javac 编译通过），
+ *   但 javadoc 直接解析源码、不走 Lombok，省略 {@code static} 会让所有 {@code @Order(CExceptionHandlerOrder.*)} 报
+ *   "non-static variable cannot be referenced from a static context"，故此处显式声明（项目其余常量类无注解值引用，故可省略）。</li>
+ * </ul>
  *
  * @since 2026/9/18
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CExceptionHandlerOrder {
@@ -64,16 +70,16 @@ public class CExceptionHandlerOrder {
     /**
      * 具体异常类型处理器档位
      */
-    public final int CONCRETE = Ordered.LOWEST_PRECEDENCE - 100;
+    public static final int CONCRETE = Ordered.LOWEST_PRECEDENCE - 100;
 
     /**
      * {@code CException} 兜底处理器档位
      */
-    public final int C_EXCEPTION_FALLBACK = Ordered.LOWEST_PRECEDENCE - 50;
+    public static final int C_EXCEPTION_FALLBACK = Ordered.LOWEST_PRECEDENCE - 50;
 
     /**
      * {@code Throwable} 兜底处理器档位（最后一档）
      */
-    public final int THROWABLE_FALLBACK = Ordered.LOWEST_PRECEDENCE;
+    public static final int THROWABLE_FALLBACK = Ordered.LOWEST_PRECEDENCE;
 
 }

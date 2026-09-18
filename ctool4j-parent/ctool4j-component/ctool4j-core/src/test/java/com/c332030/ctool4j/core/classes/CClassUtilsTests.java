@@ -25,7 +25,7 @@ import java.util.HashSet;
  * <p>
  * Description: CClassUtilsTests
  * </p>
- * <p>{@code com.c332030.ctool4j.core.classes.CClassUtils}（CClassUtils）的测试用例</p>
+ * <p>{@code CClassUtils} 的测试用例</p>
  *
  * <p><b>JDK 版本约束（重要备注）</b>：本测试<b>只保证在 JDK 8 下编译运行</b>——样本含 {@code jdk.Exported}
  * 等仅 JDK 8 存在的类型（JDK 9+ 已移除，测试代码在 JDK 9+ 无法编译）；本项目同样只允许 JDK 8 编译运行
@@ -82,7 +82,7 @@ import java.util.HashSet;
  * </ul>
  *
  * @since 2025/12/12
- * @version 1.1
+ * @version 1.2
  * @see CClassUtils
  */
 public class CClassUtilsTests {

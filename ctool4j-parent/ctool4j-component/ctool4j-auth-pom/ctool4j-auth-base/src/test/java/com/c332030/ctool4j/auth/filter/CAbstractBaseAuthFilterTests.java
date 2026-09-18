@@ -4,8 +4,10 @@ import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
+import com.c332030.ctool4j.session.util.CSessionUtils;
 import lombok.Data;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ import java.io.IOException;
  * <p>
  * Description: CAbstractBaseAuthFilterTests
  * </p>
- * <p>{@code com.c332030.ctool4j.auth.filter.CAbstractBaseAuthFilter}（CAbstractBaseAuthFilter）的测试用例</p>
+ * <p>{@code CAbstractBaseAuthFilter} 的测试用例</p>
  *
  * <p>覆盖与 Spring Security 无关的公共部分：过滤器骨架（异常静默 + 无条件放行）、mock 会话与真实会话的
  * 优先级与降级、认证信息设置钩子的默认实现。Security 的认证构造见 auth-spring 的
@@ -73,7 +75,7 @@ import java.io.IOException;
  * </ul>
  *
  * @since 2026/9/13
- * @version 1.0
+ * @version 1.3
  * @see CAbstractBaseAuthFilter
  */
 class CAbstractBaseAuthFilterTests {
@@ -93,6 +95,14 @@ class CAbstractBaseAuthFilterTests {
     @BeforeEach
     public void setUp() {
         sessionService = new SessionServiceStub();
+    }
+
+    /**
+     * 清理注入到静态门面的会话服务：静态状态不会随用例结束回收，避免逃逸到其他测试类
+     */
+    @AfterEach
+    public void tearDown() {
+        CSessionUtils.setSessionService(null);
     }
 
     // ---------- 过滤器骨架 ----------
@@ -221,7 +231,7 @@ class CAbstractBaseAuthFilterTests {
         // 分支：未覆写 setMockAuthentication 时，mock 会话走默认实现（委托 setAuthentication）
         val mockSession = new SessionStub();
         val filter = new DefaultMockFilterStub();
-        inject(filter, "sessionService", sessionService);
+        CSessionUtils.setSessionService(sessionService);
         inject(filter, "sessionMockConfig", newMockConfig(true, mockSession));
 
         filter.loadAuthentication(request);
@@ -295,7 +305,8 @@ class CAbstractBaseAuthFilterTests {
     private FilterStub newFilter(CAbstractSessionMockConfig<SessionStub> mockConfig) {
 
         val filter = new FilterStub();
-        inject(filter, "sessionService", sessionService);
+        // 会话读取已改走静态门面 CSessionUtils（过滤器不再持有会话服务字段），故按门面注入
+        CSessionUtils.setSessionService(sessionService);
         inject(filter, "sessionMockConfig", mockConfig);
         return filter;
 

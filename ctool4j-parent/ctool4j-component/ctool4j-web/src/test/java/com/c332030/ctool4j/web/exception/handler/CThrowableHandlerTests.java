@@ -73,10 +73,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>2.22 JDK 错误子类（AssertionError）：本处理器兜底</li>
  * </ul>
  *
- * <p>`com.c332030.ctool4j.web.exception.handler.CThrowableHandler`（CThrowableHandler）的测试用例</p>
+ * <p>`CThrowableHandler` 的测试用例</p>
  *
  * @since 2026/8/16
- * @version 1.2
+ * @version 1.3
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest

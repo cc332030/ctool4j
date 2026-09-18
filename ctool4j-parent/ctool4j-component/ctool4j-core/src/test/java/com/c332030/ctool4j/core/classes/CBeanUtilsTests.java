@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.classes;
 
 import cn.hutool.core.date.DateUtil;
+import com.c332030.ctool4j.core.benchmark.CBeanUtilsPerfTests;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.test.definition.model.UserDto;
@@ -256,13 +257,13 @@ import java.math.BigDecimal;
  * </ul>
  *
  * @since 2025/11/20
- * @version 1.1
- * @see com.c332030.ctool4j.core.classes.CBeanUtils
+ * @version 1.2
+ * @see CBeanUtils
  * @see CBeanUtilsMoreTests
  * @see CBeanUtilsCompatibilityTests
  * @see CBeanUtilsCopyContractTests
  * @see CBeanUtilsDeepCopyTests
- * @see com.c332030.ctool4j.core.benchmark.CBeanUtilsPerfTests
+ * @see CBeanUtilsPerfTests
  */
 public class CBeanUtilsTests {
 

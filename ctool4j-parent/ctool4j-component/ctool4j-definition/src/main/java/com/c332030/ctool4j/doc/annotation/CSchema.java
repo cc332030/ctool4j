@@ -8,8 +8,8 @@ import java.lang.annotation.*;
  * 仅承载文档描述（description），不参与运行时校验
  *
  * <p>可标注在字段或 getter 方法（如接口 {@code ICUsername.getUsername()}）上。
- * 需要必填校验时配合 {@code com.c332030.ctool4j.web.validation.annotation.CRequired}
- * （校验实现见 {@code com.c332030.ctool4j.web.validation.validator.CRequiredValidator}）。</p>
+ * 需要必填校验时配合 {@code CRequired}
+ * （校验实现见 {@code CRequiredValidator}）。</p>
  *
  * <p>参数级描述请用 {@code @CParameter}（参数必填由 {@code @CRequired} / {@code @CNotRequired} 表达）。</p>
  *
@@ -52,7 +52,7 @@ import java.lang.annotation.*;
  * @author c332030
  * @see "doc/design/definition/openapi-doc-annotations.adoc"
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Target({
     ElementType.FIELD,

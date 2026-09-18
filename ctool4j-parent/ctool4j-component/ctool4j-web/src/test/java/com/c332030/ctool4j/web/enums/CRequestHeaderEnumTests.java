@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CRequestHeaderEnumTests
  * </p>
- * <p>`com.c332030.ctool4j.web.enums.CRequestHeaderEnum`（CRequestHeaderEnum）的测试用例</p>
+ * <p>`CRequestHeaderEnum` 的测试用例</p>
  *
  * <p>覆盖枚举 getHeaderName（下划线转 Header 名）与 getText 描述</p>
  *
@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 public class CRequestHeaderEnumTests {

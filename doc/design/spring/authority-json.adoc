@@ -166,9 +166,9 @@ Jackson 的 `MapperFeature.USE_GETTERS_AS_SETTERS`（默认开启）会走 `Sett
 == 相关入口
 
 - 模块索引：link:../README.adoc[设计文档索引]
-- 源码：`com.c332030.ctool4j.spring.security.jackson.CSecurityJacksonModule`、
-  `com.c332030.ctool4j.spring.security.jackson.deserializer.CGrantedAuthorityDeserializer`、
-  `com.c332030.ctool4j.spring.security.util.CGrantedAuthorityUtils`、
-  `com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils`
+- 源码（ctool4j-spring-security）：`CSecurityJacksonModule`、
+  `CGrantedAuthorityDeserializer`、
+  `CGrantedAuthorityUtils`、
+  `CSpringSecurityUtils`
 - 配置：`ctool4j-spring-security/src/main/resources/META-INF/services/com.fasterxml.jackson.databind.Module`
 - 变更记录：link:../../../CHANGELOG.adoc[CHANGELOG.adoc]

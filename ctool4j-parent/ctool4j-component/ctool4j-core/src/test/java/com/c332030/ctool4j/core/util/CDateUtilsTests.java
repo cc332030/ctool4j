@@ -17,7 +17,7 @@ import java.util.Date;
  * <p>
  * Description: CDateUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.core.util.CDateUtils`（CDateUtils）的测试用例</p>
+ * <p>`CDateUtils` 的测试用例</p>
  *
  * <h2>设计思路</h2>
  * <ul>
@@ -70,7 +70,7 @@ import java.util.Date;
  * </ul>
  *
  * @since 2025/12/7
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 public class CDateUtilsTests {

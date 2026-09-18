@@ -11,7 +11,7 @@ import java.util.*;
  * <p>
  * Description: CMapUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.core.util.CMapUtils`（Map 工具类）的测试用例</p>
+ * <p>`CMapUtils`（Map 工具类）的测试用例</p>
  *
  * <p><b>用例设计思路</b>：按「写入与空兜底 / 创建 / 键值映射 / 过滤 / 合并 / 其他」多个维度组织：</p>
  * <ul>
@@ -95,7 +95,7 @@ import java.util.*;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  * @see CMapUtils
  */
 public class CMapUtilsTests {

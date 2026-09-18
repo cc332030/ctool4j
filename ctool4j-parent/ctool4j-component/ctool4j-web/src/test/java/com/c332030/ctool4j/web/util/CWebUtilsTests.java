@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CWebUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.web.util.CWebUtils`（CWebUtils）的测试用例</p>
+ * <p>`CWebUtils` 的测试用例</p>
  *
  * <p>覆盖不依赖容器的纯逻辑方法 getContentDispositionValue；
  * writeResponse 依赖 CRequestUtils.getResponse()（容器），不在本测试覆盖范围</p>
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 public class CWebUtilsTests {

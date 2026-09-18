@@ -33,7 +33,7 @@ import lombok.val;
  * <p>详细设计、详细步骤、兜底与已知限制见各方法 javadoc。</p>
  *
  * @since 2026/9/11
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -48,7 +48,7 @@ public class CAuthUtils {
      * 校验 jwt 并解析其中携带的 token
      *
      * <p><b>详细设计</b>：密钥取自配置 {@code CAuthConfig#jwtSecret}；载荷中的 token 字段名为
-     * {@link com.c332030.ctool4j.definition.interfaces.ICToken#TOKEN}。本方法服务于接口权限控制，
+     * {@link ICToken#TOKEN}。本方法服务于接口权限控制，
      * 传入的可能是任意来源的 jwt（非本系统签发、被篡改、已过期），因此<b>静默失败为刻意设计</b>：
      * 解析失败不构成业务错误，返回 null 交调用方按「无 token」处理，请求仍为未授权状态、
      * 后续照常走鉴权，不因外部系统凭据导致接口报错。</p>

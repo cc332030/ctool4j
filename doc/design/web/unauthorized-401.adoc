@@ -80,9 +80,9 @@ auth-base 需要能抛、ctool4j-web 需要能接，二者彼此不依赖（见 
 
 == 相关入口
 
-- 源码：`com.c332030.ctool4j.core.exception.CUnauthorizedException`、
-  `com.c332030.ctool4j.session.service.CAbstractBaseSessionService`、
-  `com.c332030.ctool4j.web.exception.handler.CUnauthorizedExceptionHandler`
+- 源码：`CUnauthorizedException`（ctool4j-core）、
+  `CAbstractBaseSessionService`（ctool4j-auth-base）、
+  `CUnauthorizedExceptionHandler`（ctool4j-web）
 - 测试：`CUnauthorizedExceptionTests`、`CAbstractBaseSessionServiceTests`、`CUnauthorizedExceptionHandlerTests`
 - 模块文档：link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web README]、
   link:../../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom README]

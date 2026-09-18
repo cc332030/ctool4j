@@ -17,7 +17,7 @@ import java.util.Collections;
  * Description: CSpringSecurityUtilsTests
  * </p>
  * <p>
- * `com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils` 的测试用例，仅测试基于 SecurityContextHolder 的纯逻辑方法，
+ * `CSpringSecurityUtils` 的测试用例，仅测试基于 SecurityContextHolder 的纯逻辑方法，
  * 不依赖 Spring 容器。
  * </p>
  *
@@ -63,7 +63,7 @@ import java.util.Collections;
  *
  * @author c332030
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  * @see CSpringSecurityUtils
  */
 class CSpringSecurityUtilsTests {

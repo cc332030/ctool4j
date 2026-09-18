@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  * <p>
  * Description: CStrUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.core.util.CStrUtils`（CStrUtils）的测试用例</p>
+ * <p>`CStrUtils` 的测试用例</p>
  *
  * <p><b>用例设计思路</b>：聚焦易出错且出错后难发现的方法，按「模板格式化 / 末尾数字自增 / 中文提取 / 字符串清洗」四个维度组织：</p>
  * <ul>
@@ -74,7 +74,7 @@ import org.junit.jupiter.api.Test;
  * </ul>
  *
  * @since 2025/9/16
- * @version 1.0
+ * @version 1.1
  * @see CStrUtils
  */
 @CustomLog

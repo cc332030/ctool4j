@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.core.jackson;
 
+import com.c332030.ctool4j.definition.annotation.CLogBlob;
 import com.c332030.ctool4j.definition.annotation.CLogSensitive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,7 +40,7 @@ import org.junit.jupiter.api.Test;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.2
+ * @version 1.3
  */
 public class CLogSensitiveSerializerModifierTests {
 
@@ -174,7 +175,7 @@ public class CLogSensitiveSerializerModifierTests {
     @RequiredArgsConstructor
     static class BlobSensitiveBean {
 
-        @com.c332030.ctool4j.definition.annotation.CLogBlob(maxSize = 5)
+        @CLogBlob(maxSize = 5)
         private final String content;
 
         @CLogSensitive

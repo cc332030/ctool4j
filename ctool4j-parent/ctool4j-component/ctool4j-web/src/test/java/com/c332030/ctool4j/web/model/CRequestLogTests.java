@@ -14,7 +14,7 @@ import java.util.Map;
  * Description: CRequestLogTests
  * </p>
  *
- * <p>`com.c332030.ctool4j.web.model.CRequestLog`（请求日志数据类）的测试用例，覆盖各构造方式与读写</p>
+ * <p>`CRequestLog`（请求日志数据类）的测试用例，覆盖各构造方式与读写</p>
  *
  * <h2>设计思路</h2>
  * <ul>
@@ -34,7 +34,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 
 public class CRequestLogTests {

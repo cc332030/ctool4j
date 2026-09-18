@@ -22,7 +22,7 @@ mvn -Pperf -pl ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-sprin
 
 == CProxyUtils 真实业务类名解析
 
-用例：`com.c332030.ctool4j.spring.util.CProxyUtilsPerfTests`。度量 `getRealClassName` 相关解析路径的**单次调用**成本（ns/call）：
+用例：`CProxyUtilsPerfTests`。度量 `getRealClassName` 相关解析路径的**单次调用**成本（ns/call）：
 
 [cols="3,2,2,2,2", options="header"]
 |===

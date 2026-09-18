@@ -15,7 +15,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * <p>
  * Description: CTokenUtilsTests
  * </p>
- * <p>`com.c332030.ctool4j.web.util.CTokenUtils`（CTokenUtils）的测试用例</p>
+ * <p>`CTokenUtils` 的测试用例</p>
  *
  * <p>覆盖 token 前缀移除、请求头取 token、响应头写 token，以及请求属性 token 读写等纯逻辑方法。</p>
  *
@@ -94,7 +94,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  * @see CTokenUtils
  */
 @CustomLog
