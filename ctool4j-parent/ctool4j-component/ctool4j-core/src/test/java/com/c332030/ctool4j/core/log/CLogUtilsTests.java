@@ -72,9 +72,8 @@ import java.util.HashMap;
  *   <li>1.1 基础判断：CResult 为 true、String/DataSource 为 false（isJsonLog）</li>
  *   <li>1.2 枚举短路：枚举一律不转 JSON（isJsonLog_enum）</li>
  *   <li>1.3 不转父类优先：Throwable 子类不转 JSON（isJsonLog_notJsonSuperclass）</li>
- *   <li>1.4 转父类命中：List/Map 子类转 JSON（isJsonLog_jsonSuperclass）</li>
- *   <li>1.5 注解命中：{@code @CJsonLog} 类与其（经 {@code @Inherited}）继承的子类均转 JSON（isJsonLog_annotation）</li>
- *   <li>1.6 兜底分支：非 JDK 类转 JSON、JDK 类不转（isJsonLog_defaultBranch）</li>
+ *   <li>（1.5 注解命中、1.6 兜底分支等<strong>各判定分支</strong>由 {@code CLogUtilsJsonLogBranchTests} 专门覆盖——
+ *   本测试类所在包命中 {@code ".log."} 转包名片段，各分支结果在该包内无法区分，故分支用例另置该类的专属包）</li>
  * </ul>
  * <h2>动态注册与覆盖</h2>
  * <ul>
@@ -90,7 +89,7 @@ import java.util.HashMap;
  * </ul>
  * <h2>可打印判断与转换</h2>
  * <ul>
- *   <li>4.1 isPrintAble：枚举、JDK 基本类、JSON 化类型均可打印（isPrintAble）</li>
+ *   <li>4.1 isPrintAble：JDK 基本类可打印（真值侧）；显式锁定不可 JSON 化的类型不可打印（假值侧）（isPrintAble）</li>
  *   <li>4.2 getPrintAble：null 转 "[null]"、可打印类型原样返回（getPrintAble）</li>
  *   <li>4.3 getPrintAble 对 MultipartFile：返回 "文件名:大小" 占位（getPrintAble_multipartFile）</li>
  *   <li>4.4 getPrintAbleString：字符串原样返回（getPrintAbleString_string）</li>
@@ -98,8 +97,9 @@ import java.util.HashMap;
  * </ul>
  *
  * @since 2025/9/14
- * @version 1.1
+ * @version 1.2
  * @see CLogUtils
+ * @see CLogUtilsJsonLogBranchTests
  */
 public class CLogUtilsTests {
 
@@ -137,42 +137,6 @@ public class CLogUtilsTests {
     public void isJsonLog_notJsonSuperclass() {
 
         Assertions.assertFalse(CLogUtils.isJsonLog(CBusinessException.class));
-
-    }
-
-    /**
-     * 对应测试用例 1.4：转父类命中：List/Map 子类转 JSON
-     * 1.4 转父类命中：Collection / Map 子类转 JSON（isJsonLog_jsonSuperclass）
-     */
-    @Test
-    public void isJsonLog_jsonSuperclass() {
-
-        Assertions.assertTrue(CLogUtils.isJsonLog(TestListType.class));
-        Assertions.assertTrue(CLogUtils.isJsonLog(TestMapType.class));
-
-    }
-
-    /**
-     * 对应测试用例 1.5：注解命中：{@code @CJsonLog} 类与其（经 {@code @Inherited}）继承的子类均转 JSON
-     * 1.5 注解命中：标注 @CJsonLog 的类转 JSON，且注解经父类继承仍生效（isJsonLog_annotation）
-     */
-    @Test
-    public void isJsonLog_annotation() {
-
-        Assertions.assertTrue(CLogUtils.isJsonLog(JsonLogAnnotatedClass.class));
-        Assertions.assertTrue(CLogUtils.isJsonLog(JsonLogAnnotatedChild.class));
-
-    }
-
-    /**
-     * 对应测试用例 1.6：兜底分支：非 JDK 类转 JSON、JDK 类不转
-     * 1.6 兜底分支：非 JDK 类默认转 JSON、JDK 类不转（isJsonLog_defaultBranch）
-     */
-    @Test
-    public void isJsonLog_defaultBranch() {
-
-        Assertions.assertTrue(CLogUtils.isJsonLog(TestPlain.class));
-        Assertions.assertFalse(CLogUtils.isJsonLog(Integer.class));
 
     }
 
@@ -297,16 +261,32 @@ public class CLogUtilsTests {
     }
 
     /**
-     * 对应测试用例 4.1：枚举、JDK 基本类、JSON 化类型均可打印
-     * 4.1 isPrintAble：枚举可打印；JDK 基本类可打印；JSON 化类型因 isJsonLog 为 true 亦可打印（isPrintAble）
+     * 对应测试用例 4.1：JDK 基本类可打印；显式锁定不可 JSON 化的类型不可打印
+     *
+     * <p><b>断言有效性（回归点）</b>：原用例对枚举 / Integer / String / {@code CResult} 一律断言
+     * {@code isPrintAble} 为 true——但本测试类位于 {@code ...core.log} 包，这些非 JDK 类都已由「转包名」
+     * 分支判定为 {@code true}，断言<strong>恒为真</strong>，枚举分支与基本类分支整段删掉也照样通过。</p>
+     *
+     * <p>故改为断言<strong>只能由 {@code PRINT_ABLE_CLASS_VALUE} 给出</strong>的两侧：JDK 基本类
+     * （{@code Integer}/{@code String}，非转包名命中、非转父类命中）走基本类分支为 true；
+     * 显式锁定不可 JSON 化的自定义类型为 false。真值侧与假值侧各取一边，删掉任一侧分支都会失败。</p>
      */
     @Test
     public void isPrintAble() {
 
-        Assertions.assertTrue(CLogUtils.isPrintAble(CProfileEnum.class));
+        // true 侧：JDK 基本类（isJsonLog=false 后仍应可打印，故只能来自 PRINT_ABLE_CLASS_VALUE 的基本类分支）
+        CLogUtils.setJsonLog(Integer.class, false);
+        CLogUtils.setJsonLog(String.class, false);
         Assertions.assertTrue(CLogUtils.isPrintAble(Integer.class));
         Assertions.assertTrue(CLogUtils.isPrintAble(String.class));
-        Assertions.assertTrue(CLogUtils.isPrintAble(CResult.class));
+
+        // false 侧：显式锁定不可 JSON 化的自定义类型 → 不可打印
+        CLogUtils.setJsonLog(TestPlain.class, false);
+        Assertions.assertFalse(CLogUtils.isPrintAble(TestPlain.class));
+
+        // 显式锁定可 JSON 化后转为可打印（证明 isPrintAble 确实先看 isJsonLog）
+        CLogUtils.setJsonLog(TestPlain.class, true);
+        Assertions.assertTrue(CLogUtils.isPrintAble(TestPlain.class));
 
     }
 
@@ -392,13 +372,15 @@ public class CLogUtilsTests {
     static class TestMapType extends HashMap<String, Object> {}
 
     /**
-     * 测试用：标注 @CJsonLog 的类
+     * 测试用：使用 JDK 注解 {@code @CJsonLog} 标注的类
+     *
+     * <p>保留用于验证「已是转 JSON 注解集合成员」的注解直接被识别（成员类自身不额外承载其它判定分支）。</p>
      */
     @CJsonLog
     static class JsonLogAnnotatedClass {}
 
     /**
-     * 测试用：继承标注 @CJsonLog 的父类（验证 @Inherited 注解继承）
+     * 测试用：继承 {@link JsonLogAnnotatedClass} 的子类（验证 {@code @Inherited} 注解继承）
      */
     static class JsonLogAnnotatedChild extends JsonLogAnnotatedClass {}
 

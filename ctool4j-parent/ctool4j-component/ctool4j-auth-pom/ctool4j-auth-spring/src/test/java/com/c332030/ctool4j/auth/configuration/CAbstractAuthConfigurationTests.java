@@ -1,19 +1,29 @@
 package com.c332030.ctool4j.auth.configuration;
 
+import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
+import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
+import com.c332030.ctool4j.session.config.CSessionConfig;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
+import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
 import com.c332030.ctool4j.session.service.CAbstractSessionService;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * <p>
  * Description: CAbstractAuthConfigurationTests
  * </p>
  * <p>
- * 验证 {@link CAbstractAuthConfiguration} 的唯一逻辑：默认过滤器 bean 把匿名判定委派给子类覆写的
- * {@code isAuthAnonymous}；子类不覆写时使用默认实现（按"非匿名"处理）。
+ * 验证 {@link CAbstractAuthConfiguration} 的默认装配逻辑：默认过滤器 bean 把匿名判定委派给子类覆写的
+ * {@code isAuthAnonymous}（子类不覆写时按"非匿名"处理）；默认会话服务 bean 以业务子类指定的具体会话类型构造、
+ * 容器可装配、业务自建同类型 bean 时让位，且业务直接继承（无参构造）的兼容路径可用。
  * </p>
  *
  * <p><b>用例刻意置于被测类之外的包</b>（{@code com.c332030.ctool4j.auth.configuration}）：业务子类与本类
@@ -39,22 +49,24 @@ import org.springframework.context.annotation.Configuration;
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
  *   <li>覆盖：默认过滤器对子类覆写的委派（两个分支）；子类不覆写时的默认值；跨包覆写可用（可见性为
- *   {@code protected}）。</li>
- *   <li>未覆盖：容器级装配与 {@code @ConditionalOnMissingBean} 条件（非自动配置类上的条件语义与
+ *   {@code protected}）；默认会话服务的会话类型解析、容器装配可用、业务 bean 让位；业务直接继承（无参构造）
+ *   按子类泛型实参解析会话类型。</li>
+ *   <li>未覆盖：{@code @ConditionalOnMissingBean} 在两种注册顺序下的完整矩阵（非自动配置类上的条件语义与
  *   {@code CAbstractAuthBaseConfiguration} 同一机制，由 auth-base 的 {@code CAbstractAuthBaseConfigurationTests}
- *   固化）；过滤器的认证构造与会话加载（由 {@code CAbstractAuthFilterTests}、{@code CAbstractBaseAuthFilterTests}
- *   覆盖）。</li>
+ *   固化，此处只取"业务先注册即让位"一例）；过滤器的认证构造与会话加载（由 {@code CAbstractAuthFilterTests}、
+ *   {@code CAbstractBaseAuthFilterTests} 覆盖）。</li>
  * </ul>
  * <h2>默认过滤器装配</h2>
  * <ul>
  *   <li>1.1 默认过滤器的匿名判定委派给子类覆写，两个分支一致（cAuthFilter_isAnonymous_delegatesToSubclass）</li>
  *   <li>1.2 子类不覆写时使用默认实现：按"非匿名"处理（cAuthFilter_isAuthAnonymousNotOverridden_defaultsToNotAnonymous）</li>
  * </ul>
- *
  * <h2>默认会话服务装配</h2>
  * <ul>
- *   <li>2.1 默认会话服务可创建，且会话类型从业务配置子类的泛型实参解析（cSessionService_sessionClassResolvedFromConfiguration）</li>
- *   <li>2.2 业务直接继承（无参构造）可用：会话类型按业务子类泛型实参解析（sessionServiceSubclass_noArgCtor_resolvesFromGeneric）</li>
+ *   <li>2.1 直调 {@code @Bean} 方法可构造默认会话服务，且会话类型解析为子类指定的具体类型
+ *   （cSessionService_subclass_resolvesConcreteSessionClass）</li>
+ *   <li>2.2 容器装配后默认会话服务 bean 存在并可用（cSessionService_container_registersUsableBean）</li>
+ *   <li>2.3 业务自建同类型 bean 时默认实现被跳过（cSessionService_userBeanRegistered_skipsDefault）</li>
  * </ul>
  *
  * @since 2026/9/15
@@ -90,23 +102,65 @@ class CAbstractAuthConfigurationTests {
         Assertions.assertFalse(filter.isAnonymous(new TestSession(false)));
     }
 
+    // ---------- 默认会话服务装配 ----------
+
     /**
-     * 对应测试用例 2.1：默认会话服务可创建，且会话类型从业务配置子类的泛型实参解析
+     * 对应测试用例 2.1：默认会话服务的会话类型解析为子类指定的具体类型
+     *
+     * <p>回归点：{@code cSessionService()} 曾以 {@code new CAbstractSessionService<SESSION>() {}} 直接构造，
+     * 匿名子类携带未解析的类型变量 {@code SESSION}，构造期即抛
+     * {@code ClassCastException: TypeVariableImpl cannot be cast to Class}。</p>
      */
     @Test
-    void cSessionService_sessionClassResolvedFromConfiguration() {
+    void cSessionService_subclass_resolvesConcreteSessionClass() {
 
-        // 旧实现：匿名子类的类型实参仍是类型变量 SESSION，基类按其自身解析得 TypeVariable，构造即抛 ClassCastException；
-        // 修复后：从业务配置子类（extends CAbstractAuthConfiguration<TestSession>）解析出具体类型，经构造显式传入
+        // 正例：会话类型由业务子类的泛型实参固定，默认会话服务能解析出该具体类型
         val service = configuration.cSessionService();
 
         Assertions.assertNotNull(service);
         Assertions.assertEquals(TestSession.class, configuration.getGenericClass());
+        Assertions.assertEquals(TestSession.class, sessionClassOf(service));
 
     }
 
     /**
-     * 对应测试用例 2.2：业务直接继承（无参构造）可用——会话类型按业务子类泛型实参解析，构造期不抛 CCE
+     * 对应测试用例 2.2：容器装配后默认会话服务 bean 存在并可用
+     */
+    @Test
+    void cSessionService_container_registersUsableBean() {
+
+        // 正例：起最小上下文装配业务子类，默认 bean 可取出、会话类型绑定正确（业务注入即用）
+        new ApplicationContextRunner()
+            .withUserConfiguration(SessionDependencyConfig.class, UserAuthConfiguration.class)
+            .run(context -> {
+                val service = context.getBean(CAbstractSessionService.class);
+
+                Assertions.assertNotNull(service);
+                Assertions.assertEquals(TestSession.class, sessionClassOf(service));
+            });
+
+    }
+
+    /**
+     * 对应测试用例 2.3：业务自建同类型 bean 时默认实现被跳过
+     */
+    @Test
+    void cSessionService_userBeanRegistered_skipsDefault() {
+
+        // 正例：@ConditionalOnMissingBean 按类型跳过默认实现，业务实现不被覆盖
+        new ApplicationContextRunner()
+            .withUserConfiguration(SessionDependencyConfig.class, UserSessionServiceConfig.class, UserAuthConfiguration.class)
+            .run(context -> {
+                val names = context.getBeanNamesForType(CAbstractSessionService.class);
+
+                Assertions.assertTrue(context.containsBean("userSessionService"));
+                Assertions.assertArrayEquals(new String[] {"userSessionService"}, names);
+            });
+
+    }
+
+    /**
+     * 对应测试用例 2.4：业务直接继承（无参构造）可用——会话类型按业务子类泛型实参解析，构造期不抛 CCE
      */
     @Test
     void sessionServiceSubclass_noArgCtor_resolvesFromGeneric() {
@@ -117,9 +171,66 @@ class CAbstractAuthConfigurationTests {
     }
 
     /**
+     * 取会话服务绑定的会话类型（基类字段对外不可见，经字段 getter 句柄读取）
+     *
+     * <p>直接断言实际绑定值而非解析入口：会话类型在创建点由配置/业务子类的泛型实参解析后固定，
+     * 该值正是 Redis key 与反序列化实际使用的类型——若绑定成类型变量或错误类型，用例即失败。</p>
+     *
+     * <p>字段访问按项目规则经 {@code CMethodHandleUtils} 的 getter 句柄（不直接用 {@code Field#get}）；
+     * 句柄为统一 {@code (Object)Object} 签名，返回值无需强转。</p>
+     */
+    private Class<?> sessionClassOf(CAbstractSessionService<TestSession> service) {
+
+        try {
+            val field = CAbstractBaseSessionService.class.getDeclaredField("sessionClass");
+            return CObjUtils.anyType(CMethodHandleUtils.getGetterHandle(field).invoke(service));
+        } catch (Throwable t) {
+            throw new AssertionError(t);
+        }
+
+    }
+
+    /**
+     * 会话服务的容器依赖桩：{@link CAbstractBaseSessionService} 的 {@code @Autowired} 字段需要会话配置与
+     * Redis 服务（起最小上下文时补齐，避免装配因缺依赖失败；本用例只验证"默认 bean 能否装配且会话类型正确"）
+     */
+    @Configuration
+    static class SessionDependencyConfig {
+
+        @Bean
+        CSessionConfig cSessionConfig() {
+            return new CSessionConfig();
+        }
+
+        @Bean
+        RedisTemplate<String, String> redisTemplate() {
+            return Mockito.mock(RedisTemplate.class);
+        }
+
+        @Bean
+        CStringStringRedisService cStringStringRedisService() {
+            return new CStringStringRedisService();
+        }
+
+    }
+
+    /**
      * 业务直接继承的会话服务（无参构造，复现业务用法）
      */
     static class TestSessionService extends CAbstractSessionService<TestSession> {
+
+    }
+
+    /**
+     * 业务侧自建会话服务 bean（用于验证条件不覆盖业务实现）
+     */
+    @Configuration
+    static class UserSessionServiceConfig {
+
+        @Bean
+        CAbstractSessionService<TestSession> userSessionService() {
+            return new CAbstractSessionService<TestSession>() {};
+        }
 
     }
 
