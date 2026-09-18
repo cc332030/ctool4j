@@ -11,6 +11,7 @@ import com.c332030.ctool4j.session.config.CSessionConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.web.util.CTokenUtils;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -25,12 +26,16 @@ import javax.servlet.http.HttpServletRequest;
  * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link IGenericType} 解析子类指定的
  * 会话类型 {@code SESSION}（子类须以具体类型直接继承，否则泛型解析可能失败）。</p>
  *
- * <p>说明：{@code sessionClass} 为实例初始化字段（{@code final}），不参与 {@code @AllArgsConstructor} 构造参数；
+ * <p>说明：{@code sessionClass} 为实例字段（构造期确定，见下方「泛型解析的两条构造路径」）；
  * {@code get()}/{@code check()} 的当前会话来源由子类实现的 {@link #getDefaultNull()} 决定（Security 场景见
  * auth-spring 的子类），仅当前请求线程可用。</p>
  *
  * <p>继承约束：{@link #getDefaultNull()} 为 {@code public}，子类可在<b>任意包</b>直接继承本类并实现该钩子
  * （无需与本类同包）。</p>
+ *
+ * <p>泛型解析的两条构造路径：默认构造按子类泛型实参解析（须以具体类型直接继承）；显式构造
+ * {@code CAbstractBaseSessionService(Class)}（lombok {@code @RequiredArgsConstructor} 生成）用于创建点泛型实参仍是类型变量的场景——如配置类中的匿名会话服务 bean
+ * （auth-spring {@code CAbstractAuthConfiguration#cSessionService}），从业务配置子类解析出具体类型后传入。</p>
  *
  * <p>相关测试（{@code com.c332030.ctool4j.session.service}）：{@code CAbstractBaseSessionServiceTests}。
  * 未以 {@code @see} 链接测试类：javadoc 的类路径不含测试源，{@code @see} 会报 "reference not found"
@@ -38,15 +43,25 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author c332030
  * @since 2026/9/10
- * @version 1.3
+ * @version 1.4
  */
 @CustomLog
+@RequiredArgsConstructor
 public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
 
     /**
-     * 泛型 SESSION 的运行时 Class，由子类 {@code extends CAbstractBaseSessionService<Xxx>} 的泛型实参解析而来
+     * 泛型 SESSION 的运行时 Class：默认构造由子类 {@code extends CAbstractBaseSessionService<Xxx>} 的泛型实参解析而来；
+     * 子类泛型实参在创建点仍是类型变量时（如配置类里的匿名 bean），经类上 {@code @RequiredArgsConstructor} 生成的
+     * 同参构造显式传入（auth-spring {@code CAbstractSessionService(Class)} 透传）
      */
-    final Class<SESSION> sessionClass = getGenericClass();
+    private final Class<SESSION> sessionClass;
+
+    /**
+     * 默认构造：从子类泛型实参解析会话类型（须以具体类型直接继承，否则解析出类型变量、使用时抛 {@code ClassCastException}）
+     */
+    public CAbstractBaseSessionService() {
+        this.sessionClass = getGenericClass();
+    }
 
     @Autowired
     CSessionConfig sessionConfig;

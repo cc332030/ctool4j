@@ -19,7 +19,9 @@ import org.springframework.context.annotation.Bean;
  * <ul>
  *   <li>{@code cAuthFilter()}：业务未自建 {@link CAbstractAuthFilter} 时，提供一个默认（匿名子类）实现，
  *   其匿名判定委派给 {@link #isAuthAnonymous}</li>
- *   <li>{@code cSessionService()}：业务未自建 {@link CAbstractSessionService} 时，提供一个默认（匿名子类）实现</li>
+ *   <li>{@code cSessionService()}：业务未自建 {@link CAbstractSessionService} 时，提供一个默认（匿名子类）实现；
+ *   会话类型从<b>业务配置子类</b>的泛型实参解析（{@code sessionClass()}，配置基类提供的懒解析入口），显式传入服务——
+ *   匿名子类自身的类型实参仍是类型变量，若依赖其自身解析会抛 {@code ClassCastException}（TypeVariable 不能强转 Class）</li>
  *   <li>{@link #isAuthAnonymous}：可覆写的判定方法（"会话是否匿名"），<b>不覆写时按默认值（非匿名＝已认证）处理</b></li>
  *   <li>继承 {@link CAbstractAuthBaseConfiguration}：同时获得默认 mock 会话配置 bean（{@code cSessionMockConfig}）</li>
  * </ul>
@@ -63,7 +65,7 @@ import org.springframework.context.annotation.Bean;
  *   <tr><td>业务子类未覆写 {@link #isAuthAnonymous}</td>
  *   <td>使用默认实现：按"非匿名"处理（会话被视为已认证），不报错</td></tr>
  *   <tr><td>业务未提供 {@link CAbstractSessionService} bean</td>
- *   <td>注册默认会话服务：匿名子类 {@code new CAbstractSessionService<T>() {}}，会话读写行为由基类提供</td></tr>
+ *   <td>注册默认会话服务：匿名子类 {@code new CAbstractSessionService<T>(sessionClass()) {}}（显式传入会话类型），会话读写行为由基类提供</td></tr>
  * </table>
  *
  * <h2>适用范围</h2>
@@ -100,7 +102,7 @@ import org.springframework.context.annotation.Bean;
  *
  * @author c332030
  * @since 2026/9/14
- * @version 1.2
+ * @version 1.3
  * @see CAbstractAuthBaseConfiguration
  * @see CAbstractAuthFilter
  */
@@ -146,12 +148,16 @@ public abstract class CAbstractAuthConfiguration<SESSION extends ICSecuritySessi
      * 会话读写与当前会话获取等行为由基类（Redis）提供；业务需要自定义会话来源时自建同类型 bean，
      * 本默认实现由 {@code @ConditionalOnMissingBean} 让位。</p>
      *
+     * <p><b>会话类型解析</b>：匿名子类自身的类型实参仍是类型变量 {@code SESSION}，基类若依赖其自身解析会得到
+     * {@code TypeVariable} 并在强转时抛 {@code ClassCastException}；故按 {@code sessionClass()}（配置基类的懒解析入口）
+     * 从<b>业务配置子类</b>（{@code extends CAbstractAuthConfiguration<XxxSession>}）解析出具体 Class 后经构造显式传入。</p>
+     *
      * @return 默认会话服务
      */
     @Bean
     @ConditionalOnMissingBean(CAbstractSessionService.class)
     public CAbstractSessionService<SESSION> cSessionService() {
-        return new CAbstractSessionService<SESSION>() {};
+        return new CAbstractSessionService<SESSION>(sessionClass()) {};
     }
 
 }

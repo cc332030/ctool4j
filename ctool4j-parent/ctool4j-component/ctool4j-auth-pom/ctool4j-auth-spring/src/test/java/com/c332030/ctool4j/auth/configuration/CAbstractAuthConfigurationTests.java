@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.auth.configuration;
 
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
+import com.c332030.ctool4j.session.service.CAbstractSessionService;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -50,8 +51,14 @@ import org.springframework.context.annotation.Configuration;
  *   <li>1.2 子类不覆写时使用默认实现：按"非匿名"处理（cAuthFilter_isAuthAnonymousNotOverridden_defaultsToNotAnonymous）</li>
  * </ul>
  *
+ * <h2>默认会话服务装配</h2>
+ * <ul>
+ *   <li>2.1 默认会话服务可创建，且会话类型从业务配置子类的泛型实参解析（cSessionService_sessionClassResolvedFromConfiguration）</li>
+ *   <li>2.2 业务直接继承（无参构造）可用：会话类型按业务子类泛型实参解析（sessionServiceSubclass_noArgCtor_resolvesFromGeneric）</li>
+ * </ul>
+ *
  * @since 2026/9/15
- * @version 1.1
+ * @version 1.3
  * @see CAbstractAuthConfiguration
  */
 class CAbstractAuthConfigurationTests {
@@ -81,6 +88,39 @@ class CAbstractAuthConfigurationTests {
         // 边界：默认实现固定返回 false——即便会话自称匿名也不做匿名判定（"有会话即已认证"，需业务显式覆写）
         Assertions.assertFalse(filter.isAnonymous(new TestSession(true)));
         Assertions.assertFalse(filter.isAnonymous(new TestSession(false)));
+    }
+
+    /**
+     * 对应测试用例 2.1：默认会话服务可创建，且会话类型从业务配置子类的泛型实参解析
+     */
+    @Test
+    void cSessionService_sessionClassResolvedFromConfiguration() {
+
+        // 旧实现：匿名子类的类型实参仍是类型变量 SESSION，基类按其自身解析得 TypeVariable，构造即抛 ClassCastException；
+        // 修复后：从业务配置子类（extends CAbstractAuthConfiguration<TestSession>）解析出具体类型，经构造显式传入
+        val service = configuration.cSessionService();
+
+        Assertions.assertNotNull(service);
+        Assertions.assertEquals(TestSession.class, configuration.getGenericClass());
+
+    }
+
+    /**
+     * 对应测试用例 2.2：业务直接继承（无参构造）可用——会话类型按业务子类泛型实参解析，构造期不抛 CCE
+     */
+    @Test
+    void sessionServiceSubclass_noArgCtor_resolvesFromGeneric() {
+
+        // 兼容路径：业务子类 extends CAbstractSessionService<TestSession> 且不写构造器，走无参构造按泛型解析
+        Assertions.assertNotNull(new TestSessionService());
+
+    }
+
+    /**
+     * 业务直接继承的会话服务（无参构造，复现业务用法）
+     */
+    static class TestSessionService extends CAbstractSessionService<TestSession> {
+
     }
 
     /**
