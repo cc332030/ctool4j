@@ -1,0 +1,13 @@
+= web 文档索引
+
+Web MVC 通用能力（ctool4j-web）：全局异常、跨域、JWT/token、请求日志、traceId 透传。
+
+本目录存放 +web+ 模块的**功能/模块级设计文档**；类级与方法级细节见对应源码 javadoc。
+
+== 功能文档
+
+- link:unauthorized-401.adoc[未授权统一返回业务码 401]：`CUnauthorizedException` 的语义与落点、`CUnauthorizedExceptionHandler` 的响应形状、为什么随附 HTTP 401 与边界
+
+== 相关入口
+
+- 上级索引：link:../README.adoc[设计文档索引]

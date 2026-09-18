@@ -1,0 +1,38 @@
+= 使用：ctool4j-feign（Feign 增强）
+
+坐标：+com.c332030:ctool4j-feign+　｜　依赖：+ctool4j-spring-cloud+、+ctool4j-log-base+、openfeign
+
+== 能力
+
+* *请求头跨服务传播*：`CFeignInterceptor`（+ `ICRequestInterceptor`）自动把当前请求的关键请求头（token、traceId 等）传给 Feign 调用。
+* *完整调用日志*：`CFeignLogger`（请求/响应体）+ `CFeignClient`（包装默认 Client、捕获响应日志）。
+* *自定义拦截器*：`@CCustomerFeignInterceptor` 标记业务自己的拦截器。
+* *配置*：`CFeignClientHeaderConfig` 支持按服务配置要传播的请求头；`CFeignClientHeaderPropagationModeEnum` 选择传播模式。
+* *工具*：`CFeignUtils`（Feign 通用工具）。
+
+== 用法
+
+[source,java]
+----
+@FeignClient(name = "order-service", configuration = CFeignConfiguration.class)
+public interface OrderClient {
+    @GetMapping("/order/{id}")
+    Order getById(@PathVariable Long id);
+}
+----
+
+== 配置
+
+|===
+| 配置前缀 | 说明
+| +feign.client.header.*+ | 请求头传播（模式、白名单、按服务配置）
+| +feign.client.log.*+ | Feign 日志
+|===
+
+== 注意
+
+* 请求头传播依赖 +ctool4j-web+ 的当前请求上下文与 +ctool4j-log-base+ 的 trace 透传：**异步/线程池中调用 Feign 时，请求上下文可能已丢失**，需先确认当前请求上下文可用。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-feign/README.md[ctool4j-feign README]

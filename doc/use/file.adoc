@@ -1,0 +1,50 @@
+= 使用：CSV / Excel / MinIO（文件处理）
+
+坐标：+ctool4j-csv+（Commons CSV）、+ctool4j-excel+（EasyExcel）、+ctool4j-minio+（对象存储）　｜　三者相互独立，按需引入
+
+== CSV
+
+[source,java]
+----
+List<Map<String, String>> rows = CCsvHelper.builder()   // 门面方法名是 builder()，不是 newBuilder()
+    .delimiter(",")
+    .skipHeaderRecord(true)
+    .doRead(filePath);                    // Reader / 流 / 文件 / Bean 映射（doRead(..., Class) 可映射为 Bean）
+----
+
+`CCsvUtils.trim(String)`：去两端空白并移除退格字符 `\b`；**空白串返回 null**（不返回空串）。
+
+== Excel
+
+[source,java]
+----
+List<User> users = CExcelHelper.builder()  // 门面方法名是 builder()，不是 newBuilder()
+    .doRead(filePath, User.class);          // 另有 doRead(InputStream/File, Class)
+CExcelHelper.builder().doWrite(users, outputStream);   // 导出（过滤 null；列表为空则不写入；另有 File / String 路径重载）
+----
+
+== MinIO
+
+[source,yaml]
+----
+minio:
+  endpoint: http://127.0.0.1:9000
+  access-key: admin
+  secret-key: admin123
+  okhttp:
+    # 超时配置（minio.okhttp.*）
+----
+
+[source,java]
+----
+minioService.write(bucket, objectName, inputStream);   // 上传（另有 byte[] 重载；无 upload 方法）
+minioService.statObject(bucket, objectName);           // 元数据
+minioService.getObjectThenWrite(bucket, objectName, outputStream);   // 下载到输出流，返回字节数
+----
+
+* `CMinioConfiguration` 自动装配 `OkHttpClient`（超时配置绑定 `CMinioOkHttpConfig`）与 `MinioClient`，业务只需注入 `CMinioService`（元数据查询 / 下载 / 上传）。
+* 静态门面：`CMinioUtils`；CSV / Excel 侧另有 `CCsvUtils` / `CExcelUtils`（门面 `CCsvHelper` / `CExcelHelper` 之外的低层工具）。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-file-pom/README.md[ctool4j-file-pom README]

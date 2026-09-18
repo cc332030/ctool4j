@@ -1,6 +1,10 @@
-= 项目文档导航
+= 项目文档导航（开发文档）
 
-本文件是 ctool4j 的**全项目文档导航入口**（文档目录树即站点导航），逐级指向各模块与功能文档的固定落点。
+本文件是 ctool4j **开发文档**的导航入口（文档目录树即站点导航），逐级指向各模块与功能文档的固定落点。
+
+* *本目录只承载开发文档*：以「本库怎么实现、为什么这样设计」为内容（模块全景、设计方案、取舍、已知限制、依赖关系与兼容性）。
+  「引用本库的项目怎么引入、怎么用」是**另一套文档**——link:use/README.adoc[doc/use/]（使用文档，整体开放为静态服务），两者**隔离、互不复制内容**：
+  模块 README 里已有的能力清单与用法在那边不重复（那边以链接指回），互为第二真源即漂移。
 
 == 文档分层（先看这里）
 
@@ -20,13 +24,14 @@
 | 内容 | 落点
 
 | 项目总览、模块全景、模块文档索引 | link:../README.adoc[README]
-| 模块职责、能力清单、核心类（模块级） | 各模块 +README.md+（索引见 link:../README.adoc[README]）
+| 模块职责、能力清单、核心类（模块级） | 各模块 +README.md+（文档索引见 link:../README.adoc[README]；**使用与配置**面向引用方，见本表末行）
 | 跨类的功能级设计（方案取舍、兜底、已知限制） | link:design/[doc/design/<模块>/]
 | **模块间依赖关系（全项目唯一视图）** | link:dependency.adoc[doc/dependency.adoc]
 | **依赖升级兼容性 / 已知问题登记（全项目唯一视图）** | link:compatibility.adoc[doc/compatibility.adoc]
 | 全部变更记录（时间倒序） | link:../CHANGELOG.adoc[CHANGELOG.adoc]
 | 待办清单 | link:../TODO.adoc[TODO.adoc]
 | 项目规范入口 | link:../AGENTS.md[AGENTS.md]（引用远端统一规范 + link:../agent/AGENTS-PROJECT.MD[项目特有规范]）
+| **使用文档（面向引用本库的项目及其 AI）** | link:use/README.adoc[doc/use/]（整体开放为静态服务，与开发文档隔离）
 |===
 
 == 功能文档索引
@@ -38,6 +43,7 @@
 * link:design/redis/[redis]：ctool4j-redis — link:design/redis/rate-limit-idempotent.adoc[限流与幂等]
 * link:design/spring/[spring]：ctool4j-spring / spring-security / spring-cloud —
   link:design/spring/ip.adoc[ip]、link:design/spring/real-class-name.adoc[真实业务类/类名/包名]、link:design/spring/authority-json.adoc[会话权限的 JSON 读写]、link:design/spring/spring-perf.adoc[性能实测]
+* link:design/web/[web]：ctool4j-web（Web MVC 通用能力）— link:design/web/unauthorized-401.adoc[未授权统一返回业务码 401]
 
 == 约定
 

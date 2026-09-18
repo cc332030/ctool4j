@@ -1,0 +1,238 @@
+= ctool4j 使用文档（AI 使用说明）
+
+本目录是 ctool4j 的**使用文档**：面向「其他项目 + 其 AI」——拿到本库后**有哪些能力、怎么引入、怎么用、有哪些坑**。
+
+* *读者*：引用本库的项目的开发者与其 AI；**不需要**了解本库内部实现（内部设计见 link:../README.adoc[开发文档]，本目录与之**隔离**）。
+* *正文单位*：**按依赖坐标成篇**（一个 Maven 构件一篇），因为调用方是按构件引入的。
+* *覆盖范围*：全部对外构件（含空占位、已废弃）；一篇正文覆盖一个或多个坐标，由下表指明。
+* *阅读方式*：AI 可**只读**「客户端引入」+ 所需构件对应的那一篇；无需通读。坐标与模块目录的对应关系见 link:../dependency.adoc[模块间依赖关系]（那是依赖关系的唯一视图，本目录不重复）。
+
+== 客户端引入（先读）
+
+=== 引入依赖
+
+. 引入 BOM 统一版本（第三方与 ctool4j 构件版本都由它管，业务侧不写版本号）：
+
+[source,xml]
+----
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-bom</artifactId>
+            <version>1.1.20260730-SNAPSHOT</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+----
+
+. 按需引入构件（省略 `<version>`）：
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.c332030</groupId>
+    <artifactId>ctool4j-core</artifactId>
+</dependency>
+----
+
+`<version>` 取当前发布版本；上述两处坐标亦可替换为各构件自己的 +ctool4j-dependencies+ 版本。模块间依赖关系见 link:../dependency.adoc[doc/dependency.adoc]。
+
+=== 版本号取已发布的 release
+
+`<version>` 取**已发布的 release 版本**（当前基线为 +1.1.x+）；上例中的 +-SNAPSHOT+ 仅是本项目内部开发版本，业务项目**不要**依赖快照。同一 BOM 号即一套配套校验过的构件组合，故**升版本只改 BOM 一处**，各构件不写版本号。
+
+== 客户端须遵循的规范
+
+本库的能力与约定（工具类语法糖、命名前缀、分层落点等）由一套规范定义，**引用本库的项目的代码与 AI 都应按它执行**；不引用会导致「用了库但写法不统一」，这正是本目录各篇「注意/误用点」的判据来源。
+
+[cols="1,3", options="header"]
+|===
+| 规范 | 说明
+
+| 规范入口
+| +https://agent.c332030.com/AGENTS_COMMON.adoc+（远程静态路径，直接可读）——规范以「分类 + 懒加载」结构存放于其同级 +specs/+ 下：先读入口的加载调度规则，再按本次操作涉及的主题加载对应文件（如写 Java 前加载 +specs/stack/java.adoc+、写文档前加载 +specs/general/doc.adoc+）。
+
+| 项目特有规范
+| 本项目自身的命名前缀（类 +C+、纯字段接口 +IC+）、C 工具类语法糖、参数校验 +CValidUtils+、Java 8 目标版本等，见 link:../../agent/AGENTS-PROJECT.MD[agent/AGENTS-PROJECT.MD]。
+|===
+
+* *冲突次序*：本项目特有规范优先于远端统一规范；但**引用方项目自身的规范**（引用方根目录的 +AGENTS.adoc+ 之类）优先于上述两者——引用方自己维护的规则才是其最终口径。
+* *落地形态*：引用方把规范入口写进自己的 +AGENTS.md+ / 项目规范即可，**不需要**把规范文件复制进引用方仓库（复制即第二真源，改一处必漏一处）。
+
+== 我该引入哪个构件
+
+=== 基础层
+
+[cols="2,3,4", options="header"]
+|===
+| 坐标 | 能力 | 正文
+
+| +ctool4j-definition+
+| 统一返回体 `CResult`、实体基类、语义/函数式接口、通用枚举、业务注解
+| link:definition.adoc[definition]
+
+| +ctool4j-core+
+| 字符串/集合/Map/日期/数值/JSON/反射/Bean/异常/日志/校验等通用工具（不依赖 Spring）
+| link:core.adoc[core]
+
+| +ctool4j-db+
+| Lambda 取列名、SQL 片段拼接
+| link:db.adoc[db]
+
+| +ctool4j-transaction+
+| `@CTransactional`（默认任何异常回滚）
+| link:transaction.adoc[transaction]
+|===
+
+=== Spring 层
+
+[cols="2,3,4", options="header"]
+|===
+| 坐标 | 能力 | 正文
+
+| +ctool4j-spring+
+| Spring 基础装配与工具、`@CAutowired` 静态注入、`@CSpringBootApplication`、代理解析
+| link:spring.adoc[spring]
+
+| +ctool4j-spring-security+
+| Spring Security 过滤器链装配、统一认证失败响应
+| link:spring-security.adoc[spring-security]
+
+| +ctool4j-spring-cloud+
+| Spring Cloud 上下文初始化（最小装配）
+| link:spring-cloud.adoc[spring-cloud]
+
+| +ctool4j-auth-base+
++ctool4j-auth-spring+
+| 认证：JWT 校验/签发、会话服务、认证过滤器与装配基类
+| link:auth.adoc[auth]
+|===
+
+=== 应用层
+
+[cols="2,3,4", options="header"]
+|===
+| 坐标 | 能力 | 正文
+
+| +ctool4j-web+
+| 全局异常、跨域、JWT/token 工具、请求日志、traceId 透传、必填校验注解
+| link:web.adoc[web]
+
+| +ctool4j-redis+
+| Redis 读写服务、Redisson 分布式锁、`@CRateLimit` 限流、`@CIdempotent` 幂等
+| link:redis.adoc[redis]
+
+| +ctool4j-cache+
+| 二级缓存：`@CCacheable` 注解 / `CCacheService` 链式 builder
+| link:cache.adoc[cache]
+
+| +ctool4j-feign+
+| Feign 请求头传播、完整调用日志
+| link:feign.adoc[feign]
+|===
+
+=== 中间件与配套层
+
+[cols="2,3,4", options="header"]
+|===
+| 坐标 | 能力 | 正文
+
+| +ctool4j-log-base+
++ctool4j-logback+ / +ctool4j-log4j+
+| 请求日志自动埋点 + 日志后端 MDC 跨线程透传（后端二选一）
+| link:log.adoc[log]
+
+| +ctool4j-mybatis-base+
++ctool4j-mybatis+（或 +-33+ / +-34+）
+| MyBatis-Plus 分层契约（Mapper/Service/Controller）、分页、业务 ID
+| link:mybatis.adoc[mybatis]
+
+| +ctool4j-nacos-discovery+
+| 本地联调时把 Feign 目标实例注册进 Nacos
+| link:nacos.adoc[nacos]
+
+| +ctool4j-job-base+
++ctool4j-xxl-job+
+| 任务时间计算、xxl-job 执行器自动装配与 `@XxlJob` 增强
+| link:job.adoc[job]
+
+| +ctool4j-csv+
++ctool4j-excel+
++ctool4j-minio+
+| CSV / Excel 读写、MinIO 对象存储
+| link:file.adoc[file]
+
+| +ctool4j-doc-openapi2+
+| OpenAPI2（springfox/knife4j）文档增强：读取 C 前缀文档注解生成 Swagger
+| link:doc-openapi2.adoc[doc-openapi2]
+
+| +ctool4j-mq-base+ +ctool4j-rabbitmq+ +ctool4j-rocketmq+
+| 消息队列（**空占位，未实现**）
+| link:mq.adoc[mq]
+
+| +ctool4j-test-definition+
+| 共享测试模型（`User` / `UserDto` / `UserRsp`）
+| link:test.adoc[test]
+|===
+
+=== 构建基础设施（业务项目通常直接依赖，但需知道）
+
+[cols="2,3,4", options="header"]
+|===
+| 坐标 | 用途 | 正文
+
+| +ctool4j-bom+ / +ctool4j-dependencies+
+| 依赖版本统一入口（BOM）
+| link:build-infra.adoc[build-infra]
+
+| +ctool4j-processor-base+ +ctool4j-autowired-processor+ +ctool4j-mybatis-processor+
+| 注解处理器（静态字段注入、业务 Service 生成），由组件模块自带
+| link:build-infra.adoc[build-infra]
+|===
+
+== 开发文档与源码的对应（深入一层时用）
+
+本目录只讲「怎么用」；**模块职责与能力清单**在各模块 +README.md+，**跨类的设计取舍与已知限制**在开发文档的功能级设计文档：
+
+[cols="2,3", options="header"]
+|===
+| 正文 | 模块 README（职责与能力清单） | 开发文档（设计取舍）
+
+| link:definition.adoc[definition] | link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[ctool4j-definition] | link:../design/definition/openapi-doc-annotations.adoc[文档注解]
+| link:core.adoc[core] | link:../../ctool4j-parent/ctool4j-component/ctool4j-core/README.md[ctool4j-core] | link:../design/core/method-handle.adoc[MethodHandle 工具]
+| link:db.adoc[db] | link:../../ctool4j-parent/ctool4j-component/ctool4j-db/README.md[ctool4j-db] | —
+| link:transaction.adoc[transaction] | link:../../ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[ctool4j-transaction] | —
+| link:spring.adoc[spring] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom] | link:../design/spring/real-class-name.adoc[真实业务类]、link:../design/spring/spring-perf.adoc[性能实测]
+| link:spring-security.adoc[spring-security] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom] | link:../design/spring/authority-json.adoc[会话权限 JSON]
+| link:web.adoc[web] | link:../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web] | link:../design/web/unauthorized-401.adoc[未授权 401]
+| link:auth.adoc[auth] | link:../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom] | link:../design/web/unauthorized-401.adoc[未授权 401]
+| link:redis.adoc[redis] | link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/README.md[ctool4j-redis] | link:../design/redis/rate-limit-idempotent.adoc[限流与幂等]
+| link:cache.adoc[cache] | link:../../ctool4j-parent/ctool4j-component/ctool4j-cache/README.md[ctool4j-cache] | —
+| link:feign.adoc[feign] | link:../../ctool4j-parent/ctool4j-component/ctool4j-feign/README.md[ctool4j-feign] | —
+| link:log.adoc[log] | link:../../ctool4j-parent/ctool4j-component/ctool4j-log-pom/README.md[ctool4j-log-pom] | —
+| link:mybatis.adoc[mybatis] | link:../../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/README.md[ctool4j-mybatis-pom] | —
+| link:nacos.adoc[nacos] | link:../../ctool4j-parent/ctool4j-component/ctool4j-nacos-pom/README.md[ctool4j-nacos-pom] | —
+| link:job.adoc[job] | link:../../ctool4j-parent/ctool4j-component/ctool4j-job-pom/README.md[ctool4j-job-pom] | —
+| link:file.adoc[file] | link:../../ctool4j-parent/ctool4j-component/ctool4j-file-pom/README.md[ctool4j-file-pom] | —
+| link:doc-openapi2.adoc[doc-openapi2] | link:../../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[ctool4j-doc-pom] | link:../design/definition/openapi-doc-annotations.adoc[文档注解]
+| link:mq.adoc[mq] | link:../../ctool4j-parent/ctool4j-component/ctool4j-mq-pom/README.md[ctool4j-mq-pom] | —
+| link:test.adoc[test] | link:../../ctool4j-parent/ctool4j-component/ctool4j-test-pom/README.md[ctool4j-test-pom] | —
+| link:build-infra.adoc[build-infra] | link:../../ctool4j-bom/README.md[ctool4j-bom]、link:../../ctool4j-dependencies/README.md[ctool4j-dependencies]、link:../../ctool4j-processor-pom/README.md[ctool4j-processor-pom] | —
+|===
+
+== 约定（本目录通用）
+
+* *冒号前缀 = 依赖坐标*：正文标题的 +ctool4j-xxx+ 即 Maven artifactId，groupId 一律为 +com.c332030+。
+* *默认自动装配*：能 Spring 自动装配的构件，引入依赖后**无需手工 `@Bean`**（个别需继承装配基类的已在正文标明）。
+* *配置前缀*：各构件以 `c-` / 自身命名空间为前缀的属性在正文「配置」节列出。
+* *深入一层*：类级与方法级内容（参数、返回、异常、边界、默认值）在各源码 javadoc；跨类的方案取舍与已知限制在 link:../README.adoc[开发文档]的对应设计文档——本目录只给「怎么用」，重复即漂移，故不复制。
+
+== 相关入口
+
+- 项目根索引：link:../../README.adoc[README]
+- 模块间依赖关系（唯一视图）：link:../dependency.adoc[doc/dependency.adoc]
+- 开发文档导航：link:../README.adoc[doc/README.adoc]
+- 兼容性与已知问题登记：link:../compatibility.adoc[doc/compatibility.adoc]

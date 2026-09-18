@@ -25,18 +25,6 @@
 | `CFeignLocalClientConfig` | 配置 | `feign.client.local-instance` 属性：urls 映射（serviceName → ip:port） |
 | `CFeignLocalClientInit` | 初始化 | 启动注册 / 关闭反注册本地实例 |
 
-### 使用示例
-
-```yaml
-feign:
-  client:
-    local-instance:
-      enabled: true
-      urls:
-        order-service: 127.0.0.1:8081
-        user-service: 127.0.0.1:8082
-```
-
 ### 依赖
 
 | 依赖 | 说明 |
@@ -50,7 +38,6 @@ feign:
 
 > 占位模块，暂无源码（配置中心封装待实现，配置依赖由业务自行引入）。
 
-## 模块选择建议
+## 使用与配置（引用方）
 
-- 仅本地联调场景 → `ctool4j-nacos-discovery`
-- 需要配置中心 → 等待 `ctool4j-nacos-config` 实现或自行引入 `spring-cloud-starter-alibaba-nacos-config`
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/nacos.adoc`](../../../doc/use/nacos.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

@@ -1,0 +1,11 @@
+= 使用：ctool4j-test-*（测试支撑）
+
+坐标：+ctool4j-test-definition+（有源码）、+ctool4j-test-core+ / +ctool4j-test-spring+（**空占位**）
+
+* +ctool4j-test-definition+ 提供共享测试模型：`User`（实体）、`UserDto`（请求 DTO）、`UserRsp`（响应模型）。
+* 业务项目的测试用例可复用这些模型作测试数据载体；**不要在生产代码中依赖**。
+* +ctool4j-test-core+ / +ctool4j-test-spring+ 无源码，当前不提供能力。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-test-pom/README.md[ctool4j-test-pom README]
