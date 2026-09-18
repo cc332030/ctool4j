@@ -19,7 +19,7 @@
 | +core.validation+
 | `CValidUtils`（有效性判断）、`CAssert`（断言）、`CValidateUtils`（**已废弃**）
 | +core.jackson+
-| `CJacksonUtils`（ObjectMapper 封装）、日期/`Instant` 序列化器、`@CLogBlob` 的日志序列化器 `CLogBlobSerializer` 与脱敏序列化器
+| `CJacksonUtils`（ObjectMapper 封装）、日期/`Instant` 序列化器、`@CLogBlob` 的日志序列化器 `CLogBlobSerializer`（阈值内打印真实内容、超过按值类型占位）与脱敏序列化器
 | +core.cache+
 | Class 值缓存工具（强/弱引用实现 `CClassValue`、`CRefBiClassValue` 等）
 | +core.config+ / +core.enums+ / +core.interfaces+

@@ -34,12 +34,12 @@ import org.junit.jupiter.api.Test;
  *   <li>1.3 自定义保留：前 1 后 2（customKeepApplied）</li>
  *   <li>1.4 普通字段：name 正常输出（nonSensitiveFieldNotAffected）</li>
  *   <li>1.5 null 字段：日志 mapper 不输出（logMapperSkipsNullSensitiveField）</li>
- *   <li>1.6 与 BLOB 共存：占位符与脱敏互不影响（blobAndSensitiveCoexist）</li>
+ *   <li>1.6 与 BLOB 共存：占位符（按类型附规模）与脱敏互不影响（blobAndSensitiveCoexist）</li>
  *   <li>1.7 深拷贝隔离：不影响其他 mapper（logMapperDeepCopyDoesNotAffectOthers）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.2
  */
 public class CLogSensitiveSerializerModifierTests {
 
@@ -111,9 +111,9 @@ public class CLogSensitiveSerializerModifierTests {
     @Test
     public void blobAndSensitiveCoexist() throws Exception {
 
-        // @CLogBlob 输出占位符、@CLogSensitive 脱敏，同一 bean 两者互不影响
+        // @CLogBlob 输出占位符（按类型附规模）、@CLogSensitive 脱敏，同一 bean 两者互不影响
         String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobSensitiveBean("long-content", "13812345678"));
-        Assertions.assertTrue(json.contains("\"content\":\"<BLOB>\""));
+        Assertions.assertTrue(json.contains("\"content\":\"<BLOB:chars=12>\""));
         Assertions.assertTrue(json.contains("\"phone\":\"138****5678\""));
         Assertions.assertFalse(json.contains("long-content"));
         Assertions.assertFalse(json.contains("13812345678"));
@@ -174,7 +174,7 @@ public class CLogSensitiveSerializerModifierTests {
     @RequiredArgsConstructor
     static class BlobSensitiveBean {
 
-        @com.c332030.ctool4j.definition.annotation.CLogBlob
+        @com.c332030.ctool4j.definition.annotation.CLogBlob(maxSize = 5)
         private final String content;
 
         @CLogSensitive

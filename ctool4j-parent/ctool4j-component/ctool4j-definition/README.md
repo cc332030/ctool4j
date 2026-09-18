@@ -38,7 +38,7 @@
 | `CCreateTime` / `CUpdateTime` / `CCreateBy` / `CUpdateBy` | 实体基类 | 审计字段实体基类 |
 | `ICId` / `ICCreateTime` / `ICUpdateTime` 等 | 接口 | 实体字段接口族（供 MP 填充等场景识别） |
 | `CBizId` | 注解 | 标记实体的业务 ID 字段（配合 mybatis 模块的 `CBizIdUtils`） |
-| `CLogBlob` | 注解 | 标记需脱敏/截断的大字段（配合 core 的 `CLogBlobSerializer`） |
+| `CLogBlob` | 注解 | 标记大字段（`maxSize` 阈值：不超过打印真实内容、超过按值类型占位，配合 core 的 `CLogBlobSerializer`） |
 | `CDbOperateEnum` | 枚举 | 数据库操作类型（增删改查） |
 | `CMimeTypeEnum` | 枚举 | MIME 类型 |
 | `CCurrencyEnum` | 枚举 | 币种 |

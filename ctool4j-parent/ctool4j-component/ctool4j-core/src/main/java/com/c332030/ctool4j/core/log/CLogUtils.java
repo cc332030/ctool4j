@@ -88,7 +88,7 @@ import java.util.function.Supplier;
  * </ul>
  *
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Slf4j
 @UtilityClass
@@ -334,11 +334,11 @@ public class CLogUtils {
     /**
      * 转为日志可打印参数（默认不打印 null）
      * <p>将可 json 化的参数元素替换为 JSON 字符串（日志专用 mapper：不序列化 null +
-     * 标注 CLogBlob 的字段输出 &lt;BLOB&gt; 占位符），返回新数组，不修改调用方入参；null 元素保持不动</p>
+     * 标注 CLogBlob 的字段不超过阈值打印真实内容、超过则输出占位符并按值类型附规模），返回新数组，不修改调用方入参；null 元素保持不动</p>
      *
      * <h2>参数 JSON 化（toLogArgs）</h2>
      * <ul>
-     *   <li>对可 JSON 化参数替换为 JSON 字符串（日志专用 mapper：不序列化 null + CLogBlob 字段输出 {@code &lt;BLOB&gt;} 占位符）；</li>
+     *   <li>对可 JSON 化参数替换为 JSON 字符串（日志专用 mapper：不序列化 null + CLogBlob 字段不超过阈值打印真实内容、超过输出 {@code &lt;BLOB&gt;}／{@code &lt;BLOB:list=5&gt;} 占位符）；</li>
      *   <li>返回新数组不修改调用方入参；null 元素保持不动。</li>
      *   <li>转 JSON 失败则禁用该类型转换并记录错误日志（有意设计取舍，避免每次日志都抛异常）。</li>
      * </ul>

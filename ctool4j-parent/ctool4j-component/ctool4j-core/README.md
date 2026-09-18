@@ -54,7 +54,7 @@
 | `CExceptionUtils` | 工具类 | 异常封装：受检异常转非受检、日志输出 |
 | `CAssert` | 工具类 | 断言校验，失败抛业务异常；`valid`/`notValid` 按数据类型分派（语义同 `CValidUtils`） |
 | `CValidUtils` | 工具类 | 有效性判断（按类型分派：字符串按 blank、集合/Map/数组按 empty、其他按 null） |
-| `CLogBlobSerializer` | 序列化器 | `@CLogBlob` 大字段的日志序列化（脱敏/截断） |
+| `CLogBlobSerializer` | 序列化器 | `@CLogBlob` 大字段的日志输出：规模不超过 `maxSize`（默认 10）打印真实内容，超过则占位并按值类型附规模（如 `<BLOB:list=5>`） |
 | `CJacksonUtils` | 工具类 | Jackson ObjectMapper 封装与配置 |
 
 ## 依赖

@@ -29,7 +29,7 @@ import java.util.Date;
  *   <li>{@code OBJECT_MAPPER}：默认 mapper（Long/BigDecimal 序列化为字符串防前端溢出）</li>
  *   <li>{@code OBJECT_MAPPER_NON_NULL}：不序列化 null 值</li>
  *   <li>{@code OBJECT_MAPPER_SNAKE_CASE}：驼峰转下划线</li>
- *   <li>{@code OBJECT_MAPPER_LOG}：日志专用（不序列化 null + @CLogBlob 占位符 + @CLogSensitive 脱敏）</li>
+ *   <li>{@code OBJECT_MAPPER_LOG}：日志专用（不序列化 null + @CLogBlob 按阈值打印/占位 + @CLogSensitive 脱敏）</li>
  *   <li>{@code OBJECT_MAPPER_NATIVE}：保留原生数字类型（反序列化整数为 Long、浮点为 BigDecimal）</li>
  *   <li>工具：{@code getDefinedModule} / {@code configure} / {@code getRawClass}</li>
  * </ul>
@@ -68,7 +68,7 @@ import java.util.Date;
  *
  * @author c332030
  * @since 2024/3/5
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CJacksonUtils {

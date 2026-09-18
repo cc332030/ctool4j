@@ -7,6 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * <p>
  * Description: CLogBlobSerializerModifierTests
@@ -23,22 +27,25 @@ import org.junit.jupiter.api.Test;
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：日志 mapper 输出 {@code &lt;BLOB&gt;}；全局 mapper 输出真实内容；深拷贝不影响其他 mapper；普通字段不受影响；</li>
+ *   <li>覆盖：超阈值日志 mapper 输出占位符（字符串 {@code &lt;BLOB:chars=12&gt;}、集合 {@code &lt;BLOB:list=2&gt;}）；阈值内打印真实内容（默认阈值）；全局 mapper 输出真实内容；深拷贝不影响其他 mapper；普通字段不受影响；</li>
  *   <li>无注解 bean 正常；@CLogBlob null 字段日志 mapper 不输出。</li>
  *   <li>未覆盖：无（覆盖了核心行为）。</li>
  * </ul>
  * <h2>占位符替换</h2>
  * <ul>
- *   <li>1.1 日志 mapper：@CLogBlob 字段输出 {@code &lt;BLOB&gt;}（blobFieldSerializedToPlaceholder）</li>
+ *   <li>1.1 日志 mapper：@CLogBlob 字段输出 {@code &lt;BLOB:chars=12&gt;}（blobFieldSerializedToPlaceholder）</li>
  *   <li>1.2 全局 mapper：@CLogBlob 字段输出真实内容（globalMapperOutputsRealContent）</li>
  *   <li>1.3 深拷贝隔离：日志 mapper 注册不影响其他 mapper（logMapperDeepCopyDoesNotAffectOthers）</li>
  *   <li>1.4 普通字段：name 正常输出（normalFieldNotAffected）</li>
  *   <li>1.5 无注解 bean：正常输出（noBlobBeanNormal）</li>
  *   <li>1.6 null 字段：日志 mapper 不输出（logMapperSkipsNullField）</li>
+ *   <li>1.7 集合字段（{@code Collection&lt;String&gt;}）超阈值（maxSize=1）：日志 mapper 输出 {@code &lt;BLOB:list=2&gt;}、全局 mapper 输出真实内容（collectionBlobFieldSerializedToPlaceholder）</li>
+ *   <li>1.8 字符串字段阈值内（默认阈值）：日志 mapper 打印真实内容（smallStringFieldPrintsContent）</li>
+ *   <li>1.9 集合字段阈值内（默认阈值）：日志 mapper 打印真实内容（smallCollectionFieldPrintsContent）</li>
  * </ul>
  *
  * @since 2025/12/12
- * @version 1.0
+ * @version 1.3
  */
 public class CLogBlobSerializerModifierTests {
 
@@ -48,9 +55,9 @@ public class CLogBlobSerializerModifierTests {
     @Test
     public void blobFieldSerializedToPlaceholder() throws Exception {
 
-        // 日志专用 mapper：@CLogBlob 字段输出 <BLOB> 占位符
+        // 日志专用 mapper：@CLogBlob 字段输出 <BLOB:chars=12> 占位符（按类型附规模）
         String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean("tom", "long-content"));
-        Assertions.assertTrue(json.contains("\"content\":\"<BLOB>\""));
+        Assertions.assertTrue(json.contains("\"content\":\"<BLOB:chars=12>\""));
         Assertions.assertFalse(json.contains("long-content"));
 
     }
@@ -92,7 +99,7 @@ public class CLogBlobSerializerModifierTests {
 
         // 日志 mapper 自身行为正常（正例）
         String logJson = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new BlobBean("tom", "secret-content"));
-        Assertions.assertTrue(logJson.contains("\"content\":\"<BLOB>\""));
+        Assertions.assertTrue(logJson.contains("\"content\":\"<BLOB:chars=14>\""));
         Assertions.assertFalse(logJson.contains("secret-content"));
 
     }
@@ -132,6 +139,74 @@ public class CLogBlobSerializerModifierTests {
     }
 
     /**
+     * 对应测试用例 1.7：集合字段（{@code Collection&lt;String&gt;}）：日志 mapper 输出 {@code &lt;BLOB:list=2&gt;}、全局 mapper 输出真实内容
+     */
+    @Test
+    public void collectionBlobFieldSerializedToPlaceholder() throws Exception {
+
+        CollectionBlobBean bean = new CollectionBlobBean("tom", Arrays.asList("user:read", "user:write"));
+
+        // 集合字段同样被占位：仅输出形状与规模，不输出元素内容
+        String logJson = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(bean);
+        Assertions.assertTrue(logJson.contains("\"permissions\":\"<BLOB:list=2>\""));
+        Assertions.assertFalse(logJson.contains("user:read"));
+
+        // 全局 mapper 不受影响：输出真实内容
+        String globalJson = CJacksonUtils.OBJECT_MAPPER.writeValueAsString(bean);
+        Assertions.assertTrue(globalJson.contains("user:read"));
+    }
+
+    /**
+     * 对应测试用例 1.8：字符串字段阈值内（默认阈值）：日志 mapper 打印真实内容
+     */
+    @Test
+    public void smallStringFieldPrintsContent() throws Exception {
+
+        String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new SmallBlobBean("short", Collections.singletonList("user:read")));
+        Assertions.assertTrue(json.contains("\"content\":\"short\""));
+        Assertions.assertFalse(json.contains("<BLOB"));
+    }
+
+    /**
+     * 对应测试用例 1.9：集合字段阈值内（默认阈值）：日志 mapper 打印真实内容
+     */
+    @Test
+    public void smallCollectionFieldPrintsContent() throws Exception {
+
+        String json = CJacksonUtils.OBJECT_MAPPER_LOG.writeValueAsString(new SmallBlobBean("short", Collections.singletonList("user:read")));
+        Assertions.assertTrue(json.contains("\"permissions\":[\"user:read\"]"));
+    }
+
+    /**
+     * 阈值内的小字段 Bean：验证不超过阈值时打印真实内容（默认阈值 100）
+     */
+    @Getter
+    @AllArgsConstructor
+    static class SmallBlobBean {
+
+        @CLogBlob
+        private final String content;
+
+        @CLogBlob
+        private final Collection<String> permissions;
+
+    }
+
+    /**
+     * 含 @CLogBlob 集合字段的 Bean：验证容器类型同样被占位且按类型附规模
+     */
+    @Getter
+    @AllArgsConstructor
+    static class CollectionBlobBean {
+
+        private final String name;
+
+        @CLogBlob(maxSize = 1)
+        private final Collection<String> permissions;
+
+    }
+
+    /**
      * 含 @CLogBlob 字段的 Bean
      */
     @Getter
@@ -140,7 +215,7 @@ public class CLogBlobSerializerModifierTests {
 
         private final String name;
 
-        @CLogBlob
+        @CLogBlob(maxSize = 5)
         private final String content;
 
     }

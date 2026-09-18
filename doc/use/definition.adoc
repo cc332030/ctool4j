@@ -9,7 +9,7 @@
 * *语义接口族*：`ICCode`、`ICMsg`、`ICName`、`ICValue`、`ICData`、`ICEvent`、`ICText` 等。
 * *函数式接口族*：`CFunction`、`CConsumer`、`CSupplier`、`CPredicate`、`CRunnable`、`CBiConsumer`、`CBiFunction`、`CBiPredicate`、`CTriFunction`、`StartEndTimeConsumer`、`StringFunction` / `ToStringFunction` 等（**可抛出受检异常**，替代 JDK 同名接口）。
 * *通用枚举*：`CDbOperateEnum`、`CMimeTypeEnum`、`CCurrencyEnum`、`CCountryCodeEnum`、`CClientTypeEnum`、`CPlatformTypeEnum`、`CVersionEnum`。
-* *业务注解*：`@CBizId`（业务 ID 字段，配合 mybatis 的 `CBizIdUtils`）、`@CJsonLog`（JSON 日志标记）、`@CLogBlob`（大字段脱敏/截断，配合 core 的 `CLogBlobSerializer`）、`@CLogSensitive`（敏感字段日志脱敏）、`@CInnerApi`（内部接口标记，见 link:web.adoc[web]）。
+* *业务注解*：`@CBizId`（业务 ID 字段，配合 mybatis 的 `CBizIdUtils`）、`@CJsonLog`（JSON 日志标记）、`@CLogBlob`（大字段日志阈值：`maxSize` 内打印真实内容、超过按值类型占位，配合 core 的 `CLogBlobSerializer`）、`@CLogSensitive`（敏感字段日志脱敏）、`@CInnerApi`（内部接口标记，见 link:web.adoc[web]）。
 * *接口文档注解*（+doc.annotation+ 包）：`@CSchema` / `@CTag` / `@COperation` / `@CParameter`，由 link:doc-openapi2.adoc[ctool4j-doc-openapi2] 落地为 Swagger 文档。
 * *公共常量*：`CTool4jConstants`（基础包名等基础常量）、`CTool4jTestConstants`（测试环境判断：`IS_TEST` / `JUNIT_TEST_CLASS_NAME`）——两者同在 +definition.constant+ 包，**不按名称区分生产/测试**，按用途引用即可。
 
@@ -30,7 +30,7 @@ public class User extends CBaseCreateTimeEntity {
 == 注意
 
 * 函数式接口族可抛受检异常：用在 lambda 里可省 try/catch，但**调用处需能处理其声明的异常**。
-* `@CLogBlob` 的脱敏/截断只在日志序列化生效（+ctool4j-core+ 的 `CLogBlobSerializer`），不影响业务序列化；具体规则见 link:core.adoc[core]。
+* `@CLogBlob` 的阈值判断（`maxSize` 内打印真实内容、超过按值类型占位）只在日志序列化生效（+ctool4j-core+ 的 `CLogBlobSerializer`），不影响业务序列化；具体规则见 link:core.adoc[core]。
 
 == 相关
 
