@@ -26,6 +26,7 @@
 ## Java 反射（项目自有方法句柄工具）
 
 - 反射操作优先使用 `CMethodHandleUtils`：访问字段（getter/setter）、调用方法、构造对象等反射操作一律优先使用 `CMethodHandleUtils` 提供的现成方法句柄（字段 getter/setter、方法、构造器），避免直接使用 `Field#get/set`、`Method#invoke`、`Constructor#newInstance` 等原生反射调用；`CMethodHandleUtils` 没有现成的方法时，可在其中补充后再使用。识别特征：代码中出现 `field.get/set`、`method.invoke`、`constructor.newInstance` 等直接反射调用，应改用 `CMethodHandleUtils` 对应方法句柄（如 `getGetterHandle/getSetterHandle/getHandle`），再用 `handle.invoke/invokeExact` 执行
+- 方法句柄获取按调用频次选择（判定口径）：**一次性**（获取语句只执行一次，句柄由调用方长期持有、存入自身缓存或闭包）用生成版 `toXxxHandle`/`toHandle`，**不进句柄缓存**；**多次访问**（同一 `Field`/`Method`/`Constructor` 会被反复获取且句柄不被调用方持有）用缓存版 `getXxxHandle`/`getHandle`；频次不可知（对外公共 API）默认缓存版。判定细则与 `getXxxHandleAsType` 的缓存边界见 `CMethodHandleUtils` 的「API 选用（一次性 / 多次访问）」
 
 ## 语法糖（C 工具类）
 
@@ -78,7 +79,11 @@
 
 ## 与远端规范的差异（项目覆盖）
 
-（当前无项目覆盖条目；如后续出现，在此登记并说明覆盖的远端条目与理由）
+- **变更日志登记时机**（覆盖远端 `specs/general/doc-design.adoc`「版本与变更记录 - 同提交同步与完成定义」与 `specs/general/changelog.adoc`「何时必须登记」）：远端要求"改动源文件时其 changelog 条目须在本提交中一并更新，只改一侧视为未完成"；本项目调整为——**仅在用户明确要求时追加 `CHANGELOG.adoc` 条目，日常改动不写本文件**，不要因"改了代码"顺手补一行。
+  - 覆盖理由：日常改动逐条登记与源文件 javadoc、`git log` 大量重复，条目噪音会掩盖真正的对外变更。
+  - 不受影响的既有要求：源文件 `@version` 仍随行为/接口/默认值等变更递增（远端版本号规则照常执行）；`CHANGELOG.adoc` 仍按时间倒序、条目仍为单行 `- <项目版本前缀> | <YYYY-MM-DD> | <描述>`。
+  - 改动意图的落点：源文件 javadoc 与 `doc/design/`；逐条沿革用 `git log` 回溯。
+- **类间互引只做「测试 → 源」单向**（覆盖远端 `specs/general/doc-design.adoc`「类间关系与双向引用」中"源类标注其各类测试类"一项）：主代码类注释**不得**用 `@see`/`{@link}` 指向测试类——javadoc 的类路径不含测试源，未解析的 `@see` 会使 javadoc 构建失败（已实测：退出码 1）；主代码需要提及时用 `{@code 测试类名}` 纯文本。反向（测试类用 `@see` 标注源类）照常执行。
 
 ## 语言目标
 

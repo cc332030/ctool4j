@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.spring.util;
 
-import com.c332030.ctool4j.spring.util.CProxyUtils;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

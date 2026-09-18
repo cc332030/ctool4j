@@ -14,11 +14,11 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -186,11 +186,14 @@ public class CSpringUtils {
     }
 
     /**
-     * 通过参数最多的构造方法创建实例，参数从容器中获取
+     * 通过参数最多的构造方法创建实例，实参逐个从容器获取（按形参类型 {@code getBean}）
+     * <p>构造器句柄由 {@link CReflectUtils#newInstance(Constructor, Object...)} 内部统一 {@code setAccessible}，
+     * 调用方无需处理访问级别</p>
      *
      * @param type 实例类型
      * @param <T>  实例类型
      * @return 创建好的实例
+     * @throws RuntimeException 类型无任何构造方法，或参数最多的构造方法不唯一（无法判定用哪一个）时抛出
      */
     @SneakyThrows
     public <T> T newInstance(Class<T> type) {
@@ -208,7 +211,7 @@ public class CSpringUtils {
 
         @SuppressWarnings("unchecked")
         val constructor = (Constructor<? extends T>) constructors.get(0);
-        constructor.setAccessible(true);
+        // 无需 setAccessible：CReflectUtils.newInstance 内部经 CMethodHandleUtils 生成构造器句柄时统一 setAccessible
 
         Object[] params = Arrays.stream(constructor.getParameterTypes())
             .map(parameterType -> getBean(parameterType))

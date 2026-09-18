@@ -5,9 +5,11 @@ import cn.hutool.core.util.ClassUtil;
 import com.c332030.ctool4j.core.cache.impl.CBiClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
@@ -67,7 +69,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p><b>默认转换器注册</b></p>
  * <ul>
  *   <li>静态初始化经 {@code CReflectUtils.getAllMethodsCached(CClassConvert.class)} 收集静态方法并注册为转换器</li>
- *   <li>（入参为源类型，返回值为目标类型）。</li>
+ *   <li>（入参为源类型，返回值为目标类型），转换方法经 {@link CMethodHandleUtils} 方法句柄调用。</li>
  *   <li>无入参方法无法确定源类型，跳过注册（Q16，避免 getParameterTypes()[0] 越界）。</li>
  * </ul>
  * <p><b>转换器查找（findConverter）</b></p>
@@ -85,7 +87,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  *
  * @since 2025/11/22
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @UtilityClass
@@ -121,7 +123,24 @@ public class CConvertUtils {
         val fromClass = (Class<Object>) method.getParameterTypes()[0];
         @SuppressWarnings("unchecked")
         val toClass = (Class<Object>) method.getReturnType();
-        addConverter(fromClass, toClass, o -> method.invoke(null, o));
+        // 经方法句柄调用（转换方法均为静态方法，句柄不带接收者），不使用 Method#invoke
+        // 一次性：注册仅在类初始化时对每个转换方法执行一次，句柄由下方 lambda 长期强引用、无第二个使用者，
+        // 故用 toHandle 直接生成、不进句柄缓存（缓存条目对唯一持有者无复用价值）
+        val handle = CMethodHandleUtils.toHandle(method);
+        addConverter(fromClass, toClass, o -> invokeStatic(handle, o));
+    }
+
+    /**
+     * 调用静态方法句柄（供转换器调用：转换方法为静态、单实参）
+     *
+     * @param handle 方法句柄
+     * @param value  实参
+     * @param <T>    返回值类型
+     * @return 调用结果
+     */
+    @SneakyThrows
+    private <T> T invokeStatic(MethodHandle handle, Object value) {
+        return CObjUtils.anyType(handle.invoke(value));
     }
 
     /**

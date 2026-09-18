@@ -21,13 +21,7 @@ import lombok.val;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.temporal.Temporal;
@@ -1497,9 +1491,11 @@ public class CBeanUtils {
                 inlinedCount++;
             }
 
+            // 一次性：计划按 (源类, 目标类) 只构建一次（COPY_PLAN_BI_CLASS_VALUE），句柄存入 CopyEntry 长期持有，
+            // 故用生成版并按统一 Object 签名适配，不进句柄缓存
             entries.add(newCopyEntry(
-                    CMethodHandleUtils.getGetterHandleAsType(fromField),
-                    CMethodHandleUtils.getSetterHandleAsType(toField),
+                    CMethodHandleUtils.toGetterHandle(fromField).asType(CMethodHandleUtils.GETTER_HANDLE_TYPE),
+                    CMethodHandleUtils.toSetterHandle(toField).asType(CMethodHandleUtils.SETTER_HANDLE_TYPE),
                     toField.getType(),
                     toField.getGenericType(),
                     toField.getName(),
@@ -1584,7 +1580,8 @@ public class CBeanUtils {
         val fieldMap = CReflectUtils.getInstanceFieldMap(objClass);
         val entries = new ArrayList<ToMapEntry>(fieldMap.size());
         for (val field : fieldMap.values()) {
-            val getterHandle = CMethodHandleUtils.getGetterHandleAsType(field);
+            // 一次性：转 map 计划按类只构建一次（TO_MAP_PLAN_CLASS_VALUE），句柄存入 ToMapEntry 长期持有，同复制计划用生成版
+            val getterHandle = CMethodHandleUtils.toGetterHandle(field).asType(CMethodHandleUtils.GETTER_HANDLE_TYPE);
             val entry = ToMapEntry.builder()
                     .field(field)
                     .getterHandle(getterHandle)
