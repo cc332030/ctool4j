@@ -40,6 +40,10 @@ import java.util.stream.Collectors;
  *     <td>返回空串</td>
  *   </tr>
  *   <tr>
+ *     <td>{@code getEqualsSql} 多对版本 空/null 集合</td>
+ *     <td>返回空串</td>
+ *   </tr>
+ *   <tr>
  *     <td>布尔字段列</td>
  *     <td>不加别名前缀（避免 {@code t.true} 这类非法片段）</td>
  *   </tr>
@@ -73,7 +77,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2025/11/5
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CSqlUtils {
@@ -291,11 +295,11 @@ public class CSqlUtils {
     /**
      * 获取等于 sql
      *
-     * @param pairs         属性 lambda 列表
+     * @param pairs         属性 lambda 列表（可为 null/空集合，此时返回空串）
      * @param separatorEnum 分隔符枚举
      * @param <T1>          左 泛型
      * @param <T2>          右 泛型
-     * @return sql
+     * @return sql（{@code pairs} 为 null/空集合时为空串）
      */
     public <T1, T2> String getEqualsSql(
         Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
@@ -307,19 +311,23 @@ public class CSqlUtils {
     /**
      * 获取等于 sql
      *
-     * @param pairs         属性 lambda 列表
+     * @param pairs         属性 lambda 列表（可为 null/空集合，此时返回空串）
      * @param leftAlias     左 别名
      * @param rightAlias    右 别名
      * @param separatorEnum 分隔符枚举
      * @param <T1>          左 泛型
      * @param <T2>          右 泛型
-     * @return sql
+     * @return sql（{@code pairs} 为 null/空集合时为空串）
      */
     public <T1, T2> String getEqualsSql(
         Collection<Pair<Func1<T1, ?>, Func1<T2, ?>>> pairs,
         String leftAlias, String rightAlias,
         CSqlSeparatorEnum separatorEnum
     ) {
+        if (CollUtil.isEmpty(pairs)) {
+            return StrUtil.EMPTY;
+        }
+
         return pairs.stream()
             .map(pair -> getEqualsSql(pair.getKey(), leftAlias, pair.getValue(), rightAlias))
             .collect(separatorEnum.getJoiningCollector());

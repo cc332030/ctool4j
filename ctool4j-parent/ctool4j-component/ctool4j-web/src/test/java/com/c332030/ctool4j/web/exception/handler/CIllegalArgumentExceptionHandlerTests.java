@@ -27,14 +27,40 @@ import org.junit.jupiter.api.Test;
  * <h2>参数不合法异常处理</h2>
  * <ul>
  *   <li>1.1 handle：验证参数不合法异常处理结果</li>
+ *   <li>1.2 异常消息为 null：用异常类型简单名兜底，避免 {@code message: null}（handle_nullMessage）</li>
+ *   <li>1.3 异常对象为 null（非预期入参）：返回固定文案、不抛 NPE（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 public class CIllegalArgumentExceptionHandlerTests {
 
     private final CIllegalArgumentExceptionHandler handler = new CIllegalArgumentExceptionHandler();
+
+    /**
+     * 对应测试用例 1.2：异常消息为 null：用异常类型简单名兜底，避免 {@code message: null}（handle_nullMessage）
+     */
+    @Test
+    public void handle_nullMessage() {
+        // 边界：消息为 null（非空消息原样返回，见 1.1）
+        CStrResult<Void> result = handler.handle(new IllegalArgumentException());
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals(IllegalArgumentException.class.getSimpleName(), result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.3：异常对象为 null（非预期入参）：返回固定文案、不抛 NPE（handle_nullException）
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("非法参数", result.getMessage());
+    }
 
         /**
          * 对应测试用例 1.1：验证参数不合法异常处理结果

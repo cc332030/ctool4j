@@ -8,7 +8,7 @@
 * *JWT*：`CAuthUtils` —— 按配置密钥校验 jwt 并解析其中的 token；以 jwt body 生成 jwt 并写入响应 `Authorization` 头。
 * *token 读写*：由 +ctool4j-web+ 的 `CTokenUtils` 提供（请求头/响应头/请求属性）；jwt 的编解码底层为 +ctool4j-web+ 的 `CJwtUtils`。
 * *契约接口*：`ICJwtInfo`（jwt 载荷标记接口，实现类字段即载荷内容）、`ICSession` / `ICSecuritySession`（会话契约，后者用于 Security 场景）。
-* *会话*：`CAbstractBaseSessionService`（auth-base）→ `CAbstractSessionService`（auth-spring，基于 Redis）——会话存取、按 jwt 取会话、取当前会话；**当前会话缺失（未认证）时抛 `CUnauthorizedException`**，由 +ctool4j-web+ 的 `CUnauthorizedExceptionHandler` 统一转为响应体业务码 401（见 link:web.adoc[web]）。会话读取另有静态门面 `CSessionUtils`（auth-base）：`load(request)` 按请求加载、`getDefaultNull()`/`get()` 取当前会话（前者无会话返回 null、后者抛 `CUnauthorizedException`），泛型按调用方声明自动适配。
+* *会话*：`CAbstractBaseSessionService`（auth-base）→ `CAbstractSessionService`（auth-spring，基于 Redis）——会话存取、按 jwt 取会话、取当前会话；**当前会话缺失（未认证）时抛 `CUnauthorizedException`**，由 +ctool4j-web+ 的 `CUnauthorizedExceptionHandler` 统一转为响应体业务码 401（见 link:web.adoc[web]）。
 * *过滤器继承链*（自下而上，**业务继承链末端**）：
   `CAbstractWebAuthFilter`（+ctool4j-web+，类型契约）→ `CAbstractBaseAuthFilter`（auth-base，过滤器骨架 + 会话加载，不依赖 Security）→ `CAbstractAuthFilter`（auth-spring，构造 Security 认证信息）。
 * *装配基类*（二选一继承，业务子类加 `@Configuration`）：

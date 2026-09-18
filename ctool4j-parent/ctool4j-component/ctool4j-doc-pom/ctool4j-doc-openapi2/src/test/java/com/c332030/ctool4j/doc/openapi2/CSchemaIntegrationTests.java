@@ -66,8 +66,6 @@ public class CSchemaIntegrationTests {
 
     /**
      * 字段必填生效：@CSchema 约束被 Spring 的 LocalValidatorFactoryBean 识别（username 缺失产生校验错误）
-     */
-    /**
      * 对应测试用例 1.1：直接 Validator 校验：username 缺失产生校验错误
      */
     @Test
@@ -78,8 +76,6 @@ public class CSchemaIntegrationTests {
 
     /**
      * 必填字段生效：username 缺失 → 校验失败（HTTP 200 + body code=500）
-     */
-    /**
      * 对应测试用例 1.2：必填字段缺失 → 校验失败
      */
     @Test
@@ -94,8 +90,6 @@ public class CSchemaIntegrationTests {
 
     /**
      * 必填字段生效：username 空白 → 校验失败（notBlank，HTTP 200 + body code=500）
-     */
-    /**
      * 对应测试用例 1.3：必填字段空白 → 校验失败
      */
     @Test
@@ -110,8 +104,6 @@ public class CSchemaIntegrationTests {
 
     /**
      * 必填字段生效：username 空字符串 → 校验失败（notBlank 边界，HTTP 200 + body code=500）
-     */
-    /**
      * 对应测试用例 1.4：必填字段空串 → 校验失败
      */
     @Test
@@ -126,8 +118,6 @@ public class CSchemaIntegrationTests {
 
     /**
      * 非必填字段生效：username 必填提供，非必填字段（remark/other）缺失 → 200
-     */
-    /**
      * 对应测试用例 1.5：非必填字段缺失 → 放行
      */
     @Test
@@ -140,8 +130,6 @@ public class CSchemaIntegrationTests {
 
     /**
      * 接口正常：必填 + 非必填均提供 → 200
-     */
-    /**
      * 对应测试用例 1.6：必填+非必填均提供 → 200
      */
     @Test
@@ -154,11 +142,8 @@ public class CSchemaIntegrationTests {
 
     /**
      * 字段文档生效：/v2/api-docs 中 CSchemaTestDTO 的 username 含描述且进入必填列表、remark 含描述且非必填
-     *
      * <p>说明：springfox 生成 JSON 中中文字符以 Unicode 转义（形如 uXXXX），故用 jsonPath 断言（解析后对比），
      * 不用字符串 contains（无法匹配转义后的中文）。</p>
-     */
-    /**
      * 对应测试用例 1.7：字段文档生效：/v2/api-docs 生成 description 与 required
      */
     @Test

@@ -27,10 +27,11 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
  * <h2>响应消息不可写异常处理</h2>
  * <ul>
  *   <li>1.1 handle：验证响应消息不可写异常处理结果</li>
+ *   <li>1.2 handle(null)：异常对象为 null（非预期入参）不抛 NPE、不写响应体（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 public class CHttpMessageNotWritableExceptionHandlerTests {
 
@@ -42,6 +43,16 @@ public class CHttpMessageNotWritableExceptionHandlerTests {
     @Test
     public void handle() {
         Assertions.assertDoesNotThrow(() -> handler.handle(new HttpMessageNotWritableException("not writable")));
+    }
+
+    /**
+     * 对应测试用例 1.2：异常对象为 null（非预期入参）：不抛 NPE、不写响应体
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（旧实现在此处 NPE，用例可捕获该缺陷）。</p>
+     */
+    @Test
+    public void handle_nullException() {
+        Assertions.assertDoesNotThrow(() -> handler.handle(null));
     }
 
 }

@@ -29,10 +29,12 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
  * <h2>请求方法不支持异常处理</h2>
  * <ul>
  *   <li>1.1 handle：验证请求方法不支持异常处理结果</li>
+ *   <li>1.2 异常消息为 null：用固定文案兜底，避免 {@code message: null}（handle_nullMessage）</li>
+ *   <li>1.3 异常对象为 null（非预期入参）：返回固定文案、不抛 NPE（handle_nullException）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 public class CHttpRequestMethodNotSupportedExceptionHandlerTests {
 
@@ -50,6 +52,32 @@ public class CHttpRequestMethodNotSupportedExceptionHandlerTests {
 
         Assertions.assertEquals("500", result.getCode());
         Assertions.assertNotNull(result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.2：异常消息为 null 时用固定文案兜底（避免返回 {@code message: null}）
+     */
+    @Test
+    public void handle_nullMessage() {
+        // 边界：消息为 null（异常消息按构造参数全为 null 生成）
+        val e = new HttpRequestMethodNotSupportedException(null, (String) null);
+
+        CStrResult<Void> result = handler.handle(e);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("请求方法不支持", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.3：异常对象为 null（非预期入参）返回固定文案、不抛 NPE
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("请求方法不支持", result.getMessage());
     }
 
 }

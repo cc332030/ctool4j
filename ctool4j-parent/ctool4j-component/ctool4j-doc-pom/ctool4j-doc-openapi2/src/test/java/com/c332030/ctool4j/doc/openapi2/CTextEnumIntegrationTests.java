@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2;
 
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
-import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -68,7 +67,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *
  * @author c332030
  * @since 1.0
- * @version 1.3
+ * @version 1.2
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest
@@ -155,7 +154,7 @@ public class CTextEnumIntegrationTests {
         JsonNode root = readApiDocs();
         JsonNode properties = root.path("definitions").path("CTextEnumTestDTO").path("properties").path("header");
         List<String> values = toStringList(properties.path("enum"));
-        assertEquals(CRequestHeaderEnum.values().length, values.size(),
+        assertEquals(com.c332030.ctool4j.web.enums.CRequestHeaderEnum.values().length, values.size(),
             "允许值数量应等于 CRequestHeaderEnum 常量数");
         values.forEach(v -> assertTrue(v.matches("^[A-Z_]+$"), "允许值应为裸枚举名，实际 " + v));
 

@@ -45,8 +45,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回固定「请求体缺失或格式不正确」错误结果</td>
  *   </tr>
  *   <tr>
  *     <td>其他请求体不可读情形（格式错误、类型不匹配）</td>
@@ -79,12 +79,19 @@ public class CHttpMessageNotReadableExceptionHandler {
 
     /**
      * 处理请求体不可读异常
+     * <p>{@code e} 为 null 属非预期入参（Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null），
+     * 这里兜底返回固定错误结果（不读异常内容）；见类 javadoc「兜底设计」。</p>
      *
      * @param e 请求体不可读异常
      * @return 错误结果
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public CStrResult<Void> handle(HttpMessageNotReadableException e) {
+
+        // null 属非预期入参：不取异常内容、不产重复日志，返回与正常路径一致的固定错误结果
+        if (null == e) {
+            return CStrResult.error("请求体缺失或格式不正确");
+        }
 
         log.debug("handle HttpMessageNotReadableException，requestURI: {}",
             CRequestUtils.getRequestURIDefaultNull(), e);

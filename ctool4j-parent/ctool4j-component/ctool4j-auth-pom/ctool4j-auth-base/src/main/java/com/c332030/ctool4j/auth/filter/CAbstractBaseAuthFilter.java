@@ -3,7 +3,7 @@ package com.c332030.ctool4j.auth.filter;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
-import com.c332030.ctool4j.session.util.CSessionUtils;
+import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
 import com.c332030.ctool4j.web.filter.CAbstractWebAuthFilter;
 import lombok.CustomLog;
 import lombok.val;
@@ -23,22 +23,22 @@ import java.io.IOException;
  *
  * <p>认证过滤器公共抽象基类：承载与 Spring Security 无关的公共部分——过滤器骨架（{@link #doFilterInternal} 的
  * 异常静默与无条件放行）、mock 会话语义（{@link #loadMockSession}，dev/test 免登录）与"从当前请求加载会话"
- * （{@link #loadSession}，默认委托 {@link CSessionUtils#load}）；认证信息如何构造由子类实现 {@link #setAuthentication}
+ * （{@link CAbstractBaseSessionService#loadSession}）；认证信息如何构造由子类实现 {@link #setAuthentication}
  * 与 {@link #setMockAuthentication}。</p>
  *
  * <p>依赖 Spring（过滤器模板 {@link CAbstractWebAuthFilter}、{@code @Autowired}）但<b>不依赖 Spring Security</b>，
  * 因此不引入 spring-security 的场景可复用本类；Security 相关的认证构造见 auth-spring 的同名链路子类
- * {@code CAbstractAuthFilter}。</p>
+ * {@code com.c332030.ctool4j.auth.filter.CAbstractAuthFilter}。</p>
  *
  * <p>继承链自下而上：{@link CAbstractWebAuthFilter}（web：类型契约）→ 本类（auth-base：会话加载与过滤器骨架）→
- * {@code CAbstractAuthFilter}（auth-spring：Security 认证构造，业务直接继承）。</p>
+ * {@code com.c332030.ctool4j.auth.filter.CAbstractAuthFilter}（auth-spring：Security 认证构造，业务直接继承）。</p>
  *
  * <h2>能力目录</h2>
  * <ul>
  *   <li>{@link #doFilterInternal}：过滤器主流程，加载认证信息后放行。</li>
  *   <li>{@link #loadAuthentication}：模板方法，mock 会话优先 → 真实会话，命中后设置认证信息。</li>
  *   <li>{@link #loadMockSession}：加载 mock 会话（未启用或未配置返回 null）。</li>
- *   <li>{@link #loadSession}：加载会话（入参透传给门面，按请求内 token 加载；默认委托 {@link CSessionUtils#load}，无会话返回 null）。</li>
+ *   <li>{@link #loadSession}：从当前请求加载会话（默认委托 {@link CAbstractBaseSessionService#loadSession}）。</li>
  *   <li>{@link #setAuthentication}：抽象方法，由子类实现普通会话的认证信息构造。</li>
  *   <li>{@link #setMockAuthentication}：mock 会话的认证信息构造，默认与 {@link #setAuthentication} 同一路径。</li>
  * </ul>
@@ -60,8 +60,8 @@ import java.io.IOException;
  *     <td>捕获并记 error 日志，不中断链路，继续放行</td>
  *   </tr>
  *   <tr>
- *     <td>无会话（未携带 token / 解析失败 / 查不到会话）</td>
- *     <td>{@link #loadSession} 返回 null，不设置认证信息，请求保持未认证状态并放行</td>
+ *     <td>未携带 token / 解析失败 / 查不到会话</td>
+ *     <td>不设置认证信息，请求保持未认证状态并放行</td>
  *   </tr>
  *   <tr>
  *     <td>mock 启用但未配置 session</td>
@@ -89,13 +89,16 @@ import java.io.IOException;
  *
  * @author c332030
  * @since 2026/9/13
- * @version 1.3
+ * @version 1.0
  */
 @CustomLog
 public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends CAbstractWebAuthFilter {
 
     @Autowired
     CAbstractSessionMockConfig<SESSION> sessionMockConfig;
+
+    @Autowired
+    CAbstractBaseSessionService<SESSION> sessionService;
 
     /**
      * 过滤器主流程：加载认证信息后放行。
@@ -130,7 +133,7 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
      * 加载并设置认证信息（模板方法）。
      *
      * <p><b>设计</b>：mock 会话（{@link #loadMockSession}）优先，命中则 {@link #setMockAuthentication} 并返回；
-     * 否则按 {@link #loadSession} 加载会话，命中则 {@link #setAuthentication}；无会话
+     * 否则按 {@link #loadSession} 加载真实会话，命中则 {@link #setAuthentication}。会话不存在
      * （未携带 token、解析失败、查不到会话）时直接返回，不设置认证信息。</p>
      *
      * @param request 当前请求
@@ -143,9 +146,8 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
             return;
         }
 
-        // 无会话（未携带 token、解析失败、查不到会话）时 loadSession 返回 null：不设置认证信息，
-        // 请求保持未认证状态，交由后续授权规则决定放行/拦截
-        // （可能收到其他系统误传的 token，解析失败静默处理不影响接口安全）。
+        // 可能收到其他系统误传的 token：解析失败（内部静默返回 null）或按 token 查不到会话时返回 null，
+        // 不设置认证信息，请求保持未认证状态，交由后续授权规则决定放行/拦截；解析失败静默处理不影响接口安全。
         val session = loadSession(request);
         if(session == null) {
             return;
@@ -181,19 +183,16 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
     }
 
     /**
-     * 加载会话。
+     * 从当前请求加载会话。
      *
-     * <p>默认委托 {@link CSessionUtils#load(HttpServletRequest)}（会话服务的 {@code loadSession(request)}）：
-     * 取请求内的 token、校验解析后按 token 查会话，命中则把 token 写入请求属性；
-     * 未携带 token、解析失败或查不到会话时返回 null（不抛异常）。</p>
-     *
-     * <p>子类可覆写本方法改变会话来源（覆写时签名保持不变）。</p>
+     * <p>默认委托 {@link CAbstractBaseSessionService#loadSession}：取请求中的 token、校验解析后按 token 查会话，
+     * 命中则把 token 写入请求属性；未携带 token、解析失败或查不到会话时返回 null（不抛异常）。</p>
      *
      * @param request 当前请求
      * @return 会话；未携带 token / 解析失败 / 查不到会话时返回 null
      */
     protected SESSION loadSession(HttpServletRequest request) {
-        return CSessionUtils.load(request);
+        return sessionService.loadSession(request);
     }
 
     /**

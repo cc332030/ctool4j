@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * `CFeignLogger`（feign 请求日志）的测试用例
+ * `com.c332030.ctool4j.feign.log.CFeignLogger`（feign 请求日志）的测试用例
  *
  * 覆盖：logRequest 的白名单/黑名单/全量开关判定、请求日志模型构建（method/path/headers/req）、
  * logAndRebufferResponse 重缓冲与取值、logIOException 异常信息设置、未记录时的降级返回；
@@ -99,7 +99,7 @@ import java.util.Map;
  *
  * @author c332030
  * @since 1.0
- * @version 1.1
+ * @version 1.0
  */
 class CFeignLoggerTests {
 

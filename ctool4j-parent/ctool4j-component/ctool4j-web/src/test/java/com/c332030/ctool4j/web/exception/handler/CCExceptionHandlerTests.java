@@ -46,6 +46,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <h2>通用异常处理</h2>
  * <ul>
  *   <li>1.1 handle：验证通用异常处理结果</li>
+ *   <li>1.2 异常消息为 null：用异常类型简单名兜底，避免 {@code message: null}（handle_nullMessage）</li>
+ *   <li>1.3 异常对象为 null（非预期入参）：返回固定「通用异常」、不抛 NPE（handle_nullException）</li>
  * </ul>
  * <h2>真实链路：兜底与"不截走更具体异常（含子类）"</h2>
  * <ul>
@@ -56,7 +58,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>2.5 未授权异常子类：同上（unauthorizedExceptionSubclass_handledByUnauthorizedHandler）</li>
  * </ul>
  *
- * <p>`CCExceptionHandler` 的测试用例</p>
+ * <p>`com.c332030.ctool4j.web.exception.handler.CCExceptionHandler`（CCExceptionHandler）的测试用例</p>
  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
  *
  * @since 2026/8/16
@@ -80,6 +82,32 @@ public class CCExceptionHandlerTests {
 
         Assertions.assertEquals("500", result.getCode());
         Assertions.assertEquals("boom", result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.2：异常消息为 null 时用异常类型简单名兜底（避免返回 {@code message: null}）
+     */
+    @Test
+    public void handle_nullMessage() {
+        // 边界：消息为 null（非空消息原样返回，见 1.1；此处只覆盖 null）
+        CStrResult<Void> result = handler.handle(new CException((String) null));
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals(CException.class.getSimpleName(), result.getMessage());
+    }
+
+    /**
+     * 对应测试用例 1.3：异常对象为 null（非预期入参）返回固定「通用异常」、不抛 NPE
+     * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（兜底不取异常内容，故 message 为固定文案）。</p>
+     */
+    @Test
+    public void handle_nullException() {
+        // 边界：异常对象为 null
+        CStrResult<Void> result = handler.handle(null);
+
+        Assertions.assertEquals("500", result.getCode());
+        Assertions.assertEquals("通用异常", result.getMessage());
     }
 
     /**

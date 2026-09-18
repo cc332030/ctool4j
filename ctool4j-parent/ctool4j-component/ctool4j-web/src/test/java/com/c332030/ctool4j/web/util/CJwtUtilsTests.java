@@ -12,7 +12,7 @@ import java.util.Map;
  * <p>
  * Description: CJwtUtilsTests
  * </p>
- * <p>`CJwtUtils` 的测试用例，覆盖 jwt 创建/验证/解析/JSON 提取等易出错方法。</p>
+ * <p>`com.c332030.ctool4j.web.util.CJwtUtils` 的测试用例，覆盖 jwt 创建/验证/解析/JSON 提取等易出错方法。</p>
  *
  * <p><b>用例设计思路</b>：按 create / verify / parse / getJson 多个维度组织，覆盖正常、空值、异常路径。</p>
  * <p><b>设计依据</b>：依据 CJwtUtils 对 secret 非空白、jwt 空兜底等约定。</p>
@@ -90,7 +90,7 @@ import java.util.Map;
  *
  * @author c332030
  * @since 2026/8/14
- * @version 1.1
+ * @version 1.0
  * @see CJwtUtils
  */
 @CustomLog

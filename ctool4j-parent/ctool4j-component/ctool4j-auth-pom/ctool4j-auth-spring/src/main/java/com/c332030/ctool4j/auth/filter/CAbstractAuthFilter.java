@@ -15,7 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  * {@link CAbstractBaseAuthFilter}（过滤器骨架、mock 会话加载、会话加载）之上，只负责 Security 相关部分：
  * 将会话构造成 {@code Authentication} 并写入安全上下文。</p>
  *
- * <p>继承链自下而上：{@code CAbstractWebAuthFilter}（web：类型契约）→
+ * <p>继承链自下而上：{@code com.c332030.ctool4j.web.filter.CAbstractWebAuthFilter}（web：类型契约）→
  * {@link CAbstractBaseAuthFilter}（auth-base：过滤器骨架与公共会话加载）→ 本类（auth-spring：Security 认证构造）。
  * 因此安全过滤器链按 web 的类型契约注入时，注入到的即业务继承本类而来的过滤器 bean。</p>
  *
@@ -69,7 +69,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  *
  * @author c332030
  * @since 2026/3/16
- * @version 1.2
+ * @version 1.1
  */
 public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> extends CAbstractBaseAuthFilter<SESSION> {
 

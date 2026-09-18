@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -330,12 +331,13 @@ public class CCacheAspect {
      * 获取或创建 namespace 下指定过期时间的 Caffeine Cache
      *
      * <p><b>详细步骤</b>：取（或创建）namespace 对应的 expire→Cache 分组缓存 → 目标 expire 已存在直接返回
-     * → 否则创建 Cache 并缓存：{@code expire > 0} 设 {@code expireAfterWrite(expire, SECONDS)}，
-     * {@code expire = 0}（未配置）不设过期时间。</p>
+     * → 否则先判上限（见下「兜底设计」，未达上限才继续）→ 创建 Cache 并缓存：
+     * {@code expire > 0} 设 {@code expireAfterWrite(expire, SECONDS)}，{@code expire = 0}（未配置）不设过期时间。</p>
      *
      * <p><b>兜底设计</b>：每个 namespace 最多创建 {@value #MAX_EXPIRE_CACHES_PER_NAMESPACE} 个不同 expire 的
-     * Cache 实例，超过阈值时复用已有的最长过期时间 Cache，防止无界增长；此时实际过期时间可能与预期不一致
-     * （属防御性兜底，为已知取舍）。</p>
+     * Cache 实例（上限判定用 Caffeine 的 {@code estimatedSize()}，其为统计值、在阈值附近可能有瞬时偏差），
+     * 超过阈值时复用该 namespace 下过期时间最长的 Cache（见 {@code longestExpireCache}），防止无界增长；
+     * 此时实际过期时间会短于预期（最长者的 TTL 覆盖了本该更长或更短的分组），属防御性兜底、为已知取舍。</p>
      *
      * @param namespace 缓存命名空间类
      * @param expire    过期时间（秒），0 表示不设过期
@@ -351,6 +353,20 @@ public class CCacheAspect {
             return existing;
         }
 
+        // 防御：超过上限时复用已有 Cache，避免无界增长（Caffeine Cache 无 size()，
+        // 用 estimatedSize() 判阈值；estimatedSize 为统计值、在阈值附近可见瞬时偏差，
+        // 对"防无界增长"的用途足够；复用取过期时间最长的那个 Cache）
+        if (expireCaches.estimatedSize() >= MAX_EXPIRE_CACHES_PER_NAMESPACE) {
+            val fallback = longestExpireCache(expireCaches);
+            if (null != fallback) {
+                if (log.isWarnEnabled()) {
+                    log.warn("namespace [{}] 下 expire cache 数量已达上限 {}，复用已有 cache，expire: {}",
+                        namespace.getSimpleName(), MAX_EXPIRE_CACHES_PER_NAMESPACE, fallback.getKey());
+                }
+                return fallback.getValue();
+            }
+        }
+
         return expireCaches.get(expire, e -> {
             val builder = CLocalCacheUtils.cacheBuilder();
             if (e > 0) {
@@ -358,6 +374,25 @@ public class CCacheAspect {
             }
             return builder.build();
         });
+    }
+
+    /**
+     * 取 expire→Cache 分组中过期时间最长的那个 Cache（expire 段为 key）
+     *
+     * @param expireCaches expire→Cache 分组缓存
+     * @return 过期时间最长的分组项；无任何分组项时返回 null
+     */
+    private Map.Entry<Integer, Cache<String, Object>> longestExpireCache(
+        Cache<Integer, Cache<String, Object>> expireCaches
+    ) {
+
+        Map.Entry<Integer, Cache<String, Object>> longest = null;
+        for (val entry : expireCaches.asMap().entrySet()) {
+            if (null == longest || entry.getKey() > longest.getKey()) {
+                longest = entry;
+            }
+        }
+        return longest;
     }
 
     /**
