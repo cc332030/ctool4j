@@ -76,7 +76,7 @@ ctool4j（根，packaging=pom）
   - +doc/design/<模块>/<功能>.adoc+：**跨类的功能/模块级**设计文档（方案取舍、兜底策略、适用范围、已知限制与波及影响），
     按功能命名、不与源文件同名；类级细节一律链接到对应源码 javadoc。
   - +doc/README.adoc+：**全项目文档导航入口**（逐级指向模块 README 与功能文档的固定落点）；各级 +doc/README.adoc+ 索引页只在确有下级内容处保留。
-  - 源文件版本由各源码 javadoc 的 +@version+ 维护；全项目变更记录统一在 +CHANGELOG.adoc+（时间倒序）。
+  - 源文件版本由各源码 javadoc 的 +@version+ 维护；全项目变更记录统一在 +CHANGELOG.adoc+（按版本分组、版本内分类）。
   - 除上述总结/规划性文档（含各级 README）、+CHANGELOG.adoc+、+TODO.adoc+ 与规范文件外，仓库不再保留其他文档。
   配套规范见远端统一规范的文档规范与 link:agent/AGENTS-PROJECT.MD[项目特有规范]。
   - +doc/dependency.adoc+：**模块间依赖关系的唯一视图**（全项目模块清单 + UML 依赖图 + 直接依赖表）；判断「某模块能不能依赖某模块、新依赖该不该加」以它为准。
@@ -87,7 +87,7 @@ ctool4j（根，packaging=pom）
   - +clean-tmp.py+：清理 +tmp/+ 下的临时产物（扫描中间结果、日志等），仅限 +tmp/+ 目录，带路径穿越防护。
   - +push-origins.bat+：推送所有 origin 远端。
 - *tmp/*：临时产物目录（扫描中间结果、日志、临时规划等），不纳入版本管理、不提交；由 +script/clean-tmp.py+ 清理，故不单独登记。
-- 根级文档：+CHANGELOG.adoc+ 为项目统一变更日志（时间倒序）；+TODO.adoc+ 为项目待办清单；+AGENTS.md+ 为规范入口（引用远端统一规范 + 项目特有规范，见 +agent/+）。
+- 根级文档：+CHANGELOG.adoc+ 为项目统一变更日志（按版本分组、版本内按模块与变更类型分类）；+TODO.adoc+ 为项目待办清单；+AGENTS.md+ 为规范入口（引用远端统一规范 + 项目特有规范，见 +agent/+）。
 
 == 使用说明（引用本库的项目看这里）
 
