@@ -14,28 +14,28 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * </p>
  *
  * <p>覆盖 {@code CUnauthorizedExceptionHandler.handle}：业务码固定 401、消息取异常消息（为空回退 401 原因短语），
- * 随附 HTTP 响应状态 401（未授权对外以响应体业务码 401 为准）。</p>
+ * 不设置 HTTP 响应状态（未授权对外以响应体业务码 401 为准）。</p>
  *
  * <h2>设计思路</h2>
  * <ul>
  *   <li>直接实例化处理器调用 handle（与同目录其他处理器用例一致），不启容器。</li>
- *   <li>业务码随响应体断言；HTTP 响应状态通过 {@code @ResponseStatus} 注解固化（未授权附设 401，防回改）。</li>
+ *   <li>业务码随响应体断言；并断言方法未声明 {@code @ResponseStatus}——HTTP 状态不由注解设置（与模块内其余处理器同一口径，防回改）。</li>
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：有消息、无消息、HTTP 状态声明。</li>
+ *   <li>覆盖：有消息、无消息、HTTP 状态不由注解设置。</li>
  *   <li>未覆盖：容器装配条件（{@code @ConditionalOnMissingExceptionHandler} 语义由该注解自身用例覆盖）与真实 MVC 链路。</li>
  * </ul>
  * <h2>handle 分支输出</h2>
  * <ul>
  *   <li>1.1 消息非空：code "401" + 原消息（handle_withMessage）</li>
  *   <li>1.2 消息为空：message 回退 401 状态原因短语（handle_withoutMessage）</li>
- *   <li>1.3 HTTP 响应状态声明为 401（handle_declaresHttp401）</li>
+ *   <li>1.3 未声明 HTTP 响应状态（handle_noResponseStatusAnnotation）</li>
  * </ul>
  *
  * @author c332030
  * @since 2026/9/17
- * @version 1.1
+ * @version 1.2
  * @see CUnauthorizedExceptionHandler
  * @see "doc/design/web/unauthorized-401.adoc"
  */
@@ -67,16 +67,15 @@ class CUnauthorizedExceptionHandlerTests {
     }
 
     /**
-     * <p>对应测试用例 1.3：HTTP 响应状态显式声明为 401（本模块唯一设置 HTTP 响应状态的处理器）</p>
+     * <p>对应测试用例 1.3：不声明 HTTP 响应状态——HTTP 状态保持容器默认（HTTP 200），未授权只由响应体业务码 401 表意</p>
      */
     @Test
-    void handle_declaresHttp401() throws NoSuchMethodException {
+    void handle_noResponseStatusAnnotation() throws NoSuchMethodException {
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(
             CUnauthorizedExceptionHandler.class.getMethod("handle", CUnauthorizedException.class),
             ResponseStatus.class);
 
-        Assertions.assertNotNull(responseStatus, "必须显式声明 HTTP 响应状态：未授权应为 401");
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, responseStatus.code());
+        Assertions.assertNull(responseStatus, "不得声明 @ResponseStatus：HTTP 状态须与模块内其余处理器一致（HTTP 200 + 响应体业务码）");
     }
 
 }
