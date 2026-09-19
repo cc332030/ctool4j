@@ -20,7 +20,7 @@ import cn.hutool.core.util.TypeUtil;
  * @since 2026/9/11
  * @version 1.0
  */
-public interface IGenericType<T> {
+public interface ICGenericType<T> {
 
     /**
      * 解析当前实现类第一个泛型实参的运行时 Class

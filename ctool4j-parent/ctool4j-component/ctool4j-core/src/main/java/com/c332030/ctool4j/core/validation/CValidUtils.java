@@ -16,7 +16,7 @@ import java.util.Objects;
  * </p>
  *
  * <p>
- * 基于 {@link CValidateUtils} 支持的数据类型，按类型选择校验逻辑：
+ * 覆盖字符串、集合/Iterable、Map、各类型数组与普通对象，按类型选择校验逻辑：
  * 字符串按 blank（isNotBlank）、集合/Map/数组按 notEmpty、其他对象按非 null。
  * 调用时传入具体类型变量，由重载自动匹配；传 {@code null} 字面量会因多重载产生歧义，应传入具体类型变量。
  * </p>
@@ -65,7 +65,7 @@ import java.util.Objects;
  * <h2>设计要点</h2>
  * <p><b>按类型选择校验逻辑</b></p>
  * <ul>
- *   <li>基于 {@code CValidateUtils} 支持的数据类型，按类型选择校验：字符串按 blank、集合/Map/数组按 notEmpty、</li>
+ *   <li>按类型选择校验：字符串按 blank、集合/Map/数组按 notEmpty、</li>
  *   <li>其他对象按非 null。</li>
  *   <li>调用时传入具体类型变量，由重载自动匹配；传 null 字面量会因多重载产生歧义，应传入具体类型变量。</li>
  * </ul>

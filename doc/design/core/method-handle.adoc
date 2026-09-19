@@ -14,13 +14,13 @@
 
 * 方案 A（现行，已采用）：按"职责边界"分布，不按"是否与 MethodHandle 相关"收敛——
   ** `CMethodHandleUtils`：句柄生成与缓存（生成版 `toXxx` / 缓存版 `getXxx`）、统一 Object 签名常量与 asType 适配、API 选用判定（见该类 javadoc「API 选用（一次性 / 多次访问）」）；
-  ** `CReflectUtils`：反射元数据查询（字段/方法/构造器/注解）、按类缓存的实例字段 handle map（`GETTER_HANDLE_MAP_CLASS_VALUE` / `SETTER_HANDLE_MAP_CLASS_VALUE`）、无参构造器句柄缓存；字段读写、方法/构造器调用、按字段值填充都经其对外；
+  ** `CReflectUtils`：反射元数据查询（字段/方法/构造器/注解）、按类取用、类内按字段名索引的实例字段 handle map（`GETTER_HANDLE_MAP_CLASS_VALUE` / `SETTER_HANDLE_MAP_CLASS_VALUE`）、无参构造器句柄缓存；字段读写、方法/构造器调用、按字段值填充都经其对外；
   ** `CLambdaUtils`：MethodHandle → `CFunction` / `CBiConsumer` 的字段级转换（JDK 8 的 LambdaMetafactory 不支持 getField/putField 类句柄，故委托 `MethodHandle.invoke`）；
   ** `CEnumUtils`：按（枚举类、字段名）一次性生成 getter 句柄，循环内复用；
   ** `CBeanUtils`：复制与转 Map 计划在计划期一次性生成句柄并随条目长期持有；
   ** `CSpringUtils`：取参数最多的构造方法，实参逐个从容器获取后经 `CReflectUtils#newInstance(Constructor, Object...)` 实例化。
 * 方案 B（未采用）：把上述与 MethodHandle 相关的能力全部收敛到 `CMethodHandleUtils`，并删除 `CLambdaUtils`。
-  ** 不采用原因：该方案使一个类同时承担句柄生成/缓存、签名适配、按类 map 缓存、构造器缓存、Lookup 与 Lambda 转换，职责边界反而模糊；按类缓存的 handle map 与 Lambda 转换不属"句柄工具"的职责。
+  ** 不采用原因：该方案使一个类同时承担句柄生成/缓存、签名适配、按类取用的字段名句柄 map 缓存、构造器缓存、Lookup 与 Lambda 转换，职责边界反而模糊；该句柄 map 与 Lambda 转换不属"句柄工具"的职责。
 
 == 兜底设计
 

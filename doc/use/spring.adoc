@@ -45,6 +45,19 @@ String name = CProxyUtils.getRealClassName(orderService);   // 改不了代码�
 * 只支持 Spring 生成的代理（CGLIB / JDK 动态代理）；裸动态代理、MyBatis Mapper 等携带不了目标元数据，返回代理类自身。
 * 适用与边界（性能、不缓存的取舍）见开发文档：link:../design/spring/real-class-name.adoc[real-class-name]。
 
+=== 容器取值
+
+[source,java]
+----
+Environment environment = CSpringUtils.getBean(Environment.class);
+----
+
+* `CSpringUtils.getBean(Class)` 优先取框架自有上下文（`CSpringConfigBeans` 持有），该上下文为空时**兜底**改用 Hutool `SpringUtil` 的静态上下文。
+* 兜底的原因是两个上下文的**写入时机不同**：自有上下文经 `ApplicationContextAware#setApplicationContext` 写入，Hutool 一侧另实现 `BeanFactoryPostProcessor`、在容器刷新更早的阶段就写入了自己的 `beanFactory`。因此 `@PostConstruct`、`BeanFactoryPostProcessor` 这类**早于上下文就绪**的调用点，只有 Hutool 一侧能取到。
+* **兜底有边界**：Hutool 的上下文是进程级静态字段，任何一次容器刷新都会覆盖它、容器关闭后**不清空**，直接用会取到"别的容器"或"已关闭容器"的 Bean。故兜底前先按 `ConfigurableApplicationContext#isActive` 校验其仍在活动状态；不可用或已关闭时抛 `IllegalStateException` 快速失败，不静默返回 `null`、也不取别的容器的 Bean。
+* 其余入口（`getApplicationContext` / `getBeansWithAnnotation` / `newInstance`）需要完整的 `ApplicationContext`，不适用兜底。
+* 业务代码**不得**直接 `ApplicationContext.getBean(...)`（绕开依赖注入、隐藏依赖关系）；容器能装配的依赖一律用构造器注入，仅静态工具类等取不到注入的场景才用本工具。
+
 === 启动与初始化
 
 [source,java]

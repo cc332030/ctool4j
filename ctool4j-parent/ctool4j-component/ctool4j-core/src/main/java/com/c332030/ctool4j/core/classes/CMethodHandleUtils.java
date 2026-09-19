@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
  * <ul>
  *   <li>签名常量：{@code GETTER_HANDLE_TYPE} / {@code SETTER_HANDLE_TYPE}（统一 Object 签名，原始类型由 asType 适配器自动装箱/拆箱）</li>
  *   <li>生成版（不缓存）：{@code toGetterHandle} / {@code toSetterHandle} / {@code toHandle(Method)} / {@code toHandle(Constructor)} / {@code toHandleSpecial}</li>
+ *   <li>生成版 + 统一 Object 签名：{@code toGetterHandleAsType} / {@code toSetterHandleAsType}（一次性场景，不占句柄缓存）</li>
  *   <li>缓存版（弱 key）：{@code getGetterHandle} / {@code getSetterHandle} / {@code getGetterHandleAsType} / {@code getSetterHandleAsType} / {@code getHandle(Method)} / {@code getHandle(Constructor)}</li>
  *   <li>选用判定：见下「API 选用（一次性 / 多次访问）」</li>
  * </ul>
@@ -54,8 +55,9 @@ import java.lang.reflect.Method;
  *   <li><b>多次访问</b>（同一 Field/Method/Constructor 会被反复获取，且句柄不被调用方持有）：用 {@code getXxxHandle}／{@code getHandle}，
  *   命中即免去重复 unreflect。</li>
  *   <li>频次不可知（对外公共 API，调用方任意）：默认用缓存版，不做无据的优化假设。</li>
- *   <li>注意：{@code getGetterHandleAsType}／{@code getSetterHandleAsType} 只缓存 unreflect 结果，{@code asType} 适配句柄每次调用都会新建，
- *   故一次性场景用缓存版无收益（{@code toXxxHandle(field).asType(...)} 等价且不占缓存）。</li>
+ *   <li>统一 Object 签名也有生成版：一次性场景用 {@code toGetterHandleAsType}／{@code toSetterHandleAsType}，与缓存版返回值等价
+ *   （均为 asType 适配后的新句柄），但不向句柄缓存写入条目——缓存版只缓存 unreflect 结果，
+ *   {@code asType} 适配句柄每次调用都会新建，故一次性场景用缓存版无收益。</li>
  * </ul>
  *
  * @since 2026/6/17
@@ -170,6 +172,30 @@ public class CMethodHandleUtils {
      */
     public MethodHandle getSetterHandleAsType(Field field) {
         return getSetterHandle(field).asType(SETTER_HANDLE_TYPE);
+    }
+
+    /**
+     * 生成字段 getter 方法句柄（统一 Object 签名，不缓存）
+     * <p>与 {@link #getGetterHandleAsType(Field)} 的差异：用生成版 {@link #toGetterHandle(Field)} 替代缓存版，
+     * 句柄由调用方长期持有、不进句柄缓存；缓存对唯一持有者无复用价值，条目却随 Field 存活而常驻。
+     * 适用判定见类上「API 选用（一次性 / 多次访问）」</p>
+     *
+     * @param field 字段
+     * @return getter 方法句柄（统一 Object 签名）
+     */
+    public MethodHandle toGetterHandleAsType(Field field) {
+        return toGetterHandle(field).asType(GETTER_HANDLE_TYPE);
+    }
+
+    /**
+     * 生成字段 setter 方法句柄（统一 Object 签名，不缓存）
+     * <p>同 {@link #toGetterHandleAsType(Field)} 的适用判定，setter 版本以 {@link #SETTER_HANDLE_TYPE} 适配</p>
+     *
+     * @param field 字段
+     * @return setter 方法句柄（统一 Object 签名）
+     */
+    public MethodHandle toSetterHandleAsType(Field field) {
+        return toSetterHandle(field).asType(SETTER_HANDLE_TYPE);
     }
 
     /**

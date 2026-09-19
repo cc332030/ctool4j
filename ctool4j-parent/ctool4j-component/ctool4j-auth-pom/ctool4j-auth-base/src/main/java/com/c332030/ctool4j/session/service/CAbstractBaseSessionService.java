@@ -3,7 +3,7 @@ package com.c332030.ctool4j.session.service;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.auth.util.CAuthUtils;
 import com.c332030.ctool4j.core.exception.CUnauthorizedException;
-import com.c332030.ctool4j.core.interfaces.IGenericType;
+import com.c332030.ctool4j.core.interfaces.ICGenericType;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CRedisUtils;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
  * Description: CAbstractBaseSessionService
  * </p>
  *
- * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link IGenericType} 解析子类指定的
+ * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link ICGenericType} 解析子类指定的
  * 会话类型 {@code SESSION}（子类须以具体类型直接继承，或在创建点经构造显式传入）。</p>
  *
  * <p>说明：{@code sessionClass} 为实例字段，构造期确定——默认构造按子类泛型实参解析，或经
@@ -48,7 +48,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @CustomLog
 @RequiredArgsConstructor
-public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
+public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements ICGenericType<SESSION> {
 
     /**
      * 泛型 SESSION 的运行时 Class：默认构造由子类 {@code extends CAbstractBaseSessionService<Xxx>} 的泛型实参解析而来；

@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
  *   <li>方法：{@code getMethods} / {@code getAllMethods} / {@code getAllMethodsCached} / {@code getAllMethodsByName}</li>
  *   <li>字段：{@code getAllFieldMap} / {@code getInstanceFieldMap} / {@code getField} / {@code getFieldMap}</li>
  *   <li>读写：{@code getValue} / {@code setValue}（按字段或字段名，MethodHandle 快速路径）</li>
+ *   <li>调用方需要长期持有句柄时，由调用方用生成版自取（见「调用方持有句柄」）</li>
  *   <li>调用：{@code invoke} / {@code invokeIgnoreNoMethod} / {@code invokeMustHaveMethod}（按方法名调用，MethodHandle）</li>
  *   <li>填充：{@code fillValues}（按字段值 Map 创建/填充对象，字段写入经 {@code setValue}）</li>
  *   <li>方法句柄：{@code getGetterHandleMap} / {@code getSetterHandleMap}</li>
@@ -110,6 +111,21 @@ import java.util.stream.Collectors;
  *   一次性（句柄由调用方长期持有）用生成版 {@code toHandle}。判定规则见 {@link CMethodHandleUtils} 「API 选用」。</li>
  *   <li>{@code fillValues} 的字段写入统一委托 {@link #setValue(Object, Field, Object, boolean)}，
  *   与单字段写入同一路径（非 final 走 setter 句柄，final 按既有约定回退）。</li>
+ * </ul>
+ * <p><b>调用方持有句柄（一次性 / 多次访问的判定落点）</b></p>
+ * <ul>
+ *   <li>{@link CMethodHandleUtils} 的判定维度是<b>获取语句的执行频次</b>与<b>句柄的持有方式</b>；
+ *   本类内字段读写的句柄缓存在 {@code GETTER/SETTER_HANDLE_MAP_CLASS_VALUE}，两者都是
+ *   <b>按字段名</b>索引的 map（{@code Map<String, MethodHandle>}，取值为
+ *   {@code get(field.getDeclaringClass()).get(field.getName())}）——同一 {@code Field}
+ *   经本类 API 反复取用时命中该 map，属"多次访问"，故保留缓存版。</li>
+ *   <li>{@code setValue}/{@code getValue} 的调用方<b>按对象写入</b>（如按 {@code @CBizId} 字段写入业务 ID、按字段名填充对象），
+ *   每次写入都要把 {@code Field} 归一到所属类、再按字段名查一次句柄；调用方若需<b>长期持有</b>句柄，
+ *   出路是用生成版 {@code CMethodHandleUtils.toSetterHandleAsType}/{@code toGetterHandleAsType}（统一 Object 签名、不进句柄缓存）
+ *   自建 {@code Field} → 句柄的映射（映射可挂在调用方自己的 {@code CClassValue} 上，其持有的 {@code Field} 与句柄同源）。</li>
+ *   <li>本类已有的公开出口 {@link #getGetterHandleMap(Class)}/{@link #getSetterHandleMap(Class)} 返回的正是上述
+ *   按字段名索引的缓存 map（按类取用、只读服务），不是"按 {@code Field} 索引"的句柄 map；
+ *   调用方要"按对象 + 字段名"写入时，用 {@link #setValue(Object, Field, Object)} 即可（本类内部走同一份缓存）。</li>
  * </ul>
  *
  * @since 2024/4/2
