@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.spring.util;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -123,21 +122,26 @@ public class CAutowiredUtils {
     }
 
     /**
-     * 注入单个字段（注入源取自 Hutool 全局 Spring 上下文）
+     * 注入单个字段（注入源取自框架自有上下文）
      *
-     * <p><b>详细步骤</b>：按字段类型从 Hutool 全局上下文取 Bean，再委托
-     * {@link #autowired(Object, Class, Object, Field)} 写入。</p>
+     * <p><b>详细步骤</b>：按字段类型经 {@link CSpringUtils#getBean(Class)} 从框架自有的
+     * {@code ApplicationContext}（{@code CSpringConfigBeans} 持有）取 Bean，再委托
+     * {@link #autowired(Object, Class, Object, Field)} 写入；不使用 Hutool {@code SpringUtil}
+     * 的全局静态上下文（其上下文仅在 {@code CSpringConfiguration} 被装配时写入，就绪前读取为 null）。</p>
      *
      * @param type   类
      * @param object 对象，为 null 时表示静态字段
      * @param field  字段
      */
     public void autowired(Class<?> type, Object object, Field field) {
-        autowired(SpringUtil.getBean(field.getType()), type, object, field);
+        autowired(CSpringUtils.getBean(field.getType()), type, object, field);
     }
 
     /**
      * 注入单个字段（注入源由调用方显式指定）
+     *
+     * <p><b>字段写入</b>：委托 {@link CReflectUtils#setValue(Object, Field, Object)} 写入（非 final 字段走缓存的
+     * setter 方法句柄快速路径），不直接调用原生反射 {@code Field#set}。</p>
      *
      * @param bean           字段对应的 Bean
      * @param type           类
@@ -148,7 +152,7 @@ public class CAutowiredUtils {
     public void autowired(Object bean, Class<?> type, Object object, Field field) {
 
         val fieldType = field.getType();
-        field.set(object, bean);
+        CReflectUtils.setValue(object, field, bean);
 
         log.debug("CAutowired {}{}.{}({})",
             () -> null != object ? "(object)" : "",
