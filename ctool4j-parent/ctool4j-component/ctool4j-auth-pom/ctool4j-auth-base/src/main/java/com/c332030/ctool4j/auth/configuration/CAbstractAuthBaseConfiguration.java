@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.auth.configuration;
 
-import com.c332030.ctool4j.core.interfaces.IGenericType;
+import com.c332030.ctool4j.core.interfaces.ICGenericType;
 import com.c332030.ctool4j.core.util.CLazyRef;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Bean;
  *   无需重复定义方法体。</li>
  *   <li>本类声明为 {@code abstract}：会话类型必须由子类固定，故不支持直接实例化或直接注册进容器
  *   （注册抽象类会因不可实例化而启动失败），业务侧一律通过子类使用。</li>
- *   <li>本类实现 {@link IGenericType}：整条配置链（本类、auth-spring 的 {@code CAbstractAuthConfiguration}、业务子类）
+ *   <li>本类实现 {@link ICGenericType}：整条配置链（本类、auth-spring 的 {@code CAbstractAuthConfiguration}、业务子类）
  *   都能通过 {@code getGenericClass()} 从<b>业务子类</b>的泛型实参解析出具体会话类型——配置内创建的匿名 bean
  *   自身的类型实参仍是类型变量，需要该类型的服务（如 auth-spring 默认会话服务 bean）须由配置传入、不能自解析。</li>
  * </ul>
@@ -82,7 +82,7 @@ import org.springframework.context.annotation.Bean;
  */
 //@Configuration
 public abstract class CAbstractAuthBaseConfiguration<SESSION extends ICSession>
-    implements IGenericType<SESSION> {
+    implements ICGenericType<SESSION> {
 
     /**
      * 会话类型（懒解析）：首次访问时按业务配置子类的泛型实参解析并缓存

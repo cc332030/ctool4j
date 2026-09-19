@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * </p>
  * <p>
  * 高性能：表达式只解析一次并按方法缓存；属性 getter 复用
- * {@link CReflectUtils#getGetterHandleMap} 按类缓存的 MethodHandle，运行期零字符串解析、零反射查表。
+ * {@link CReflectUtils#getGetterHandleMap}（按类取用、类内按字段名索引）缓存的 MethodHandle，运行期零字符串解析、零反射查表。
  * </p>
  *
  * <h2>能力目录</h2>
@@ -96,7 +96,7 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>表达式只解析一次，按方法（{@code Method} 弱引用）缓存解析器；合法后后续调用命中缓存，运行期零字符串解析。</li>
  *   <li>解析器读取：先 {@code getIfPresent} 命中直接返回（不创建 lambda、不走并发 compute），热路径开销极低。</li>
- *   <li>属性 getter 复用 {@code CReflectUtils.getGetterHandleMap(type)} 按类缓存的 MethodHandle（含继承字段），运行期零反射查表、{@code handle.invokeExact} 执行（统一 {@code (Object)Object} 签名，无签名适配开销，为 MethodHandle 快速路径）。</li>
+ *   <li>属性 getter 复用 {@code CReflectUtils.getGetterHandleMap(type)} 返回的、按类取用且类内按字段名索引的 MethodHandle 缓存（含继承字段），运行期零反射查表、{@code handle.invokeExact} 执行（统一 {@code (Object)Object} 签名，无签名适配开销，为 MethodHandle 快速路径）。</li>
  *   <li>每级按对象实际类型取 getter，天然适配接口/父类/多态运行类型。</li>
  *   <li>无属性跳的一级表达式（{@code key="参数名"}）直接返回参数对象，跳过循环检测与集合分配，为最高频最快路径。</li>
  *   <li>单级跳（{@code 参数名.属性}）仅取一次属性、直接返回，不分配循环检测集合，为次快路径。</li>

@@ -13,7 +13,7 @@ import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CEntityUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CSet;
-import com.c332030.ctool4j.core.validation.CValidateUtils;
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.mybatis.model.impl.CPageReq;
 import com.c332030.ctool4j.mybatis.util.CBizIdUtils;
@@ -127,7 +127,7 @@ public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
     default IPage<ENTITY> page(CPageReq<?> pageReq) {
 
         val reqMap = CBeanUtils.toMapUnderlineName(pageReq.getReq());
-        if(CValidateUtils.isEmpty(reqMap)) {
+        if(CValidUtils.isNotValid(reqMap)) {
             return page(pageReq.getPage());
         }
 

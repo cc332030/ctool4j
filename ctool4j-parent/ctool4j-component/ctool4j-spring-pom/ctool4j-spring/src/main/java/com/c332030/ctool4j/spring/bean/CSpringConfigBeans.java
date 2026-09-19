@@ -27,9 +27,13 @@ import java.util.Set;
  *
  * <h2>设计要点</h2>
  * <ul>
- *   <li>用自有静态字段持有 {@code ApplicationContext}，替代 Hutool {@code SpringUtil} 的全局静态上下文：
- *   {@code SpringUtil} 的上下文只有在 {@code CSpringConfiguration} 被装配时才写入，
- *   工具类在上下文就绪前调用会拿到 {@code null}；显式持有 + 启动时写入可让「谁在何时写入」可控可查。</li>
+ *   <li>用自有静态字段持有 {@code ApplicationContext}，而非直接依赖 Hutool {@code SpringUtil} 的全局静态上下文：
+ *   显式持有 + 启动时写入可让「谁在何时写入」可控可查（写入点是 {@code CSpringConfiguration}，
+ *   读法可追、可被测试替换）。</li>
+ *   <li>两侧的写入时机不同：本类的上下文经 {@code ApplicationContextAware#setApplicationContext} 写入，
+ *   Hutool 一侧另实现 {@code BeanFactoryPostProcessor}、在容器刷新更早的阶段写入其 {@code beanFactory}。
+ *   故本类为 {@code null} 并不代表"Hutool 也为 {@code null}"——需要更早取 Bean 时按
+ *   {@link com.c332030.ctool4j.spring.util.CSpringUtils#getBean(Class)} 的兜底口径处理。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>

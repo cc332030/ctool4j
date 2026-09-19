@@ -36,8 +36,9 @@ import java.util.Map;
  *   <li>标记 {@code CAutowiredScan} 的类本身可能是非 Spring Bean 的静态工具类，因此扫描不能走
  *   {@code getBeansWithAnnotation}，只能按包扫描类后逐个注入（由 {@code CAutowiredScanConfiguration}
  *   在启动时触发），保证工具类的静态字段先于业务调用完成注入。</li>
- *   <li>注入源（Bean 从哪来）由调用方显式传入 {@link ApplicationContext}，而非依赖 Hutool 的全局
- *   {@code SpringUtil} 静态上下文，避免「工具类在哪个上下文里初始化」这类隐式依赖。</li>
+ *   <li>注入源（Bean 从哪来）可由调用方显式传入 {@link ApplicationContext}；不显式传入时经
+ *   {@link CSpringUtils#getBean(Class)} 取值（自有上下文优先、为空时兜底 Hutool），
+ *   取值口径只写在该一处、不在各调用点重复判定。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -124,10 +125,10 @@ public class CAutowiredUtils {
     /**
      * 注入单个字段（注入源取自框架自有上下文）
      *
-     * <p><b>详细步骤</b>：按字段类型经 {@link CSpringUtils#getBean(Class)} 从框架自有的
-     * {@code ApplicationContext}（{@code CSpringConfigBeans} 持有）取 Bean，再委托
-     * {@link #autowired(Object, Class, Object, Field)} 写入；不使用 Hutool {@code SpringUtil}
-     * 的全局静态上下文（其上下文仅在 {@code CSpringConfiguration} 被装配时写入，就绪前读取为 null）。</p>
+     * <p><b>详细步骤</b>：按字段类型经 {@link CSpringUtils#getBean(Class)} 取 Bean，再委托
+     * {@link #autowired(Object, Class, Object, Field)} 写入——本方法不直接依赖 Hutool {@code SpringUtil}，
+     * 取值口径（框架自有上下文优先、为空时兜底 Hutool）统一由 {@code CSpringUtils#getBean} 承载，
+     * 避免「工具类在哪个上下文里初始化」这类隐式依赖在调用点各写一遍。</p>
      *
      * @param type   类
      * @param object 对象，为 null 时表示静态字段

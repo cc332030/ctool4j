@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
  * <p><b>覆盖场景</b>：{@code get()} 有会话、无会话；{@code check()} 有会话、无会话；扩展点按调用即时取值。</p>
  * <p><b>未覆盖</b>：依赖 Redis 与 jwt 的 {@code get(String)} / {@code save} / {@code remove} /
  * {@code getSessionByJwt} / {@code loadSession}（需 redis 与 jwt 配置，另行用例覆盖）；泛型解析
- * {@code getGenericClass()}（由 {@code IGenericType} 的用例覆盖）。</p>
+ * {@code getGenericClass()}（由 {@code ICGenericType} 的用例覆盖）。</p>
  *
  * <h2>当前会话</h2>
  * <ul>
