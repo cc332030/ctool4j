@@ -53,7 +53,7 @@ public class UserController extends CMpController<ICService<User>, User> { }
 | 空值防御
 
 | `CMpPageUtils`
-| 分页对象构建、`pageThenDo` / `pageThenEach` 批量处理（分页模型契约 `ICPage` 及 `CPage` / `CPageReq`）
+| 分页对象构建、`pageThenDo` / `pageThenEach` 批量处理、MP 分页对象转分页结果（分页请求契约 `ICPage` 及 `CPage` / `CPageReq`，分页结果契约 `ICPageResult` 及 `CPageResult`）
 
 | `ICBizIdService`
 | 只按业务 ID 的读写契约（`ICBizService` 在其上扩展主业务维度）
@@ -77,6 +77,7 @@ public class UserController extends CMpController<ICService<User>, User> { }
 == 注意
 
 * 自定义 SQL 方法（`insertIgnore` / `updateAllById`）依赖本模块的 SQL 注入器；3.3 与 3.4 的实现不同，**不要跨版本混用实现模块**。
+* 分页查询结果优先用 `CPageResult`（契约 `ICPageResult`，契约约束与边界见类文档）：**MP 在本模块为 provided、不向引用方传递**，故接口契约模块（如内部调用 API 模块）可直接用它替代 `IPage` 作响应契约；由 MP 分页对象转换用 `CMpPageUtils.getPageResult(page)`（`page` 为 null 时返回空分页结果）。响应字段为 `current` / `size` / `total` / `pages` / `records`，与 `IPage` 同名。
 * 分页模型的 `getOrders()` 默认返回不可修改空集合：分页对象若无 orders 可写成员、而入参 JSON 带 `orders`，Jackson 会向该返回值合并并抛 `UnsupportedOperationException`（已登记待处理，见 link:../../TODO.adoc[TODO.adoc]）。
 
 == 相关

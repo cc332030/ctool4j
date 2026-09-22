@@ -23,8 +23,8 @@
 - **Controller 基类**：`CMpController` 提供 `/page`、`/get-by-id`、`/add`、`/update-by-id`、`/remove-by-id` 标准 CRUD 端点
 - **SQL 注入契约**：`ICMpMethod` / `ICMpSqlMethod` / `CMpSqlMethod`（INSERT_IGNORE、UPDATE_ALL_BY_ID）
 - **业务 ID 工具**：`CBizIdUtils` 扫描 `@CBizId` 注解字段，生成 / 读取 / 回填业务 ID
-- **分页工具**：`CMpPageUtils` 按场景建分页对象、`pageThenDo` / `pageThenEach` 批量处理
-- **分页模型**：`ICPage` / `CPage` / `CPageReq`；逻辑删除契约 `ICDeleted` / `CDeleted`（`@TableLogic`）
+- **分页工具**：`CMpPageUtils` 按场景建分页对象、`pageThenDo` / `pageThenEach` 批量处理、MP 分页对象转分页结果
+- **分页模型**：请求侧 `ICPage` / `CPage` / `CPageReq`，响应侧 `ICPageResult` / `CPageResult`；逻辑删除契约 `ICDeleted` / `CDeleted`（`@TableLogic`）
 
 ### 核心类
 
@@ -40,7 +40,8 @@
 | `CBizIdUtils` | 工具类 | 业务 ID 生成与回填 |
 | `CMpPageUtils` | 工具类 | 分页与批量处理 |
 | `CMpSqlMethod` | 枚举 | 自定义 SQL 方法定义 |
-| `CPage` / `CPageReq` | 模型 | 分页模型 |
+| `CPage` / `CPageReq` | 模型 | 分页请求模型 |
+| `CPageResult` | 模型 | 分页结果模型（不依赖 MP，作 `IPage` 的响应契约替代） |
 
 ### 依赖
 

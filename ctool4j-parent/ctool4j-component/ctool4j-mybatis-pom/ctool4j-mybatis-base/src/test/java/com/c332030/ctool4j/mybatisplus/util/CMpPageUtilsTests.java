@@ -1,10 +1,13 @@
 package com.c332030.ctool4j.mybatisplus.util;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.core.util.CPageUtils;
 import com.c332030.ctool4j.mybatis.model.ICPage;
 import com.c332030.ctool4j.mybatis.model.impl.CPage;
+import com.c332030.ctool4j.mybatis.model.impl.CPageResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -18,16 +21,17 @@ import java.util.List;
  *
  * <h2>设计思路</h2>
  * <ul>
- *   <li>验证创建 Page 的各路径：默认大小、查询/任务/导出的单次大小、由 ICPage 创建、null orders 边界。</li>
+ *   <li>验证创建 Page 的各路径：默认大小、查询/任务/导出的单次大小、由 ICPage 创建、null orders 边界，以及 MP 分页对象转分页结果。</li>
  * </ul>
  * <h2>设计依据</h2>
  * <ul>
  *   <li>依据功能设计对不同场景单次分页大小的约定。</li>
- *   <li>依据测试方法（等价类/边界）：默认大小、各场景大小、ICPage 转换、null orders。</li>
+ *   <li>依据测试方法（等价类/边界）：默认大小、各场景大小、ICPage 转换、null orders、MP 分页对象转分页结果、null 分页对象。</li>
+ *   <li>用例内显式写出泛型类型（未用 {@code val}）：泛型方法返回类型含推断变量，{@code val} 无法给出可表示类型（编译报 type cannot be resolved）。</li>
  * </ul>
  * <h2>覆盖场景与未覆盖</h2>
  * <ul>
- *   <li>覆盖：getPage 默认大小；getPageForQuery/Job/Export 各大小；由 ICPage 创建；null orders 边界。</li>
+ *   <li>覆盖：getPage 默认大小；getPageForQuery/Job/Export 各大小；由 ICPage 创建；null orders 边界；空分页；接口默认方法；MP 分页对象转分页结果；null 分页对象兜底。</li>
  *   <li>未覆盖：真实 MyBatis-Plus 分页拦截器集成。</li>
  * </ul>
  * <h2>分页创建</h2>
@@ -39,10 +43,15 @@ import java.util.List;
  *   <li>1.5 导出版分页（{@code getPageForExport}）</li>
  *   <li>1.6 由 ICPage 创建（{@code getPageByICPage}）</li>
  *   <li>1.7 ICPage null orders 边界（{@code getPageByICPageNullOrders}）</li>
+ *   <li>1.8 空分页（{@code emptyPage}）</li>
+ *   <li>1.9 ICPage 接口默认方法（{@code pageInterfaceWithImpl}）</li>
+ *   <li>1.10 MP 分页对象转分页结果（{@code getPageResult}）</li>
+ *   <li>1.11 null 分页对象转分页结果兜底（{@code getPageResultNullPage}）</li>
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
+ * @see CMpPageUtils
  */
 public class CMpPageUtilsTests {
 
@@ -123,7 +132,7 @@ public class CMpPageUtilsTests {
     }
 
         /**
-         * 对应测试用例 1.8
+         * 对应测试用例 1.8：空分页（{@code emptyPage}）
          */
     @Test
     public void emptyPage() {
@@ -134,9 +143,9 @@ public class CMpPageUtilsTests {
         Assertions.assertEquals(0L, page.getTotal());
     }
 
-        /**
-         * 对应测试用例 1.9
-         */
+    /**
+     * 对应测试用例 1.9：ICPage 接口默认方法（{@code pageInterfaceWithImpl}）
+     */
     @Test
     public void pageInterfaceWithImpl() {
         // ICPage 接口默认方法通过 CPage 实例化验证
@@ -145,6 +154,39 @@ public class CMpPageUtilsTests {
         Assertions.assertEquals(10, iCPage.getPageSize());
         Assertions.assertEquals(20, iCPage.getStart());
         Assertions.assertEquals("limit 20,10", iCPage.getLimitSql());
+    }
+
+    /**
+     * 对应测试用例 1.10：MP 分页对象转分页结果（{@code getPageResult}）
+     */
+    @Test
+    public void getPageResult() {
+        Page<String> page = CMpPageUtils.getPage(2, 10);
+        page.setTotal(25L);
+        page.setRecords(CList.of("a", "b"));
+
+        CPageResult<String> result = CMpPageUtils.getPageResult(page);
+        Assertions.assertEquals(2L, result.getCurrent());
+        Assertions.assertEquals(10L, result.getSize());
+        Assertions.assertEquals(25L, result.getTotal());
+        Assertions.assertEquals(3L, result.getPages());
+        Assertions.assertEquals(CList.of("a", "b"), result.getRecords());
+    }
+
+    /**
+     * 对应测试用例 1.11：null 分页对象转分页结果兜底（{@code getPageResultNullPage}）
+     */
+    @Test
+    public void getPageResultNullPage() {
+        IPage<String> page = null;
+
+        CPageResult<String> result = CMpPageUtils.getPageResult(page);
+        Assertions.assertEquals(1L, result.getCurrent());
+        Assertions.assertEquals(0L, result.getSize());
+        Assertions.assertEquals(0L, result.getTotal());
+        Assertions.assertEquals(0L, result.getPages());
+        Assertions.assertNotNull(result.getRecords());
+        Assertions.assertEquals(0, result.getRecords().size());
     }
 
 }
