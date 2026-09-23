@@ -1,11 +1,12 @@
 package com.c332030.ctool4j.web.cors;
 
+import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CSet;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 
-import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -14,19 +15,23 @@ import java.util.Set;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CCorsConfig} 为跨域（CORS）配置属性类，{@code @ConfigurationProperties("cors")} + {@code @Data}， 由 Spring Boot 绑定 {@code cors.*} 前缀的配置项。</p>
+ * <p>{@code CCorsConfig} 为跨域（CORS）配置属性类，{@code @ConfigurationProperties("cors")} + {@code @Data}，
+ * 由 Spring Boot 绑定 {@code cors.*} 前缀的配置项。</p>
  * <p>属性：</p>
  * <ul>
- *   <li>{@code enable}：跨域开关，默认 {@code false}（不开启跨域处理）</li>
- *   <li>{@code allowedOrigins}：允许的来源集合，默认空集合</li>
- *   <li>{@code allowedMethods}：允许的请求方法，默认 {@code CSet.of(ALL)}（即 {@code *}，允许全部）</li>
- *   <li>{@code allowedHeaders}：额外允许的请求报文头，默认含 {@code Authorization}、{@code Content-Type}</li>
+ *   <li>{@code enable}：跨域全局开关，默认 {@code false}（不开启跨域处理）</li>
+ *   <li>{@code origins}：<b>按域名</b>的跨域配置，key 为<b>纯 host</b>（如 {@code a.example.com}，
+ *   含点号时须写成中括号 {@code cors.origins[a.example.com]}），value 为 {@link CCorsOriginConfig}；
+ *   <b>未在其中的域名一律不放行</b></li>
+ *   <li>{@code allowedMethods}：允许的请求方法<b>默认值</b>，默认 {@code CSet.of(ALL)}（即 {@code *}，允许全部）</li>
+ *   <li>{@code allowedHeaders}：额外允许的请求报文头<b>默认值</b>，默认含 {@code Authorization}、{@code Content-Type}</li>
  *   <li>（注释明确不支持 {@code application/json} 触发预检的场景，默认只支持</li>
  *   <li>{@code application/x-www-form-urlencoded}、{@code multipart/form-data}、{@code text/plain}）</li>
- *   <li>{@code exposedHeaders}：跨域暴露给浏览器脚本可读的响应报文头，默认仅 {@code Authorization}</li>
+ *   <li>{@code exposedHeaders}：暴露给浏览器脚本可读的响应报文头<b>默认值</b>，默认仅 {@code Authorization}</li>
  *   <li>（浏览器脚本默认仅可读简单响应头，{@code Authorization} 需显式暴露）</li>
  * </ul>
  * <p>常量 {@code ALL = "*"}：表示允许全部来源、方法或头。</p>
+ *
  * <h2>兜底设计</h2>
  * <table border="1">
  *   <caption>兜底行为</caption>
@@ -35,53 +40,55 @@ import java.util.Set;
  *     <th>兜底行为</th>
  *   </tr>
  *   <tr>
- *     <td>未配置 {@code allowedOrigins}</td>
- *     <td>空集合 → 无来源被允许，跨域实际不生效</td>
+ *     <td>未配置 {@code origins}</td>
+ *     <td>空 Map → 无域名被允许，跨域实际不生效</td>
  *   </tr>
  *   <tr>
- *     <td>未配置 {@code allowedMethods}</td>
- *     <td>默认 {@code *} 全部允许</td>
+ *     <td>域名在 {@code origins} 中但未配置 {@code enable}</td>
+ *     <td>视为 {@code false}，该域名不放行</td>
  *   </tr>
  *   <tr>
- *     <td>{@code exposedHeaders} 为空</td>
- *     <td>不设置 {@code Access-Control-Expose-Headers}（浏览器脚本仅可读简单响应头）</td>
+ *     <td>域名级未配置 {@code allowedMethods} / {@code allowedHeaders} / {@code exposedHeaders}</td>
+ *     <td>回落到本类的同名默认值</td>
  *   </tr>
  *   <tr>
  *     <td>{@code enable=false}</td>
  *     <td>跨域处理直接跳过</td>
  *   </tr>
  * </table>
+ *
  * <h2>适用范围</h2>
  * <ul>
- *   <li>需跨域时通过 {@code cors.*} 配置开启并指定允许的来源/方法/头。</li>
- *   <li>前端脚本需读取 {@code Authorization} 等非简单响应头时，通过 {@code exposedHeaders} 显式暴露。</li>
+ *   <li>需跨域时通过 {@code cors.enable=true} + {@code cors.origins.<域名>.enable=true} 开启并指定该域名的放行范围。</li>
+ *   <li>不同域名要求不同（方法、请求头、凭据、暴露响应头）时，逐域名在 {@code cors.origins} 下配置。</li>
  * </ul>
  * <h2>不适用与边界场景</h2>
  * <ul>
  *   <li>需要支持 {@code application/json} 跨域请求时，浏览器会先发 OPTIONS 预检，需在 allowedHeaders</li>
  *   <li>中补充相应头（本类注释明确该限制）。</li>
- *   <li>{@code exposedHeaders} 若配置 {@code *} 且同时 {@code allowCredentials=true}，部分浏览器会拒绝（</li>
- *   <li>{@code Access-Control-Allow-Credentials} 不能与 {@code Access-Control-Expose-Headers: *} 共用通配）。</li>
+ *   <li>域名未列入 {@code origins} 时不做任何跨域处理（本类不做通配来源）。</li>
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li>{@code allowedHeaders} 默认不含自定义头，跨域请求带自定义头时需显式配置，否则预检失败。</li>
- *   <li>{@code exposedHeaders} 默认仅暴露 {@code Authorization}；其它响应头需显式加入集合。</li>
- *   <li>{@code ALL} 常量与 Spring 的 {@code *} 通配语义对应。</li>
+ *   <li>来源白名单与域名配置合并为 {@code origins} 单一来源：域名在 {@code origins} 中且该域名 {@code enable=true}
+ *   才放行——不再另设 {@code allowedOrigins}，避免「同一事实两处来源」（改一处必漏另一处）。</li>
+ *   <li>域名级配置不写默认值，默认值只在本类兜底，保证"删掉域名级配置即回到默认"。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>配置绑定</b></p>
  * <ul>
- *   <li>使用 {@code @ConfigurationProperties("cors")} 前缀绑定，默认值即不开启跨域。</li>
+ *   <li>使用 {@code @ConfigurationProperties("cors")} 前缀绑定，全局 {@code enable} 默认即不开启跨域。</li>
+ *   <li>域名级配置绑定 {@code cors.origins.<域名>}，由 {@link CCorsOriginConfig} 承载。</li>
  * </ul>
- * <p><b>默认方法/头</b></p>
+ * <p><b>默认值集中</b></p>
  * <ul>
- *   <li>方法默认全部允许；头默认白名单方式（Authorization/Content-Type），需要更多头时在配置中追加。</li>
+ *   <li>方法/请求头/响应头的默认值只在本类声明一次，域名级未配置时回落至此（取值与兜底见
+ *   {@link com.c332030.ctool4j.web.cors.util.CCorsUtils}）。</li>
  * </ul>
  *
  * @author c332030
  * @since 2024/5/8
- * @version 1.0
+ * @version 1.1
  */
 @Data
 @ConfigurationProperties("cors")
@@ -93,8 +100,6 @@ public class CCorsConfig {
     public static final String ALL = "*";
 
     Boolean enable = false;
-
-    Set<String> allowedOrigins = Collections.emptySet();
 
     Set<String> allowedMethods = CSet.of(ALL);
 
@@ -115,5 +120,13 @@ public class CCorsConfig {
     Set<String> exposedHeaders = CSet.of(
         HttpHeaders.AUTHORIZATION
     );
+
+    /**
+     * 按域名的跨域配置，key 为纯 host（如 {@code a.example.com}）
+     * <p>含点号的域名在配置文件中须写成中括号形式（{@code cors.origins[a.example.com]}），否则会被当作层级分隔符；
+     * key 不得含端口（详见 {@link CCorsOriginConfig} 的类注释）。</p>
+     * <p>未在其中的域名一律不放行；域名级未配置的项回落到本类同名默认值。</p>
+     */
+    Map<String, CCorsOriginConfig> origins = CMap.of();
 
 }

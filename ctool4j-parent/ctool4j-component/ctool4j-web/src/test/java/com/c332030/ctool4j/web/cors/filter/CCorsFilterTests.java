@@ -1,15 +1,18 @@
 package com.c332030.ctool4j.web.cors.filter;
 
 import com.c332030.ctool4j.web.cors.CCorsConfig;
+import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.FilterChain;
+import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -35,10 +38,11 @@ import static org.mockito.Mockito.*;
  *   <li>1.1 doFilter_whenNotEnabled（doFilter_whenNotEnabled）</li>
  *   <li>1.2 doFilter_whenEnabledAndOptions（doFilter_whenEnabledAndOptions）</li>
  *   <li>1.3 doFilter_whenEnabledAndGet（doFilter_whenEnabledAndGet）</li>
+ *   <li>1.4 doFilter_whenOriginDisabled（doFilter_whenOriginDisabled）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 
 public class CCorsFilterTests {
@@ -108,6 +112,25 @@ public class CCorsFilterTests {
 
         filter.doFilter(request, response, chain);
 
+        verify(chain).doFilter(request, response);
+    }
+
+    /**
+     * 对应测试用例 1.4：doFilter_whenOriginDisabled
+     */
+    @Test
+    public void doFilter_whenOriginDisabled() throws Exception {
+        // 域名级未启用：即使请求带 Origin 也不输出跨域头，但请求继续放行
+        config.setEnable(true);
+        config.setOrigins(Collections.singletonMap("example.com", new CCorsOriginConfig()));
+        CCorsUtils.setConfig(config);
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+
+        filter.doFilter(request, response, chain);
+
+        Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         verify(chain).doFilter(request, response);
     }
 
