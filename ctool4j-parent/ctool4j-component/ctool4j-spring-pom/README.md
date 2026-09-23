@@ -16,6 +16,7 @@
 
 - 自定义依赖注入 `@CAutowired` / `@CAutowiredScan`（由 `ctool4j-autowired-processor` 编译期生成注入代码，支持静态字段注入）
 - Spring Boot 启动组合注解 `@CSpringBootApplication`、懒加载 `@CLazyService`
+- 配置属性绑定注解 `@CConfigurationProperties`（`@ConfigurationProperties` 的组合注解，只承载前缀 `value`；两个绑定开关都在元注解上给定，默认忽略多出的未知键与类型不匹配的属性，都不报错、不中断启动；需要强校验时改用元注解）
 - 工具类：`CSpringUtils`（Spring 容器）、`CRequestUtils`（请求）、`CFileUtils`（文件）、`CRestTemplateUtils`、`CAnnotationUtils`（注解）、`CAspectUtils`（切面）、`CAutowiredUtils`
 - 代理解析：`CProxyUtils`（代理判定与真实业务类解析；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本在纳秒量级）
 - 生命周期：应用启动完成后执行 `CStartedApplicationRunner`、初始化回调 `ICSpringInit`
@@ -28,7 +29,7 @@
 
 | 包 | 用途 |
 |----|------|
-| `annotation` | 组合注解：`@CSpringBootApplication` / `@CLazyService` / `@CAutowired` |
+| `annotation` | 组合注解：`@CSpringBootApplication` / `@CLazyService` / `@CConfigurationProperties` / `@CAutowired` |
 | `config` | 配置属性：应用配置 `CSpringApplicationConfig`、Jackson 配置 |
 | `configuration` | Spring / Jackson 初始化装配 |
 | `bean` | 配置 Bean 持有容器 |
@@ -43,6 +44,7 @@
 | 类 | 类型 | 职责 |
 |----|------|------|
 | `CSpringBootApplication` | 注解 | Spring Boot 启动组合注解 |
+| `CConfigurationProperties` | 注解 | 配置属性绑定组合注解（只承载前缀；默认忽略未匹配属性与非法值由元注解给定） |
 | `CAutowired` / `CAutowiredScan` | 注解 | 自定义注入注解（编译期生成静态字段注入） |
 | `CSpringUtils` | 工具类 | Spring 容器获取、Bean 操作 |
 | `CRequestUtils` | 工具类 | HttpServletRequest 操作（header / ip / 参数） |
