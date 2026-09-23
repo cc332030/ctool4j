@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.doc.openapi2.configuration;
 
+import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.doc.annotation.CTag;
 import com.c332030.ctool4j.doc.openapi2.config.CDocOpenApi2Config;
@@ -15,7 +16,6 @@ import com.c332030.ctool4j.doc.openapi2.util.CSpringFoxUtils;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import io.swagger.annotations.Api;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -112,7 +112,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2025/12/16
- * @version 1.0
+ * @version 1.1
  * @see "COpenApi2ConfigurationTests"
  */
 @CustomLog
@@ -277,14 +277,13 @@ public class COpenApi2Configuration {
             }
 
             @SuppressWarnings("unchecked")
-            @SneakyThrows
             private List<RequestMappingInfoHandlerMapping> getHandlerMappings(Object bean) {
                 val field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
                 if (null == field) {
                     return Collections.emptyList();
                 }
-                field.setAccessible(true);
-                return (List<RequestMappingInfoHandlerMapping>) field.get(bean);
+                // 经 CReflectUtils 读取字段（MethodHandle 快速路径，内部统一 setAccessible），不使用 Field#get
+                return CReflectUtils.getValue(bean, field);
             }
         };
     }

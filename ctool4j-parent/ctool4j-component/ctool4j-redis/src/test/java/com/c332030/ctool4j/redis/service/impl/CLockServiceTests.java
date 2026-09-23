@@ -81,8 +81,6 @@ class CLockServiceTests {
 
     /**
      * 正常路径：lock(format, args) 按 StrUtil.format 生成锁 key，执行时按该 key 加锁
-     */
-    /**
      * 对应测试用例 1.1：格式化 key
      */
     @Test
@@ -96,8 +94,6 @@ class CLockServiceTests {
 
     /**
      * 正常路径：加锁成功后执行业务并解锁
-     */
-    /**
      * 对应测试用例 2.1：锁成功：执行业务并解锁
      */
     @Test
@@ -114,8 +110,6 @@ class CLockServiceTests {
 
     /**
      * 异常路径：加锁失败时不执行业务，且执行 onLockFail 回调
-     */
-    /**
      * 对应测试用例 2.2：锁失败：触发 onLockFail 回调
      */
     @Test
@@ -135,8 +129,6 @@ class CLockServiceTests {
 
     /**
      * 正常路径：execute(Supplier) 加锁成功后返回业务返回值并解锁
-     */
-    /**
      * 对应测试用例 2.3：有返回值：返回业务结果
      */
     @Test
@@ -152,8 +144,6 @@ class CLockServiceTests {
 
     /**
      * 异常路径：execute(Supplier) 加锁失败返回 null，不执行业务
-     */
-    /**
      * 对应测试用例 2.4：锁失败有返回值：返回 null
      */
     @Test
@@ -172,8 +162,6 @@ class CLockServiceTests {
 
     /**
      * 正常路径：tryLock(RLock, Duration) 带毫秒精度的时长转为毫秒加锁
-     */
-    /**
      * 对应测试用例 3.1：毫秒级 waitTime
      */
     @Test
@@ -189,8 +177,6 @@ class CLockServiceTests {
 
     /**
      * 正常路径：tryLock(RLock, Duration) 秒级时长转为秒加锁
-     */
-    /**
      * 对应测试用例 3.2：秒级 waitTime
      */
     @Test
@@ -205,8 +191,6 @@ class CLockServiceTests {
 
     /**
      * 异常路径：tryLock(RLock, Duration) 传入 null 抛 NullPointerException
-     */
-    /**
      * 对应测试用例 3.3：空 waitDuration 抛异常
      */
     @Test

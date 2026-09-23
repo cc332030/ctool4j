@@ -15,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -22,7 +23,7 @@ import java.util.Collections;
  * <p>
  * Description: CAbstractAuthFilterTests
  * </p>
- * <p>{@code com.c332030.ctool4j.auth.filter.CAbstractAuthFilter}（CAbstractAuthFilter）的测试用例</p>
+ * <p>{@code CAbstractAuthFilter} 的测试用例</p>
  *
  * <p>覆盖 Spring Security 认证构造部分：{@code setAuthentication} 的匿名/已认证两态、
  * {@code setMockAuthentication} 的无条件已认证，以及继承认证加载流程对 mock 分支的短路；
@@ -62,7 +63,7 @@ import java.util.Collections;
  * </ul>
  *
  * @since 2026/9/13
- * @version 1.0
+ * @version 1.2
  * @see CAbstractAuthFilter
  */
 class CAbstractAuthFilterTests {

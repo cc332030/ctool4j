@@ -4,7 +4,7 @@
 
     <groupId>com.c332030</groupId>
     <artifactId>ctool4j</artifactId>
-    <version>1.1.20260730-SNAPSHOT</version>
+    <version>1.1.20260918-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -34,7 +34,7 @@
     <properties>
 
         <main.version>1.1</main.version>
-        <ctool4j.version>1.1.20260730-SNAPSHOT</ctool4j.version>
+        <ctool4j.version>1.1.20260918-SNAPSHOT</ctool4j.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
@@ -207,14 +207,12 @@
 
             <!-- 性能测试类（PerfTests）在常规测试/打包时排除，需显式运行 -->
             <!-- 命名契约：性能测试类以 PerfTests 结尾（规范定式，见 specs/stack/java-testing.adoc「测试类命名」） -->
-            <!-- BenchmarkTests 是不合定式的存量命名随动保留项（存量不一次性收敛），故一并排除，不新增该后缀 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/*BenchmarkTests.java</exclude>
                         <exclude>**/*PerfTests.java</exclude>
                     </excludes>
                 </configuration>
@@ -229,7 +227,6 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/*BenchmarkTests.java</exclude>
                         <exclude>**/*PerfTests.java</exclude>
                     </excludes>
                 </configuration>
@@ -279,7 +276,7 @@
 
     <profiles>
 
-        <!-- 性能测试（PerfTests / 存量 BenchmarkTests）的显式执行入口。
+        <!-- 性能测试（PerfTests）的显式执行入口。
              默认构建（test/package/install/verify）一律不执行性能测试；需要时用
              mvn -Pperf -pl <模块> -am -Dtest=XxxPerfTests -Dsurefire.failIfNoSpecifiedTests=false test 显式触发。
              覆盖 excludes 为空是必要的：surefire 的 excludes 优先于 -Dtest，不覆盖则指定测试类也不会执行。 -->

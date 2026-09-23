@@ -1,0 +1,69 @@
+= MethodHandle 工具（反射方法句柄）设计
+
+所属模块：ctool4j-core（`com.c332030.ctool4j.core.classes`、`com.c332030.ctool4j.core.util`）
+
+受影响范围：`CMethodHandleUtils`（句柄生成与缓存）、`CReflectUtils`（反射元数据、按类句柄缓存、字段读写与方法/构造器调用入口）、`CLambdaUtils`（字段 Lambda）、`CEnumUtils`（枚举值取字段）、`CBeanUtils`（复制与转 Map 计划的句柄）、`CSpringUtils`（按类型从容器取值创建实例）。
+
+用例落点：`CMethodHandleUtilsTests`、`CReflectUtilsTests`、`CBeanUtilsTests` / `CBeanUtilsDeepCopyTests` / `CBeanUtilsCopyContractTests`（用例目录与用例设计依据见各测试类 javadoc）。
+
+== 功能设计
+
+以 MethodHandle 替代 `Field#get/set`、`Method#invoke`、`Constructor#newInstance` 等原生反射调用：在保留 `setAccessible` 语义（私有成员可直接访问）的前提下降低反射调用开销，并统一"取句柄 → 调用"的写法；句柄的生成、缓存与统一 Object 签名适配由本功能集中承担。
+
+=== 职责分布（方案对比）
+
+* 方案 A（现行，已采用）：按"职责边界"分布，不按"是否与 MethodHandle 相关"收敛——
+  ** `CMethodHandleUtils`：句柄生成与缓存（生成版 `toXxx` / 缓存版 `getXxx`）、统一 Object 签名常量与 asType 适配、API 选用判定（见该类 javadoc「API 选用（一次性 / 多次访问）」）；
+  ** `CReflectUtils`：反射元数据查询（字段/方法/构造器/注解）、按类取用、类内按字段名索引的实例字段 handle map（`GETTER_HANDLE_MAP_CLASS_VALUE` / `SETTER_HANDLE_MAP_CLASS_VALUE`）、无参构造器句柄缓存；字段读写、方法/构造器调用、按字段值填充都经其对外；
+  ** `CLambdaUtils`：MethodHandle → `CFunction` / `CBiConsumer` 的字段级转换（JDK 8 的 LambdaMetafactory 不支持 getField/putField 类句柄，故委托 `MethodHandle.invoke`）；
+  ** `CEnumUtils`：按（枚举类、字段名）一次性生成 getter 句柄，循环内复用；
+  ** `CBeanUtils`：复制与转 Map 计划在计划期一次性生成句柄并随条目长期持有；
+  ** `CSpringUtils`：取参数最多的构造方法，实参逐个从容器获取后经 `CReflectUtils#newInstance(Constructor, Object...)` 实例化。
+* 方案 B（未采用）：把上述与 MethodHandle 相关的能力全部收敛到 `CMethodHandleUtils`，并删除 `CLambdaUtils`。
+  ** 不采用原因：该方案使一个类同时承担句柄生成/缓存、签名适配、按类取用的字段名句柄 map 缓存、构造器缓存、Lookup 与 Lambda 转换，职责边界反而模糊；该句柄 map 与 Lambda 转换不属"句柄工具"的职责。
+
+== 兜底设计
+
+[cols="2,3",options="header"]
+|===
+| 场景 | 兜底行为
+
+| 取 final 字段的 setter 句柄
+| 不兜底：JDK 禁止 final 字段 `unreflectSetter`，直接抛 `IllegalAccessException`；曾用 `Field#set` 包装兜底，但实例 final 字段可写仅 HotSpot 行为（OpenJ9 上静默失效），跨 JVM 行为不一致，故不做兜底，调用方须传非 final 字段
+
+| 原始类型字段
+| 统一 Object 签名的 asType 适配器自动装箱/拆箱
+
+| 静态字段读写
+| 回退 `Field#get/set`（按类 handle map 只覆盖实例字段）
+
+| final 字段写入（`CReflectUtils#setValue` / `#fillValues`）
+| 回退 `Field#set`（setter 句柄缓存排除 final 字段）
+
+| `CReflectUtils#newInstance(Class)` 目标类无无参构造器
+| `CAssert.notNull` 快速失败
+
+| 方法不存在（`CReflectUtils#invoke`）
+| `ignoreNoMethod` 为 true 返回 null，为 false 抛 `IllegalStateException`
+|===
+
+== 适用范围
+
+* 适用：需要反射读写字段、调用方法或按类型创建实例，且对调用开销敏感的路径（Bean 复制/转 Map、字段读写、按方法名调用、枚举值取字段、容器按类型创建实例）。
+* 不适用：反射元数据查询（字段/方法/构造器/注解）归 `CReflectUtils`；Lambda 的业务语义（非 MethodHandle 场景）归 `CLambdaUtils` 之外的业务代码。
+
+== 已知限制与取舍
+
+* 实参类型不匹配时抛 `ClassCastException`（原生反射抛 `IllegalArgumentException`）：句柄按签名做类型适配、不额外校验，属性能取舍，调用方须保证实参类型。
+* 目标方法/构造器自身抛出的异常**原样透传**，不再经 `InvocationTargetException` 包装：旧实现用 `Method#invoke` / `Constructor#newInstance`，对可访问成员执行时会把目标异常包进 `InvocationTargetException`；改为方法句柄后直接抛出原异常类型（如目标方法抛 `IllegalStateException`，调用方捕获到的就是 `IllegalStateException`）。调用方若依赖旧包装层（`catch InvocationTargetException` 后 `getCause()`）须随动调整；该差异已由用例 `CReflectUtilsTests#invoke_targetThrows_propagates` 固定。
+* 弱 key 缓存的条目在 Member（Field/Method/Constructor）存活期间常驻（弱键只保证类卸载时可回收）：一次性场景应使用生成版，判定口径见 `CMethodHandleUtils` javadoc「API 选用（一次性 / 多次访问）」。
+* `getGetterHandleAsType` / `getSetterHandleAsType` 只缓存 unreflect 结果，`asType` 适配句柄每次调用都会新建——一次性场景用缓存版无收益。
+* 实例方法调用须绑定接收者：`bindTo` 每次调用新建绑定句柄；接收者逐次不同，绑定句柄不可缓存（缓存会持有接收者引用）。
+* 性能提升无独立量化基准：本功能以"消除反射调用开销"为设计目标，未做量化对比；`CBeanUtilsPerfTests` 覆盖复制/转 Map 整体性能，可作间接参考。
+* 受影响范围：字段读写语义（`CReflectUtils#getValue/setValue`）、方法/构造器调用（`CReflectUtils#invoke` / `#newInstance`）、按类型创建实例（`CSpringUtils#newInstance`）、Bean 复制与转 Map（`CBeanUtils`）——上述入口的异常类型、句柄缓存策略或方法句柄获取方式变化时，须同步评估该范围。
+
+== 相关入口
+
+* 代码：`CMethodHandleUtils`、`CReflectUtils`、`CLambdaUtils`、`CEnumUtils`、`CBeanUtils`（`ctool4j-core`，`src/main/java/com/c332030/ctool4j/core/classes/`）
+* 用例：`CMethodHandleUtilsTests`、`CReflectUtilsTests`、`CBeanUtils*Tests`（同上模块 `src/test/java`）
+* 索引：link:README.adoc[core 文档索引]、link:../README.adoc[设计文档索引]

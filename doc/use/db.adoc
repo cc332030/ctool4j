@@ -1,0 +1,33 @@
+= 使用：ctool4j-db（SQL 片段拼接）
+
+坐标：+com.c332030:ctool4j-db+　｜　依赖：+ctool4j-core+　｜　工具类：`CSqlUtils`、`CSqlSeparatorEnum`
+
+用实体属性 Lambda 取**列名**，避免手写列名出错（驼峰 → 下划线）。
+
+[source,java]
+----
+CSqlUtils.toColumnName(User::getUserName);                  // user_name
+
+CSqlUtils.getColumnsSql(CList.of(User::getId, User::getUserName), "t");
+// t.id,t.user_name
+
+// 等值条件（两表关联）
+CSqlUtils.getEqualsSql(User::getId, "t1", Dept::getUserId, "t2");
+// t1.id = t2.user_id
+
+// 多条件拼接（逗号 / AND / OR）
+CSqlUtils.getEqualsSql(pairs, CSqlSeparatorEnum.OR);
+CSqlUtils.getGreaterSql(User::getAge, "t");
+
+CSqlUtils.limitSql(10);   // limit 10
+CSqlUtils.forUpdate();    // for update
+----
+
+* 分隔符枚举 `CSqlSeparatorEnum` 取值为 `COMMA` / `AND` / `OR`（仅影响多条件拼接的连词）。
+* 集合入参为空或 null 时返回空串（不抛 NPE）：多列 `getColumnsSql`、多条件 `getEqualsSql(Collection, ...)` 同一口径——空串**不可**直接拼进 `WHERE` / `SELECT`，调用方需自行判空。
+* 只做**字符级 SQL 片段拼接**，不校验、不参数化——最终 SQL 的执行与注入安全仍由调用方与持久层框架负责。
+* 用于 MyBatis-Plus 自定义 SQL（XML/注解）时，列名口径与 MP 的下划线策略一致。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-db/README.md[ctool4j-db README]

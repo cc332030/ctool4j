@@ -1,10 +1,10 @@
 package com.c332030.ctool4j.minio.service;
 
+import cn.hutool.core.io.IoUtil;
 import io.minio.*;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -54,7 +54,7 @@ import java.io.OutputStream;
  * <h2>设计要点</h2>
  * <p><b>下载</b></p>
  * <ul>
- *   <li>{@code getObjectThenWrite} 用 try-with-resources 关闭输入流，{@code IOUtils.copy} 复制到输出流。</li>
+ *   <li>{@code getObjectThenWrite} 用 try-with-resources 关闭输入流，{@code IoUtil.copy}（hutool）复制到输出流，写入字节数按 {@code int} 返回。</li>
  * </ul>
  * <p><b>上传</b></p>
  * <ul>
@@ -67,7 +67,7 @@ import java.io.OutputStream;
  * </ul>
  *
  * @since 2026/7/15
- * @version 1.0
+ * @version 1.1
  */
 @Service
 @AllArgsConstructor
@@ -118,7 +118,7 @@ public class CMinioService {
     @SneakyThrows
     public int getObjectThenWrite(String bucket, String object, OutputStream outputStream) {
         try (val inputStream = getObject(bucket, object)) {
-            return IOUtils.copy(inputStream, outputStream);
+            return (int) IoUtil.copy(inputStream, outputStream);
         }
     }
 

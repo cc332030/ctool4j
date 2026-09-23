@@ -1,0 +1,10 @@
+= 使用：ctool4j-spring-cloud（Cloud 最小装配）
+
+坐标：+com.c332030:ctool4j-spring-cloud+　｜　依赖：+ctool4j-spring+、spring-cloud-commons
+
+* 仅提供 Spring Cloud 上下文初始化（`CToolSpringCloudConfiguration` / `CToolSpringCloudInit`），引入依赖即生效、无配置项。
+* 微服务调用相关能力在 link:feign.adoc[ctool4j-feign]、link:nacos.adoc[ctool4j-nacos-discovery]。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom README]

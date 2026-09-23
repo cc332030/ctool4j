@@ -38,30 +38,12 @@
 | `CCreateTime` / `CUpdateTime` / `CCreateBy` / `CUpdateBy` | 实体基类 | 审计字段实体基类 |
 | `ICId` / `ICCreateTime` / `ICUpdateTime` 等 | 接口 | 实体字段接口族（供 MP 填充等场景识别） |
 | `CBizId` | 注解 | 标记实体的业务 ID 字段（配合 mybatis 模块的 `CBizIdUtils`） |
-| `CLogBlob` | 注解 | 标记需脱敏/截断的大字段（配合 core 的 `CLogBlobSerializer`） |
+| `CLogBlob` | 注解 | 标记大字段（`maxSize` 阈值：不超过打印真实内容、超过按值类型占位，配合 core 的 `CLogBlobSerializer`） |
 | `CDbOperateEnum` | 枚举 | 数据库操作类型（增删改查） |
 | `CMimeTypeEnum` | 枚举 | MIME 类型 |
 | `CCurrencyEnum` | 枚举 | 币种 |
 | `CClientTypeEnum` / `CPlatformTypeEnum` | 枚举 | 客户端 / 平台类型 |
 | `CFunction<T, R>` 等 | 函数接口 | 可抛异常的 Supplier / Function / Consumer / TriFunction 族 |
-
-## 使用示例
-
-```java
-// 统一返回体
-return CResult.success(user);            // code=200, msg=OK
-return CResult.error("用户不存在");      // 服务端错误返回
-return CResult.error(1001, "参数错误");  // 自定义错误码
-
-// 实体继承基类
-public class User extends CBaseCreateTimeEntity {
-    // 自动拥有 id、createTime 等公共字段
-}
-```
-
-## 配置项
-
-无（纯类型定义模块，不涉及运行时配置）。
 
 ## 依赖
 
@@ -70,3 +52,7 @@ public class User extends CBaseCreateTimeEntity {
 | `hutool` | 字符串等基础工具 |
 | `spring-web`（HttpStatus） | 返回体状态码 |
 | `lombok` | 编译期简化 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/definition.adoc`](../../../doc/use/definition.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

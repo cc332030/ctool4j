@@ -1,0 +1,38 @@
+= 使用：ctool4j-definition（基础定义）
+
+坐标：+com.c332030:ctool4j-definition+　｜　依赖：无 Spring 容器要求　｜　定位：**全项目依赖链最底层**，只定义公共契约（通常不单独引入，由 core/web 等传递）
+
+== 一览
+
+* *统一返回体*：`CResult<DATA>`（code / msg / data；`success()` / `success(data)` / `error(msg)` / `error(code, msg)`），结构契约 `ICCodeMessageDataResult`。同族还有 code 为 `String` 的 `CStrResult`（+ctool4j-web+ 的异常处理器即用它）、code 为 `int` 的 `CIntResult` / `CIntMsgResult`。
+* *实体基类与字段接口*：`CBaseEntity`、`CBaseTimeEntity` / `CBaseCreateTimeEntity`、`CId` / `CLongId` / `CStringId` / `CIntegerId`、`CCreateTime` / `CUpdateTime` / `CCreateBy` / `CUpdateBy`；只读字段接口 `ICId` / `ICCreateTime` / `ICUpdateTime` / `ICCreateUpdateByAndTime` 等（供 MP 填充等按接口识别）。
+* *语义接口族*：`ICCode`、`ICMsg`、`ICName`、`ICValue`、`ICData`、`ICEvent`、`ICText` 等。
+* *函数式接口族*：`CFunction`、`CConsumer`、`CSupplier`、`CPredicate`、`CRunnable`、`CBiConsumer`、`CBiFunction`、`CBiPredicate`、`CTriFunction`、`StartEndTimeConsumer`、`StringFunction` / `ToStringFunction` 等（**可抛出受检异常**，替代 JDK 同名接口）。
+* *通用枚举*：`CDbOperateEnum`、`CMimeTypeEnum`、`CCurrencyEnum`、`CCountryCodeEnum`、`CClientTypeEnum`、`CPlatformTypeEnum`、`CVersionEnum`。
+* *业务注解*：`@CBizId`（业务 ID 字段，配合 mybatis 的 `CBizIdUtils`）、`@CJsonLog`（JSON 日志标记）、`@CLogBlob`（大字段日志阈值：`maxSize` 内打印真实内容、超过按值类型占位，配合 core 的 `CLogBlobSerializer`）、`@CLogSensitive`（敏感字段日志脱敏）、`@CInnerApi`（内部接口标记，见 link:web.adoc[web]）。
+* *接口文档注解*（+doc.annotation+ 包）：`@CSchema` / `@CTag` / `@COperation` / `@CParameter`，由 link:doc-openapi2.adoc[ctool4j-doc-openapi2] 落地为 Swagger 文档。
+* *公共常量*：`CTool4jConstants`（基础包名等基础常量）、`CTool4jTestConstants`（测试环境判断：`IS_TEST` / `JUNIT_TEST_CLASS_NAME`）——两者同在 +definition.constant+ 包，**不按名称区分生产/测试**，按用途引用即可。
+
+== 用法
+
+[source,java]
+----
+// 统一返回体
+return CResult.success(user);            // code=200, msg=OK
+return CResult.error("用户不存在");
+return CResult.error(1001, "参数错误");
+
+// 实体继承基类（id、createTime、updateTime 等公共字段随之具备）
+public class User extends CBaseCreateTimeEntity {
+}
+----
+
+== 注意
+
+* 函数式接口族可抛受检异常：用在 lambda 里可省 try/catch，但**调用处需能处理其声明的异常**。
+* `@CLogBlob` 的阈值判断（`maxSize` 内打印真实内容、超过按值类型占位）只在日志序列化生效（+ctool4j-core+ 的 `CLogBlobSerializer`），不影响业务序列化；具体规则见 link:core.adoc[core]。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[ctool4j-definition README]
+- 文档注解设计（开发文档）：link:../design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]

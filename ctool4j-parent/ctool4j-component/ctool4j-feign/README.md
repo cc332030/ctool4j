@@ -41,24 +41,6 @@
 | `CCustomerFeignInterceptor` | 注解 | 标记自定义拦截器 |
 | `CFeignUtils` | 工具类 | Feign 通用工具 |
 
-## 使用示例
-
-```java
-// 服务间调用：自动透传当前请求的 token / traceId 等请求头
-@FeignClient(name = "order-service", configuration = CFeignConfiguration.class)
-public interface OrderClient {
-    @GetMapping("/order/{id}")
-    Order getById(@PathVariable Long id);
-}
-```
-
-## 配置项
-
-| 配置前缀 | 说明 |
-|----------|------|
-| `feign.client.header.*` | 请求头传播配置（模式、白名单） |
-| `feign.client.log.*` | Feign 日志配置 |
-
 ## 依赖
 
 | 依赖 | 说明 |
@@ -67,3 +49,7 @@ public interface OrderClient {
 | `ctool4j-log-base` | 请求日志与 traceId 透传 |
 | `openfeign` | Feign 客户端 |
 | `feign-httpclient`（provided） | HTTP 客户端增强 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/feign.adoc`](../../../doc/use/feign.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

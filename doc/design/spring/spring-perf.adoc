@@ -5,8 +5,8 @@
 
 触发性能测试须带 `-Pperf` profile：`surefire` 的 `excludes` 优先于 `-Dtest`，不带该 profile 时指定测试类也不会执行。
 
-本模块的 `BenchmarkTests` 命名是定式之前的存量（如 core/web 模块的基准类），按「存量随动迁移、不一次性收敛」
-保持原样，不新增该类命名；根 `pom.xml` 一并排除该后缀，仅为不让存量性能测试随常规测试执行。
+core/web 模块此前 `BenchmarkTests` 的存量命名已按定式收敛为 `PerfTests`；性能测试类一律以 `PerfTests` 结尾，
+由根 `pom.xml` 的排除规则挡在常规测试之外，需显式触发。
 
 == 环境与口径
 
@@ -22,7 +22,7 @@ mvn -Pperf -pl ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-sprin
 
 == CProxyUtils 真实业务类名解析
 
-用例：`com.c332030.ctool4j.spring.util.CProxyUtilsPerfTests`。度量 `getRealClassName` 相关解析路径的**单次调用**成本（ns/call）：
+用例：`CProxyUtilsPerfTests`。度量 `getRealClassName` 相关解析路径的**单次调用**成本（ns/call）：
 
 [cols="3,2,2,2,2", options="header"]
 |===

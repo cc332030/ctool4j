@@ -1,0 +1,240 @@
+package com.c332030.ctool4j.core.classes;
+
+import lombok.val;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+/**
+ * <p>
+ * Description: CObjUtilsTests
+ * </p>
+ *
+ * <h2>设计思路</h2>
+ * <ul>
+ *   <li>按「类型 / 转换 / 条件取值 / 合并 / 兜底」多个维度组织。</li>
+ *   <li>类型覆盖 emptyObject 单例、to 类型匹配/null/不匹配抛异常。</li>
+ *   <li>转换覆盖 Class 转换器与函数转换（null/默认值/双对象回退）。</li>
+ *   <li>合并覆盖 v1/v2 不可用、双可用 merge null 抛异常、正常 merge、key/谓词版本。</li>
+ * </ul>
+ * <h2>设计依据</h2>
+ * <ul>
+ *   <li>依据功能设计对类型转换、null 语义、合并分支的约定。</li>
+ *   <li>依据测试方法（等价类/边界值/异常路径/分支覆盖）：类型匹配/不匹配、null、双对象回退、merge 各分支。</li>
+ * </ul>
+ * <h2>覆盖场景与未覆盖</h2>
+ * <ul>
+ *   <li>覆盖：emptyObject 单例；to 匹配/null/不匹配抛异常；convert(Class) null/匹配/转换器/无转换器；</li>
+ *   <li>convert(函数) 正常/null/结果 null/双对象回退；equals 转换比较；merge 各分支；defaultIfNull；</li>
+ *   <li>ifThenGet/equalsThenGet/notNullThenGet。</li>
+ *   <li>未覆盖：anyType/toSupplier/notNullThenGet(函数) 已覆盖；anyType 强转与 toSupplier 未单列</li>
+ *   <li>（内部实现细节，行为间接覆盖）。</li>
+ * </ul>
+ * <h2>类型</h2>
+ * <ul>
+ *   <li>1.1 emptyObject：返回同一单例（emptyObject）</li>
+ *   <li>1.2 to：类型匹配返回原对象；null 返回 null；不匹配抛 IllegalStateException（to）</li>
+ * </ul>
+ * <h2>转换</h2>
+ * <ul>
+ *   <li>2.1 convert(Class)：null 返回 null；匹配直接返回；有转换器转换；无转换器返回 null（convertClass）</li>
+ *   <li>2.2 convert(函数)：正常；null/结果 null 返回默认值；双对象回退；均为 null 返回 null（convertFunction）</li>
+ * </ul>
+ * <h2>比较与合并</h2>
+ * <ul>
+ *   <li>3.1 equals：转换后相等判断（equals）</li>
+ *   <li>3.2 merge：v1 不可用返回 v2；v2 不可用返回 v1；双可用 merge null 抛异常；正常 merge；key 版本；</li>
+ *   <li>谓词版本；全参数版本（merge）</li>
+ * </ul>
+ * <h2>兜底</h2>
+ * <ul>
+ *   <li>4.1 defaultIfNull：非 null 用对象、null 用默认值（defaultIfNull）</li>
+ * </ul>
+ * <h2>条件取值</h2>
+ * <ul>
+ *   <li>5.1 ifThenGet：条件成立取值、否则 null（ifThenGet）</li>
+ *   <li>5.2 equalsThenGet：相等取值、否则 null（equalsThenGet）</li>
+ *   <li>5.3 notNullThenGet：非 null 取值（值/函数版本）、否则 null（notNullThenGet）</li>
+ * </ul>
+ *
+ * @since 2026/8/14
+ * @version 1.0
+ */
+public class CObjUtilsTests {
+
+    private static class TestBean {
+
+    }
+
+    /**
+     * 对应测试用例 1.1：返回同一单例
+     */
+    @Test
+    public void emptyObject() {
+
+        // emptyObject 返回同一单例
+        Assertions.assertSame(CObjUtils.OBJECT, CObjUtils.emptyObject());
+        Assertions.assertSame(CObjUtils.emptyObject(), CObjUtils.emptyObject());
+
+    }
+
+    /**
+     * 对应测试用例 1.2：类型匹配返回原对象；null 返回 null；不匹配抛 IllegalStateException
+     */
+    @Test
+    public void to() {
+
+        // 类型匹配返回原对象
+        val value = "a";
+        Assertions.assertSame(value, CObjUtils.to(value, String.class));
+
+        // null 返回 null
+        Assertions.assertNull(CObjUtils.to(null, String.class));
+
+        // 类型不匹配抛 IllegalStateException
+        Assertions.assertThrowsExactly(IllegalStateException.class, () -> CObjUtils.to("a", Integer.class));
+
+    }
+
+    /**
+     * 对应测试用例 2.1：convert(Class)：null 返回 null；匹配直接返回；有转换器转换；无转换器返回 null
+     */
+    @Test
+    public void convertClass() {
+
+        // null 返回 null
+        Assertions.assertNull(CObjUtils.convert(null, String.class));
+
+        // 类型匹配直接返回
+        Assertions.assertSame("a", CObjUtils.convert("a", String.class));
+
+        // 有转换器则转换（String -> Integer）
+        Assertions.assertEquals(1, CObjUtils.convert("1", Integer.class));
+
+        // 无转换器返回 null（自定义类型 -> Integer，避免命中 objectStr 的 Object -> String 转换器）
+        Assertions.assertNull(CObjUtils.convert(new TestBean(), Integer.class));
+
+    }
+
+    /**
+     * 对应测试用例 2.2：convert(函数)：正常；null/结果 null 返回默认值；双对象回退；均为 null 返回 null
+     */
+    @Test
+    public void convertFunction() {
+
+        // 正常转换
+        Assertions.assertEquals(1, CObjUtils.convert("a", String::length));
+
+        // null 对象返回默认值
+        Assertions.assertEquals(5, CObjUtils.convert(null, String::length, 5));
+        Assertions.assertNull(CObjUtils.convert(null, String::length));
+
+        // 转换结果为 null 时返回默认值
+        Assertions.assertEquals(5, CObjUtils.convert("a", s -> null, 5));
+
+        // 双对象转换：优先 o1
+        Assertions.assertEquals(1, CObjUtils.convert("a", String::length, "bb", String::length));
+
+        // o1 为 null 时回退 o2
+        Assertions.assertEquals(2, CObjUtils.convert(null, String::length, "bb", String::length));
+
+        // o1 转换结果为 null 时回退 o2
+        Assertions.assertEquals(2, CObjUtils.convert("a", s -> null, "bb", String::length));
+
+        // 均为 null 返回 null
+        Assertions.assertNull(CObjUtils.convert(null, String::length, null, String::length));
+
+    }
+
+    /**
+     * 对应测试用例 3.1：转换后相等判断
+     */
+    @Test
+    public void equals() {
+
+        Assertions.assertTrue(CObjUtils.equals(1, "1", Integer::parseInt));
+        Assertions.assertFalse(CObjUtils.equals(1, "2", Integer::parseInt));
+
+        // o2 为 null 时转换结果为 null
+        Assertions.assertFalse(CObjUtils.<Integer, String>equals(1, null, Integer::parseInt));
+
+    }
+
+    /**
+     * 对应测试用例 3.2：v1 不可用返回 v2；v2 不可用返回 v1；双可用 merge null 抛异常；正常 merge；key 版本；
+     */
+    @Test
+    public void merge() {
+
+        // v1 不可用返回 v2
+        Assertions.assertEquals(2, CObjUtils.merge(null, 2, (v1, v2) -> v1));
+
+        // v2 不可用返回 v1
+        Assertions.assertEquals(1, CObjUtils.merge(1, null, (v1, v2) -> v1));
+
+        // 都可用且 merge 为 null 抛 IllegalStateException
+        Assertions.assertThrowsExactly(IllegalStateException.class,
+                () -> CObjUtils.merge(1, 2, null));
+
+        // 都可用时执行 merge
+        Assertions.assertEquals(3, CObjUtils.merge(1, 2, (v1, v2) -> v1 + v2));
+
+        // key 版本
+        Assertions.assertEquals(3, CObjUtils.merge("k", 1, 2, (v1, v2) -> v1 + v2));
+
+        // 自定义 availablePredicate：v1 不满足时返回 v2（用 5 参版本规避 4 参重载歧义）
+        Assertions.assertEquals(2, CObjUtils.merge(null, 1, 2, v -> v > 1, (v1, v2) -> v1 + v2));
+
+        // 全参数版本
+        Assertions.assertEquals(3, CObjUtils.merge("k", 1, 2, v -> v > 0, (v1, v2) -> v1 + v2));
+
+    }
+
+    /**
+     * 对应测试用例 4.1：非 null 用对象、null 用默认值
+     */
+    @Test
+    public void defaultIfNull() {
+
+        Assertions.assertEquals(1, CObjUtils.defaultIfNull(1, () -> 2));
+        Assertions.assertEquals(2, CObjUtils.defaultIfNull(null, () -> 2));
+
+    }
+
+    /**
+     * 对应测试用例 5.1：条件成立取值、否则 null
+     */
+    @Test
+    public void ifThenGet() {
+
+        Assertions.assertEquals(1, CObjUtils.ifThenGet(true, () -> 1));
+        Assertions.assertNull(CObjUtils.ifThenGet(false, () -> 1));
+
+    }
+
+    /**
+     * 对应测试用例 5.2：相等取值、否则 null
+     */
+    @Test
+    public void equalsThenGet() {
+
+        Assertions.assertEquals(1, CObjUtils.equalsThenGet("a", "a", () -> 1));
+        Assertions.assertNull(CObjUtils.equalsThenGet("a", "b", () -> 1));
+
+    }
+
+    /**
+     * 对应测试用例 5.3：非 null 取值（值/函数版本）、否则 null
+     */
+    @Test
+    public void notNullThenGet() {
+
+        Assertions.assertEquals(1, CObjUtils.notNullThenGet("a", () -> 1));
+        Assertions.assertNull(CObjUtils.notNullThenGet(null, () -> 1));
+
+        // 函数版本
+        Assertions.assertEquals(1, CObjUtils.notNullThenGet("a", String::length));
+        Assertions.assertNull(CObjUtils.notNullThenGet(null, String::length));
+
+    }
+
+}

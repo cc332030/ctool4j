@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.spring.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.enums.CProfileEnum;
@@ -14,11 +15,12 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -32,18 +34,45 @@ import java.util.function.Consumer;
  *
  * <h2>能力目录</h2>
  * <p>{@code CSpringUtils}：Spring 工具。</p>
+ * <ul>
+ *   <li>容器：{@code getApplicationContext} / {@code getBean(Class)} / {@code wireBean} / {@code getBeansWithAnnotation} / {@code newInstance}</li>
+ *   <li>应用信息：{@code getApplicationGroup} / {@code getApplicationName}</li>
+ *   <li>环境：{@code getActiveProfile}（含 {@code DefaultNull} 变体）与其文本、前后缀拼接</li>
+ *   <li>扫描范围：{@code getBasePackages}</li>
+ *   <li>事件：{@code isCurrentContextEvent} / {@code isCurrentContext}</li>
+ * </ul>
  * <h2>设计要点</h2>
  * <ul>
  *   <li>Spring 容器相关工具</li>
  * </ul>
  * <h2>兜底设计</h2>
- * <p>无</p>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>框架自有上下文（{@code CSpringConfigBeans}）尚未写入即调用 {@code getBean}</td>
+ *     <td>改用 Hutool {@link SpringUtil} 持有的静态上下文取 Bean——其 {@code beanFactory} 由
+ *     {@code BeanFactoryPostProcessor} 在容器刷新更早的阶段写入，早于上下文的 {@code ApplicationContextAware} 回调</td>
+ *   </tr>
+ *   <tr>
+ *     <td>Hutool 兜底上下文不可用，或已非活动状态（容器已关闭）</td>
+ *     <td>抛 {@code IllegalStateException} 快速失败，不静默返回 {@code null}、也不取"别的容器"的 Bean</td>
+ *   </tr>
+ * </table>
  * <h2>适用范围</h2>
  * <p>Spring 操作</p>
  * <h2>不适用与边界场景</h2>
  * <p>静态工具</p>
  * <h2>已知限制与取舍</h2>
- * <p>静态工具</p>
+ * <ul>
+ *   <li>兜底只在"框架自有上下文为 {@code null}"时生效；两侧都持有上下文时以框架自有的一侧为准
+ *   （{@code CSpringConfigBeans} 由 {@code CSpringConfiguration} 显式写入，谁在何时写入可控可查）。</li>
+ *   <li>仅在 {@code getBean(Class)} 上做兜底：其余入口（{@code getApplicationContext} / {@code getBeansWithAnnotation}
+ *    / {@code newInstance} 的实例化）需要完整 {@code ApplicationContext}，Hutool 的 {@code beanFactory} 表达不了，不适用兜底。</li>
+ * </ul>
  *
  * @since 2025/9/10
  * @version 1.0
@@ -112,12 +141,52 @@ public class CSpringUtils {
     /**
      * 获取指定类型的 bean
      *
+     * <p><b>详细步骤</b>：优先用框架自有上下文 {@code CSpringConfigBeans} 取 Bean；该上下文为
+     * {@code null}（{@code CSpringConfiguration} 尚未装配）时，兜底改用 Hutool {@link SpringUtil}
+     * 的静态上下文取 Bean。</p>
+     *
+     * <p><b>兜底的原因（写入时机差）</b>：框架自有上下文经 {@code ApplicationContextAware#setApplicationContext}
+     * 写入，位于容器刷新的靠后阶段；Hutool 的 {@code SpringUtil} 另实现 {@code BeanFactoryPostProcessor}，
+     * 在刷新更早的阶段即写入自己的 {@code beanFactory}。故 {@code BeanFactoryPostProcessor} 一类早于上下文就绪的
+     * 调用点，只能从 Hutool 一侧取到——这正是本兜底覆盖的窗口。</p>
+     *
+     * <p><b>兜底的边界（避免取到别的容器）</b>：Hutool 的 {@code applicationContext} 是进程级静态字段，
+     * 任何一次容器刷新都会覆盖它、且容器关闭后**不清空**。故兜底先取 {@code SpringUtil.getApplicationContext()}
+     * 并校验其活动性（{@code ConfigurableApplicationContext#isActive}），再由校验通过的上下文直接取 Bean——
+     * 不调用 {@code SpringUtil.getBean(Class)}（其内部经 {@code getBeanFactory()} 优先取 {@code beanFactory}，
+     * 与本处校验的不是同一个对象，校验就落空了）；不可用或已关闭时抛错快速失败，
+     * 不静默返回可能来自别的容器的 Bean。</p>
+     *
      * @param tClass bean 类型
      * @param <T>    泛型
      * @return bean
+     * @throws org.springframework.beans.BeansException 容器内无对应 Bean 时抛出
+     * @throws IllegalStateException                    两侧上下文均不可用，或 Hutool 兜底上下文已非活动状态时抛出
      */
     public <T> T getBean(Class<T> tClass) {
-        return getApplicationContext().getBean(tClass);
+
+        val applicationContext = getApplicationContext();
+        if (null != applicationContext) {
+            return applicationContext.getBean(tClass);
+        }
+
+        val hutoolApplicationContext = SpringUtil.getApplicationContext();
+        if (null == hutoolApplicationContext) {
+            throw new IllegalStateException(
+                "CSpringUtils.getBean 失败：框架自有上下文（CSpringConfigBeans）与 Hutool SpringUtil 上下文均不可用"
+            );
+        }
+
+        // 容器关闭后 Hutool 的静态字段不清空，故必须校验活动状态，避免取到已关闭容器的 Bean
+        if (hutoolApplicationContext instanceof ConfigurableApplicationContext
+            && !((ConfigurableApplicationContext)hutoolApplicationContext).isActive()
+        ) {
+            throw new IllegalStateException(
+                "CSpringUtils.getBean 失败：Hutool SpringUtil 持有的上下文已非活动状态（容器已关闭），不以其兜底"
+            );
+        }
+
+        return hutoolApplicationContext.getBean(tClass);
     }
 
     /**
@@ -186,11 +255,14 @@ public class CSpringUtils {
     }
 
     /**
-     * 通过参数最多的构造方法创建实例，参数从容器中获取
+     * 通过参数最多的构造方法创建实例，实参逐个从容器获取（按形参类型 {@code getBean}）
+     * <p>构造器句柄由 {@link CReflectUtils#newInstance(Constructor, Object...)} 内部统一 {@code setAccessible}，
+     * 调用方无需处理访问级别</p>
      *
      * @param type 实例类型
      * @param <T>  实例类型
      * @return 创建好的实例
+     * @throws RuntimeException 类型无任何构造方法，或参数最多的构造方法不唯一（无法判定用哪一个）时抛出
      */
     @SneakyThrows
     public <T> T newInstance(Class<T> type) {
@@ -208,7 +280,7 @@ public class CSpringUtils {
 
         @SuppressWarnings("unchecked")
         val constructor = (Constructor<? extends T>) constructors.get(0);
-        constructor.setAccessible(true);
+        // 无需 setAccessible：CReflectUtils.newInstance 内部经 CMethodHandleUtils 生成构造器句柄时统一 setAccessible
 
         Object[] params = Arrays.stream(constructor.getParameterTypes())
             .map(parameterType -> getBean(parameterType))

@@ -4,6 +4,7 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * <h2>能力目录</h2>
  * <p>{@code CThrowableHandler} 标注 {@code @RestControllerAdvice}，通过 {@code @ExceptionHandler(Throwable.class)} 处理未识别异常：</p>
  * <ul>
+ *   <li>兜底优先级：{@code @Order(CExceptionHandlerOrder.THROWABLE_FALLBACK)}（兜底区最后一档，见 {@code CExceptionHandlerOrder}）——Spring 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，
+ *   故内置具体类型处理器（{@code @Order(CExceptionHandlerOrder.CONCRETE)}）与 {@code CException} 兜底先被咨询，本处理器只在无其他匹配时兜底。</li>
+ *   <li>上传超限的容器私有异常（如 Tomcat 裸抛的 {@code FileSizeLimitExceededException}）：按<b>简单类名</b>识别后委托 {@code CFileUploadExceptionHandler}，返回业务码 413 + 明确提示。</li>
  *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(Throwable.class)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
  *   <li>返回 {@code CStrResult&lt;Void&gt;} 错误结果（{@code CStrResult.error(...)}）。</li>
  *   <li>记录请求 URI 与异常堆栈（log），保证问题可追溯。</li>
@@ -35,8 +39,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *     <td>@ConditionalOnMissingExceptionHandler 使本处理器不生效</td>
  *   </tr>
  *   <tr>
- *     <td>异常对象为 null</td>
- *     <td>记录日志并返回错误结果</td>
+ *     <td>异常对象为 null（非预期，兜底不依赖异常内容）</td>
+ *     <td>不取异常内容，返回固定「未知异常」错误结果，日志降为 debug</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -49,9 +53,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.0
+ * @version 1.4
  */
 @CustomLog
+@Order(CExceptionHandlerOrder.THROWABLE_FALLBACK)
 @RestControllerAdvice
 @ConditionalOnMissingExceptionHandler(Throwable.class)
 public class CThrowableHandler {
@@ -62,11 +67,26 @@ public class CThrowableHandler {
      * 统一返回 200 业务 JSON 保持响应结构一致。已知边界：HTTP 语义缺失，无法按 5xx 触发告警
      * （含 OOM、StackOverflow 等 Error 也返回 200），如需按状态码告警需另行改造。</p>
      *
-     * @param e 未识别异常
+     * @param e 未识别异常（为 null 属非预期入参，兜底不取异常内容、返回固定「未知异常」；见类 javadoc「兜底设计」）
      * @return 错误结果
      */
     @ExceptionHandler(Throwable.class)
     public CStrResult<Void> handle(Throwable e) {
+
+        // null 属非预期入参（Spring MVC 命中 @ExceptionHandler 时异常对象不为 null）：不取异常内容、日志降为 debug，
+        // 返回固定「未知异常」，避免为不可达分支引入二次 NPE
+        if (null == e) {
+            log.debug("handle null Throwable，requestURI: {}", CRequestUtils.getRequestURIDefaultNull());
+            return CStrResult.error("未知异常");
+        }
+
+        // 上传超限的容器私有异常（Tomcat 等裸抛，如 FileSizeLimitExceededException）：按简单类名识别、委托上传处理器，
+        // 给出业务码 413 + 明确提示；纯字符串比较，缺失该类也不报错。
+        // 此处 e 已由上方 null == e 分支排除一定不为 null；isUploadSizeExceeded 自身也对 null 安全
+        if (CFileUploadExceptionHandler.isUploadSizeExceeded(e)) {
+            log.debug("handle upload size exceeded by class name，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
+            return CFileUploadExceptionHandler.uploadSizeExceededResult(e);
+        }
 
         log.error("handle Throwable，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
         return CStrResult.error("未知异常");

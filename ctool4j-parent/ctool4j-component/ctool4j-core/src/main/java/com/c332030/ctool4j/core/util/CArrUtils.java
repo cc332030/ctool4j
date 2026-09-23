@@ -2,7 +2,7 @@ package com.c332030.ctool4j.core.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.c332030.ctool4j.core.validation.CValidateUtils;
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -236,7 +236,7 @@ public class CArrUtils {
      */
     public String[] toStrArr(Collection<String> collection) {
 
-        if(CValidateUtils.isEmpty(collection)) {
+        if(CValidUtils.isNotValid(collection)) {
             return EMPTY_STR_ARR;
         }
         return collection

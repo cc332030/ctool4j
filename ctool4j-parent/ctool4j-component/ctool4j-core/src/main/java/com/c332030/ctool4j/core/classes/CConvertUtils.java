@@ -5,9 +5,11 @@ import cn.hutool.core.util.ClassUtil;
 import com.c332030.ctool4j.core.cache.impl.CBiClassValue;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
@@ -67,15 +69,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p><b>默认转换器注册</b></p>
  * <ul>
  *   <li>静态初始化经 {@code CReflectUtils.getAllMethodsCached(CClassConvert.class)} 收集静态方法并注册为转换器</li>
- *   <li>（入参为源类型，返回值为目标类型）。</li>
+ *   <li>（入参为源类型，返回值为目标类型），转换方法经 {@link CMethodHandleUtils} 方法句柄调用。</li>
  *   <li>无入参方法无法确定源类型，跳过注册（Q16，避免 getParameterTypes()[0] 越界）。</li>
  * </ul>
  * <p><b>转换器查找（findConverter）</b></p>
  * <ul>
  *   <li>源为 Collection/Map/数组时直接返回 null（不转换）。</li>
  *   <li>{@code ClassUtil.isAssignable(toClass, fromClass)}（含基本类型/包装等价）时返回 {@code CFunction.SELF}。</li>
- *   <li>遍历已注册转换器，源/目标类型匹配即命中；Object 源兜底转换器（Object→String）优先级最低，</li>
- *   <li>仅在无更精确转换器时命中，避免抢占 Date→String 等特殊转换。</li>
+ *   <li>遍历已注册转换器，源/目标类型按 {@code ClassUtil.isAssignable} 匹配（含基本类型/包装等价），
+ *   故 {@code toInt(String)→Integer} 也能匹配 {@code int} 目标字段。</li>
+ *   <li>Object 源兜底转换器（Object→String）优先级最低，
+ *   仅在无更精确转换器时命中，避免抢占 Date→String 等特殊转换。</li>
  * </ul>
  * <p><b>转换语义</b></p>
  * <ul>
@@ -83,7 +87,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  *
  * @since 2025/11/22
- * @version 1.0
+ * @version 1.2
  */
 @CustomLog
 @UtilityClass
@@ -119,7 +123,24 @@ public class CConvertUtils {
         val fromClass = (Class<Object>) method.getParameterTypes()[0];
         @SuppressWarnings("unchecked")
         val toClass = (Class<Object>) method.getReturnType();
-        addConverter(fromClass, toClass, o -> method.invoke(null, o));
+        // 经方法句柄调用（转换方法均为静态方法，句柄不带接收者），不使用 Method#invoke
+        // 一次性：注册仅在类初始化时对每个转换方法执行一次，句柄由下方 lambda 长期强引用、无第二个使用者，
+        // 故用 toHandle 直接生成、不进句柄缓存（缓存条目对唯一持有者无复用价值）
+        val handle = CMethodHandleUtils.toHandle(method);
+        addConverter(fromClass, toClass, o -> invokeStatic(handle, o));
+    }
+
+    /**
+     * 调用静态方法句柄（供转换器调用：转换方法为静态、单实参）
+     *
+     * @param handle 方法句柄
+     * @param value  实参
+     * @param <T>    返回值类型
+     * @return 调用结果
+     */
+    @SneakyThrows
+    private <T> T invokeStatic(MethodHandle handle, Object value) {
+        return CObjUtils.anyType(handle.invoke(value));
     }
 
     /**
@@ -182,8 +203,10 @@ public class CConvertUtils {
 
         CFunction<Object, ?> objectFallback = null;
         for (val classConverter : CLASS_CONVERTERS) {
-            if(classConverter.getFromClass().isAssignableFrom(fromClass)
-                    && classConverter.getToClass().isAssignableFrom(toClass)) {
+            // ClassUtil.isAssignable 与上面的 SELF 判定同口径：支持原始类型与包装类等价，
+            // 否则 Integer 返回值的转换器匹配不到 int 字段（toInt(String)→Integer 对 int 目标失效）
+            if(ClassUtil.isAssignable(classConverter.getFromClass(), fromClass)
+                    && ClassUtil.isAssignable(classConverter.getToClass(), toClass)) {
 
                 if(classConverter.getFromClass() == Object.class) {
                     // Object 源兜底最后匹配（优先级最低），记录后继续找更精确的

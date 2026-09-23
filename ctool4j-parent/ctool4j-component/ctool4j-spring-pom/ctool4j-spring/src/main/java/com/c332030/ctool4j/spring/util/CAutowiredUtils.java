@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.spring.util;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -37,8 +36,9 @@ import java.util.Map;
  *   <li>标记 {@code CAutowiredScan} 的类本身可能是非 Spring Bean 的静态工具类，因此扫描不能走
  *   {@code getBeansWithAnnotation}，只能按包扫描类后逐个注入（由 {@code CAutowiredScanConfiguration}
  *   在启动时触发），保证工具类的静态字段先于业务调用完成注入。</li>
- *   <li>注入源（Bean 从哪来）由调用方显式传入 {@link ApplicationContext}，而非依赖 Hutool 的全局
- *   {@code SpringUtil} 静态上下文，避免「工具类在哪个上下文里初始化」这类隐式依赖。</li>
+ *   <li>注入源（Bean 从哪来）可由调用方显式传入 {@link ApplicationContext}；不显式传入时经
+ *   {@link CSpringUtils#getBean(Class)} 取值（自有上下文优先、为空时兜底 Hutool），
+ *   取值口径只写在该一处、不在各调用点重复判定。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -123,21 +123,26 @@ public class CAutowiredUtils {
     }
 
     /**
-     * 注入单个字段（注入源取自 Hutool 全局 Spring 上下文）
+     * 注入单个字段（注入源取自框架自有上下文）
      *
-     * <p><b>详细步骤</b>：按字段类型从 Hutool 全局上下文取 Bean，再委托
-     * {@link #autowired(Object, Class, Object, Field)} 写入。</p>
+     * <p><b>详细步骤</b>：按字段类型经 {@link CSpringUtils#getBean(Class)} 取 Bean，再委托
+     * {@link #autowired(Object, Class, Object, Field)} 写入——本方法不直接依赖 Hutool {@code SpringUtil}，
+     * 取值口径（框架自有上下文优先、为空时兜底 Hutool）统一由 {@code CSpringUtils#getBean} 承载，
+     * 避免「工具类在哪个上下文里初始化」这类隐式依赖在调用点各写一遍。</p>
      *
      * @param type   类
      * @param object 对象，为 null 时表示静态字段
      * @param field  字段
      */
     public void autowired(Class<?> type, Object object, Field field) {
-        autowired(SpringUtil.getBean(field.getType()), type, object, field);
+        autowired(CSpringUtils.getBean(field.getType()), type, object, field);
     }
 
     /**
      * 注入单个字段（注入源由调用方显式指定）
+     *
+     * <p><b>字段写入</b>：委托 {@link CReflectUtils#setValue(Object, Field, Object)} 写入（非 final 字段走缓存的
+     * setter 方法句柄快速路径），不直接调用原生反射 {@code Field#set}。</p>
      *
      * @param bean           字段对应的 Bean
      * @param type           类
@@ -148,7 +153,7 @@ public class CAutowiredUtils {
     public void autowired(Object bean, Class<?> type, Object object, Field field) {
 
         val fieldType = field.getType();
-        field.set(object, bean);
+        CReflectUtils.setValue(object, field, bean);
 
         log.debug("CAutowired {}{}.{}({})",
             () -> null != object ? "(object)" : "",

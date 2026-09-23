@@ -23,8 +23,8 @@
 - **Controller 基类**：`CMpController` 提供 `/page`、`/get-by-id`、`/add`、`/update-by-id`、`/remove-by-id` 标准 CRUD 端点
 - **SQL 注入契约**：`ICMpMethod` / `ICMpSqlMethod` / `CMpSqlMethod`（INSERT_IGNORE、UPDATE_ALL_BY_ID）
 - **业务 ID 工具**：`CBizIdUtils` 扫描 `@CBizId` 注解字段，生成 / 读取 / 回填业务 ID
-- **分页工具**：`CMpPageUtils` 按场景建分页对象、`pageThenDo` / `pageThenEach` 批量处理
-- **分页模型**：`ICPage` / `CPage` / `CPageReq`；逻辑删除契约 `ICDeleted` / `CDeleted`（`@TableLogic`）
+- **分页工具**：`CMpPageUtils` 按场景建分页对象、`pageThenDo` / `pageThenEach` 批量处理、MP 分页对象转分页结果
+- **分页模型**：请求侧 `ICPage` / `CPage` / `CPageReq`，响应侧 `ICPageResult` / `CPageResult`；逻辑删除契约 `ICDeleted` / `CDeleted`（`@TableLogic`）
 
 ### 核心类
 
@@ -40,7 +40,8 @@
 | `CBizIdUtils` | 工具类 | 业务 ID 生成与回填 |
 | `CMpPageUtils` | 工具类 | 分页与批量处理 |
 | `CMpSqlMethod` | 枚举 | 自定义 SQL 方法定义 |
-| `CPage` / `CPageReq` | 模型 | 分页模型 |
+| `CPage` / `CPageReq` | 模型 | 分页请求模型 |
+| `CPageResult` | 模型 | 分页结果模型（不依赖 MP，作 `IPage` 的响应契约替代） |
 
 ### 依赖
 
@@ -86,38 +87,6 @@
 | CServiceImpl | 重写 getEntityClass | 不重写 | 不重写 |
 | CSqlInjector 签名 | 3.3 单参 | 3.4 三参 | 3.4 三参 |
 
-## 使用示例
+## 使用与配置（引用方）
 
-```java
-// Service 继承分层契约
-@Service
-public class UserService extends CBaseServiceImpl<CBaseMapper<User>, User>
-    implements ICService<User>, ICBizService<User> {
-}
-
-// Mapper
-public interface UserMapper extends CBaseMapper<User> {
-}
-
-// Controller
-@RestController
-@RequestMapping("/user")
-public class UserController extends CMpController<ICService<User>, User> {
-}
-
-// 业务 ID 维度操作
-userService.getByBizId(bizId);
-userService.listByBizId(bizIds);
-userService.countByBizId(bizId);
-```
-
-## 配置项
-
-| 配置 | 说明 |
-|------|------|
-| `mybatis-plus.*` | MyBatis-Plus 标准配置 |
-
-## 模块选择建议
-
-- 项目使用 MyBatis-Plus 3.3 → `ctool4j-mybatis-33`
-- 项目使用 MyBatis-Plus 3.4+ → `ctool4j-mybatis-34` 或聚合版 `ctool4j-mybatis`
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/mybatis.adoc`](../../../doc/use/mybatis.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

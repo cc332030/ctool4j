@@ -54,38 +54,8 @@
 | `CExceptionUtils` | 工具类 | 异常封装：受检异常转非受检、日志输出 |
 | `CAssert` | 工具类 | 断言校验，失败抛业务异常；`valid`/`notValid` 按数据类型分派（语义同 `CValidUtils`） |
 | `CValidUtils` | 工具类 | 有效性判断（按类型分派：字符串按 blank、集合/Map/数组按 empty、其他按 null） |
-| `CLogBlobSerializer` | 序列化器 | `@CLogBlob` 大字段的日志序列化（脱敏/截断） |
+| `CLogBlobSerializer` | 序列化器 | `@CLogBlob` 大字段的日志输出：规模不超过 `maxSize`（默认 10）打印真实内容，超过则占位并按值类型附规模（如 `<BLOB:list=5>`） |
 | `CJacksonUtils` | 工具类 | Jackson ObjectMapper 封装与配置 |
-
-## 使用示例
-
-```java
-// 字符串
-String name = CStrUtils.ifBlank(value, "默认值");
-String masked = CStrUtils.maskPhone("13800000000");
-
-// 集合
-List<String> list = CCollUtils.toList("a", "b", "c");
-
-// JSON
-User user = CJsonUtils.toObj(jsonStr, User.class);
-String json = CJsonUtils.toJson(user);
-
-// 异常
-throw new CBusinessException("用户不存在");
-CAssert.notNull(obj, "对象不能为空");
-CAssert.valid(list, "集合不能为空");
-CAssert.notValid(str, "字符串不能为空白");
-
-// 日志
-CLog.info("用户操作", CLogUtils.of("userId", 1L, "action", "login"));
-```
-
-## 配置项
-
-| 配置 | 说明 |
-|------|------|
-| `c-page.*` | 分页默认配置（`CPageConfig`），供各模块分页工具读取 |
 
 ## 依赖
 
@@ -95,3 +65,7 @@ CLog.info("用户操作", CLogUtils.of("userId", 1L, "action", "login"));
 | `hutool` | 底层工具库 |
 | `jackson` | JSON 序列化 |
 | `lombok` | 编译期简化 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/core.adoc`](../../../doc/use/core.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

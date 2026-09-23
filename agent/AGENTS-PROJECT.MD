@@ -21,11 +21,16 @@
 
 - 项目在根目录 `lombok.config` 全局配置 `lombok.toString.callSuper=call`、`lombok.equalsAndHashCode.callSuper=call`：继承场景下 lombok 自动在 `toString`/`equals`/`hashCode` 中包含父类字段，子类**无需**再显式标注 `@ToString(callSuper=true)`/`@EqualsAndHashCode(callSuper=true)`（标注属冗余，禁止新增）
 - 全局配置 `lombok.fieldDefaults.defaultPrivate=true`：字段默认 private（显式 `public`/`protected` 字段不受影响）
+- 全局配置 `lombok.addLombokGeneratedAnnotation=true`：lombok 在其生成的成员（getter/setter、构造器、`equals`/`hashCode`/`toString`、Builder 等）上标注 `@lombok.Generated`（**`CLASS` 保留**），供 JaCoCo/PIT 等按字节码分析的工具识别并**排除自动生成代码**，覆盖率/变异统计只计手写逻辑（对齐远端 `specs/general/testing.adoc`「覆盖率统计须排除自动生成的代码（lombok 生成…）」）。要点：
+  - 标记写在 `.class` 字节码里，**不要求**源码引用 lombok、也**不要求**注解类出现在运行时（lombok 为 `provided`）：工具按注解**简单名** `Generated` 匹配即可排除；反之**运行时反射读该注解读不到**（`CLASS` 保留），需要运行时读注解的场景不适用。
+  - 按简单名匹配 ⇒ **同名即排除**：手写方法不得标注任何简单名为 `Generated` 的注解（含 `javax.annotation.Generated`、`javax.annotation.processing.Generated`、自定义 `@Generated`），否则会被一并排除在统计之外。
+  - 接入 JaCoCo/PIT 时无需再手工排除 lombok 生成代码（本配置已提供标记）；未接入覆盖率/变异工具时，该配置不产生统计效果。
 - 接口中声明 `void setXxx(...)` 会与链式访问器（`@Accessors(chain = true)`）冲突：生成的 setter 返回 `this`，无法重写 `void` 方法，实现类编译失败。约束与例外见「命名前缀 - 纯字段接口」。
 
 ## Java 反射（项目自有方法句柄工具）
 
 - 反射操作优先使用 `CMethodHandleUtils`：访问字段（getter/setter）、调用方法、构造对象等反射操作一律优先使用 `CMethodHandleUtils` 提供的现成方法句柄（字段 getter/setter、方法、构造器），避免直接使用 `Field#get/set`、`Method#invoke`、`Constructor#newInstance` 等原生反射调用；`CMethodHandleUtils` 没有现成的方法时，可在其中补充后再使用。识别特征：代码中出现 `field.get/set`、`method.invoke`、`constructor.newInstance` 等直接反射调用，应改用 `CMethodHandleUtils` 对应方法句柄（如 `getGetterHandle/getSetterHandle/getHandle`），再用 `handle.invoke/invokeExact` 执行
+- 方法句柄获取按调用频次选择（判定口径）：**一次性**（获取语句只执行一次，句柄由调用方长期持有、存入自身缓存或闭包）用生成版 `toXxxHandle`/`toHandle`，**不进句柄缓存**；**多次访问**（同一 `Field`/`Method`/`Constructor` 会被反复获取且句柄不被调用方持有）用缓存版 `getXxxHandle`/`getHandle`；频次不可知（对外公共 API）默认缓存版。判定细则与 `getXxxHandleAsType` 的缓存边界见 `CMethodHandleUtils` 的「API 选用（一次性 / 多次访问）」
 
 ## 语法糖（C 工具类）
 
@@ -78,7 +83,9 @@
 
 ## 与远端规范的差异（项目覆盖）
 
-（当前无项目覆盖条目；如后续出现，在此登记并说明覆盖的远端条目与理由）
+- **变更日志仅在用户明确要求时登记**（覆盖远端 `specs/general/doc-design.adoc`「版本与变更记录 - 同提交同步与完成定义」）：远端要求"改动源文件时其 changelog 条目须在本提交中一并更新，只改一侧视为未完成"；本项目调整为——**仅在用户明确要求时追加 `CHANGELOG.adoc` 条目，日常改动不写本文件**，不因"改了代码"顺手补一行。
+  - 覆盖理由：日常改动逐条登记与源文件 javadoc、`git log` 大量重复，条目噪音会掩盖真正的对外变更。
+- **类间互引只做「测试 → 源」单向**（覆盖远端 `specs/general/doc-design.adoc`「类间关系与双向引用」中"源类标注其各类测试类"一项）：主代码类注释**不得**用 `@see`/`{@link}` 指向测试类——javadoc 的类路径不含测试源，未解析的 `@see` 会使 javadoc 构建失败（已实测：退出码 1）；主代码需要提及时用 `{@code 测试类名}` 纯文本。反向（测试类用 `@see` 标注源类）照常执行。
 
 ## 语言目标
 

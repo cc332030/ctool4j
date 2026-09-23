@@ -30,6 +30,6 @@
 |------|------|
 | `lombok` | 编译期简化 |
 
-## 使用说明
+## 使用与配置（引用方）
 
-各测试用例可复用 `ctool4j-test-definition` 中的模型作为测试数据载体；`ctool4j-test-core`、`ctool4j-test-spring` 能力待后续实现。
+引入坐标、用法示例、配置项、模块选型、误用点等**面向引用方**的内容：见使用文档 [`doc/use/test.adoc`](../../../doc/use/test.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

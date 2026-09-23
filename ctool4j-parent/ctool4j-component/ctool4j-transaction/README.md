@@ -24,26 +24,12 @@
 |----|------|------|
 | `CTransactional` | 注解 | `@Transactional` 的别名注解，`@AliasFor` 透传 propagation / isolation / readOnly / rollbackFor |
 
-## 使用示例
-
-```java
-@CTransactional
-public void transfer(Long fromId, Long toId, BigDecimal amount) {
-    // 默认：任何异常都回滚
-}
-
-@CTransactional(rollbackFor = Exception.class, readOnly = true)
-public List<Order> queryList() {
-    // 只读事务
-}
-```
-
-## 配置项
-
-无。
-
 ## 依赖
 
 | 依赖 | 说明 |
 |------|------|
 | `spring-tx` | 事务抽象 |
+
+## 使用与配置（引用方）
+
+引入坐标、用法示例、配置项、误用点等**面向引用方**的内容：见使用文档 [`doc/use/transaction.adoc`](../../../doc/use/transaction.adoc)（整体开放为静态服务），本 README 不再重复（同一事实两个真源必然漂移）。

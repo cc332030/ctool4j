@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.auth.configuration;
 
+import com.c332030.ctool4j.core.interfaces.ICGenericType;
+import com.c332030.ctool4j.core.util.CLazyRef;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -14,6 +16,7 @@ import org.springframework.context.annotation.Bean;
  * <p>{@code CAbstractAuthBaseConfiguration} 为认证模块的装配基类，向业务模块提供默认的 mock 会话配置 bean：</p>
  * <ul>
  *   <li>{@code cSessionMockConfig()}：业务未自建 {@link CAbstractSessionMockConfig} 时，提供一个默认（禁用态）实现</li>
+ *   <li>{@code sessionClass()}：会话类型的懒解析入口（按业务配置子类泛型实参解析并缓存），供子类装配需要具体类型的匿名 bean</li>
  * </ul>
  *
  * <h2>设计要点</h2>
@@ -25,6 +28,9 @@ import org.springframework.context.annotation.Bean;
  *   无需重复定义方法体。</li>
  *   <li>本类声明为 {@code abstract}：会话类型必须由子类固定，故不支持直接实例化或直接注册进容器
  *   （注册抽象类会因不可实例化而启动失败），业务侧一律通过子类使用。</li>
+ *   <li>本类实现 {@link ICGenericType}：整条配置链（本类、auth-spring 的 {@code CAbstractAuthConfiguration}、业务子类）
+ *   都能通过 {@code getGenericClass()} 从<b>业务子类</b>的泛型实参解析出具体会话类型——配置内创建的匿名 bean
+ *   自身的类型实参仍是类型变量，需要该类型的服务（如 auth-spring 默认会话服务 bean）须由配置传入、不能自解析。</li>
  * </ul>
  * <p><b>本类自身不加 {@code @Configuration}（当前为注释状态）</b></p>
  * <ul>
@@ -72,10 +78,29 @@ import org.springframework.context.annotation.Bean;
  *
  * @author c332030
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.2
  */
 //@Configuration
-public abstract class CAbstractAuthBaseConfiguration<SESSION extends ICSession> {
+public abstract class CAbstractAuthBaseConfiguration<SESSION extends ICSession>
+    implements ICGenericType<SESSION> {
+
+    /**
+     * 会话类型（懒解析）：首次访问时按业务配置子类的泛型实参解析并缓存
+     * （{@link CLazyRef} 封装双重检查锁，线程安全、只求值一次）
+     */
+    private final CLazyRef<Class<SESSION>> sessionClassRef = CLazyRef.of(this::getGenericClass);
+
+    /**
+     * 取会话类型（懒解析）：首次访问时从<b>业务配置子类</b>的泛型实参解析并缓存
+     *
+     * <p>配置内创建的匿名 bean 自身的类型实参仍是类型变量，不能按其自身解析；
+     * 需要具体会话类型的匿名 bean（如 auth-spring 的默认会话服务 bean）由子类经本方法取得后显式传入。</p>
+     *
+     * @return 会话类型
+     */
+    protected Class<SESSION> sessionClass() {
+        return sessionClassRef.get();
+    }
 
     /**
      * 提供默认的 mock 会话配置 bean（业务已提供同类型 bean 时跳过）

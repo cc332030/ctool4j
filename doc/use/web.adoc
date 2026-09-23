@@ -1,0 +1,110 @@
+= 使用：ctool4j-web（Web MVC 通用能力）
+
+坐标：+com.c332030:ctool4j-web+　｜　依赖：+ctool4j-spring+、+ctool4j-core+、spring-boot-starter-web
+
+== 一览
+
+* *全局异常处理*：内置处理器把异常统一转 `CResult` JSON —— 业务异常（`CCBusinessExceptionHandler`）、**未认证（`CUnauthorizedExceptionHandler`，响应体业务码 401）**、通用异常（`CCExceptionHandler`）、参数校验失败（`CMethodArgumentNotValidExceptionHandler`）、请求体缺失/不可读（`CHttpMessageNotReadableExceptionHandler`）、必填参数缺失（`CMissingServletRequestParameterExceptionHandler`）、参数类型不匹配（`CMethodArgumentTypeMismatchExceptionHandler`）、方法不支持、消息不可写、客户端中断、非法参数/状态、文件上传超限/解析失败（`CFileUploadExceptionHandler`：超限返回业务码 413 + 含上限的明确提示，解析失败返回 400）、兜底（`CThrowableHandler`）。
+* *文件上传上限*：Spring Boot 默认 `spring.servlet.multipart.max-file-size` 仅 **1MB**、`max-request-size` 为 10MB，稍大文件即被拒（提示为 `FileSizeLimitExceededException` 原始文本）；生产建议成对显式调大——单文件上限与整个 multipart 请求上限，且后者须**大于**前者（表单字段与其他 multipart 段有开销），否则仍会在请求解析阶段被拒；超限由 `CFileUploadExceptionHandler` 统一转为业务码 413 + 含上限的提示。
+* *容器兼容*：异常处理器只引用 Spring 公共类型；客户端中断处理器（`CClientAbortExceptionHandler`）针对 Tomcat 专有异常，通过 `@ConditionalOnClass(name=...)` 与条件注解的类名匹配（`valueName`）装配，Jetty/Undertow 下自动跳过、不因类缺失启动失败。
+* *跨域*：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强。
+* *JWT 与 token*：`CJwtUtils`（生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头/请求属性读写）、`CRequestHeaderEnum`（统一请求头名）。
+* *HTTP 请求日志*：`CRequestLogUtils` + `CRequestLog`（HTTP 报文 dump）、`CCommUtils.appendHttpLog`；配置 `CRequestLogConfig`（`logging.request-log`）。
+* *traceId 透传*：`CTraceUtils` 从请求头读取（无则生成），写入 ThreadLocal + MDC（key = `c-trace-id`），可用 SPI `ICTraceInfoProvider` 定制。
+* *必填注解*：`@CRequired`（request body/字段必填）、`@CNotRequired`（request param 显式非必填）。
+* *内部接口 IP 白名单*：`@CInnerApi`（声明内部接口，定义在 +ctool4j-definition+）+ `CInnerApiInterceptor`（按 `inner-api.allowed-ips` 做 IP/CIDR 白名单校验，未命中返回 403）。
+* *其他*：`CWebMvcConfigurer`、`CResourceFilter`、`CErrorController`、`ICFilter`、`CServletUtils`、`CWebUtils`；请求/响应体增强抽象 `ICBaseRequestBodyAdvice` / `ICBaseResponseBodyAdvice`；认证过滤器类型契约 `CAbstractWebAuthFilter`。
+
+== 用法
+
+=== 异常统一返回（零配置）
+
+[source,java]
+----
+throw new CBusinessException("订单不存在");   // → {"code":..., "msg":"订单不存在", "data":null}
+----
+
+* 需要自定义某一类异常的处理：自行声明同类型处理器 Bean；内置处理器带 `@ConditionalOnMissingExceptionHandler`，业务自定义时**自动让位**。
+* 客户端问题（参数缺失/类型不匹配/请求体不可读）返回固定文案、日志降为 debug，不透出内部类型与堆栈。
+* **非预期 null 不穿透为 500**（防御分支，正常链路不可达）：容器显式传入 null 异常对象时，各处理器返回固定文案而不抛 NPE；异常消息为 null（如 `new IllegalArgumentException()`）时用异常类型简单名兜底，不会出现 `message: null`。
+
+=== 未认证（响应体业务码 401）
+
+[source,java]
+----
+throw new CUnauthorizedException("会话已失效");   // → {"code":"401","msg":"会话已失效","data":null}，随附 HTTP 401
+----
+
+* 抛自 +ctool4j-core+ 的 `CUnauthorizedException`；由本模块的 `CUnauthorizedExceptionHandler` 统一转换。
+* **调用方应以响应体业务码 401 为准**：本项目其余处理器是 HTTP 200 + 响应体业务码，仅该处理器随附 HTTP 401，两套判据可能不一致。
+* 已认证但无权限属 403，**不要**抛 `CUnauthorizedException`；业务失败仍用 `CBusinessException`。
+* 容器内已有同类型处理器时本处理器自动让位（`@ConditionalOnMissingExceptionHandler`）。
+
+=== 内部接口 IP 白名单
+
+[source,java]
+----
+@CInnerApi                              // 类级：该类下所有接口均为内部接口（@Inherited，抽象父类标注可被继承）
+@RestController
+public class AdminController {
+
+    @CInnerApi                          // 方法级：仅该接口
+    @GetMapping("/inner/stats")
+    public CResult<Stats> stats() { }
+}
+----
+
+[source,yaml]
+----
+inner-api:
+  allowed-ips:                          # 支持单个 IPv4 与 CIDR 网段；IPv6 规则被跳过
+    - 10.0.0.0/8
+    - 127.0.0.1
+----
+
+* **标注 ≠ 立即收紧**：`allowed-ips` 为空时拦截器一律放行——标了 `@CInnerApi` 却忘配白名单等于没启用 IP 保护。
+* 白名单**全局唯一**，所有内部接口共用；无法为单个接口单独指定 IP。
+* 未命中白名单返回 403；客户端 IP 取 `X-Forwarded-For` 首段（代理场景）。
+* 仅标注在类/方法上有效（`TYPE`/`METHOD`），方法级标注不随继承传播。
+
+=== 必填校验
+
+[source,java]
+----
+public CResult<Void> add(@RequestBody @CRequired OrderReq req) { }        // body 字段级必填
+public CResult<User> get(@RequestParam @CNotRequired String name) { }     // 显式非必填（文档同步）
+----
+
+=== token / JWT
+
+[source,java]
+----
+String token = CTokenUtils.getHeaderToken(request);
+String jwt = CJwtUtils.create(body, secret);
+boolean ok = CJwtUtils.verify(jwt, secret);
+----
+
+=== traceId
+
+[source,java]
+----
+String traceId = CTraceUtils.getTraceId();   // 同一次请求内可用；线程池场景见下「注意」
+----
+
+== 配置
+
+|===
+| 配置 | 说明
+| +logging.request-log.*+ | 请求日志开关、排除 URI、是否记录请求体（`CRequestLogConfig`）
+| +cors.*+ | 跨域配置（`CCorsConfig`）：`enable`（默认 `false` 不开启）、`allowed-origins`、`allowed-methods`、`allowed-headers`、`exposed-headers`（默认含 `Authorization`）
+| +inner-api.allowed-ips+ | 内部接口 IP/CIDR 白名单（`CInnerApiConfig`）：默认空集合＝全部放行
+|===
+
+== 注意
+
+* 请求日志与 traceId 的跨线程传递依赖日志后端模块（+ctool4j-logback+ / +ctool4j-log4j+ 之一）提供的 MDC 适配，见 link:log.adoc[log]。
+* 认证能力不在此模块：`CAbstractWebAuthFilter` 只是过滤器继承链顶层的**类型契约**，实现见 link:auth.adoc[auth]。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web README]

@@ -1,0 +1,85 @@
+= 使用：ctool4j-mybatis（MyBatis-Plus 增强）
+
+坐标：+com.c332030:ctool4j-mybatis-base+（契约与增强基座，接口/抽象）、
++ctool4j-mybatis+（**当前推荐聚合版**）/ +ctool4j-mybatis-34+（MP 3.4 适配）/ +ctool4j-mybatis-33+（MP 3.3 适配）
+
+== 选型
+
+|===
+| MyBatis-Plus 版本 | 引入
+| 3.4+（当前推荐） | +ctool4j-mybatis+
+| 3.4.x 精确适配 | +ctool4j-mybatis-34+
+| 3.3.x | +ctool4j-mybatis-33+
+|===
+
+三者差异（插件体系、SQL 注入实现）见开发文档模块 README（link:../../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/README.md[ctool4j-mybatis-pom]）；`-base` 随所选实现自动带入。
+
+== 用法
+
+[source,java]
+----
+// Mapper
+public interface UserMapper extends CBaseMapper<User> { }
+
+// Service（继承分层契约）
+// ICBizService<ENTITY, BIZ> 有两个类型参数；它本身已 extends ICService<ENTITY>，无需重复实现
+@Service
+public class UserService extends CBaseServiceImpl<CBaseMapper<User>, User>
+        implements ICBizService<User, Long> { }     // BIZ 取实体 @CBizId 字段的实际类型
+
+// Controller（标准 CRUD 端点：/page、/get-by-id、/add、/update-by-id、/remove-by-id）
+@RestController
+@RequestMapping("/user")
+public class UserController extends CMpController<ICService<User>, User> { }
+----
+
+[cols="2,3", options="header"]
+|===
+| 契约 | 能力
+
+| `CBaseMapper`
+| MP `BaseMapper` 扩展：`insertIgnore`、`updateAllById`
+
+| `ICService`
+| 实体工厂、多字段按值增删改查、分页系列、`saveIgnore`、`updateAllById`
+
+| `ICBizService` / `ICMainBizService`
+| 按业务 ID（`@CBizId`）增删改查与统计
+
+| `ICMpLockService`
+| 基于 Redis 锁的加锁执行
+
+| `ICCheckService`
+| 空值防御
+
+| `CMpPageUtils`
+| 分页对象构建、`pageThenDo` / `pageThenEach` 批量处理、MP 分页对象转分页结果（分页请求契约 `ICPage` 及 `CPage` / `CPageReq`，分页结果契约 `ICPageResult` 及 `CPageResult`）
+
+| `ICBizIdService`
+| 只按业务 ID 的读写契约（`ICBizService` 在其上扩展主业务维度）
+
+| `ICMpMethod` / `ICMpSqlMethod` / `CMpSqlMethod`
+| SQL 注入契约（`INSERT_IGNORE` / `UPDATE_ALL_BY_ID`），实现类 `CInsertIgnoreMethod`、`CUpdateAllByIdMethod` 与注入器 `CSqlInjector`
+
+| `CServiceImpl`
+| MyBatis-Plus `ServiceImpl` 的桥接实现（业务 Service 继承基类）
+|===
+
+`@CBizId` 工具 `CBizIdUtils` 可生成/读取/回填业务 ID；逻辑删除用 `ICDeleted` / `CDeleted`（`@TableLogic`）。
+
+== 配置
+
+|===
+| 配置 | 说明
+| +mybatis-plus.*+ | MyBatis-Plus 标准配置
+|===
+
+== 注意
+
+* 自定义 SQL 方法（`insertIgnore` / `updateAllById`）依赖本模块的 SQL 注入器；3.3 与 3.4 的实现不同，**不要跨版本混用实现模块**。
+* 分页查询结果优先用 `CPageResult`（契约 `ICPageResult`，契约约束与边界见类文档）：**MP 在本模块为 provided、不向引用方传递**，故接口契约模块（如内部调用 API 模块）可直接用它替代 `IPage` 作响应契约；由 MP 分页对象转换用 `CMpPageUtils.getPageResult(page)`（`page` 为 null 时返回空分页结果）。响应字段为 `current` / `size` / `total` / `pages` / `records`，与 `IPage` 同名。
+* 分页模型的 `getOrders()` 默认返回不可修改空集合：分页对象若无 orders 可写成员、而入参 JSON 带 `orders`，Jackson 会向该返回值合并并抛 `UnsupportedOperationException`（已登记待处理，见 link:../../TODO.adoc[TODO.adoc]）。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/README.md[ctool4j-mybatis-pom README]

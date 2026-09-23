@@ -2,9 +2,8 @@ package com.c332030.ctool4j.session.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.auth.util.CAuthUtils;
-import com.c332030.ctool4j.core.exception.CBusinessException;
-import com.c332030.ctool4j.core.interfaces.IGenericType;
-import com.c332030.ctool4j.core.validation.CAssert;
+import com.c332030.ctool4j.core.exception.CUnauthorizedException;
+import com.c332030.ctool4j.core.interfaces.ICGenericType;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CRedisUtils;
@@ -12,6 +11,7 @@ import com.c332030.ctool4j.session.config.CSessionConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.web.util.CTokenUtils;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -23,27 +23,46 @@ import javax.servlet.http.HttpServletRequest;
  * Description: CAbstractBaseSessionService
  * </p>
  *
- * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link IGenericType} 解析子类指定的
- * 会话类型 {@code SESSION}（子类须以具体类型直接继承，否则泛型解析可能失败）。</p>
+ * <p>会话服务抽象基类，基于 Redis 提供会话的存取/删除与当前会话获取；通过 {@link ICGenericType} 解析子类指定的
+ * 会话类型 {@code SESSION}（子类须以具体类型直接继承，或在创建点经构造显式传入）。</p>
  *
- * <p>说明：{@code sessionClass} 为实例初始化字段（{@code final}），不参与 {@code @AllArgsConstructor} 构造参数；
+ * <p>说明：{@code sessionClass} 为实例字段，构造期确定——默认构造按子类泛型实参解析，或经
+ * {@code CAbstractBaseSessionService(Class)} 显式传入（见下方「泛型解析的两条构造路径」）；
  * {@code get()}/{@code check()} 的当前会话来源由子类实现的 {@link #getDefaultNull()} 决定（Security 场景见
  * auth-spring 的子类），仅当前请求线程可用。</p>
  *
  * <p>继承约束：{@link #getDefaultNull()} 为 {@code public}，子类可在<b>任意包</b>直接继承本类并实现该钩子
  * （无需与本类同包）。</p>
  *
+ * <p>泛型解析的两条构造路径：默认构造按子类泛型实参解析（须以具体类型直接继承）；显式构造
+ * {@code CAbstractBaseSessionService(Class)}（lombok {@code @RequiredArgsConstructor} 生成）用于创建点泛型实参仍是类型变量的场景——如配置类中的匿名会话服务 bean
+ * （auth-spring {@code CAbstractAuthConfiguration#cSessionService}），从业务配置子类解析出具体类型后传入。</p>
+ *
+ * <p>相关测试（{@code com.c332030.ctool4j.session.service}）：{@code CAbstractBaseSessionServiceTests}。
+ * 未以 {@code @see} 链接测试类：javadoc 的类路径不含测试源，{@code @see} 会报 "reference not found"
+ * 并使 javadoc 退出码非 0，在 {@code failOnError=true} 下中断构建。</p>
+ *
  * @author c332030
  * @since 2026/9/10
- * @version 1.1
+ * @version 1.4
  */
 @CustomLog
-public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements IGenericType<SESSION> {
+@RequiredArgsConstructor
+public abstract class CAbstractBaseSessionService<SESSION extends ICSession> implements ICGenericType<SESSION> {
 
     /**
-     * 泛型 SESSION 的运行时 Class，由子类 {@code extends CAbstractBaseSessionService<Xxx>} 的泛型实参解析而来
+     * 泛型 SESSION 的运行时 Class：默认构造由子类 {@code extends CAbstractBaseSessionService<Xxx>} 的泛型实参解析而来；
+     * 子类泛型实参在创建点仍是类型变量时（如配置类里的匿名 bean），经类上 {@code @RequiredArgsConstructor} 生成的
+     * 同参构造显式传入（auth-spring {@code CAbstractSessionService(Class)} 透传）
      */
-    final Class<SESSION> sessionClass = getGenericClass();
+    private final Class<SESSION> sessionClass;
+
+    /**
+     * 默认构造：从子类泛型实参解析会话类型（须以具体类型直接继承，否则解析出类型变量、使用时抛 {@code ClassCastException}）
+     */
+    public CAbstractBaseSessionService() {
+        this.sessionClass = getGenericClass();
+    }
 
     @Autowired
     CSessionConfig sessionConfig;
@@ -79,7 +98,9 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
      */
     public void save(@NonNull String token, SESSION session) {
 
-        log.info("save session, token: {}, session: {}", token, session);
+        log.info("save session, token: {}, session: {}, expire: {}",
+            token, session, sessionConfig.getExpire()
+        );
         redisService.setValue(getKey(token), session, sessionConfig.getExpire());
 
     }
@@ -146,7 +167,7 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
     /**
      * 校验当前已授权
      *
-     * @throws CBusinessException 未授权（由 {@link CAssert#notNull(Object, String)} 抛出）
+     * @throws CUnauthorizedException 未授权（由 {@link #get()} 抛出）
      */
     public void check() {
         get();
@@ -165,12 +186,17 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
     /**
      * 获取当前会话
      *
+     * <p>唯一一处「当前会话是否缺失」的判定落点：{@link #check()} 委托本方法，故两处的未授权语义与异常类型
+     * 始终一致；需要自定义未授权响应时在抛出处携带信息，不在调用方另行判定。</p>
+     *
      * @return 当前会话
-     * @throws CBusinessException 未授权（由 {@link CAssert#notNull(Object, String)} 抛出）
+     * @throws CUnauthorizedException 未授权（{@link #getDefaultNull()} 返回 null，当前请求无有效会话）
      */
     public SESSION get() {
         val session = getDefaultNull();
-        CAssert.notNull(session, "未授权");
+        if (null == session) {
+            throw new CUnauthorizedException("未授权");
+        }
         return session;
     }
 

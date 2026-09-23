@@ -26,8 +26,19 @@ import java.util.List;
  * <p>{@code CBenchmarkRunner} 为轻量性能基准运行器，提供 {@code run(List&lt;CBenchmarkCase&gt;, String title)}：</p>
  * <ul>
  *   <li>预热：{@code WARMUP_ITERATIONS=500000} 次（触发 JIT 编译至 C2 稳态）</li>
- *   <li>计时：{@code MEASURE_ITERATIONS=1000000} 次/轮，{@code MEASURE_ROUNDS=5} 轮采样取平均</li>
+ *   <li>计时：{@code MEASURE_ITERATIONS=1000000} 次/轮，{@code MEASURE_ROUNDS=5} 轮采样（≥3 次有效采样）</li>
+ *   <li>测量口径：终值为各轮「单次均摊耗时」的均值，离散度为极差（最慢 − 最快）；两者一并输出</li>
  *   <li>返回 {@code CBenchmarkReport}（并通过日志输出报告）</li>
+ * </ul>
+ * <h2>测量口径（可核对）</h2>
+ * <ul>
+ *   <li>预热轮次：第一轮全用例预热（触发初始化/加载）+ 每轮计时前再预热，均不计时；</li>
+ *   <li>测量轮次 / 批量：{@link #MEASURE_ROUNDS} 轮 × {@link #MEASURE_ITERATIONS} 次；
+ *   每轮计时前先预热并归集一次垃圾（各轮同状态起步，抵消轮间 GC 漂移）；</li>
+ *   <li>计时区间：只含 {@code run()} 调用循环——{@code prepare()}（数据构造）在区间外，
+ *   报告写出也在区间外；</li>
+ *   <li>指标：耗时（ns/op）+ 离散度（极差，ns/op）+ 吞吐（ops/s）；</li>
+ *   <li>结果消费：{@code run()} 返回值经 {@code identityHashCode} 累计进 blackhole，防 JIT 消除死代码。</li>
  * </ul>
  * <h2>适用范围</h2>
  * <ul>
@@ -82,13 +93,34 @@ public class CBenchmarkRunner {
      * @return 基准报告（可用于导出 markdown 文件）
      */
     public static CBenchmarkReport run(List<CBenchmarkCase> cases, String title) {
+        return run(cases, title, WARMUP_ITERATIONS, MEASURE_ITERATIONS, MEASURE_ROUNDS);
+    }
+
+    /**
+     * 运行一组基准用例（预热 + 多轮计时取均值），可指定迭代参数
+     *
+     * <p>不同通道的用例耗时量级差异大（如深拷贝各类型场景为标量复制的数十倍），
+     * 用同一组迭代参数会让慢通道整体耗时过长；故迭代参数开放给调用方，
+     * 由调用方按用例耗时量级选择（默认值见 {@link #WARMUP_ITERATIONS} /
+     * {@link #MEASURE_ITERATIONS} / {@link #MEASURE_ROUNDS}）。</p>
+     *
+     * @param cases             基准用例列表
+     * @param title             报告标题
+     * @param warmupIterations  预热次数（不计时，触发 JIT 编译）
+     * @param measureIterations 单轮计时迭代次数
+     * @param measureRounds     采样轮数
+     * @return 基准报告（可用于导出 markdown 文件）
+     */
+    public static CBenchmarkReport run(
+            List<CBenchmarkCase> cases, String title,
+            int warmupIterations, int measureIterations, int measureRounds) {
 
         // 第一轮：对所有用例预热，触发全部实现方式初始化/加载（结果不计入）
         for (CBenchmarkCase bc : cases) {
 
             bc.prepare();
 
-            for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+            for (int i = 0; i < warmupIterations; i++) {
                 bc.run();
             }
         }
@@ -99,24 +131,33 @@ public class CBenchmarkRunner {
         for (CBenchmarkCase bc : cases) {
 
             long totalNanos = 0;
+            // 逐轮记录"单次均摊耗时"：离散度由此得出（规范要求 ≥3 次有效采样 + 报离散度）
+            double[] roundAvgNanos = new double[measureRounds];
 
-            for (int round = 0; round < MEASURE_ROUNDS; round++) {
+            for (int round = 0; round < measureRounds; round++) {
 
+                // 数据构造/对象初始化都在计时区间之外（prepare 不计时）
                 bc.prepare();
 
-                // 每轮开始前充分预热，保证测量在稳态下进行
-                for (int i = 0; i < WARMUP_ITERATIONS; i++) {
+                // 每轮开始前充分预热，保证测量在稳态下进行（预热也不计时）
+                for (int i = 0; i < warmupIterations; i++) {
                     bc.run();
                 }
 
+                // 各轮等状态起步：先归集一次垃圾再计时，避免"上一轮的 GC 落在本轮计时区间内"
+                // 把堆压力变成轮间离散度（对深拷贝这类高分配场景尤其明显）
+                System.gc();
+
                 long blackhole = 0;
                 long start = System.nanoTime();
-                for (int i = 0; i < MEASURE_ITERATIONS; i++) {
+                for (int i = 0; i < measureIterations; i++) {
+                    // 测完真的消费结果（累加进 blackhole），否则 JIT 可能整体消除被测代码
                     blackhole += System.identityHashCode(bc.run());
                 }
                 long elapsed = System.nanoTime() - start;
 
                 totalNanos += elapsed;
+                roundAvgNanos[round] = elapsed * 1.0 / measureIterations;
 
                 // 防止 JIT 消除，blackhole 仅参与一次无副作用累加
                 if (blackhole == Long.MIN_VALUE) {
@@ -124,14 +165,16 @@ public class CBenchmarkRunner {
                 }
             }
 
-            // 累计全部迭代的耗时与迭代次数，得到精确的平均耗时
+            // 累计全部迭代的耗时与迭代次数，并保留逐轮单次均摊耗时（离散度取值来源）
             results.add(CBenchmarkResult.builder()
                 .name(bc.name())
-                .iterations((long) MEASURE_ITERATIONS * MEASURE_ROUNDS)
+                .iterations((long) measureIterations * measureRounds)
                 .elapsedNanos(totalNanos)
+                .roundAvgNanos(roundAvgNanos)
                 .build());
         }
 
+        // 排序按均值升序；组间差异是否显著另按离散度判定（见 CBenchmarkReport#toMarkdown 的"显著差异"标注）
         results.sort(Comparator.comparingDouble(CBenchmarkResult::avgNanos));
 
         CBenchmarkReport report = CBenchmarkReport.builder()
@@ -146,15 +189,21 @@ public class CBenchmarkRunner {
     private static void print(CBenchmarkReport report) {
 
         double baseline = report.getResults().get(0).avgNanos();
+        double baselineDispersion = report.getResults().get(0).dispersionNanos();
 
-        log.info(String.format("%-24s %16s %16s %14s", "实现方式", "Avg(ns/op)", "ops/s", "相对基线"));
-        log.info("--------------------------------------------------------------------------");
+        log.info(String.format("%-24s %16s %16s %14s %16s", "实现方式", "Avg(ns/op)", "离散度(极差)", "ops/s", "相对基线"));
+        log.info("----------------------------------------------------------------------------------------------------");
         for (CBenchmarkResult result : report.getResults()) {
-            log.info(String.format("%-24s %16.1f %16.0f %12.2fx",
+            double delta = result.avgNanos() - baseline;
+            // 差异小于两者离散度之和即视为无显著差异（不为噪声宣称胜出）
+            boolean significant = Math.abs(delta) > (result.dispersionNanos() + baselineDispersion);
+            log.info(String.format("%-24s %16.1f %16.1f %14.0f %12.2fx %s",
                     result.getName(),
                     result.avgNanos(),
+                    result.dispersionNanos(),
                     result.opsPerSecond(),
-                    result.avgNanos() / baseline
+                    result.avgNanos() / baseline,
+                    significant || result == report.getResults().get(0) ? "" : "(无显著差异)"
             ));
         }
     }

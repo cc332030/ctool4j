@@ -1,0 +1,57 @@
+= 使用：ctool4j-auth-base / ctool4j-auth-spring（认证）
+
+坐标：+com.c332030:ctool4j-auth-base+（框架无关）、+com.c332030:ctool4j-auth-spring+（Spring Security 集成）
+　｜　选择：**已引入 Spring Security → auth-spring；否则 auth-base**（auth-spring 依赖 auth-base）
+
+== 一览
+
+* *JWT*：`CAuthUtils` —— 按配置密钥校验 jwt 并解析其中的 token；以 jwt body 生成 jwt 并写入响应 `Authorization` 头。
+* *token 读写*：由 +ctool4j-web+ 的 `CTokenUtils` 提供（请求头/响应头/请求属性）；jwt 的编解码底层为 +ctool4j-web+ 的 `CJwtUtils`。
+* *契约接口*：`ICJwtInfo`（jwt 载荷标记接口，实现类字段即载荷内容）、`ICSession` / `ICSecuritySession`（会话契约，后者用于 Security 场景）。
+* *会话*：`CAbstractBaseSessionService`（auth-base）→ `CAbstractSessionService`（auth-spring，基于 Redis）——会话存取、按 jwt 取会话、取当前会话；**当前会话缺失（未认证）时抛 `CUnauthorizedException`**，由 +ctool4j-web+ 的 `CUnauthorizedExceptionHandler` 统一转为响应体业务码 401（见 link:web.adoc[web]）。会话读写另有静态门面 `CSessionUtils`（auth-base）：方法集合与顺序对齐服务层——`get(token)` / `load(request)` / `getDefaultNull()` / `getByJwt(jwt)` 读取（查不到返回 null）、`get()` / `check()` 取当前会话（无会话抛 `CUnauthorizedException`）、`save(token, session)` / `remove(token)` 写入与删除；该门面**当前全部方法均为透传**（只做转发与泛型适配，语义与服务层对应方法一致），泛型按调用方声明自动适配。
+* *过滤器继承链*（自下而上，**业务继承链末端**）：
+  `CAbstractWebAuthFilter`（+ctool4j-web+，类型契约）→ `CAbstractBaseAuthFilter`（auth-base，过滤器骨架 + 会话加载，不依赖 Security）→ `CAbstractAuthFilter`（auth-spring，构造 Security 认证信息）。
+* *装配基类*（二选一继承，业务子类加 `@Configuration`）：
+  `CAbstractAuthBaseConfiguration`（auth-base：会话 mock 兜底装配 `CAbstractSessionMockConfig`，未自建时提供关闭态默认 Bean）→ `CAbstractAuthConfiguration`（auth-spring：在其上追加默认认证过滤器 Bean `cAuthFilter`；业务子类只需实现 `isAuthAnonymous`）。
+
+== 用法
+
+[source,java]
+----
+// 1) 认证装配：Spring Security 项目继承 auth-spring 的基类
+@Configuration
+public class AuthConfiguration extends CAbstractAuthConfiguration {
+    @Override
+    protected boolean isAuthAnonymous() {
+        return false;   // 访客会话须显式覆写为 true；默认「有会话即视为已认证」
+    }
+}
+
+// 2) 校验 jwt / 解析 token
+String token = CAuthUtils.getTokenByJwt(jwt);      // 校验失败静默返回 null
+
+// 3) 签发 jwt 并写入响应头
+CAuthUtils.setJwt(jwtInfo);
+
+// 4) 按 jwt 读会话
+SESSION session = sessionService.getSessionByJwt(jwt);
+----
+
+== 配置
+
+|===
+| 配置 | 说明
+| +auth.jwtSecret+ | jwt 校验/签发所用密钥（`CAuthConfig`，必配；未配置时 jwt 校验不可用）
+| +session.expire+ | 会话过期时间（`CSessionConfig`，默认 16 小时）
+|===
+
+== 注意
+
+* 过滤器解析失败**静默放行**，由后续授权规则拦截——即「认证失败不等于拒绝」，拒绝策略由 Spring Security 配置决定。
+* 业务基类继承装配基类时必须加 `@Configuration`，否则继承来的 `@Bean` 不生效且不报错。
+* 会话持久化到 Redis 再读回时，`GrantedAuthority` 的 JSON 读写依赖 +ctool4j-spring-security+ 的 `CSecurityJacksonModule`，见 link:spring-security.adoc[spring-security]。
+* 取当前会话失败抛 `CUnauthorizedException`（响应体业务码 401，见 link:web.adoc[web]）；权限不足是 403，两者不要混用。
+
+== 相关
+
+- 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom README]

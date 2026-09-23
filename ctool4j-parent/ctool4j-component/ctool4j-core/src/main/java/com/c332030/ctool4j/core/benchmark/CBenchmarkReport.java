@@ -31,7 +31,11 @@ import java.util.List;
  * <h2>设计要点</h2>
  * <p><b>markdown 导出</b></p>
  * <ul>
- *   <li>表格含「实现方式 / Avg(ns/op) / ops/s / 相对基线」列，相对基线为各结果与基线（首项）耗时比。</li>
+ *   <li>表格含「实现方式 / Avg(ns/op) / 离散度(极差) / 相对离散度 / ops/s / 相对基线 / 结论」列：
+ *   终值与离散度同表同格（缺离散度的成绩不成立），相对基线为各结果与基线（首项）耗时比，
+ *   结论按「差异是否超过两者离散度之和」判定（未超过即标"无显著差异"）。</li>
+ *   <li>基线均值为 0 时比值与吞吐无意义（{@code x/0} 会渲染成 {@code NaNx}/{@code Infinityx}），
+ *   按"不可比"输出文字而非数字（见 {@code formatRatio} / {@code formatOpsPerSecond}）。</li>
  * </ul>
  * <p><b>文件写出</b></p>
  * <ul>
@@ -39,7 +43,7 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/8/20
- * @version 1.0
+ * @version 1.1
  */
 @SuperBuilder
 @RequiredArgsConstructor
@@ -87,17 +91,73 @@ public class CBenchmarkReport {
         sb.append("# ").append(title).append("\n\n");
 
         CBenchmarkResult baseline = results.get(0);
-        sb.append("| 实现方式 | Avg(ns/op) | ops/s | 相对基线 |\n");
-        sb.append("| --- | ---: | ---: | ---: |\n");
+        double baselineAvg = baseline.avgNanos();
+        // 终值与离散度同表同格给出（缺离散度的成绩不成立）：终值 + 极差 + 相对离散度
+        sb.append("| 实现方式 | Avg(ns/op) | 离散度(极差 ns/op) | 相对离散度 | ops/s | 相对基线 | 结论 |\n");
+        sb.append("| --- | ---: | ---: | ---: | ---: | ---: | --- |\n");
         for (CBenchmarkResult result : results) {
             sb.append("| ").append(result.getName())
                 .append(" | ").append(String.format("%.1f", result.avgNanos()))
-                .append(" | ").append(String.format("%.0f", result.opsPerSecond()))
-                .append(" | ").append(String.format("%.2fx", result.avgNanos() / baseline.avgNanos()))
+                .append(" | ").append(String.format("%.1f", result.dispersionNanos()))
+                .append(" | ").append(String.format("%.1f%%", result.dispersionRatio() * 100))
+                .append(" | ").append(formatOpsPerSecond(result))
+                .append(" | ").append(formatRatio(result.avgNanos(), baselineAvg))
+                .append(" | ").append(result == baseline ? "基线" : conclusionOf(result, baseline))
                 .append(" |\n");
         }
         sb.append("\n");
         return sb.toString();
+    }
+
+    /**
+     * 相对基线的格式化：基线均值为 0 时比值无意义（{@code x/0} 会渲染成 {@code NaNx}/{@code Infinityx}），
+     * 按"不可比"输出文字而非数字
+     *
+     * @param value        待比较的耗时
+     * @param baselineAvg  基线均值
+     * @return 比值文本（如 {@code 0.50x}）；基线不可比时返回 {@code 不可比（基线为 0）}
+     */
+    private static String formatRatio(double value, double baselineAvg) {
+
+        if(baselineAvg <= 0) {
+            return "不可比（基线为 0）";
+        }
+
+        return String.format("%.2fx", value / baselineAvg);
+    }
+
+    /**
+     * 吞吐的格式化：均值为 0（无有效耗时）时吞吐为无穷，按"不可比"输出文字而非 {@code Infinity}
+     *
+     * @param result 基准结果
+     * @return 吞吐文本（如 {@code 1000}）；均值为 0 时返回 {@code -（均值为 0）}
+     */
+    private static String formatOpsPerSecond(CBenchmarkResult result) {
+
+        double ops = result.opsPerSecond();
+        if(Double.isInfinite(ops) || Double.isNaN(ops)) {
+            return "-（均值为 0）";
+        }
+
+        return String.format("%.0f", ops);
+    }
+
+    /**
+     * 结论判定：组间差异小于两者离散度之和即视为「无显著差异」（不得据此宣称胜出）
+     *
+     * @param result   待判定结果
+     * @param baseline 基线结果
+     * @return 结论文本
+     */
+    private static String conclusionOf(CBenchmarkResult result, CBenchmarkResult baseline) {
+
+        double delta = result.avgNanos() - baseline.avgNanos();
+        double noise = result.dispersionNanos() + baseline.dispersionNanos();
+        if(Math.abs(delta) <= noise) {
+            return "无显著差异（差异 < 离散度）";
+        }
+
+        return delta < 0 ? "优于基线" : "劣于基线";
     }
 
     /**

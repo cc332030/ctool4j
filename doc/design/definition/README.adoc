@@ -6,7 +6,7 @@
 
 == 功能文档
 
-- link:openapi-doc-annotations.adoc[openapi-doc-annotations]
+- link:openapi-doc-annotations.adoc[C 前缀接口文档注解族]：四个文档注解（`@CSchema` / `@CTag` / `@COperation` / `@CParameter`）与必填语义注解的分工、与 OpenAPI2/3 注解的对应、插件落地方式与取舍
 
 == 相关入口
 
