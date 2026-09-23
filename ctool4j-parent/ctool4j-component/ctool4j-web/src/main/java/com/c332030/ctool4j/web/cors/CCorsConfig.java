@@ -3,8 +3,8 @@ package com.c332030.ctool4j.web.cors;
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.constant.CConstants;
+import com.c332030.ctool4j.spring.annotation.CConfigurationProperties;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Set;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CCorsConfig} 为跨域（CORS）配置属性类，{@code @ConfigurationProperties("cors")} + {@code @Data}，
+ * <p>{@code CCorsConfig} 为跨域（CORS）配置属性类，{@code @CConfigurationProperties("cors")} + {@code @Data}，
  * 由 Spring Boot 绑定 {@code cors.*} 前缀的配置项。</p>
  * <p>属性：</p>
  * <ul>
@@ -78,8 +78,9 @@ import java.util.Set;
  * <h2>设计要点</h2>
  * <p><b>配置绑定</b></p>
  * <ul>
- *   <li>使用 {@code @ConfigurationProperties("cors")} 前缀绑定，全局 {@code enable} 默认即不开启跨域。</li>
+ *   <li>使用 {@code @CConfigurationProperties("cors")} 前缀绑定，全局 {@code enable} 默认即不开启跨域。</li>
  *   <li>域名级配置绑定 {@code cors.origins.<域名>}，由 {@link CCorsOriginConfig} 承载。</li>
+ *   <li>绑定开关（未知键、非法值的处置）由 {@link CConfigurationProperties} 给定，需要强校验时按其文档改用元注解。</li>
  * </ul>
  * <p><b>默认值集中</b></p>
  * <ul>
@@ -89,10 +90,10 @@ import java.util.Set;
  *
  * @author c332030
  * @since 2024/5/8
- * @version 1.2
+ * @version 1.3
  */
 @Data
-@ConfigurationProperties("cors")
+@CConfigurationProperties("cors")
 public class CCorsConfig {
 
     Boolean enable = false;

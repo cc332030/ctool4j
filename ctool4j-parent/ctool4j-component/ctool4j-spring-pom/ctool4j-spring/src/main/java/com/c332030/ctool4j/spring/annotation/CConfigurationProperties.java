@@ -84,8 +84,8 @@ import java.lang.annotation.*;
  *
  * @since 2026/9/21
  * @version 1.0
- * @see CConfigurationPropertiesTests
- * @see CConfigurationPropertiesBindingTests
+ * @see "CConfigurationPropertiesTests"
+ * @see "CConfigurationPropertiesBindingTests"
  */
 @Documented
 @Inherited
