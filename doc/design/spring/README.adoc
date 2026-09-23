@@ -6,6 +6,7 @@ Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-clou
 
 == 功能文档
 
+- link:started.adoc[应用启动完成回调（ICStarted）]：回调点的选型与执行顺序、启动期缓存的释放、兜底与边界
 - link:ip.adoc[IP 处理]：IP / IP 段（CIDR）公共解析工具的语义与边界
 - link:real-class-name.adoc[代理场景取真实业务类/类名/包名]：`ICRealClass` 契约与 `CProxyUtils` 代理解析
 - link:authority-json.adoc[会话权限的 JSON 读写]：`GrantedAuthority` 接口的反序列化装配 `CSecurityJacksonModule` 与权限常量池，含共享 getter 返回值的 Jackson 陷阱

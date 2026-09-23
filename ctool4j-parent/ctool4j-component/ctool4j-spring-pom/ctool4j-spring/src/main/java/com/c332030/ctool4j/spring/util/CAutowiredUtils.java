@@ -3,6 +3,8 @@ package com.c332030.ctool4j.spring.util;
 import com.c332030.ctool4j.core.classes.CClassUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
+import com.c332030.ctool4j.core.util.CStrUtils;
+import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.definition.constant.CTool4jConstants;
 import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
@@ -15,7 +17,9 @@ import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -28,6 +32,7 @@ import java.util.Map;
  *   <li>注入：{@code autowired(type)} / {@code autowired(object)} / {@code autowired(type, object, field)}。</li>
  *   <li>字段查询：{@code getFieldMap(clazz)} 取标注 {@code @CAutowired} 的字段。</li>
  *   <li>扫描：{@code autowiredScan(applicationContext)} 扫描并注入全部标记 {@code CAutowiredScan} 的类。</li>
+ *   <li>扫描包缓存清理：{@code clearScannedBasePackages(basePackages)}。</li>
  * </ul>
  *
  * <h2>设计要点</h2>
@@ -81,6 +86,47 @@ import java.util.Map;
 @CustomLog
 @UtilityClass
 public class CAutowiredUtils {
+
+    /**
+     * 启动期已扫描过的包：同一批包在启动阶段会被多处（{@code autowiredScan}、{@code listAnnotatedClassThenDo}）
+     * 反复传入，重复扫描同一包只重复付出类扫描成本。
+     * <p>仅在启动阶段有效——启动完成后不再有新的包需要扫描，故由
+     * {@link #clearScannedBasePackages(Set)} 在应用启动完成时释放</p>
+     */
+    private final Set<String> SCANNED_BASE_PACKAGES = new LinkedHashSet<>();
+
+    /**
+     * 记录启动期已扫描的包
+     *
+     * @param basePackage 包名；空白包名不记录
+     */
+    private void recordScannedBasePackage(String basePackage) {
+
+        val available = CStrUtils.toAvailable(basePackage);
+        if (CValidUtils.isNotValid(available)) {
+            return;
+        }
+
+        SCANNED_BASE_PACKAGES.add(available);
+    }
+
+    /**
+     * 清除启动期扫描包缓存
+     *
+     * <p><b>详细设计</b>：移除 {@code basePackages} 已记录过的包；未记录过的包无副作用。</p>
+     * <p><b>适用范围</b>：由应用启动完成回调调用一次——启动阶段结束后不再有扫描需求，
+     * 缓存继续持有只会占用内存（集合元素为包名字符串，量级为启动类所在包的数量）。</p>
+     *
+     * @param basePackages 待清除的包集合；为 {@code null} 或空集合时无操作
+     */
+    public void clearScannedBasePackages(Set<String> basePackages) {
+
+        if (CValidUtils.isNotValid(basePackages)) {
+            return;
+        }
+
+        basePackages.forEach(SCANNED_BASE_PACKAGES::remove);
+    }
 
     /**
      * 注入指定类的全部静态 CAutowired 字段
@@ -196,6 +242,7 @@ public class CAutowiredUtils {
         );
 
         basePackages.forEach(basePackage -> {
+            recordScannedBasePackage(basePackage);
             val classes = CClassUtils.listAnnotatedClass(annotationClass, basePackage);
             CCollUtils.forEach(classes, consumer);
         });
@@ -225,6 +272,7 @@ public class CAutowiredUtils {
         );
 
         basePackages.forEach(basePackage -> {
+            recordScannedBasePackage(basePackage);
             val classes = CClassUtils.listAnnotatedClass(CAutowiredScan.class, basePackage);
             for (val scanClass : classes) {
                 for (val field : getFieldMap(scanClass).values()) {

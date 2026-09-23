@@ -4,7 +4,7 @@
 
 == 一览
 
-* *全局异常处理*：内置处理器把异常统一转 `CResult` JSON —— 业务异常（`CCBusinessExceptionHandler`）、**未认证（`CUnauthorizedExceptionHandler`，响应体业务码 401）**、通用异常（`CCExceptionHandler`）、参数校验失败（`CMethodArgumentNotValidExceptionHandler`）、请求体缺失/不可读（`CHttpMessageNotReadableExceptionHandler`）、必填参数缺失（`CMissingServletRequestParameterExceptionHandler`）、参数类型不匹配（`CMethodArgumentTypeMismatchExceptionHandler`）、方法不支持、消息不可写、客户端中断、非法参数/状态、文件上传超限/解析失败（`CFileUploadExceptionHandler`：超限返回业务码 413 + 含上限的明确提示，解析失败返回 400）、兜底（`CThrowableHandler`）。
+* *全局异常处理*：内置处理器把异常统一转 `CResult` JSON —— 业务异常（`CCBusinessExceptionHandler`）、**未认证（`CUnauthorizedExceptionHandler`，响应体业务码 401）**、通用异常（`CCExceptionHandler`）、参数校验失败（`CMethodArgumentNotValidExceptionHandler`）、请求体缺失/不可读（`CHttpMessageNotReadableExceptionHandler`）、必填参数缺失（`CMissingServletRequestParameterExceptionHandler`）、参数类型不匹配（`CMethodArgumentTypeMismatchExceptionHandler`）、方法不支持、消息不可写、客户端中断、非法参数/状态、文件上传超限/解析失败（`CFileUploadExceptionHandler`：超限返回业务码 413 + 含上限的明确提示，解析失败返回 400）、非 `CException` 体系异常（`CExceptionHandler`：识别容器私有上传超限类型后返回 413，其余返回 500 + 固定文案）、兜底（`CThrowableHandler`）。
 * *文件上传上限*：Spring Boot 默认 `spring.servlet.multipart.max-file-size` 仅 **1MB**、`max-request-size` 为 10MB，稍大文件即被拒（提示为 `FileSizeLimitExceededException` 原始文本）；生产建议成对显式调大——单文件上限与整个 multipart 请求上限，且后者须**大于**前者（表单字段与其他 multipart 段有开销），否则仍会在请求解析阶段被拒；超限由 `CFileUploadExceptionHandler` 统一转为业务码 413 + 含上限的提示。
 * *容器兼容*：异常处理器只引用 Spring 公共类型；客户端中断处理器（`CClientAbortExceptionHandler`）针对 Tomcat 专有异常，通过 `@ConditionalOnClass(name=...)` 与条件注解的类名匹配（`valueName`）装配，Jetty/Undertow 下自动跳过、不因类缺失启动失败。
 * *跨域*：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强。
@@ -26,6 +26,7 @@ throw new CBusinessException("订单不存在");   // → {"code":..., "msg":"�
 
 * 需要自定义某一类异常的处理：自行声明同类型处理器 Bean；内置处理器带 `@ConditionalOnMissingExceptionHandler`，业务自定义时**自动让位**。
 * 客户端问题（参数缺失/类型不匹配/请求体不可读）返回固定文案、日志降为 debug，不透出内部类型与堆栈。
+* **兜底分层（四档，见 `CExceptionHandlerOrder`）**：具体类型处理器 → `CException` 兜底（`CCExceptionHandler`）→ 通用 `Exception` 兜底（`CExceptionHandler`，含上传超限识别）→ `Throwable` 兜底（`CThrowableHandler`，承接 `Error`）。Spring 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，故业务方任一显式 `@Order`（如 `@Order(0)`）都可抢先；要接管 `Exception` 本身须排在 `EXCEPTION_FALLBACK` 之前。
 * **非预期 null 不穿透为 500**（防御分支，正常链路不可达）：容器显式传入 null 异常对象时，各处理器返回固定文案而不抛 NPE；异常消息为 null（如 `new IllegalArgumentException()`）时用异常类型简单名兜底，不会出现 `message: null`。
 
 === 未认证（响应体业务码 401）

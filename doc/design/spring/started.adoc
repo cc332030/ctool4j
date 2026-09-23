@@ -1,0 +1,74 @@
+= 应用启动完成回调（ICStarted）设计文档
+
+模块：ctool4j-spring（`ICStarted` + `CStartedApplicationRunner` + `CSpringInit`）、ctool4j-web（`CWebInit`）
+状态：已落地
+适用范围：需要在 `SpringApplication.run` 执行完成后处理一次的场景；启动完成时释放启动期缓存
+
+== 方案与被选原因
+
+Spring Boot 启动完成后的回调点有两个既有候选，都属 `SpringApplication.run` 的 `callRunners` 阶段：
+
+[cols="1,2,2", options="header"]
+|===
+| 候选 | 形态 | 取舍
+
+| `ApplicationRunner`
+| 接收解析后的 `ApplicationArguments`，由 `callRunners` 调用
+| **选中**：与既有 `CStartedApplicationRunner` 同源，不需新增运行器，启动完成点只有一个真源
+
+| `CommandLineRunner`
+| 接收原始 `String[]` 参数
+| 不选：与 `ApplicationRunner` 同为运行器、职责重叠，两者并存只会让"启动完成后做什么"出现两条路径
+|===
+
+**不选** `ApplicationListener<ApplicationReadyEvent>`：该事件的语义是"应用已就绪、可对外服务"，与"`run` 执行完成"是两件事——`run` 返回前还会走 `listeners.started` 等步骤，而运行器回调本身就在 `run` 内；用事件承载会让回调点从运行器阶段漂移到就绪阶段，且与既有的 `CStartedApplicationRunner` 形成第二套"启动完成"。
+
+== 契约与执行顺序
+
+- `ICStarted#onStarted()` 是本模块的启动完成回调契约（`default` 空实现，实现类按需覆写）；它只是回调点，本身不是运行器——**只实现 `ICStarted` 不产生回调**。
+- `CStartedApplicationRunner` 同时是 `ApplicationRunner` 与 `ICStarted`，承接回调点：`run` 内**先输出启动成功日志、再调 `onStarted()`**——启动完成的事实先落日志，启动后处理的耗时才有一个可对照的起点。框架与业务侧的启动完成处理都实现本运行器（如 `CSpringInit`、`CWebInit`），注册为 Bean 即被回调。
+- 容器内存在多个运行器时，运行器之间的顺序由 `@Order` 决定；本模块不提供跨运行器的排序保证。
+
+== 启动期缓存的释放
+
+清理由**两个模块各自的 Bean** 承载，清除的对象都是**只在启动阶段有效**的进程级静态数据——它们不随任何 Bean 销毁，容器关闭也不会带走，这正是需要显式释放的原因。
+
+`ctool4j-spring` 的 `CSpringInit#onStarted()`：
+
+- `CAutowiredUtils` 的启动期扫描包集合（`SCANNED_BASE_PACKAGES`）：`autowiredScan` 与 `listAnnotatedClassThenDo` 在容器就绪时把扫过的包记入该集合，用于识别重复扫描；启动完成后不会再有新的扫描需求，集合继续持有只占内存。
+- `CSpringConfigBeans` 的附加扫描包（`getBasePackages()`）：测试上下文按需补入的包，与上一项同源、随启动完成一并清除。
+
+`ctool4j-web` 的 `CWebInit#onStarted()`：
+
+- `ConditionalOnMissingExceptionHandlerCondition` 的按 advice 类型声明集缓存：只在装配期求值、启动后不再读取。它按类弱关联（`ClassValue`），但**弱关联只在键的类被卸载时释放条目**——应用自身的 advice 类型由本应用类加载器长期持有，等于在应用存活期间不会自行释放，故须显式清空。
+
+**清理的调用方落在被清对象所在的模块**：依赖方向是单向的（web → spring），若由 `CSpringInit` 反向清理 web 的条件类，就会造出环形依赖。
+
+**两者都是"结果恒定但仍要清"的形态**：不清理不会算错（声明集是静态的），清理的收益是把内存交还运行时，代价是清空后同进程再次装配时重新解析。动机是"启动后不再需要"这一事实，而非"缓存会变脏"。
+
+== 兜底与适用范围
+
+- 实现类未覆写 `onStarted()`：默认空实现，启动成功日志照常输出、不中断启动。
+- 待清理项本就为空（启动期未写入）：清理为空操作、不报错。
+- 仅适用于 `SpringApplication.run` 流程内的容器；只实现 `ICStarted`、未实现 `CStartedApplicationRunner` 的类**不产生回调**，须由实现 `CStartedApplicationRunner`（或 `ApplicationRunner`）的 Bean 承接。
+
+== 已知限制与取舍
+
+- `onStarted()` 在启动流程内同步执行，耗时操作会延长启动时间。
+- `onStarted()` 抛出的异常按 Spring Boot 对运行器的既定口径处理：启动失败、容器关闭；本模块不吞异常、也不改写该语义。
+- 清理只在启动完成后执行一次：启动期间若已有读取方依赖被清理的状态，须改由容器 Bean 持有，不能寄望启动后仍可用。
+- 声明集缓存由条件类自己提供清理入口（`clearDeclarationsCache()`）：条件类在装配期求值、是 `Condition` 而非容器 Bean，不自行监听事件——监听需要容器 Bean 的身份，故触发点由 web 模块的 `CWebInit`（本身已是 `CStartedApplicationRunner` 实现）承担。
+- 条件类只清**本类产生的那部分键**（按"当前容器内仍是 advice 的类型"过滤），不清空整个按类缓存对象：该对象可能被多处共用，整体清空会连别的调用方的条目一起清掉。
+
+== 波及影响
+
+- `CStartedApplicationRunner#run` 是回调时机与日志顺序的唯一落点：改其内 `onStarted()` 的调用时机即改变所有实现类的回调时机。
+- 清除附加扫描包后，容器启动完成后新调用的 `CAutowiredUtils.autowiredScan` 不再受"已扫描包"影响（该能力本就只在启动期使用）。
+- 清空声明集缓存后，同进程内若有容器重新装配，声明集会重新解析——判定语义不变（每次都按当前容器的 bean 定义取值），只是多付一次解析成本。
+
+== 相关
+
+- 源码：`ICStarted`、`CStartedApplicationRunner`、`CSpringInit`（均在 `ctool4j-spring-pom/ctool4j-spring`）；`CWebInit`、`ConditionalOnMissingExceptionHandlerCondition`（均在 `ctool4j-web`）。
+- 相邻设计：link:../web/exception-fallback.adoc[异常兜底分层]（声明集缓存的用途与清理口径）。
+- 相邻回调：`ICSpringInit`（单例实例化完成后触发，见 link:../../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[模块 README]）。
+- 上级索引：link:README.adoc[spring 文档索引]。

@@ -19,7 +19,7 @@
 - 配置属性绑定注解 `@CConfigurationProperties`（`@ConfigurationProperties` 的组合注解，只承载前缀 `value`；两个绑定开关都在元注解上给定，默认忽略多出的未知键与类型不匹配的属性，都不报错、不中断启动；需要强校验时改用元注解）
 - 工具类：`CSpringUtils`（Spring 容器）、`CRequestUtils`（请求）、`CFileUtils`（文件）、`CRestTemplateUtils`、`CAnnotationUtils`（注解）、`CAspectUtils`（切面）、`CAutowiredUtils`
 - 代理解析：`CProxyUtils`（代理判定与真实业务类解析；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本在纳秒量级）
-- 生命周期：应用启动完成后执行 `CStartedApplicationRunner`、初始化回调 `ICSpringInit`
+- 生命周期：应用启动完成后由 `CStartedApplicationRunner` 执行（回调 `ICStarted#onStarted`，并清理本模块的启动期缓存）、初始化回调 `ICSpringInit`
 - 语义接口：`ICRealClass`（真实业务类/类名/包名契约，带默认实现，代理场景下 `getClass()` 取到代理类时用）
 - 异常忽略记录：`@CLogAndIgnoreThrowable` + 切面
 - Jackson 与 Spring 全局初始化（`CJacksonInit` / `CSpringInit`）
@@ -34,7 +34,7 @@
 | `configuration` | Spring / Jackson 初始化装配 |
 | `bean` | 配置 Bean 持有容器 |
 | `boot` | 启动后运行器 |
-| `interfaces` / `lifecycle` | 有序执行接口 `ICOrdered`、真实业务类契约 `ICRealClass`、初始化回调 |
+| `interfaces` / `lifecycle` | 有序执行接口 `ICOrdered`、真实业务类契约 `ICRealClass`、启动完成回调 `ICStarted`、初始化回调 |
 | `util` | 容器 / 请求 / 文件 / HTTP / 注解 / 切面 / 代理工具 |
 | `exception.annotation` / `exception.aspect` | 异常忽略与记录 |
 | `test.annotation` | 测试组合注解 |
@@ -52,8 +52,9 @@
 | `CAnnotationUtils` | 工具类 | 注解扫描与读取 |
 | `CAspectUtils` | 工具类 | 切面操作工具 |
 | `CProxyUtils` | 代理解析类 | 代理判定（Spring AOP / JDK 动态代理）与真实业务类/类名/包名解析；单次调用纳秒量级、不缓存解析结果 |
-| `CStartedApplicationRunner` | 运行器 | 应用启动完成后执行 |
-| `ICSpringInit` | 接口 | Spring 初始化回调接口 |
+| `CStartedApplicationRunner` | 运行器 | 应用启动完成后输出启动成功日志，并回调 `ICStarted#onStarted` |
+| `ICStarted` | 接口 | 应用启动完成回调接口（`SpringApplication.run` 执行完成后触发） |
+| `ICSpringInit` | 接口 | Spring 初始化回调接口（单例实例化完成后触发） |
 | `ICRealClass` | 接口 | 真实业务类/类名/包名契约，带默认实现（代理场景下由业务基类实现） |
 | `CLogAndIgnoreThrowable` | 注解 | 忽略并记录异常 |
 | `CTool4jSpringBootTest` | 注解 | 测试组合注解 |
