@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.cors.advice;
 
 import com.c332030.ctool4j.web.cors.CCorsConfig;
+import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +15,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.util.Collections;
-import java.util.HashSet;
 
 /**
  * <p>
@@ -37,10 +37,11 @@ import java.util.HashSet;
  * <ul>
  *   <li>1.1 beforeBodyWrite_whenNotEnabled（beforeBodyWrite_whenNotEnabled）</li>
  *   <li>1.2 beforeBodyWrite_whenEnabled（beforeBodyWrite_whenEnabled）</li>
+ *   <li>1.3 beforeBodyWrite_whenOriginDisabled（beforeBodyWrite_whenOriginDisabled）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 
 public class CCorsResponseBodyAdviceTests {
@@ -93,10 +94,12 @@ public class CCorsResponseBodyAdviceTests {
      */
     @Test
     public void beforeBodyWrite_whenEnabled() {
-        // 启用跨域时设置响应头并原样返回响应体；
-        // allowedOrigins 需包含 Origin 的 host（handleDo 用 getHostWithPort 归一化后匹配）
+        // 启用跨域且域名已启用时设置响应头并原样返回响应体；
+        // origins 的 key 为 Origin 归一化后的 host（handleDo 用 getHostWithPort 归一化后匹配）
         config.setEnable(true);
-        config.setAllowedOrigins(new HashSet<>(Collections.singletonList("example.com")));
+        val originConfig = new CCorsOriginConfig();
+        originConfig.setEnable(Boolean.TRUE);
+        config.setOrigins(Collections.singletonMap("example.com", originConfig));
         CCorsUtils.setConfig(config);
         request.setMethod("GET");
         request.addHeader(HttpHeaders.ORIGIN, "http://example.com");
@@ -112,6 +115,28 @@ public class CCorsResponseBodyAdviceTests {
             "http://example.com",
             response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)
         );
+    }
+
+    /**
+     * 对应测试用例 1.3：beforeBodyWrite_whenOriginDisabled
+     */
+    @Test
+    public void beforeBodyWrite_whenOriginDisabled() {
+        // 域名级未启用时原样返回响应体且不设置跨域头
+        config.setEnable(true);
+        config.setOrigins(Collections.singletonMap("example.com", new CCorsOriginConfig()));
+        CCorsUtils.setConfig(config);
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "http://example.com");
+        val body = new Object();
+
+        Object result = advice.beforeBodyWrite(
+            body, parameter, MediaType.APPLICATION_JSON, null,
+            request, response
+        );
+
+        Assertions.assertSame(body, result);
+        Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
 }

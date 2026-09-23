@@ -1,13 +1,17 @@
 package com.c332030.ctool4j.web.cors.interceptor;
 
 import com.c332030.ctool4j.web.cors.CCorsConfig;
+import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.util.Collections;
 
 /**
  * <p>
@@ -31,10 +35,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *   <li>1.1 preHandle_whenNotEnabled（preHandle_whenNotEnabled）</li>
  *   <li>1.2 preHandle_whenEnabledAndOptions（preHandle_whenEnabledAndOptions）</li>
  *   <li>1.3 preHandle_whenEnabledAndGet（preHandle_whenEnabledAndGet）</li>
+ *   <li>1.4 preHandle_whenOriginDisabled（preHandle_whenOriginDisabled）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 
 public class CCorsInterceptorTests {
@@ -103,6 +108,25 @@ public class CCorsInterceptorTests {
         boolean result = interceptor.preHandle(request, response, new Object());
 
         Assertions.assertTrue(result);
+    }
+
+    /**
+     * 对应测试用例 1.4：preHandle_whenOriginDisabled
+     */
+    @Test
+    public void preHandle_whenOriginDisabled() {
+        // 域名级未启用：放行且不输出跨域头
+        config.setEnable(true);
+        config.setOrigins(Collections.singletonMap("example.com", new CCorsOriginConfig()));
+        CCorsUtils.setConfig(config);
+        request.setMethod("GET");
+        request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
+        request.addHeader(HttpHeaders.HOST, "localhost:8080");
+
+        boolean result = interceptor.preHandle(request, response, new Object());
+
+        Assertions.assertTrue(result);
+        Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 
 }
