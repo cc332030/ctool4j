@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 2025/12/29
  * @version 1.0
+ * @see CMybatisPlusConfigurationTests
  */
 @CustomLog
 @Configuration

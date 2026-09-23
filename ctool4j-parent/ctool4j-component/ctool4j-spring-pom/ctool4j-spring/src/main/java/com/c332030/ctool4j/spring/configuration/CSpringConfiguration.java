@@ -1,17 +1,19 @@
 package com.c332030.ctool4j.spring.configuration;
 
+import com.c332030.ctool4j.core.jackson.CJacksonUtils;
 import com.c332030.ctool4j.definition.constant.CTool4jConstants;
 import com.c332030.ctool4j.spring.bean.CSpringConfigBeans;
 import com.c332030.ctool4j.spring.util.CRestTemplateUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.CustomLog;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,8 +27,9 @@ import org.springframework.web.client.RestTemplate;
  * <ul>
  *   <li>组件扫描：{@code @ComponentScan} 覆盖 {@code com.c332030.ctool4j} 基础包。</li>
  *   <li>属性扫描：{@code @ConfigurationPropertiesScan} 同范围。</li>
- *   <li>共享 {@code RestTemplate}：{@code cRestTemplate}（未自定义时提供懒加载实例）。</li>
  *   <li>上下文持有：把 {@code ApplicationContext} 写入 {@code CSpringConfigBeans}，供静态工具类读取。</li>
+ *   <li>共享 {@code ObjectMapper}：{@code cObjectMapper}（未自定义时提供 {@code CJacksonUtils.OBJECT_MAPPER}）。</li>
+ *   <li>共享 {@code RestTemplate}：{@code cRestTemplate}（未自定义时提供懒加载实例）。</li>
  * </ul>
  *
  * <h2>设计要点</h2>
@@ -37,6 +40,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * <h2>兜底设计</h2>
  * <ul>
+ *   <li>{@code ObjectMapper} 仅在容器内不存在同类型 Bean 时提供（{@code @ConditionalOnMissingBean}）。</li>
  *   <li>{@code RestTemplate} 仅在容器内不存在同类型 Bean 时提供（{@code @ConditionalOnMissingBean}）。</li>
  * </ul>
  *
@@ -57,6 +61,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @since 2025/9/11
  * @version 1.0
+ * @see CSpringConfigurationAutoConfigTests
  */
 @CustomLog
 @Configuration
@@ -67,6 +72,18 @@ public class CSpringConfiguration implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         CSpringConfigBeans.setApplicationContext(applicationContext);
+    }
+
+    /**
+     * 创建 ObjectMapper
+     *
+     * @return 共享的 ObjectMapper 实例
+     */
+    @Bean
+    @ConditionalOnMissingBean(ObjectMapper.class)
+    public ObjectMapper cObjectMapper() {
+        log.debug("默认装配共享 ObjectMapper（未自定义 ObjectMapper Bean 时提供）");
+        return CJacksonUtils.OBJECT_MAPPER;
     }
 
     /**

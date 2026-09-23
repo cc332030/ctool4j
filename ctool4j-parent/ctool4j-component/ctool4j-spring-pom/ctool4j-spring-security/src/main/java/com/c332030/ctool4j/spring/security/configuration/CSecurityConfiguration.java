@@ -52,6 +52,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  *
  * @since 2026/1/22
  * @version 1.1
+ * @see CSecurityConfigurationTests
  */
 @CustomLog
 @Configuration

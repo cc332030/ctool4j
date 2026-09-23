@@ -113,6 +113,7 @@ import java.util.stream.Collectors;
  *
  * @since 2025/12/16
  * @version 1.0
+ * @see COpenApi2ConfigurationTests
  */
 @CustomLog
 @Configuration
