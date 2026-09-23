@@ -10,7 +10,7 @@
 
 - **全局异常处理**：内置多类异常处理器（业务异常、参数校验异常、请求体缺失/不可读、必填参数缺失、参数类型不匹配、HTTP 方法不支持、消息不可写、客户端中断、非法参数/状态、文件上传超限/解析失败、兜底 Throwable），通过 `@ConditionalOnMissingExceptionHandler` 支持业务自定义覆盖；**处理器优先级（兜底不抢占）**：三档统一由 `CExceptionHandlerOrder` 定义、整体贴近 `Ordered.LOWEST_PRECEDENCE`——具体类型处理器 `CONCRETE`（`LOWEST_PRECEDENCE - 100`）、`CException` 兜底（`CCExceptionHandler`）`C_EXCEPTION_FALLBACK`（`- 50`）、`Throwable` 兜底（`CThrowableHandler`）`THROWABLE_FALLBACK`（`LOWEST_PRECEDENCE`）；Spring 的 `ExceptionHandlerExceptionResolver` 按 advice 顺序取首个能匹配的处理器、不跨 advice 比较异常类型精确度，故具体类型档必须先于兜底档（否则子类异常被截走，如未授权 401 被兜底成 500），而内置处理器整体处于兜底区、不抢占业务方——业务方任一显式 `@Order`（如 `@Order(0)`）都可抢先；覆盖两条路径：声明同类型 `@ExceptionHandler`（条件装配使内置处理器不生效，与顺序无关）、处理子类/超类等非精确类型时用显式 `@Order` 排在对应档位之前；**命中回退**：单个 advice 内无精确类型匹配时 Spring 会按异常 **cause** 回退匹配，故"数字参数传非数字"的 `MethodArgumentTypeMismatchException`（cause 为 `NumberFormatException`）由 `CIllegalArgumentExceptionHandler` 命中，而 cause 非 `IllegalArgumentException` 的类型不匹配则由 `CMethodArgumentTypeMismatchExceptionHandler` 命中；**空值兜底**：Spring MVC 命中 `@ExceptionHandler` 时异常对象与异常消息都不为 null，故各处理器里的 null 判断属不可达的防御分支——按各处理器 javadoc「兜底设计」的声明补齐（**非预期的 null 入参**不取异常内容、返回固定文案，不抛 NPE；`CCExceptionHandler` / `CHttpRequestMethodNotSupportedExceptionHandler` / `CIllegalArgumentExceptionHandler` / `CIllegalStateExceptionHandler` 另对**消息为 null** 的异常用异常类型简单名兜底，避免响应 `message: null`），据此 `ctool4j-web` 的方法签名继续按包级 `@NonNullApi` 契约声明非空
 - **容器兼容**：异常处理器只依赖 Spring 公共类型；`CClientAbortExceptionHandler` 处理的是 Tomcat 专有异常，通过 `@ConditionalOnClass(name = ...)` + 条件注解的类名匹配（`valueName`）装配——不解析容器私有类，Jetty/Undertow 下自动跳过、不影响启动
-- **跨域全面支持**：`CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强多层方案
+- **跨域全面支持（按域名精细化）**：`CCorsConfig` / `CCorsOriginConfig` / `CCorsFilter` / `CCorsInterceptor` / 响应体增强多层方案；来源白名单与域名配置合并为 `cors.origins` 单一来源，**每个域名一条配置、每个操作一个独立开关**（域名开关 `enable`、凭据 `credentials`、响应头暴露 `expose-headers` 均默认关闭、需显式开启），域名级未配置的项回落到 `CCorsConfig` 的默认值（默认值不写在域名配置里）
 - **JWT 与 token**：`CJwtUtils`（JWT 生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头与请求属性读写）
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称
 - **MVC 配置**：`CWebMvcConfigurer`（拦截器、静态资源配置）、静态资源过滤器 `CResourceFilter`
@@ -43,7 +43,9 @@
 | `CMethodArgumentNotValidExceptionHandler` | 处理器 | 参数校验异常返回 |
 | `CThrowableHandler` | 处理器 | 兜底异常返回 |
 | `ConditionalOnMissingExceptionHandler` | 注解 | 仅当业务未自定义处理器时装配 |
-| `CCorsConfig` / `CCorsFilter` / `CCorsInterceptor` | 配置/过滤器/拦截器 | 跨域支持 |
+| `CCorsConfig` | 配置 | 跨域全局配置 `cors.*`：`enable` + 按域名的 `origins` + 各项默认值 |
+| `CCorsOriginConfig` | 配置 | 单域名跨域配置 `cors.origins.<域名>.*`：`enable`（须显式开启）、`allowed-methods`、`allowed-headers`、`credentials`、`expose-headers`、`exposed-headers` |
+| `CCorsFilter` / `CCorsInterceptor` | 过滤器/拦截器 | 跨域支持（处理逻辑统一收敛在 `CCorsUtils`） |
 | `CJwtUtils` | 工具类 | JWT 生成与解析 |
 | `CTokenUtils` | 工具类 | token 前缀、请求头/响应头与请求属性读写 |
 | `CRequestHeaderEnum` | 枚举 | 请求头名称统一管理 |

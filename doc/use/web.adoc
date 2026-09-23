@@ -67,6 +67,32 @@ inner-api:
 * 未命中白名单返回 403；客户端 IP 取 `X-Forwarded-For` 首段（代理场景）。
 * 仅标注在类/方法上有效（`TYPE`/`METHOD`），方法级标注不随继承传播。
 
+=== 跨域（按域名精细化）
+
+[source,yaml]
+----
+cors:
+  enable: true                  # 全局开关，默认 false
+  allowed-methods: [ "*" ]       # 域名级未配置时的默认值（默认即 *）
+  allowed-headers: [ Authorization, Content-Type ]
+  exposed-headers: [ Authorization ]
+  origins:
+    # key 为域名（纯 host），含点号必须用中括号写法 [域名]
+    "[a.example.com]":
+      enable: true              # 域名开关：必须显式 true，未配置视为 false
+      credentials: true         # 是否允许携带凭据，默认 false（不设置 Allow-Credentials）
+      expose-headers: true      # 是否暴露响应头，默认 false（不设置 Expose-Headers）
+    "[b.example.com]":
+      enable: true              # 其余项都不配 = 走默认值（方法 * / 头 Authorization,Content-Type）
+      allowed-methods: [ GET, POST ]
+----
+
+* **两层开关**：`cors.enable` 与 `cors.origins[域名].enable` 都显式为 `true` 才处理该域名；域名不在 `origins` 中一律不放行。
+* **配置了 ≠ 启用了**：域名 `enable` 默认 `false`，其下其它配置项在未开启时一律不生效——避免删掉某行配置后残留行为。
+* **默认禁用、需显式开启**：`credentials` 与 `expose-headers` 均默认 `false`。
+* **默认值只在一处**：域名级不写默认值，未配置时取 `cors.allowed-methods` / `cors.allowed-headers` / `cors.exposed-headers`；`exposed-headers` 仅在 `expose-headers: true` 时生效。
+* **域名 key 写法（易踩坑）**：仅支持**纯 host、不含端口**，且含点号时**必须写成中括号 `[a.example.com]`**——点号写法 `cors.origins.a.example.com.enable` 会被当成层级分隔符而绑不上；含端口的 key（`[a.example.com:8081]`）会被规范化成错误键值。请求带非默认端口时按 host 命中该配置。
+
 === 必填校验
 
 [source,java]
@@ -96,7 +122,9 @@ String traceId = CTraceUtils.getTraceId();   // 同一次请求内可用；线�
 |===
 | 配置 | 说明
 | +logging.request-log.*+ | 请求日志开关、排除 URI、是否记录请求体（`CRequestLogConfig`）
-| +cors.*+ | 跨域配置（`CCorsConfig`）：`enable`（默认 `false` 不开启）、`allowed-origins`、`allowed-methods`、`allowed-headers`、`exposed-headers`（默认含 `Authorization`）
+| +cors.enable+ | 跨域全局开关（`CCorsConfig`）：默认 `false` 不开启
+| +cors.origins[域名].*+ | 按域名的跨域配置（`CCorsOriginConfig`）：`enable`、`allowed-methods`、`allowed-headers`、`credentials`、`expose-headers`、`exposed-headers`；域名 key 为纯 host、含点号须写中括号
+| +cors.allowed-methods+ / +cors.allowed-headers+ / +cors.exposed-headers+ | 域名级未配置时的默认值（默认 `*` / `Authorization,Content-Type` / `Authorization`）
 | +inner-api.allowed-ips+ | 内部接口 IP/CIDR 白名单（`CInnerApiConfig`）：默认空集合＝全部放行
 |===
 
