@@ -1,0 +1,72 @@
+= 按类缓存（ClassValue 系列）设计文档
+
+模块：ctool4j-core（`ICClassValue` / `CClassValue` / `CRefClassValue` / `CBiClassValue` / `CRefBiClassValue`）
+状态：已落地
+适用范围：按类型缓存"算一次、多次复用"的值（反射元数据、类相关配置、判定结果）
+
+== 方案与被选原因
+
+[cols="1,2,2", options="header"]
+|===
+| 候选 | 形态 | 取舍
+
+| JDK `ClassValue` 自建子类
+| 每处缓存各写一个匿名子类、实现 `computeValue`
+| 不选：样板重复；且"按键清空"在子类里仍要自己维护键集合
+
+| 自建 `ConcurrentHashMap<Class<?>, T>`
+| 按类为键、长期驻留条目
+| 不选：条目**永不释放**——键是强引用，`Class` 对象被本映射长期持有、类卸载后条目仍留在表里（随类数无界增长）
+
+| `CClassValue`（委托 JDK `ClassValue`）
+| 线程安全、按类**弱**关联，类卸载时条目由运行时释放
+| **选中**：与项目既有先例（`CReflectUtils` / `CClassUtils` / `CBeanUtils`）一致，性能与安全性都由 JDK 机制承接
+
+| 复用 Spring 的 `ClassUtils` / 第三方缓存库
+| —
+| 不选：需求只是"按类惰性算一次"，引入依赖或跨框架类型不划算
+|===
+
+`CRefClassValue`（可运行期覆盖）与 `CBiClassValue`（按类对缓存）是同一机制的变体，取值口径一致。
+
+== 契约
+
+- `ICClassValue<T>#get(Class<?>)`：按类取值，首次经值函数计算并缓存。
+- `CClassValue<T>` 另有 `remove(Class<?>)` 与 `clear()`；前者移除单键，后者清空**本实例记录过的键**。
+- `CRefClassValue<T>` 另有 `set(Class<?>, T)`：运行期覆盖某类的值。
+
+== 内存的释放时机
+
+`ClassValue` 是**弱关联**：条目在**键的类被卸载**时释放。这在应用自身类型上等于不释放——应用类由应用类加载器持有到进程结束，其条目在应用存活期间不会自行消失。
+
+故"要交还内存"时必须显式清理，由调用方按"该值不再被读取"的时点触发。项目内的实际用例：`ctool4j-web` 的 `ConditionalOnMissingExceptionHandlerCondition` 在**应用启动完成**时清空其声明集缓存（触发点与动机见 link:../spring/started.adoc[启动完成回调]、link:../web/exception-fallback.adoc[异常兜底分层]）。
+
+`clear()` 清的是**本实例**记录过的键——同一个 `CClassValue` 对象只承载一份缓存，被多处共用时整体清空会波及其他调用方，故清空的作用面按实例切分。键集合用**弱引用**记录（`WeakHashMap` 的键集），不阻止类卸载。
+
+== 兜底与边界
+
+- 同一类多次 `get`：值函数只执行一次。
+- `remove` / `clear` 后 `get`：重新计算。
+- 未 `get` 过就 `clear`：空操作，无副作用。
+- `computeValue` 抛异常：按 JDK `ClassValue` 的既定语义向上抛，本类不改写该行为。
+- `null` 键：`computeValue` 的参数标注为非空（lombok `@NonNull`），传 null 时由运行时抛 `NullPointerException`。
+
+== 已知限制与取舍
+
+- **弱关联不等于不需要清理**：类的加载器长期存活时条目不会自行释放；需要交还内存时由调用方 `remove` / `clear` 显式清理（见上「内存的释放时机」）。
+- **`clear()` 的代价是重算**：清空后同进程内再次 `get` 会重新执行值函数，故只应在"该值不再被读取"的时点调用；值函数本身较贵（反射扫描、远程取值）时尤其要确认这一点。
+- **`clear()` 不是全局的**：只清本实例的键，不清同类的其他实例——这是刻意的，避免一处清理波及无关调用方。
+- **按键清空依赖键记录**：`CLASS_KEYS` 记录被本实例读取过的类；该记录是弱引用、随类卸载缩减，不阻止类卸载。
+- 类卸载后条目被运行时回收这一点**不在单测覆盖范围内**（依赖 GC 行为，无法稳定复现）。
+
+== 波及影响
+
+- `CClassValue` 的取值路径（`computeValue`）增加了一次弱引用集合的写入：热路径上按类只发生一次（后续 `get` 直接命中缓存），不影响稳态成本。
+- 清空能力是**新增**的：既有调用方（`CReflectUtils` / `CClassUtils` / `CBeanUtils` 等）不调 `clear()` 时行为与改动前完全一致。
+
+== 相关
+
+- 源码：`ICClassValue`、`ICRefClassValue`、`ICBiClassValue`、`CClassValue`、`CRefClassValue`、`CBiClassValue`、`CRefBiClassValue`
+- 测试：`CClassValueTests`、`CRefClassValueTests`、`CBiClassValueTests`、`CRefBiClassValueTests`
+- 上级索引：link:README.adoc[core 文档索引]。
+- 使用文档：link:../../use/core.adoc[doc/use/core.adoc]

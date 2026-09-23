@@ -24,7 +24,7 @@ import java.util.Set;
  * <ul>
  *   <li>文件超限（{@code MaxUploadSizeExceededException}）：返回业务码 413 与<b>含上限的明确提示</b>（如"单个文件最大 10MB"），并提示压缩后重试。</li>
  *   <li>其他 multipart 解析失败（{@code MultipartException}）：返回业务码 400 与解析失败提示。</li>
- *   <li>容器私有超限异常（Tomcat 等<b>裸抛</b>、未经 Spring 包装）：由兜底处理器 {@code CThrowableHandler} 按<b>简单类名</b>识别后委托本处理器处理（见 {@link #isUploadSizeExceeded(Throwable)}）。</li>
+ *   <li>容器私有超限异常（Tomcat 等<b>裸抛</b>、未经 Spring 包装）：由 {@code CExceptionHandler} 按<b>简单类名</b>识别后委托本处理器处理（见 {@link #isUploadSizeExceeded(Throwable)}）。</li>
  *   <li>异常按 {@code log.debug} 打印（含请求 URI 与堆栈），不把堆栈或原始异常文本返给调用方。</li>
  *   <li>通过 {@code @ConditionalOnMissingExceptionHandler(MultipartException.class)} 控制：容器存在其他同类型处理器时本处理器不生效。</li>
  * </ul>
@@ -45,7 +45,7 @@ import java.util.Set;
  *   </tr>
  *   <tr>
  *     <td>裸抛的容器私有超限异常</td>
- *     <td>兜底处理器按简单类名识别后委托本处理器，返回业务码 413 + 泛化提示</td>
+ *     <td>{@code CExceptionHandler} 按简单类名识别后委托本处理器，返回业务码 413 + 泛化提示</td>
  *   </tr>
  *   <tr>
  *     <td>类名清单中的类型在运行环境不存在</td>
@@ -75,12 +75,12 @@ import java.util.Set;
  * <h2>设计要点</h2>
  * <ul>
  *   <li>{@code MaxUploadSizeExceededException} 继承 {@code MultipartException}，两个方法分别按"超限"与"其他解析失败"给出不同错误码与提示。</li>
- *   <li>提示文案与错误码由 {@link #uploadSizeExceededResult(Throwable)} 单点提供，兜底处理器委托调用，避免文案多处漂移。</li>
+ *   <li>提示文案与错误码由 {@link #uploadSizeExceededResult(Throwable)} 单点提供，{@code CExceptionHandler} 委托调用，避免文案多处漂移。</li>
  *   <li>用 {@code CRequestUtils.getRequestURIDefaultNull()} 记录请求 URI 用于日志。</li>
  * </ul>
  *
  * @since 2026/9/18
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -152,7 +152,7 @@ public class CFileUploadExceptionHandler {
 
     /**
      * 上传超限的错误结果：上限可得时附上限，否则用泛化提示
-     * <p>供 {@code CThrowableHandler} 在处理"裸抛的容器私有超限异常"时委托调用，保证文案与业务码单点提供</p>
+     * <p>供 {@code CExceptionHandler} 在处理"裸抛的容器私有超限异常"时委托调用，保证文案与业务码单点提供</p>
      *
      * @param e 异常（可为 null）
      * @return 错误结果（业务码 413）

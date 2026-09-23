@@ -8,7 +8,7 @@
 * *配置绑定*：`@CConfigurationProperties`（组合注解；只承载前缀，两个绑定开关由元注解 `@ConfigurationProperties` 给定，默认忽略未匹配属性与非法值）。
 * *注入*：`@CAutowired` / `@CAutowiredScan` —— 编译期生成注入代码，**解决静态工具类无法 `@Autowired` 的问题**（依赖 +ctool4j-autowired-processor+）。
 * *工具类*：`CSpringUtils`（容器/Bean）、`CRequestUtils`、`CFileUtils`、`CRestTemplateUtils`、`CSpringHttpUtils`（HTTP 报文与媒体类型）、`CIpUtils`（IP 段解析，见下）、`CAnnotationUtils`、`CAspectUtils`、`CAutowiredUtils`、`CProxyUtils`。
-* *生命周期*：`ICSpringInit`（初始化回调）、`CStartedApplicationRunner`（启动完成后执行）。
+* *生命周期*：`ICSpringInit`（初始化回调，单例实例化完成后触发）、`ICStarted`（启动完成回调，`SpringApplication.run` 执行完成后触发）、`CStartedApplicationRunner`（启动完成后执行，回调 `ICStarted`）。
 * *契约*：`ICRealClass`（真实业务类/类名/包名，带默认实现）、`ICOrdered`。
 * *异常忽略*：`@CLogAndIgnoreThrowable` + 切面（记录后忽略，不中断流程）。
 * *测试*：`@CTool4jSpringBootTest`。
@@ -66,11 +66,21 @@ Environment environment = CSpringUtils.getBean(Environment.class);
 @CSpringBootApplication          // 启动类
 public class Application { }
 
-public class MyInit implements ICSpringInit {    // 初始化回调
+public class MyInit implements ICSpringInit {    // 初始化回调（单例实例化完成后触发）
     @Override
     public void init() { }
 }
+
+public class MyStarted implements ICStarted {    // 启动完成回调（SpringApplication.run 执行完成后触发）
+    @Override
+    public void onStarted() { }
+}
 ----
+
+* `onInit` 在单例实例化完成后触发；`onStarted` 在整个容器就绪、启动流程走到运行器阶段时触发，适合放"启动后一次性处理"（如释放只在启动阶段有效的缓存）。
+* 回调点由 `CStartedApplicationRunner` 承载：**只实现 `ICStarted` 不产生回调**，须同时实现 `ApplicationRunner`（或直接实现 `CStartedApplicationRunner`）。
+* 框架自带的清理回调：`ctool4j-spring` 的 `CSpringInit` 清 `CAutowiredUtils` 的启动期扫描包，`ctool4j-web` 的 `CWebInit` 清条件类 `ConditionalOnMissingExceptionHandlerCondition` 的声明集缓存——**清理由被清对象所在模块的 Bean 承载**（依赖方向单向）；接入方实现了 `CStartedApplicationRunner` 无需关心这些。
+* 回调时序、兜底与已知限制见开发文档：link:../design/spring/started.adoc[started]。
 
 == 配置
 

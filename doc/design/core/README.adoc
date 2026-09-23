@@ -6,6 +6,7 @@
 
 == 功能文档
 
+- link:class-value.adoc[按类缓存（ClassValue 系列）]：方案的选型依据、内存释放时机与显式清理的适用面、兜底与已知限制；类级细节见 `CClassValue` 的 javadoc
 - link:method-handle.adoc[MethodHandle 工具（反射方法句柄）]：句柄生成/缓存与签名适配的职责分布、兜底、适用范围、已知限制；类级与方法级细节见 `CMethodHandleUtils`、`CReflectUtils`、`CLambdaUtils` 的 javadoc
 - link:perf/beanutils-perf.adoc[CBeanUtils 性能实测]：对象属性复制与深拷贝的测量口径、各方案成绩、瓶颈归因、优化日志与选型结论；原始报告与其索引见 link:perf/README.adoc[perf/]
 

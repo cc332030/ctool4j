@@ -7,6 +7,7 @@ Web MVC 通用能力（ctool4j-web）：全局异常、跨域、JWT/token、请�
 == 功能文档
 
 - link:unauthorized-401.adoc[未授权统一返回业务码 401]：`CUnauthorizedException` 的语义与落点、`CUnauthorizedExceptionHandler` 的响应形状、为什么随附 HTTP 401 与边界
+- link:exception-fallback.adoc[异常兜底分层（四档优先级 + 条件装配）]：四档档位与归属、为什么兜底分两档、识别与兜底为何合并、业务方的两条覆盖路径与边界
 
 == 相关入口
 

@@ -1,0 +1,100 @@
+= 异常兜底分层（四档优先级 + 条件装配） 设计文档
+
+模块：ctool4j-web
+状态：已落地
+适用范围：容器内异常处理器之间的命中归属——「一条异常由哪个处理器响应」如何确定、业务方如何覆盖
+
+== 背景
+
+模块内的异常处理器各自标注 `@RestControllerAdvice` 并向容器注册，**Spring 的 `ExceptionHandlerExceptionResolver` 按 advice 顺序取首个能匹配的处理器，不跨 advice 比较异常类型精确度**。
+于是"一条异常归谁"由两件事共同决定：
+
+* *顺序*：处理器在 advice 序列里的位置（由 `@Order` 取值决定）；
+* *存在性*：该处理器是否被装配（由 `@ConditionalOnMissingExceptionHandler` 决定）。
+
+具体类型处理器（业务、参数校验、请求体不可读等）匹配的是**精确类型**，而兜底处理器匹配的是**超类**（`CException` / `Exception` / `Throwable`）——兜底处理器一旦排在具体类型之前，就会截走子类异常
+（典型：未授权 401 被兜底成 500）。因此兜底必须**只有一档、且严格排在具体类型之后**。
+
+== 方案：四档严格递增
+
+[cols="1,1,2", options="header"]
+|===
+| 档位（`CExceptionHandlerOrder`） | 取值 | 归属
+
+| `CONCRETE`
+| `LOWEST_PRECEDENCE - 100`
+| 各具体类型处理器（含 `CFileUploadExceptionHandler`）
+
+| `C_EXCEPTION_FALLBACK`
+| `LOWEST_PRECEDENCE - 50`
+| `CCExceptionHandler`（项目自有 `CException` 体系）
+
+| `EXCEPTION_FALLBACK`
+| `LOWEST_PRECEDENCE - 25`
+| `CExceptionHandler`（非 `CException` 体系的 `Exception`，含上传超限识别）
+
+| `THROWABLE_FALLBACK`
+| `LOWEST_PRECEDENCE`
+| `CThrowableHandler`（`Error` 等 `Throwable`，只做纯粹的返回）
+|===
+
+档位两两不并列：并列时归属取决于装配顺序（不可预期）。档位之间留出间隙，供业务方插入自己的 `@Order`。
+
+=== 为什么兜底分成两档（`Exception` 与 `Throwable`）
+
+* `Error`（OOM、StackOverflow 等）不属 `Exception`，两档职责不重叠；`CThrowableHandler` 因此只保留「纯粹的返回」，不再做类型识别与委托。
+* 若两档都声明 `Throwable`，Spring 会因**同一 advice 内存在两个匹配精度相同的处理器**而在启动期抛 `Ambiguous @ExceptionHandler method mapped`。
+
+=== 为什么 `CExceptionHandler` 的识别与兜底是同一个方法
+
+Spring 在**同一个 advice 内不允许两个异常类型相同**的 `@ExceptionHandler` 方法——把"上传超限识别"与"通用兜底"拆成两个 `@ExceptionHandler(Exception.class)` 方法会在启动期直接抛歧义异常；
+改用"声明更精确的类型"也走不通：声明 `Throwable` 的方法比 `Exception` **更宽泛**，在方法解析里排在后面、永远选不中。
+故合并为一个 `@ExceptionHandler(Exception.class)` 方法，内部按需分流。
+
+=== 上传超限的识别与委托
+
+容器（Tomcat 等）可能**裸抛私有类型**（如 `FileSizeLimitExceededException`），未经 Spring 包装。这类类型不能写进 `@ExceptionHandler`（Jetty/Undertow 下不存在该类型，声明即类加载失败），故：
+
+* 按**简单类名清单**识别（纯字符串比较，缺失该类也不报错）；
+* 识别中后**委托 `CFileUploadExceptionHandler`**——文案与业务码（413 + 含上限的提示）由该处单点提供，避免同一语义两处漂移。
+
+=== 业务方的两条覆盖路径
+
+* *存在性覆盖（与顺序无关）*：声明同一异常类型的 `@ExceptionHandler`，内置处理器因 `@ConditionalOnMissingExceptionHandler` 自动让位。
+* *顺序覆盖*：处理**非精确类型**（子类/超类）时条件装配不会让位，用显式 `@Order`（值小于对应档位）排在前面；要接管 `Exception` 本身，其 `@Order` 须小于 `EXCEPTION_FALLBACK`。
+
+`@ConditionalOnMissingExceptionHandler` 按**精确类型**判断，且只采集 `@ExceptionHandler` **显式声明**的类型——裸 `@ExceptionHandler`（`value` 为空）在 Spring 里兜底一切异常，但不计入声明集
+（若折算成 `Throwable`，注解走默认值的处理器会被误判为"已有同类型处理器"而拒绝装配）。
+
+== 兜底与边界
+
+[cols="2,3", options="header"]
+|===
+| 场景 | 行为
+
+| 未识别的普通 `Exception` | `CExceptionHandler` → 业务码 500 + 固定「未知异常」（常量与 `CThrowableHandler` 共用）
+| `Error` 及其子类 | `CThrowableHandler` 兜底（`CExceptionHandler` 不匹配）
+| 容器已存在同类型处理器 | 对应内置处理器因条件装配不生效
+| 异常对象为 `null`（非预期形态） | 各处理器按包级 `@NonNullApi` 契约声明非空，不写不可达的 null 分支
+| 异常消息为 `null`（如 `new IllegalArgumentException()`） | 按各处理器 javadoc「兜底设计」的声明用异常类型简单名兜底，不响应 `message: null`
+| 容器内某 advice 的 bean 名取不到类型 | 跳过该 advice，其余 advice 照常判定，条件判断不中断
+| 容器不可列举（非 `ListableBeanFactory`） | 按「无 `ControllerAdvice`」处理，启用默认处理器
+| `beanFactory` 为 `null`（非预期形态） | `Assert.notNull` 快速失败，不静默放行
+|===
+
+== 已知限制与取舍
+
+* **HTTP 语义缺失**：通用兜底与上传超限均返回 200 + 业务码，无法按 5xx/413 触发告警（与同目录其余处理器一致）。
+* **上传超限只按简单类名识别**：容器使用不同名类型时不命中该分支、走通用兜底；需把其简单类名加入清单。
+* **条件判定不做 Spring 的「最近匹配」与 cause 回退**：条件只判"容器里有没有声明处理该类型的处理器"，业务方声明的是超类时条件不判为命中，该场景由 `@Order` 档位决定归属。
+* **条件内的声明集缓存按 advice 类型**（`CClassValue`，即 JDK `ClassValue`）：按类弱关联，**键的类被卸载**时条目才释放。应用自身的 advice 类型由本应用类加载器长期持有，等于在应用存活期间不会自行释放，故由 `ConditionalOnMissingExceptionHandlerCondition#clearDeclarationsCache()` 在**应用启动完成时**显式清空（触发点见 link:../spring/started.adoc[启动完成回调]，由 web 模块自己的 `CWebInit#onStarted()` 调用——依赖方向单向、不由 spring 反向清理）。
+* **清空的收益是内存、代价是重算**：「同类结果恒定」只说明缓存**不会变脏**，不等于**不必清理**——装配期结束后声明集不再被读取，继续持有只占内存；清空后若同进程内还有容器重新装配，声明集会重新解析（正确，只是多付一次解析成本）。
+* **advice 类型清单不跨容器缓存**：条件评估发生在**容器装配期**，advice 是随后才注册进容器的；若按容器实例缓存该清单，缓存会停在"当时还没有 advice"的那个结果上、把后续注册的 advice 永久漏掉。故每次读容器当前的 bean 定义（`getBeanNamesForAnnotation` + `getType` 均为轻量查找、不实例化 bean）。
+
+== 相关入口
+
+- 源码：`CExceptionHandler`、`CThrowableHandler`、`CCExceptionHandler`、`CFileUploadExceptionHandler`、`CExceptionHandlerOrder`、`ConditionalOnMissingExceptionHandler`、`ConditionalOnMissingExceptionHandlerCondition`
+- 测试：`CExceptionHandlerTests`、`CThrowableHandlerTests`、`CExceptionHandlerOrderTests`、`ConditionalOnMissingExceptionHandlerConditionTests`、`CFileUploadExceptionHandlerTests`
+- 模块文档：link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web README]
+- 使用文档：link:../../use/web.adoc[doc/use/web.adoc]
+- 变更记录：link:../../../CHANGELOG.adoc[CHANGELOG.adoc]
