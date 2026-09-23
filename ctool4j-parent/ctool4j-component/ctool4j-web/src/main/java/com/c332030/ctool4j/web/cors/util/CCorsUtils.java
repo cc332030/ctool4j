@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.web.cors.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
@@ -41,8 +42,6 @@ import java.util.Set;
  *   <li>{@code handle(request, response)}：{@code enable=true} 时委托 {@code handleDo} 设置跨域响应头。</li>
  *   <li>{@code handleDo(request, response)}：按<b>域名级配置</b>校验并设置跨域响应头。</li>
  *   <li>{@code getOriginConfig(origin)}：按域名（{@code host:port} → 纯 {@code host}）取域名级配置。</li>
- *   <li>{@code getAllowedMethods}/{@code getAllowedHeaders}/{@code getExposedHeaders}：取域名级配置项，
- *   未配置时回落全局默认值。</li>
  *   <li>{@code setHeaderIfNotEmpty} / {@code joinHeaders}：头集合为空则不设置、含 {@code *} 用通配拼接。</li>
  * </ul>
  *
@@ -70,7 +69,7 @@ import java.util.Set;
  *     <td>取 {@code CCorsConfig} 的同名默认值（默认值只在配置类声明一处）</td>
  *   </tr>
  *   <tr>
- *     <td>{@code allowedHeaders}/{@code exposedHeaders} 集合为 null 或空</td>
+ *     <td>最终取到的头集合为 null 或空</td>
  *     <td>经 {@code setHeaderIfNotEmpty} 不设置对应响应头（避免空指针，空即不声明）</td>
  *   </tr>
  * </table>
@@ -99,13 +98,20 @@ import java.util.Set;
  *   各由域名级的独立开关控制，<b>默认禁用</b>，需显式开启。</li>
  *   <li>各开关的取值兜底统一由 {@code CBoolUtils.isTrue} 完成（null 视为 false），不在配置类写默认值。</li>
  * </ul>
+ * <p><b>域名级取值兜底</b></p>
+ * <ul>
+ *   <li>域名级配置项的回落<b>就在取值处完成</b>，不另写"取值 + 回落"的 getter——那层方法只是把单行兜底换个名字，
+ *   读代码时多一跳、取值形态还分叉成两种。集合取 {@code CollUtil.defaultIfEmpty}（未配置与空集合一律回落默认）；
+ *   请求方法与暴露响应头取 {@code ObjectUtil.defaultIfNull}（<b>仅 null 才回落</b>，保留"显式空集合"的语义：
+ *   不允许任何方法、不暴露任何头）。</li>
+ * </ul>
  * <p><b>异常兜底</b></p>
  * <ul>
  *   <li>{@code handle}/{@code handleOptions} 外层 try-catch 捕获 Throwable 记录 error 日志，避免跨域处理异常影响主流程。</li>
  * </ul>
  *
  * @since 2026/1/9
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @UtilityClass
@@ -212,7 +218,9 @@ public class CCorsUtils {
         }
 
         val method = request.getMethod();
-        if (!CCollUtils.containsAny(getAllowedMethods(originConfig), CConstants.STAR, method)) {
+        // 域名级未配置（含空集合）时回落全局默认；显式空集合即"不允许任何方法"
+        val allowedMethods = ObjectUtil.defaultIfNull(originConfig.getAllowedMethods(), config.getAllowedMethods());
+        if (!CCollUtils.containsAny(allowedMethods, CConstants.STAR, method)) {
             log.info("Not allow origin with method: {} {}", method, origin);
             return;
         }
@@ -221,10 +229,14 @@ public class CCorsUtils {
         // 允许当前请求方法类型
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, method);
 
-        setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, getAllowedHeaders(originConfig));
+        // 域名级未配置或空集合时回落全局默认
+        val allowedHeaders = CollUtil.defaultIfEmpty(originConfig.getAllowedHeaders(), config.getAllowedHeaders());
+        setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, allowedHeaders);
         // 暴露给浏览器脚本可读的响应头（默认仅简单响应头可读，如 Authorization 需显式暴露）；默认禁用，需显式开启
         if (CBoolUtils.isTrue(originConfig.getExposeHeaders())) {
-            setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, getExposedHeaders(originConfig));
+            // 域名级未配置时回落全局默认；显式空集合即"不暴露任何头"
+            val exposedHeaders = ObjectUtil.defaultIfNull(originConfig.getExposedHeaders(), config.getExposedHeaders());
+            setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, exposedHeaders);
         }
         // 是否允许携带凭据；默认禁用，需显式开启
         if (CBoolUtils.isTrue(originConfig.getCredentials())) {
@@ -257,44 +269,6 @@ public class CCorsUtils {
             return null;
         }
         return CMapUtils.get(origins, newOrigin.substring(0, idx));
-    }
-
-    /**
-     * 取本域名允许的请求报文头：域名级未配置（null）时回落到全局默认值
-     *
-     * @param originConfig 域名级配置
-     * @return 允许的请求报文头集合
-     */
-    public Set<String> getAllowedHeaders(CCorsOriginConfig originConfig) {
-        return Objects.isNull(originConfig.getAllowedHeaders())
-            ? config.getAllowedHeaders()
-            : originConfig.getAllowedHeaders();
-    }
-
-    /**
-     * 取本域名允许的请求方法：域名级<b>未配置</b>（null）时回落到全局默认值
-     *
-     * <p>显式配置的空集合不回落到默认值——空集合即"不允许任何方法"，避免"写成空集合反而放开全部"。</p>
-     *
-     * @param originConfig 域名级配置
-     * @return 允许的请求方法集合
-     */
-    public Set<String> getAllowedMethods(CCorsOriginConfig originConfig) {
-        return Objects.isNull(originConfig.getAllowedMethods())
-            ? config.getAllowedMethods()
-            : originConfig.getAllowedMethods();
-    }
-
-    /**
-     * 取本域名暴露的响应报文头：域名级未配置（null）时回落到全局默认值
-     *
-     * @param originConfig 域名级配置
-     * @return 暴露的响应报文头集合
-     */
-    public Set<String> getExposedHeaders(CCorsOriginConfig originConfig) {
-        return Objects.isNull(originConfig.getExposedHeaders())
-            ? config.getExposedHeaders()
-            : originConfig.getExposedHeaders();
     }
 
     /**
