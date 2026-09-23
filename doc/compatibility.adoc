@@ -18,33 +18,37 @@
 
 | 以 +META-INF/spring.factories+ 的 +EnableAutoConfiguration+ 键注册自动配置
 | Boot 2.7 起该注册方式已废弃；Boot 3 起**完全忽略** +spring.factories+——自动配置不再生效且**不报错**，表现为 Bean 缺失、装配静默失效（不定位到本文件无法自证原因）
-| 补 +META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports+（Boot 2.7 起即读取该文件，与 +spring.factories+ 并存且按自动配置类去重，故可在当前 2.x 上先落地，2.x / 3.x 双兼容）。命中 4 个模块（见下节），全仓库同款问题，**可单独排期**
-| 待处理
+| 补 +META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports+（Boot 2.7 起即读取该文件，与 +spring.factories+ 并存且按自动配置类去重，故可在当前 2.x 上先落地，2.x / 3.x 双兼容）。命中 4 个模块（见下节），全仓库同款问题，**已按此方案完成迁移、旧的 +spring.factories+ 已删除**
+| 已修复
 |===
 
-== 影响面：`spring.factories` 注册自动配置
+== 影响面：`spring.factories` 注册自动配置（已迁移）
 
-下列 4 个模块以 +spring.factories+ 注册自动配置，为上述兼容项的**全部**影响面（各文件内均为唯一的 +EnableAutoConfiguration+ 条目）：
+下列 4 个模块为上述兼容项的**全部**影响面；各模块原先的 +spring.factories+ 内均为唯一的 +EnableAutoConfiguration+ 条目，
+**均已改用 +AutoConfiguration.imports+ 注册并删除旧文件**（迁移用 +git mv+ 保留历史）：
 
 [cols="2,5", options="header"]
 |===
 | 模块 | 注册文件 → 自动配置类
 
 | +ctool4j-spring+
-| link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/main/resources/META-INF/spring.factories[META-INF/spring.factories] → link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/main/java/com/c332030/ctool4j/spring/configuration/CSpringConfiguration.java[CSpringConfiguration]、link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/main/java/com/c332030/ctool4j/spring/configuration/CAutowiredScanConfiguration.java[CAutowiredScanConfiguration]
+| link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports[AutoConfiguration.imports] → link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/main/java/com/c332030/ctool4j/spring/configuration/CSpringConfiguration.java[CSpringConfiguration]、link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/main/java/com/c332030/ctool4j/spring/configuration/CAutowiredScanConfiguration.java[CAutowiredScanConfiguration]
 
 | +ctool4j-spring-cloud+
-| link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-cloud/src/main/resources/META-INF/spring.factories[META-INF/spring.factories] → link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-cloud/src/main/java/com/c332030/ctool4j/spring/cloud/configuration/CToolSpringCloudConfiguration.java[CToolSpringCloudConfiguration]
+| link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-cloud/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports[AutoConfiguration.imports] → link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-cloud/src/main/java/com/c332030/ctool4j/spring/cloud/configuration/CToolSpringCloudConfiguration.java[CToolSpringCloudConfiguration]
 
 | +ctool4j-mybatis-base+
-| link:../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/ctool4j-mybatis-base/src/main/resources/META-INF/spring.factories[META-INF/spring.factories] → link:../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/ctool4j-mybatis-base/src/main/java/com/c332030/ctool4j/mybatis/configuration/CToolMybatisConfiguration.java[CToolMybatisConfiguration]
+| link:../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/ctool4j-mybatis-base/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports[AutoConfiguration.imports] → link:../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/ctool4j-mybatis-base/src/main/java/com/c332030/ctool4j/mybatis/configuration/CToolMybatisConfiguration.java[CToolMybatisConfiguration]
 
 | +ctool4j-doc-openapi2+
-| link:../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/ctool4j-doc-openapi2/src/main/resources/META-INF/spring.factories[META-INF/spring.factories] → link:../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/ctool4j-doc-openapi2/src/main/java/com/c332030/ctool4j/doc/openapi2/configuration/COpenApi2Configuration.java[COpenApi2Configuration]
+| link:../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/ctool4j-doc-openapi2/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports[AutoConfiguration.imports] → link:../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/ctool4j-doc-openapi2/src/main/java/com/c332030/ctool4j/doc/openapi2/configuration/COpenApi2Configuration.java[COpenApi2Configuration]
 |===
 
-补入 +AutoConfiguration.imports+ 后，两种注册可并存：Boot 2.7 两者都读并按自动配置类去重，Boot 3.x 只读 +AutoConfiguration.imports+，
-故可先补新文件、待全面切至 3.x 后再删 +spring.factories+。
+迁移后只保留新注册入口一处（Boot 2.7 与 3.x 都读它，不再需要两处并存）。生效验证：+ctool4j-spring+ 的
+link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/configuration/CSpringConfigurationAutoConfigTests.java[CSpringConfigurationAutoConfigTests]
+（经 +@EnableAutoConfiguration+ 装配、不直接引入配置类）与
+link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/test/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
+在该模块全量测试中通过，证明迁移后自动配置仍被装配。
 
 == 相关入口
 

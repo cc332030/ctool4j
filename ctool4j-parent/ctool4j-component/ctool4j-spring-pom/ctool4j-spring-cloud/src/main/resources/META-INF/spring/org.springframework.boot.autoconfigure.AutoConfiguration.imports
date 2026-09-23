@@ -1,0 +1,2 @@
+# 自动配置注册入口（Boot 2.7 起读取本文件；spring.factories 的 EnableAutoConfiguration 键自 Boot 3 起不再被读取）
+com.c332030.ctool4j.spring.cloud.configuration.CToolSpringCloudConfiguration

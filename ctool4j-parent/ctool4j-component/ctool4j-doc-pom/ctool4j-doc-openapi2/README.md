@@ -8,7 +8,7 @@
 （springfox + knife4j）为底座，复用 `ctool4j-definition` 的接口文档描述注解（`doc.annotation` 包）与
 `ctool4j-web` 的请求头枚举、校验注解，形成统一的接口描述与调试入口。
 
-自动配置入口为 `COpenApi2Configuration`（由 `META-INF/spring.factories` 注册）。
+自动配置入口为 `COpenApi2Configuration`（由 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 注册）。
 
 ## 能力目录
 

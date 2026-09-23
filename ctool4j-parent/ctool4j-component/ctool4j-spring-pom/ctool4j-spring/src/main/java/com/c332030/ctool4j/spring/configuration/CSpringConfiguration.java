@@ -46,7 +46,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * <h2>适用范围</h2>
  * <ul>
- *   <li>由使用方显式引入（或经 {@code spring.factories} 自动配置）以启用框架能力。</li>
+ *   <li>由使用方显式引入（或经 {@code AutoConfiguration.imports} 自动配置）以启用框架能力。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>

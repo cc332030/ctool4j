@@ -34,7 +34,7 @@ import org.springframework.web.client.RestTemplate;
  *   把配置类引入常规配置类处理阶段，必然先于所有自动配置注册 Bean 定义，会掩盖真实竞争；
  *   这里仅用 {@code @EnableAutoConfiguration}，复现生产装配路径（业务方经 {@code CSpringBootApplication}
  *   启动，其 {@code @ComponentScan} 只覆盖业务包，扫描不到 {@code com.c332030.ctool4j}，
- *   框架配置只能由 {@code spring.factories} 的自动配置引入）。</li>
+ *   框架配置只能由 {@code AutoConfiguration.imports} 的自动配置引入）。</li>
  * </ul>
  * <h2>设计依据</h2>
  * <ul>
@@ -64,7 +64,7 @@ public class CSpringConfigurationAutoConfigTests {
 
     /**
      * 测试用启动类：仅开启自动配置、不引入 {@link CSpringConfiguration}，
-     * 使其只能经 {@code spring.factories} 自动配置引入，复现生产装配路径
+     * 使其只能经 {@code AutoConfiguration.imports} 自动配置引入，复现生产装配路径
      */
     @SpringBootConfiguration
     @EnableAutoConfiguration
