@@ -7,6 +7,7 @@ import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.core.validation.CValidUtils;
+import com.c332030.ctool4j.definition.constant.CConstants;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
@@ -211,7 +212,7 @@ public class CCorsUtils {
         }
 
         val method = request.getMethod();
-        if (!CCollUtils.containsAny(getAllowedMethods(originConfig), CCorsConfig.ALL, method)) {
+        if (!CCollUtils.containsAny(getAllowedMethods(originConfig), CConstants.STAR, method)) {
             log.info("Not allow origin with method: {} {}", method, origin);
             return;
         }
@@ -297,7 +298,7 @@ public class CCorsUtils {
     }
 
     /**
-     * 头集合非空时，拼接（含 {@link CCorsConfig#ALL} 用 {@code *}）并设置响应头；集合为 null 或空则均不设置
+     * 头集合非空时，拼接（含 {@link CConstants#STAR} 用 {@code *}）并设置响应头；集合为 null 或空则均不设置
      *
      * @param response   响应
      * @param headerName 响应头名
@@ -315,14 +316,14 @@ public class CCorsUtils {
     }
 
     /**
-     * 将头集合转为逗号分隔的头值；集合含 {@link CCorsConfig#ALL} 时直接使用 {@code *} 通配
+     * 将头集合转为逗号分隔的头值；集合含 {@link CConstants#STAR} 时直接使用 {@code *} 通配
      *
      * @param headers 头集合（已保证非 null 非空，由 {@link #setHeaderIfNotEmpty} 调用）
      * @return 头值
      */
     public String joinHeaders(Set<String> headers) {
-        return headers.contains(CCorsConfig.ALL)
-            ? CCorsConfig.ALL
+        return headers.contains(CConstants.STAR)
+            ? CConstants.STAR
             : CollUtil.join(headers, ",");
     }
 

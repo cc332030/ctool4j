@@ -20,7 +20,7 @@
 | 包 | 用途 |
 |----|------|
 | `annotation` | 业务注解：`@CBizId` / `@CJsonLog` / `@CLogBlob` |
-| `constant` | 全局常量（`CTool4jConstants`、`CTool4jTestConstants`） |
+| `constant` | 全局常量（`CConstants`、`CTool4jConstants`、`CTool4jTestConstants`） |
 | `enums` | 通用枚举（数据库操作、MIME 类型、币种、国家码、客户端/平台、版本） |
 | `interfaces` | 语义化接口族（code / msg / name / value / data / event / password 等） |
 | `function` | 自定义函数式接口族 |

@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.cors;
 
+import com.c332030.ctool4j.definition.constant.CConstants;
 import com.c332030.ctool4j.spring.test.annotation.CTool4jSpringBootTest;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -92,7 +93,7 @@ public class CCorsConfigBootTests {
 
         // 全局默认值仍可用（域名级未配置时回落至此）
         Set<String> defaultMethods = config.getAllowedMethods();
-        Assertions.assertTrue(defaultMethods.contains(CCorsConfig.ALL));
+        Assertions.assertTrue(defaultMethods.contains(CConstants.STAR));
     }
 
 }

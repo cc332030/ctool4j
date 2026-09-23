@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.cors.util;
 
+import com.c332030.ctool4j.definition.constant.CConstants;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
 import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import lombok.val;
@@ -374,13 +375,13 @@ public class CCorsUtilsTests {
         // 正例：允许全部请求头时，ALLOW_HEADERS 为通配符
         enable();
         val originConfig = enabledOrigin();
-        originConfig.setAllowedHeaders(Collections.singleton(CCorsConfig.ALL));
+        originConfig.setAllowedHeaders(Collections.singleton(CConstants.STAR));
         corsRequest();
 
         CCorsUtils.handleDo(request, response);
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
-        Assertions.assertEquals(CCorsConfig.ALL, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
+        Assertions.assertEquals(CConstants.STAR, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
         Assertions.assertEquals("GET", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
     }
 
@@ -496,15 +497,15 @@ public class CCorsUtilsTests {
      */
     @Test
     public void handleDo_whenExposeHeadersEnabledAll() {
-        // 正例：exposeHeaders 开启且集合含 ALL 时，EXPOSE_HEADERS 使用通配符
+        // 正例：exposeHeaders 开启且集合含 STAR 时，EXPOSE_HEADERS 使用通配符
         enable();
         val originConfig = originConfig(true, null, Boolean.TRUE);
-        originConfig.setExposedHeaders(Collections.singleton(CCorsConfig.ALL));
+        originConfig.setExposedHeaders(Collections.singleton(CConstants.STAR));
         corsRequest();
 
         CCorsUtils.handleDo(request, response);
 
-        Assertions.assertEquals(CCorsConfig.ALL,
+        Assertions.assertEquals(CConstants.STAR,
             response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
     }
 
