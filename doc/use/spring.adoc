@@ -5,6 +5,7 @@
 == 一览
 
 * *入口*：`@CSpringBootApplication`（组合注解，替代 `@SpringBootApplication`，含属性扫描与配置初始化）。
+* *配置绑定*：`@CConfigurationProperties`（组合注解；只承载前缀，两个绑定开关由元注解 `@ConfigurationProperties` 给定，默认忽略未匹配属性与非法值）。
 * *注入*：`@CAutowired` / `@CAutowiredScan` —— 编译期生成注入代码，**解决静态工具类无法 `@Autowired` 的问题**（依赖 +ctool4j-autowired-processor+）。
 * *工具类*：`CSpringUtils`（容器/Bean）、`CRequestUtils`、`CFileUtils`、`CRestTemplateUtils`、`CSpringHttpUtils`（HTTP 报文与媒体类型）、`CIpUtils`（IP 段解析，见下）、`CAnnotationUtils`、`CAspectUtils`、`CAutowiredUtils`、`CProxyUtils`。
 * *生命周期*：`ICSpringInit`（初始化回调）、`CStartedApplicationRunner`（启动完成后执行）。
@@ -72,6 +73,26 @@ public class MyInit implements ICSpringInit {    // 初始化回调
 ----
 
 == 配置
+
+=== 配置属性类
+
+配置属性类用 `@CConfigurationProperties` 声明（替代 `@ConfigurationProperties`）——本注解只承载**前缀**
+一项；两个绑定开关（未知键与取值类型不匹配时如何处置）都在**元注解**上给定，默认均为忽略。
+
+[source,java]
+----
+@CConfigurationProperties("order")          // 等价于 @ConfigurationProperties(prefix = "order")
+@Data
+public class OrderProperties {
+
+    private Integer timeoutSeconds;
+}
+----
+
+* 效果：**默认忽略未匹配的属性**（配置里多出的未知键不会让应用启动失败）与**默认忽略取值非法的属性**（类型不匹配的配置项被跳过、不中断启动）。前者沿用 `@ConfigurationProperties` 的 `ignoreUnknownFields` 默认值 `true`，后者由本注解的元注解使用点声明为 `true`（元注解默认为 `false`）。
+* 属性 Bean 的注册由 +ctool4j-spring+ 的 `@ConfigurationPropertiesScan`（扫描 `com.c332030.ctool4j`，`@CSpringBootApplication` 亦已开启）承担，属性类**只需声明注解**，不必再写 `@EnableConfigurationProperties`。
+* 需要**强校验**（未知键或非法值即启动失败）时，本注解表达不了——它只有一个属性元素，改用元注解：`@ConfigurationProperties(prefix = "order", ignoreUnknownFields = false)`、`@ConfigurationProperties(prefix = "order", ignoreInvalidFields = false)`。
+* 默认忽略的代价：**配置键拼写错误（静默取默认值）与配置值类型写错（该项被跳过）都不会在启动期被发现**，需要暴露时按上一条改用元注解。
 
 |===
 | 配置 | 说明
