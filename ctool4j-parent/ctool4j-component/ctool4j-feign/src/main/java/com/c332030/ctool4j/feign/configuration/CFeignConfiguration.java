@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 2025/9/21
  * @version 1.0
- * @see CFeignConfigurationTests
+ * @see "CFeignConfigurationTests"
  */
 @CustomLog
 @Configuration

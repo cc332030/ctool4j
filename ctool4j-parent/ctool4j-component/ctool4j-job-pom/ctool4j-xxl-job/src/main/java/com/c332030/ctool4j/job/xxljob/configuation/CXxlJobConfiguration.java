@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 2025/11/29
  * @version 1.0
- * @see CXxlJobConfigurationTests
+ * @see "CXxlJobConfigurationTests"
  */
 @CustomLog
 @Configuration

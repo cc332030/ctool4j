@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2024/12/9
  * @version 1.0
- * @see CMinioConfigurationTests
+ * @see "CMinioConfigurationTests"
  */
 @Configuration
 public class CMinioConfiguration {

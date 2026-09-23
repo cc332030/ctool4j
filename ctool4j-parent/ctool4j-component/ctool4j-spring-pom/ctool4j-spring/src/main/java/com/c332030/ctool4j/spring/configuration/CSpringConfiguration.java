@@ -61,7 +61,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @since 2025/9/11
  * @version 1.0
- * @see CSpringConfigurationAutoConfigTests
+ * @see "CSpringConfigurationAutoConfigTests"
  */
 @CustomLog
 @Configuration
