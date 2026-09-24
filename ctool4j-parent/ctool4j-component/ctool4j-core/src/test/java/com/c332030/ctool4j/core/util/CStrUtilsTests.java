@@ -6,6 +6,9 @@ import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * <p>
  * Description: CStrUtilsTests
@@ -23,11 +26,11 @@ import org.junit.jupiter.api.Test;
  * <p><b>设计依据</b>：依据功能设计对格式化兜底值、自增失败原样返回、中文提取按 Unicode 区间过滤、
  * {@code toAvailable} 单侧引号保留的约定；依据等价类/边界值/分支覆盖。</p>
  * <p><b>覆盖场景</b>：{@code format} 模板参数缺失；{@code incrLastNum} 正常/进位/无 "-"/"-" 结尾/末段非数字/空串；
- * {@code chineseOnly} 纯中文/纯非中文/混排/含符号；{@code toAvailable} 双引号/单引号/仅引号/空串。</p>
- * <p><b>未覆盖</b>：{@code splitToList}/{@code join}/{@code concat}/{@code repeat}/{@code fillAfter} 等其余入口
+ * {@code chineseOnly} 纯中文/纯非中文/混排/含符号；{@code toAvailable} 双引号/单引号/仅引号/空串；{@code join} 多元素拼接/空集合与 null 返回 null/null 元素跳过。</p>
+ * <p><b>未覆盖</b>：{@code splitToList}/{@code concat}/{@code repeat}/{@code fillAfter} 等其余入口
  * （当前测试聚焦上述易错方法，其余入口由后续批次补充）。</p>
  *
- * <p><b>用例编号索引</b>：1 模板格式化（1.1）；2 末尾数字自增（2.1-2.4）；3 中文提取（3.1）；4 字符串清洗（4.1）。
+ * <p><b>用例编号索引</b>：1 模板格式化（1.1）；2 末尾数字自增（2.1-2.4）；3 中文提取（3.1）；4 字符串清洗（4.1）；5 连接集合（5.1-5.4）。
  * 各测试方法 javadoc 标注其编号与说明。</p>
  *
  * <h2>设计思路</h2>
@@ -49,8 +52,8 @@ import org.junit.jupiter.api.Test;
  * <ul>
  *   <li>覆盖：format 缺失参数空串兜底；incrLastNum 正常自增 / 多位数进位 / 无 "-" / "-" 结尾 / 末段非数字 / 空串 / null /</li>
  *   <li>超 int 范围解析失败；chineseOnly 多种样本（纯中文/混合/纯数字/纯字母/含符号）与空串/null 原样返回；</li>
- *   <li>toAvailable 单侧/双侧引号、全引号、空值。</li>
- *   <li>未覆盖：{@code splitToList}/{@code join}/{@code concat}/{@code repeat}/{@code fillAfter} 等其余入口（当前测试聚焦格式化/自增/中文/</li>
+ *   <li>toAvailable 单侧/双侧引号、全引号、空值；join 多元素拼接、空集合与 null 返回 null、null 元素跳过。</li>
+ *   <li>未覆盖：{@code splitToList}/{@code concat}/{@code repeat}/{@code fillAfter} 等其余入口（当前测试聚焦格式化/自增/中文/</li>
  *   <li>可用性核心路径，其余入口可后续批次补充）。</li>
  * </ul>
  * <h2>格式化</h2>
@@ -187,4 +190,48 @@ public class CStrUtilsTests {
 
     }
 
+
+    /**
+     * 连接集合：多元素按顺序拼接（对应测试用例 5.1）
+     */
+    @Test
+    public void join_multiElements() {
+        Assertions.assertEquals("1,2,3", CStrUtils.join(new ArrayList<>(Arrays.asList(1, 2, 3)), ","));
+    }
+
+    /**
+     * 连接集合：空集合与 null 入参返回 null（对应测试用例 5.2）
+     */
+    @Test
+    public void join_emptyAsNull() {
+        Assertions.assertNull(CStrUtils.join(new ArrayList<>(), ","));
+        Assertions.assertNull(CStrUtils.join(null, ","));
+    }
+
+    /**
+     * 连接集合：null 元素跳过，不落成字面量 "null"（对应测试用例 5.3）
+     */
+    @Test
+    public void join_skipNullElement() {
+
+        val values = new ArrayList<>();
+        values.add("a");
+        values.add(null);
+        values.add("b");
+
+        Assertions.assertEquals("a,b", CStrUtils.join(values, ","));
+    }
+
+    /**
+     * 连接集合：元素全为 null 时无有效值，返回 null（对应测试用例 5.4）
+     */
+    @Test
+    public void join_allNullElements() {
+
+        val values = new ArrayList<>();
+        values.add(null);
+        values.add(null);
+
+        Assertions.assertNull(CStrUtils.join(values, ","));
+    }
 }

@@ -1,10 +1,12 @@
 package com.c332030.ctool4j.core.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CObjUtils;
+import com.c332030.ctool4j.definition.constant.CConstants;
 import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CSupplier;
 import com.c332030.ctool4j.definition.function.StringFunction;
@@ -88,7 +90,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/3/15
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -117,7 +119,7 @@ public class CStrUtils {
     /**
      * 默认分隔符
      */
-    public static final String DEFAULT_SEPARATOR = ",";
+    public static final String DEFAULT_SEPARATOR = CConstants.COMMA;
 
     /**
      * 不可用字符集合（引号）
@@ -643,6 +645,28 @@ public class CStrUtils {
         return Arrays.stream(strings)
                 .filter(StrUtil::isNotBlank)
                 .collect(Collectors.joining(separator));
+    }
+
+    /**
+     * 连接集合
+     *
+     * @param values    待连接集合
+     * @param separator 分隔符
+     * @return 连接后的字符串；集合为空、或元素全为 null（无可输出值）时返回 null
+     */
+    public String join(Collection<?> values, String separator) {
+
+        if(CollUtil.isEmpty(values)) {
+            return null;
+        }
+
+        // null 元素跳过，不落成字面量 "null"
+        val valid = CCollUtils.filterNull(values);
+        if(CollUtil.isEmpty(valid)) {
+            return null;
+        }
+
+        return CollUtil.join(valid, separator);
     }
 
     /**
