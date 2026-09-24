@@ -40,7 +40,21 @@
 ### 构建与验证
 
 - `-pl <聚合 pom>` **不会**递归构建子模块；构建整棵子树须用 `-f <聚合 pom>/pom.xml`（或 `-amd`）。用错会得到"假通过"。
-- 只登记当前依赖矩阵下可编译的模块：`-jakarta` 侧需要 Spring 6 的 Servlet 支持，在本仓库 Spring 5.3 / Boot 2.x 矩阵下**不登记**进 `<modules>`，`ctool4j-spring-base-pom/pom.xml` 内已注明回挂方式。
+- 只登记当前依赖矩阵下可编译的模块：`-jakarta` 侧需要 Spring 6 的 Servlet 支持，在本仓库 Spring 5.3 / Boot 2.x 矩阵下**不登记**进 `<modules>`（`ctool4j-http-jakarta` 不依赖 Spring，登记构建），`ctool4j-spring-base-pom/pom.xml` 内已注明回挂方式。
+- **改 `-javax` 侧必须同步 `-jakarta` 侧**：两侧同名文件除 `javax`/`jakarta` 字样外应**完全一致**。副本靠人工维护会漂移（本仓库已出现过 7 个副本滞后：`http` 侧适配器 5 个、spring 侧 2 个）。改完后按下式自查，差异应为空：
+
+  ```powershell
+  # 归一化 javax/jakarta 字样后逐文件比对，输出两侧不一致的文件
+  $jv='<...-javax 模块目录>'; $jk='<...-jakarta 模块目录>'
+  Get-ChildItem "$jv\src\main" -Recurse -Filter *.java | ForEach-Object {
+    $rel=$_.FullName.Substring($jv.Length+1); $other=Join-Path $jk $rel
+    $a=([IO.File]::ReadAllText($_.FullName)).Replace('javax','X').Replace('jakarta','X')
+    $b=if(Test-Path $other){([IO.File]::ReadAllText($other)).Replace('javax','X').Replace('jakarta','X')}else{''}
+    if($a -ne $b){ "DIFF: $rel" }
+  }
+  ```
+
+- **两侧桥接方法一律走动态分派**：桥接里调用抽象层方法时写普通调用（`preHandle(...)`），**不得**写 `IXxx.super.preHandle(...)`——后者直接调基层契约的默认实现、**绕过实现类的覆写**，下游覆写失效且不会报错。唯一例外是「Spring 侧为抽象方法、必须给默认值」的场景（如 `ResponseBodyAdvice#supports`）。
 
 ## Spring 配置
 

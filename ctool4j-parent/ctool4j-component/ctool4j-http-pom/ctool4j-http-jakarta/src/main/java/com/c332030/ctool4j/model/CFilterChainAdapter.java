@@ -45,7 +45,7 @@ import java.util.Objects;
  *
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li>只包装 jakarta 侧的链；抽象层对象与该侧适配器一一对应，不跨 javax/jakarta 混用。</li>
+ *   <li>只包装 jakarta 侧的链；抽象层对象与该侧适配器一一对应，不跨 jakarta/javax 混用。</li>
  *   <li>重复放行的行为由底层容器决定，本适配器不拦截。</li>
  * </ul>
  *

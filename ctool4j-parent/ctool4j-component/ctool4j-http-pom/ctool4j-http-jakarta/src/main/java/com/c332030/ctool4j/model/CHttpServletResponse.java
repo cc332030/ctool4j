@@ -43,7 +43,7 @@ import java.util.function.Supplier;
  *
  * <h2>适用范围</h2>
  * <ul>
- *   <li>运行在 jakarta（Spring Boot 3.x / Servlet 5.0+）容器下、需要面向 {@link CHttpResponse} 编写公共代码的场景。</li>
+ *   <li>运行在 jakarta（Spring Boot 2.x / Servlet 4.0）容器下、需要面向 {@link CHttpResponse} 编写公共代码的场景。</li>
  * </ul>
  *
  * <h2>已知限制与取舍</h2>

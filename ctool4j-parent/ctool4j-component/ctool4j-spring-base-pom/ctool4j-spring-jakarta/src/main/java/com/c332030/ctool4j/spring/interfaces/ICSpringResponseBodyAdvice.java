@@ -2,9 +2,7 @@ package com.c332030.ctool4j.spring.interfaces;
 
 import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.model.CHttpServletResponse;
-
 import lombok.val;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -14,9 +12,6 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * <p>
