@@ -60,7 +60,7 @@ import java.util.Set;
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li><b>IP 来源可伪造</b>：依赖 {@code CRequestUtils.getIp}，其当前无条件信任 {@code X-Forwarded-For} 首段，客户端直连时可伪造该请求头绕过 IP 白名单（与 {@code CRequestUtils} 既有已知限制一致）。<b>生产对外场景必须配合可信代理，并在代理处清理/覆盖 {@code X-Forwarded-For}，否则本拦截器可能被绕过</b>。</li>
+ *   <li><b>IP 来源可伪造</b>：依赖 {@code CHttpRequest#getClientIp}，其当前无条件信任 {@code X-Forwarded-For} 首段，客户端直连时可伪造该请求头绕过 IP 白名单（与 {@code CHttpRequest#getClientIp} 既有已知限制一致）。<b>生产对外场景必须配合可信代理，并在代理处清理/覆盖 {@code X-Forwarded-For}，否则本拦截器可能被绕过</b>。</li>
  *   <li><b>标注≠生效</b>：仅在标注 {@code CInnerApi} 且 {@code CInnerApiConfig.allowed-ips} 非空时校验才真正收紧；忘配白名单则仍全部放行（见 {@code CInnerApiConfig}）。</li>
  *   <li><b>{@code @Inherited} 仅作用于类级</b>：标在父类类级时子类 Controller 继承识别；方法级标注不随继承传播，需标在具体方法上。</li>
  * </ul>
@@ -74,7 +74,7 @@ import java.util.Set;
  * <ul>
  *   <li>{@code handler} 非 {@code HandlerMethod}（如静态资源）直接放行；</li>
  *   <li>方法标注 {@code CInnerApi}，或类标注 {@code CInnerApi}（含 {@code @Inherited} 从抽象父类继承）则视为内部接口；</li>
- *   <li>内部接口取客户端 IP（{@code CRequestUtils.getIp}）→ {@code CIpUtils.contains} 校验白名单 → 命中放行，否则拒绝。</li>
+ *   <li>内部接口取客户端 IP（{@code CHttpRequest#getClientIp}）→ {@code CIpUtils.contains} 校验白名单 → 命中放行，否则拒绝。</li>
  * </ul>
  * <p><b>注解识别</b></p>
  * <ul>
@@ -111,7 +111,7 @@ public class CInnerApiInterceptor implements ICSpringHandlerInterceptor {
      * 对标注 {@code @CInnerApi} 的内部接口做 IP 白名单校验。
      *
      * <p>非内部接口（handler 非 {@code HandlerMethod} 或未标注注解）、白名单为空、客户端 IP 命中白名单时直接放行；
-     * 未命中时写 403 JSON 响应并中断请求。客户端 IP 取自 {@code CRequestUtils.getIp}（无条件信任
+     * 未命中时写 403 JSON 响应并中断请求。客户端 IP 取自 {@code CHttpRequest#getClientIp}（无条件信任
      * {@code X-Forwarded-For} 首段，属已知安全取舍，见类级说明）。</p>
      *
      * @param request  当前请求，用于取客户端 IP
@@ -132,8 +132,8 @@ public class CInnerApiInterceptor implements ICSpringHandlerInterceptor {
         if (allowedIps == null || allowedIps.isEmpty()) {
             return true;
         }
-        // 已知取舍：getIp 无条件信任 X-Forwarded-For 首段，客户端直连时可伪造该头绕过白名单（安全缺陷）。
-        // 生产对外场景须配合可信代理清理/覆盖 X-Forwarded-For（见 CRequestUtils.adoc 既有已知限制）；暂按此取舍保留。
+        // 已知取舍：getClientIp 无条件信任 X-Forwarded-For 首段，客户端直连时可伪造该头绕过白名单（安全缺陷）。
+        // 生产对外场景须配合可信代理清理/覆盖 X-Forwarded-For（见 CHttpRequest#getClientIp 的「安全取舍」）；暂按此取舍保留。
         String clientIp = request.getClientIp();
         if (CIpUtils.contains(clientIp, allowedIps)) {
             return true;
