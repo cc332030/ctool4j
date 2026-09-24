@@ -189,6 +189,8 @@ graph LR
   testCore["ctool4j-test-core"]
   testSpring["ctool4j-test-spring"]
 
+  mybatisBase -.-> core
+  mybatisBase -.-> definition
   mybatisBase -.-> transaction
   mybatisBase -.-> db
   mybatisBase -.-> redis

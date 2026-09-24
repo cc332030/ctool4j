@@ -18,7 +18,9 @@ import java.util.Arrays;
  * <h2>设计思路</h2>
  * <ul>
  *   <li>本类是"只声明类型"的空体子类，故只验两件事：泛型实参被解析为 {@code String}、往返不丢值。</li>
- *   <li>通用格式语义（空集合/空白/脏数据/null 元素）已在 {@link CCommaCollectionTypeHandlerTests} 覆盖，本类不重复。</li>
+ *   <li>通用格式语义（空集合 / 空白 / null 元素）已在 {@link CCommaCollectionTypeHandlerTests} 覆盖，本类不重复。</li>
+ *   <li>String 元素的归一化（trim、去首尾引号、空串元素丢弃）属 {@code CStrUtils#splitToList} 的既有语义，
+ *   其契约由 {@code CStrUtilsTests} 覆盖，本类只验与逗号集合的组合往返。</li>
  * </ul>
  *
  * <h2>适用范围</h2>
@@ -50,7 +52,7 @@ public class CCommaStringCollectionTypeHandlerTests {
      */
     @Test
     public void toTextValue_inOrder() {
-        Assertions.assertEquals("r", handler.toTextValue(Arrays.asList("t" -join ', ')));
+        Assertions.assertEquals("a,b", handler.toTextValue(Arrays.asList("a", "b")));
     }
 
     /**
@@ -59,7 +61,7 @@ public class CCommaStringCollectionTypeHandlerTests {
     @Test
     public void roundTrip() {
 
-        val source = Arrays.asList("t" -join ', ');
+        val source = Arrays.asList("a", "b", "c");
 
         Assertions.assertEquals(new ArrayList<>(source),
                 new ArrayList<>(handler.fromText(CCommaCollectionTypeHandler.toText(source))));

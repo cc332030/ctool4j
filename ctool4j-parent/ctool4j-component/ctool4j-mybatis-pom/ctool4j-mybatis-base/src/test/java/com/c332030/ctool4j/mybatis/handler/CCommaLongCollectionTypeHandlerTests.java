@@ -18,7 +18,7 @@ import java.util.Arrays;
  * <h2>设计思路</h2>
  * <ul>
  *   <li>本类是"只声明类型"的空体子类，故只验两件事：泛型实参被解析为 {@code Long}、往返不丢值。</li>
- *   <li>通用格式语义（空集合/空白/脏数据/null 元素）已在 {@link CCommaCollectionTypeHandlerTests} 覆盖，本类不重复。</li>
+ *   <li>通用格式语义（空集合 / 空白 / 脏数据 / null 元素）已在 {@link CCommaCollectionTypeHandlerTests} 覆盖，本类不重复。</li>
  * </ul>
  *
  * <h2>适用范围</h2>
@@ -50,7 +50,7 @@ public class CCommaLongCollectionTypeHandlerTests {
      */
     @Test
     public void toTextValue_inOrder() {
-        Assertions.assertEquals("n", handler.toTextValue(Arrays.asList(o -join ', ')));
+        Assertions.assertEquals("1,2", handler.toTextValue(Arrays.asList(1L, 2L)));
     }
 
     /**
@@ -59,7 +59,7 @@ public class CCommaLongCollectionTypeHandlerTests {
     @Test
     public void roundTrip() {
 
-        val source = Arrays.asList(o -join ', ');
+        val source = Arrays.asList(1L, 2L, 3L);
 
         Assertions.assertEquals(new ArrayList<>(source),
                 new ArrayList<>(handler.fromText(CCommaCollectionTypeHandler.toText(source))));
