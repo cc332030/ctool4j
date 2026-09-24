@@ -18,6 +18,29 @@
             <artifactId>ctool4j-http-base</artifactId>
         </dependency>
 
+        <!-- @ConfigurationProperties 组合注解的元注解来自 Spring Boot；承载在抽象契约层，避免让业务模块被反向依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+        </dependency>
+
+        <!-- cors 配置与工具（无 Servlet 类型）承载在本层：两侧适配器共用同一份，避免为 cors 再建两侧模块 -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-definition</artifactId>
+        </dependency>
+
+        <!-- @CAutowiredScan 自定义注入注解来自该处理器模块 -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-autowired-processor</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

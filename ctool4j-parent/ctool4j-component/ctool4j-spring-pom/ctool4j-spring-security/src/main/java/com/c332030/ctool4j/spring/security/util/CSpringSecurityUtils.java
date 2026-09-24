@@ -1,21 +1,15 @@
 package com.c332030.ctool4j.spring.security.util;
 
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CList;
-import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
-import com.c332030.ctool4j.model.CHttpServletResponse;
-import com.c332030.ctool4j.web.util.CServletUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -170,41 +164,6 @@ public class CSpringSecurityUtils {
     public <T extends UserDetails> T getUserDetails() {
         // 显式 (Object) 强转，避免泛型 T（擦除为 Object）匹配到 anyType(CSupplier) 重载
         return CObjUtils.anyType((Object) getPrincipal());
-    }
-
-    /**
-     * 以 JSON 形式输出认证错误
-     *
-     * @param httpStatus HTTP 状态码
-     * @param response   响应
-     */
-    public void writeJsonError(
-        HttpStatus httpStatus,
-        HttpServletResponse response
-    ) {
-        writeJsonError(httpStatus, null, response);
-    }
-
-    /**
-     * 以 JSON 形式输出认证错误，可指定错误信息
-     *
-     * @param httpStatus HTTP 状态码
-     * @param message    错误信息，为空时取状态码默认文案
-     * @param response   响应
-     */
-    public void writeJsonError(
-        HttpStatus httpStatus,
-        String message,
-        HttpServletResponse response
-    ) {
-
-        message = StrUtil.blankToDefault(message, httpStatus.getReasonPhrase());
-        val forbiddenResult = CStrResult.error(
-            String.valueOf(httpStatus.value()),
-            message
-        );
-
-        CServletUtils.writeJson(CHttpServletResponse.of(response), httpStatus, forbiddenResult);
     }
 
 }

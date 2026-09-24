@@ -1,6 +1,6 @@
 package com.c332030.ctool4j.spring.security.core;
 
-import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
+import com.c332030.ctool4j.spring.security.util.CSecurityResponseWriter;
 import lombok.CustomLog;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
@@ -38,7 +38,7 @@ public class CSessionInformationExpiredStrategy implements SessionInformationExp
 
         log.debug("CSessionInformationExpiredStrategy");
 
-        CSpringSecurityUtils.writeJsonError(
+        CSecurityResponseWriter.writeJsonError(
             HttpStatus.UNAUTHORIZED,
             "Expired",
             event.getResponse()
