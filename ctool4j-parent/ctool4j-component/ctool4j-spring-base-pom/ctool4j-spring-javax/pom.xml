@@ -4,11 +4,11 @@
 
     <parent>
         <groupId>com.c332030</groupId>
-        <artifactId>ctool4j-spring-http-pom</artifactId>
+        <artifactId>ctool4j-spring-base-pom</artifactId>
         <version>1.1.20260918-SNAPSHOT</version>
     </parent>
 
-    <artifactId>ctool4j-spring-security-javax</artifactId>
+    <artifactId>ctool4j-spring-javax</artifactId>
 
     <dependencies>
 
@@ -16,12 +16,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <!-- 日志门面：@CustomLog 的声明来自 ctool4j-core（CLog/CLogUtils）；实现由业务引入 ctool4j-log 提供 -->
-        <dependency>
-            <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-core</artifactId>
         </dependency>
 
         <dependency>
@@ -34,9 +28,10 @@
             <artifactId>ctool4j-spring-base</artifactId>
         </dependency>
 
+        <!-- CRequestUtils 等 javax 侧工具需要 core 的工具类与 definition 的函数式接口 -->
         <dependency>
             <groupId>com.c332030</groupId>
-            <artifactId>ctool4j-spring-security-base</artifactId>
+            <artifactId>ctool4j-core</artifactId>
         </dependency>
 
     </dependencies>
