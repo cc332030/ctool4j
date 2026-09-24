@@ -1,11 +1,15 @@
 package com.c332030.ctool4j.model;
 
 import com.c332030.ctool4j.interfaces.CHttpResponse;
+import com.c332030.ctool4j.interfaces.ICCookie;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Locale;
@@ -372,4 +376,37 @@ public final class CHttpServletResponse implements CHttpResponse {
         return response.getTrailerFields();
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addCookie(ICCookie cookie) {
+        if (null == cookie) {
+            return;
+        }
+        val c = new Cookie(cookie.getName(), cookie.getValue());
+        if (null != cookie.getPath()) {
+            c.setPath(cookie.getPath());
+        }
+        if (null != cookie.getDomain()) {
+            c.setDomain(cookie.getDomain());
+        }
+        if (null != cookie.getComment()) {
+            c.setComment(cookie.getComment());
+        }
+        c.setMaxAge(cookie.getMaxAge());
+        c.setSecure(cookie.isSecure());
+        c.setHttpOnly(cookie.isHttpOnly());
+        c.setVersion(cookie.getVersion());
+        response.addCookie(c);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        return response.getOutputStream();
+    }
 }

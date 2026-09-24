@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.interfaces;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Locale;
@@ -37,9 +38,9 @@ import java.util.function.Supplier;
  * <ul>
  *   <li><b>只放两边公共面</b>：方法须在 javax 与 jakarta 两套 {@code HttpServletResponse} 中同名、同参数、同返回类型，
  *   且返回类型与抛出异常都不落在 Servlet 包内——故此处只有 {@code String}/{@code int}/{@code long}/{@code boolean}/
- *   {@code Collection}/{@code Locale}/{@code PrintWriter}/{@code Supplier} 这类 JDK 类型。返回 Servlet 类型的
- *   {@code getOutputStream}（{@code ServletOutputStream}）与入参为 Servlet 类型的 {@code addCookie}（{@code Cookie}）
- *   <b>进不来</b>；已弃用的 {@code encodeUrl}/{@code encodeRedirectUrl} 同样不进（新增代码不得使用弃用 API）。</li>
+ *   {@code Collection}/{@code Locale}/{@code PrintWriter}/{@code Supplier} 这类 JDK 类型。二进制输出以 JDK 的
+ *   {@code OutputStream} 暴露 {@code getOutputStream}；写 Cookie 以自有类型 {@link ICCookie} 为入参的 {@code addCookie} 纳入。
+ *   已弃用的 {@code encodeUrl}/{@code encodeRedirectUrl} 不进（新增代码不得使用弃用 API）。</li>
  *   <li><b>底层决定用哪个包</b>：本接口不含任何 Servlet 依赖（{@code ctool4j-http-base} 不引 servlet-api）；
  *   由实现模块选包——{@code ctool4j-http-javax} 承接 {@code javax.servlet}、{@code ctool4j-http-jakarta}
  *   承接 {@code jakarta.servlet}，使用方按自身容器依赖引入其中一个。</li>
@@ -63,8 +64,7 @@ import java.util.function.Supplier;
  *
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>需要写二进制响应体（{@code getOutputStream}、{@code ServletOutputStream}）、写 Cookie（{@code addCookie}）时：
- *   类型落在 Servlet 包内，本接口表达不了，须由实现侧直接使用对应包的类型。</li>
+ *   <li>需要 {@code ServletOutputStream} 专有能力（{@code isReady}、{@code setWriteListener}）时不适用：{@code getOutputStream} 只以 JDK {@code OutputStream} 暴露。</li>
  *   <li>需要状态码常量（{@code SC_OK} 一类）时同样不在此声明：两侧都是编译期 {@code int} 常量，
  *   本接口只声明方法。</li>
  *   <li>Servlet 6.0 新增方法不进本接口——javax 侧不存在，不属两边公共面。</li>
@@ -72,15 +72,15 @@ import java.util.function.Supplier;
  *
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li>公共面只覆盖两边<b>同名同签名</b>的方法：两侧真正的差异点（二进制流、Cookie、状态消息的弃用演进）无法抽象，
- *   强行统一只能靠额外包装类型，会让抽象层反过来成为新的兼容负担，故不做。</li>
+ *   <li>公共面以<b>同名同签名</b>为主，差异点按成本决定是否统一：二进制流用 JDK 父类型、Cookie 用自有类型
+ *   （{@link ICCookie}）纳入；Session、Part、{@code ServletContext} 等返回类型无法低成本统一，强行包装会让抽象层成为新的兼容负担，暂不做。</li>
  *   <li>抽象层不消除 javax/jakarta 的依赖分裂：两套实现各自声明各自的 servlet-api（均 {@code optional}，
  *   不传递给使用方、运行时由容器提供），引入两个实现模块并不代表可同时在一个应用里生效。</li>
  *   <li>提交语义（{@code isCommitted}/缓冲/重置）的边界完全由底层容器决定，本接口不做任何状态跟踪或拦截。</li>
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.0
+ * @version 1.1
  */
 public interface CHttpResponse {
 
@@ -336,6 +336,21 @@ public interface CHttpResponse {
      * @param supplier trailer 字段提供者
      */
     void setTrailerFields(Supplier<Map<String, String>> supplier);
+
+    /**
+     * 取响应体的二进制输出流（底层 Servlet 流的 JDK 父类型）
+     *
+     * @return 输出流
+     * @throws IOException 取流失败，或已被 {@link #getWriter} 占用时
+     */
+    OutputStream getOutputStream() throws IOException;
+
+    /**
+     * 添加 Cookie 到响应
+     *
+     * @param cookie Cookie
+     */
+    void addCookie(ICCookie cookie);
 
     /**
      * 取 trailer 字段提供者

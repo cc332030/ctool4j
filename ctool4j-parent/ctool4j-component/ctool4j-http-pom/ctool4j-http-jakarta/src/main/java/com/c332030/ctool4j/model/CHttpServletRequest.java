@@ -3,8 +3,11 @@ package com.c332030.ctool4j.model;
 import com.c332030.ctool4j.exception.CServletException;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CRequestDispatcher;
+import com.c332030.ctool4j.interfaces.ICCookie;
+import com.c332030.ctool4j.interfaces.ICHttpSession;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +15,10 @@ import lombok.val;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * <p>
@@ -52,8 +53,8 @@ import java.util.Objects;
  *
  * <h2>已知限制与取舍</h2>
  * <ul>
- *   <li>只覆盖两边公共面，jakarta 特有的能力（会话、Cookie、上传分片、{@code authenticate} 发起认证、协议升级）
- *   不在此暴露，需要时直接取底层请求。</li>
+ *   <li>只覆盖两边公共面：Cookie 已以 {@link ICCookie}、会话已以 {@link ICHttpSession} 纳入；jakarta 特有的
+ *   剩余能力（上传分片、{@code authenticate} 发起认证、协议升级）不在此暴露，需要时直接取底层请求。</li>
  *   <li>本类不做线程安全保证：是否可跨线程使用取决于底层 {@code HttpServletRequest}（容器实现通常只保证同一请求线程内可用）。</li>
  * </ul>
  *
@@ -570,4 +571,64 @@ public final class CHttpServletRequest implements CHttpRequest {
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<ICCookie> getCookies() {
+        val cookies = request.getCookies();
+        val list = new ArrayList<ICCookie>();
+        if (null == cookies) {
+            return list;
+        }
+        for (val cookie : cookies) {
+            list.add(toCookie(cookie));
+        }
+        return list;
+    }
+
+    /**
+     * 把容器 Cookie 映射为抽象层 Cookie
+     *
+     * @param cookie 容器 Cookie
+     * @return 抽象层 Cookie
+     */
+    private static ICCookie toCookie(Cookie cookie) {
+        return new CCookie()
+            .setName(cookie.getName())
+            .setValue(cookie.getValue())
+            .setPath(cookie.getPath())
+            .setDomain(cookie.getDomain())
+            .setMaxAge(cookie.getMaxAge())
+            .setSecure(cookie.getSecure())
+            .setHttpOnly(cookie.isHttpOnly())
+            .setVersion(cookie.getVersion())
+            .setComment(cookie.getComment());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return request.getInputStream();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ICHttpSession getSession() {
+        return CHttpSession.of(request.getSession());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ICHttpSession getSession(boolean create) {
+        val session = request.getSession(create);
+        return null == session ? null : CHttpSession.of(session);
+    }
 }

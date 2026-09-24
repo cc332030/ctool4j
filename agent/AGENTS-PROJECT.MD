@@ -55,6 +55,11 @@
   - 主代码：用抽象层类型（`CHttpRequest`/`CHttpResponse`/`CFilterChain`）。
   - 测试：用 ①Spring Mock（`MockHttpServletRequest`/`MockHttpServletResponse`/`MockFilterChain`，其实现随 Spring 版本自动切换 servlet 包，源码零 import）②两侧同名常量（`CHttpServletRequest.ERROR_STATUS_CODE`）③需要"验证交互"时 mock 这些 Spring 类型（`mock(MockFilterChain.class)`），`verify(...)` 照常可用。
   - 反例（本轮修掉的三类）：`mock(FilterChain.class)`、`Mockito.mock(HttpServletRequest.class)`、`RequestDispatcher.ERROR_STATUS_CODE`、以及**覆写 Servlet 版 `doFilterInternal`**（那是"绕过抽象层骨架"，`CAbstractWebAuthFilter` 子类应覆写抽象层版本、多数字类连覆写都不需要）。
+- **两侧类型不同的能力（会话、Cookie、上传分片、二进制流…）的取舍准则**：
+  - 能**低成本统一**的纳入抽象层——Cookie 用自有包装类型（`ICCookie` + `CCookie`）、会话用 `ICHttpSession` + 两侧 `CHttpSession`、二进制流用 **JDK 父类型**（`InputStream`/`OutputStream`）；收益是使用方零 Servlet 依赖、切栈零改动。
+  - 返回类型**无法低成本统一**的暂不纳入（`Part`、`ServletContext`、`HttpUpgradeHandler`）——强行包装会让抽象层成为新的兼容负担。
+  - 判断口径：**入参/返回是否只需"搬运字段或原样透传"**——是则可包装；若还要暴露第二层对象图（如 `ServletContext`）或与业务无关的 SPI，则不包装。
+  - 包装类型放 base（接口用 `IC` 前缀、实现用 `C` 前缀）；两侧适配器做**字段映射**，映射逻辑因容器类型不同无法下沉 base，两侧同构各一份即可。
 - **抽象层加能力的落点**：抽象层需要新能力时，加到 `ctool4j-http-base` 的接口（`CHttpRequest`/`CHttpResponse`/`CFilter` 等）并在**两侧适配器同步实现**；能用既有抽象层方法表达的，不要为省事去解包底层对象。
 - **批量改文件前先确认行尾**：本仓库行尾**不统一**（同模块内既有 LF 也有 CRLF），按 `` `n `` 拼替换串会在 CRLF 文件上静默不生效。先测（`ReadAllText` 后统计 `\r\n` 与孤立 `\n`），或直接用正则 `\r?\n`。
 - **迁移既有类的手法**（本仓库实际做法）：类需要随 Servlet 面归位时用 `git mv` 保留历史、**包名与类名保持不变**——调用方 import 与调用一行不改，只靠模块依赖切换生效；测试随实现一起迁；迁移原因与验证结论落 `tmp/plan` 记录。

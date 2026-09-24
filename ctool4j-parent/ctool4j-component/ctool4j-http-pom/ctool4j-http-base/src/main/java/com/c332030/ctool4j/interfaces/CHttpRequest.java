@@ -4,9 +4,11 @@ import com.c332030.ctool4j.exception.CServletException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -48,8 +50,8 @@ import java.util.Map;
  *   <li><b>只放两边公共面</b>：方法须在 javax 与 jakarta 两套 {@code HttpServletRequest} 中同名、同参数、同返回类型，
  *   且返回类型与抛出异常都不落在 Servlet 包内——故此处只有 {@code String}/{@code int}/{@code long}/{@code boolean}/
  *   {@code Enumeration}/{@code Map}/{@code Locale}/{@code Principal} 这类 JDK 类型，以及本抽象层的
- *   {@link CRequestDispatcher}。返回 Servlet 类型的 {@code getSession}、{@code getCookies}、{@code getParts}、
- *   {@code getServletContext}、{@code getPart}、{@code upgrade} 进不来（声明在一个方法上必然偏向其中一边）；
+ *   {@link CRequestDispatcher}。返回 Servlet 类型的 {@code getCookies}、{@code getSession} 已以自有类型（{@link ICCookie}、{@link ICHttpSession}）统一<b>纳入</b>；
+ *   {@code getParts}、{@code getServletContext}、{@code getPart}、{@code upgrade} 留待同类包装、暂不纳入（声明在一个方法上必然偏向其中一边）；
  *   抛 Servlet 异常的 {@code login}/{@code logout} 经 {@link CServletException} 包装后<b>已纳入</b>本接口。</li>
  *   <li><b>底层决定用哪个包</b>：本接口不含任何 Servlet 依赖（{@code ctool4j-http-base} 不引 servlet-api）；
  *   由实现模块选包——{@code ctool4j-http-javax} 承接 {@code javax.servlet}、{@code ctool4j-http-jakarta}
@@ -76,11 +78,10 @@ import java.util.Map;
  *
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>需要 {@code getSession}（取会话）、{@code getCookies}（取 Cookie）、{@code getParts}/{@code getPart}（取上传分片）、
- *   {@code authenticate}（发起容器认证，入参为 Servlet 响应类型）、{@code upgrade}（协议升级，返回 Servlet 类型）时：
- *   返回类型或入参落在 Servlet 包内，本接口表达不了，须由实现侧直接使用对应包的类型——
- *   {@code login}/{@code logout} 不在此列，其底层异常已包装为 {@link CServletException}。</li>
- *   <li>需要流式读取请求体（{@code getInputStream}、{@code ServletInputStream}）时不适用，只提供字符流 {@code getReader}。</li>
+ *   <li>需要 {@code getParts}/{@code getPart}（取 multipart 表单部分，<b>非</b>文件分片）、{@code authenticate}（发起容器认证，
+ *   入参为 Servlet 响应类型）、{@code upgrade}（协议升级，返回 Servlet 类型）时：返回类型或入参落在 Servlet 包内，
+ *   本接口表达不了，须由实现侧直接使用对应包的类型——{@code login}/{@code logout} 不在此列，其底层异常已包装为 {@link CServletException}。</li>
+ *   <li>二进制读取已提供 {@code getInputStream}（底层 {@code ServletInputStream} 以 JDK {@code InputStream} 暴露，不暴露 Servlet 专有方法）；与字符流 {@code getReader} 二选一。</li>
  *   <li>Servlet 6.0 新增方法（{@code getRequestId}、{@code getServletConnection} 等）不进本接口——javax 侧不存在，
  *   不属两边公共面。</li>
  * </ul>
@@ -88,8 +89,8 @@ import java.util.Map;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>公共面只覆盖两边<b>同名同签名</b>的方法：两边真正的差异点（会话、Cookie、上传分片、协议升级）返回或入参
- *   落在 Servlet 包内，无法抽象——强行统一只能靠额外包装类型，会让抽象层反过来成为新的兼容负担，故不做；
- *   跨包异常（{@link CServletException}）是"两侧类型不同"里唯一能低成本包装的一类。</li>
+ *   落在 Servlet 包内，无法直接声明——改以<b>自有包装类型</b>统一（如 {@link ICCookie}），使用方仍零 Servlet 依赖；
+ *   跨包异常（{@link CServletException}）与 Cookie（{@link ICCookie}）是"两侧类型不同"里能低成本包装的一类。</li>
  *   <li>抽象层不消除 javax/jakarta 的依赖分裂：两套实现各自声明各自的 servlet-api（均 {@code optional}，
  *   不传递给使用方、运行时由容器提供），引入两个实现模块并不代表可同时在一个应用里生效。</li>
  *   <li>{@code login}/{@code logout} 的失败在本接口是运行时异常（见 {@link CServletException}）：
@@ -97,7 +98,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.2
+ * @version 1.4
  */
 public interface CHttpRequest {
 
@@ -509,6 +510,41 @@ public interface CHttpRequest {
      * @return true 表示来自 URL
      */
     boolean isRequestedSessionIdFromURL();
+
+    /**
+     * 取请求携带的 Cookie 列表
+     *
+     * @return Cookie 列表；未携带任何 Cookie 时返回空列表
+     */
+    /**
+     * 取会话；不存在时创建
+     *
+     * @return 会话
+     */
+    ICHttpSession getSession();
+
+    /**
+     * 取会话
+     *
+     * @param create 不存在时是否创建
+     * @return 会话；{@code create} 为 false 且无会话时返回 null
+     */
+    ICHttpSession getSession(boolean create);
+
+    /**
+     * 取请求携带的 Cookie 列表
+     *
+     * @return Cookie 列表；未携带任何 Cookie 时返回空列表
+     */
+    List<ICCookie> getCookies();
+
+    /**
+     * 取请求体的二进制输入流（底层 Servlet 流的 JDK 父类型）
+     *
+     * @return 输入流
+     * @throws IOException 取流失败，或已被 {@link #getReader} 占用时
+     */
+    InputStream getInputStream() throws IOException;
 
     /**
      * 以容器表单认证方式登录
