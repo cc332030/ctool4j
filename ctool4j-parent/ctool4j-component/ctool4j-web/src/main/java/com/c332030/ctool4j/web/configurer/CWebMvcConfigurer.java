@@ -2,7 +2,7 @@ package com.c332030.ctool4j.web.configurer;
 
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
-import com.c332030.ctool4j.spring.interfaces.ICHandlerInterceptor;
+import com.c332030.ctool4j.spring.interfaces.CHandlerInterceptor;
 import com.c332030.ctool4j.spring.util.CSpringHttpUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -21,7 +21,7 @@ import java.util.List;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CWebMvcConfigurer} 为 web MVC 配置，{@code @Configuration} + {@code @AllArgsConstructor} + 实现 {@code WebMvcConfigurer}， 构造注入 {@code Collection&lt;ICHandlerInterceptor&gt;} 与 {@code CSpringJacksonConfig}。</p>
+ * <p>{@code CWebMvcConfigurer} 为 web MVC 配置，{@code @Configuration} + {@code @AllArgsConstructor} + 实现 {@code WebMvcConfigurer}， 构造注入 {@code Collection&lt;CHandlerInterceptor&gt;} 与 {@code CSpringJacksonConfig}。</p>
  * <p>核心方法：</p>
  * <ul>
  *   <li>{@code CSpringHttpUtils.setJacksonConfig(jacksonConfig)} 配置 Jackson，</li>
@@ -35,7 +35,7 @@ import java.util.List;
  *     <th>兜底行为</th>
  *   </tr>
  *   <tr>
- *     <td>无 {@code ICHandlerInterceptor}</td>
+ *     <td>无 {@code CHandlerInterceptor}</td>
  *     <td>{@code CCollUtils.forEach} 空集合不执行，无拦截器注册</td>
  *   </tr>
  *   <tr>
@@ -58,7 +58,7 @@ import java.util.List;
  * <h2>设计要点</h2>
  * <p><b>拦截器注册</b></p>
  * <ul>
- *   <li>收集容器中所有 {@code ICHandlerInterceptor} bean，统一注册。</li>
+ *   <li>收集容器中所有 {@code CHandlerInterceptor} bean，统一注册。</li>
  * </ul>
  * <p><b>Jackson 消息转换器</b></p>
  * <ul>
@@ -73,14 +73,14 @@ import java.util.List;
 @AllArgsConstructor
 public class CWebMvcConfigurer implements WebMvcConfigurer {
 
-    Collection<ICHandlerInterceptor> icHandlerInterceptors;
+    Collection<CHandlerInterceptor> icHandlerInterceptors;
 
     CSpringJacksonConfig jacksonConfig;
 
     /**
      * 注册所有处理器拦截器
      * <ul>
-     *   <li>{@code addInterceptors(InterceptorRegistry registry)}：将全部 {@code ICHandlerInterceptor} 注册到拦截器链</li>
+     *   <li>{@code addInterceptors(InterceptorRegistry registry)}：将全部 {@code CHandlerInterceptor} 注册到拦截器链</li>
      * </ul>
      *
      * @param registry 拦截器注册器

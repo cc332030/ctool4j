@@ -3,7 +3,7 @@ package com.c332030.ctool4j.log.advice;
 import cn.hutool.core.util.BooleanUtil;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.spring.interfaces.ICBaseResponseBodyAdvice;
+import com.c332030.ctool4j.spring.interfaces.CResponseBodyAdvice;
 import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import lombok.CustomLog;
 import org.springframework.core.MethodParameter;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CLogResponseBodyAdvice}（{@code @ControllerAdvice}）实现 {@code ICBaseResponseBodyAdvice&lt;Object&gt;}，在响应体写出前调用 {@code CRequestLogUtils.setRsp(body, null, response)} 采集响应体、响应状态码与响应头到请求日志上下文。</p>
+ * <p>{@code CLogResponseBodyAdvice}（{@code @ControllerAdvice}）实现 {@code CResponseBodyAdvice&lt;Object&gt;}，在响应体写出前调用 {@code CRequestLogUtils.setRsp(body, null, response)} 采集响应体、响应状态码与响应头到请求日志上下文。</p>
  * <h2>兜底设计</h2>
  * <table border="1">
  *   <caption>兜底行为</caption>
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * </ul>
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>依赖 {@code ICBaseResponseBodyAdvice} 的调用链（web 模块）。</li>
+ *   <li>依赖 {@code CResponseBodyAdvice} 的调用链（web 模块）。</li>
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
@@ -65,7 +65,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @CustomLog
 @ControllerAdvice
-public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
+public class CLogResponseBodyAdvice implements CResponseBodyAdvice<Object> {
 
     /**
      * 响应体写出前记录响应体到请求日志（仅记录，日志打印由 CRequestLogHandlerInterceptor.afterCompletion 统一执行）

@@ -10,11 +10,11 @@ import org.springframework.lang.Nullable;
 
 /**
  * <p>
- * Description: CResponseBodyAdvice
+ * Description: ICResponseBodyAdvice
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CResponseBodyAdvice} 为 Spring MVC 响应体增强（{@code ResponseBodyAdvice}）的<b>抽象契约</b>：
+ * <p>{@code ICResponseBodyAdvice} 为 Spring MVC 响应体增强（{@code ResponseBodyAdvice}）的<b>抽象契约</b>：
  * 与 {@code org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice} 同形，
  * 但把 {@code ServerHttpRequest}/{@code ServerHttpResponse} 换成抽象层的
  * {@link CHttpRequest} / {@link CHttpResponse}。</p>
@@ -28,7 +28,7 @@ import org.springframework.lang.Nullable;
  *   <li><b>为什么要这一层</b>：Spring 的 {@code beforeBodyWrite} 收到的是
  *   {@code ServerHttpRequest}/{@code ServerHttpResponse}，Servlet 应用下其实现是
  *   {@code ServletServerHttpRequest}/{@code ServletServerHttpResponse}（两侧包名不同）；若要直接拿 Servlet 请求/响应，
- *   实现方就得写死某一侧的包。本接口把它换成抽象层类型，由两侧的 {@code ICBaseResponseBodyAdvice} 负责从
+ *   实现方就得写死某一侧的包。本接口把它换成抽象层类型，由两侧的 {@code CResponseBodyAdvice} 负责从
  *   {@code ServletServerHttpRequest} 解包并转换。</li>
  *   <li><b>解包集中在一处</b>：解包与转换只在两侧适配器里做一次，实现类不再出现
  *   {@code ServletServerHttpRequest} 或 {@code HttpServletRequest}。</li>
@@ -47,7 +47,7 @@ import org.springframework.lang.Nullable;
  * <h2>适用范围</h2>
  * <ul>
  *   <li>需要在 javax 与 jakarta 两套容器间可切换的响应体增强实现；使用方实现两侧模块提供的
- *   {@code ICBaseResponseBodyAdvice}（同名类），代码零改动。</li>
+ *   {@code CResponseBodyAdvice}（同名类），代码零改动。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>
@@ -60,7 +60,7 @@ import org.springframework.lang.Nullable;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>泛型 {@code T} 跟随 Spring 的 {@code ResponseBodyAdvice<T>}，不额外改变类型参数语义。</li>
- *   <li>本接口不继承 Spring 的 {@code ResponseBodyAdvice}，理由与 {@code CHandlerInterceptor} 相同：
+ *   <li>本接口不继承 Spring 的 {@code ResponseBodyAdvice}，理由与 {@code ICHandlerInterceptor} 相同：
  *   继承会把 Spring 的方法签名（含 {@code ServerHttpRequest}）带进来，与抽象层方法形成两套入口。</li>
  * </ul>
  *
@@ -68,7 +68,7 @@ import org.springframework.lang.Nullable;
  * @since 2026/9/24
  * @version 1.0
  */
-public interface CResponseBodyAdvice<T> {
+public interface ICResponseBodyAdvice<T> {
 
     /**
      * 判断本增强是否作用于该返回值类型

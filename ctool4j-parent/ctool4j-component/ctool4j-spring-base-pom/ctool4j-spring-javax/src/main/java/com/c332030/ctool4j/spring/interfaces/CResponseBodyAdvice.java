@@ -17,12 +17,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * <p>
- * Description: ICBaseResponseBodyAdvice
+ * Description: CResponseBodyAdvice
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code ICBaseResponseBodyAdvice} 是 {@link CResponseBodyAdvice} 在 <b>javax</b> 侧的落地（适配器）：
- * 同时继承 Spring 的 {@code ResponseBodyAdvice} 与抽象契约 {@link CResponseBodyAdvice}，
+ * <p>{@code CResponseBodyAdvice} 是 {@link ICResponseBodyAdvice} 在 <b>javax</b> 侧的落地（适配器）：
+ * 同时继承 Spring 的 {@code ResponseBodyAdvice} 与抽象契约 {@link ICResponseBodyAdvice}，
  * 从 {@code ServletServerHttpRequest}/{@code ServletServerHttpResponse} 解包出 Servlet 请求/响应并包装成抽象层类型。</p>
  * <ul>
  *   <li>{@code supports}：桥接到抽象契约的默认实现（默认全部生效）</li>
@@ -31,7 +31,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  *
  * <h2>设计要点</h2>
  * <ul>
- *   <li><b>多继承接入两侧</b>：{@code extends CResponseBodyAdvice<T>, ResponseBodyAdvice<T>}——Spring 侧负责被
+ *   <li><b>多继承接入两侧</b>：{@code extends ICResponseBodyAdvice<T>, ResponseBodyAdvice<T>}——Spring 侧负责被
  *   {@code @ControllerAdvice} 发现与调用，抽象契约侧负责给使用方提供与容器无关的签名。</li>
  *   <li><b>解包只在此处</b>：{@code ServletServerHttpRequest#getServletRequest} 与
  *   {@code ServletServerHttpResponse#getServletResponse} 是本类唯一接触 Servlet 类型的地方，
@@ -70,14 +70,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @since 2026/9/24
  * @version 1.0
  */
-public interface ICBaseResponseBodyAdvice<T> extends CResponseBodyAdvice<T>, ResponseBodyAdvice<T> {
+public interface CResponseBodyAdvice<T> extends ICResponseBodyAdvice<T>, ResponseBodyAdvice<T> {
 
     /**
      * {@inheritDoc}
      */
     @Override
     default boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return CResponseBodyAdvice.super.supports(returnType, converterType);
+        return ICResponseBodyAdvice.super.supports(returnType, converterType);
     }
 
     /**
