@@ -29,6 +29,15 @@
             <artifactId>ctool4j-core</artifactId>
         </dependency>
 
+        <!--
+            请求侧工具（CRequestUtils 等）随 Servlet 面切到 javax 侧模块：它们内部用 Spring 的
+            ServletRequestAttributes（javax 版），两侧同名同包，切容器只需换这一条依赖。
+        -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring-javax</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.c332030</groupId>
             <artifactId>ctool4j-autowired-processor</artifactId>

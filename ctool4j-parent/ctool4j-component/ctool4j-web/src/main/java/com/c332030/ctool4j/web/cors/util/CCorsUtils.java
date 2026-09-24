@@ -9,6 +9,8 @@ import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.definition.constant.CConstants;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
@@ -19,9 +21,8 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 import java.util.Set;
 
@@ -43,6 +44,34 @@ import java.util.Set;
  *   <li>{@code handleDo(request, response)}：按<b>域名级配置</b>校验并设置跨域响应头。</li>
  *   <li>{@code getOriginConfig(origin)}：按域名（{@code host:port} → 纯 {@code host}）取域名级配置。</li>
  *   <li>{@code setHeaderIfNotEmpty} / {@code joinHeaders}：头集合为空则不设置、含 {@code *} 用通配拼接。</li>
+ * </ul>
+ *
+ * <h2>设计要点</h2>
+ * <p><b>面向抽象层（与 javax/jakarta 无关）</b></p>
+ * <ul>
+ *   <li>入参用 {@link CHttpRequest} / {@link CHttpResponse} 而非某个 Servlet 包的请求/响应：
+ *   CORS 的判定与写出只用到两边公共面（读头、读方法、写头、写状态码），故本类不随容器切换而改，
+ *   由调用侧（Filter/Interceptor/Advice）负责把各自容器的对象包装成抽象层对象。</li>
+ *   <li>状态码取 Spring 的 {@link HttpStatus#NO_CONTENT}，不用某一侧 Servlet 包的 {@code SC_*} 常量。</li>
+ * </ul>
+ * <p><b>开关语义（配置了"不等于"启用了）</b></p>
+ * <ul>
+ *   <li>三层开关：全局 {@code cors.enable}、域名级 {@code cors.origins.<域名>.enable}；
+ *   两项都显式为 {@code true} 才处理（未配置即 {@code false}），避免"删掉配置后残留行为"。</li>
+ *   <li>凭据（{@code Access-Control-Allow-Credentials}）与响应头暴露（{@code Access-Control-Expose-Headers}）
+ *   各由域名级的独立开关控制，<b>默认禁用</b>，需显式开启。</li>
+ *   <li>各开关的取值兜底统一由 {@code CBoolUtils.isTrue} 完成（null 视为 false），不在配置类写默认值。</li>
+ * </ul>
+ * <p><b>域名级取值兜底</b></p>
+ * <ul>
+ *   <li>域名级配置项的回落<b>就在取值处完成</b>，不另写"取值 + 回落"的 getter——那层方法只是把单行兜底换个名字，
+ *   读代码时多一跳、取值形态还分叉成两种。集合取 {@code CollUtil.defaultIfEmpty}（未配置与空集合一律回落默认）；
+ *   请求方法与暴露响应头取 {@code ObjectUtil.defaultIfNull}（<b>仅 null 才回落</b>，保留"显式空集合"的语义：
+ *   不允许任何方法、不暴露任何头）。</li>
+ * </ul>
+ * <p><b>异常兜底</b></p>
+ * <ul>
+ *   <li>{@code handle}/{@code handleOptions} 外层 try-catch 捕获 Throwable 记录 error 日志，避免跨域处理异常影响主流程。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -77,11 +106,15 @@ import java.util.Set;
  * <h2>适用范围</h2>
  * <ul>
  *   <li>跨域请求需要动态回显 Origin、按<b>域名</b>白名单放行来源与方法、并按域名独立开启凭据与响应头暴露的场景。</li>
+ *   <li>javax 与 jakarta 两套容器下的调用方共用同一份跨域逻辑（调用方各做一次包装）。</li>
  * </ul>
+ *
  * <h2>不适用与边界场景</h2>
  * <ul>
  *   <li>全局 {@code enable=false} 或该域名未配置/未启用时不做处理；{@code Origin} 为 null（非浏览器跨域）不处理。</li>
+ *   <li>需要读写 Cookie、二进制流等抽象层未暴露能力时，须由调用方在包装前自行处理。</li>
  * </ul>
+ *
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>采用"回显 Origin + 域名白名单校验"而非 {@code *} 通配，因此支持 {@code Allow-Credentials: true}（带凭据跨域）。</li>
@@ -89,29 +122,9 @@ import java.util.Set;
  *   （匹配时先按 {@code host:port}、再回落纯 {@code host}，见 {@link #getOriginConfig}）。</li>
  *   <li>预检请求的 CORS 头依赖 {@code handle}/{@code handleDo} 在处理链中先行设置，{@code handleOptions} 本身不再设置（有意设计）。</li>
  * </ul>
- * <h2>设计要点</h2>
- * <p><b>开关语义（配置了"不等于"启用了）</b></p>
- * <ul>
- *   <li>三层开关：全局 {@code cors.enable}、域名级 {@code cors.origins.<域名>.enable}；
- *   两项都显式为 {@code true} 才处理（未配置即 {@code false}），避免"删掉配置后残留行为"。</li>
- *   <li>凭据（{@code Access-Control-Allow-Credentials}）与响应头暴露（{@code Access-Control-Expose-Headers}）
- *   各由域名级的独立开关控制，<b>默认禁用</b>，需显式开启。</li>
- *   <li>各开关的取值兜底统一由 {@code CBoolUtils.isTrue} 完成（null 视为 false），不在配置类写默认值。</li>
- * </ul>
- * <p><b>域名级取值兜底</b></p>
- * <ul>
- *   <li>域名级配置项的回落<b>就在取值处完成</b>，不另写"取值 + 回落"的 getter——那层方法只是把单行兜底换个名字，
- *   读代码时多一跳、取值形态还分叉成两种。集合取 {@code CollUtil.defaultIfEmpty}（未配置与空集合一律回落默认）；
- *   请求方法与暴露响应头取 {@code ObjectUtil.defaultIfNull}（<b>仅 null 才回落</b>，保留"显式空集合"的语义：
- *   不允许任何方法、不暴露任何头）。</li>
- * </ul>
- * <p><b>异常兜底</b></p>
- * <ul>
- *   <li>{@code handle}/{@code handleOptions} 外层 try-catch 捕获 Throwable 记录 error 日志，避免跨域处理异常影响主流程。</li>
- * </ul>
  *
  * @since 2026/1/9
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @UtilityClass
@@ -135,12 +148,12 @@ public class CCorsUtils {
      * @param response 响应
      * @return true 表示本次为预检请求且已处理
      */
-    public boolean handleOptions(HttpServletRequest request, HttpServletResponse response) {
+    public boolean handleOptions(CHttpRequest request, CHttpResponse response) {
         try {
             if (CBoolUtils.isTrue(config.getEnable())) {
                 if (HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
                     log.debug("deal OPTIONS request");
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    response.setStatus(HttpStatus.NO_CONTENT.value());
                     return true;
                 }
             }
@@ -160,7 +173,7 @@ public class CCorsUtils {
      * @param request  请求
      * @param response 响应
      */
-    public void handle(HttpServletRequest request, HttpServletResponse response) {
+    public void handle(CHttpRequest request, CHttpResponse response) {
         try {
             if (CBoolUtils.isTrue(config.getEnable())) {
                 handleDo(request, response);
@@ -191,7 +204,7 @@ public class CCorsUtils {
      * @param request  请求
      * @param response 响应
      */
-    public void handleDo(HttpServletRequest request, HttpServletResponse response) {
+    public void handleDo(CHttpRequest request, CHttpResponse response) {
 
         val origin = request.getHeader(HttpHeaders.ORIGIN);
         if (StrUtil.isEmpty(origin)) {
@@ -279,7 +292,7 @@ public class CCorsUtils {
      * @param headers    头集合
      */
     public void setHeaderIfNotEmpty(
-        HttpServletResponse response,
+        CHttpResponse response,
         String headerName,
         Set<String> headers
     ) {

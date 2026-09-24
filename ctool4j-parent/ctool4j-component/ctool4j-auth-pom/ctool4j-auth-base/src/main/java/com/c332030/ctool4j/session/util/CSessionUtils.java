@@ -2,6 +2,7 @@ package com.c332030.ctool4j.session.util;
 
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.exception.CUnauthorizedException;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
@@ -10,8 +11,6 @@ import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -27,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
  *   <li>{@link #save(String, ICSession)}：按 token 写入会话（过期时间等由服务层决定）。</li>
  *   <li>{@link #remove(String)}：按 token 删除会话。</li>
  *   <li>{@link #getByJwt(String)}：由 jwt 解析 token 后取会话，查不到返回 null（{@code @Nullable}）。</li>
- *   <li>{@link #load(HttpServletRequest)}：按请求加载会话（取请求内 token），无会话返回 null、不抛异常。</li>
+ *   <li>{@link #load(CHttpRequest)}：按请求加载会话（取请求内 token），无会话返回 null、不抛异常。</li>
  *   <li>{@link #check()}：校验当前已授权，未授权抛 {@link CUnauthorizedException}。</li>
  *   <li>{@link #getDefaultNull()}：取当前会话，无会话返回 null（{@code @Nullable}）。</li>
  *   <li>{@link #get()}：取当前会话，无会话抛 {@link CUnauthorizedException}。</li>
@@ -40,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
  *     <th>兜底行为</th>
  *   </tr>
  *   <tr>
- *     <td>无会话 + 调 {@link #load(HttpServletRequest)} / {@link #getDefaultNull()} / {@link #get(String)}</td>
+ *     <td>无会话 + 调 {@link #load(CHttpRequest)} / {@link #getDefaultNull()} / {@link #get(String)}</td>
  *     <td>返回 null（由调用方决定后续处理，如保持未认证状态）</td>
  *   </tr>
  *   <tr>
@@ -62,7 +61,7 @@ import javax.servlet.http.HttpServletRequest;
  * <ul>
  *   <li>泛型返回值按调用方声明的类型自动适配、<b>不做校验</b>（{@code CObjUtils.anyType} 直转）：
  *   声明类型与实际会话类型不符时，在使用点抛 {@code ClassCastException}。</li>
- *   <li>"无会话是否算异常"完全由服务层对应方法决定（本类透传）：{@link #load(HttpServletRequest)} / {@link #getDefaultNull()} / {@link #get(String)} / {@link #getByJwt(String)} 返回 null，
+ *   <li>"无会话是否算异常"完全由服务层对应方法决定（本类透传）：{@link #load(CHttpRequest)} / {@link #getDefaultNull()} / {@link #get(String)} / {@link #getByJwt(String)} 返回 null，
  *   {@link #get()} / {@link #check()} 抛异常——调用方按场景选择。同理，{@link #get()} 与 {@link #get(String)} <b>同名但缺会话语义不同</b>也不是本类引入的：
  *   前者取"当前会话"、缺失即未授权；后者取"指定 token 的会话"、缺失只表示该 token 无效（两者语义均照搬服务层）。</li>
  *   <li>写入的会话类型不做校验（{@link #save(String, ICSession)}）：字段为通配类型（{@code CAbstractBaseSessionService<? extends ICSession>}），
@@ -150,13 +149,13 @@ public class CSessionUtils {
     /**
      * 按请求加载会话（取请求内 token）
      *
-     * <p>透传 {@link CAbstractBaseSessionService#loadSession(HttpServletRequest)}：命中时由服务层把 token 写入请求属性。</p>
+     * <p>透传 {@link CAbstractBaseSessionService#loadSession(CHttpRequest)}：命中时由服务层把 token 写入请求属性。</p>
      *
      * @param request 当前请求
      * @param <T>     会话类型（由调用方声明，不做校验）
      * @return 会话；未携带 token / 解析失败 / 查不到会话时返回 null
      */
-    public <T extends ICSession> T load(HttpServletRequest request) {
+    public <T extends ICSession> T load(CHttpRequest request) {
         return CObjUtils.anyType(sessionService.loadSession(request));
     }
 

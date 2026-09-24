@@ -2,8 +2,8 @@ package com.c332030.ctool4j.web.configurer;
 
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.spring.config.CSpringJacksonConfig;
+import com.c332030.ctool4j.spring.interfaces.ICHandlerInterceptor;
 import com.c332030.ctool4j.spring.util.CSpringHttpUtils;
-import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.val;

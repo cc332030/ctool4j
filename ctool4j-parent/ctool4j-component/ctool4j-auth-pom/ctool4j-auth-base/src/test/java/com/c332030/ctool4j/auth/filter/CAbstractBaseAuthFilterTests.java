@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.auth.filter;
 
 import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
@@ -17,7 +19,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -188,7 +189,7 @@ class CAbstractBaseAuthFilterTests {
         Assertions.assertSame(session, filter.authenticated);
         Assertions.assertNull(filter.mockAuthenticated);
         Assertions.assertEquals(1, sessionService.loadSessionCount);
-        Assertions.assertSame(request, sessionService.lastRequest);
+        Assertions.assertSame(request, CHttpServletRequest.unwrap(sessionService.lastRequest));
 
     }
 
@@ -208,7 +209,7 @@ class CAbstractBaseAuthFilterTests {
         Assertions.assertSame(session, filter.authenticated);
         Assertions.assertNull(filter.mockAuthenticated);
         Assertions.assertEquals(1, sessionService.loadSessionCount);
-        Assertions.assertSame(request, sessionService.lastRequest);
+        Assertions.assertSame(request, CHttpServletRequest.unwrap(sessionService.lastRequest));
 
     }
 
@@ -266,7 +267,7 @@ class CAbstractBaseAuthFilterTests {
 
         Assertions.assertSame(session, filter.loadSession(request));
         Assertions.assertEquals(1, sessionService.loadSessionCount);
-        Assertions.assertSame(request, sessionService.lastRequest);
+        Assertions.assertSame(request, CHttpServletRequest.unwrap(sessionService.lastRequest));
 
     }
 
@@ -417,7 +418,7 @@ class CAbstractBaseAuthFilterTests {
         /**
          * {@code loadSession} 收到的请求（null 表示未被调用）
          */
-        HttpServletRequest lastRequest;
+        CHttpRequest lastRequest;
 
         /**
          * {@code loadSession} 调用次数
@@ -435,7 +436,7 @@ class CAbstractBaseAuthFilterTests {
         }
 
         @Override
-        public SessionStub loadSession(HttpServletRequest request) {
+        public SessionStub loadSession(CHttpRequest request) {
             loadSessionCount++;
             lastRequest = request;
             return sessionToLoad;

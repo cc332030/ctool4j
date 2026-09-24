@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.auth.filter;
 
 import com.c332030.ctool4j.core.util.CBoolUtils;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.util.CSessionUtils;
@@ -183,7 +185,7 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
     /**
      * 加载会话。
      *
-     * <p>默认委托 {@link CSessionUtils#load(HttpServletRequest)}（会话服务的 {@code loadSession(request)}）：
+     * <p>默认委托 {@link CSessionUtils#load(CHttpRequest)}（会话服务的 {@code loadSession(request)}）：
      * 取请求内的 token、校验解析后按 token 查会话，命中则把 token 写入请求属性；
      * 未携带 token、解析失败或查不到会话时返回 null（不抛异常）。</p>
      *
@@ -193,7 +195,7 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
      * @return 会话；未携带 token / 解析失败 / 查不到会话时返回 null
      */
     protected SESSION loadSession(HttpServletRequest request) {
-        return CSessionUtils.load(request);
+        return CSessionUtils.load(CHttpServletRequest.of(request));
     }
 
     /**

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.c332030</groupId>
+        <artifactId>ctool4j-spring-http-pom</artifactId>
+        <version>1.1.20260918-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ctool4j-spring-security-javax</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 日志门面：@CustomLog 的声明来自 ctool4j-core（CLog/CLogUtils）；实现由业务引入 ctool4j-log 提供 -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-http-javax</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring-security-base</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

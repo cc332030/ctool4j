@@ -2,6 +2,10 @@ package com.c332030.ctool4j.web.interceptor;
 
 import com.c332030.ctool4j.definition.annotation.CInnerApi;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.spring.interfaces.ICHandlerInterceptor;
 import com.c332030.ctool4j.spring.util.CIpUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.config.CInnerApiConfig;
@@ -12,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 /**
@@ -121,8 +123,8 @@ public class CInnerApiInterceptor implements ICHandlerInterceptor {
      */
     @Override
     public boolean preHandle(
-        HttpServletRequest request,
-        HttpServletResponse response,
+        CHttpRequest request,
+        CHttpResponse response,
         Object handler
     ) {
         if (!isInternalInterface(handler)) {
@@ -134,7 +136,7 @@ public class CInnerApiInterceptor implements ICHandlerInterceptor {
         }
         // 已知取舍：getIp 无条件信任 X-Forwarded-For 首段，客户端直连时可伪造该头绕过白名单（安全缺陷）。
         // 生产对外场景须配合可信代理清理/覆盖 X-Forwarded-For（见 CRequestUtils.adoc 既有已知限制）；暂按此取舍保留。
-        String clientIp = CRequestUtils.getIp(request);
+        String clientIp = CRequestUtils.getIp(CHttpServletRequest.unwrap(request));
         if (CIpUtils.contains(clientIp, allowedIps)) {
             return true;
         }

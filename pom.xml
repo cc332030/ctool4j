@@ -41,6 +41,8 @@
 
         <spring-boot.version>2.7.18</spring-boot.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
+        <!-- Servlet 5.0（jakarta 包名）：Spring Boot 2.7 管理的 jakarta.servlet-api 是 4.0.4、包名仍为 javax.servlet，不能用于 jakarta 实现 -->
+        <jakarta.servlet-api.version>5.0.0</jakarta.servlet-api.version>
 
         <commons-text.version>1.13.0</commons-text.version>
         <commons-io.version>2.21.0</commons-io.version>

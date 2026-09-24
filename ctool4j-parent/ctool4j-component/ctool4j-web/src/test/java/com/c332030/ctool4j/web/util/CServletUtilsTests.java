@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.util;
 
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import lombok.CustomLog;
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
@@ -56,7 +57,7 @@ public class CServletUtilsTests {
     public void writeJson_string() throws Exception {
         // 正例：写入 JSON 字符串 + 状态码 + content-type
         val response = new MockHttpServletResponse();
-        CServletUtils.writeJson(response, HttpStatus.OK, "{\"a\":1}");
+        CServletUtils.writeJson(CHttpServletResponse.of(response), HttpStatus.OK, "{\"a\":1}");
         Assertions.assertEquals(HttpStatus.OK.value(), response.getStatus());
         Assertions.assertTrue(response.getContentType().contains("application/json"));
         Assertions.assertEquals(StandardCharsets.UTF_8.name(), response.getCharacterEncoding());
@@ -70,7 +71,7 @@ public class CServletUtilsTests {
     public void writeJson_string_errorStatus() {
         // 正例：错误状态码
         val response = new MockHttpServletResponse();
-        CServletUtils.writeJson(response, HttpStatus.INTERNAL_SERVER_ERROR, "{}");
+        CServletUtils.writeJson(CHttpServletResponse.of(response), HttpStatus.INTERNAL_SERVER_ERROR, "{}");
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
     }
 
@@ -81,7 +82,7 @@ public class CServletUtilsTests {
     public void writeJson_string_emptyJson() throws Exception {
         // 边界：空 JSON 字符串写入
         val response = new MockHttpServletResponse();
-        CServletUtils.writeJson(response, HttpStatus.OK, "");
+        CServletUtils.writeJson(CHttpServletResponse.of(response), HttpStatus.OK, "");
         Assertions.assertEquals("", response.getContentAsString());
     }
 
@@ -93,7 +94,7 @@ public class CServletUtilsTests {
         // 反例：null jsonBody 抛出 NPE
         Assertions.assertThrowsExactly(
             NullPointerException.class,
-            () -> CServletUtils.writeJson(new MockHttpServletResponse(), HttpStatus.OK, null)
+            () -> CServletUtils.writeJson(CHttpServletResponse.of(new MockHttpServletResponse()), HttpStatus.OK, null)
         );
     }
 
@@ -121,7 +122,7 @@ public class CServletUtilsTests {
         val body = new LinkedHashMap<String, Object>();
         body.put("name", "tom");
         body.put("age", 18);
-        CServletUtils.writeJson(response, HttpStatus.OK, body);
+        CServletUtils.writeJson(CHttpServletResponse.of(response), HttpStatus.OK, body);
         val content = response.getContentAsString();
         Assertions.assertTrue(content.contains("tom"));
         Assertions.assertTrue(content.contains("18"));
@@ -137,7 +138,7 @@ public class CServletUtilsTests {
         val response = new MockHttpServletResponse();
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("id", 1);
-        CServletUtils.writeJson(response, HttpStatus.CREATED, body);
+        CServletUtils.writeJson(CHttpServletResponse.of(response), HttpStatus.CREATED, body);
         Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatus());
         Assertions.assertTrue(response.getContentAsString().contains("1"));
     }
@@ -150,7 +151,7 @@ public class CServletUtilsTests {
         // 反例：null body 抛出 NPE
         Assertions.assertThrowsExactly(
             NullPointerException.class,
-            () -> CServletUtils.writeJson(new MockHttpServletResponse(), HttpStatus.OK, null)
+            () -> CServletUtils.writeJson(CHttpServletResponse.of(new MockHttpServletResponse()), HttpStatus.OK, null)
         );
     }
 

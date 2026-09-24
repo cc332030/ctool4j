@@ -1,8 +1,11 @@
 package com.c332030.ctool4j.web.cors.filter;
 
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import com.c332030.ctool4j.web.filter.ICFilter;
 import lombok.CustomLog;
+import lombok.val;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 
@@ -90,8 +93,11 @@ public class CCorsFilter implements ICFilter, PriorityOrdered {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        CCorsUtils.handle(request, response);
-        if(CCorsUtils.handleOptions(request, response)) {
+        val httpRequest = CHttpServletRequest.of(request);
+        val httpResponse = CHttpServletResponse.of(response);
+
+        CCorsUtils.handle(httpRequest, httpResponse);
+        if(CCorsUtils.handleOptions(httpRequest, httpResponse)) {
             return;
         }
 

@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.util.CList;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.util.CServletUtils;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -203,7 +204,7 @@ public class CSpringSecurityUtils {
             message
         );
 
-        CServletUtils.writeJson(response, httpStatus, forbiddenResult);
+        CServletUtils.writeJson(CHttpServletResponse.of(response), httpStatus, forbiddenResult);
     }
 
 }

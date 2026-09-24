@@ -40,6 +40,16 @@
             <artifactId>ctool4j-web</artifactId>
         </dependency>
 
+        <!--
+            两端适配器：认证入口与访问拒绝处理器的实现随 Servlet 面切换。
+            javax 侧提供同包同名的 CAuthenticationEntryPoint/CAccessDeniedHandler，
+            切到 jakarta 只需把这里换成 ctool4j-spring-security-jakarta。
+        -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-spring-security-javax</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

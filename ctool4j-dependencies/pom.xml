@@ -108,6 +108,42 @@
 
             <dependency>
                 <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-base</artifactId>
+                <version>1.1.20260918-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-javax</artifactId>
+                <version>1.1.20260918-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-jakarta</artifactId>
+                <version>1.1.20260918-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-security-base</artifactId>
+                <version>1.1.20260918-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-security-javax</artifactId>
+                <version>1.1.20260918-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
+                <artifactId>ctool4j-spring-security-jakarta</artifactId>
+                <version>1.1.20260918-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.c332030</groupId>
                 <artifactId>ctool4j-mq-base</artifactId>
                 <version>1.1.20260918-SNAPSHOT</version>
             </dependency>
