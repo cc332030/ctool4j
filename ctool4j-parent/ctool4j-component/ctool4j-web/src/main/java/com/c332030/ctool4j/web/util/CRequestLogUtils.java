@@ -15,6 +15,7 @@ import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
+import com.c332030.ctool4j.spring.util.CHttpRequestUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.config.CRequestLogConfig;
 import com.c332030.ctool4j.web.model.CRequestLog;
@@ -107,7 +108,7 @@ import java.util.*;
  *
  * @author c332030
  * @since 2024/3/6
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -290,7 +291,7 @@ public class CRequestLogUtils {
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
             .req(EMPTY_REQ)
             .rsp(EMPTY_RSP)
-            .ip(CRequestUtils.getIp(request))
+            .ip(CHttpRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
     }

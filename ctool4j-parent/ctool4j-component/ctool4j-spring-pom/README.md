@@ -47,7 +47,7 @@
 | `CConfigurationProperties` | 注解 | 配置属性绑定组合注解（只承载前缀；默认忽略未匹配属性与非法值由元注解给定） |
 | `CAutowired` / `CAutowiredScan` | 注解 | 自定义注入注解（编译期生成静态字段注入） |
 | `CSpringUtils` | 工具类 | Spring 容器获取、Bean 操作 |
-| `CRequestUtils` | 工具类 | Servlet 请求操作（header / ip / 参数）；置于 `ctool4j-spring-javax`，javax/jakarta 两侧同名 |
+| `CRequestUtils` | 工具类 | Servlet 请求操作（header / ip / 参数）；置于 `ctool4j-spring-javax`（两侧同名），容器无关部分在 `ctool4j-spring-base` 的 `CHttpRequestUtils`（调用复用、不继承），本类只留取当前请求/响应等接触容器的入口 |
 | `CFileUtils` | 工具类 | 文件读写工具 |
 | `CAnnotationUtils` | 工具类 | 注解扫描与读取 |
 | `CAspectUtils` | 工具类 | 切面操作工具 |

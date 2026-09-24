@@ -81,11 +81,14 @@ import java.io.IOException;
  * <ul>
  *   <li>本类只承载契约与骨架，认证能力由继承者提供。</li>
  *   <li>骨架每请求做一次包装（两次对象创建），属既有 Filter 链的正常开销。</li>
+ *   <li><b>抽象层版本的默认实现留在本层</b>（未下沉 base）：{@code doFilterInternal(CHttpRequest, CHttpResponse, CFilterChain)}
+ *   是子类的<b>覆写扩展点</b>、必须保持 {@code protected}，而 base 侧因单继承已让位给 {@code OncePerRequestFilter}、只能用接口承载，
+ *   接口方法只能是 {@code public}——加宽可见性会破坏既有子类的覆写，故此处保留一份（唯一未下沉的容器无关方法）。</li>
  * </ul>
  *
  * @author c332030
  * @since 2026/3/19
- * @version 1.3
+ * @version 1.4
  */
 public abstract class CAbstractWebAuthFilter extends OncePerRequestFilter {
 

@@ -1,30 +1,22 @@
 package com.c332030.ctool4j.spring.util;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
-import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.COpt;
-import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.StringFunction;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.model.CHttpServletResponse;
-import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.function.BiConsumer;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -32,127 +24,72 @@ import java.util.function.BiConsumer;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CRequestUtils}：请求工具，读取当前请求上下文（Spring 的 {@code RequestContextHolder}）中的
- * 请求/响应，并提供请求 URI、头、IP、属性、错误状态码等取用。</p>
+ * <p>{@code CRequestUtils} 是请求工具在 <b>jakarta</b> 侧的落地：<b>只保留必须接触容器的方法</b>——
+ * 取当前请求/响应（要经 {@link CHttpServletRequest#of} / {@link CHttpServletResponse#of} 包装容器对象），
+ * 以及在<b>当前请求</b>上取值的便捷入口（取当前请求 + {@link CHttpRequestUtils} 中立方法的组合）。</p>
+ * <ul>
+ *   <li>{@code getRequestDefaultNull} / {@code getRequestOpt} / {@code getRequest}：当前请求（抽象层）</li>
+ *   <li>{@code getResponseDefaultNull} / {@code getResponseOpt} / {@code getResponse}：当前响应（抽象层）</li>
+ *   <li>{@code getContextPathDefaultNull} / {@code getContextPath} / {@code getRequestURIDefaultNull} / {@code getRequestURI}：当前请求的路径</li>
+ *   <li>{@code getHeader} / {@code getHeaders} / {@code getHeaderThenDo} / {@code getHeadersThenDo}：当前请求的报文头</li>
+ *   <li>{@code getReferer} / {@code getRefererPath} / {@code getRefererPathThenConvert} / {@code getRefererPathThenConvertDefaultNull}：当前请求的来源页</li>
+ *   <li>{@code getIp}：当前请求的客户端 IP</li>
+ *   <li>{@code getErrorStatusCode}：错误状态码（常量两侧取值不同，见「设计要点」）</li>
+ * </ul>
+ *
  * <h2>设计要点</h2>
  * <ul>
- *   <li><b>对外只暴露抽象层类型</b>：请求/响应的取用入口（{@code getRequest} / {@code getResponse} 系列）
- *   返回 {@link CHttpRequest} / {@link CHttpResponse}，业务模块据此编程即不绑定任何 Servlet 包；
- *   本类在两侧适配模块中<b>同包同名</b>（本份承接 jakarta 侧），切换容器只换依赖模块。</li>
- *   <li><b>容器逃生口只有一处</b>：{@link #getServletRequestAttributes()} 返回 Spring 的
- *   {@code ServletRequestAttributes}，其请求/响应是某一容器包的类型，只供抽象层表达不了的容器专有能力
- *   （二进制输出流、会话、Cookie）使用；其余场景一律走抽象层入口。</li>
- *   <li><b>IP 单一来源</b>：IP 解析规则收在 {@link CHttpRequest#getClientIp()}，本类不另立一套（见 {@link #getIp}）。</li>
+ *   <li><b>容器无关的部分在公共类</b>：{@link CHttpRequestUtils} 承载「对给定请求取用」的全部方法与请求上下文读取；
+ *   本类<b>只调用它、不继承它</b>（工具类之间不建立继承关系），故本类只留必须接触容器的方法，公共算法不复制。</li>
+ *   <li><b>只有包装与便捷入口需要容器</b>：取当前请求要拿 Spring 的 {@code ServletRequestAttributes} 里的容器请求再包装；
+ *   无参便捷入口（如 {@code getHeader(name)}）本质是「取当前请求 + 公共类中立方法」的一行组合。</li>
+ *   <li><b>对外只暴露抽象层类型</b>：方法返回 {@link CHttpRequest} / {@link CHttpResponse}，使用方据此编程即不绑定 Servlet 包。</li>
+ *   <li><b>容器逃生口在公共类</b>：{@link CHttpRequestUtils#getServletRequestAttributes()} 返回 Spring 的
+ *   {@code ServletRequestAttributes}，只供抽象层表达不了的容器专有能力（二进制输出流、会话、Cookie）使用。</li>
+ *   <li><b>两侧取值不同的常量落本类</b>：{@link #getErrorStatusCode} 取的
+ *   {@code RequestDispatcher.ERROR_STATUS_CODE} 在两侧分别是 {@code jakarta.servlet.error.status_code} 与
+ *   {@code jakarta.servlet.error.status_code}，只能落在两侧同名类上（切模块即切值）。</li>
+ *   <li><b>同名同构</b>：本类在两侧适配模块中同包同名（本份承接 jakarta 侧），使用方切换依赖模块即可切换容器。</li>
  * </ul>
+ *
  * <h2>兜底设计</h2>
- * <p>缺失返回默认：非请求上下文时 {@code getXxxDefaultNull} 返回 {@code null}、{@code getXxx} 抛
- * {@link IllegalArgumentException}；{@code getRefererPathThenConvertDefaultNull} 异常时返回 {@code null}。</p>
+ * <table border="1">
+ *   <caption>兜底行为</caption>
+ *   <tr>
+ *     <th>场景</th>
+ *     <th>兜底行为</th>
+ *   </tr>
+ *   <tr>
+ *     <td>非请求上下文</td>
+ *     <td>{@code getXxxDefaultNull} 返回 null；{@code getXxx} 抛 {@link IllegalArgumentException}；便捷入口按同样口径</td>
+ *   </tr>
+ *   <tr>
+ *     <td>{@code getRefererPathThenConvertDefaultNull} 转换失败</td>
+ *     <td>记 debug 日志并返回 null（不向调用方抛异常）</td>
+ *   </tr>
+ *   <tr>
+ *     <td>错误状态码属性不存在</td>
+ *     <td>{@link #getErrorStatusCode} 返回 null（由调用方决定默认状态码）</td>
+ *   </tr>
+ * </table>
+ *
  * <h2>适用范围</h2>
  * <p>请求处理线程内取用当前请求/响应；需要在两套 Servlet 容器间可切换的公共代码。</p>
+ *
  * <h2>不适用与边界场景</h2>
  * <p>非请求线程（定时任务、异步线程）取不到上下文；需要容器专有能力时经
- * {@link #getServletRequestAttributes()} 取底层对象（容器类型只在调用处出现一次）。</p>
+ * {@link CHttpRequestUtils#getServletRequestAttributes()} 取底层对象（容器类型只在调用处出现一次）。</p>
+ *
  * <h2>已知限制与取舍</h2>
- * <p>静态工具类，依赖 Spring 的请求上下文线程绑定；{@link #getServletRequestAttributes()} 之外的入口
- * 都经过了抽象层包装（每次取用新建一个适配器实例，成本为一次对象创建）。</p>
+ * <p>本类只做「取当前请求/响应 + 包装 + 一行组合」，全部加工逻辑在 {@link CHttpRequestUtils}；
+ * 取用当前请求每次都新建一个包装对象，成本为一次对象创建。</p>
  *
  * @since 2024/12/9
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @UtilityClass
 public class CRequestUtils {
-
-    /**
-     * 请求前-初始化
-     */
-    private static final Set<BiConsumer<HttpServletRequest, HttpServletResponse>> PREPARE_CONSUMERS = new CopyOnWriteArraySet<>();
-
-    /**
-     * 注册请求前初始化回调
-     *
-     * @param consumer 请求前初始化回调
-     */
-    public void addPrepare(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
-        PREPARE_CONSUMERS.add(Objects.requireNonNull(consumer));
-    }
-
-    /**
-     * 执行全部请求前初始化回调
-     *
-     * @param request  请求
-     * @param response 响应
-     */
-    public void prepare(HttpServletRequest request, HttpServletResponse response) {
-        PREPARE_CONSUMERS.forEach(consumer -> {
-            try {
-                consumer.accept(request, response);
-            } catch (Throwable t) {
-                log.error("clear failure", t);
-            }
-        });
-    }
-
-    /**
-     * 请求后-清洁工作
-     */
-    private static final Set<BiConsumer<HttpServletRequest, HttpServletResponse>> CLEAR_CONSUMERS =
-            new CopyOnWriteArraySet<>();
-
-    /**
-     * 注册请求结束清理回调
-     *
-     * @param consumer 请求结束清理回调
-     */
-    public void addClear(BiConsumer<HttpServletRequest, HttpServletResponse> consumer) {
-        CLEAR_CONSUMERS.add(Objects.requireNonNull(consumer));
-    }
-
-    /**
-     * 执行全部请求结束清理回调
-     *
-     * @param request  请求
-     * @param response 响应
-     */
-    public void clear(HttpServletRequest request, HttpServletResponse response) {
-        CLEAR_CONSUMERS.forEach(consumer -> {
-            try {
-                consumer.accept(request, response);
-            } catch (Throwable t) {
-                log.error("clear failure", t);
-            }
-        });
-    }
-
-    /**
-     * 获取当前请求的属性（Spring 的请求上下文）
-     *
-     * <p>返回 Spring 自己的 {@code ServletRequestAttributes}，其 {@code getRequest()}/{@code getResponse()}
-     * 都是某一容器包（javax 或 jakarta）的类型。本方法是本类的<b>唯一容器逃生口</b>，只供抽象层表达不了的
-     * 容器专有能力（二进制输出流、会话、Cookie）使用；其余场景一律走 {@link #getRequest()} /
-     * {@link #getResponse()} 这类只暴露抽象层类型的入口。</p>
-     *
-     * @return 当前请求的属性；非请求上下文时返回 null
-     */
-    public static ServletRequestAttributes getServletRequestAttributes() {
-        return (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    }
-
-    /**
-     * 是否是接口请求
-     * @return 结果
-     */
-    public boolean hasRequest() {
-        return null != getServletRequestAttributes();
-    }
-
-    /**
-     * @see CRequestUtils#hasRequest()
-     * @return 结果
-     */
-    public boolean noRequest() {
-        return !hasRequest();
-    }
 
     /**
      * 获取请求（抽象层），可为空
@@ -160,7 +97,7 @@ public class CRequestUtils {
      * @return 抽象层请求；非请求上下文时返回 null
      */
     public CHttpRequest getRequestDefaultNull() {
-        val request = CObjUtils.convert(getServletRequestAttributes(), ServletRequestAttributes::getRequest);
+        val request = CObjUtils.convert(CHttpRequestUtils.getServletRequestAttributes(), ServletRequestAttributes::getRequest);
         if(null == request) {
             return null;
         }
@@ -192,7 +129,7 @@ public class CRequestUtils {
      * @return 抽象层响应；非请求上下文或容器未创建响应时返回 null
      */
     public CHttpResponse getResponseDefaultNull() {
-        val response = CObjUtils.convert(getServletRequestAttributes(), ServletRequestAttributes::getResponse);
+        val response = CObjUtils.convert(CHttpRequestUtils.getServletRequestAttributes(), ServletRequestAttributes::getResponse);
         if(null == response) {
             return null;
         }
@@ -220,14 +157,16 @@ public class CRequestUtils {
 
     /**
      * 获取 Context Path，可为空
+     *
      * @return Context Path
      */
     public String getContextPathDefaultNull() {
-        return CObjUtils.convert(getRequestDefaultNull(), CHttpRequest::getContextPath);
+        return CHttpRequestUtils.getContextPathDefaultNull(getRequestDefaultNull());
     }
 
     /**
      * 获取 Context Path，不能为空
+     *
      * @return Context Path
      */
     public String getContextPath() {
@@ -237,14 +176,16 @@ public class CRequestUtils {
 
     /**
      * 获取 RequestURI，可为空
+     *
      * @return RequestURI
      */
     public String getRequestURIDefaultNull() {
-        return CObjUtils.convert(getRequestDefaultNull(), CHttpRequest::getRequestURI);
+        return CHttpRequestUtils.getRequestURIDefaultNull(getRequestDefaultNull());
     }
 
     /**
      * 获取 RequestURI，不能为空
+     *
      * @return RequestURI
      */
     public String getRequestURI() {
@@ -254,133 +195,84 @@ public class CRequestUtils {
 
     /**
      * 获取 Header
+     *
      * @param header Header Name
      * @return Header Value
      */
     public String getHeader(String header) {
-        return getHeader(getRequest(), header);
-    }
-
-    /**
-     * 获取 Header
-     * @param request 抽象层请求
-     * @param header Header Name
-     * @return Header Value
-     */
-    public String getHeader(CHttpRequest request, String header) {
-        return request.getHeader(header);
+        return CHttpRequestUtils.getHeader(getRequest(), header);
     }
 
     /**
      * 获取 Headers
+     *
      * @param header Header Name
      * @return Header Values
      */
     public List<String> getHeaders(String header) {
-        return getHeaders(getRequest(), header);
-    }
-
-    /**
-     * 获取 Headers
-     * @param request 抽象层请求
-     * @param header Header Name
-     * @return Header Values
-     */
-    public List<String> getHeaders(CHttpRequest request, String header) {
-        val valueEnumeration = request.getHeaders(header);
-        return CCollUtils.getValues(valueEnumeration);
+        return CHttpRequestUtils.getHeaders(getRequest(), header);
     }
 
     /**
      * 获取 Header，并做动作
+     *
      * @param headerNames Header Names
-     * @param biConsumer 动作
+     * @param biConsumer  动作
      */
     public void getHeaderThenDo(Collection<String> headerNames, CBiConsumer<String, String> biConsumer) {
-
-        if(CollUtil.isEmpty(headerNames)){
-            return;
-        }
-
-        val request = getRequestDefaultNull();
-        if(null == request) {
-            return;
-        }
-        headerNames.forEach(headerName -> {
-
-            val headerValue = getHeader(request, headerName);
-            if (StrUtil.isEmpty(headerValue)) {
-                return;
-            }
-            biConsumer.accept(headerName, headerValue);
-        });
-
+        CHttpRequestUtils.getHeaderThenDo(getRequestDefaultNull(), headerNames, biConsumer);
     }
 
     /**
-     * 获取 Header，并做动作
+     * 获取 Headers，并做动作
+     *
      * @param headerNames Header Names
-     * @param biConsumer 动作
+     * @param biConsumer  动作
      */
     public void getHeadersThenDo(Collection<String> headerNames, CBiConsumer<String, List<String>> biConsumer) {
-
-        if(CollUtil.isEmpty(headerNames)){
-            return;
-        }
-        val request = getRequestDefaultNull();
-        if(null == request) {
-            return;
-        }
-        headerNames.forEach(headerName -> {
-
-            val headerValues = getHeaders(request, headerName);
-            if (CollUtil.isEmpty(headerValues)) {
-                return;
-            }
-            biConsumer.accept(headerName, headerValues);
-        });
-
+        CHttpRequestUtils.getHeadersThenDo(getRequestDefaultNull(), headerNames, biConsumer);
     }
 
     /**
      * 获取 Referer
+     *
      * @return Referer
      */
     public String getReferer() {
-        return getRequest().getHeader(HttpHeaders.REFERER);
+        return CHttpRequestUtils.getReferer(getRequest());
     }
 
     /**
      * 获取 Referer Path
+     *
      * @return Referer Path
      */
     public String getRefererPath() {
-        return CUrlUtils.getPath(getReferer());
+        return CHttpRequestUtils.getRefererPath(getRequest());
     }
 
     /**
      * 获取 Referer Path，并做转换
+     *
      * @param function 转换方法
+     * @param <T>      目标泛型
      * @return 目标
-     * @param <T> 目标泛型
      */
     public <T> T getRefererPathThenConvert(StringFunction<T> function) {
-        val path = getRefererPath();
-        if(StrUtil.isEmpty(path)) {
-            return null;
-        }
-        return function.apply(path);
+        return CHttpRequestUtils.getRefererPathThenConvert(getRequest(), function);
     }
 
     /**
      * 获取 Referer Path，并做转换，默认为空
+     *
      * @param function 转换方法
-     * @return 目标
-     * @param <T> 目标泛型
+     * @param <T>      目标泛型
+     * @return 目标；非请求上下文或转换失败时返回 null
      */
     public <T> T getRefererPathThenConvertDefaultNull(StringFunction<T> function) {
+        // 非请求环境由本层的取当前请求入口判定（抛异常），故守卫留在本层；转换逻辑不重复实现
         try {
-            return getRefererPathThenConvert(function);
+            return CHttpRequestUtils.getRefererPathThenConvert(getRequest(), function);
         } catch (Exception e) {
             log.debug("转换 Referer 失败", e);
             return null;
@@ -389,43 +281,21 @@ public class CRequestUtils {
 
     /**
      * 获取 Ip
+     *
      * @return Ip
      */
     public String getIp() {
-        return getIp(getRequest());
-    }
-
-    /**
-     * 获取 Ip
-     * <p>注意：当前实现无条件信任 X-Forwarded-For 首段，客户端直连时
-     * 可伪造该请求头绕过 IP 校验/风控，属安全问题。
-     * 修复方案：仅信任来自已配置可信代理的 X-Forwarded-For（默认不信任，
-     * 未配置时忽略该头直接返回 remoteAddr）；当前业务场景较小，暂未修复</p>
-     * @param request 抽象层请求
-     * @return Ip
-     */
-    public String getIp(CHttpRequest request) {
-        // 单一来源：IP 解析规则收在抽象层的 CHttpRequest#getClientIp
-        return request.getClientIp();
-    }
-
-    /**
-     * 获取请求属性并转为字符串（null 属性返回 null），可为空
-     * @param request       抽象层请求
-     * @param attributeName 属性名
-     * @return 属性字符串
-     */
-    public String getAttrStr(CHttpRequest request, String attributeName) {
-        return StrUtil.toStringOrNull(request.getAttribute(attributeName));
+        return CHttpRequestUtils.getIp(getRequest());
     }
 
     /**
      * 获取错误状态码（取自 RequestDispatcher.ERROR_STATUS_CODE 属性），可为空
+     *
      * @param request 抽象层请求
      * @return 错误状态码字符串
      */
     public String getErrorStatusCode(CHttpRequest request) {
-        return getAttrStr(request, RequestDispatcher.ERROR_STATUS_CODE);
+        return CHttpRequestUtils.getAttrStr(request, RequestDispatcher.ERROR_STATUS_CODE);
     }
 
 }

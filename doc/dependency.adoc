@@ -260,8 +260,8 @@ graph LR
 | ctool4j-http-javax | ctool4j-http-base | javax 侧适配（`CHttpServletRequest` 等契约落地）；javax.servlet-api 为 optional
 | ctool4j-http-jakarta | ctool4j-http-base | jakarta 侧适配（与 `-javax` 同包同名）；jakarta.servlet-api 为 optional
 
-| ctool4j-spring-base | ctool4j-http-base、ctool4j-core、ctool4j-definition、ctool4j-autowired-processor | Spring 侧抽象契约（`ICHandlerInterceptor` / `ICResponseBodyAdvice`、`@CConfigurationProperties`）与 cors 配置/工具
-| ctool4j-spring-javax | ctool4j-http-javax、ctool4j-spring-base、ctool4j-core | javax 侧适配（`ICSpringHandlerInterceptor` / `ICSpringResponseBodyAdvice`、`CRequestUtils`、过滤器、`CErrorController`）；javax.servlet-api 为 optional
+| ctool4j-spring-base | ctool4j-http-base、ctool4j-core、ctool4j-definition、ctool4j-autowired-processor | Spring 侧抽象契约（`ICHandlerInterceptor` / `ICResponseBodyAdvice`、`@CConfigurationProperties`）与 cors 配置/工具；两侧同名类的公共实现（`CBaseRequestUtils` / `CErrorUtils` / `CResourceUrlUtils`）
+| ctool4j-spring-javax | ctool4j-http-javax、ctool4j-spring-base、ctool4j-core | javax 侧适配（`ICSpringHandlerInterceptor` / `ICSpringResponseBodyAdvice`、`CRequestUtils`、过滤器、`CErrorController`），只留接触容器的部分；javax.servlet-api 为 optional
 | ctool4j-spring-jakarta | ctool4j-http-jakarta、ctool4j-spring-base | jakarta 侧适配（与 `-javax` 同包同名）；**未登记进构建**（需 Spring 6 / Boot 3 矩阵）
 | ctool4j-spring-security-base | ctool4j-spring-base、ctool4j-definition | 安全侧抽象契约（`CUnauthorizedHandler` / `CForbiddenHandler` 与默认实现、`CSecurityResponseUtils`）
 | ctool4j-spring-security-javax | ctool4j-core、ctool4j-http-javax、ctool4j-spring-base、ctool4j-spring-security-base | 安全侧 javax 适配（`CAuthenticationEntryPoint` / `CAccessDeniedHandler` / `CSecurityResponseWriter`）；javax.servlet-api 为 optional

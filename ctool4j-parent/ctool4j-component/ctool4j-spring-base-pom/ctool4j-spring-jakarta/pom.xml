@@ -28,6 +28,12 @@
             <artifactId>ctool4j-spring-base</artifactId>
         </dependency>
 
+        <!-- CRequestUtils 等 jakarta 侧工具需要 core 的工具类与 definition 的函数式接口（与 -javax 侧依赖同构） -->
+        <dependency>
+            <groupId>com.c332030</groupId>
+            <artifactId>ctool4j-core</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

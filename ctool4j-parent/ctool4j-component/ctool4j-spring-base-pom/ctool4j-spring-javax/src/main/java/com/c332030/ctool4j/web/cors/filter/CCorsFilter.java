@@ -5,7 +5,6 @@ import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import com.c332030.ctool4j.web.filter.ICFilter;
 import lombok.CustomLog;
-import lombok.val;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +23,8 @@ import java.io.IOException;
  * <p>{@code CCorsFilter} 为跨域（CORS）Servlet Filter，{@code @Component} + {@code ICFilter} + {@code PriorityOrdered}， {@code getOrder()} 返回 {@code Integer.MIN_VALUE}（最高优先级，最先执行）。</p>
  * <p>核心方法 {@code doFilter(request, response, chain)}：</p>
  * <ul>
- *   <li>调用 {@code CCorsUtils.handle(request, response)} 输出 CORS 头</li>
- *   <li>若 {@code CCorsUtils.handleOptions} 判定为 OPTIONS 预检请求（返回 true），直接 return（以 204 结束预检）</li>
- *   <li>否则 {@code chain.doFilter} 继续请求链</li>
+ *   <li>包装为抽象层对象后调用 {@code CCorsUtils.handleAndContinue(request, response)}：输出 CORS 头，并判定是否继续</li>
+ *   <li>{@code false}（OPTIONS 预检已由 204 结束）时直接 return；否则 {@code chain.doFilter} 继续请求链</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -67,7 +65,7 @@ import java.io.IOException;
  * </ul>
  *
  * @since 2026/1/10
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @Component
@@ -93,11 +91,8 @@ public class CCorsFilter implements ICFilter, PriorityOrdered {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        val httpRequest = CHttpServletRequest.of(request);
-        val httpResponse = CHttpServletResponse.of(response);
-
-        CCorsUtils.handle(httpRequest, httpResponse);
-        if(CCorsUtils.handleOptions(httpRequest, httpResponse)) {
+        // 只做包装与放行判定：跨域处理与预检编排收在 base 的 CCorsUtils，两侧不重复实现
+        if(!CCorsUtils.handleAndContinue(CHttpServletRequest.of(request), CHttpServletResponse.of(response))) {
             return;
         }
 

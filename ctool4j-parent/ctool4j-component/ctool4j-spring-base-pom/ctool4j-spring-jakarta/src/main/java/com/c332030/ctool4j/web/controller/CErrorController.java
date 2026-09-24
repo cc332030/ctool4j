@@ -1,20 +1,18 @@
 package com.c332030.ctool4j.web.controller;
 
-import com.c332030.ctool4j.core.util.CNumUtils;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.web.util.CErrorUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.error.ErrorController;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 /**
  * <p>
@@ -27,8 +25,8 @@ import java.util.Optional;
  * <ul>
  *   <li>从 {@code CRequestUtils.getErrorStatusCode(request)} 取请求中携带的状态码</li>
  *   <li>存在异常属性（{@code RequestDispatcher.ERROR_EXCEPTION}）时记录 error 日志</li>
- *   <li>状态码解析失败（直接访问 {@code /error}、状态码为空/非法）时兜底 {@code HttpStatus.INTERNAL_SERVER_ERROR}（500）</li>
- *   <li>返回 {@code CStrResult.error(httpStatus)}（code 为状态码数字字符串，msg 为状态描述）</li>
+ *   <li>状态码解析失败（直接访问 {@code /error}、状态码为空/非法）时兜底 500（判定与组装见 {@link CErrorUtils}）</li>
+ *   <li>返回 {@code CStrResult<Void>}（code 为状态码数字字符串，msg 为状态描述）</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -67,13 +65,14 @@ import java.util.Optional;
  * <ul>
  *   <li>{@code @ConditionalOnMissingBean(ErrorController.class)}：业务方自定义 ErrorController 时本类不生效。</li>
  * </ul>
- * <p><b>状态码兜底</b></p>
+ * <p><b>只留容器相关部分</b></p>
  * <ul>
- *   <li>{@code CNumUtils.parseIntDefaultNull} 解析失败 → {@code HttpStatus.INTERNAL_SERVER_ERROR}。</li>
+ *   <li>本类只做「取容器属性 + 包装为抽象层对象 + 记日志 + 委托」；状态码解析与兜底（含 500 兜底）
+ *   收在 base 的 {@link CErrorUtils}，两侧不重复实现（见 {@code agent/AGENTS-PROJECT.MD} 的双栈规范：抽象层 + 两侧同名适配）。</li>
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @RestController
@@ -95,11 +94,8 @@ public class CErrorController implements ErrorController {
             log.error("error with code: {}", statusCodeStr, exception);
         }
 
-        // 直接访问 /error 时 ERROR_STATUS_CODE 为空或非法，兜底返回 500
-        val httpStatus = Optional.ofNullable(CNumUtils.parseIntDefaultNull(statusCodeStr))
-            .map(HttpStatus::resolve)
-            .orElse(HttpStatus.INTERNAL_SERVER_ERROR);
-        return CStrResult.error(httpStatus);
+        // 状态码解析与兜底（直接访问 /error 时为空或非法 → 500）收在 base，两侧不重复实现
+        return CErrorUtils.errorResult(statusCodeStr);
     }
 
 }

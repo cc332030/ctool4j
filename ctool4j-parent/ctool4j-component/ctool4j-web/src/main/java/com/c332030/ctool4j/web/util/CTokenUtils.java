@@ -100,7 +100,7 @@ import org.springframework.http.HttpHeaders;
  *
  * @author c332030
  * @since 2026/3/16
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass

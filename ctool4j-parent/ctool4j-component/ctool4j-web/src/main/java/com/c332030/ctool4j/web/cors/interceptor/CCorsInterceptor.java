@@ -21,8 +21,7 @@ import lombok.CustomLog;
  * 实现 {@code ICSpringHandlerInterceptor}（{@code ctool4j-spring-javax} 提供的抽象层版，继承 Spring {@code HandlerInterceptor}）。</p>
  * <p>核心方法 {@code preHandle(request, response, handler)}：</p>
  * <ul>
- *   <li>调用 {@code CCorsUtils.handle(request, response)} 输出 CORS 头</li>
- *   <li>返回 {@code !CCorsUtils.handleOptions(request, response)}：</li>
+ *   <li>调用 {@code CCorsUtils.handleAndContinue(request, response)}：输出 CORS 头并判定是否继续</li>
  *   <li>OPTIONS 预检请求返回 false（停止处理），否则返回 true（继续）</li>
  * </ul>
  *
@@ -34,7 +33,8 @@ import lombok.CustomLog;
  * </ul>
  * <p><b>预检处理</b></p>
  * <ul>
- *   <li>OPTIONS 预检由 {@code CCorsUtils.handleOptions} 处理，preHandle 返回 false 结束。</li>
+ *   <li>OPTIONS 预检由 {@code CCorsUtils} 统一处理（{@code handleAndContinue} 与 {@code CCorsFilter} 共用同一处编排），
+ *   preHandle 返回 false 结束。</li>
  * </ul>
  *
  * <h2>适用范围</h2>
@@ -71,7 +71,7 @@ import lombok.CustomLog;
  * </ul>
  *
  * @since 2025/9/28
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 //@Component
@@ -92,8 +92,8 @@ public class CCorsInterceptor implements ICSpringHandlerInterceptor {
         Object handler
     ) {
 
-        CCorsUtils.handle(request, response);
-        return !CCorsUtils.handleOptions(request, response);
+        // 跨域处理与预检编排收在 CCorsUtils（与 CCorsFilter 共用同一处），此处只取是否继续
+        return CCorsUtils.handleAndContinue(request, response);
     }
 
 }

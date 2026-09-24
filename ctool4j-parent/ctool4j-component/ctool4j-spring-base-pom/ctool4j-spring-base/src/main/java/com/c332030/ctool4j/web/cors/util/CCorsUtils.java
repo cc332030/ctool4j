@@ -41,6 +41,8 @@ import java.util.Set;
  *   以 204 结束预检并返回 true；否则返回 false。预检的 CORS 响应头由 {@code handle}/{@code handleDo}
  *   在处理链中先行设置。</li>
  *   <li>{@code handle(request, response)}：{@code enable=true} 时委托 {@code handleDo} 设置跨域响应头。</li>
+ *   <li>{@code handleAndContinue(request, response)}：按 {@code handle} → {@code handleOptions} 的顺序处理，
+ *   返回是否继续后续处理（过滤器与拦截器两个接入点共用的编排）。</li>
  *   <li>{@code handleDo(request, response)}：按<b>域名级配置</b>校验并设置跨域响应头。</li>
  *   <li>{@code getOriginConfig(origin)}：按域名（{@code host:port} → 纯 {@code host}）取域名级配置。</li>
  *   <li>{@code setHeaderIfNotEmpty} / {@code joinHeaders}：头集合为空则不设置、含 {@code *} 用通配拼接。</li>
@@ -124,7 +126,7 @@ import java.util.Set;
  * </ul>
  *
  * @since 2026/1/9
- * @version 1.3
+ * @version 1.4
  */
 @CustomLog
 @UtilityClass
@@ -162,6 +164,21 @@ public class CCorsUtils {
         }
 
         return false;
+    }
+
+    /**
+     * 处理跨域并按预检结果决定是否继续后续处理
+     *
+     * <p>把 {@link #handle} 与 {@link #handleOptions} 的调用序收在一处：过滤器与拦截器两个接入点共用同一编排，
+     * 差异只在「不继续时如何结束」（过滤器直接返回、拦截器返回 false 中断处理链）。</p>
+     *
+     * @param request  请求
+     * @param response 响应
+     * @return true 表示继续后续处理；false 表示本次为已处理的 OPTIONS 预检（调用方不应再放行）
+     */
+    public boolean handleAndContinue(CHttpRequest request, CHttpResponse response) {
+        handle(request, response);
+        return !handleOptions(request, response);
     }
 
     /**
