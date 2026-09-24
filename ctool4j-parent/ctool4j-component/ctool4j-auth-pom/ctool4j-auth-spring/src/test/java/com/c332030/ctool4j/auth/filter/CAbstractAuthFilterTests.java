@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.auth.filter;
 
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.session.interfaces.ICSecuritySession;
 import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import lombok.Data;
@@ -13,8 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import javax.servlet.http.HttpServletRequest;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -156,7 +156,7 @@ class CAbstractAuthFilterTests {
         val filter = newFilter(true, true);
         filter.mockSessionToLoad = mockSession;
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         val authentication = CSpringSecurityUtils.getAuthentication();
         Assertions.assertSame(mockSession, authentication.getPrincipal());
@@ -176,7 +176,7 @@ class CAbstractAuthFilterTests {
         val filter = newFilter(false, false);
         filter.sessionToLoad = session;
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         Assertions.assertEquals(1, filter.loadSessionCount);
         val authentication = CSpringSecurityUtils.getAuthentication();
@@ -253,7 +253,7 @@ class CAbstractAuthFilterTests {
         boolean failIfAnonymousChecked;
 
         @Override
-        protected SessionStub loadSession(HttpServletRequest request) {
+        protected SessionStub loadSession(CHttpRequest request) {
             loadSessionCount++;
             return sessionToLoad;
         }

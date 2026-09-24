@@ -241,6 +241,22 @@ public interface CHttpRequest {
     String getRemoteAddr();
 
     /**
+     * 客户端 IP：优先取 {@code X-Forwarded-For} 首段，无该头时取 {@link #getRemoteAddr()}
+     *
+     * <p><b>安全取舍</b>：无条件信任 {@code X-Forwarded-For} 首段，客户端直连时可伪造该头绕过 IP 校验；
+     * 对外场景须由可信代理清理/覆盖该头。</p>
+     *
+     * @return 客户端 IP
+     */
+    default String getClientIp() {
+        String forwarded = getHeader("X-Forwarded-For");
+        if (null != forwarded && !forwarded.isEmpty()) {
+            return forwarded.split(",")[0];
+        }
+        return getRemoteAddr();
+    }
+
+    /**
      * 取发起请求的客户端主机名
      *
      * @return 客户端主机名；无法反查时返回 IP

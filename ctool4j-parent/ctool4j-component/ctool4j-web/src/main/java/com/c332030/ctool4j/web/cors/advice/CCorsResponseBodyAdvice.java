@@ -2,7 +2,7 @@ package com.c332030.ctool4j.web.cors.advice;
 
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.spring.interfaces.ICBaseResponseBodyAdvice;
+import com.c332030.ctool4j.spring.interfaces.CResponseBodyAdvice;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
  *
  * <h2>能力目录</h2>
  * <p>{@code CCorsResponseBodyAdvice} 为跨域的<b>备用方案</b>（{@code @ControllerAdvice} 已被注释，需使用方手动注册），
- * 实现 {@code ICBaseResponseBodyAdvice&lt;Object&gt;}（{@code ctool4j-spring-jakarta} 提供的抽象层版），
+ * 实现 {@code CResponseBodyAdvice&lt;Object&gt;}（{@code ctool4j-spring-javax} 提供的抽象层版），
  * 在响应体写入前调用 {@code CCorsUtils.handle(request, response)} 输出 CORS 头，然后原样返回响应体。</p>
  * <p>核心方法 {@code beforeBodyWrite(...)}：</p>
  * <ul>
@@ -35,7 +35,7 @@ import org.springframework.lang.Nullable;
  * <h2>设计要点</h2>
  * <p><b>用抽象层类型，无需解包</b></p>
  * <ul>
- *   <li>解包与转换集中在两侧适配器（{@code ICBaseResponseBodyAdvice}），本类只处理抽象层请求/响应，
+ *   <li>解包与转换集中在两侧适配器（{@code CResponseBodyAdvice}），本类只处理抽象层请求/响应，
  *   不出现任何 Servlet 类型。</li>
  * </ul>
  * <p><b>复用处理逻辑</b></p>
@@ -82,7 +82,7 @@ import org.springframework.lang.Nullable;
 @CustomLog
 //@ControllerAdvice
 @AllArgsConstructor
-public class CCorsResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
+public class CCorsResponseBodyAdvice implements CResponseBodyAdvice<Object> {
 
     /**
      * 响应写入前处理 CORS 头

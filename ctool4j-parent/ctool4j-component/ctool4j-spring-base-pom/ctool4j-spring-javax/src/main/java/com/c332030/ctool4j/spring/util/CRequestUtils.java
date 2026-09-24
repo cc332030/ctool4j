@@ -8,6 +8,7 @@ import com.c332030.ctool4j.core.util.COpt;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.StringFunction;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -380,14 +381,8 @@ public class CRequestUtils {
      * @return Ip
      */
     public String getIp(HttpServletRequest request) {
-
-        String forwardIpBundle = getHeader(request, HttpHeaders.X_FORWARDED_FOR);
-        if (StrUtil.isNotEmpty(forwardIpBundle)) {
-            String[] forwardIpParts = forwardIpBundle.split(",");
-            return forwardIpParts[0];
-        }
-
-        return request.getRemoteAddr();
+        // 单一来源：IP 解析规则收在抽象层的 CHttpRequest#getClientIp
+        return CHttpServletRequest.of(request).getClientIp();
     }
 
     /**

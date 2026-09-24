@@ -1,8 +1,9 @@
 package com.c332030.ctool4j.auth.filter;
 
 import com.c332030.ctool4j.core.util.CBoolUtils;
+import com.c332030.ctool4j.interfaces.CFilterChain;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
-import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.util.CSessionUtils;
@@ -12,10 +13,6 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -108,15 +105,14 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
      * @param request     当前请求
      * @param response    当前响应
      * @param filterChain 过滤器链，认证信息写入后继续执行
-     * @throws ServletException 链路内下游过滤器/Servlet 抛出时透传
-     * @throws IOException      链路内下游过滤器/Servlet 抛出时透传
+     * @throws IOException 链路内下游过滤器/Servlet 抛出时透传
      */
     @Override
     protected void doFilterInternal(
-        @NonNull HttpServletRequest request,
-        @NonNull HttpServletResponse response,
-        @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+        @NonNull CHttpRequest request,
+        @NonNull CHttpResponse response,
+        @NonNull CFilterChain filterChain
+    ) throws IOException {
 
         try {
             loadAuthentication(request);
@@ -137,7 +133,7 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
      *
      * @param request 当前请求
      */
-    protected void loadAuthentication(@NonNull HttpServletRequest request) {
+    protected void loadAuthentication(@NonNull CHttpRequest request) {
 
         val mockSession = loadMockSession();
         if(mockSession != null) {
@@ -194,8 +190,8 @@ public abstract class CAbstractBaseAuthFilter<SESSION extends ICSession> extends
      * @param request 当前请求
      * @return 会话；未携带 token / 解析失败 / 查不到会话时返回 null
      */
-    protected SESSION loadSession(HttpServletRequest request) {
-        return CSessionUtils.load(CHttpServletRequest.of(request));
+    protected SESSION loadSession(@NonNull CHttpRequest request) {
+        return CSessionUtils.load(request);
     }
 
     /**

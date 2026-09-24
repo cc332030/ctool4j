@@ -1,8 +1,11 @@
 package com.c332030.ctool4j.auth.filter;
 
 import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
+import com.c332030.ctool4j.interfaces.CFilterChain;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.session.config.CAbstractSessionMockConfig;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
@@ -16,9 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
@@ -127,7 +127,7 @@ class CAbstractBaseAuthFilterTests {
         val chain = new FilterChainStub();
         sessionService.sessionToLoad = session;
 
-        filter.doFilterInternal(request, response, chain);
+        filter.doFilterInternal(CHttpServletRequest.of(request), CHttpServletResponse.of(response), chain);
 
         Assertions.assertSame(session, filter.authenticated);
         Assertions.assertEquals(1, chain.count);
@@ -146,7 +146,7 @@ class CAbstractBaseAuthFilterTests {
         val chain = new FilterChainStub();
         sessionService.sessionToLoad = new SessionStub();
 
-        Assertions.assertDoesNotThrow(() -> filter.doFilterInternal(request, response, chain));
+        Assertions.assertDoesNotThrow(() -> filter.doFilterInternal(CHttpServletRequest.of(request), CHttpServletResponse.of(response), chain));
 
         Assertions.assertNull(filter.authenticated);
         Assertions.assertEquals(1, chain.count);
@@ -165,7 +165,7 @@ class CAbstractBaseAuthFilterTests {
         val mockSession = new SessionStub();
         val filter = newFilter(newMockConfig(true, mockSession));
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         Assertions.assertSame(mockSession, filter.mockAuthenticated);
         Assertions.assertNull(filter.authenticated);
@@ -184,7 +184,7 @@ class CAbstractBaseAuthFilterTests {
         val filter = newFilter(newMockConfig(true, null));
         sessionService.sessionToLoad = session;
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         Assertions.assertSame(session, filter.authenticated);
         Assertions.assertNull(filter.mockAuthenticated);
@@ -204,7 +204,7 @@ class CAbstractBaseAuthFilterTests {
         val filter = newFilter(newMockConfig(false, new SessionStub()));
         sessionService.sessionToLoad = session;
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         Assertions.assertSame(session, filter.authenticated);
         Assertions.assertNull(filter.mockAuthenticated);
@@ -222,7 +222,7 @@ class CAbstractBaseAuthFilterTests {
         // 兜底：查不到会话（loadSession 返回 null）→ 两条认证设置路径均不触发
         val filter = newFilter(newMockConfig(false, null));
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         Assertions.assertNull(filter.authenticated);
         Assertions.assertNull(filter.mockAuthenticated);
@@ -242,7 +242,7 @@ class CAbstractBaseAuthFilterTests {
         CSessionUtils.setSessionService(sessionService);
         inject(filter, "sessionMockConfig", newMockConfig(true, mockSession));
 
-        filter.loadAuthentication(request);
+        filter.loadAuthentication(CHttpServletRequest.of(request));
 
         Assertions.assertSame(mockSession, filter.authenticated);
         Assertions.assertEquals(0, sessionService.loadSessionCount);
@@ -265,7 +265,7 @@ class CAbstractBaseAuthFilterTests {
         val filter = newFilter(newMockConfig(false, null));
         sessionService.sessionToLoad = session;
 
-        Assertions.assertSame(session, filter.loadSession(request));
+        Assertions.assertSame(session, filter.loadSession(CHttpServletRequest.of(request)));
         Assertions.assertEquals(1, sessionService.loadSessionCount);
         Assertions.assertSame(request, CHttpServletRequest.unwrap(sessionService.lastRequest));
 
@@ -281,7 +281,7 @@ class CAbstractBaseAuthFilterTests {
         val filter = newFilter(newMockConfig(false, null));
         sessionService.sessionToLoad = null;
 
-        Assertions.assertNull(filter.loadSession(request));
+        Assertions.assertNull(filter.loadSession(CHttpServletRequest.of(request)));
         Assertions.assertEquals(1, sessionService.loadSessionCount);
 
     }
@@ -514,7 +514,7 @@ class CAbstractBaseAuthFilterTests {
     /**
      * 过滤器链测试替身：记录放行调用次数
      */
-    private static class FilterChainStub implements FilterChain {
+    private static class FilterChainStub implements CFilterChain {
 
         /**
          * 放行调用次数
@@ -522,7 +522,7 @@ class CAbstractBaseAuthFilterTests {
         int count;
 
         @Override
-        public void doFilter(ServletRequest request, ServletResponse response) throws IOException {
+        public void doFilter(CHttpRequest request, CHttpResponse response) throws IOException {
             count++;
         }
 
