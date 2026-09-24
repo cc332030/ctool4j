@@ -21,6 +21,7 @@
         <module>ctool4j-transaction</module>
         <module>ctool4j-db</module>
 
+        <module>ctool4j-http-pom</module>
         <module>ctool4j-spring-pom</module>
         <module>ctool4j-auth-pom</module>
         <module>ctool4j-log-pom</module>
@@ -75,7 +76,7 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>
