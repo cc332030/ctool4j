@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.spring.util;
 
 import com.c332030.ctool4j.definition.function.CBiConsumer;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -55,7 +56,7 @@ class CRequestUtilsTests {
     void testGetIp_forwardedFor_single() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeader("X-Forwarded-For")).thenReturn("1.2.3.4");
-        Assertions.assertEquals("1.2.3.4", CRequestUtils.getIp(request));
+        Assertions.assertEquals("1.2.3.4", CRequestUtils.getIp(CHttpServletRequest.of(request)));
     }
 
         /**
@@ -65,7 +66,7 @@ class CRequestUtilsTests {
     void testGetIp_forwardedFor_multiple_takesFirst() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeader("X-Forwarded-For")).thenReturn("1.2.3.4, 5.6.7.8, 9.10.11.12");
-        Assertions.assertEquals("1.2.3.4", CRequestUtils.getIp(request));
+        Assertions.assertEquals("1.2.3.4", CRequestUtils.getIp(CHttpServletRequest.of(request)));
     }
 
         /**
@@ -76,7 +77,7 @@ class CRequestUtilsTests {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeader("X-Forwarded-For")).thenReturn(null);
         Mockito.when(request.getRemoteAddr()).thenReturn("10.0.0.1");
-        Assertions.assertEquals("10.0.0.1", CRequestUtils.getIp(request));
+        Assertions.assertEquals("10.0.0.1", CRequestUtils.getIp(CHttpServletRequest.of(request)));
     }
 
         /**
@@ -88,7 +89,7 @@ class CRequestUtilsTests {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeader("X-Forwarded-For")).thenReturn("  ");
         Mockito.when(request.getRemoteAddr()).thenReturn("10.0.0.1");
-        Assertions.assertEquals("  ", CRequestUtils.getIp(request));
+        Assertions.assertEquals("  ", CRequestUtils.getIp(CHttpServletRequest.of(request)));
     }
 
     // ---------- getHeader / getHeaders ----------
@@ -100,7 +101,7 @@ class CRequestUtilsTests {
     void testGetHeader() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeader("token")).thenReturn("abc");
-        Assertions.assertEquals("abc", CRequestUtils.getHeader(request, "token"));
+        Assertions.assertEquals("abc", CRequestUtils.getHeader(CHttpServletRequest.of(request), "token"));
     }
 
         /**
@@ -110,7 +111,7 @@ class CRequestUtilsTests {
     void testGetHeader_null() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeader("token")).thenReturn(null);
-        Assertions.assertNull(CRequestUtils.getHeader(request, "token"));
+        Assertions.assertNull(CRequestUtils.getHeader(CHttpServletRequest.of(request), "token"));
     }
 
         /**
@@ -120,7 +121,7 @@ class CRequestUtilsTests {
     void testGetHeaders() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeaders("h")).thenReturn(new Vector<>(Arrays.asList("a", "b")).elements());
-        List<String> result = CRequestUtils.getHeaders(request, "h");
+        List<String> result = CRequestUtils.getHeaders(CHttpServletRequest.of(request), "h");
         Assertions.assertEquals(Arrays.asList("a", "b"), result);
     }
 
@@ -131,7 +132,7 @@ class CRequestUtilsTests {
     void testGetHeaders_null() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getHeaders("h")).thenReturn(null);
-        Assertions.assertEquals(Collections.emptyList(), CRequestUtils.getHeaders(request, "h"));
+        Assertions.assertEquals(Collections.emptyList(), CRequestUtils.getHeaders(CHttpServletRequest.of(request), "h"));
     }
 
     // ---------- getAttrStr ----------
@@ -143,7 +144,7 @@ class CRequestUtilsTests {
     void testGetAttrStr_present() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getAttribute("k")).thenReturn("v");
-        Assertions.assertEquals("v", CRequestUtils.getAttrStr(request, "k"));
+        Assertions.assertEquals("v", CRequestUtils.getAttrStr(CHttpServletRequest.of(request), "k"));
     }
 
         /**
@@ -153,7 +154,7 @@ class CRequestUtilsTests {
     void testGetAttrStr_nullAttribute_returnsNull() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getAttribute("k")).thenReturn(null);
-        Assertions.assertNull(CRequestUtils.getAttrStr(request, "k"));
+        Assertions.assertNull(CRequestUtils.getAttrStr(CHttpServletRequest.of(request), "k"));
     }
 
         /**
@@ -163,7 +164,7 @@ class CRequestUtilsTests {
     void testGetAttrStr_nonStringAttribute() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getAttribute("k")).thenReturn(123);
-        Assertions.assertEquals("123", CRequestUtils.getAttrStr(request, "k"));
+        Assertions.assertEquals("123", CRequestUtils.getAttrStr(CHttpServletRequest.of(request), "k"));
     }
 
     // ---------- getErrorStatusCode ----------
@@ -175,7 +176,7 @@ class CRequestUtilsTests {
     void testGetErrorStatusCode_present() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE)).thenReturn(500);
-        Assertions.assertEquals("500", CRequestUtils.getErrorStatusCode(request));
+        Assertions.assertEquals("500", CRequestUtils.getErrorStatusCode(CHttpServletRequest.of(request)));
     }
 
         /**
@@ -185,7 +186,7 @@ class CRequestUtilsTests {
     void testGetErrorStatusCode_absent() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         Mockito.when(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE)).thenReturn(null);
-        Assertions.assertNull(CRequestUtils.getErrorStatusCode(request));
+        Assertions.assertNull(CRequestUtils.getErrorStatusCode(CHttpServletRequest.of(request)));
     }
 
     // ---------- getHeaderThenDo ----------

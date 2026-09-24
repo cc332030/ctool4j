@@ -13,7 +13,7 @@ Spring 侧的**容器抽象层与两侧适配**模块集：把「Spring 扩展�
 | `ctool4j-spring-javax` | javax 侧适配 | `ICSpringHandlerInterceptor`、`ICSpringResponseBodyAdvice`（侧同名桥接接口）；`CRequestUtils`（依赖 Spring 的 `ServletRequestAttributes`）；`ICFilter`、`CAbstractWebAuthFilter`、`CResourceFilter`、`CErrorController`；cors 过滤器/拦截器/advice |
 | `ctool4j-spring-jakarta` | jakarta 侧适配（同名同构） | 与 `-javax` 同包同名，仅 Servlet 类型换成 `jakarta.*`。**当前未登记进构建**（需 Spring 6 / Boot 3 依赖矩阵） |
 | `ctool4j-spring-security-base` | 安全侧抽象契约 | `CSecurityResponseUtils`（只依赖抽象层响应的统一 JSON 错误写出）、`CUnauthorizedHandler` / `CForbiddenHandler` 与默认实现 |
-| `ctool4j-spring-security-javax` | 安全侧 javax 适配 | `CAuthenticationEntryPoint`、`CAccessDeniedHandler`（Spring Security 定签名）、`CSecurityResponseWriter`、`CSpringSecurityUtils` |
+| `ctool4j-spring-security-javax` | 安全侧 javax 适配 | `CAuthenticationEntryPoint`、`CAccessDeniedHandler`（Spring Security 定签名）、`CSecurityResponseWriter` |
 | `ctool4j-spring-security-jakarta` | 安全侧 jakarta 适配（同名同构） | 同上，类型换 `jakarta.*`。**当前未登记进构建** |
 
 ## 切换容器

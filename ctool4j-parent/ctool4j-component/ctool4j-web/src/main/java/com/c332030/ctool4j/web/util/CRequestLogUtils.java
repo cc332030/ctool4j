@@ -13,7 +13,6 @@ import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CPatternUtils;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
@@ -272,8 +271,7 @@ public class CRequestLogUtils {
      */
     public CRequestLog genRequestLog() {
 
-        val servletRequest = CRequestUtils.getRequest();
-        val request = CHttpServletRequest.of(servletRequest);
+        val request = CRequestUtils.getRequest();
         val uri = request.getRequestURI();
         if (isExcludeUri(uri)) {
             log.debug("genRequestLog skip because uri is exclude, uri: {}", uri);
@@ -292,7 +290,7 @@ public class CRequestLogUtils {
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
             .req(EMPTY_REQ)
             .rsp(EMPTY_RSP)
-            .ip(CRequestUtils.getIp(servletRequest))
+            .ip(CRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
     }

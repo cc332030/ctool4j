@@ -6,8 +6,6 @@ import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.interfaces.ICToken;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.model.CHttpServletRequest;
-import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -159,7 +157,7 @@ public class CTokenUtils {
      * @return token
      */
     public String getHeaderToken(String prefix) {
-        return getHeaderToken(CHttpServletRequest.of(CRequestUtils.getRequest()), prefix);
+        return getHeaderToken(CRequestUtils.getRequest(), prefix);
     }
 
     /**
@@ -214,7 +212,7 @@ public class CTokenUtils {
      * @param prefix 前缀
      */
     public void setHeaderToken(String token, String prefix) {
-        setHeaderToken(token, prefix, CHttpServletResponse.of(CRequestUtils.getResponse()));
+        setHeaderToken(token, prefix, CRequestUtils.getResponse());
     }
 
     /**
@@ -247,7 +245,7 @@ public class CTokenUtils {
      * @param token token
      */
     public void setToken(String token) {
-        setToken(CHttpServletRequest.of(CRequestUtils.getRequest()), token);
+        setToken(CRequestUtils.getRequest(), token);
     }
 
     /**
@@ -272,7 +270,7 @@ public class CTokenUtils {
 
         val request = CRequestUtils.getRequest();
         CAssert.notNull(request, "非请求环境");
-        return (String) CHttpServletRequest.of(request).getAttribute(ICToken.TOKEN);
+        return (String) request.getAttribute(ICToken.TOKEN);
     }
 
     /**

@@ -8,7 +8,10 @@ import com.c332030.ctool4j.core.util.COpt;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.definition.function.CBiConsumer;
 import com.c332030.ctool4j.definition.function.StringFunction;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.google.common.net.HttpHeaders;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
@@ -29,22 +32,32 @@ import java.util.function.BiConsumer;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CRequestUtils}：请求工具。</p>
+ * <p>{@code CRequestUtils}：请求工具，读取当前请求上下文（Spring 的 {@code RequestContextHolder}）中的
+ * 请求/响应，并提供请求 URI、头、IP、属性、错误状态码等取用。</p>
  * <h2>设计要点</h2>
  * <ul>
- *   <li>获取请求URI、状态码等</li>
+ *   <li><b>对外只暴露抽象层类型</b>：请求/响应的取用入口（{@code getRequest} / {@code getResponse} 系列）
+ *   返回 {@link CHttpRequest} / {@link CHttpResponse}，业务模块据此编程即不绑定任何 Servlet 包；
+ *   本类在两侧适配模块中<b>同包同名</b>（本份承接 jakarta 侧），切换容器只换依赖模块。</li>
+ *   <li><b>容器逃生口只有一处</b>：{@link #getServletRequestAttributes()} 返回 Spring 的
+ *   {@code ServletRequestAttributes}，其请求/响应是某一容器包的类型，只供抽象层表达不了的容器专有能力
+ *   （二进制输出流、会话、Cookie）使用；其余场景一律走抽象层入口。</li>
+ *   <li><b>IP 单一来源</b>：IP 解析规则收在 {@link CHttpRequest#getClientIp()}，本类不另立一套（见 {@link #getIp}）。</li>
  * </ul>
  * <h2>兜底设计</h2>
- * <p>缺失返回默认</p>
+ * <p>缺失返回默认：非请求上下文时 {@code getXxxDefaultNull} 返回 {@code null}、{@code getXxx} 抛
+ * {@link IllegalArgumentException}；{@code getRefererPathThenConvertDefaultNull} 异常时返回 {@code null}。</p>
  * <h2>适用范围</h2>
- * <p>请求处理</p>
+ * <p>请求处理线程内取用当前请求/响应；需要在两套 Servlet 容器间可切换的公共代码。</p>
  * <h2>不适用与边界场景</h2>
- * <p>静态工具</p>
+ * <p>非请求线程（定时任务、异步线程）取不到上下文；需要容器专有能力时经
+ * {@link #getServletRequestAttributes()} 取底层对象（容器类型只在调用处出现一次）。</p>
  * <h2>已知限制与取舍</h2>
- * <p>静态工具</p>
+ * <p>静态工具类，依赖 Spring 的请求上下文线程绑定；{@link #getServletRequestAttributes()} 之外的入口
+ * 都经过了抽象层包装（每次取用新建一个适配器实例，成本为一次对象创建）。</p>
  *
  * @since 2024/12/9
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -112,9 +125,14 @@ public class CRequestUtils {
     }
 
     /**
-     * 获取当前请求的属性
+     * 获取当前请求的属性（Spring 的请求上下文）
      *
-     * @return 当前请求的属性
+     * <p>返回 Spring 自己的 {@code ServletRequestAttributes}，其 {@code getRequest()}/{@code getResponse()}
+     * 都是某一容器包（javax 或 jakarta）的类型。本方法是本类的<b>唯一容器逃生口</b>，只供抽象层表达不了的
+     * 容器专有能力（二进制输出流、会话、Cookie）使用；其余场景一律走 {@link #getRequest()} /
+     * {@link #getResponse()} 这类只暴露抽象层类型的入口。</p>
+     *
+     * @return 当前请求的属性；非请求上下文时返回 null
      */
     public static ServletRequestAttributes getServletRequestAttributes() {
         return (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -137,59 +155,65 @@ public class CRequestUtils {
     }
 
     /**
-     * 获取 Request，可为空
-     * @return HttpServletRequest
+     * 获取请求（抽象层），可为空
+     *
+     * @return 抽象层请求；非请求上下文时返回 null
      */
-    public HttpServletRequest getRequestDefaultNull() {
-        val springServletRequestAttributes = getServletRequestAttributes();
-        if(null == springServletRequestAttributes) {
+    public CHttpRequest getRequestDefaultNull() {
+        val request = CObjUtils.convert(getServletRequestAttributes(), ServletRequestAttributes::getRequest);
+        if(null == request) {
             return null;
         }
-        return springServletRequestAttributes.getRequest();
+        return CHttpServletRequest.of(request);
     }
 
     /**
-     * 获取 Request 的 COpt
-     * @return COpt HttpServletRequest
+     * 获取请求（抽象层）的 COpt
+     *
+     * @return COpt 抽象层请求
      */
-    public COpt<HttpServletRequest> getRequestOpt() {
+    public COpt<CHttpRequest> getRequestOpt() {
         return COpt.ofNullable(getRequestDefaultNull());
     }
 
     /**
-     * 获取 Request，不能为空
-     * @return Request，不能为空
+     * 获取请求（抽象层），不能为空
+     *
+     * @return 抽象层请求，不能为空
      */
-    public HttpServletRequest getRequest() {
+    public CHttpRequest getRequest() {
         return getRequestOpt()
                 .orElseThrow(() -> new IllegalArgumentException("request 不能为空"));
     }
 
     /**
-     * 获取 Response，可为空
-     * @return HttpServletResponse
+     * 获取响应（抽象层），可为空
+     *
+     * @return 抽象层响应；非请求上下文或容器未创建响应时返回 null
      */
-    public HttpServletResponse getResponseDefaultNull() {
-        val springServletRequestAttributes = getServletRequestAttributes();
-        if(null == springServletRequestAttributes) {
+    public CHttpResponse getResponseDefaultNull() {
+        val response = CObjUtils.convert(getServletRequestAttributes(), ServletRequestAttributes::getResponse);
+        if(null == response) {
             return null;
         }
-        return springServletRequestAttributes.getResponse();
+        return CHttpServletResponse.of(response);
     }
 
     /**
-     * 获取 Response 的 COpt
-     * @return COpt HttpServletResponse
+     * 获取响应（抽象层）的 COpt
+     *
+     * @return COpt 抽象层响应
      */
-    public COpt<HttpServletResponse> getResponseOpt() {
+    public COpt<CHttpResponse> getResponseOpt() {
         return COpt.ofNullable(getResponseDefaultNull());
     }
 
     /**
-     * 获取 Response，不能为空
-     * @return HttpServletResponse
+     * 获取响应（抽象层），不能为空
+     *
+     * @return 抽象层响应，不能为空
      */
-    public HttpServletResponse getResponse() {
+    public CHttpResponse getResponse() {
         return getResponseOpt()
                 .orElseThrow(() -> new IllegalArgumentException("response 不能为空"));
     }
@@ -199,7 +223,7 @@ public class CRequestUtils {
      * @return Context Path
      */
     public String getContextPathDefaultNull() {
-        return CObjUtils.convert(getRequestDefaultNull(), HttpServletRequest::getContextPath);
+        return CObjUtils.convert(getRequestDefaultNull(), CHttpRequest::getContextPath);
     }
 
     /**
@@ -216,7 +240,7 @@ public class CRequestUtils {
      * @return RequestURI
      */
     public String getRequestURIDefaultNull() {
-        return CObjUtils.convert(getRequestDefaultNull(), HttpServletRequest::getRequestURI);
+        return CObjUtils.convert(getRequestDefaultNull(), CHttpRequest::getRequestURI);
     }
 
     /**
@@ -239,11 +263,11 @@ public class CRequestUtils {
 
     /**
      * 获取 Header
-     * @param request HttpServletRequest
+     * @param request 抽象层请求
      * @param header Header Name
      * @return Header Value
      */
-    public String getHeader(HttpServletRequest request, String header) {
+    public String getHeader(CHttpRequest request, String header) {
         return request.getHeader(header);
     }
 
@@ -258,11 +282,11 @@ public class CRequestUtils {
 
     /**
      * 获取 Headers
-     * @param request HttpServletRequest
+     * @param request 抽象层请求
      * @param header Header Name
      * @return Header Values
      */
-    public List<String> getHeaders(HttpServletRequest request, String header) {
+    public List<String> getHeaders(CHttpRequest request, String header) {
         val valueEnumeration = request.getHeaders(header);
         return CCollUtils.getValues(valueEnumeration);
     }
@@ -377,30 +401,30 @@ public class CRequestUtils {
      * 可伪造该请求头绕过 IP 校验/风控，属安全问题。
      * 修复方案：仅信任来自已配置可信代理的 X-Forwarded-For（默认不信任，
      * 未配置时忽略该头直接返回 remoteAddr）；当前业务场景较小，暂未修复</p>
-     * @param request HttpServletRequest
+     * @param request 抽象层请求
      * @return Ip
      */
-    public String getIp(HttpServletRequest request) {
+    public String getIp(CHttpRequest request) {
         // 单一来源：IP 解析规则收在抽象层的 CHttpRequest#getClientIp
-        return CHttpServletRequest.of(request).getClientIp();
+        return request.getClientIp();
     }
 
     /**
      * 获取请求属性并转为字符串（null 属性返回 null），可为空
-     * @param request       HttpServletRequest
+     * @param request       抽象层请求
      * @param attributeName 属性名
      * @return 属性字符串
      */
-    public String getAttrStr(HttpServletRequest request, String attributeName) {
+    public String getAttrStr(CHttpRequest request, String attributeName) {
         return StrUtil.toStringOrNull(request.getAttribute(attributeName));
     }
 
     /**
      * 获取错误状态码（取自 RequestDispatcher.ERROR_STATUS_CODE 属性），可为空
-     * @param request HttpServletRequest
+     * @param request 抽象层请求
      * @return 错误状态码字符串
      */
-    public String getErrorStatusCode(HttpServletRequest request) {
+    public String getErrorStatusCode(CHttpRequest request) {
         return getAttrStr(request, RequestDispatcher.ERROR_STATUS_CODE);
     }
 

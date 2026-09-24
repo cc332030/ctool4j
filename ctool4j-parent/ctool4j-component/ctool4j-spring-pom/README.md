@@ -75,7 +75,7 @@
 ### 功能特性
 
 - 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`）
-- 安全过滤器链装配时按类型契约 `CAbstractWebAuthFilter`（`ctool4j-web`）注入认证过滤器，实现由 `ctool4j-auth-*` 模块提供（本模块不再提供过滤器基类）
+- 安全过滤器链装配时按类型契约 `CAbstractWebAuthFilter`（`ctool4j-spring-javax`，两侧同名）注入认证过滤器，实现由 `ctool4j-auth-*` 模块提供（本模块不再提供过滤器基类）
 - 未认证 / 拒绝访问 / 会话过期统一处理（JSON 返回）
 - 用户认证服务抽象：`ICUserDetailsService` / `ICAuthenticationUserDetailsService` / `ICUserDetailsPasswordService`
 - 安全上下文与认证工具：`CSpringSecurityUtils` / `CAuthenticationUtils`

@@ -65,7 +65,7 @@ graph LR
 | 无（仅 modules）
 
 | ctool4j-component
-| definition、core、web、feign、redis、cache、transaction、db、spring-pom、auth-pom、log-pom、mybatis-pom、nacos-pom、mq-pom、job-pom、file-pom、doc-pom、test-pom（18 个）
+| definition、core、web、feign、redis、cache、transaction、db、http-pom、spring-base-pom、spring-pom、auth-pom、log-pom、mybatis-pom、nacos-pom、mq-pom、job-pom、file-pom、doc-pom、test-pom（20 个）
 | spring-boot-starter-web（provided）、spring-boot-starter-validation（provided）、spring-boot-starter-logging（provided）、spring-cloud-commons（provided）、spring-cloud-context（provided）、guava（optional）、mapstruct（provided）
 |===
 
@@ -78,9 +78,18 @@ graph LR
 graph LR
   definition["ctool4j-definition"]
   core["ctool4j-core"]
+  httpBase["ctool4j-http-base"]
+  httpJavax["ctool4j-http-javax"]
+  httpJakarta["ctool4j-http-jakarta"]
+  springBase["ctool4j-spring-base"]
   spring["ctool4j-spring"]
+  springJavax["ctool4j-spring-javax"]
+  springJakarta["ctool4j-spring-jakarta（未登记构建）"]
   springCloud["ctool4j-spring-cloud"]
   web["ctool4j-web"]
+  springSecurityBase["ctool4j-spring-security-base"]
+  springSecurityJavax["ctool4j-spring-security-javax"]
+  springSecurityJakarta["ctool4j-spring-security-jakarta（未登记构建）"]
   springSecurity["ctool4j-spring-security"]
   redis["ctool4j-redis"]
   cache["ctool4j-cache"]
@@ -93,10 +102,31 @@ graph LR
   docOpenapi2["ctool4j-doc-openapi2"]
 
   core -.-> definition
+  httpJavax -.-> httpBase
+  httpJakarta -.-> httpBase
+  springBase -.-> httpBase
+  springBase -.-> core
+  springBase -.-> definition
+  springJavax -.-> httpJavax
+  springJavax -.-> springBase
+  springJavax -.-> core
+  springJakarta -.-> httpJakarta
+  springJakarta -.-> springBase
   spring -.-> core
+  spring -.-> springJavax
   springCloud -.-> spring
   web -.-> spring
+  springSecurityBase -.-> springBase
+  springSecurityBase -.-> definition
+  springSecurityJavax -.-> core
+  springSecurityJavax -.-> httpJavax
+  springSecurityJavax -.-> springBase
+  springSecurityJavax -.-> springSecurityBase
+  springSecurityJakarta -.-> httpJakarta
+  springSecurityJakarta -.-> springBase
+  springSecurityJakarta -.-> springSecurityBase
   springSecurity -.-> web
+  springSecurity -.-> springSecurityJavax
   redis -.-> spring
   cache -.-> redis
   transaction -.-> spring
@@ -114,6 +144,7 @@ graph LR
 
   autowired["ctool4j-autowired-processor"]
   spring -.-> autowired
+  springBase -.-> autowired
 
 == 中间件与配套模块
 
@@ -215,15 +246,26 @@ graph LR
 | ctool4j-definition | 无 | 基础定义层（返回体、实体基类、注解、函数式接口等），不含 ctool4j 模块依赖
 | ctool4j-core | ctool4j-definition；ctool4j-test-definition（test） | 核心工具库；可选能力（uuid/ulid/nanoId、httpmime）标 optional，用方可选引入
 
-| ctool4j-spring | ctool4j-core、ctool4j-autowired-processor | Spring 基础设施（容器、切面、代理、请求、文件、初始化）
+| ctool4j-spring | ctool4j-core、ctool4j-spring-javax、ctool4j-autowired-processor | Spring 基础设施（容器、切面、代理、请求、文件、初始化）
 | ctool4j-spring-cloud | ctool4j-spring | Spring Cloud 基础封装
-| ctool4j-spring-security | ctool4j-web | Security 装配；redis session / data-redis 标 optional
+| ctool4j-spring-security | ctool4j-web、ctool4j-spring-security-javax | Security 装配；redis session / data-redis 标 optional
 
 | ctool4j-web | ctool4j-spring | Web MVC 通用能力（全局异常、跨域、JWT、请求日志、traceId）；另有 spring-boot-starter-web（provided）
 | ctool4j-redis | ctool4j-spring | Redis 操作、Redisson 分布式锁、@CRateLimit / @CIdempotent
 | ctool4j-cache | ctool4j-redis | 二级缓存（本地 + Redis）防击穿/防雪崩；spring-boot-starter-data-redis 为 provided
 | ctool4j-transaction | ctool4j-spring | @CTransactional 事务注解约定；spring-boot-starter-jdbc 为 optional
 | ctool4j-db | ctool4j-core | SQL 拼接工具（不依赖 Spring）
+
+| ctool4j-http-base | 无 | Servlet 抽象契约（`CHttpRequest` / `CHttpResponse` / `CFilter` / `CFilterChain` / `CRequestDispatcher` / `CServletException`），不引 servlet-api
+| ctool4j-http-javax | ctool4j-http-base | javax 侧适配（`CHttpServletRequest` 等契约落地）；javax.servlet-api 为 optional
+| ctool4j-http-jakarta | ctool4j-http-base | jakarta 侧适配（与 `-javax` 同包同名）；jakarta.servlet-api 为 optional
+
+| ctool4j-spring-base | ctool4j-http-base、ctool4j-core、ctool4j-definition、ctool4j-autowired-processor | Spring 侧抽象契约（`ICHandlerInterceptor` / `ICResponseBodyAdvice`、`@CConfigurationProperties`）与 cors 配置/工具
+| ctool4j-spring-javax | ctool4j-http-javax、ctool4j-spring-base、ctool4j-core | javax 侧适配（`ICSpringHandlerInterceptor` / `ICSpringResponseBodyAdvice`、`CRequestUtils`、过滤器、`CErrorController`）；javax.servlet-api 为 optional
+| ctool4j-spring-jakarta | ctool4j-http-jakarta、ctool4j-spring-base | jakarta 侧适配（与 `-javax` 同包同名）；**未登记进构建**（需 Spring 6 / Boot 3 矩阵）
+| ctool4j-spring-security-base | ctool4j-spring-base、ctool4j-definition | 安全侧抽象契约（`CUnauthorizedHandler` / `CForbiddenHandler` 与默认实现、`CSecurityResponseUtils`）
+| ctool4j-spring-security-javax | ctool4j-core、ctool4j-http-javax、ctool4j-spring-base、ctool4j-spring-security-base | 安全侧 javax 适配（`CAuthenticationEntryPoint` / `CAccessDeniedHandler` / `CSecurityResponseWriter`）；javax.servlet-api 为 optional
+| ctool4j-spring-security-jakarta | ctool4j-core、ctool4j-http-jakarta、ctool4j-spring-base、ctool4j-spring-security-base | 安全侧 jakarta 适配（与 `-javax` 同包同名）；**未登记进构建**
 
 | ctool4j-log-base | ctool4j-spring、ctool4j-spring-cloud、ctool4j-web | 日志基础：请求日志、traceId 透传、MDC、日志级别热更新
 | ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）
@@ -274,7 +316,11 @@ graph LR
 == 依赖方向与分层约束
 
 * 依赖方向单向、无环：`definition → core → spring → （web / redis / transaction / ...）→ 应用层`；下层不得反向依赖上层。
-* `ctool4j-definition` 是唯一的"零模块依赖"底座，任何模块都可安全依赖。
+* `ctool4j-definition` 与 `ctool4j-http-base` 是"零模块依赖"底座，任何模块都可安全依赖。
+* 容器抽象层保持单向：`http-base → http-javax / http-jakarta`、`spring-base → spring-javax / spring-jakarta`、
+  `spring-security-base → spring-security-javax / spring-security-jakarta`；两侧适配模块只被上层依赖，不得反向依赖，
+  同一侧的 `-javax` 与 `-jakarta` 之间不互相依赖。是否登记进构建见 `agent/AGENTS-PROJECT.MD`（当前 Spring 5.3 / Boot 2.x
+  矩阵下 `ctool4j-spring-jakarta` 与 `ctool4j-spring-security-jakarta` **不进** `<modules>`）。
 * 认证链保持单向：`web → auth-base → auth-spring`；`auth-spring` 另依赖 `spring-security`，不得反向。
 * 中间件模块（log / mybatis / nacos / mq / job / file / doc）只依赖基础层，**彼此之间不互相依赖**；
   组合使用（如 `ctool4j-feign` + `ctool4j-log-base`）由使用方按需引入。

@@ -2,6 +2,7 @@ package com.c332030.ctool4j.web.controller;
 
 import com.c332030.ctool4j.core.util.CNumUtils;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import lombok.val;
@@ -88,7 +89,7 @@ public class CErrorController implements ErrorController {
     @RequestMapping("/error")
     public CStrResult<Void> error(HttpServletRequest request) {
 
-        val statusCodeStr = CRequestUtils.getErrorStatusCode(request);
+        val statusCodeStr = CRequestUtils.getErrorStatusCode(CHttpServletRequest.of(request));
         val exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
         if(null != exception) {
             log.error("error with code: {}", statusCodeStr, exception);
