@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -58,10 +59,20 @@ import java.util.Objects;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.3
+ * @version 1.4
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CHttpServletRequest implements CHttpRequest {
+
+    /**
+     * 错误状态码属性名（两侧取值不同：javax 为 {@code javax.servlet.error.status_code}，jakarta 为 {@code jakarta.servlet.error.*}）
+     */
+    public static final String ERROR_STATUS_CODE = RequestDispatcher.ERROR_STATUS_CODE;
+
+    /**
+     * 错误异常属性名（两侧取值不同，同 {@link #ERROR_STATUS_CODE}）
+     */
+    public static final String ERROR_EXCEPTION = RequestDispatcher.ERROR_EXCEPTION;
 
     private final HttpServletRequest request;
 

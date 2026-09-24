@@ -24,9 +24,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -201,21 +198,11 @@ class CSecurityConfigurationTests {
 
     /**
      * 认证过滤器测试桩：{@link CAbstractWebAuthFilter} 只承载类型契约，
-     * 故 {@code doFilterInternal} 以空实现补齐（本用例不校验过滤行为）
+     * 抽象层版本默认放行（本用例不校验过滤行为），故无需覆写
      */
     static class TestWebAuthFilter extends CAbstractWebAuthFilter {
 
-        /**
-         * 空实现：本用例只验证过滤器链的装配，不涉及请求过滤
-         *
-         * @param request     请求
-         * @param response    响应
-         * @param filterChain 过滤器链
-         */
-        @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-            // 测试桩：无过滤逻辑
-        }
+        // 抽象层版本默认放行；本用例只验证过滤器链装配，故无需覆写任何方法
 
     }
 

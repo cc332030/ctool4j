@@ -3,6 +3,7 @@ package com.c332030.ctool4j.model;
 import com.c332030.ctool4j.exception.CServletException;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CRequestDispatcher;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -57,10 +58,20 @@ import java.util.Objects;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.3
+ * @version 1.4
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CHttpServletRequest implements CHttpRequest {
+
+    /**
+     * 错误状态码属性名（两侧取值不同：jakarta 为 {@code jakarta.servlet.error.status_code}，javax 为 {@code javax.servlet.error.*}）
+     */
+    public static final String ERROR_STATUS_CODE = RequestDispatcher.ERROR_STATUS_CODE;
+
+    /**
+     * 错误异常属性名（两侧取值不同，同 {@link #ERROR_STATUS_CODE}）
+     */
+    public static final String ERROR_EXCEPTION = RequestDispatcher.ERROR_EXCEPTION;
 
     private final HttpServletRequest request;
 
