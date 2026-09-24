@@ -28,7 +28,7 @@ import org.springframework.lang.Nullable;
  *   <li><b>为什么要这一层</b>：Spring 的 {@code beforeBodyWrite} 收到的是
  *   {@code ServerHttpRequest}/{@code ServerHttpResponse}，Servlet 应用下其实现是
  *   {@code ServletServerHttpRequest}/{@code ServletServerHttpResponse}（两侧包名不同）；若要直接拿 Servlet 请求/响应，
- *   实现方就得写死某一侧的包。本接口把它换成抽象层类型，由两侧的 {@code CResponseBodyAdvice} 负责从
+ *   实现方就得写死某一侧的包。本接口把它换成抽象层类型，由两侧的 {@code ICSpringResponseBodyAdvice} 负责从
  *   {@code ServletServerHttpRequest} 解包并转换。</li>
  *   <li><b>解包集中在一处</b>：解包与转换只在两侧适配器里做一次，实现类不再出现
  *   {@code ServletServerHttpRequest} 或 {@code HttpServletRequest}。</li>
@@ -47,7 +47,7 @@ import org.springframework.lang.Nullable;
  * <h2>适用范围</h2>
  * <ul>
  *   <li>需要在 javax 与 jakarta 两套容器间可切换的响应体增强实现；使用方实现两侧模块提供的
- *   {@code CResponseBodyAdvice}（同名类），代码零改动。</li>
+ *   {@code ICSpringResponseBodyAdvice}（同名类），代码零改动。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>

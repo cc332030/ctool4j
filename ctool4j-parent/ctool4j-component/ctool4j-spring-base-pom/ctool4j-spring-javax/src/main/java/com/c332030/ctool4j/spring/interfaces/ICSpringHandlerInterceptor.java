@@ -14,26 +14,27 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
- * Description: CHandlerInterceptor
+ * Description: ICSpringHandlerInterceptor
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CHandlerInterceptor} 是 {@link ICHandlerInterceptor} 在 <b>javax</b> 侧的落地（适配器）：
- * 同时继承 Spring 的 {@code HandlerInterceptor} 与抽象契约 {@link ICHandlerInterceptor}，
- * 把 Spring 传来的 Servlet 请求/响应转换成抽象层类型后交给抽象契约的默认实现。</p>
+ * <p>{@code ICSpringHandlerInterceptor} 是基层契约 {@link ICHandlerInterceptor} 在 <b>javax</b> 侧的落地（适配接口）：
+ * 同时继承 Spring 的 {@code HandlerInterceptor} 与基层契约，把 Spring 传来的 Servlet 请求/响应转换成抽象层类型后
+ * 交给基层契约的默认实现。</p>
  * <ul>
- *   <li>使用方（业务拦截器）实现本接口，只覆写抽象层版本的方法，接口本身提供 Servlet 侧的桥接</li>
+ *   <li>使用方（业务拦截器）实现本接口，只覆写抽象层版本的方法，Servlet 侧的桥接由本接口的默认方法给全</li>
  * </ul>
  *
  * <h2>设计要点</h2>
  * <ul>
+ *   <li><b>命名分层</b>：{@code IC} 表示接口；基层契约用正名 {@link ICHandlerInterceptor}（容器无关、最顶层），
+ *   本接口是<b>底层适配</b>（性质类似 {@code sun.*} 的桥接层，只做类型转换、不含业务），故加 {@code Spring} 限定。</li>
  *   <li><b>多继承接入两侧</b>：{@code extends ICHandlerInterceptor, HandlerInterceptor}——Spring 侧负责被容器发现与调用，
- *   抽象契约侧负责给使用方提供与容器无关的方法签名。</li>
+ *   基层契约侧负责给使用方提供与容器无关的方法签名。</li>
  *   <li><b>桥接只做类型转换</b>：Servlet 请求/响应经 {@link CHttpServletRequest#of} / {@link CHttpServletResponse#of}
- *   包装后转交抽象契约，不做任何业务加工。</li>
- *   <li><b>同名类</b>：本类在 {@code ctool4j-spring-javax} 与 {@code ctool4j-spring-jakarta} 中<b>同包同名</b>，
- *   使用方切换依赖模块即可切换容器，业务代码与 import 均不变。</li>
- *   <li><b>仍是统一标记</b>：容器侧按本接口类型收集并注册拦截器（WebMvcConfigurer 的实际收集逻辑由编排模块承担）。</li>
+ *   包装后转交基层契约，不做任何业务加工。</li>
+ *   <li><b>同名接口</b>：本接口在 {@code ctool4j-spring-javax} 与 {@code ctool4j-spring-jakarta} 中<b>同包同名</b>，
+ *   使用方切换依赖模块即可切换容器。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -50,7 +51,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>需要读取会话、Cookie、二进制流等抽象层未暴露能力时不适用——这类需求要直接写容器侧的
+ *   <li>需要读取会话、Cookie、二进制流等抽象层未暴露能力时不适用——这类需求要直接实现容器侧的
  *   {@code HandlerInterceptor}，不经本接口。</li>
  * </ul>
  *
@@ -62,9 +63,9 @@ import javax.servlet.http.HttpServletResponse;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.0
+ * @version 1.2
  */
-public interface CHandlerInterceptor extends ICHandlerInterceptor, HandlerInterceptor {
+public interface ICSpringHandlerInterceptor extends ICHandlerInterceptor, HandlerInterceptor {
 
     /**
      * {@inheritDoc}
@@ -79,7 +80,7 @@ public interface CHandlerInterceptor extends ICHandlerInterceptor, HandlerInterc
         val httpRequest = CHttpServletRequest.of(request);
         val httpResponse = CHttpServletResponse.of(response);
 
-        return ICHandlerInterceptor.super.preHandle(httpRequest, httpResponse, handler);
+        return preHandle(httpRequest, httpResponse, handler);
 
     }
 
@@ -97,7 +98,7 @@ public interface CHandlerInterceptor extends ICHandlerInterceptor, HandlerInterc
         val httpRequest = CHttpServletRequest.of(request);
         val httpResponse = CHttpServletResponse.of(response);
 
-        ICHandlerInterceptor.super.postHandle(httpRequest, httpResponse, handler, modelAndView);
+        postHandle(httpRequest, httpResponse, handler, modelAndView);
 
     }
 
@@ -115,7 +116,7 @@ public interface CHandlerInterceptor extends ICHandlerInterceptor, HandlerInterc
         val httpRequest = CHttpServletRequest.of(request);
         val httpResponse = CHttpServletResponse.of(response);
 
-        ICHandlerInterceptor.super.afterCompletion(httpRequest, httpResponse, handler, ex);
+        afterCompletion(httpRequest, httpResponse, handler, ex);
 
     }
 

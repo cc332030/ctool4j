@@ -25,8 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
  * <ul>
  *   <li><b>为什么要这一层</b>：Spring 的 {@code HandlerInterceptor} 在方法签名里写死了 Servlet 的
  *   {@code HttpServletRequest}/{@code HttpServletResponse}（javax 与 jakarta 是两套不同的类），实现方无法回避；
- *   本接口把三个方法改成抽象层类型，由两侧的 {@code CHandlerInterceptor} 继承 Spring 接口并把参数转换过来，
- *   使用方实现 {@code CHandlerInterceptor} 时只写抽象层类型、不接触 Servlet 包。</li>
+ *   本接口把三个方法改成抽象层类型，由两侧的 {@code ICSpringHandlerInterceptor} 继承 Spring 接口并把参数转换过来，
+ *   使用方实现 {@code ICSpringHandlerInterceptor} 时只写抽象层类型、不接触 Servlet 包。</li>
  *   <li><b>保留 {@link ModelAndView}</b>：{@code postHandle} 的视图模型参数属 Spring 自有类型、不含 Servlet 包，
  *   直接沿用、不额外抽象。</li>
  *   <li><b>异常契约沿用 Spring</b>：三个方法均为 {@code throws Exception}——拦截器允许抛任意异常，
@@ -43,7 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
  * <h2>适用范围</h2>
  * <ul>
  *   <li>需要在 javax 与 jakarta 两套容器间可切换的拦截器实现；使用方实现两侧模块提供的
- *   {@code CHandlerInterceptor}（同名类），代码零改动。</li>
+ *   {@code ICSpringHandlerInterceptor}（同名类），代码零改动。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>

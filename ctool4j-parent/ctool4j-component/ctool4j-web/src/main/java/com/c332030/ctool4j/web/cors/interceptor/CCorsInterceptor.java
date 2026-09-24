@@ -2,7 +2,7 @@ package com.c332030.ctool4j.web.cors.interceptor;
 
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.spring.interfaces.CHandlerInterceptor;
+import com.c332030.ctool4j.spring.interfaces.ICSpringHandlerInterceptor;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
 import lombok.CustomLog;
 
@@ -18,7 +18,7 @@ import lombok.CustomLog;
  *
  * <h2>能力目录</h2>
  * <p>{@code CCorsInterceptor} 为跨域的<b>备用方案</b>（{@code @Component} 已被注释，需使用方手动注册到拦截器链），
- * 实现 {@code CHandlerInterceptor}（{@code ctool4j-spring-javax} 提供的抽象层版，继承 Spring {@code HandlerInterceptor}）。</p>
+ * 实现 {@code ICSpringHandlerInterceptor}（{@code ctool4j-spring-javax} 提供的抽象层版，继承 Spring {@code HandlerInterceptor}）。</p>
  * <p>核心方法 {@code preHandle(request, response, handler)}：</p>
  * <ul>
  *   <li>调用 {@code CCorsUtils.handle(request, response)} 输出 CORS 头</li>
@@ -29,7 +29,7 @@ import lombok.CustomLog;
  * <h2>设计要点</h2>
  * <p><b>用抽象层类型，无需解包</b></p>
  * <ul>
- *   <li>方法签名取 {@link CHttpRequest}/{@link CHttpResponse}：适配器（{@code CHandlerInterceptor}）已把容器对象
+ *   <li>方法签名取 {@link CHttpRequest}/{@link CHttpResponse}：适配器（{@code ICSpringHandlerInterceptor}）已把容器对象
  *   转换好，本类不再出现 Servlet 类型，也不需要在方法入口再包一层。</li>
  * </ul>
  * <p><b>预检处理</b></p>
@@ -75,7 +75,7 @@ import lombok.CustomLog;
  */
 @CustomLog
 //@Component
-public class CCorsInterceptor implements CHandlerInterceptor {
+public class CCorsInterceptor implements ICSpringHandlerInterceptor {
 
     /**
      * 请求前处理：输出 CORS 头，OPTIONS 预检请求返回 false

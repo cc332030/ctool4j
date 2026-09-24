@@ -11,6 +11,36 @@
     - **纯字段接口（`IC` 开头的接口）不声明 set 方法**（除非确有必要）：接口只暴露读取契约，写入能力由实现类承担（lombok `@Data`/`@Setter`、构造器、Builder）。原因是 `void setXxx(...)` 与 lombok 链式访问器不兼容：`@Accessors(chain = true)` 生成的 setter 返回 `this`，而返回值类型无法重写 `void` 方法，实现类无法同时满足「链式访问器」与「接口契约」——即"接口里一个 void setter 会挡掉所有想用链式 setter 的实现"，实现类编译失败。确有必要时（如需框架按接口写入）必须同时确认实现类不使用链式访问器，并在接口 javadoc 写明该约束。
     - **功能型接口**（定义行为/能力方法、作为组件或框架扩展点被实现，含 function 接口）**不要求** `IC` 前缀（非禁止，而是不强制）：新增的使用 `C` 前缀（如 `CFunction`、`CBiConsumer`、`CService`）；沿用 JDK/Hutool 等既有命名的函数式接口保持原名（如 `StringFunction`、`ToStringFunction`、`StartEndTimeConsumer`）。
   - **禁止新增裸 `I` 前缀**类型：不得仅以 `I` 开头（如 `ISecuritySession` 应为 `ICSecuritySession`、`IFoo` 应为 `ICFoo`）；既有裸 `I` 类型（如 `IGenericType`）随变更迁移。
+  - **接口继承方向**：接口只可继承接口（`IC` → `IC`）；实现类继承实现类或实现接口（`C` → `C`/`IC`），**禁止出现 `C 继承 IC 继承 C`** 这种交叉。多栈（javax/jakarta）场景下"基层契约用正名、两侧适配层加 `Spring` 限定"的具体取值见下文「javax/jakarta 双栈（抽象层 + 两侧同名适配）」。
+
+## javax/jakarta 双栈（抽象层 + 两侧同名适配）
+
+背景：`javax.servlet` 与 `jakarta.servlet` 的类型出现在 Spring 扩展点的方法签名里，业务模块无法只靠类型替换同时支持两套容器。项目按「抽象层（容器无关）+ 两侧同名适配（容器相关）」落地，规则如下。
+
+### 模块分层
+
+- **base 模块（抽象契约，容器无关）**：`ctool4j-http-base`、`ctool4j-spring-base`、`ctool4j-spring-security-base`。只放不依赖任何 Servlet 包的接口、常量与工具。
+- **两侧适配模块（`-javax` / `-jakarta`）**：性质是**底层桥接**（类比 JDK 的 `sun.*`），只做「容器对象 ↔ 抽象层对象」的类型转换，不放业务逻辑。两侧**同包同名**，切换容器只需把依赖模块从 `-javax` 换成 `-jakarta`，业务代码与 import 不变。
+- **命名分层**（本仓库固定的继承方向）：
+  - 基层契约用正名 `ICXxx`，如 `ICHandlerInterceptor`、`ICResponseBodyAdvice`。
+  - 两侧适配层与基层契约同包，必须另取名字，统一加 `Spring` 限定：`ICSpringHandlerInterceptor`、`ICSpringResponseBodyAdvice`（仍是**接口**，桥接方法用 `default` 一次给全）。
+  - 业务实现用 `C` 前缀，如 `CCorsInterceptor`。
+  - **禁止 `C 继承 IC 继承 C`**：`IC` 只可继承 `IC`，`C` 只可继承 `C` 或实现 `IC`。
+
+### 使用约束
+
+- 子模块**不要直接使用两侧模块的类**：优先用 base 的接口与类型；对外方法签名、接口参数也暴露 base 类型。
+- 业务模块里把容器对象转成抽象层对象是**允许且必要**的边界用法（如 `CHttpServletResponse.of(response)`），但出现位置越少越好；base 已提供的能力不要再走两侧（例：取客户端 IP 用 `CHttpRequest#getClientIp`，不要解包适配器）。
+- **不需要**为了实现两侧兼容而把业务类搬到两侧模块：类留在原模块、把签名改成抽象层类型即可；只有签名被框架锁死（Spring 扩展点、`@RequestMapping` 参数）时，才落两侧同名接口/基类。
+- 无容器依赖的类、常量、注解一律放 base（例：`CConfigurationProperties`、`CResourceUrlConstants`、cors 配置与工具）。
+- 两侧**取值不同**的常量不能放 base（例：`RequestDispatcher.ERROR_EXCEPTION` 两侧分别是 `javax.servlet.error.exception` 与 `jakarta.servlet.error.exception`），只能落在两侧同名类上；下游引用同名常量，切模块即切值。
+- 抽象层方法只声明容器无关的异常（`CServletException`、`IOException`），不引入 `ServletException`。
+- 两侧模块若使用日志门面（`@CustomLog`），须显式声明 `ctool4j-core` 依赖（`ctool4j-http-base` 不传递 core）。
+
+### 构建与验证
+
+- `-pl <聚合 pom>` **不会**递归构建子模块；构建整棵子树须用 `-f <聚合 pom>/pom.xml`（或 `-amd`）。用错会得到"假通过"。
+- 只登记当前依赖矩阵下可编译的模块：`-jakarta` 侧需要 Spring 6 的 Servlet 支持，在本仓库 Spring 5.3 / Boot 2.x 矩阵下**不登记**进 `<modules>`，`ctool4j-spring-base-pom/pom.xml` 内已注明回挂方式。
 
 ## Spring 配置
 

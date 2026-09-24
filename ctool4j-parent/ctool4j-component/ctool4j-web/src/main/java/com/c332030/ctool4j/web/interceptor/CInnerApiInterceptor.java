@@ -4,7 +4,7 @@ import com.c332030.ctool4j.definition.annotation.CInnerApi;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.spring.interfaces.CHandlerInterceptor;
+import com.c332030.ctool4j.spring.interfaces.ICSpringHandlerInterceptor;
 import com.c332030.ctool4j.spring.util.CIpUtils;
 import com.c332030.ctool4j.web.config.CInnerApiConfig;
 import com.c332030.ctool4j.web.util.CServletUtils;
@@ -66,11 +66,11 @@ import java.util.Set;
  * </ul>
  * <h2>波及影响</h2>
  * <ul>
- *   <li>作为 {@code @Component implements CHandlerInterceptor}，凡使用 ctool4j-web 且启用了拦截器收集机制的应用均会注册本拦截器；其行为（识别 {@code CInnerApi}、拒绝 403）变化会影响所有启用方，需评估兼容。</li>
+ *   <li>作为 {@code @Component implements ICSpringHandlerInterceptor}，凡使用 ctool4j-web 且启用了拦截器收集机制的应用均会注册本拦截器；其行为（识别 {@code CInnerApi}、拒绝 403）变化会影响所有启用方，需评估兼容。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>生效链路</b></p>
- * <p>请求 → {@code CWebMvcConfigurer.addInterceptors} 注册的全部 {@code CHandlerInterceptor} → {@code preHandle}：</p>
+ * <p>请求 → {@code CWebMvcConfigurer.addInterceptors} 注册的全部 {@code ICSpringHandlerInterceptor} → {@code preHandle}：</p>
  * <ul>
  *   <li>{@code handler} 非 {@code HandlerMethod}（如静态资源）直接放行；</li>
  *   <li>方法标注 {@code CInnerApi}，或类标注 {@code CInnerApi}（含 {@code @Inherited} 从抽象父类继承）则视为内部接口；</li>
@@ -103,7 +103,7 @@ import java.util.Set;
 @CustomLog
 @Component
 @AllArgsConstructor
-public class CInnerApiInterceptor implements CHandlerInterceptor {
+public class CInnerApiInterceptor implements ICSpringHandlerInterceptor {
 
     private final CInnerApiConfig config;
 

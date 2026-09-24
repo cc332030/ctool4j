@@ -2,7 +2,7 @@ package com.c332030.ctool4j.log.interceptor;
 
 import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-import com.c332030.ctool4j.spring.interfaces.CHandlerInterceptor;
+import com.c332030.ctool4j.spring.interfaces.ICSpringHandlerInterceptor;
 import com.c332030.ctool4j.web.config.CRequestLogConfig;
 import com.c332030.ctool4j.web.util.CCommUtils;
 import com.c332030.ctool4j.web.util.CRequestLogUtils;
@@ -57,7 +57,7 @@ import org.springframework.stereotype.Component;
  * </ul>
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>依赖 {@code CHandlerInterceptor} 调用链与请求日志配置（web 模块）。</li>
+ *   <li>依赖 {@code ICSpringHandlerInterceptor} 调用链与请求日志配置（web 模块）。</li>
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
@@ -71,7 +71,7 @@ import org.springframework.stereotype.Component;
 @CustomLog
 @Component
 @AllArgsConstructor
-public class CRequestLogHandlerInterceptor implements CHandlerInterceptor {
+public class CRequestLogHandlerInterceptor implements ICSpringHandlerInterceptor {
 
     CRequestLogConfig config;
 
