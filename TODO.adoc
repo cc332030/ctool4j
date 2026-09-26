@@ -16,5 +16,5 @@
 | ✓ | log with level
 | ✓ | Instant 格式化
 | | ICPage#getOrders() 默认返回不可修改空集合（CList.of），若分页对象无 orders 可写成员且入参 JSON 带 orders，Jackson 的 USE_GETTERS_AS_SETTERS（SetterlessProperty）会向该返回值合并而抛 UnsupportedOperationException；修法参考 ICSecuritySession#getAuthorities()（返回一次性副本），另需先确认分页对象默认空排序的语义
-| | 产物 pom 的可选依赖只在**各模块自身**声明（`compileOnly` → `<optional>true</optional>`）；中间聚合 pom 未展开迁移前由 Maven 继承链带入的 provided 依赖。**已按「几个父 pom 里有即可」结案（与 Maven 原版同层一致，无需改动）**：父 pom 该有的三项 `lombok`、`ctool4j-autowired-processor`、`spring-boot-starter-test` 在 `ctool4j-parent` 等四张父 pom 两侧都有；`starter-web`/`validation`/`logging`、`spring-cloud-commons`/`context`、`guava`、`mapstruct`、`starter-jdbc` 在原版父 pom 里同样没有（声明在 `ctool4j-component`、`ctool4j-mybatis-pom`，这些模块的产物 pom 均已携带）；44 个 jar 模块产物全部携带
+| ✓ | 产物 pom 的可选依赖只在**各模块自身**声明（`compileOnly` → `<optional>true</optional>`）；中间聚合 pom 未展开迁移前由 Maven 继承链带入的 provided 依赖。**已按「几个父 pom 里有即可」结案（与 Maven 原版同层一致，无需改动）**：父 pom 该有的三项 `lombok`、`ctool4j-autowired-processor`、`spring-boot-starter-test` 在 `ctool4j-parent` 等四张父 pom 两侧都有；`starter-web`/`validation`/`logging`、`spring-cloud-commons`/`context`、`guava`、`mapstruct`、`starter-jdbc` 在原版父 pom 里同样没有（声明在 `ctool4j-component`、`ctool4j-mybatis-pom`，这些模块的产物 pom 均已携带）；44 个 jar 模块产物全部携带
 |===
