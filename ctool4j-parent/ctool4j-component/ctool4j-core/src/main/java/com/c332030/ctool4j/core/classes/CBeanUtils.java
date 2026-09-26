@@ -700,14 +700,20 @@ public class CBeanUtils {
     /**
      * 是否 lambda / 方法引用的运行期类（{@code LambdaMetafactory} 生成的 {@code $$Lambda$} 类）
      *
-     * <p>该类是 JVM 合成类、持有行为而非数据，实例化它也得不到"同样的数据副本"，故按不可拷贝处理；
-     * 类名匹配 {@code $$Lambda$} 是 {@code LambdaMetafactory} 的既有命名约定（JDK8 类名、JDK15+ 隐藏类名均含该片段）。</p>
+     * <p>该类是 JVM 合成类、持有行为而非数据，实例化它也得不到"同样的数据副本"，故按不可拷贝处理。</p>
+     *
+     * <p><b>两种类名形态都要认</b>：JDK 8 的 lambda 类名是 {@code pkg.Foo$$Lambda$1/0x...}，
+     * JDK 15+ 改为<b>隐藏类</b>、类名形如 {@code pkg.Foo$$Lambda/0x00000008000c0c40}——
+     * 分隔符从 {@code $} 变成 {@code /}（且无序号）。只匹配 {@code $$Lambda$} 在最新 LTS 档位会漏判，
+     * 使 lambda 值被当成普通 Bean 走深拷贝（既不共享、也拷不出语义）。</p>
      *
      * @param type 类型
      * @return true 表示 lambda / 方法引用的运行期类
      */
     private static boolean isLambdaType(Class<?> type) {
-        return type.getName().contains("$$Lambda$");
+        val name = type.getName();
+        // JDK8：pkg.Foo$$Lambda$1/0x...；JDK15+ 隐藏类：pkg.Foo$$Lambda/0x...
+        return name.contains("$$Lambda$") || name.contains("$$Lambda/");
     }
 
     /**

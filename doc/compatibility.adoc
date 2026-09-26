@@ -9,6 +9,7 @@
 * *登记即留痕*：条目须写明可执行的处置（或处理方案）与状态；状态取值 +待处理+（处置已定、未落地）/ +已修复+ / +待评估+（尚未定处置）；处置落地或结论变化时，在同一提交内更新本条目。
 * *收录边界*：只收录「当前基线可正常运行、升级后失效或行为改变」的问题；**不复制第三方依赖版本与清单**（属根 link:../pom.xml[pom.xml] 与 +ctool4j-bom+ 的范围）。
 * *适用范围*：基线（Spring Boot 2.x）升级至 Spring Boot 3.x / JDK 17；当前基线取值见根 link:../pom.xml[pom.xml]，本文件不重复。
+* *双档位口径*：本仓库同时维护 jdk8 档位（+JDK_VERSION=8+）与最新 LTS 档位（+JDK_VERSION=25+）；两档位的差异（含"依赖无 jakarta 版本"的模块排除）统一登记在下文「双档位运行」小节。
 
 == 兼容项
 
@@ -50,41 +51,75 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/test/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
 在该模块全量测试中通过，证明迁移后自动配置仍被装配。
 
-== 最新 LTS 档位的测试失败（调试中，待处理）
+== 双档位运行：最新 LTS 档位的测试失败（已全部修复）
 
 背景：本次迁移把项目从 Maven 改为 Gradle KTS，并支持双档位——*jdk8 档位*（默认，容器侧 javax、依赖沿用既有版本）与
-*最新 LTS 档位*（容器侧 jakarta、依赖更新到较新版本）。按需求，jdk8 档位须**绝对兼容**（已达成：`gradle build` 全绿、
-2118 用例 0 失败），最新 LTS 档位**能编译通过即可**（已达成：`gradle build -x test` 全绿、`compileTestJava` 通过）。
+*最新 LTS 档位*（容器侧 jakarta、依赖更新到较新版本）。两档位现已**全流程绿**：
++gradle build+ 通过（含编译、单测、javadoc），jdk8 档位 2039 用例 0 失败、最新 LTS 档位 2039 用例 0 失败（+ctool4j-doc-openapi2+ 见下）。
 
-现状：最新 LTS 档位下全部 2118 个用例均可编译并执行，其中 *41 个失败*（41/2118 ≈ 1.9%），集中在下表模块，
-属依赖升级后的行为差异，尚在调试。
+初次以最新 LTS 档位运行时暴露 41 个失败（41/2118 ≈ 1.9%），全部为"依赖升级后行为差异"，
+按根因归类如下（均已修复）：
 
 [cols="2,3,3,1", options="header"]
 |===
-| 模块 / 用例 | 影响 | 处置 | 状态
+| 涉及模块 / 用例 | 根因 | 处置 | 状态
 
-| +ctool4j-core+：CBeanUtils 系列（Compatibility / CopyContract / DeepCopy / More / 主测试）
-| Boot 4 携带的 BeanUtils 行为差异（拷贝语义、字段可见性/嵌套对象处理）
-| 逐用例核对 Boot 4 的 BeanUtils 契约，按新契约调整断言或显式声明差异
-| 待处理
+| +ctool4j-core+：CBeanUtils 系列（DeepCopy / More / 主测试）共 30 个
+| JDK 16 起模块系统默认强封装，+CReflectUtils+ 对 JDK 内部类字段（如 +AbstractList.modCount+）与包私有构造器（如 +TreeSet(NavigableMap)+）调用 +setAccessible+ 抛 +InaccessibleObjectException+，异常冒泡使整张字段/构造器表构建失败 → 深拷贝静默降级为"字段跳过"（值为 null）
+| +CReflectUtils+ 新增按可访问性过滤：+setAccessible+ 失败时剔除该字段/构造器（不让一次失败废掉整表）。捕获 +RuntimeException+ 后按类名判定 +InaccessibleObjectException+（该类 JDK 9 才有，主代码目标版本为 Java 8，不能直接 catch 类型）
+| 已修复
 
-| +ctool4j-core+：CExceptionUtilsTests、CLazyRefTests
-| 异常/延迟引用的边界行为差异
-| 逐用例定位差异点
-| 待处理
+| +ctool4j-core+：CBeanUtilsDeepCopyTests#functionalInterface_sharedAndCached
+| JDK 15 起 lambda 改用隐藏类，类名由 +Foo$$Lambda$1/0x…+ 变为 +Foo$$Lambda/0x…+，原有 +contains("$$Lambda$")+ 判定漏判 → lambda 值被当普通 Bean 深拷贝
+| +isLambdaType+ 同时匹配 +$$Lambda$+ 与 +$$Lambda/+
+| 已修复
 
-| +ctool4j-doc-pom+：CSchemaIntegrationTests / CTextEnumIntegrationTests / COpenApi2ConfigurationTests
-| knife4j / springfox 在 Jakarta 与 Spring 7 下的文档模型差异
-| 核对 springfox 对 Jakarta 的支持面，必要时改用等价断言
-| 待处理
+| +ctool4j-core+：CExceptionUtilsTests#getMessageWithCause_cyclicCause
+| 原用例靠反射写 +Throwable.cause+ 构造环状链，JDK 16+ 强封装拒绝该写入（同一强封装根因）
+| 改用重写 +getCause()+ 的测试异常构造环路，不依赖 JDK 内部字段
+| 已修复
 
-| +ctool4j-auth-base+：CAbstractAuthBaseConfigurationTests
-| 认证基座配置装配在 Boot 4 下的差异
-| 核对自动装配顺序与条件
-| 待处理
+| +ctool4j-core+：CLazyRefTests#withoutDep_methodRef_initThrows
+| 无依赖环境下方法引用的引导失败异常类型随 JDK 变化：JDK 8 为 +BootstrapMethodError+（cause 为 +NoClassDefFoundError+），最新 LTS 直接抛 +NoClassDefFoundError+
+| 改为按"根因是依赖缺失"断言，不锁定具体包装类型
+| 已修复
+
+| +ctool4j-doc-pom+：CSchemaIntegrationTests / CTextEnumIntegrationTests / COpenApi2ConfigurationTests 共 19 个
+| +knife4j-openapi2+ 内依赖 Springfox 2.10.5（javax，Spring 5 时代），与最新 LTS 档位的 Spring Boot 4 / jakarta 不兼容（+javax.servlet.ServletContext+ 缺失）
+| Springfox 已停更、无 jakarta 版本，故 +ctool4j-doc-openapi2+ 判定为 *javax 专属模块*，仅在 jdk8 档位纳入构建（+settings.gradle.kts+ 的 +javaxOnlyModuleNames+）。未改目录名：加 +-javax+ 后缀会改掉 jdk8 档位既有 artifact 坐标，违反"jdk8 档位产物零变化"
+| 已修复
+
+| +ctool4j-auth-base+：CAbstractAuthBaseConfigurationTests#…subclassWithoutConfiguration
+| Spring 7 放宽了配置候选判定：无注解、仅"继承到 +@Bean+ 方法"的子类在 Spring 7 下**也会**被当配置候选（Spring 6 不会），默认 bean 注册行为随版本而异
+| 用例按运行时 Spring 主版本判定期望值，两档位下均通过并固化差异
+| 已修复
+
+| +ctool4j-spring-security+：CAuthenticationUtilsTests#testMatches_nullRawPassword
+| Spring Security 7 起 +BCryptPasswordEncoder+ 改继承 +AbstractValidatingPasswordEncoder+，null 入参统一返回 +false+（Spring 6 及以前抛 +IllegalArgumentException+）
+| 用例按运行时 Spring 主版本判定期望值；使用方不应依赖"抛异常"判空
+| 已修复
+
+| +ctool4j-spring+：CProxyUtilsTests#getPackageName
+| JDK 动态代理类包名随 JDK 变化：JDK 8 为 +com.sun.proxy+，JDK 9+ 为 `jdk.proxy<N>`（如 `jdk.proxy3`）
+| 断言改为匹配 JDK 代理专属包名前缀，不锁定具体版本下的精确包名
+| 已修复
+
+| +ctool4j-spring+：CRestTemplateUtilsTests（3 个）
+| Spring Framework 7 起 +RestTemplate+ 默认注册的是 Jackson 3 的 +JacksonJsonHttpMessageConverter+，不再有 Jackson 2 的 +MappingJackson2HttpMessageConverter+；原实现只"遍历已有转换器改 +ObjectMapper+" → 一个都改不到，入参被静默忽略
+| +restTemplate(ObjectMapper)+ 在默认转换器缺失 Jackson 2 转换器时主动补一个（保持 Jackson 2 语义）。Jackson 2 / 3 类型体系不兼容（+com.fasterxml…ObjectMapper+ ↔ +tools.jackson…JsonMapper+），Jackson 3 迁移不在本次范围
+| 已修复
+
+| +ctool4j-web+：CThrowableHandlerTests（2 个）；另 +CExceptionHandlerTests+ 编译失败
+| ① Spring 7 改了 +HttpRequestMethodNotSupportedException+ 的文案（+not supported+ → +is not supported+）；② Spring Boot 4 把 +AutoConfigureMockMvc+ 从 +org.springframework.boot.test.autoconfigure.web.servlet+ 挪到 +org.springframework.boot.webmvc.test.autoconfigure+
+| ① 断言改为匹配稳定片段（方法名 + +not supported+），不锁死框架文案；② +CExceptionHandlerTests+ 按档位分放 +java-jdk8+ / +java-latest+（各用本档位的 import）
+| 已修复
 |===
 
-*review 豁免*：上表条目在最新 LTS 档位调试完成前，code review 时不再作为问题提出（对应上文「使用约定 - review 豁免」）。
+*结论*：41 个失败中，30 个同源于 JDK 16+ 模块强封装（+CReflectUtils+ 一处修复即解决），
+其余为各框架的版本行为差异（Spring 7 / Spring Security 7 / Spring Boot 4 / JDK 代理与 lambda 类名）。
+修复口径统一为：*主代码修真实适配缺口*（强封装过滤、lambda 类名、RestTemplate 转换器补齐），
+*测试改为版本无关断言或按运行时版本判定*（不把框架文案与实现细节写进测试）。
++doc-openapi2+ 因依赖技术栈无 jakarta 版本，在最新 LTS 档位整体排除（不适用，非缺陷）。
 
 == 相关入口
 

@@ -9,6 +9,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -192,7 +193,10 @@ public class CThrowableHandlerTests {
     public void methodNotSupported_handledByNotSupportedHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/method-not-supported"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Request method 'PUT' not supported"));
+            // 只断言"方法名 + not supported"这两个稳定片段：完整文案由框架给出，
+            // 且随 Spring 版本变化（Spring 7 起为 "is not supported"），锁定整句等于把框架文案写进测试
+            .andExpect(jsonPath("$.message").value(containsString("PUT")))
+            .andExpect(jsonPath("$.message").value(containsString("not supported")));
     }
 
     /**
@@ -202,7 +206,8 @@ public class CThrowableHandlerTests {
     public void methodNotSupportedSubclass_handledByNotSupportedHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/method-not-supported-sub"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("Request method 'PATCH' not supported"));
+            .andExpect(jsonPath("$.message").value(containsString("PATCH")))
+            .andExpect(jsonPath("$.message").value(containsString("not supported")));
     }
 
     /**

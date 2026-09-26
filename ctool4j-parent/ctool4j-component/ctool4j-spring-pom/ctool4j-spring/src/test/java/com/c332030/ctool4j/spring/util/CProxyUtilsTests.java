@@ -234,9 +234,18 @@ public class CProxyUtilsTests {
         Assertions.assertNull(CProxyUtils.getPackageName(int.class));
         Assertions.assertNull(CProxyUtils.getPackageName(OrderService[].class));
 
-        // JDK 动态代理生成类由类加载器定义包名，可正常取到
+        // JDK 动态代理生成类由类加载器定义包名，可正常取到。
+        // 包名取值随 JDK 版本而异（都是"JDK 代理专属包"，只是命名变了）：
+        //   - JDK 8：com.sun.proxy
+        //   - JDK 9+：jdk.proxy<N>（如 jdk.proxy3）
+        // 故断言"命中 JDK 代理包名前缀"，不锁定具体版本下的精确包名
         val jdkProxy = newJdkProxy();
-        Assertions.assertEquals("com.sun.proxy", CProxyUtils.getPackageName(jdkProxy.getClass()));
+        val jdkProxyPackage = CProxyUtils.getPackageName(jdkProxy.getClass());
+        Assertions.assertNotNull(jdkProxyPackage);
+        Assertions.assertTrue(
+            jdkProxyPackage.startsWith("com.sun.proxy") || jdkProxyPackage.startsWith("jdk.proxy"),
+            "JDK 动态代理类应取到 JDK 代理专属包名，实际: " + jdkProxyPackage
+        );
 
     }
 

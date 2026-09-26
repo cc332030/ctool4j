@@ -142,11 +142,9 @@ public class CReflectUtils {
             CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
+                    CReflectUtils::makeAccessible,
                     Field::getName,
-                    field -> {
-                        field.setAccessible(true);
-                        return field;
-                    }
+                    Function.identity()
             ));
 
     /**
@@ -156,12 +154,9 @@ public class CReflectUtils {
             CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
-                    field -> !CReflectUtils.isStatic(field),
+                    field -> !CReflectUtils.isStatic(field) && CReflectUtils.makeAccessible(field),
                     Field::getName,
-                    field -> {
-                        field.setAccessible(true);
-                        return field;
-                    }
+                    Function.identity()
             ));
 
     /**
@@ -197,15 +192,11 @@ public class CReflectUtils {
      * 的匹配面随之扩大到非 public 构造器（按参数类型匹配，不改变匹配语义）。</p>
      */
     private static final CClassValue<Map<Integer, List<Constructor<?>>>> CONSTRUCTOR_MAP_CLASS_VALUE =
-            CClassValue.of(type -> {
-
-                val constructors = type.getDeclaredConstructors();
-                for (val constructor : constructors) {
-                    constructor.setAccessible(true);
-                }
-                return Arrays.stream(constructors)
-                        .collect(Collectors.groupingBy(Constructor::getParameterCount));
-            });
+            CClassValue.of(type -> Arrays.stream(type.getDeclaredConstructors())
+                    // 模块强封装拒绝访问的构造器（如 java.util.TreeSet 的包私有构造）如实剔除，
+                    // 不让一次 InaccessibleObjectException 冒泡使整个构造器表不可用（同 makeAccessible 的取舍）
+                    .filter(CReflectUtils::makeAccessible)
+                    .collect(Collectors.groupingBy(Constructor::getParameterCount)));
 
     /**
      * 获取类所有构造器（按参数个数分组，含非 public 构造器）
@@ -511,6 +502,79 @@ public class CReflectUtils {
     public Field getField(Class<?> type, String fieldName) {
         return Optional.ofNullable(getAllFieldMap(type).get(fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(type + " no field with name: " + fieldName));
+    }
+
+    /**
+     * 把字段置为可访问，返回其是否<b>真的</b>可访问
+     *
+     * <p><b>为什么需要这个方法</b>：JDK 16 起模块系统默认强封装（{@code --illegal-access=deny}），
+     * 对 {@code java.base} 等模块的<b>非导出包</b>里的字段调用 {@link Field#setAccessible(boolean)}
+     * 会抛 {@code java.lang.reflect.InaccessibleObjectException}（如 {@code java.util.ArrayList}
+     * 继承自 {@code AbstractList} 的 {@code modCount}）。JDK 8 无模块系统、一律放行，
+     * 故该差异只在最新 LTS 档位暴露。</p>
+     *
+     * <p><b>失败即视为不可访问</b>：这类字段属 JDK 内部实现，反射读写本就不该依赖
+     * （结构拷贝会得到空壳对象，参见 {@code CBeanUtils} 的「JDK 未提供拷贝协议」降级）。
+     * 故此处如实返回 {@code false}、由调用方<b>过滤掉该字段</b>，而不是让异常冒泡中断
+     * 整个字段扫描——一次 {@code setAccessible} 失败不该让「同类其余字段」全部不可用。</p>
+     *
+     * <p><b>只按类名识别强封装异常</b>：{@code InaccessibleObjectException} 是 JDK 9 才有的类，
+     * 主代码以 Java 8 为目标版本（jdk8 档位直接用 {@code javac} 编译该源码），
+     * 直接 catch 该类型会编译失败；故捕获 {@link RuntimeException} 后按类名判定，
+     * 其余运行时异常原样抛出（不吞掉真实错误）。</p>
+     *
+     * @param field 字段
+     * @return true 表示已置为可访问（或本就可访问）；false 表示 JDK 模块强封装拒绝访问
+     */
+    public boolean makeAccessible(Field field) {
+        try {
+            field.setAccessible(true);
+            return true;
+        } catch (RuntimeException e) {
+            if (!isInaccessibleObjectException(e)) {
+                throw e;
+            }
+            log.debug("字段被模块强封装拒绝访问，按不可访问跳过：{}.{}",
+                    field.getDeclaringClass().getName(), field.getName());
+            return false;
+        }
+    }
+
+    /**
+     * 是否 JDK 9+ 模块强封装抛出的 {@code InaccessibleObjectException}
+     *
+     * <p>按类名判定而非 {@code instanceof}：该类在 JDK 8 不存在，而主代码目标版本为 Java 8
+     * （jdk8 档位由 {@code javac} 直接编译本源码），引用它会编译失败。</p>
+     *
+     * @param e 异常
+     * @return true 表示模块强封装拒绝访问
+     */
+    private boolean isInaccessibleObjectException(Throwable e) {
+        return "java.lang.reflect.InaccessibleObjectException".equals(e.getClass().getName());
+    }
+
+    /**
+     * 把构造器置为可访问，返回其是否<b>真的</b>可访问（与 {@link #makeAccessible(Field)} 同源取舍）
+     *
+     * <p>模块强封装下 {@code java.util.TreeSet} 的包私有构造器
+     * {@code TreeSet(NavigableMap)} 等会被拒绝访问；该类构造器对反射实例化无意义，
+     * 如实剔除即可，不应使「同类其余构造器」一并失效。</p>
+     *
+     * @param constructor 构造器
+     * @return true 表示已置为可访问；false 表示 JDK 模块强封装拒绝访问
+     */
+    public boolean makeAccessible(Constructor<?> constructor) {
+        try {
+            constructor.setAccessible(true);
+            return true;
+        } catch (RuntimeException e) {
+            if (!isInaccessibleObjectException(e)) {
+                throw e;
+            }
+            log.debug("构造器被模块强封装拒绝访问，按不可访问剔除：{}({})",
+                    constructor.getDeclaringClass().getName(), constructor.getParameterCount());
+            return false;
+        }
     }
 
     /**

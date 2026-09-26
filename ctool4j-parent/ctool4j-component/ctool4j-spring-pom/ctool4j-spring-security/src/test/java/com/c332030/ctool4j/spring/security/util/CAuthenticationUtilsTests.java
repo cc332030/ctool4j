@@ -1,9 +1,11 @@
 package com.c332030.ctool4j.spring.security.util;
 
+import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.SpringVersion;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -83,13 +85,36 @@ class CAuthenticationUtilsTests {
          * 对应测试用例 1.4
          */
     @Test
-    void testMatches_nullRawPassword_throws() {
-        // 易错：BCrypt 对 null rawPassword 抛 IllegalArgumentException
+    void testMatches_nullRawPassword_versionDependent() {
+        // 易错：null rawPassword 的处置随 Spring Security 版本而异（已登记 doc/compatibility.adoc）：
+        //   - Spring Security 6（Boot 2.7 基线）：BCrypt 对 null rawPassword 抛 IllegalArgumentException
+        //   - Spring Security 7（当前最新 LTS 档位）：改用 AbstractValidatingPasswordEncoder，
+        //     null 参数（rawPassword 与 encodedPassword）统一返回 false，不再抛异常
+        // 本用例按运行时 Spring Security 版本判定期望值，两个档位下都能通过。
+        // 使用方不应依赖"抛异常"来判空，需自行在入参侧校验。
         String encoded = CAuthenticationUtils.encode("secret");
-        Assertions.assertThrowsExactly(
-            IllegalArgumentException.class,
-            () -> CAuthenticationUtils.matches(null, encoded)
-        );
+        if (nullParameterThrows()) {
+            Assertions.assertThrowsExactly(
+                IllegalArgumentException.class,
+                () -> CAuthenticationUtils.matches(null, encoded)
+            );
+        } else {
+            Assertions.assertFalse(CAuthenticationUtils.matches(null, encoded));
+        }
+    }
+
+    /**
+     * 当前 Spring Security 版本是否对 null 入参抛 {@code IllegalArgumentException}
+     *
+     * <p>Spring Security 7 起 {@code BCryptPasswordEncoder} 改继承
+     * {@code AbstractValidatingPasswordEncoder}，null 参数统一返回 {@code false}；
+     * 6.x 及以前抛 {@code IllegalArgumentException}。此处按版本主号判定。</p>
+     *
+     * @return true 表示 null 入参抛 IllegalArgumentException（6.x 及以前）
+     */
+    private static boolean nullParameterThrows() {
+        val major = Integer.parseInt(SpringVersion.getVersion().split("\\.")[0]);
+        return major < 7;
     }
 
         /**

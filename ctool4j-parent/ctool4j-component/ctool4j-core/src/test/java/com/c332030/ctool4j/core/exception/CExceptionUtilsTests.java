@@ -1,6 +1,5 @@
 package com.c332030.ctool4j.core.exception;
 
-import com.c332030.ctool4j.core.classes.CMethodHandleUtils;
 import com.c332030.ctool4j.definition.interfaces.ICRes;
 import lombok.*;
 import org.junit.jupiter.api.Assertions;
@@ -282,25 +281,45 @@ public class CExceptionUtilsTests {
 
     /**
      * 对应测试用例 4.4：循环 cause 链不进入死循环
-     * 4.4 循环 cause 链（JDK 禁止 self-causation，故用 {@code CException} 的 cause 字段构造 a→b→a）：
+     * 4.4 循环 cause 链（JDK 禁止 self-causation）：用<b>重写 {@code getCause()} 的异常</b>构造 a→b→a，
      * 经 {@code LinkedHashSet} 去重后不进入死循环（getMessageWithCause）
+     *
+     * <p><b>为什么不用反射写 {@code Throwable.cause}</b>：JDK 16 起模块系统默认强封装，
+     * {@code java.lang.Throwable.cause} 不可 {@code setAccessible}（{@code InaccessibleObjectException}），
+     * 该手法只在 JDK 8 可行。重写 {@code getCause()} 与实现的取 cause 方式（{@link Throwable#getCause()}）
+     * 完全一致，且不依赖任何 JDK 内部字段，两档位行为相同。</p>
      */
     @Test
-    @SneakyThrows
     public void getMessageWithCause_cyclicCause() {
 
-        val a = new CException("a");
-        val b = new CException("b");
-        // JDK initCause 禁止自引用，直接写 Throwable.cause 字段构造 a→b→a 循环链，验证实现侧的去重保护
-        val causeField = Throwable.class.getDeclaredField("cause");
-        val setter = CMethodHandleUtils.getSetterHandle(causeField);
-        setter.invoke(a, b);
-        setter.invoke(b, a);
+        val a = new CyclicCauseException("a");
+        val b = new CyclicCauseException("b");
+        // 构造 a→b→a 循环链：重写 getCause 直接返回对端，不经过 Throwable.cause 字段
+        a.next = b;
+        b.next = a;
 
         Assertions.assertTimeoutPreemptively(
             Duration.ofSeconds(5),
             () -> Assertions.assertEquals("a\ncause by b", CExceptionUtils.getMessageWithCause(a))
         );
+
+    }
+
+    /**
+     * 测试用异常：{@code getCause()} 返回人为指定的对端，用于构造 JDK 自身不允许的循环 cause 链
+     */
+    static class CyclicCauseException extends RuntimeException {
+
+        CyclicCauseException(String message) {
+            super(message);
+        }
+
+        CyclicCauseException next;
+
+        @Override
+        public Throwable getCause() {
+            return next;
+        }
 
     }
 

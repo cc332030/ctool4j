@@ -418,12 +418,18 @@ public class CLazyRefTests {
         ClassLoader loader = new BlockingClassLoader(
             CLazyRefTests.class.getClassLoader(), OPTIONAL_DEP);
 
-        // 方法引用构造 supplier 时即需解析目标类型，故"初始化"（加载 Holder 类）即报错：
-        // invokedynamic 引导失败抛 BootstrapMethodError，其 cause 为 NoClassDefFoundError
-        Throwable cause = Assertions.assertThrowsExactly(
-            BootstrapMethodError.class, () -> Class.forName(METHOD_REF_HOLDER, true, loader));
+        // 方法引用构造 supplier 时即需解析目标类型，故"初始化"（加载 Holder 类）即报错。
+        // 抛出的<b>异常类型随 JDK 版本而异</b>（同一条"依赖缺失"的报错路径，只是外层包装不同）：
+        //   - JDK 8：invokedynamic 引导失败 ⇒ BootstrapMethodError，其 cause 为 NoClassDefFoundError
+        //   - 最新 LTS：隐藏类的引导失败直接冒泡 NoClassDefFoundError
+        // 故按"根因是依赖缺失"断言，不锁定具体包装类型（锁定类型等于把 JDK 实现细节写进测试）
+        Throwable cause = Assertions.assertThrows(Throwable.class,
+            () -> Class.forName(METHOD_REF_HOLDER, true, loader));
+        Assertions.assertTrue(
+            cause instanceof BootstrapMethodError || cause instanceof NoClassDefFoundError,
+            "方法引用在无依赖环境应于初始化时报错（引导失败），实际: " + cause.getClass().getName());
         Assertions.assertTrue(isMissingDependency(cause),
-            "方法引用在无依赖环境应于初始化时报错: " + cause);
+            "报错根因应为依赖缺失: " + cause);
     }
 
     /**
