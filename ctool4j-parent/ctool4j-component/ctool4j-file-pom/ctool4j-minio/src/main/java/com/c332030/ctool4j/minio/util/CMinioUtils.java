@@ -46,7 +46,7 @@ public class CMinioUtils {
     /**
      * 从响应头获取对象大小
      *
-     * <h2>getSize</h2>
+     * <p><b>getSize</b></p>
      * <ul>
      *   <li>对 response 空安全处理，取 {@code headers().get(CONTENT_LENGTH)} 转 Long；任何环节缺失返回 null。</li>
      * </ul>

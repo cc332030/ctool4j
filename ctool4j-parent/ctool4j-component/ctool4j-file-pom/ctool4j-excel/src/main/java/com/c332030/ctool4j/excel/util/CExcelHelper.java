@@ -78,7 +78,7 @@ public class CExcelHelper {
     /**
      * 从字节流读取 Excel 数据为指定类型列表
      *
-     * <h2>读取（doRead）</h2>
+     * <p><b>读取（doRead）</b></p>
      * <ul>
      *   <li>底层使用 EasyExcel {@code read(inputStream).head(tClass).sheet(0).doReadSync()}。</li>
      *   <li>{@code doRead(File)} 经 {@code Files.newInputStream} 转字节流；{@code doRead(String)} 转 {@code File}。</li>
@@ -123,7 +123,7 @@ public class CExcelHelper {
     /**
      * 将对象列表写入字节流
      *
-     * <h2>写入（doWrite）</h2>
+     * <p><b>写入（doWrite）</b></p>
      * <ul>
      *   <li>底层使用 EasyExcel {@code write(outputStream).head(tClass).sheet(0).doWrite(list)}。</li>
      *   <li>过滤 null 元素；list 为空（含过滤后为空）时不写入，直接返回。</li>

@@ -105,7 +105,7 @@ public enum CProfileEnum {
     /**
      * 根据环境名获取枚举
      *
-     * <h2>按名获取（of）</h2>
+     * <p><b>按名获取（of）</b></p>
      * <ul>
      *   <li>基于 {@code PROFILE_MAP}（{@code TreeMap(String.CASE_INSENSITIVE_ORDER)} 忽略大小写）反查。</li>
      *   <li>name 为 null 抛 IllegalArgumentException；未知名抛 {@code IllegalArgumentException("unknown profile: ...")}。</li>

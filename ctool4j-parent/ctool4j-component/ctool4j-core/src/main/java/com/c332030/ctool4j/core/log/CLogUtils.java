@@ -13,7 +13,6 @@ import com.c332030.ctool4j.definition.model.result.ICBaseResult;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.lang.NonNull;
@@ -297,7 +296,7 @@ public class CLogUtils {
     /**
      * 是否能转 json
      *
-     * <h2>JSON 化判断（isJsonLog）</h2>
+     * <p><b>JSON 化判断（isJsonLog）</b></p>
      * <ul>
      *   <li>基于 {@code CRefClassValue} 缓存按类判断结果，规则优先级：</li>
      *   <li>枚举不转；命中 {@code NOT_JSON_LOG_SUPERCLASSES}（DataSource/InputStream/OutputStream/Throwable 等）不转；</li>
@@ -336,7 +335,7 @@ public class CLogUtils {
      * <p>将可 json 化的参数元素替换为 JSON 字符串（日志专用 mapper：不序列化 null +
      * 标注 CLogBlob 的字段不超过阈值打印真实内容、超过则输出占位符并按值类型附规模），返回新数组，不修改调用方入参；null 元素保持不动</p>
      *
-     * <h2>参数 JSON 化（toLogArgs）</h2>
+     * <p><b>参数 JSON 化（toLogArgs）</b></p>
      * <ul>
      *   <li>对可 JSON 化参数替换为 JSON 字符串（日志专用 mapper：不序列化 null + CLogBlob 字段不超过阈值打印真实内容、超过输出 {@code &lt;BLOB&gt;}／{@code &lt;BLOB:list=5&gt;} 占位符）；</li>
      *   <li>返回新数组不修改调用方入参；null 元素保持不动。</li>
@@ -354,7 +353,7 @@ public class CLogUtils {
         val result = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
 
-            var arg = args[i];
+            Object arg = args[i];
             if (null != arg) {
                 val argType = arg.getClass();
                 if (isJsonLog(argType)) {
@@ -437,7 +436,7 @@ public class CLogUtils {
     /**
      * 获取可打印的数据
      *
-     * <h2>可打印数据（getPrintAble）</h2>
+     * <p><b>可打印数据（getPrintAble）</b></p>
      * <ul>
      *   <li>可 JSON 化或基础可打印类型（CharSequence/Number/Date/枚举/基本类）原样返回；否则经转换函数</li>
      *   <li>（byte[] → {@code [byte[n]]}、MultipartFile → {@code 文件名:大小}、其他 → {@code [类名]}）。</li>

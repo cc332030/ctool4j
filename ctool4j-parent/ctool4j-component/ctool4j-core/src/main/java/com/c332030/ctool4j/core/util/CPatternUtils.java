@@ -87,7 +87,7 @@ public class CPatternUtils {
     /**
      * 获取url正则表达式缓存
      *
-     * <h2>URL 通配符转换（getUrlCache）</h2>
+     * <p><b>URL 通配符转换（getUrlCache）</b></p>
      * <ul>
      *   <li>独立缓存 {@code URL_REGEX_PATTERNS}，避免拼接键与普通正则冲突。</li>
      *   <li>通配符规则：</li>

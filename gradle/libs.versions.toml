@@ -1,0 +1,127 @@
+
+#
+# 依赖版本目录
+#
+# 命令约定：
+# - 按 JDK 档位取值：jdk8 用 `<别名>-jdk8`，其余（最新 LTS）用**无后缀**的 `<别名>`；
+#   由 buildSrc 的 Project.lib(alias) 选择，模块文件不写 JDK 判断。
+#   刻意不叫 `<别名>-jdk25`（虽当前最新 LTS 就是 25）：后续会升到更新的 LTS，
+#   档位名以「jdk8 / 最新 LTS」表述才不会过期。
+# - 仅当一个依赖在两个档位的取值不同时才拆成两个别名；取值相同时只保留单个别名，避免版本目录注水。
+# - jdk8 取值 = 迁移前 Maven pom 的现值（逐项核对，保证 jdk8 档位与既有行为一致）。
+# - 最新 LTS 取值 = 更新到较新版本（来源：本机 Gradle/Maven 缓存中已存在的最新版本，可复核）。
+# - 由 spring-boot-dependencies / spring-cloud-dependencies 管理的依赖（starter、aspectjweaver、kafka 等）
+#   不在此登记，直接在模块里写不带版本号的坐标，版本由 platform 约束提供。
+#
+
+[versions]
+
+# ===== 按 JDK 档位切换取值的依赖（jdk8 带 -jdk8 后缀，最新 LTS 无后缀）=====
+spring-boot-jdk8 = "2.7.18"
+spring-boot = "4.1.1"
+spring-cloud-jdk8 = "2021.0.9"
+spring-cloud = "2025.1.3"
+spring-cloud-alibaba-jdk8 = "2021.1"
+spring-cloud-alibaba = "2025.1.0.0"
+
+mybatis-plus-join-jdk8 = "1.5.1"
+mybatis-plus-join = "1.5.9"
+redisson-jdk8 = "3.18.0"
+redisson = "4.7.0"
+rocketmq-jdk8 = "2.3.5"
+rocketmq = "2.3.6"
+jetcache-jdk8 = "2.7.3"
+jetcache = "2.7.9"
+hutool-jdk8 = "5.8.40"
+hutool = "5.8.47"
+guava-jdk8 = "33.4.8-jre"
+guava = "33.7.1-jre"
+commons-text-jdk8 = "1.13.0"
+commons-text = "1.14.0"
+xxl-job-jdk8 = "2.5.0"
+xxl-job = "3.4.2"
+lombok-jdk8 = "1.18.38"
+lombok = "1.18.48"
+
+# ===== 两档位取值相同的依赖 =====
+mybatis-plus = "3.5.16"
+mybatis-plus-jsqlparser = "3.5.16"
+dynamic-datasource = "4.5.0"
+knife4j-openapi2 = "4.5.0"
+commons-io = "2.21.0"
+commons-csv = "1.14.1"
+java-uuid-generator = "5.2.0"
+jnanoid = "2.0.0"
+ulid-creator = "5.2.4"
+mapstruct = "1.6.3"
+transmittable-thread-local = "2.14.5"
+easyexcel = "4.0.3"
+minio = "9.0.3"
+cglib = "3.3.0"
+# HttpClient 4.x（httpmime）已被 Apache 归档、Spring Boot 4 亦不再管理；两档位显式钉住同一末版
+httpmime = "4.5.14"
+
+# `ctool4j-mybatis-33` / `-34` 的钉住版本：版本本身就是模块语义
+# （面向仍在使用 mybatis-plus 3.3.x / 3.4.x 的使用方），不参与"升最新"
+mybatis-plus-33 = "3.3.2"
+mybatis-plus-34 = "3.4.3.4"
+
+[libraries]
+
+spring-boot-dependencies-jdk8 = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot-jdk8" }
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-cloud-dependencies-jdk8 = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud-jdk8" }
+spring-cloud-dependencies = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
+spring-cloud-alibaba-dependencies-jdk8 = { module = "com.alibaba.cloud:spring-cloud-alibaba-dependencies", version.ref = "spring-cloud-alibaba-jdk8" }
+spring-cloud-alibaba-dependencies = { module = "com.alibaba.cloud:spring-cloud-alibaba-dependencies", version.ref = "spring-cloud-alibaba" }
+
+mybatis-plus-join-jdk8 = { module = "com.github.yulichang:mybatis-plus-join-boot-starter", version.ref = "mybatis-plus-join-jdk8" }
+mybatis-plus-join = { module = "com.github.yulichang:mybatis-plus-join-boot-starter", version.ref = "mybatis-plus-join" }
+redisson-jdk8 = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson-jdk8" }
+redisson = { module = "org.redisson:redisson-spring-boot-starter", version.ref = "redisson" }
+rocketmq-jdk8 = { module = "org.apache.rocketmq:rocketmq-spring-boot-starter", version.ref = "rocketmq-jdk8" }
+rocketmq = { module = "org.apache.rocketmq:rocketmq-spring-boot-starter", version.ref = "rocketmq" }
+jetcache-jdk8 = { module = "com.alicp.jetcache:jetcache-starter-redis-lettuce", version.ref = "jetcache-jdk8" }
+jetcache = { module = "com.alicp.jetcache:jetcache-starter-redis-lettuce", version.ref = "jetcache" }
+hutool-jdk8 = { module = "cn.hutool:hutool-all", version.ref = "hutool-jdk8" }
+hutool = { module = "cn.hutool:hutool-all", version.ref = "hutool" }
+guava-jdk8 = { module = "com.google.guava:guava", version.ref = "guava-jdk8" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+commons-text-jdk8 = { module = "org.apache.commons:commons-text", version.ref = "commons-text-jdk8" }
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+xxl-job-jdk8 = { module = "com.xuxueli:xxl-job-core", version.ref = "xxl-job-jdk8" }
+xxl-job = { module = "com.xuxueli:xxl-job-core", version.ref = "xxl-job" }
+lombok-jdk8 = { module = "org.projectlombok:lombok", version.ref = "lombok-jdk8" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+
+mybatis-plus-boot-starter = { module = "com.baomidou:mybatis-plus-boot-starter", version.ref = "mybatis-plus" }
+mybatis-plus-jsqlparser-4-9 = { module = "com.baomidou:mybatis-plus-jsqlparser-4.9", version.ref = "mybatis-plus-jsqlparser" }
+dynamic-datasource-spring-boot-starter = { module = "com.baomidou:dynamic-datasource-spring-boot-starter", version.ref = "dynamic-datasource" }
+knife4j-openapi2-spring-boot-starter = { module = "com.github.xiaoymin:knife4j-openapi2-spring-boot-starter", version.ref = "knife4j-openapi2" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "commons-csv" }
+java-uuid-generator = { module = "com.fasterxml.uuid:java-uuid-generator", version.ref = "java-uuid-generator" }
+jnanoid = { module = "com.aventrix.jnanoid:jnanoid", version.ref = "jnanoid" }
+ulid-creator = { module = "com.github.f4b6a3:ulid-creator", version.ref = "ulid-creator" }
+mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
+transmittable-thread-local = { module = "com.alibaba:transmittable-thread-local", version.ref = "transmittable-thread-local" }
+easyexcel = { module = "com.alibaba:easyexcel", version.ref = "easyexcel" }
+minio = { module = "io.minio:minio", version.ref = "minio" }
+cglib = { module = "cglib:cglib", version.ref = "cglib" }
+mybatis-plus-boot-starter-33 = { module = "com.baomidou:mybatis-plus-boot-starter", version.ref = "mybatis-plus-33" }
+mybatis-plus-boot-starter-34 = { module = "com.baomidou:mybatis-plus-boot-starter", version.ref = "mybatis-plus-34" }
+
+# ===== 版本由 platform（BOM）提供，不在此写版本号 =====
+# Jackson 2（com.fasterxml.jackson）：两档位均由各自平台的 Jackson 2 BOM 提供
+#（Boot 4 仍 import com.fasterxml.jackson:jackson-bom，故最新 LTS 档位亦有版本）
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+# HttpClient 5：仅最新 LTS 档位使用（Boot 4 / Spring 7 的 HttpComponentsClientHttpRequestFactory 只接受 HC5）；
+# jdk8 档位沿用 HttpClient 4（经 httpmime 传递），故该档位不注入本依赖
+httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5" }
+javax-servlet-api = { module = "javax.servlet:javax.servlet-api" }
+jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api" }
+httpmime = { module = "org.apache.httpcomponents:httpmime", version.ref = "httpmime" }
+janino = { module = "org.codehaus.janino:janino" }
+slf4j-api = { module = "org.slf4j:slf4j-api" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine" }

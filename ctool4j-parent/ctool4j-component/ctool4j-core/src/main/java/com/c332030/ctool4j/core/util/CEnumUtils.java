@@ -8,7 +8,6 @@ import com.c332030.ctool4j.definition.interfaces.ICValue;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -137,7 +136,7 @@ public class CEnumUtils {
     /**
      * 获取枚举值到枚举的 Map
      *
-     * <h2>getMap 函数引用重载泛型签名</h2>
+     * <p><b>getMap 函数引用重载泛型签名</b></p>
      * <ul>
      *   <li>{@code getMap(Class&lt;E&gt;, Func1&lt;E, T&gt;)}：{@code E} 为枚举类型（函数入参），{@code T} 为字段值类型（函数返回与 Map key），</li>
      *   <li>与 {@code valueOf(Class, Func1, value)} 的 {@code Func1&lt;C, T&gt;} 语义一致。</li>
@@ -185,7 +184,7 @@ public class CEnumUtils {
         Assert.isTrue(enumClass.isEnum(), "not enum");
 
         val fieldValueMap = VALUE_ENUM_MAP_CLASS_MAP.get(enumClass);
-        var valueMap = fieldValueMap.get(fieldName);
+        Map<?, ?> valueMap = fieldValueMap.get(fieldName);
         if (valueMap == null) {
             synchronized (enumClass) {
 

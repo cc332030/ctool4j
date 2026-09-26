@@ -9,7 +9,6 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 import java.util.LinkedHashSet;
 import java.util.function.Supplier;
@@ -309,7 +308,7 @@ public class CExceptionUtils {
 
         val throwableSet = new LinkedHashSet<Throwable>();
 
-        var throwableNew = throwable;
+        Throwable throwableNew = throwable;
         while (true) {
 
             throwableSet.add(throwableNew);

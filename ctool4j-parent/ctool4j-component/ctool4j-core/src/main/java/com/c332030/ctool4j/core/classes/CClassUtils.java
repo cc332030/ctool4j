@@ -9,7 +9,6 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.slf4j.event.Level;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -156,7 +155,7 @@ public class CClassUtils {
      * <p>结果按类缓存（类所属包名固定，判断结果不会变化），消除热路径每次
      * 类名前缀匹配开销</p>
      *
-     * <h2>JDK 类判断（isJdkClass）</h2>
+     * <p><b>JDK 类判断（isJdkClass）</b></p>
      * <ul>
      *   <li>结果按类缓存（{@code CClassValue}）：基本类型或类名以 {@code BASE_PACKAGES_START}（java./javax./sun./jdk. 等）开头</li>
      *   <li>即为 JDK 类。</li>
@@ -342,7 +341,7 @@ public class CClassUtils {
                 .collect(Collectors.toList());
         } finally {
             val cost = System.currentTimeMillis() - startMills;
-            var level = Level.DEBUG;
+            Level level = Level.DEBUG;
             if(cost > 500) {
                 level = Level.WARN;
             }
@@ -419,7 +418,7 @@ public class CClassUtils {
 
         val classes = new ArrayList<Class<?>>();
 
-        var type = tClass;
+        Class<?> type = tClass;
         do {
 
             classes.add(type);

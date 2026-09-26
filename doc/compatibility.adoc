@@ -50,6 +50,42 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/test/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
 在该模块全量测试中通过，证明迁移后自动配置仍被装配。
 
+== 最新 LTS 档位的测试失败（调试中，待处理）
+
+背景：本次迁移把项目从 Maven 改为 Gradle KTS，并支持双档位——*jdk8 档位*（默认，容器侧 javax、依赖沿用既有版本）与
+*最新 LTS 档位*（容器侧 jakarta、依赖更新到较新版本）。按需求，jdk8 档位须**绝对兼容**（已达成：`gradle build` 全绿、
+2118 用例 0 失败），最新 LTS 档位**能编译通过即可**（已达成：`gradle build -x test` 全绿、`compileTestJava` 通过）。
+
+现状：最新 LTS 档位下全部 2118 个用例均可编译并执行，其中 *41 个失败*（41/2118 ≈ 1.9%），集中在下表模块，
+属依赖升级后的行为差异，尚在调试。
+
+[cols="2,3,3,1", options="header"]
+|===
+| 模块 / 用例 | 影响 | 处置 | 状态
+
+| +ctool4j-core+：CBeanUtils 系列（Compatibility / CopyContract / DeepCopy / More / 主测试）
+| Boot 4 携带的 BeanUtils 行为差异（拷贝语义、字段可见性/嵌套对象处理）
+| 逐用例核对 Boot 4 的 BeanUtils 契约，按新契约调整断言或显式声明差异
+| 待处理
+
+| +ctool4j-core+：CExceptionUtilsTests、CLazyRefTests
+| 异常/延迟引用的边界行为差异
+| 逐用例定位差异点
+| 待处理
+
+| +ctool4j-doc-pom+：CSchemaIntegrationTests / CTextEnumIntegrationTests / COpenApi2ConfigurationTests
+| knife4j / springfox 在 Jakarta 与 Spring 7 下的文档模型差异
+| 核对 springfox 对 Jakarta 的支持面，必要时改用等价断言
+| 待处理
+
+| +ctool4j-auth-base+：CAbstractAuthBaseConfigurationTests
+| 认证基座配置装配在 Boot 4 下的差异
+| 核对自动装配顺序与条件
+| 待处理
+|===
+
+*review 豁免*：上表条目在最新 LTS 档位调试完成前，code review 时不再作为问题提出（对应上文「使用约定 - review 豁免」）。
+
 == 相关入口
 
 - 文档导航入口：link:README.adoc[doc/README.adoc]

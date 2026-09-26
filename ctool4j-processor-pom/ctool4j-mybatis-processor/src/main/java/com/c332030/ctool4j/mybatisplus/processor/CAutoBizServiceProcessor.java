@@ -2,7 +2,6 @@ package com.c332030.ctool4j.mybatisplus.processor;
 
 import com.c332030.ctool4j.base.processor.CAbstractProcessor;
 import lombok.val;
-import lombok.var;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -203,8 +202,8 @@ public class CAutoBizServiceProcessor extends CAbstractProcessor {
     }
 
     private String render(String template, String... kv) {
-        var result = template;
-        for (var i = 0; i < kv.length; i += 2) {
+        String result = template;
+        for (int i = 0; i < kv.length; i += 2) {
             val key = kv[i];
             val value = kv[i + 1];
             result = result.replace("${" + key + "}", value);

@@ -12,7 +12,6 @@ import com.c332030.ctool4j.definition.function.CFunction;
 import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -876,7 +875,7 @@ public class CCollUtils {
         }
 
         val iterator = collection.iterator();
-        var last = iterator.next();
+        T last = iterator.next();
         while(iterator.hasNext()) {
             last = iterator.next();
         }

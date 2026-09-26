@@ -68,11 +68,18 @@
 
 ### 构建与验证
 
-- `-pl <聚合 pom>` **不会**递归构建子模块；构建整棵子树须用 `-f <聚合 pom>/pom.xml`（或 `-amd`）。用错会得到"假通过"。
-- **改动后必须真验证**：用 `-am install` 覆盖受影响模块及其上游（同时验证编译、单测与 javadoc 生成）；只跑 `compile` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。日志落 `tmp/build/mvn-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。
-- **改了上游模块要重新安装**：单模块 `-pl X` 构建时依赖取的是**本地仓库已安装的 jar**，改了上游（如 `ctool4j-definition` 里的常量）却没 `install`，会得到"源码明明改了却报找不到符号"的假象。用 `-pl X -am install` 连上游一起构建安装。
-- **新增模块要两处登记**：（1）父聚合 pom 的 `<modules>`；（2）`ctool4j-dependencies` 的构件登记（版本由父管理，使用处不写 `<version>`）。漏第 2 处会让下游依赖解析失败，漏第 1 处则该模块根本不参与构建。暂不纳入当前矩阵的模块（如 `-jakarta` 侧）须在 pom 内写明**原因与回挂方式**。
-- 只登记当前依赖矩阵下可编译的模块：`-jakarta` 侧需要 Spring 6 的 Servlet 支持，在本仓库 Spring 5.3 / Boot 2.x 矩阵下**不登记**进 `<modules>`（`ctool4j-http-jakarta` 不依赖 Spring，登记构建），`ctool4j-spring-base-pom/pom.xml` 内已注明回挂方式。**未登记的侧模块不参与构建**，其正确性只能靠「两侧同构 + 自检」保证——故不得在其中写 javax 侧没有的内容。
+- **构建体系为 Gradle KTS**（已由 Maven 迁移而来）：全仓构建用 `gradle build`（编译 + 单测 + javadoc + jar 一次到位）；模块间依赖用 **Gradle 项目依赖**，构建某模块时上游会被自动构建，不存在"上游改了没 install 导致取到旧 jar"的问题（该风险只在"以仓库坐标取依赖"的场景存在，必要时 `gradle publishToMavenLocal`）。
+- **JDK 档位是构建的输入**：`JDK_VERSION`（系统属性 > 环境变量 > `gradle.properties`），**默认 8**；决定 ① 容器侧（jdk8 → 只用 `-javax` 侧，其他 → 只用 `-jakarta` 侧，见 `settings.gradle.kts` 的档位过滤）② 依赖版本档位（见 `gradle/libs.versions.toml`：jdk8 用 `<别名>-jdk8`，其余用**无后缀**的 `<别名>`）③ 字节码目标（jdk8 → Java 8；否则 `release = 17`）。刻意**不读** JVM 的 `java.version` 系统属性（它恒等于构建机 JDK，会使"默认 jdk8"失效）。
+- **档位名以「jdk8 / 最新 LTS」表述，不用具体版本号**：jdk8 是当前公司主流版本、会长期存在，故可以按名出现；另一档位后续会升到更新的 LTS，故标识符里**不出现 `jdk25`**（如用 `ltsRelease`、`java-latest`、无后缀别名），避免升级后名称过期。仅"解释为何不用 `-jdk25`"的注释可提及。
+- **构建产物目录按档位分家**：jdk8 档位用 `target-8/build-8`、其余档位用 `target/build`（顶层与各模块同构，模块产物落在各自项目目录下）。**不用 Gradle 默认的 `build`**——默认目录名与档位无关，切档位构建会覆盖上一次的产物；顶层目录是容器、末级才是构建目录（与 Maven 的 `target` 约定同形）。根脚本用 `layout.buildDirectory` 分别对根项目与 `subprojects` 设置；路径写**目录名**（不拼 `projectDir`——Gradle 的 `projectDir` 是相对路径，`subprojects` 里解析会以「调用者所在项目」为基准而失败）。`buildSrc` 是独立构建、产物固定在 `buildSrc/build`，不受本布局影响；`settings.gradle.kts` 的模块发现要按 `target*` 一并排除（否则 jdk8 档位的 `target-8` 会被当成模块目录扫进去）。
+- **档位专属源码目录**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、`javax`/`jakarta` 迁移、SLF4J 1/2 等），无法用同一份源码兼容。约定：差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `src/<main|test>/java-latest`（**同包同名、互斥**，两目录都不放"公共类"），由档位决定纳入哪一个；jdk8 档位完全不读 `java-latest`，保证既有产物零变化。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
+  - 不能用"srcDir 追加 + exclude 同名文件"实现：Gradle 的 `exclude` 对**全部** srcDir 生效，会把专属目录里的同名文件一并排除、类彻底消失（已实测踩坑）。
+- **改动后必须真验证**：跑 `gradle build`（覆盖编译、单测与 javadoc 生成）；只跑 `compileJava` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。日志落 `tmp/build/gradle-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。
+- **新增模块要两处登记**：（1）在模块目录放 `build.gradle.kts`（`settings.gradle.kts` 递归发现，无需改 settings）；（2）`ctool4j-dependencies/build.gradle.kts` 的 `ctool4jArtifacts` 清单登记（版本由根脚本统一给定，使用处不写版本）。漏第 2 处会让下游依赖解析失败（BOM 里没有该构件）；聚合/父 pom 也要放 `build.gradle.kts`（内容为注释即可），否则整个子树不会被发现。
+- **两侧模块的纳入由档位决定**：jdk8 档位排除全部 `-jakarta` 模块、其他档位排除全部 `-javax` 模块（`settings.gradle.kts` 按目录名后缀过滤）——不再有"Maven 里某侧不登记进 `<modules>`"的变通；两侧同名文件仍须**两侧同构**（见下）。
+- **构建布局与"按档位分组"**：根 `build.gradle.kts` 承担全仓统一配置（等价 Maven 父 pom 继承：工具链、编译/测试选项、sources/javadoc jar、发布），按**目录归属**分组注入公共依赖——`ctool4j-parent/ctool4j-component` 子树 → component 档（另有 `ctool4j-spring-pom` / `ctool4j-mybatis-pom` 两个子档：这两个聚合 pom 自身带 provided 依赖，会传给其子模块）、`ctool4j-processor-pom` 子树 → processor 档；各模块 `build.gradle.kts` 只声明本模块专属依赖。聚合/父 pom 只发布 pom，BOM 用 `java-platform`。
+- **依赖版本对齐 Maven 语义**：上游 BOM 用 `enforcedPlatform`（= Maven `dependencyManagement` 以 BOM 为准，而非 Gradle 默认的"冲突取最高版本"）；本项目在版本目录里**显式覆盖**且与上游 BOM 同名的构件，须在根脚本用 `cAlignModuleVersion` 对齐（现有 lombok、guava 两项），否则会被上游 BOM 拉回。
+- **发布 pom 的 `<parent>` 由目录归属推导注入**（`CGradlePublishUtils`）；聚合/父 pom 的 `<dependencies>` / `<build>` 配置不注入（构建期职责已由根脚本承担），唯一例外是 `ctool4j-boot-parent`——额外注入了 spring-boot-maven-plugin 配置（它对外是业务应用的 Maven 父 pom）。
 - **改 `-javax` 侧必须同步 `-jakarta` 侧**：两侧同名文件除 `javax`/`jakarta` 字样外应**完全一致**。副本靠人工维护会漂移（本仓库已出现过 7 个副本滞后：`http` 侧适配器 5 个、spring 侧 2 个）。改完后按下式自查，差异应为空：
 
   ```powershell

@@ -341,7 +341,7 @@ public class CObjUtils {
     /**
      * 合并两个值
      *
-     * <h2>合并（merge）</h2>
+     * <p><b>合并（merge）</b></p>
      * <ul>
      *   <li>v1 不可用返回 v2，v2 不可用返回 v1；两者可用且 merge 为 null 抛 IllegalStateException；</li>
      *   <li>否则执行 merge。</li>

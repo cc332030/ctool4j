@@ -10,6 +10,9 @@
 
 .m2/
 
+# 构建产物目录按档位分家（jdk8 → target-8/build-8，其余 → target/build）：
+# 顶层容器与各模块目录都叫 target*；同时兜住 buildSrc 的默认 build 目录
+build/
 target*
 
 release.properties

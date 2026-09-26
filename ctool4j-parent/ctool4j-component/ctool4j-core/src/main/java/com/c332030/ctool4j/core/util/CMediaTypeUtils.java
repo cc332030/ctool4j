@@ -77,7 +77,7 @@ public class CMediaTypeUtils {
     /**
      * 判断媒体类型是否为文本类型
      *
-     * <h2>isText 判断规则</h2>
+     * <p><b>isText 判断规则</b></p>
      * <ul>
      *   <li>空白/null 入参返回 false。</li>
      *   <li>入参转小写后，与关键字集合 {@code TEXT_KEYS}（text/plain/html/json/xml/form）按段匹配：</li>

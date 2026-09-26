@@ -19,7 +19,8 @@ import java.util.function.Supplier;
  * 上层代码面向本接口编程，不接触任何一个 Servlet 包。</p>
  * <p>方法按 Servlet 规范分组：</p>
  * <ul>
- *   <li><b>状态</b>：{@code setStatus}（两形态）/ {@code getStatus}</li>
+ *   <li><b>状态</b>：{@code setStatus}（两形态；两参形态为 {@code default}，jakarta 侧已无对应容器 API，
+ *   故降级为仅设状态码）/ {@code getStatus}</li>
  *   <li><b>响应头</b>：{@code setHeader} / {@code addHeader} / {@code setDateHeader} / {@code addDateHeader} /
  *   {@code setIntHeader} / {@code addIntHeader} / {@code containsHeader} / {@code getHeader} / {@code getHeaders} /
  *   {@code getHeaderNames}</li>
@@ -92,12 +93,19 @@ public interface CHttpResponse {
     void setStatus(int sc);
 
     /**
-     * 设置响应状态码与状态消息
+     * 设置响应状态码与状态消息。
+     *
+     * <p>
+     * 默认实现忽略 {@code sm}、仅设置状态码：Servlet 6.0（jakarta）已移除
+     * {@code setStatus(int, String)}，两侧无法给出统一实现；javax 侧适配器覆写本方法以保留状态消息。
+     * </p>
      *
      * @param sc 状态码
      * @param sm 状态消息
      */
-    void setStatus(int sc, String sm);
+    default void setStatus(int sc, String sm) {
+        setStatus(sc);
+    }
 
     /**
      * 取当前响应状态码

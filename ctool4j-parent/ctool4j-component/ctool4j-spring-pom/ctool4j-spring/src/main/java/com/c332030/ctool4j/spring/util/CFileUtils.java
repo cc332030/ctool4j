@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CMap;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.web.server.MimeMappings;
@@ -127,10 +126,10 @@ public class CFileUtils {
      */
     public String getMimeType(String path, String defaultType) {
 
-        var extension = Opt.ofBlankAble(getFileType(path))
+        String extension = Opt.ofBlankAble(getFileType(path))
             .orElse(path);
 
-        var mimeType = MimeMappings.DEFAULT.get(extension);
+        String mimeType = MimeMappings.DEFAULT.get(extension);
         if(StringUtils.isEmpty(mimeType)) {
             mimeType = EXTRA_MIME_TYPE_MAP.get(extension);
         }

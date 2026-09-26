@@ -109,7 +109,7 @@ public class CSchemaAnnotationModelPropertyPlugin implements ModelPropertyBuilde
     /**
      * 是否支持该文档类型。
      *
-     * <h2>supports</h2>
+     * <p><b>supports</b></p>
      * <ul>
      *   <li>默认支持全部文档类型（含 null）。</li>
      * </ul>

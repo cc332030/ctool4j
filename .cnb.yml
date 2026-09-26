@@ -1,6 +1,6 @@
 
-jdk-version: 8
+jdk-version-compile: 25 8
 
 include:
   - https://cnb.cool/cc332030/git/-/blob/master/cnb/mirror.yml
-  - https://cnb.cool/cc332030/maven/-/blob/master/cnb/publish.yml
+  - https://cnb.cool/cc332030/gradle/-/blob/master/cnb/publish.yml

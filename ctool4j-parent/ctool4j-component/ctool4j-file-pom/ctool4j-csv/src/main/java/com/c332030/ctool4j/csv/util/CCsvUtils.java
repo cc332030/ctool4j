@@ -61,7 +61,7 @@ public class CCsvUtils {
     /**
      * 去除字符串两端空白，空字符串返回 null
      *
-     * <h2>trim 语义</h2>
+     * <p><b>trim 语义</b></p>
      * <ul>
      *   <li>先调用 {@code CStrUtils.trim} 去除两端空白。</li>
      *   <li>空白（blank）字符串返回 {@code null}（空串、纯空白、仅退格均视为 blank）。</li>

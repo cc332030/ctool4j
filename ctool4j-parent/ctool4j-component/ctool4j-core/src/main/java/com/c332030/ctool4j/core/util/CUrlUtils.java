@@ -241,7 +241,7 @@ public class CUrlUtils {
      *
      * <p>无值参数（如 {@code ?a=}）经解码为空串后按 null 处理，不放入结果 Map，视为无该参数（有意设计）</p>
      *
-     * <h2>参数解析（getParamMap）</h2>
+     * <p><b>参数解析（getParamMap）</b></p>
      * <ul>
      *   <li>未解码前剥离 fragment（{@code #} 后部分，{@code %23} 编码不受影响）。</li>
      *   <li>按 {@code ?} 拆参数区，再按 {@code &amp;} 拆参数；每个参数按第一个 {@code =} 分割（值含 {@code =} 时保留完整）。</li>
@@ -297,7 +297,7 @@ public class CUrlUtils {
     /**
      * 提取 URL 中 http 协议开始的部分
      *
-     * <h2>协议提取（getUrl）</h2>
+     * <p><b>协议提取（getUrl）</b></p>
      * <ul>
      *   <li>用正则 {@code https?://} 查找协议起始位置，截取到 URL 末尾。</li>
      *   <li>空/不含协议返回 null；协议前有垃圾内容时从协议处截取。</li>
@@ -376,7 +376,7 @@ public class CUrlUtils {
     /**
      * 替换 URL 域名
      *
-     * <h2>域名替换（replaceDomain）</h2>
+     * <p><b>域名替换（replaceDomain）</b></p>
      * <ul>
      *   <li>URL 为空返回 null；新域名为空原样返回。</li>
      *   <li>基于 URI 的 rawPath/rawQuery/rawFragment 拼接 {@code newDomain + path + ?query + #fragment}。</li>

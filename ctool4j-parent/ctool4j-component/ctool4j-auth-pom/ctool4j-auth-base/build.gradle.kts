@@ -1,0 +1,10 @@
+plugins {
+    `java-library`
+}
+
+dependencies {
+
+    api(project(":ctool4j-web"))
+    api(project(":ctool4j-cache"))
+
+}

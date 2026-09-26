@@ -11,7 +11,6 @@ import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -519,7 +518,7 @@ public class CDateUtils {
         }
         return calc(value, zonedDateTime -> {
 
-            var zonedDateTimeNew = zonedDateTime;
+            ZonedDateTime zonedDateTimeNew = zonedDateTime;
             for (T t : collection) {
                 zonedDateTimeNew = function.apply(zonedDateTimeNew, t);
             }

@@ -5,7 +5,6 @@ import com.c332030.ctool4j.definition.function.CConsumer;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 import java.util.List;
 
@@ -82,7 +81,7 @@ public class CPageUtils {
      * <p>当返回自定义分页对象（非集合，如 IPage）时，无法通过 CollUtil.isEmpty 判断是否结束，
      * 需由业务在无数据时返回 null，或让 doSth 在结束场景返回 false</p>
      *
-     * <h2>终止条件（pageThenDo）</h2>
+     * <p><b>终止条件（pageThenDo）</b></p>
      * <ul>
      *   <li>从页号 1 开始循环，{@code queryFunction.apply(page)} 返回 null，或 {@code doSth.apply(result)} 非 true</li>
      *   <li>（CBoolUtils.isNotTrue）时终止循环，页号自增。</li>
@@ -100,7 +99,7 @@ public class CPageUtils {
             CFunction<T, Boolean> doSth
     ) {
 
-        var start = 1;
+        int start = 1;
         while (true) {
 
             val result = queryFunction.apply(start);
@@ -117,7 +116,7 @@ public class CPageUtils {
     /**
      * 分页查询并执行逻辑
      *
-     * <h2>pageThenEach 语义</h2>
+     * <p><b>pageThenEach 语义</b></p>
      * <ul>
      *   <li>委托 pageThenDo：{@code queryFunction} 返回的 list 为空（{@code CollUtil.isEmpty}）时返回 false 结束，</li>
      *   <li>否则逐元素执行 {@code doSth} 并返回 true 继续。</li>

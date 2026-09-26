@@ -59,6 +59,23 @@ ctool4j（根，packaging=pom）
 
 == 构建基础设施
 
+构建体系为 *Gradle KTS*：全仓 `gradle build`（编译 + 单测 + javadoc + 产物）；JDK 档位由 `JDK_VERSION` 决定（默认 8，即 `-jdk8` 档位；传其他值即切换为**最新 LTS** 档位、走 jakarta 侧），档位同时决定依赖版本与字节码目标（详见 link:agent/AGENTS-PROJECT.MD[项目特有规范]「构建与验证」）。
+
+*两档位*：
+
+- *jdk8 档位*（默认）：容器侧 javax、依赖沿用既有版本、字节码 Java 8；产物版本号带 `-jdk8` 后缀，面向仍在使用 Spring Boot 2.7 / Spring Cloud 2021 的业务系统（Maven 侧同样按该后缀取依赖）。
+- *最新 LTS 档位*：容器侧 jakarta、依赖更新到较新版本、字节码 Java 17；产物版本号**无后缀**。
+档位名以「jdk8 / 最新 LTS」表述而非具体版本号（jdk8 是当前公司主流版本；LTS 会持续升级）。
+
+少数类在两档位下必须用不同的底层 API（如 HttpClient 4/5、`javax`/`jakarta` 迁移），这类差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `.../java-latest`，两目录互斥、由档位决定纳入哪一个。
+
+*构建产物目录同样按档位分家*（不用 Gradle 默认的 `build`，否则切档位构建会覆盖上一次的产物）：
+
+- *jdk8 档位*：`target-8/build-8`
+- *最新 LTS 档位*：`target/build`
+
+顶层目录是容器、末级才是构建目录（与 Maven 的 `target` 约定同形）；顶层与各模块同构，模块产物落在各自项目目录下。
+
 - *ctool4j-dependencies*：BOM，统一声明全部 ctool4j 自研构件的版本。
 - *ctool4j-bom*：BOM，统一管理第三方依赖版本（Spring Boot / Spring Cloud / MyBatis-Plus / Redis / MQ / 工具库等），并 import +ctool4j-dependencies+。业务项目引入该 BOM 即可获得一致的依赖版本，无需手写版本号。
 - *ctool4j-processor-pom*：编译期注解处理器，通过 SPI 自动注册，被组件模块用作 annotation processor：
@@ -68,7 +85,7 @@ ctool4j（根，packaging=pom）
 
 == 项目支撑目录
 
-除 Maven 模块外，项目根下还有以下支撑目录：
+除 Gradle 模块外，项目根下还有以下支撑目录：
 
 - *agent/*：项目规范目录。规范以远端统一规范（+http://agent.c332030.com/AGENTS_COMMON.adoc+，含 `specs/` 分层规范）为基准，入口为根 +AGENTS.md+；项目特有规范集中在 +agent/AGENTS-PROJECT.MD+。涉及某主题操作前须按加载调度规则加载对应规范文件确认规则。
 - *doc/*：项目文档目录（AsciiDoc），**只放总结性与规划性文档**。按「javadoc 按层次承载、文档目录只放总结」分层：

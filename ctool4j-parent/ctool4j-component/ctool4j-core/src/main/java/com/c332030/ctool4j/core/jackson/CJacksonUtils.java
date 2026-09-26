@@ -197,13 +197,15 @@ public class CJacksonUtils {
 
     /**
      * 配置驼峰转下划线命名策略
-     * <p>高版本才有 PropertyNamingStrategies.SNAKE_CASE，低版本 jackson-databind 不支持，
-     * 为兼容低版本只能使用已弃用的 PropertyNamingStrategy.SNAKE_CASE，此弃用警告已知且接受</p>
+     *
+     * <p>
+     * 用 {@link PropertyNamingStrategies#SNAKE_CASE}（Jackson 2.12 起提供，jdk8 档位的 2.13.5 与最新 LTS 档位的 2.21 均支持）；
+     * 不用 {@code PropertyNamingStrategy.SNAKE_CASE}——该常量已在 Jackson 2.21 移除，用它会编译失败。
+     * </p>
      */
-    @SuppressWarnings("deprecation")
     private static void configureSnakeCase(ObjectMapper objectMapper) {
 
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
 
     /**

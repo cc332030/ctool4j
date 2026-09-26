@@ -15,7 +15,6 @@ import com.google.common.base.CaseFormat;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -422,7 +421,7 @@ public class CStrUtils {
         val arr = value.split(separator);
         val collection = collectionFunction.apply(arr.length);
 
-        for (var str : arr) {
+        for (String str : arr) {
             str = toAvailable(str);
             if(StrUtil.isNotEmpty(str)) {
                 collection.add(convert.apply(str));
@@ -569,7 +568,7 @@ public class CStrUtils {
         val arr = string.split(separatorEntry);
         val map = mapFunction.apply(arr.length);
 
-        for (var str : arr) {
+        for (String str : arr) {
 
             str = str.trim();
             if(!str.isEmpty()) {
@@ -783,7 +782,7 @@ public class CStrUtils {
     /**
      * 转换成可用字符串
      *
-     * <h2>可用性处理（toAvailable）</h2>
+     * <p><b>可用性处理（toAvailable）</b></p>
      * <ul>
      *   <li>trim 后为空返回 null；命中 {@code NOT_AVAILABLE_STRINGS}（null/undefined 等）返回 null。</li>
      *   <li>删除前后 {@code NOT_AVAILABLE_CHARACTERS}（引号等）字符；{@code start == end} 时保留该非引号字符</li>
@@ -803,10 +802,10 @@ public class CStrUtils {
             return null;
         }
 
-        var needSubString = false;
+        boolean needSubString = false;
 
-        var start = 0;
-        var end = string.length() - 1;
+        int start = 0;
+        int end = string.length() - 1;
 
         // 删除字符串前后的引号
         while (NOT_AVAILABLE_CHARACTERS.contains(charAt(string, start))) {
@@ -1043,8 +1042,8 @@ public class CStrUtils {
      * @return 打印宽度
      */
     public int getPrintWidth(String str) {
-        var width = 0;
-        for (var i = 0; i < str.length(); i++) {
+        int width = 0;
+        for (int i = 0; i < str.length(); i++) {
             width += getPrintWidth(str.charAt(i));
         }
         return width;

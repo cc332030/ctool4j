@@ -6,7 +6,6 @@ import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.definition.function.CFunction;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -161,7 +160,7 @@ public class CArrUtils {
             return null;
         }
 
-        var newIndex = index;
+        int newIndex = index;
         val length = arr.length;
         if(index < 0) {
             newIndex = length + index;

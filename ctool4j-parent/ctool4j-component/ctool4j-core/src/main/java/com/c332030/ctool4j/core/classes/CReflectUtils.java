@@ -16,7 +16,6 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
@@ -265,7 +264,7 @@ public class CReflectUtils {
         val matchConstructors = new ArrayList<Constructor<?>>();
         for (val constructor : constructors) {
 
-            var match = true;
+            boolean match = true;
             val parameterTypes = constructor.getParameterTypes();
             for (int i = 0; i < parameterTypes.length; i++) {
 
@@ -776,7 +775,7 @@ public class CReflectUtils {
         // 多次访问：按方法名反复调用（业务侧循环/逐字段处理），句柄按 Method 弱 key 缓存；
         // 实例方法句柄须绑定接收者，bindTo 每次新建——接收者逐次不同，绑定句柄不可缓存（缓存会持有接收者引用）
         val handle = CMethodHandleUtils.getHandle(method);
-        var invoker = handle;
+        MethodHandle invoker = handle;
         if (!isStatic(method)) {
             invoker = handle.bindTo(value);
         }
@@ -810,9 +809,9 @@ public class CReflectUtils {
         Class<T> annotationClass
     ) {
 
-        var annotationMap = ELEMENT_ANNOTATION_CACHE.get(element, k -> new ConcurrentHashMap<>());
+        Map<Class<? extends Annotation>, Object> annotationMap = ELEMENT_ANNOTATION_CACHE.get(element, k -> new ConcurrentHashMap<>());
 
-        var annotation = annotationMap.get(annotationClass);
+        Object annotation = annotationMap.get(annotationClass);
         if(null == annotation) {
             synchronized (annotationMap) {
                 annotation = annotationMap

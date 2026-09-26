@@ -104,13 +104,8 @@ public final class CHttpServletResponse implements CHttpResponse {
         response.setStatus(sc);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setStatus(int sc, String sm) {
-        response.setStatus(sc, sm);
-    }
+    // 两参 setStatus 不覆写：Servlet 6.0（jakarta）已移除 setStatus(int, String)，
+    // 由 CHttpResponse 的 default 实现降级为仅设状态码；javax 侧保留覆写以透传状态消息。
 
     /**
      * {@inheritDoc}

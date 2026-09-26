@@ -13,7 +13,6 @@ import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
 import com.c332030.ctool4j.web.model.CRequestLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -430,7 +429,7 @@ public class CCommUtils {
      * @param params 参数 map（参数名 → 一个或多个参数值）
      */
     private void appendParams(StringBuilder sb, Map<String, Collection<String>> params) {
-        var first = true;
+        boolean first = true;
         for (val entry : params.entrySet()) {
             for (val value : entry.getValue()) {
                 if (!first) {

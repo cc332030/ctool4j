@@ -204,7 +204,7 @@ public class CCorsUtils {
     /**
      * 按域名级配置校验并设置跨域响应头
      *
-     * <h2>handleDo 校验链</h2>
+     * <p><b>handleDo 校验链</b></p>
      * <ul>
      *   <li>校验请求来源 header {@code Origin} 是否为空 → 是否同源 → 该域名是否在 {@code origins} 中 →</li>
      *   <li>该域名是否显式开启（{@code origins.<域名>.enable=true}）→</li>

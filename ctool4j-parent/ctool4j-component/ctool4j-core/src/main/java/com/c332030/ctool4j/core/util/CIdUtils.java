@@ -13,7 +13,6 @@ import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import lombok.var;
 
 /**
  * <p>
@@ -229,7 +228,7 @@ public class CIdUtils {
     /**
      * 获取类 ID 前缀（优先注解值，否则取类名首字母）
      *
-     * <h2>前缀截取（getPrefix(Class, length)）</h2>
+     * <p><b>前缀截取（getPrefix(Class, length)）</b></p>
      * <ul>
      *   <li>取 {@code prefix.substring(0, min(length, prefix.length()))}：length 超前缀长度时返回完整前缀。</li>
      * </ul>
@@ -290,7 +289,7 @@ public class CIdUtils {
     /**
      * 从 ID 中解析前缀并转换
      *
-     * <h2>前缀解析（getPrefixFromId）</h2>
+     * <p><b>前缀解析（getPrefixFromId）</b></p>
      * <ul>
      *   <li>从 ID 开头扫描到第一个数字字符，取之前的字符为前缀；无前缀（ID 以数字开头或为空）返回 null。</li>
      * </ul>
@@ -321,7 +320,7 @@ public class CIdUtils {
             return null;
         }
 
-        var index = 0;
+        int index = 0;
         while (index < id.length() && !CharUtil.isNumber(id.charAt(index))) {
             index++;
         }
@@ -337,7 +336,7 @@ public class CIdUtils {
      * 生成 Nano ID（默认 21 字符，URL 安全字母表 A-Za-z0-9_-，SecureRandom）
      * <p>封装开源 jnanoid 的 {@link NanoIdUtils#randomNanoId()}，比 UUID 更短、更友好。</p>
      *
-     * <h2>Nano ID 生成（nanoId / nanoId(size)）</h2>
+     * <p><b>Nano ID 生成（nanoId / nanoId(size)）</b></p>
      * <ul>
      *   <li>复用<b>开源 jnanoid</b>（{@code com.aventrix.jnanoid:jnanoid}）的 {@code NanoIdUtils}：</li>
      *   <li>{@code randomNanoId()}：默认 21 字符、URL 安全字母表 {@code A-Za-z0-9_-}、{@code SecureRandom}。</li>
@@ -376,7 +375,7 @@ public class CIdUtils {
      * 同一毫秒内单调递增，严格保证可排序；可用于需"短 + 可排序"的 ID 场景。
      * 依赖为可选（optional），使用方需引入 ulid-creator。</p>
      *
-     * <h2>ULID 生成（ulid）</h2>
+     * <p><b>ULID 生成（ulid）</b></p>
      * <ul>
      *   <li>复用<b>开源 ulid-creator</b>（{@code com.github.f4b6a3:ulid-creator}）的 {@code UlidCreator.getMonotonicUlid()}（标准加密 ULID）。</li>
      *   <li>格式：26 字符、大写 Crockford Base32（{@code 0-9A-HJKMNP-TV-Z}，不含 {@code I/L/O/U}），128 位 = 48 位毫秒时间戳 + 80 位随机。</li>

@@ -106,6 +106,11 @@ public final class CHttpServletResponse implements CHttpResponse {
 
     /**
      * {@inheritDoc}
+     *
+     * <p>
+     * 本覆写仅存于 javax 侧：Servlet 6.0（jakarta）已移除 {@code setStatus(int, String)}，
+     * 故 jakarta 侧沿接口的 {@code default} 降级为仅设状态码；javax 侧容器支持该 API，这里透传状态消息。
+     * </p>
      */
     @Override
     public void setStatus(int sc, String sm) {

@@ -78,7 +78,7 @@ public class CRequestLogHandlerInterceptor implements ICSpringHandlerInterceptor
     /**
      * 请求前处理：初始化链路追踪与请求日志上下文
      *
-     * <h2>preHandle</h2>
+     * <p><b>preHandle</b></p>
      * <ul>
      *   <li>调用 {@code CTraceUtils.initTrace()} 与 {@code CRequestLogUtils.init()}。</li>
      *   <li>异常捕获后记录 error 日志，恒返回 true 继续处理。</li>
@@ -106,7 +106,7 @@ public class CRequestLogHandlerInterceptor implements ICSpringHandlerInterceptor
     /**
      * 请求完成后处理：打印请求日志、输出慢日志并清理链路追踪上下文
      *
-     * <h2>afterCompletion</h2>
+     * <p><b>afterCompletion</b></p>
      * <ul>
      *   <li>获取并移除请求日志（{@code getOptThenRemove}），存在则：</li>
      *   <li>受 enable 总开关控制，{@code setEndTimeMillis(当前时间)} 后 {@code logWrite} 打印请求日志（覆盖响应体采集时记录的时间，含视图渲染与响应写出耗时）。</li>

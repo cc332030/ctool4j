@@ -7,7 +7,7 @@ import com.c332030.ctool4j.web.util.CErrorUtils;
 import lombok.CustomLog;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,6 +64,8 @@ import jakarta.servlet.http.HttpServletRequest;
  * <p><b>条件装配</b></p>
  * <ul>
  *   <li>{@code @ConditionalOnMissingBean(ErrorController.class)}：业务方自定义 ErrorController 时本类不生效。</li>
+ *   <li>本份承接 jakarta 侧：{@code ErrorController} 在 Boot 4 已从 {@code org.springframework.boot.web.servlet.error}
+ *   迁至 {@code org.springframework.boot.webmvc.error}（两侧均为无方法的标记接口），故本份 import 与 javax 侧不同。</li>
  * </ul>
  * <p><b>只留容器相关部分</b></p>
  * <ul>
