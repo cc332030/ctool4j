@@ -1,25 +1,5 @@
 import com.c332030.ctool4j.gradle.buildsrc.constant.SNAPSHOT
-import com.c332030.ctool4j.gradle.buildsrc.util.cAddParentPom
-import com.c332030.ctool4j.gradle.buildsrc.util.cAlignModuleVersion
-import com.c332030.ctool4j.gradle.buildsrc.util.cAddSpringBootPlugin
-import com.c332030.ctool4j.gradle.buildsrc.util.cParentArtifactId
-import com.c332030.ctool4j.gradle.buildsrc.util.cSetPackaging
-import com.c332030.ctool4j.gradle.buildsrc.util.configureSharedRepositories
-import com.c332030.ctool4j.gradle.buildsrc.util.getConfigValue
-import com.c332030.ctool4j.gradle.buildsrc.util.getJdkVersion
-import com.c332030.ctool4j.gradle.buildsrc.util.isJdk8
-import com.c332030.ctool4j.gradle.buildsrc.util.lib
-import com.c332030.ctool4j.gradle.buildsrc.util.libVersion
-import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.javadoc.Javadoc
-import org.gradle.api.tasks.testing.Test
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.kotlin.dsl.named
-import org.gradle.language.jvm.tasks.ProcessResources
+import com.c332030.ctool4j.gradle.buildsrc.util.*
 
 /**
  * <p>
@@ -268,24 +248,13 @@ subprojects {
         }
 
         tasks.withType<ProcessResources>().configureEach {
-            // 与 Maven `<filtering>true</filtering>` 对齐：只替换 Maven 会替换的项目属性，
-            // 未命中的 ${...}（logback/log4j/FreeMarker 的运行期占位符）原样保留
-            val tokens = mapOf(
-                "project.groupId" to moduleProject.group.toString(),
-                "project.artifactId" to projectName,
-                "project.version" to moduleProject.version.toString(),
-                "project.name" to projectName,
-                "project.build.sourceEncoding" to "UTF-8",
-                "java.version" to jdkVersion.toString()
-            )
-            inputs.properties(tokens)
-            filesMatching("**/*") {
-                filter<ReplaceTokens>(
-                    "tokens" to tokens,
-                    "beginToken" to "\${",
-                    "endToken" to "}"
-                )
-            }
+            // 不做构建期资源过滤。
+            // Maven 侧虽然开了 `<filtering>true</filtering>`，但全量核查后没有任何资源用到
+            // ${project.*} / ${java.version} 这类构建期占位符；src/main/resources 下的 ${...}
+            // 全部是 logback/log4j/FreeMarker 的运行期占位符，必须原样保留。
+            // 因此此前的 ReplaceTokens 模拟属空操作，却会让 IDEA 报
+            // "Cannot resolve resource filtering of MatchingCopyAction"，故移除。
+            //
             // Maven 根 pom 把 src/main/java 下的 xml 也纳入资源
             from("src/main/java") { include("**/*.xml") }
         }
