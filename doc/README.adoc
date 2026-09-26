@@ -38,12 +38,12 @@
 
 按模块分目录（仅保留确有功能级文档的模块）：
 
-* link:design/core/[core]：ctool4j-core（核心工具库）— link:design/core/method-handle.adoc[MethodHandle 工具]
+* link:design/core/[core]：ctool4j-core（核心工具库）— link:design/core/class-value.adoc[按类缓存（ClassValue 系列）]、link:design/core/method-handle.adoc[MethodHandle 工具]
 * link:design/definition/[definition]：ctool4j-definition（基础定义）— link:design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
 * link:design/redis/[redis]：ctool4j-redis — link:design/redis/rate-limit-idempotent.adoc[限流与幂等]
 * link:design/spring/[spring]：ctool4j-spring / spring-security / spring-cloud —
-  link:design/spring/ip.adoc[ip]、link:design/spring/real-class-name.adoc[真实业务类/类名/包名]、link:design/spring/authority-json.adoc[会话权限的 JSON 读写]、link:design/spring/spring-perf.adoc[性能实测]
-* link:design/web/[web]：ctool4j-web（Web MVC 通用能力）— link:design/web/unauthorized-401.adoc[未授权统一返回业务码 401]
+  link:design/spring/ip.adoc[ip]、link:design/spring/real-class-name.adoc[真实业务类/类名/包名]、link:design/spring/authority-json.adoc[会话权限的 JSON 读写]、link:design/spring/spring-perf.adoc[性能实测]、link:design/spring/started.adoc[应用启动完成回调]
+* link:design/web/[web]：ctool4j-web（Web MVC 通用能力）— link:design/web/unauthorized-401.adoc[未授权统一返回业务码 401]、link:design/web/exception-fallback.adoc[异常兜底分层]
 
 == 约定
 

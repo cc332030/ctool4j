@@ -20,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * <p>覆盖 CThrowableHandler.handle：兜底返回默认 500 与固定消息；并经真实 MVC 链路验证
  * <b>不截走任何有具体处理器的异常（含其子类）</b>，只兜底未识别异常（含 {@code Error}）。</p>
+ * <p>本类只覆盖 <b>{@code Error} 一类兜底</b>——非 {@code CException} 体系的 {@code Exception} 已由 CExceptionHandler 承接
+ * （见 {@code CExceptionHandlerTests}），故相关用例断言「命中归属未变、仍不落回本处理器」。</p>
  *
  * <h2>设计思路</h2>
  * <ul>
@@ -27,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>分类 2：{@code @CTool4jSpringBootTest} + {@code @AutoConfigureMockMvc} 走真实接口（{@code CExceptionHandlerTestController}），
  *   对每类异常（及子类）断言"由对应具体处理器命中"的可观测结果——具体处理器的码/消息（或 {@code void} 处理器的空响应体），
  *   而非本兜底处理器的 {@code 未知异常}。</li>
- *   <li>分类 2 覆盖两类兜底：无具体处理器的运行时异常、{@code Error}（经容器包装后仍由 {@code Throwable} 兜底返回 200）。</li>
+ *   <li>分类 2 覆盖本档兜底：{@code Error}（经容器包装后仍由 {@code Throwable} 兜底返回 200）；普通异常的兜底承接方为 CExceptionHandler。</li>
  * </ul>
  * <h2>设计依据</h2>
  * <ul>
@@ -50,8 +52,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * </ul>
  * <h2>真实链路：兜底与"不截走具体异常"（含子类）</h2>
  * <ul>
- *   <li>2.1 未识别运行时异常：本处理器兜底，code 500 + {@code 未知异常}（ArithmeticException）</li>
- *   <li>2.2 未识别错误：本处理器兜底，code 500 + {@code 未知异常}（Error）</li>
+ *   <li>2.1 未识别运行时异常：由 CExceptionHandler 承接（code 500 + {@code 未知异常}），不落回本处理器</li>
+ *   <li>2.2 未识别错误：<b>本处理器兜底</b>，code 500 + {@code 未知异常}（Error）</li>
  *   <li>2.3 客户端连接中断：由 CClientAbortExceptionHandler 命中（void，空响应体）</li>
  *   <li>2.4 请求体不可读：由 CHttpMessageNotReadableExceptionHandler 命中</li>
  *   <li>2.5 请求体不可读子类：同上</li>
@@ -67,17 +69,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>2.15 缺必填参数子类：同上</li>
  *   <li>2.16 参数类型不匹配（自然触发）：由 CIllegalArgumentExceptionHandler 按 cause 命中（不回落到本处理器）</li>
  *   <li>2.17 参数校验失败（自然触发）：由 CMethodArgumentNotValidExceptionHandler 命中</li>
- *   <li>2.18 普通异常（Exception 本身，非 CException 体系）：本处理器兜底</li>
- *   <li>2.19 普通检查异常子类（extends Exception）：本处理器兜底</li>
- *   <li>2.20 普通运行时异常子类（extends RuntimeException）：本处理器兜底</li>
- *   <li>2.21 JDK 检查异常（IOException）：本处理器兜底</li>
+ *   <li>2.18 普通异常（Exception 本身，非 CException 体系）：由 CExceptionHandler 承接</li>
+ *   <li>2.19 普通检查异常子类（extends Exception）：由 CExceptionHandler 承接</li>
+ *   <li>2.20 普通运行时异常子类（extends RuntimeException）：由 CExceptionHandler 承接</li>
+ *   <li>2.21 JDK 检查异常（IOException）：由 CExceptionHandler 承接</li>
  *   <li>2.22 JDK 错误子类（AssertionError）：本处理器兜底</li>
  * </ul>
  *
  * <p>`CThrowableHandler` 的测试用例</p>
  *
  * @since 2026/8/16
- * @version 1.3
+ * @version 1.4
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest
@@ -102,7 +104,7 @@ public class CThrowableHandlerTests {
     /**
      * 对应测试用例 1.2：异常对象为 null（非预期入参）返回固定「未知异常」、不抛 NPE
      * <p>Spring MVC 命中 {@code @ExceptionHandler} 时异常对象不为 null，该分支运行时不可达；
-     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（并覆盖委托上传处理器分支前的 null 守卫；旧实现在此处 NPE）。</p>
+     * 用例固化"经容器显式传 null 也不 NPE"的兜底契约（旧实现会在此处委托上传处理器前 NPE）。</p>
      */
     @Test
     public void handle_nullThrowable() {
@@ -114,10 +116,10 @@ public class CThrowableHandlerTests {
     }
 
     /**
-     * 对应测试用例 2.1：未识别运行时异常由本处理器兜底（code 500 + 未知异常）
+     * 对应测试用例 2.1：未识别运行时异常由 CExceptionHandler 承接（code 500 + 未知异常），不落回本处理器
      */
     @Test
-    public void unknownRuntimeException_fallbackByThisHandler() throws Exception {
+    public void unknownRuntimeException_fallbackByExceptionHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/unknown-runtime"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("500"))
@@ -291,10 +293,10 @@ public class CThrowableHandlerTests {
     }
 
     /**
-     * 对应测试用例 2.18：普通异常（{@code Exception} 本身，非 CException 体系）无具体处理器，由本处理器兜底
+     * 对应测试用例 2.18：普通异常（{@code Exception} 本身，非 CException 体系）无具体处理器，由 CExceptionHandler 承接
      */
     @Test
-    public void exception_fallbackByThisHandler() throws Exception {
+    public void exception_fallbackByExceptionHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/exception"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("500"))
@@ -302,10 +304,10 @@ public class CThrowableHandlerTests {
     }
 
     /**
-     * 对应测试用例 2.19：普通检查异常子类（直接继承 {@code Exception}）由本处理器兜底
+     * 对应测试用例 2.19：普通检查异常子类（直接继承 {@code Exception}）由 CExceptionHandler 承接
      */
     @Test
-    public void checkedExceptionSubclass_fallbackByThisHandler() throws Exception {
+    public void checkedExceptionSubclass_fallbackByExceptionHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/exception-sub"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("500"))
@@ -313,10 +315,10 @@ public class CThrowableHandlerTests {
     }
 
     /**
-     * 对应测试用例 2.20：普通运行时异常子类（直接继承 {@code RuntimeException}）由本处理器兜底
+     * 对应测试用例 2.20：普通运行时异常子类（直接继承 {@code RuntimeException}）由 CExceptionHandler 承接
      */
     @Test
-    public void runtimeExceptionSubclass_fallbackByThisHandler() throws Exception {
+    public void runtimeExceptionSubclass_fallbackByExceptionHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/runtime-exception"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("500"))
@@ -324,10 +326,10 @@ public class CThrowableHandlerTests {
     }
 
     /**
-     * 对应测试用例 2.21：JDK 检查异常（{@code IOException}）由本处理器兜底
+     * 对应测试用例 2.21：JDK 检查异常（{@code IOException}）由 CExceptionHandler 承接
      */
     @Test
-    public void ioException_fallbackByThisHandler() throws Exception {
+    public void ioException_fallbackByExceptionHandler() throws Exception {
         mockMvc.perform(get("/c-exception-handler/io-exception"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("500"))

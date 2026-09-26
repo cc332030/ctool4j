@@ -22,7 +22,7 @@
 
 | link:core/[core]
 | 核心工具库（ctool4j-core）：字符串、集合、日期、反射、日志、校验
-| link:core/method-handle.adoc[method-handle]、link:core/perf/beanutils-perf.adoc[CBeanUtils 性能实测]
+| link:core/class-value.adoc[按类缓存（ClassValue 系列）]、link:core/method-handle.adoc[method-handle]、link:core/perf/beanutils-perf.adoc[CBeanUtils 性能实测]
 
 | link:definition/[definition]
 | 基础定义（ctool4j-definition）：统一返回体、实体基类、枚举、注解、函数式接口
@@ -38,7 +38,7 @@
 
 | link:web/[web]
 | Web MVC 通用能力（ctool4j-web）：全局异常、跨域、JWT/token、请求日志、traceId
-| link:web/unauthorized-401.adoc[未授权统一返回业务码 401]
+| link:web/unauthorized-401.adoc[未授权统一返回业务码 401]、link:web/exception-fallback.adoc[异常兜底分层]
 
 |===
 
