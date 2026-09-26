@@ -3,9 +3,7 @@ package com.c332030.ctool4j.gradle.buildsrc.util
 import groovy.util.Node
 import groovy.xml.XmlNodePrinter
 import groovy.xml.XmlParser
-import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
-import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -14,9 +12,11 @@ import java.io.StringWriter
  * Description: CGradlePublishUtils
  * </p>
  *
- * 发布相关工具：把 Maven 的父 pom 继承链与 boot-parent 的插件配置复刻到 Gradle 产出的 pom 上。
+ * 发布相关工具：pom 的 XML 级增补（`<packaging>`、`ctool4j-boot-parent` 的插件配置）。
  *
  * 说明：
+ * - **不再注入 `<parent>`**：Gradle 产出的 pom 本身自洽——依赖版本由 pom 内 `<dependencyManagement>`
+ *   的 BOM import 提供（`platform(...)` 依赖会被 Gradle 翻译成 import），无需模拟 Maven 的父子继承链。
  * - 以下函数的参数一律用普通值（String）而非 Project——`pom.withXml` 的回调在任务执行期执行，
  *   闭包捕获 Project 会破坏 Gradle 的 configuration-cache。
  * - 改写 pom 走 XML 字符串（XmlParser → 增补 → XmlNodePrinter），不使用 `XmlProvider.asNode()`
@@ -37,80 +37,6 @@ private fun Node.toPomString(): String {
 }
 
 /**
- * 推断本模块在 Maven 体系中的父构件：
- * 由目录结构推导——向上取"最近一个本身也是模块（含 build.gradle.kts）的祖先目录"，
- * 取不到则落到根构件（rootProject.name）。
- *
- * 该推导与迁移前的 `<parent>` 链逐模块一致（模块目录层级即 Maven 继承层级）。
- */
-fun Project.cParentArtifactId(): String {
-
-    val rootPath = rootDir.invariantSeparatorsPath
-    var dir: File? = projectDir.parentFile
-
-    while (dir != null && dir.invariantSeparatorsPath != rootPath) {
-        if (File(dir, "build.gradle.kts").exists()) {
-            return dir.name
-        }
-        dir = dir.parentFile
-    }
-
-    return rootProject.name
-}
-
-/**
- * 往产出 pom 里注入 `<parent>`（Maven 继承链）。
- *
- * Gradle 生成 pom 时不写 `<parent>`；不注入则外部 Maven 侧"以 ctool4j 的 pom 为 parent"
- * 的用法断链（例如 `ctool4j-boot-parent`）。
- */
-fun MavenPublication.cAddParentPom(groupId: String, artifactId: String, version: String) {
-
-    pom.withXml {
-
-        // XmlProvider#asString() 返回其内部 StringBuilder，就地改写即可生效（无 setter 可用）
-        val builder = asString()
-        val root = builder.toString().toPomNode()
-
-        val parent = Node(root, "parent")
-        Node(parent, "groupId", groupId)
-        Node(parent, "artifactId", artifactId)
-        Node(parent, "version", version)
-
-        // <parent> 必须排在 <modelVersion> 之后
-        val children = root.children() as MutableList<Any>
-        children.remove(parent)
-        children.add(1, parent)
-
-        builder.setLength(0)
-        builder.append(root.toPomString())
-
-    }
-}
-
-/**
- * 设置产出 pom 的 `<packaging>`（无组件的聚合/父 pom 用 `pom`）。
- *
- * 走 XML 改写而非 `MavenPom#getPackaging()`：后者在 Kotlin DSL 下取到的并非 `Property<String>`。
- */
-fun MavenPublication.cSetPackaging(packaging: String) {
-
-    pom.withXml {
-
-        val builder = asString()
-        val root = builder.toString().toPomNode()
-
-        val children = root.children() as MutableList<Any>
-        children.removeAll { it is Node && "packaging" == it.name() }
-        Node(root, "packaging", packaging)
-
-        builder.setLength(0)
-        builder.append(root.toPomString())
-
-    }
-}
-
-/**
  * 往产出 pom 里注入 `<build><plugins>`（当前仅 `ctool4j-boot-parent` 需要）：
  * 该构件对外是业务应用的 Maven 父 pom，须带 spring-boot-maven-plugin 的版本与 repackage 执行。
  */
@@ -120,8 +46,10 @@ fun MavenPublication.cAddSpringBootPlugin(springBootVersion: String) {
 
         val builder = asString()
         val root = builder.toString().toPomNode()
-        val build = Node(root, "build")
-        val plugins = Node(build, "plugins")
+        val build = root.childOrCreate("build")
+        val plugins = build.childOrCreate("plugins", BUILD_ELEMENT_ORDER)
+        // 幂等：`pom.withXml` 可能被执行多次，先清掉自己上次写的那个 plugin
+        plugins.removePlugins("spring-boot-maven-plugin")
         val plugin = Node(plugins, "plugin")
         Node(plugin, "groupId", "org.springframework.boot")
         Node(plugin, "artifactId", "spring-boot-maven-plugin")
@@ -133,6 +61,184 @@ fun MavenPublication.cAddSpringBootPlugin(springBootVersion: String) {
         val executions = Node(plugin, "executions")
         val execution = Node(executions, "execution")
         Node(Node(execution, "goals"), "goal", "repackage")
+
+        builder.setLength(0)
+        builder.append(root.toPomString())
+
+    }
+}
+
+/**
+ * Maven 侧「继承载荷」。
+ *
+ * 这些聚合/父 pom 对外的用途就是被业务系统当作 `<parent>` 继承：Maven 的继承是"内容级"的，
+ * 而 Gradle 产出的 pom 不带继承链（也不该带），所以把迁移前 Maven pom 的**有效语义**直接写进产出 pom。
+ *
+ * 注意：这是给 Maven 消费者用的形态（provided/test 作用域、pluginManagement 等 Gradle 模型无法表达），
+ * Gradle 消费者侧用 `platform(...)` / 项目依赖即可，两套并行、互不影响。
+ */
+class MavenParentContent(
+    /** `<dependencyManagement>` 里 import 的 BOM（`g:a:v`），null 表示不写 */
+    val bomImport: String? = null,
+    /** provided 作用域依赖（`g:a` 或 `g:a:v`）：随父 pom 继承给业务系统，但不向其传递 */
+    val providedDependencies: List<String> = emptyList(),
+    /** test 作用域依赖 */
+    val testDependencies: List<String> = emptyList(),
+    /** maven-compiler-plugin 的 `<source>` / `<target>` */
+    val compilerJavaVersion: String,
+    /** maven-compiler-plugin 的 `<parameters>true</parameters>` */
+    val compilerParameters: Boolean = false,
+    /** maven-compiler-plugin 的 `<annotationProcessorPaths>`（`g:a:v`） */
+    val annotationProcessorPaths: List<String> = emptyList(),
+    /** pluginManagement 中 spring-boot-maven-plugin 的版本，null 表示不写 */
+    val springBootPluginVersion: String? = null
+)
+
+/** `<project>` 直接子元素的顺序（Maven 4.0.0 模型），插入时按此排序 */
+private val POM_ELEMENT_ORDER = listOf(
+    "modelVersion", "parent", "groupId", "artifactId", "version", "packaging", "name", "description", "url",
+    "inceptionYear", "organization", "licenses", "developers", "contributors", "mailingLists", "prerequisites",
+    "modules", "scm", "issueManagement", "ciManagement", "distributionManagement", "properties",
+    "dependencyManagement", "dependencies", "repositories", "pluginRepositories", "build", "reporting", "profiles"
+)
+
+/** `<build>` 直接子元素的顺序（pluginManagement 必须在 plugins 之前） */
+private val BUILD_ELEMENT_ORDER = listOf(
+    "sourceDirectory", "scriptSourceDirectory", "testSourceDirectory", "outputDirectory", "testOutputDirectory",
+    "defaultGoal", "resources", "testResources", "directory", "finalName", "filters", "pluginManagement", "plugins"
+)
+
+/** 删除同名直接子节点 */
+private fun Node.removeChildren(name: String) {
+    (children() as MutableList<Any>).removeAll { it is Node && name == it.name().toString() }
+}
+
+/** 删除 `<plugins>` 下指定 artifactId 的 plugin 节点（注入幂等用） */
+private fun Node.removePlugins(artifactId: String) {
+    (children() as MutableList<Any>).removeAll {
+        it is Node && "plugin" == it.name().toString() && artifactId == it.child("artifactId")?.text()
+    }
+}
+
+/** 取同名子节点（可能不存在） */
+private fun Node.child(name: String): Node? =
+    children().filterIsInstance<Node>().firstOrNull { name == it.name().toString() }
+
+/** 取同名子节点，没有则按 Maven 模型顺序新建 */
+private fun Node.childOrCreate(name: String, order: List<String> = POM_ELEMENT_ORDER): Node {
+
+    child(name)?.let { return it }
+
+    // 注意：`Node(parent, name)` 构造时**已经**把节点挂到父节点末尾，不能再手动 add（会重复）
+    val node = Node(this, name)
+    val children = children() as MutableList<Any>
+    val position = order.indexOf(name).let { if (it < 0) order.size else it }
+    val index = children.indexOfFirst {
+        it is Node && (order.indexOf(it.name().toString()).let { i -> if (i < 0) order.size else i }) > position
+    }
+    if (index >= 0 && index < children.size - 1) {
+        children.remove(node)
+        children.add(index, node)
+    }
+    return node
+}
+
+/** `g:a[:v]` 解析 */
+private fun String.toGav(): Triple<String, String, String?> {
+    val parts = split(':')
+    return Triple(parts[0], parts[1], parts.getOrNull(2))
+}
+
+/** 追加一个 `<dependency>`（带作用域），用于让 Maven 消费者从父 pom 继承该依赖 */
+private fun Node.addDependency(gav: String, scope: String) {
+
+    val (groupId, artifactId, version) = gav.toGav()
+    val dependency = Node(this, "dependency")
+    Node(dependency, "groupId", groupId)
+    Node(dependency, "artifactId", artifactId)
+    if (!version.isNullOrEmpty()) {
+        Node(dependency, "version", version)
+    }
+    Node(dependency, "scope", scope)
+}
+
+/**
+ * 把 Maven 父 pom 的继承载荷写进产出 pom（详见 [MavenParentContent]）。
+ */
+fun MavenPublication.cAddInheritedMavenContent(content: MavenParentContent) {
+
+    pom.withXml {
+
+        val builder = asString()
+        val root = builder.toString().toPomNode()
+
+        // 幂等：`pom.withXml` 可能被执行多次，先清掉自己上次写的内容（这些 pom 本来就没有对应节点）
+        root.removeChildren("dependencyManagement")
+        root.removeChildren("dependencies")
+        val build = root.childOrCreate("build")
+        build.removeChildren("pluginManagement")
+        val plugins = build.childOrCreate("plugins", BUILD_ELEMENT_ORDER)
+        plugins.removePlugins("maven-compiler-plugin")
+
+        // ---- dependencyManagement：import 版本管理 BOM ----
+        if (!content.bomImport.isNullOrEmpty()) {
+            val (groupId, artifactId, version) = content.bomImport.toGav()
+            val dependencies = root.childOrCreate("dependencyManagement").childOrCreate("dependencies")
+            val dependency = Node(dependencies, "dependency")
+            Node(dependency, "groupId", groupId)
+            Node(dependency, "artifactId", artifactId)
+            if (!version.isNullOrEmpty()) {
+                Node(dependency, "version", version)
+            }
+            Node(dependency, "type", "pom")
+            Node(dependency, "scope", "import")
+        }
+
+        // ---- dependencies：随父 pom 继承给业务系统的依赖（provided / test）----
+        if (content.providedDependencies.isNotEmpty() || content.testDependencies.isNotEmpty()) {
+            val dependencies = root.childOrCreate("dependencies")
+            content.providedDependencies.forEach { dependencies.addDependency(it, "provided") }
+            content.testDependencies.forEach { dependencies.addDependency(it, "test") }
+        }
+
+        // ---- build/plugins：编译器配置（source/target/encoding/parameters/注解处理器）----
+        val compiler = Node(plugins, "plugin")
+        Node(compiler, "groupId", "org.apache.maven.plugins")
+        Node(compiler, "artifactId", "maven-compiler-plugin")
+        val configuration = Node(compiler, "configuration")
+        Node(configuration, "source", content.compilerJavaVersion)
+        Node(configuration, "target", content.compilerJavaVersion)
+        Node(configuration, "encoding", "UTF-8")
+        if (content.compilerParameters) {
+            Node(configuration, "parameters", "true")
+        }
+        if (content.annotationProcessorPaths.isNotEmpty()) {
+            val paths = Node(configuration, "annotationProcessorPaths")
+            content.annotationProcessorPaths.forEach { gav ->
+                val (groupId, artifactId, version) = gav.toGav()
+                val path = Node(paths, "path")
+                Node(path, "groupId", groupId)
+                Node(path, "artifactId", artifactId)
+                if (!version.isNullOrEmpty()) {
+                    Node(path, "version", version)
+                }
+            }
+        }
+
+        // ---- build/pluginManagement：spring-boot-maven-plugin 版本与 repackage 执行 ----
+        if (!content.springBootPluginVersion.isNullOrEmpty()) {
+            val management = build.childOrCreate("pluginManagement", BUILD_ELEMENT_ORDER)
+            val managedPlugins = management.childOrCreate("plugins", BUILD_ELEMENT_ORDER)
+            val plugin = Node(managedPlugins, "plugin")
+            Node(plugin, "groupId", "org.springframework.boot")
+            Node(plugin, "artifactId", "spring-boot-maven-plugin")
+            Node(plugin, "version", content.springBootPluginVersion)
+            val pluginConfiguration = Node(plugin, "configuration")
+            Node(pluginConfiguration, "fork", "true")
+            val executions = Node(plugin, "executions")
+            val execution = Node(executions, "execution")
+            Node(Node(execution, "goals"), "goal", "repackage")
+        }
 
         builder.setLength(0)
         builder.append(root.toPomString())

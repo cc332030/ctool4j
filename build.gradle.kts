@@ -181,6 +181,9 @@ subprojects {
     when {
         isBomModule -> apply(plugin = "java-platform")
         isJarModule -> apply(plugin = "java-library")
+        // 聚合/父 pom 同样是 java-platform：原生产出 `<packaging>pom</packaging>` 且不产 jar，
+        // 不再需要改写 pom 的 `<packaging>`（原先的 cSetPackaging 属 Maven 模拟）
+        else -> apply(plugin = "java-platform")
     }
 
     repositories {
@@ -248,17 +251,10 @@ subprojects {
             (options as CoreJavadocOptions).quiet()
         }
 
-        tasks.withType<ProcessResources>().configureEach {
-            // 不做构建期资源过滤。
-            // Maven 侧虽然开了 `<filtering>true</filtering>`，但全量核查后没有任何资源用到
-            // ${project.*} / ${java.version} 这类构建期占位符；src/main/resources 下的 ${...}
-            // 全部是 logback/log4j/FreeMarker 的运行期占位符，必须原样保留。
-            // 因此此前的 ReplaceTokens 模拟属空操作，却会让 IDEA 报
-            // "Cannot resolve resource filtering of MatchingCopyAction"，故移除。
-            //
-            // Maven 根 pom 把 src/main/java 下的 xml 也纳入资源
-            from("src/main/java") { include("**/*.xml") }
-        }
+        // 资源：不做构建期过滤（Maven 侧虽开了 `<filtering>true</filtering>`，但全量核查后没有任何资源
+        // 用到 ${project.*} / ${java.version} 这类构建期占位符；src/main/resources 下的 ${...} 全部是
+        // logback/log4j/FreeMarker 的运行期占位符，必须原样保留），也不再为兼容 Maven 的
+        // "src/main/java 下 xml 也算资源" 而额外挂资源目录——仓库内该目录下没有 xml，属 Maven 侧的死配置。
 
         tasks.withType<Test>().configureEach {
             useJUnitPlatform()
@@ -386,9 +382,71 @@ subprojects {
 
     // ==================== 发布 ====================
 
-    val parentArtifactId = moduleProject.cParentArtifactId()
-    val moduleGroupId = moduleProject.group.toString()
-    val moduleVersion = moduleProject.version.toString()
+    /**
+     * 聚合/父 pom 的 Maven 继承载荷。
+     *
+     * 这些构件对外的用途就是被业务系统当 `<parent>` 继承，而 Maven 的继承是"内容级"的：
+     * Gradle 产出的 pom 不带继承链（按 Gradle 规范也不该带），故把迁移前 Maven pom 的**有效语义**
+     * 直接写进产出 pom。
+     *
+     * `ctool4j-parent` 与 `ctool4j-processor-parent` 的差异正在此处——后者多出 mybatis / mq
+     * 两个注解处理器（既作为 provided 依赖继承，也进 `annotationProcessorPaths`）。
+     */
+    val publishGroupId = moduleProject.group.toString()
+    val lombokCoordinate = "org.projectlombok:lombok:${libVersion("lombok")}"
+    val autowiredProcessorCoordinate = "$publishGroupId:ctool4j-autowired-processor:$ctool4jVersion"
+    val mybatisProcessorCoordinate = "$publishGroupId:ctool4j-mybatis-processor:$ctool4jVersion"
+    val mqProcessorCoordinate = "$publishGroupId:ctool4j-mq-processor:$ctool4jVersion"
+    val compilerJavaVersion = if (jdk8Profile) jdkVersion.toString() else ltsRelease.toString()
+    val springBootPluginVersion = lib("spring-boot-dependencies").get().version
+        ?: throw IllegalStateException("spring-boot-dependencies version is not defined")
+
+    val inheritedMavenContent: MavenParentContent? = when (projectName) {
+
+        // 业务系统的公共父 pom：BOM 版本管理 + lombok/autowired 处理器（provided）+ 测试依赖 + 编译器配置
+        "ctool4j-parent", "ctool4j-pom" -> MavenParentContent(
+            bomImport = "$publishGroupId:ctool4j-bom:$ctool4jVersion",
+            providedDependencies = listOf(lombokCoordinate, autowiredProcessorCoordinate),
+            testDependencies = listOf("org.springframework.boot:spring-boot-starter-test"),
+            compilerJavaVersion = compilerJavaVersion,
+            compilerParameters = true,
+            annotationProcessorPaths = listOf(lombokCoordinate, autowiredProcessorCoordinate),
+            springBootPluginVersion = springBootPluginVersion
+        )
+
+        // 业务应用的父 pom：同 ctool4j-parent，插件以 <plugins> 形式给出（见 cAddSpringBootPlugin）
+        "ctool4j-boot-parent" -> MavenParentContent(
+            bomImport = "$publishGroupId:ctool4j-bom:$ctool4jVersion",
+            providedDependencies = listOf(lombokCoordinate, autowiredProcessorCoordinate),
+            testDependencies = listOf("org.springframework.boot:spring-boot-starter-test"),
+            compilerJavaVersion = compilerJavaVersion,
+            compilerParameters = true,
+            annotationProcessorPaths = listOf(lombokCoordinate, autowiredProcessorCoordinate)
+        )
+
+        // 注解处理器父 pom：比 ctool4j-parent 多 mybatis / mq 处理器
+        "ctool4j-processor-parent" -> MavenParentContent(
+            bomImport = "$publishGroupId:ctool4j-bom:$ctool4jVersion",
+            providedDependencies = listOf(
+                lombokCoordinate,
+                autowiredProcessorCoordinate,
+                mybatisProcessorCoordinate,
+                mqProcessorCoordinate
+            ),
+            testDependencies = listOf("org.springframework.boot:spring-boot-starter-test"),
+            compilerJavaVersion = compilerJavaVersion,
+            compilerParameters = true,
+            annotationProcessorPaths = listOf(
+                lombokCoordinate,
+                autowiredProcessorCoordinate,
+                mybatisProcessorCoordinate,
+                mqProcessorCoordinate
+            ),
+            springBootPluginVersion = springBootPluginVersion
+        )
+
+        else -> null
+    }
 
     extensions.configure<PublishingExtension> {
 
@@ -397,13 +455,11 @@ subprojects {
             val publicationName = if (isPomOnly) "mavenPom" else "mavenJava"
             create<MavenPublication>(publicationName) {
 
-                if (isBomModule) {
-                    from(components["javaPlatform"])
-                } else if (isJarModule) {
+                if (isJarModule) {
                     from(components["java"])
                 } else {
-                    // 聚合/父 pom：无组件可发布，packaging 需显式置为 pom
-                    cSetPackaging("pom")
+                    // BOM 与聚合/父 pom：java-platform 组件（packaging=pom、无 jar）
+                    from(components["javaPlatform"])
                 }
 
                 pom {
@@ -435,8 +491,9 @@ subprojects {
 
                 }
 
-                if (parentArtifactId != projectName) {
-                    cAddParentPom(moduleGroupId, parentArtifactId, moduleVersion)
+                // 聚合/父 pom 写入 Maven 继承载荷（空壳会让业务系统失去迁移前的继承语义）
+                if (null != inheritedMavenContent) {
+                    cAddInheritedMavenContent(inheritedMavenContent)
                 }
 
             }
