@@ -6,7 +6,7 @@
 
 * 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`）：引入依赖即生效，无需业务手工配 `@Bean`。
 * 未认证 / 拒绝访问 / 会话过期**统一 JSON 返回**（`CAuthenticationEntryPoint`、`CAccessDeniedHandler`、`CSessionInformationExpiredStrategy`）。
-* 认证过滤器**按类型契约注入**：过滤器链注入 `CAbstractWebAuthFilter`（+ctool4j-spring-javax+ 的类型契约，两侧同名），实现由 auth 模块提供（见 link:auth.adoc[auth]）。
+* 认证过滤器**按类型契约注入**：过滤器链注入 `CAbstractWebAuthFilter`（+ctool4j-spring-servlet+ 的类型契约，模块内按档位自动切换容器侧），实现由 auth 模块提供（见 link:auth.adoc[auth]）。
 * 用户认证服务抽象：`ICUserDetailsService` / `ICAuthenticationUserDetailsService` / `ICUserDetailsPasswordService`（不实现时用 `CEmptyUserDetailService` 兜底）。
 * 放行/禁止路径配置（`ICRequestMatchersConfig`、`CSpringSecurityRequestMatchersPathConfig`）。
 * 工具类：`CSpringSecurityUtils`（安全上下文、匿名权限常量 `ROLE_ANONYMOUS`）、`CAuthenticationUtils`。

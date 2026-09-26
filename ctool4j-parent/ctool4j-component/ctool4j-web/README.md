@@ -15,7 +15,7 @@
 - **请求头枚举**：`CRequestHeaderEnum` 统一请求头名称
 - **MVC 配置**：`CWebMvcConfigurer`（拦截器注册、消息转换器配置）
 - **请求体增强抽象**：`ICBaseRequestBodyAdvice`（供日志等模块继承）
-- **容器适配部分**：统一错误页 `CErrorController`、过滤器接口 `ICFilter`、静态资源过滤器 `CResourceFilter`、认证过滤器基类 `CAbstractWebAuthFilter`、cors 过滤器、拦截器契约 `ICSpringHandlerInterceptor` 与响应体增强契约 `ICSpringResponseBodyAdvice` 均位于 `ctool4j-spring-javax`（两侧同名，切容器只换依赖模块），见 [ctool4j-spring-base-pom](../ctool4j-spring-base-pom/README.md)
+- **容器适配部分**：统一错误页 `CErrorController`、过滤器接口 `ICFilter`、静态资源过滤器 `CResourceFilter`、认证过滤器基类 `CAbstractWebAuthFilter`、cors 过滤器、拦截器契约 `ICSpringHandlerInterceptor` 与响应体增强契约 `ICSpringResponseBodyAdvice` 均位于 `ctool4j-spring-servlet`（模块内按档位自动切换 javax/jakarta 源目录，依赖坐标不变），见 [ctool4j-spring-base-pom](../ctool4j-spring-base-pom/README.md)
 - **HTTP 请求日志**：`CRequestLogUtils` 构造 / 保存 / 输出 `CRequestLog`（HTTP 格式 dump），`CCommUtils.appendHttpLog` 统一拼接，支持 URI 排除、请求体记录
 - **traceId 透传**：`CTraceUtils` 从请求头读取 traceId（无则生成），写入 ThreadLocal + MDC（key = `c-trace-id`），支持 SPI 定制提供者（`ICTraceInfoProvider`）
 - **工具类**：`CServletUtils`、`CWebUtils`
@@ -27,8 +27,8 @@
 | `advice` | 请求体增强抽象接口 |
 | `config` / `configuration` / `configurer` | 配置属性、Web 初始化与 MVC 配置 |
 | `exception` | 异常注解、装配条件、各异常处理器 |
-| `cors` | 跨域备用方案：拦截器与响应体增强（配置与工具在 `ctool4j-spring-base`，过滤器在两侧适配模块） |
-| `interceptor` | 内部接口 IP 白名单拦截器（拦截器契约在两侧适配模块） |
+| `cors` | 跨域备用方案：拦截器与响应体增强（配置与工具在 `ctool4j-spring-base`，过滤器在容器适配模块） |
+| `interceptor` | 内部接口 IP 白名单拦截器（拦截器契约在容器适配模块） |
 | `model` / `spi` | 请求日志与 traceId 模型、traceId 提供者 SPI |
 | `util` | JWT、token、请求日志、Servlet / Web 工具 |
 | `enums` / `validation` | 请求头枚举、校验注解与校验器 |
@@ -47,7 +47,7 @@
 | `CWebInit` | 生命周期 | web 模块启动初始化与启动完成回调（`ICSpringInit` + `CStartedApplicationRunner`），在 `onStarted` 中清理本模块的装配期缓存 |
 | `CCorsInterceptor` / `CCorsResponseBodyAdvice` | 拦截器/增强 | 跨域备用方案（`CCorsFilter` 生效时无需注册） |
 | `CInnerApiInterceptor` / `CInnerApiConfig` | 拦截器/配置 | 内部接口 IP 白名单校验 |
-| `CCorsConfig` / `CCorsFilter` | 配置/过滤器 | 跨域支持（配置在 `ctool4j-spring-base`，过滤器在两侧适配模块） |
+| `CCorsConfig` / `CCorsFilter` | 配置/过滤器 | 跨域支持（配置在 `ctool4j-spring-base`，过滤器在容器适配模块） |
 | `CJwtUtils` | 工具类 | JWT 生成与解析 |
 | `CTokenUtils` | 工具类 | token 前缀、请求头/响应头与请求属性读写 |
 | `CRequestHeaderEnum` | 枚举 | 请求头名称统一管理 |

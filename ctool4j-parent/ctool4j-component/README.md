@@ -14,10 +14,10 @@
 |----|------|------|
 | 基础层 | [ctool4j-definition](ctool4j-definition/README.md) | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 |
 | | [ctool4j-core](ctool4j-core/README.md) | 核心工具库：字符串 / 集合 / 日期 / JSON / 反射 / 异常 / 日志 / 校验 |
-| | [ctool4j-http-pom](ctool4j-http-pom/README.md) | Servlet 容器抽象层与两侧适配：`ctool4j-http-base` / `-javax` / `-jakarta` |
+| | [ctool4j-http-pom](ctool4j-http-pom/README.md) | Servlet 容器抽象层与容器适配：`ctool4j-http-base` / `ctool4j-http-servlet`（模块内按档位切换 javax/jakarta 源目录） |
 | | [ctool4j-db](ctool4j-db/README.md) | SQL 拼接工具 |
 | | [ctool4j-transaction](ctool4j-transaction/README.md) | 事务注解约定（`@CTransactional`） |
-| Spring 层 | [ctool4j-spring-base-pom](ctool4j-spring-base-pom/README.md) | Spring 侧抽象契约与两侧适配：拦截器 / 响应体增强 / 配置属性 / cors / 安全错误响应 |
+| Spring 层 | [ctool4j-spring-base-pom](ctool4j-spring-base-pom/README.md) | Spring 侧抽象契约与容器适配：拦截器 / 响应体增强 / 配置属性 / cors / 安全错误响应（`ctool4j-spring-servlet` / `ctool4j-spring-security-servlet`，模块内按档位切换 javax/jakarta 源目录） |
 | | [ctool4j-spring-pom](ctool4j-spring-pom/README.md) | `ctool4j-spring` / `ctool4j-spring-security` / `ctool4j-spring-cloud` |
 | 应用层 | [ctool4j-web](ctool4j-web/README.md) | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId |
 | | [ctool4j-feign](ctool4j-feign/README.md) | Feign 增强：请求头传播、日志、自定义拦截器 |

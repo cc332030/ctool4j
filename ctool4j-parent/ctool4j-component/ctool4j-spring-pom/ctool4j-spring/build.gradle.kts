@@ -5,12 +5,9 @@ plugins {
 import com.c332030.ctool4j.gradle.buildsrc.util.isJdk8
 
 /**
- * 容器侧切换点：jdk8 档位取 javax 侧适配模块，其他档位取 jakarta 侧。
- *
- * 业务代码与 import 不变——换的是依赖模块（见 `agent/AGENTS-PROJECT.MD`「javax/jakarta 双栈」）。
- * 另一侧模块不在本档位的构建里（见 `settings.gradle.kts` 的档位过滤）。
+ * 容器侧适配模块：`ctool4j-spring-servlet` 内在 `src/main/java-javax` 与 `src/main/java-jakarta`
+ * 两套同包同名源码间按档位自动切换（见根 `build.gradle.kts`），故依赖模块恒定、不再按侧拼接模块名。
  */
-val containerSide = if (isJdk8()) "javax" else "jakarta"
 
 dependencies {
 
@@ -22,7 +19,7 @@ dependencies {
 
     api("org.aspectj:aspectjweaver")
     api(project(":ctool4j-core"))
-    api(project(":ctool4j-spring-$containerSide"))
+    api(project(":ctool4j-spring-servlet"))
     api(project(":ctool4j-autowired-processor"))
 
 }

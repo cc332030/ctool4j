@@ -18,7 +18,7 @@ import lombok.CustomLog;
  *
  * <h2>能力目录</h2>
  * <p>{@code CCorsInterceptor} 为跨域的<b>备用方案</b>（{@code @Component} 已被注释，需使用方手动注册到拦截器链），
- * 实现 {@code ICSpringHandlerInterceptor}（{@code ctool4j-spring-javax} 提供的抽象层版，继承 Spring {@code HandlerInterceptor}）。</p>
+ * 实现 {@code ICSpringHandlerInterceptor}（{@code ctool4j-spring-servlet} 提供的抽象层版，继承 Spring {@code HandlerInterceptor}）。</p>
  * <p>核心方法 {@code preHandle(request, response, handler)}：</p>
  * <ul>
  *   <li>调用 {@code CCorsUtils.handleAndContinue(request, response)}：输出 CORS 头并判定是否继续</li>

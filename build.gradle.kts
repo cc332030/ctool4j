@@ -216,14 +216,26 @@ subprojects {
         }
 
         // ---- 档位专属源码目录 ----
-        // 少数类在 jdk8 与最新 LTS 档位下必须用不同的底层 API（如 HttpClient 4 vs HttpClient 5：
-        // Boot 4 / Spring 7 的 HttpComponentsClientHttpRequestFactory 只接受 HttpClient 5），
-        // 无法用同一份源码兼容。约定：差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `.../java-latest`
-        //（同包同名、互斥），由档位决定纳入哪一个；两目录都不放"公共类"，故不存在同名覆盖问题。
-        // jdk8 档位只读 java-jdk8，非 jdk8 档位只读 java-latest，各自产物互不影响。
+        // 少数类在两档位下必须用不同的底层 API（Servlet 容器 javax/jakarta、HttpClient 4/5、
+        // SLF4J 1/2 等），无法用同一份源码兼容。约定：差异实现按档位分放
+        // `src/<main|test>/java-jdk8` 与 `.../java-latest`（同包同名、互斥），由档位决定纳入哪一个；
+        // 两目录都不放"公共类"，故不存在同名覆盖问题。jdk8 档位只读 java-jdk8，非 jdk8 档位只读 java-latest。
         // main 与 test 两套源码目录均适用本规则（仅当目录存在时才追加）。
         val jdkSideSuffix = if (jdk8Profile) "jdk8" else "latest"
-        listOf("main", "test").forEach { sourceSetName ->
+        val variantSourceSetNames = listOf("main", "test")
+
+        // ---- 容器侧源码目录（javax / jakarta 同一模块内切换）----
+        // 容器侧适配类（原 `-javax` / `-jakarta` 模块）已合入本模块：两套源码**同包同名**，只有
+        // `javax.servlet` / `jakarta.servlet` 的 import 与措辞不同，故**只放一份模块**、按档位选源目录，
+        // 不再成对维护两个模块（旧的双模块形态要靠人工逐文件对齐，实测会漂移）。
+        //
+        // 落点约定（与 java-jdk8 / java-latest 并列）：
+        // - `src/<main|test>/java-javax`   → 仅在 jdk8 档位纳入（javax 侧）
+        // - `src/<main|test>/java-jakarta` → 仅在非 jdk8 档位纳入（jakarta 侧）
+        // 只有承载容器侧适配类的模块才建这两个目录；两目录都不放"公共类"，故不存在同名覆盖问题。
+        val containerSideSuffix = if (jdk8Profile) "javax" else "jakarta"
+
+        variantSourceSetNames.forEach { sourceSetName ->
             val variantSourceDir = moduleProject.file("src/$sourceSetName/java-$jdkSideSuffix")
             if (variantSourceDir.exists()) {
                 moduleProject.extensions.getByType<JavaPluginExtension>()
@@ -231,6 +243,16 @@ subprojects {
                     .named(sourceSetName)
                     .configure {
                         java.srcDir(variantSourceDir)
+                    }
+            }
+
+            val containerSourceDir = moduleProject.file("src/$sourceSetName/java-$containerSideSuffix")
+            if (containerSourceDir.exists()) {
+                moduleProject.extensions.getByType<JavaPluginExtension>()
+                    .sourceSets
+                    .named(sourceSetName)
+                    .configure {
+                        java.srcDir(containerSourceDir)
                     }
             }
         }

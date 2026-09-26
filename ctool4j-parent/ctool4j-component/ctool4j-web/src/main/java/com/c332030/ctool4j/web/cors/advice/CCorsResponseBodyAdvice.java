@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
  *
  * <h2>能力目录</h2>
  * <p>{@code CCorsResponseBodyAdvice} 为跨域的<b>备用方案</b>（{@code @ControllerAdvice} 已被注释，需使用方手动注册），
- * 实现 {@code ICSpringResponseBodyAdvice&lt;Object&gt;}（{@code ctool4j-spring-javax} 提供的抽象层版），
+ * 实现 {@code ICSpringResponseBodyAdvice&lt;Object&gt;}（{@code ctool4j-spring-servlet} 提供的抽象层版），
  * 在响应体写入前调用 {@code CCorsUtils.handle(request, response)} 输出 CORS 头，然后原样返回响应体。</p>
  * <p>核心方法 {@code beforeBodyWrite(...)}：</p>
  * <ul>

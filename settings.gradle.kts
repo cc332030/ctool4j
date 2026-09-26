@@ -5,8 +5,9 @@
  * </p>
  *
  * 模块发现：递归查找含 build.gradle.kts 的目录，按扁平逻辑名（:ctool4j-xxx）注册。
- * 按 JDK 档位切侧：jdk8 只用 javax 侧（排除全部 -jakarta 模块），其余只用 jakarta 侧（排除全部 -javax 模块）。
- * 另有「javax 专属、但目录名无法带后缀」的模块，按白名单在 jakarta 档位排除（见 JAVAX_ONLY_MODULES）。
+ * 容器侧（javax / jakarta）**不再按模块拆**：侧适配类合入同一模块、按 JDK 档位选用源码目录
+ * （`src/main/java-javax` 与 `src/main/java-jakarta`，见根 `build.gradle.kts`），故此处不做侧过滤。
+ * 仍有一个「只有 javax 形态、无法在两档位共存」的模块，按白名单在非 jdk8 档位排除（见 javaxOnlyModuleNames）。
  * 档位取值：JDK_VERSION（系统属性 > 环境变量 > gradle.properties），默认 8；
  * 刻意不读 JVM 的 java.version 系统属性，否则默认档位会变成构建机 JDK。
  */
@@ -43,11 +44,13 @@ val isJdk8 = 8 == jdkVersion
  *
  * `ctool4j-doc-openapi2`：基于 Springfox（OpenAPI2），而 Springfox 早已停更于 Spring 5 / javax 时代，
  * 不存在支持 jakarta 的版本（knife4j 的 OpenAPI3 是另一套 API，非本模块的替代实现）。
+ * 与容器适配模块不同：它的 javax 依赖是**第三方库**给的，无法靠自身换源码目录切到 jakarta，
+ * 故仍需要模块级排除。
  */
 val javaxOnlyModuleNames = setOf(
     "ctool4j-doc-openapi2"
 )
-println("ctool4j settings: jdkVersion=$jdkVersion, side=${if (isJdk8) "javax" else "jakarta"}")
+println("ctool4j settings: jdkVersion=$jdkVersion, containerSide=${if (isJdk8) "javax" else "jakarta"}")
 
 rootProject.name = "ctool4j"
 
@@ -84,13 +87,8 @@ baseDir.walkTopDown()
 
         val moduleName = moduleDir.name
 
-        // 按 JDK 档位切换容器侧
-        if (isJdk8 && moduleName.endsWith("-jakarta")) {
-            return@forEach
-        }
-        if (!isJdk8 && moduleName.endsWith("-javax")) {
-            return@forEach
-        }
+        // 容器侧不按模块拆（含 javax/jakarta 源码目录的模块按档位选源目录），
+        // 只有「无 jakarta 形态的 javax 专属模块」需要在非 jdk8 档位排除
         if (!isJdk8 && moduleName in javaxOnlyModuleNames) {
             return@forEach
         }

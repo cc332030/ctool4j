@@ -14,8 +14,8 @@ ctool4j（根，packaging=pom）
 ├── ctool4j-processor-pom    编译期注解处理器（代码生成）
 └── ctool4j-parent
     └── ctool4j-component
-        ├── 基础层    definition / core / http-pom（http-base / http-javax / http-jakarta）/ db / transaction
-        ├── Spring 层 spring-base-pom（spring-base / spring-javax / spring-jakarta / spring-security-base / spring-security-javax / spring-security-jakarta）
+        ├── 基础层    definition / core / http-pom（http-base / http-servlet）/ db / transaction
+        ├── Spring 层 spring-base-pom（spring-base / spring-servlet / spring-security-base / spring-security-servlet）
         │             spring-pom（spring / spring-security / spring-cloud）
         ├── 应用层    web / feign / redis / cache
         ├── 认证层    auth-pom（auth-base / auth-spring）
@@ -37,7 +37,7 @@ ctool4j（根，packaging=pom）
 
 | ctool4j-definition | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 | link:ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[README]
 | ctool4j-core | 核心工具库：字符串/集合/日期/JSON/反射/异常/日志/校验 | link:ctool4j-parent/ctool4j-component/ctool4j-core/README.md[README]
-| ctool4j-http-pom | Servlet 容器抽象层与 javax/jakarta 两侧适配（http-base / http-javax / http-jakarta） | link:ctool4j-parent/ctool4j-component/ctool4j-http-pom/README.md[README]
+| ctool4j-http-pom | Servlet 容器抽象层与容器适配（http-base / http-servlet，模块内按档位切换 javax/jakarta 源目录） | link:ctool4j-parent/ctool4j-component/ctool4j-http-pom/README.md[README]
 | ctool4j-db | SQL 拼接工具 | link:ctool4j-parent/ctool4j-component/ctool4j-db/README.md[README]
 | ctool4j-transaction | 事务注解约定（@CTransactional） | link:ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[README]
 | ctool4j-spring-base-pom | Spring 侧抽象契约与两侧适配：拦截器、响应体增强、配置属性、cors、安全错误响应 | link:ctool4j-parent/ctool4j-component/ctool4j-spring-base-pom/README.md[README]
@@ -67,7 +67,10 @@ ctool4j（根，packaging=pom）
 - *最新 LTS 档位*：容器侧 jakarta、依赖更新到较新版本、字节码 Java 17；产物版本号**无后缀**。
 档位名以「jdk8 / 最新 LTS」表述而非具体版本号（jdk8 是当前公司主流版本；LTS 会持续升级）。
 
-少数类在两档位下必须用不同的底层 API（如 HttpClient 4/5、`javax`/`jakarta` 迁移），这类差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `.../java-latest`，两目录互斥、由档位决定纳入哪一个。
+少数类在两档位下必须用不同的底层 API（如 HttpClient 4/5、SLF4J 1/2），这类差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `.../java-latest`，两目录互斥、由档位决定纳入哪一个。
+
+*容器侧适配*（javax / jakarta）同理：同一模块内放 `src/<main|test>/java-javax` 与 `.../java-jakarta` 两套**同包同名**源码，
+按档位自动选用（jdk8 → javax，其余 → jakarta），不再拆成两个模块——**业务依赖坐标与 import 都不变**。
 
 *构建产物目录同样按档位分家*（不用 Gradle 默认的 `build`，否则切档位构建会覆盖上一次的产物）：
 

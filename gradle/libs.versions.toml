@@ -122,8 +122,12 @@ jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-dat
 # HttpClient 5：仅最新 LTS 档位使用（Boot 4 / Spring 7 的 HttpComponentsClientHttpRequestFactory 只接受 HC5）；
 # jdk8 档位沿用 HttpClient 4（经 httpmime 传递），故该档位不注入本依赖
 httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5" }
-javax-servlet-api = { module = "javax.servlet:javax.servlet-api" }
-jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api" }
+# Servlet API：按 JDK 档位切换——jdk8 档位用 javax（Servlet 4.0），最新 LTS 档位用 jakarta（Servlet 6.x）。
+# 由 Project.lib("servlet-api") 按档位取：jdk8 → `servlet-api-jdk8`（javax），其余 → `servlet-api`（jakarta）。
+# 承载容器侧适配类的模块（ctool4j-http-servlet 等）声明它，声明为 optional（compileOnly）——不传递给使用方，
+# 运行时由容器提供。
+servlet-api-jdk8 = { module = "javax.servlet:javax.servlet-api" }
+servlet-api = { module = "jakarta.servlet:jakarta.servlet-api" }
 httpmime = { module = "org.apache.httpcomponents:httpmime", version.ref = "httpmime" }
 janino = { module = "org.codehaus.janino:janino" }
 slf4j-api = { module = "org.slf4j:slf4j-api" }

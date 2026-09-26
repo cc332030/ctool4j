@@ -7,14 +7,14 @@
 * *全局异常处理*：内置处理器把异常统一转 `CResult` JSON —— 业务异常（`CCBusinessExceptionHandler`）、**未认证（`CUnauthorizedExceptionHandler`，响应体业务码 401）**、通用异常（`CCExceptionHandler`）、参数校验失败（`CMethodArgumentNotValidExceptionHandler`）、请求体缺失/不可读（`CHttpMessageNotReadableExceptionHandler`）、必填参数缺失（`CMissingServletRequestParameterExceptionHandler`）、参数类型不匹配（`CMethodArgumentTypeMismatchExceptionHandler`）、方法不支持、消息不可写、客户端中断、非法参数/状态、文件上传超限/解析失败（`CFileUploadExceptionHandler`：超限返回业务码 413 + 含上限的明确提示，解析失败返回 400）、非 `CException` 体系异常（`CExceptionHandler`：识别容器私有上传超限类型后返回 413，其余返回 500 + 固定文案）、兜底（`CThrowableHandler`）。
 * *文件上传上限*：Spring Boot 默认 `spring.servlet.multipart.max-file-size` 仅 **1MB**、`max-request-size` 为 10MB，稍大文件即被拒（提示为 `FileSizeLimitExceededException` 原始文本）；生产建议成对显式调大——单文件上限与整个 multipart 请求上限，且后者须**大于**前者（表单字段与其他 multipart 段有开销），否则仍会在请求解析阶段被拒；超限由 `CFileUploadExceptionHandler` 统一转为业务码 413 + 含上限的提示。
 * *容器兼容*：异常处理器只引用 Spring 公共类型；客户端中断处理器（`CClientAbortExceptionHandler`）针对 Tomcat 专有异常，通过 `@ConditionalOnClass(name=...)` 与条件注解的类名匹配（`valueName`）装配，Jetty/Undertow 下自动跳过、不因类缺失启动失败。
-* *跨域*：`CCorsInterceptor` / `CCorsResponseBodyAdvice`（备用方案，`CCorsFilter` 已自动生效）；配置 `CCorsConfig` / `CCorsOriginConfig` 与解析工具 `CCorsUtils` 随容器抽象层下沉至 +ctool4j-spring-base+，过滤器 `CCorsFilter` 落两侧适配模块（+ctool4j-spring-javax+）。
+* *跨域*：`CCorsInterceptor` / `CCorsResponseBodyAdvice`（备用方案，`CCorsFilter` 已自动生效）；配置 `CCorsConfig` / `CCorsOriginConfig` 与解析工具 `CCorsUtils` 随容器抽象层下沉至 +ctool4j-spring-base+，过滤器 `CCorsFilter` 落容器适配模块（+ctool4j-spring-servlet+）。
 * *JWT 与 token*：`CJwtUtils`（生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头/请求属性读写）、`CRequestHeaderEnum`（统一请求头名）。
 * *HTTP 请求日志*：`CRequestLogUtils` + `CRequestLog`（HTTP 报文 dump）、`CCommUtils.appendHttpLog`；配置 `CRequestLogConfig`（`logging.request-log`）。
 * *traceId 透传*：`CTraceUtils` 从请求头读取（无则生成），写入 ThreadLocal + MDC（key = `c-trace-id`），可用 SPI `ICTraceInfoProvider` 定制。
 * *必填注解*：`@CRequired`（request body/字段必填）、`@CNotRequired`（request param 显式非必填）。
 * *内部接口 IP 白名单*：`@CInnerApi`（声明内部接口，定义在 +ctool4j-definition+）+ `CInnerApiInterceptor`（按 `inner-api.allowed-ips` 做 IP/CIDR 白名单校验，未命中返回 403）。
-* *其他*：`CWebMvcConfigurer`、`CServletUtils`、`CWebUtils`；请求体增强抽象 `ICBaseRequestBodyAdvice`（响应体增强契约改为 `ICResponseBodyAdvice`，由 +ctool4j-spring-base+ 承载、两侧适配 +ctool4j-spring-javax+ 提供 `ICSpringResponseBodyAdvice`）。
-* *容器适配部分*（+ctool4j-spring-javax+，两侧同名，切容器只换依赖模块）：`CResourceFilter`、`CErrorController`、`ICFilter`、认证过滤器类型契约 `CAbstractWebAuthFilter`、拦截器契约 `ICSpringHandlerInterceptor`。
+* *其他*：`CWebMvcConfigurer`、`CServletUtils`、`CWebUtils`；请求体增强抽象 `ICBaseRequestBodyAdvice`（响应体增强契约改为 `ICResponseBodyAdvice`，由 +ctool4j-spring-base+ 承载、容器适配 +ctool4j-spring-servlet+ 提供 `ICSpringResponseBodyAdvice`）。
+* *容器适配部分*（+ctool4j-spring-servlet+，模块内按档位自动切换 javax/jakarta 源目录，依赖坐标不变）：`CResourceFilter`、`CErrorController`、`ICFilter`、认证过滤器类型契约 `CAbstractWebAuthFilter`、拦截器契约 `ICSpringHandlerInterceptor`。
 
 == 用法
 
