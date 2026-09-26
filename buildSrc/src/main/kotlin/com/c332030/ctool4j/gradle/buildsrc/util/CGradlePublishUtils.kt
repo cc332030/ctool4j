@@ -80,7 +80,7 @@ fun MavenPublication.cAddSpringBootPlugin(springBootVersion: String) {
 class MavenParentContent(
     /** `<dependencyManagement>` 里 import 的 BOM（`g:a:v`），null 表示不写 */
     val bomImport: String? = null,
-    /** provided 作用域依赖（`g:a` 或 `g:a:v`）：随父 pom 继承给业务系统，但不向其传递 */
+    /** 以 `optional` 表达的依赖（`g:a` 或 `g:a:v`）：随父 pom 继承给业务系统，但不向其传递 */
     val providedDependencies: List<String> = emptyList(),
     /** test 作用域依赖 */
     val testDependencies: List<String> = emptyList(),
@@ -163,6 +163,65 @@ private fun Node.addDependency(gav: String, scope: String) {
 }
 
 /**
+ * 追加一个以 Maven `optional` 表达的 `<dependency>`：不写 `<scope>`（默认 compile），只标 `<optional>true</optional>`。
+ *
+ * 语义：编译期可用、**不向下游传递**（与 `provided` 在传递性上等价），但表达的是"可选用能力"而非
+ * "容器提供"——使用方据此知道本模块支持哪些可选能力，且能按需引入。
+ */
+private fun Node.addOptionalDependency(gav: String) {
+
+    val (groupId, artifactId, version) = gav.toGav()
+    val dependency = Node(this, "dependency")
+    Node(dependency, "groupId", groupId)
+    Node(dependency, "artifactId", artifactId)
+    if (!version.isNullOrEmpty()) {
+        Node(dependency, "version", version)
+    }
+    Node(dependency, "optional", "true")
+}
+
+/**
+ * 把 Gradle `compileOnly` 依赖以 Maven `optional` 写进产出 pom（详见 [addOptionalDependency]）。
+ *
+ * 背景：`compileOnly` 不进 Gradle 的发布元数据，迁移前 Maven 侧用 `provided` / `optional` 表达这些依赖；
+ * 按用户要求统一改用 `optional`，使使用方从 pom 就能看到可选用能力与其解析后的版本。
+ *
+ * 幂等与边界：
+ * - `pom.withXml` 可能被执行多次，已存在同 `g:a` 条目即跳过——不改动 Gradle 自己写的 compile/runtime 条目，
+ *   避免把传递依赖误标成 optional。
+ * - 坐标为 `g:a:v` 形态的纯字符串（由调用方在配置期取好），本函数不接触 Project。
+ */
+fun MavenPublication.cAddOptionalDependencies(coordinates: List<String>) {
+
+    pom.withXml {
+
+        val builder = asString()
+        val root = builder.toString().toPomNode()
+        val dependencies = root.childOrCreate("dependencies")
+
+        val existing = dependencies.children()
+            .filterIsInstance<Node>()
+            .filter { "dependency" == it.name().toString() }
+            .mapNotNull { node ->
+                val groupId = node.child("groupId")?.text()
+                val artifactId = node.child("artifactId")?.text()
+                if (null == groupId || null == artifactId) null else "$groupId:$artifactId"
+            }
+            .toSet()
+
+        coordinates.forEach { gav ->
+            val (groupId, artifactId) = gav.toGav()
+            if ("$groupId:$artifactId" in existing) return@forEach
+            dependencies.addOptionalDependency(gav)
+        }
+
+        builder.setLength(0)
+        builder.append(root.toPomString())
+
+    }
+}
+
+/**
  * 把 Maven 父 pom 的继承载荷写进产出 pom（详见 [MavenParentContent]）。
  */
 fun MavenPublication.cAddInheritedMavenContent(content: MavenParentContent) {
@@ -197,7 +256,7 @@ fun MavenPublication.cAddInheritedMavenContent(content: MavenParentContent) {
         // ---- dependencies：随父 pom 继承给业务系统的依赖（provided / test）----
         if (content.providedDependencies.isNotEmpty() || content.testDependencies.isNotEmpty()) {
             val dependencies = root.childOrCreate("dependencies")
-            content.providedDependencies.forEach { dependencies.addDependency(it, "provided") }
+            content.providedDependencies.forEach { dependencies.addOptionalDependency(it) }
             content.testDependencies.forEach { dependencies.addDependency(it, "test") }
         }
 

@@ -553,6 +553,52 @@ subprojects {
 
     }
 
+    /**
+     * 可选用能力（Gradle 的 `compileOnly`）：迁移前 Maven 侧用 `provided` / `optional` 表达，
+     * 按用户要求**统一改用 `optional`**——`compileOnly` 不进 Gradle 的发布元数据，故把它的依赖写进产出 pom
+     * 并标 `<optional>true</optional>`（不写 scope，默认 compile）：使用方能看到"可选用能力"与解析后的版本，
+     * 且这些依赖仍不向下游传递。
+     *
+     * 时机：模块自身的 `build.gradle.kts`（`cOptional` / `cProvided` 声明）晚于本 `subprojects` 块执行，
+     * 早读会得到空集，故取值放在 `afterEvaluate`。传给发布配置的只有纯字符串、（不捕获 Project），
+     * 以保持 configuration-cache 可用（与 `CGradlePublishUtils` 的既有约定一致）。
+     */
+    moduleProject.afterEvaluate {
+
+        val optionalCoordinates = moduleProject.configurations.findByName("compileOnly")
+            ?.dependencies
+            ?.filter { dependency ->
+                // 排除 BOM：`platform` / `enforcedPlatform` 依赖同样挂在本配置上，但它们属版本管理
+                // （Gradle 会翻译成 pom 的 `dependencyManagement` import），若当普通依赖写成 optional，
+                // 使用方会把它当可选用依赖引入——语义错、还可能引入冲突。
+                val categoryName = (dependency as? ModuleDependency)
+                    ?.attributes
+                    ?.getAttribute(Category.CATEGORY_ATTRIBUTE)
+                    ?.name
+                // BOM 有两种形态：`platform(...)` → `platform`，`enforcedPlatform(...)` → `enforced-platform`
+                categoryName?.contains("platform") != true
+            }
+            ?.mapNotNull { dependency ->
+                // 声明里可能不带版本（版本由 BOM 管理，如根脚本按目录归属注入的 starter-web 一类的 `g:a`）：
+                // 产物 pom 也写成不带版本——使用方按 BOM 解析，与迁移前 Maven pom 的写法一致。
+                val group = dependency.group ?: return@mapNotNull null
+                val version = dependency.version
+                if (version.isNullOrEmpty()) "$group:${dependency.name}" else "$group:${dependency.name}:$version"
+            }
+            ?.distinct()
+            ?.sorted()
+            .orEmpty()
+
+        if (optionalCoordinates.isNotEmpty()) {
+            val publicationName = if (isPomOnly) "mavenPom" else "mavenJava"
+            moduleProject.extensions.configure<PublishingExtension> {
+                publications.named<MavenPublication>(publicationName) {
+                    cAddOptionalDependencies(optionalCoordinates)
+                }
+            }
+        }
+    }
+
     // ctool4j-boot-parent 对外是业务应用的 Maven 父 pom：注入 spring-boot-maven-plugin 配置
     if ("ctool4j-boot-parent" == projectName) {
         val springBootVersion = lib("spring-boot-dependencies").get().version
