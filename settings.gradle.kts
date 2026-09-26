@@ -43,17 +43,29 @@ rootProject.name = "ctool4j"
 /**
  * 构建产物目录与非模块目录，不参与模块发现。
  *
- * `target*` 覆盖 jdk8 档位的 `target-8`——产物目录按档位分家，两个档位的产物互不覆盖。
+ * **必须剪枝而不是只做候选过滤**：`walk()` 是"枚举全树再筛"，产物目录（`target`、`target-8`、
+ * `build`、`build-8`）里的成千上万个产物文件照样会被读入——它们每次构建都在变，
+ * 既拖慢配置，又让配置缓存条目次次失效（Gradle 把这些读取记为配置期输入）。
+ *
+ * `target` / `build` 按**前缀**排除：产物目录名带档位后缀（jdk8 → `target-8`/`build-8`），
+ * 精确名集合匹配不到它们——这是上一版 `"target*"` 写在 `setOf` 里形同虚设的根因。
+ *
+ * `src` 也剪掉：源码树里不会有 Gradle 模块，逐目录做 `build.gradle.kts` 存在性检查同样是配置期输入，
+ * 新增一个包目录就会让配置缓存失效。
  */
-val ignoredDirNames = setOf("buildSrc", "build", "target*", "tmp", "gradle", "doc", "script", "agent")
+val ignoredDirPrefixes = listOf(".", "target", "build")
+val ignoredDirNames = setOf("buildSrc", "tmp", "gradle", "doc", "script", "agent", "src")
+
+fun isIgnoredDir(dir: File): Boolean {
+    val name = dir.name
+    return name.isEmpty() || ignoredDirNames.contains(name) || ignoredDirPrefixes.any { name.startsWith(it) }
+}
 
 val baseDir = file(".")
-baseDir.walk()
+baseDir.walkTopDown()
+    .onEnter { !isIgnoredDir(it) }
     .filter { dir ->
-        val relativePath = dir.toRelativeString(baseDir).replace('\\', '/')
         dir.isDirectory
-                && !dir.name.startsWith(".")
-                && relativePath.split("/").none { it in ignoredDirNames }
                 && !file("${dir.absolutePath}/settings.gradle.kts").exists()
                 && file("${dir.absolutePath}/build.gradle.kts").exists()
     }

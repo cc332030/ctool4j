@@ -1,5 +1,6 @@
 import com.c332030.ctool4j.gradle.buildsrc.constant.SNAPSHOT
 import com.c332030.ctool4j.gradle.buildsrc.util.*
+import org.gradle.api.credentials.PasswordCredentials
 
 /**
  * <p>
@@ -448,16 +449,42 @@ subprojects {
          * 凭据不能作为注册条件——本项目凭据取自环境变量，本地/CI 只要没注入这两个变量，
          * 仓库就整个不注册：`publish` 变成无任何 actions 的空任务，**静默跳过、构建照旧 success**。
          * 这正是「构建成功但制品一个都没上传」的成因，故地址在就注册，凭据缺了交给发布任务如实报错。
+         *
+         * 凭据见下：优先**延迟解析**（`credentials(PasswordCredentials::class)`，按 `<仓库名>Username` /
+         * `<仓库名>Password` 属性查找，与配置缓存共存）；没有对应属性时回退到
+         * `NEXUS_USERNAME` / `NEXUS_PASSWORD` 的显式凭据——该组合下 Gradle 会以
+         * "Explicit credentials are unsupported with the Configuration Cache" 为由禁用本次构建的配置缓存。
          */
         val repositoryUrl = if (isSnapshot) nexusSnapshotUrl else nexusReleaseUrl
-        val repositoryId = if (isSnapshot) nexusSnapshotId else nexusReleaseId
+        // Gradle 的延迟凭据按「仓库名 + Username/Password」查属性，且强制仓库名只能含**字母与数字**
+        // （否则报 "Identity may contain only letters and digits"，下划线同样不行），故把配置里的 id 归一化：
+        // `cc332030_snapshot` → `cc332030snapshot`。
+        val repositoryId = (if (isSnapshot) nexusSnapshotId else nexusReleaseId)
+            ?.replace(Regex("[^A-Za-z0-9]"), "")
+            ?.takeIf { it.isNotEmpty() }
+        val repositoryName = repositoryId ?: "nexus"
 
         if (!repositoryUrl.isNullOrEmpty()) {
+            /**
+             * 凭据两档：
+             * 1. **延迟凭据**（首选）：属性 `<仓库名>Username` / `<仓库名>Password`，可由 `-P`、
+             *    `gradle.properties` 或环境变量 `ORG_GRADLE_PROJECT_<仓库名>Username` 提供——
+             *    与配置缓存共存。
+             * 2. **回退**：`NEXUS_USERNAME` / `NEXUS_PASSWORD` 的显式凭据。Gradle 不支持
+             *    "显式凭据 + 配置缓存"（Reason: Explicit credentials are unsupported with the
+             *    Configuration Cache），会因此禁用本次构建的配置缓存。
+             */
+            val credentialPropertyName = "${repositoryName}Username"
+            val lazyCredentialsPresent = providers.gradleProperty(credentialPropertyName).isPresent
+                || providers.environmentVariable("ORG_GRADLE_PROJECT_$credentialPropertyName").isPresent
+
             repositories {
                 maven {
-                    name = repositoryId ?: "nexus"
+                    name = repositoryName
                     url = uri(repositoryUrl)
-                    if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()) {
+                    if (lazyCredentialsPresent) {
+                        credentials(PasswordCredentials::class)
+                    } else if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()) {
                         credentials {
                             username = nexusUsername
                             password = nexusPassword

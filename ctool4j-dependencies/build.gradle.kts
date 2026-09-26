@@ -78,9 +78,9 @@ dependencies {
     constraints {
 
         ctool4jArtifacts.forEach { artifactName ->
-            val artifactProject = rootProject.findProject(":$artifactName")
-            if (null != artifactProject) {
-                api(artifactProject)
+            if (null != rootProject.findProject(":$artifactName")) {
+                // 记法必须是 ProjectDependency：把 Project 对象当约束记法在 Gradle 10 会直接报错
+                api(project.dependencies.project(":$artifactName"))
             }
         }
 
