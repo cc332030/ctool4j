@@ -35,7 +35,7 @@ import java.util.*;
  * <ul>
  *   <li><b>纯转发、不加工</b>：每个方法只把调用交给底层请求，契约、边界与返回值语义完全沿用
  *   {@link CHttpRequest}（见该接口文档），此处不重复描述、不做兜底。</li>
- *   <li><b>由档位选源目录</b>：本份承 jakarta 包（{@code src/main/java-jakarta}），与同模块的 {@code java-javax}
+ *   <li><b>由档位选源目录</b>：本份承 jakarta 包（{@code src/main/java-jakarta}），与同模块的另一侧源码目录
  *   一份同包同名、互为镜像；由 JDK 档位选用其一，使用方按自身容器引入对应档位产物。</li>
  * </ul>
  *
@@ -59,7 +59,7 @@ import java.util.*;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.4
+ * @version 1.5
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CHttpServletRequest implements CHttpRequest {
