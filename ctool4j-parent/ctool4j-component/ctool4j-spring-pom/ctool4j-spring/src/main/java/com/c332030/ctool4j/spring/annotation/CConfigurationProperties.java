@@ -82,10 +82,17 @@ import java.lang.annotation.*;
  *   本注解<b>只保留类型</b>，方法级绑定不支持，需要时直接使用元注解。</li>
  * </ul>
  *
+ * <h2>测试</h2>
+ * <ul>
+ *   <li>注解契约：{@code CConfigurationPropertiesTests}（同包，经 Spring 合并解析取值，钉别名映射与两个开关的默认值）</li>
+ *   <li>配置绑定：{@code CConfigurationPropertiesBindingTests}（同包，经 {@code ApplicationContextRunner} 起最小上下文，
+ *   验证未知键与非法值均不阻断启动）</li>
+ * </ul>
+ *
  * @since 2026/9/21
  * @version 1.0
- * @see CConfigurationPropertiesTests
- * @see CConfigurationPropertiesBindingTests
+ * @see "CConfigurationPropertiesTests"
+ * @see "CConfigurationPropertiesBindingTests"
  */
 @Documented
 @Inherited
