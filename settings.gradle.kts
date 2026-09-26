@@ -23,12 +23,23 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+/**
+ * 读取构建配置：系统属性 > 环境变量 > gradle.properties。
+ *
+ * settings 脚本**不能**引用 buildSrc 的 `getConfigValue`（settings 的构建早于 buildSrc 的类产出），
+ * 故这里保留一份实现；三档来源与 buildSrc 版**必须一致**——少一档会让 `gradle.properties` 里的
+ * `JDK_VERSION` 静默失效（settings 按 jdk8 筛模块、根脚本按另一档取依赖，两处错位）。
+ * 改动其一时务必同步另一处（`buildSrc` 的 `CGradleConfigUtils.getConfigValue`）。
+ */
 fun getConfigValue(key: String): String? {
     val value = System.getProperty(key)
     if (!value.isNullOrEmpty()) {
         return value
     }
-    return System.getenv(key)
+    return settings.providers.environmentVariable(key)
+        .orElse(settings.providers.gradleProperty(key))
+        .getOrNull()
+        ?.takeIf { it.isNotEmpty() }
 }
 
 /** jdk8 档位：启用 javax 侧 */

@@ -71,7 +71,7 @@ import lombok.CustomLog;
  * </ul>
  *
  * @since 2025/9/28
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 //@Component

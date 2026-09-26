@@ -98,7 +98,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.4
+ * @version 1.5
  */
 public interface CHttpRequest {
 

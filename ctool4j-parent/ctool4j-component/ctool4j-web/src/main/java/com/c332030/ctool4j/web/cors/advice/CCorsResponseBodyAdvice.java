@@ -77,7 +77,7 @@ import org.springframework.lang.Nullable;
  * </ul>
  *
  * @since 2025/11/12
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 //@ControllerAdvice

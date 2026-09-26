@@ -81,7 +81,7 @@ import java.util.function.Supplier;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.1
+ * @version 1.2
  */
 public interface CHttpResponse {
 

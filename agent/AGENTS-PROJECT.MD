@@ -94,8 +94,13 @@
 
 - **两侧同文的判定口径（自检的适用边界）**：
   - **侧别专属**字样（`javax.servlet` 一类的 import、「本份承 javax 包」一类措辞）随侧别替换；**两侧成对提及**（同一处同时出现两个词，如「javax 与 jakarta」「`RequestDispatcher.ERROR_EXCEPTION` 两侧分别是 …」）在两侧保持**同一份原文**——用"整体互换/全量替换"的脚本同步会把双提及写成「jakarta 与 jakarta」，而归一化自检恰好看不出这种坏损。
+  - **不得在 javadoc 里硬编码另一侧的源目录名**（如 javax 份写「与同模块的 `java-jakarta` 一份同包同名」）：归一化把两侧目录名都替成同一符号，自检看不出；且两侧都这么写时必然有一侧写反。需要指代另一侧时用**与侧别无关的措辞**（「与同模块的另一侧源码目录」）。
   - 两侧文件**行尾须一致**（按 `.gitattributes` 一律 LF）：行尾差异会被归一化比对报成"内容漂移"（本仓库实测：2 个 spring 侧文件因 javax 侧 CRLF / jakarta 侧 LF 而误报）。
   - 自查范围是 **`src/main`**；测试只落在 `java-javax` 源目录，不要求两侧同名。
+  - **允许的真档位差异（不属漂移，不得"修平"）**：两侧因底层 API 能力不同而必须分叉时，各自写各自那份，**不要为了对齐而把另一侧也改成错的形式**。当前已知两处：
+    - `CHttpServletResponse#setStatus(int, String)`：Servlet 6.0（jakarta）已移除该 API，故 **java-jakarta 份不覆写**（沿 `CHttpResponse` 的 `default` 降级为仅设状态码），**java-javax 份保留覆写**以透传状态消息。
+    - `CErrorController` 的 `ErrorController` import：Boot 4 起由 `org.springframework.boot.web.servlet.error` 迁至 `org.springframework.boot.webmvc.error`，故 **java-jakarta 份 import 后者**、java-javax 份 import 前者（两侧均为无方法标记接口）。
+    新增此类差异时**在同一提交内补登到本清单**（否则下一轮的归一化自检会把它当漂移重复报出）。
 - **servlet-api 依赖只有一份**：适配模块只声明一个 `lib("servlet-api")`，由版本目录按档位取坐标（jdk8 → `javax.servlet:javax.servlet-api`，其余 → `jakarta.servlet:jakarta.servlet-api`），声明为 optional。不再有"两侧 pom 依赖同构"的人工核对项。
 - **下沉/迁移方法时用例同迁**：方法下沉 base 后，其单元测试一并迁到该 base 模块的 `src/test`；base 模块没有 servlet-api，用例只 mock 抽象层类型（`CHttpRequest`/`CHttpResponse`），接口的 `default` 方法要用 `thenCallRealMethod()` 才会跑到真实实现（mock 默认不执行默认方法）；容器相关的用例留在适配模块的 `src/test/java-javax`。
 
