@@ -473,16 +473,22 @@ subprojects {
 
         }
 
-        if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()) {
+        /**
+         * 发布仓库：**注册的唯一门槛是「配置了地址」**。
+         *
+         * 凭据不能作为注册条件——本项目凭据取自环境变量，本地/CI 只要没注入这两个变量，
+         * 仓库就整个不注册：`publish` 变成无任何 actions 的空任务，**静默跳过、构建照旧 success**。
+         * 这正是「构建成功但制品一个都没上传」的成因，故地址在就注册，凭据缺了交给发布任务如实报错。
+         */
+        val repositoryUrl = if (isSnapshot) nexusSnapshotUrl else nexusReleaseUrl
+        val repositoryId = if (isSnapshot) nexusSnapshotId else nexusReleaseId
 
-            val repositoryUrl = if (isSnapshot) nexusSnapshotUrl else nexusReleaseUrl
-            val repositoryId = if (isSnapshot) nexusSnapshotId else nexusReleaseId
-
-            if (!repositoryUrl.isNullOrEmpty()) {
-                repositories {
-                    maven {
-                        name = repositoryId ?: "nexus"
-                        url = uri(repositoryUrl)
+        if (!repositoryUrl.isNullOrEmpty()) {
+            repositories {
+                maven {
+                    name = repositoryId ?: "nexus"
+                    url = uri(repositoryUrl)
+                    if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()) {
                         credentials {
                             username = nexusUsername
                             password = nexusPassword
@@ -490,7 +496,6 @@ subprojects {
                     }
                 }
             }
-
         }
 
     }
