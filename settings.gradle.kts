@@ -11,6 +11,17 @@
  * 刻意不读 JVM 的 java.version 系统属性，否则默认档位会变成构建机 JDK。
  */
 
+/**
+ * JDK 工具链自动下载（Gradle 官方 foojay 解析器）。
+ *
+ * 本项目按档位需要不同 JDK（jdk8 档用 8、最新 LTS 档用 17+），而构建机往往只装一个 JDK：
+ * 本机已装则直接探测到、不下载；缺失时由 Gradle 自动取到 `~/.gradle/jdks`
+ * （CI 侧该目录已挂缓存卷，装一次后由缓存复用）。依据官方 toolchain 文档。
+ */
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 fun getConfigValue(key: String): String? {
     val value = System.getProperty(key)
     if (!value.isNullOrEmpty()) {

@@ -530,6 +530,11 @@ subprojects {
              * 2. **回退**：`NEXUS_USERNAME` / `NEXUS_PASSWORD` 的显式凭据。Gradle 不支持
              *    "显式凭据 + 配置缓存"（Reason: Explicit credentials are unsupported with the
              *    Configuration Cache），会因此禁用本次构建的配置缓存。
+             *
+             * 回退档的判定是「**两项中至少一项非空**」而非「两项都非空」：制品库只校验 token、
+             * 用户名可空（同一 token 配任意用户名均可通过），而 CI 的触发者用户名变量可能为空——
+             * 一旦要求两项都非空，仓库就会整个**不带凭据**，发布随即 401（Gradle 发布 SNAPSHOT 前必须先
+             * GET `maven-metadata.xml`，匿名必被拒；Maven 的 deploy 只 PUT，故同一凭据下不受影响）。
              */
             val credentialPropertyName = "${repositoryName}Username"
             val lazyCredentialsPresent = providers.gradleProperty(credentialPropertyName).isPresent
@@ -541,10 +546,10 @@ subprojects {
                     url = uri(repositoryUrl)
                     if (lazyCredentialsPresent) {
                         credentials(PasswordCredentials::class)
-                    } else if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty()) {
+                    } else if (!nexusUsername.isNullOrEmpty() || !nexusPassword.isNullOrEmpty()) {
                         credentials {
-                            username = nexusUsername
-                            password = nexusPassword
+                            username = nexusUsername.orEmpty()
+                            password = nexusPassword.orEmpty()
                         }
                     }
                 }
