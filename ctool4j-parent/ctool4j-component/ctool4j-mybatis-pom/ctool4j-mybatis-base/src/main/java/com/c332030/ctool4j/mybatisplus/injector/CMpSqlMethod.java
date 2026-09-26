@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.mybatisplus.injector;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -35,8 +34,10 @@ public enum CMpSqlMethod implements ICMpSqlMethod {
 
     INSERT_IGNORE(
             "插入一条数据（如果存在则忽略）",
-        SqlMethod.INSERT_ONE.getSql()
-            .replaceAll("INSERT", "INSERT IGNORE")
+            // 值与官方 `SqlMethod.INSERT_ONE` 的模板逐字一致（3.5.16：`"<script>\nINSERT INTO %s %s VALUES %s\n</script>"`），
+            // 仅把 INSERT 换成 INSERT IGNORE。3.5.17 起该模板改由 lambda（`SqlTemplate`）持有、不再以字符串暴露，
+            // 无法再 `getSql()` 取用，故直接写成字面量；占位符 `%s` 的顺序与官方一致，供 String.format 填充。
+            "<script>\nINSERT IGNORE INTO %s %s VALUES %s\n</script>"
     ),
 
     UPDATE_ALL_BY_ID(

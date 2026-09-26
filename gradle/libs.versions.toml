@@ -44,6 +44,9 @@ lombok-jdk8 = "1.18.38"
 lombok = "1.18.48"
 
 # ===== 两档位取值相同的依赖 =====
+# mybatis-plus 3.5.17 起把 `com.baomidou.mybatisplus.extension` 的包名改为 `com.baomidou.mybatisplus.spring`
+# （官方发布说明：解决 JDK 9+ 模块化编译的包名冲突），`IService` / `ServiceImpl` 随之从 `mybatis-plus-spring`
+# jar 的 `.../extension/service` 移到 `.../spring/service`；本项目源码已按新包名引用（两档位同值）。
 mybatis-plus = "3.5.17"
 mybatis-plus-jsqlparser = "3.5.17"
 dynamic-datasource = "4.5.0"

@@ -1,7 +1,7 @@
 package com.c332030.ctool4j.mybatisplus.service;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.c332030.ctool4j.mybatisplus.spi.IService;
 import com.c332030.ctool4j.core.util.CList;
 
 import java.io.Serializable;
