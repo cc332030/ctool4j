@@ -32,11 +32,8 @@ plugins {
  * 改动其一时务必同步另一处（`buildSrc` 的 `CGradleConfigUtils.getConfigValue`）。
  */
 fun getConfigValue(key: String): String? {
-    val value = System.getProperty(key)
-    if (!value.isNullOrEmpty()) {
-        return value
-    }
-    return settings.providers.environmentVariable(key)
+    return settings.providers.systemProperty(key)
+        .orElse(settings.providers.environmentVariable(key))
         .orElse(settings.providers.gradleProperty(key))
         .getOrNull()
         ?.takeIf { it.isNotEmpty() }
