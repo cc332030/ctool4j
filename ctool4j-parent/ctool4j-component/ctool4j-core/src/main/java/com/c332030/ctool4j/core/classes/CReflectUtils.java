@@ -129,8 +129,8 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/4/2
- * @version 1.2
- * @see "doc/design/core/method-handle.adoc"
+ * @version 1.3
+ * @see "doc/design/method-handle.adoc"
  */
 @CustomLog
 @UtilityClass

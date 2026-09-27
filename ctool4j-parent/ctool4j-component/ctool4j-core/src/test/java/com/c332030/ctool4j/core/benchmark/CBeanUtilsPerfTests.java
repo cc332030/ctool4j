@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.benchmark;
 
 import cn.hutool.core.bean.BeanUtil;
+import org.junit.jupiter.api.Assertions;
 import com.c332030.ctool4j.core.classes.CBeanUtils;
 import com.c332030.ctool4j.core.classes.CReflectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,7 +79,7 @@ import java.util.*;
  * </ul>
  *
  * @since 2026/9/18
- * @version 1.0
+ * @version 1.1
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CBeanUtilsPerfTests {
@@ -150,6 +151,9 @@ public class CBeanUtilsPerfTests {
                 : base.resolve("doc").resolve("design").resolve("core").resolve("perf").resolve(fileName);
 
         report.writeTo(reportPath);
+        // 该用例的可断言产出即报告本身：用例非空、且报告已落盘（供性能结论引用）
+        Assertions.assertFalse(report.getResults().isEmpty(), "基准用例不应为空");
+        Assertions.assertTrue(Files.exists(reportPath), "性能测试报告应已写入 " + reportPath);
         System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());
     }
 

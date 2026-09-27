@@ -33,7 +33,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  *   本接口是<b>底层适配</b>（性质类似 {@code sun.*} 的桥接层，只做类型转换、不含业务），故加 {@code Spring} 限定。</li>
  *   <li><b>桥接只做类型转换</b>：解包依赖 Servlet 系实现（{@link ServletServerHttpRequest}），
  *   非 Servlet 环境（WebFlux）会在强转处失败——该场景本就不适用。</li>
- *   <li><b>同名接口</b>：本接口在 {@code ctool4j-spring-jakarta} 与 {@code ctool4j-spring-javax} 中<b>同包同名</b>，
+ *   <li><b>同名接口</b>：本接口在 {@code ctool4j-spring-javax} 与 {@code ctool4j-spring-jakarta} 中<b>同包同名</b>，
  *   使用方切换依赖模块即可切换容器。</li>
  * </ul>
  *
@@ -45,7 +45,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  *
  * <h2>适用范围</h2>
  * <ul>
- *   <li>需要在 jakarta 与 javax 两套容器间可切换的响应体增强实现。</li>
+ *   <li>需要在 javax 与 jakarta 两套容器间可切换的响应体增强实现。</li>
  * </ul>
  *
  * <h2>不适用与边界场景</h2>

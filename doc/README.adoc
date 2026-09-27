@@ -13,7 +13,7 @@
   适用范围、已知限制）进功能级设计文档，代码与文档双向互引。测试类**类上写总结**（测试设计思路与依据、覆盖与未覆盖、
   用例总览/分类/编码与逐个用例精简总结）；**测试方法上写详细设计**（引用用例编码、测试意图、测试范围、测试意义、断言取舍）。
 * *模块级说明（模块职责、能力清单、核心类）只在模块 README*：各模块目录下的 +README.md+，由根 link:../README.adoc[README] 的模块文档索引汇总。
-* *功能级文档（跨类设计）只在 +doc/design/<模块>/+*：方案取舍、兜底策略、适用范围、已知限制与波及影响，按功能命名、不与源文件同名。
+* *功能级文档（跨类设计）只在各模块 +<模块>/doc/design/+*：方案取舍、兜底策略、适用范围、已知限制与波及影响，按功能命名、不与源文件同名（javadoc 的 +@see+ 按模块根相对解析，故就近落在模块内）。
 * *依赖关系唯一视图*：模块间依赖只写 link:dependency.adoc[dependency.adoc]。
 * *不重复内容*：同一事实只有一个落点，其余位置以链接指回；模块 `doc/` 下不再另设索引页（导航以本文件为树根）。
 
@@ -25,7 +25,7 @@
 
 | 项目总览、模块全景、模块文档索引 | link:../README.adoc[README]
 | 模块职责、能力清单、核心类（模块级） | 各模块 +README.md+（文档索引见 link:../README.adoc[README]；**使用与配置**面向引用方，见本表末行）
-| 跨类的功能级设计（方案取舍、兜底、已知限制） | link:design/[doc/design/<模块>/]
+| 跨类的功能级设计（方案取舍、兜底、已知限制） | 各模块 +<模块>/doc/design/+（本目录 +doc/design/+ 不再承载；索引见下节）
 | **模块间依赖关系（全项目唯一视图）** | link:dependency.adoc[doc/dependency.adoc]
 | **依赖升级兼容性 / 已知问题登记（全项目唯一视图）** | link:compatibility.adoc[doc/compatibility.adoc]
 | 全部变更记录（按版本分组、版本内分类） | link:../CHANGELOG.adoc[CHANGELOG.adoc]
@@ -38,12 +38,12 @@
 
 按模块分目录（仅保留确有功能级文档的模块）：
 
-* link:design/core/[core]：ctool4j-core（核心工具库）— link:design/core/class-value.adoc[按类缓存（ClassValue 系列）]、link:design/core/method-handle.adoc[MethodHandle 工具]
-* link:design/definition/[definition]：ctool4j-definition（基础定义）— link:design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
-* link:design/redis/[redis]：ctool4j-redis — link:design/redis/rate-limit-idempotent.adoc[限流与幂等]
-* link:design/spring/[spring]：ctool4j-spring / spring-security / spring-cloud —
-  link:design/spring/ip.adoc[ip]、link:design/spring/real-class-name.adoc[真实业务类/类名/包名]、link:design/spring/authority-json.adoc[会话权限的 JSON 读写]、link:design/spring/spring-perf.adoc[性能实测]、link:design/spring/started.adoc[应用启动完成回调]
-* link:design/web/[web]：ctool4j-web（Web MVC 通用能力）— link:design/web/unauthorized-401.adoc[未授权统一返回业务码 401]、link:design/web/exception-fallback.adoc[异常兜底分层]
+* *core*：ctool4j-core（核心工具库）— link:../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/class-value.adoc[按类缓存（ClassValue 系列）]、link:../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/method-handle.adoc[MethodHandle 工具]
+* *definition*：ctool4j-definition（基础定义）— link:../ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc[openapi-doc-annotations]
+* *redis*：ctool4j-redis — link:../ctool4j-parent/ctool4j-component/ctool4j-redis/doc/design/rate-limit-idempotent.adoc[限流与幂等]
+* *spring*：ctool4j-spring / spring-security / spring-cloud —
+  link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/ip.adoc[ip]、link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/real-class-name.adoc[真实业务类/类名/包名]、link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[会话权限的 JSON 读写]、link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/spring-perf.adoc[性能实测]、link:../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/started.adoc[应用启动完成回调]
+* *web*：ctool4j-web（Web MVC 通用能力）— link:../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/unauthorized-401.adoc[未授权统一返回业务码 401]、link:../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/exception-fallback.adoc[异常兜底分层]
 
 == 约定
 

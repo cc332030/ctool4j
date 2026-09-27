@@ -39,7 +39,7 @@
 
 `ClassValue` 是**弱关联**：条目在**键的类被卸载**时释放。这在应用自身类型上等于不释放——应用类由应用类加载器持有到进程结束，其条目在应用存活期间不会自行消失。
 
-故"要交还内存"时必须显式清理，由调用方按"该值不再被读取"的时点触发。项目内的实际用例：`ctool4j-web` 的 `ConditionalOnMissingExceptionHandlerCondition` 在**应用启动完成**时清空其声明集缓存（触发点与动机见 link:../spring/started.adoc[启动完成回调]、link:../web/exception-fallback.adoc[异常兜底分层]）。
+故"要交还内存"时必须显式清理，由调用方按"该值不再被读取"的时点触发。项目内的实际用例：`ctool4j-web` 的 `ConditionalOnMissingExceptionHandlerCondition` 在**应用启动完成**时清空其声明集缓存（触发点与动机见 link:../../../ctool4j-web/doc/design/started.adoc[启动完成回调]、link:../../../ctool4j-web/doc/design/exception-fallback.adoc[异常兜底分层]）。
 
 `clear()` 清的是**本实例**记录过的键——同一个 `CClassValue` 对象只承载一份缓存，被多处共用时整体清空会波及其他调用方，故清空的作用面按实例切分。键集合用**弱引用**记录（`WeakHashMap` 的键集），不阻止类卸载。
 
@@ -68,5 +68,5 @@
 
 - 源码：`ICClassValue`、`ICRefClassValue`、`ICBiClassValue`、`CClassValue`、`CRefClassValue`、`CBiClassValue`、`CRefBiClassValue`
 - 测试：`CClassValueTests`、`CRefClassValueTests`、`CBiClassValueTests`、`CRefBiClassValueTests`
-- 上级索引：link:README.adoc[core 文档索引]。
-- 使用文档：link:../../use/core.adoc[doc/use/core.adoc]
+- 设计文档索引：link:../../../../../doc/design/README.adoc[设计文档索引]。
+- 使用文档：link:../../../../../doc/use/core.adoc[doc/use/core.adoc]

@@ -47,7 +47,7 @@
 迁移后只保留新注册入口一处（Boot 2.7 与 3.x 都读它，不再需要两处并存）。生效验证：+ctool4j-spring+ 的
 link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/configuration/CSpringConfigurationAutoConfigTests.java[CSpringConfigurationAutoConfigTests]
 （经 +@EnableAutoConfiguration+ 装配、不直接引入配置类）与
-link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/test/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
+link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
 在该模块全量测试中通过，证明迁移后自动配置仍被装配。
 
 == 相关入口

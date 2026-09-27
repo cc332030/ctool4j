@@ -1,7 +1,8 @@
 = 设计文档索引
 
-本目录（+doc/design/+）存放各模块的**功能/模块级设计文档**（跨类/模块的设计：方案与取舍、兜底策略、适用范围、已知限制与波及影响），
-按模块分子目录组织，按功能命名、不与源文件同名；类级与方法级内容一律由源码 javadoc 承载。
+本文件是**功能级设计文档的导航**。功能级设计文档（跨类/模块的设计：方案与取舍、兜底策略、适用范围、已知限制与波及影响）
+**与源码同模块就近存放**，落在各模块的 +<模块>/doc/design/+ 下——javadoc 的 +@see "doc/design/…"+ 按**模块根相对**解析，
+文档就近落在模块内才能被 IDE 与 javadoc 解析到；按功能命名、不与源文件同名，类级与方法级内容一律由源码 javadoc 承载。
 
 全项目文档导航入口见 link:../README.adoc[doc/README.adoc]。
 
@@ -9,36 +10,40 @@
 
 * *javadoc 即文档，且按层次分工*：源类**类上**写定位、能力目录与设计文档链接；**方法/字段上**写该 API 的契约
   （参数语义、返回值、异常、边界与默认值、空值语义、易误用点），不写"为什么这样设计"与备选方案；类级细节不写成单独 adoc。
-* *本目录只放功能/模块级内容*：跨方法/跨类的设计内容（方案与取舍、兜底、适用范围、已知限制）成篇记录在 +doc/design/<模块>/<功能>.adoc+，与代码双向互引。
-* *测试文档*：测试内容（用例设计思路与依据、覆盖场景与取舍、用例编号索引）已随规范迁入测试类 javadoc，
-  不再单独成篇；跨类的测试组织如需记录，同样放在本目录。
-* *版本与变更*：源文件版本见各源码 javadoc 的 +@version+；全项目变更记录统一在 link:../../CHANGELOG.adoc[CHANGELOG.adoc]（按发布 tag 分组、版本内按模块与变更类型分类）。
+* *功能级内容按模块就近存放*：跨方法/跨类的设计内容（方案与取舍、兜底、适用范围、已知限制）成篇记录在
+  +<模块>/doc/design/<功能>.adoc+，与代码双向互引。
+* *测试文档*：测试内容（用例设计思路与依据、覆盖场景与取舍、用例编号索引）随规范落在测试类 javadoc，不再单独成篇。
+* *版本与变更*：源文件版本见各源码 javadoc 的 +@version+；全项目变更记录统一在 link:../../CHANGELOG.adoc[CHANGELOG.adoc]。
 
-== 模块索引
+== 功能文档索引
 
-[cols="1,3,3", options="header"]
+按模块列出（模块目录下的 +doc/design/+）：
+
+[cols="2,3", options="header"]
 |===
-| 模块目录 | 定位 | 功能级设计文档
+| 模块 | 功能级设计文档
 
-| link:core/[core]
-| 核心工具库（ctool4j-core）：字符串、集合、日期、反射、日志、校验
-| link:core/class-value.adoc[按类缓存（ClassValue 系列）]、link:core/method-handle.adoc[method-handle]、link:core/perf/beanutils-perf.adoc[CBeanUtils 性能实测]
+| +ctool4j-core+
+| link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/class-value.adoc[按类缓存（ClassValue 系列）]、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/method-handle.adoc[MethodHandle 工具]、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/perf/beanutils-perf.adoc[CBeanUtils 性能实测]、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/unauthorized-401.adoc[未授权统一返回业务码 401]
 
-| link:definition/[definition]
-| 基础定义（ctool4j-definition）：统一返回体、实体基类、枚举、注解、函数式接口
-| link:definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
+| +ctool4j-definition+
+| link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc[openapi-doc-annotations]
 
-| link:redis/[redis]
-| Redis 操作与 Redisson 分布式锁、限流、幂等（ctool4j-redis）
-| link:redis/rate-limit-idempotent.adoc[限流与幂等]
+| +ctool4j-redis+
+| link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/doc/design/rate-limit-idempotent.adoc[限流与幂等]
 
-| link:spring/[spring]
-| Spring 基础设施与 Security（ctool4j-spring / spring-security / spring-cloud）
-| link:spring/ip.adoc[ip]、link:spring/real-class-name.adoc[真实业务类/类名/包名]、link:spring/authority-json.adoc[会话权限的 JSON 读写]、link:spring/spring-perf.adoc[性能实测]
+| +ctool4j-spring+ / +ctool4j-spring-security+
+| link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/ip.adoc[ip]、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/real-class-name.adoc[真实业务类/类名/包名]、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[会话权限的 JSON 读写]（落 javax 侧：安全侧文档以 javax 为基准，jakarta 侧未登记进构建）、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/spring-perf.adoc[性能实测]
 
-| link:web/[web]
-| Web MVC 通用能力（ctool4j-web）：全局异常、跨域、JWT/token、请求日志、traceId
-| link:web/unauthorized-401.adoc[未授权统一返回业务码 401]、link:web/exception-fallback.adoc[异常兜底分层]
+| +ctool4j-web+
+| link:../../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/exception-fallback.adoc[异常兜底分层]、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/started.adoc[应用启动完成回调]
 
 |===
 

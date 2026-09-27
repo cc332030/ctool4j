@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * <h2>设计要点</h2>
  * <ul>
  *   <li><b>只做适配，逻辑不重复</b>：响应体结构、状态码、编码与文案回退都在
- *   {@link CSecurityResponseUtils}（抽象层），本类只有「包装 + 委托」两行，jakarta/javax 两侧各一份同名类。</li>
+ *   {@link CSecurityResponseUtils}（抽象层），本类只有「包装 + 委托」两行，javax/jakarta 两侧各一份同名类。</li>
  *   <li><b>从 {@code CSpringSecurityUtils} 抽出来</b>：那个类同时承载与容器无关的安全上下文能力与这段 servlet 写出，
  *   整体上移到两侧会反向依赖业务模块（它引用 {@code CGrantedAuthorityUtils}）；
  *   抽出后「与容器无关的留原地、带 Servlet 参数的落两侧」，各自只在需要的地方存在。</li>
@@ -55,7 +55,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>javax（Servlet 5.0+）工程须改用 javax 侧的同名类，否则参数类型不匹配。</li>
+ *   <li>jakarta（Servlet 5.0+）工程须改用 jakarta 侧的同名类，否则参数类型不匹配。</li>
  *   <li>需要输出非 JSON（HTML、重定向）的场景不适用。</li>
  * </ul>
  *

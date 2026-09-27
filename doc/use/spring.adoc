@@ -44,7 +44,7 @@ String name = CProxyUtils.getRealClassName(orderService);   // 改不了代码�
 ----
 
 * 只支持 Spring 生成的代理（CGLIB / JDK 动态代理）；裸动态代理、MyBatis Mapper 等携带不了目标元数据，返回代理类自身。
-* 适用与边界（性能、不缓存的取舍）见开发文档：link:../design/spring/real-class-name.adoc[real-class-name]。
+* 适用与边界（性能、不缓存的取舍）见开发文档：link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/real-class-name.adoc[real-class-name]。
 
 === 容器取值
 
@@ -80,7 +80,7 @@ public class MyStarted implements ICStarted {    // 启动完成回调（SpringA
 * `onInit` 在单例实例化完成后触发；`onStarted` 在整个容器就绪、启动流程走到运行器阶段时触发，适合放"启动后一次性处理"（如释放只在启动阶段有效的缓存）。
 * 回调点由 `CStartedApplicationRunner` 承载：**只实现 `ICStarted` 不产生回调**，须同时实现 `ApplicationRunner`（或直接实现 `CStartedApplicationRunner`）。
 * 框架自带的清理回调：`ctool4j-spring` 的 `CSpringInit` 清 `CAutowiredUtils` 的启动期扫描包，`ctool4j-web` 的 `CWebInit` 清条件类 `ConditionalOnMissingExceptionHandlerCondition` 的声明集缓存——**清理由被清对象所在模块的 Bean 承载**（依赖方向单向）；接入方实现了 `CStartedApplicationRunner` 无需关心这些。
-* 回调时序、兜底与已知限制见开发文档：link:../design/spring/started.adoc[started]。
+* 回调时序、兜底与已知限制见开发文档：link:../../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/started.adoc[started]。
 
 == 配置
 
@@ -113,4 +113,4 @@ public class OrderProperties {
 == 相关
 
 - 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom README]
-- IP 段解析工具（`CIpUtils`，+ctool4j-spring+）：边界与误用点见 link:../design/spring/ip.adoc[ip]
+- IP 段解析工具（`CIpUtils`，+ctool4j-spring+）：边界与误用点见 link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/ip.adoc[ip]

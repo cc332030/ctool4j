@@ -38,7 +38,7 @@
 
 === 为什么异常放 ctool4j-core
 
-auth-base 需要能抛、ctool4j-web 需要能接，二者彼此不依赖（见 link:../../dependency.adoc[模块依赖关系]）。
+auth-base 需要能抛、ctool4j-web 需要能接，二者彼此不依赖（见 link:../../../../../doc/dependency.adoc[模块依赖关系]）。
 放在双方都已依赖的 ctool4j-core，两端都不必为对方引入依赖。
 
 === 为什么不携带错误码
@@ -84,6 +84,6 @@ auth-base 需要能抛、ctool4j-web 需要能接，二者彼此不依赖（见 
   `CAbstractBaseSessionService`（ctool4j-auth-base）、
   `CUnauthorizedExceptionHandler`（ctool4j-web）
 - 测试：`CUnauthorizedExceptionTests`、`CAbstractBaseSessionServiceTests`、`CUnauthorizedExceptionHandlerTests`
-- 模块文档：link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web README]、
-  link:../../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom README]
-- 变更记录：link:../../../CHANGELOG.adoc[CHANGELOG.adoc]
+- 模块文档：`CUnauthorizedException` 见本模块 link:../../README.md[ctool4j-core README]；处理器与响应体落点见
+  link:../../../ctool4j-web/README.md[ctool4j-web README]、会话服务落点见 link:../../../ctool4j-auth-pom/README.md[ctool4j-auth-pom README]
+- 变更记录：link:../../../../../CHANGELOG.adoc[CHANGELOG.adoc]

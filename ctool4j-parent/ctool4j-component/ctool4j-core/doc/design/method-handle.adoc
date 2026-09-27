@@ -66,4 +66,4 @@
 
 * 代码：`CMethodHandleUtils`、`CReflectUtils`、`CLambdaUtils`、`CEnumUtils`、`CBeanUtils`（`ctool4j-core`，`src/main/java/com/c332030/ctool4j/core/classes/`）
 * 用例：`CMethodHandleUtilsTests`、`CReflectUtilsTests`、`CBeanUtils*Tests`（同上模块 `src/test/java`）
-* 索引：link:README.adoc[core 文档索引]、link:../README.adoc[设计文档索引]
+* 索引：link:../../../../../doc/design/README.adoc[设计文档索引]

@@ -115,8 +115,8 @@ import java.util.Set;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.4
- * @see "doc/design/web/exception-fallback.adoc"
+ * @version 1.5
+ * @see "doc/design/exception-fallback.adoc"
  */
 @CustomLog
 public class ConditionalOnMissingExceptionHandlerCondition implements Condition {

@@ -27,8 +27,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * <h2>设计要点</h2>
  * <ul>
  *   <li><b>只做适配，不含业务</b>：403 的写出在抽象层的 {@code CDefaultForbiddenHandler} 里，
- *   本类不做第二份实现——避免 jakarta/javax 两侧逻辑漂移。</li>
- *   <li><b>同名类成对存在</b>：javax 侧有同包同名的 {@code CAccessDeniedHandler}，
+ *   本类不做第二份实现——避免 javax/jakarta 两侧逻辑漂移。</li>
+ *   <li><b>同名类成对存在</b>：jakarta 侧有同包同名的 {@code CAccessDeniedHandler}，
  *   使用方改依赖模块即切换容器，类名与用法不变。</li>
  *   <li><b>可替换的处理器</b>：默认构造用 {@code CDefaultForbiddenHandler}；
  *   需要自定义响应形状时用带参构造注入自己的 {@code CForbiddenHandler}。</li>
@@ -58,7 +58,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>javax（Servlet 5.0+）工程须改用 javax 侧的同名类，否则方法签名不匹配。</li>
+ *   <li>jakarta（Servlet 5.0+）工程须改用 jakarta 侧的同名类，否则方法签名不匹配。</li>
  * </ul>
  *
  * <h2>已知限制与取舍</h2>

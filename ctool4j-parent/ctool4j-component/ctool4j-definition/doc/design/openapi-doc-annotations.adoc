@@ -79,9 +79,9 @@ ctool4j-web 的 `com.c332030.ctool4j.web.validation.annotation` 包）。
 
 各注解与校验器的类级细节（职责、属性、默认值、边界）随代码存放在源码 javadoc 中，可分别查阅：
 
-- link:../../../ctool4j-parent/ctool4j-component/ctool4j-definition/src/main/java/com/c332030/ctool4j/doc/annotation/CSchema.java[CSchema]
-- link:../../../ctool4j-parent/ctool4j-component/ctool4j-definition/src/main/java/com/c332030/ctool4j/doc/annotation/CTag.java[CTag]
-- link:../../../ctool4j-parent/ctool4j-component/ctool4j-definition/src/main/java/com/c332030/ctool4j/doc/annotation/COperation.java[COperation]
-- link:../../../ctool4j-parent/ctool4j-component/ctool4j-definition/src/main/java/com/c332030/ctool4j/doc/annotation/CParameter.java[CParameter]
-- link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/src/main/java/com/c332030/ctool4j/web/validation/annotation/CRequired.java[CRequired]、link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/src/main/java/com/c332030/ctool4j/web/validation/annotation/CNotRequired.java[CNotRequired]（web.validation）
-- link:../../../ctool4j-parent/ctool4j-component/ctool4j-web/src/main/java/com/c332030/ctool4j/web/validation/validator/CRequiredValidator.java[CRequiredValidator]
+- link:../../src/main/java/com/c332030/ctool4j/doc/annotation/CSchema.java[CSchema]
+- link:../../src/main/java/com/c332030/ctool4j/doc/annotation/CTag.java[CTag]
+- link:../../src/main/java/com/c332030/ctool4j/doc/annotation/COperation.java[COperation]
+- link:../../src/main/java/com/c332030/ctool4j/doc/annotation/CParameter.java[CParameter]
+- link:../../../ctool4j-web/src/main/java/com/c332030/ctool4j/web/validation/annotation/CRequired.java[CRequired]、link:../../../ctool4j-web/src/main/java/com/c332030/ctool4j/web/validation/annotation/CNotRequired.java[CNotRequired]（web.validation）
+- link:../../../ctool4j-web/src/main/java/com/c332030/ctool4j/web/validation/validator/CRequiredValidator.java[CRequiredValidator]

@@ -21,7 +21,7 @@
 == 注意
 
 * 需 Redis Session 时自行引入 `spring-session-data-redis`（本模块为 optional）。
-* 会话/用户对象里带 `GrantedAuthority` 时，JSON 读回依赖 `CSecurityJacksonModule`（本模块提供，经 Jackson SPI 自动装配）——经 `CJacksonUtils` 的 mapper 或开启 `spring.jackson.json5` 的容器 mapper 均生效；**Spring MVC 的 `@RequestBody`/`@ResponseBody` 默认不覆盖**。陷阱与取舍见开发文档：link:../design/spring/authority-json.adoc[authority-json]。
+* 会话/用户对象里带 `GrantedAuthority` 时，JSON 读回依赖 `CSecurityJacksonModule`（本模块提供，经 Jackson SPI 自动装配）——经 `CJacksonUtils` 的 mapper 或开启 `spring.jackson.json5` 的容器 mapper 均生效；**Spring MVC 的 `@RequestBody`/`@ResponseBody` 默认不覆盖**。陷阱与取舍见开发文档：link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[authority-json]。
 
 == 相关
 

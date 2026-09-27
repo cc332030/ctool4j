@@ -9,7 +9,7 @@
 - `ctool4j-doc-openapi2`：OpenAPI2（springfox / knife4j）接口文档增强。
 
 通用接口文档描述注解（`CSchema`/`CTag`/`COperation`/`CParameter`）定义在 `ctool4j-definition`
-的 `com.c332030.ctool4j.doc.annotation` 包（设计文档见 `doc/design/definition/`），本模块插件读取后落地为 Swagger 文档。
+的 `com.c332030.ctool4j.doc.annotation` 包（设计文档见 `ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc`），本模块插件读取后落地为 Swagger 文档。
 
 ## 子模块：ctool4j-doc-openapi2
 

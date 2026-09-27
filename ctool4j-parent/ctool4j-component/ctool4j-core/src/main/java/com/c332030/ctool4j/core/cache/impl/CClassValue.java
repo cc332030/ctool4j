@@ -65,8 +65,8 @@ import java.util.WeakHashMap;
  * </ul>
  *
  * @since 2025/11/20
- * @version 1.1
- * @see "doc/design/core/class-value.adoc"
+ * @version 1.2
+ * @see "doc/design/class-value.adoc"
  */
 public class CClassValue<T> implements ICClassValue<T> {
 
