@@ -6,9 +6,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import javax.servlet.http.Cookie;
 
 /**
  * <p>
@@ -28,7 +27,9 @@ import javax.servlet.http.Cookie;
  *   <li>适配器是"包装 + 解包 + 字段映射"三类动作，纯转发方法由容器保证、不重复测；
  *   本类只钉住这三类中**属本类自己的逻辑**：往返同一性、null 契约、跨侧/非法入参的拒绝、
  *   Cookie 字段逐项映射（映射漏字段不会报错，只表现为取不到值）。</li>
- *   <li>用 Spring 的 {@code MockHttpServletRequest} 提供容器对象，避免手写 Servlet 实现。</li>
+ *   <li>用 Spring 的 {@code MockHttpServletRequest} / {@code MockCookie} 提供容器对象，避免手写 Servlet 实现，
+ *   源码不出现 {@code javax.servlet} / {@code jakarta.servlet} 的 import（其实现随 Spring 版本切包，
+ *   业务模块（含测试）据此不绑定容器包）。</li>
  * </ul>
  *
  * <h2>覆盖场景与未覆盖</h2>
@@ -45,7 +46,7 @@ import javax.servlet.http.Cookie;
  *
  * @see CHttpServletRequest
  * @since 2026/9/27
- * @version 1.0
+ * @version 1.1
  */
 public class CHttpServletRequestTests {
 
@@ -120,7 +121,7 @@ public class CHttpServletRequestTests {
     @Test
     public void getCookies_mapsAllFields() {
 
-        val cookie = new Cookie("sid", "v1");
+        val cookie = new MockCookie("sid", "v1");
         cookie.setPath("/");
         cookie.setDomain("example.com");
         cookie.setMaxAge(3600);
