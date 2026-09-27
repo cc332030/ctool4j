@@ -7,7 +7,7 @@ plugins {
 dependencies {
 
     /**
-     * 自适应层（`spi/IMybatisPlusSpi`）直接继承 MP 上游的 `IService`，故编译期必须可见 MP 坐标。
+     * 自适应层（`spi/CMybatisPlusSpi`）直接继承 MP 上游的 `IService`，故编译期必须可见 MP 坐标。
      *
      * 用 `api` 而非 `cProvided`：本模块的公共面与侧目录都不向下游重复声明 MP，
      * 消费模块（`ctool4j-mybatis*`）据此拿到 MP 抽象——base 对 MP 是 `compileOnly`（不传递），

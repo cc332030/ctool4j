@@ -12,7 +12,7 @@
 ```
 MP 上游 IService（坐标随版本迁移）        MP 上游 ServiceImpl（坐标随版本迁移）
         ↑ 继承                                  ↑ 继承
-spi/IMybatisPlusSpi（自适应层，两侧各一份）  spi/CMybatisPlusServiceImpl（两侧各一份）
+spi/CMybatisPlusSpi（自适应层，两侧各一份）  spi/CMybatisPlusServiceImpl（两侧各一份）
         ↑ 继承                                  ↑ 继承
 service/ICCheckService（公共，本模块 jar）    service/impl/CBaseServiceImpl（两侧各一份）
         ↑ 继承
@@ -28,7 +28,7 @@ ICBizIdService → ICService（公共，落在 ctool4j-mybatis-base）
 | 目录 | 承载 | 编译/挂载者 |
 |------|------|-------------|
 | `java` | **版本无关公共面**：`service/ICCheckService`、`CMybatisPlusSide` | 本模块（随 jar 发布） |
-| `java-adaptive-spring` | **3.5.x 侧自适应层**：`spi/IMybatisPlusSpi`、`spi/IService`、`spi/CMybatisPlusServiceImpl`（承 `spring.service`） | 本模块（默认侧）+ `ctool4j-mybatis` |
+| `java-adaptive-spring` | **3.5.x 侧自适应层**：`spi/CMybatisPlusSpi`、`spi/IService`、`spi/CMybatisPlusServiceImpl`（承 `spring.service`） | 本模块（默认侧）+ `ctool4j-mybatis` |
 | `java-adaptive-extension` | **3.3.x/3.4.x 侧自适应层**（承 `extension.service`），相对路径集合与 `java-adaptive-spring` 完全镜像 | `ctool4j-mybatis-33` / `-34`（`srcDir`） |
 | `java-base-spring` / `java-base-extension` | 两侧实现基底 `service/impl/CBaseServiceImpl` | 各版本模块（`srcDir`） |
 
@@ -47,7 +47,7 @@ ICBizIdService → ICService（公共，落在 ctool4j-mybatis-base）
 | 类 | 类型 | 职责 |
 |----|------|------|
 | `ICCheckService` | 接口 | 全部 service 契约的根，**不引用任何版本侧类型** |
-| `IMybatisPlusSpi` | 接口 | 自适应层：承接 MP 上游 `IService` + 统一空安全语义，两侧各一份 |
+| `CMybatisPlusSpi` | 接口 | 自适应层：承接 MP 上游 `IService` + 统一空安全语义，两侧各一份 |
 | `IService` | 接口 | 中性名承接（对外沿用的 `spi/IService`），两侧各一份 |
 | `CMybatisPlusServiceImpl` | 抽象类 | 自适应实现基底：承接 MP 上游 `ServiceImpl`，两侧各一份 |
 | `CBaseServiceImpl` | 抽象类 | 实现基底：桥接自适应基底与公共 `ICService`，两侧各一份 |

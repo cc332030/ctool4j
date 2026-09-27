@@ -10,7 +10,7 @@ import com.c332030.ctool4j.core.util.CList;
 
 /**
  * <p>
- * Description: IMybatisPlusSpi（mybatis-plus 3.5.x 侧自适应层）
+ * Description: CMybatisPlusSpi（mybatis-plus 3.5.x 侧自适应层）
  * </p>
  *
  * <p>
@@ -29,7 +29,7 @@ import com.c332030.ctool4j.core.util.CList;
  *
  * <h2>设计要点</h2>
  * <ul>
- *   <li><b>本接口是"自适应层"的实体</b>：{@code IService → IMybatisPlusSpi → MP IService}。
+ *   <li><b>本接口是"自适应层"的实体</b>：{@code IService → CMybatisPlusSpi → MP IService}。
  *   上游坐标换成 {@code extension.service} 时（3.3.x / 3.4.x 侧），只需换掉本层的继承目标
  *   与 {@code super} 限定名，上层一字不改——这就是"自适应"的含义，
  *   与仓库里 {@code java-javax} ↔ {@code java-jakarta} 成对适配同构。</li>
@@ -37,7 +37,7 @@ import com.c332030.ctool4j.core.util.CList;
  *   {@code X.super.m()}（{@code X} 是版本侧类型）；而空安全实现必须调用上游 {@code super}，
  *   故它天然属于本层。放这里也顺带让 3.3.x / 3.4.x 侧补齐与 3.5.x 一致的 API 面。</li>
  *   <li><b>本接口只落在 3.5.x 侧的源目录 {@code java-spring}</b>：3.3.x / 3.4.x 侧有另一份
- *   同全限定名的 {@code spi/IMybatisPlusSpi}（承 {@code extension.service} 坐标），
+ *   同全限定名的 {@code spi/CMybatisPlusSpi}（承 {@code extension.service} 坐标），
  *   落在 {@code java-extension} 里、不会被 {@code ctool4j-mybatis} 挂载——两个侧目录内容互不相交，
  *   满足仓库「一个模块下的多个源目录之间代码必须完全互斥」。</li>
  * </ul>
@@ -64,7 +64,7 @@ import com.c332030.ctool4j.core.util.CList;
  * @since 2026/9/27
  * @version 2.0
  */
-public interface IMybatisPlusSpi<ENTITY>
+public interface CMybatisPlusSpi<ENTITY>
         extends com.baomidou.mybatisplus.spring.service.IService<ENTITY> {
 
     /**

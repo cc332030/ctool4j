@@ -23,7 +23,7 @@ package com.c332030.ctool4j.mybatisplus;
  *   "只有那一侧挂载时才存在"，而它显然要被两侧同时看到——这正是仓库「多源目录之间的代码必须
  *   完全互斥」的正面应用：版本无关的内容进公共面，版本相关的才进版本侧目录。</li>
  *   <li><b>两侧目录是镜像的</b>：{@code java-adaptive-spring} / {@code java-adaptive-extension}
- *   承载自适应层（{@code spi/IMybatisPlusSpi}、{@code spi/IService}、
+ *   承载自适应层（{@code spi/CMybatisPlusSpi}、{@code spi/IService}、
  *   {@code spi/CMybatisPlusServiceImpl}），{@code java-base-spring} / {@code java-base-extension}
  *   承载实现基底（{@code service/impl/CBaseServiceImpl}）——
  *   两组目录的相对路径集合完全一致，两侧内容互不相交，任一消费模块只挂其中一侧。</li>
@@ -58,7 +58,7 @@ package com.c332030.ctool4j.mybatisplus;
 public final class CMybatisPlusSide {
 
     /**
-     * 需要在两个版本侧各写一份的适配符号数：{@code spi/IService}、{@code spi/IMybatisPlusSpi}、
+     * 需要在两个版本侧各写一份的适配符号数：{@code spi/IService}、{@code spi/CMybatisPlusSpi}、
      * {@code spi/CMybatisPlusServiceImpl} 与 {@code service/impl/CBaseServiceImpl} 各一份，故为 4。
      */
     public static final int SIDE_COUNT = 4;

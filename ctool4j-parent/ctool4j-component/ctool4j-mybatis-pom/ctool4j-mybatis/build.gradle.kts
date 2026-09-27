@@ -24,7 +24,7 @@ dependencies {
  * 挂载中间模块的 **3.5.x 侧**自适应源码目录。
  *
  * 中间模块 `ctool4j-mybatis-mp-java8` 的公共面（`ICCheckService`、`CMybatisPlusSide`）随其 jar 发布；
- * 版本侧部分（自适应层 `spi/IMybatisPlusSpi` / `spi/IService` / `spi/CMybatisPlusServiceImpl`
+ * 版本侧部分（自适应层 `spi/CMybatisPlusSpi` / `spi/IService` / `spi/CMybatisPlusServiceImpl`
  * 与实现基底 `service/impl/CBaseServiceImpl`）由本模块按侧纳入：
  * 本模块是 mybatis-plus 3.5.x（`com.baomidou.mybatisplus.spring.service`）侧，
  * 故挂 `java-adaptive-spring` + `java-base-spring`；3.3.x / 3.4.x 侧的同名文件落 `java-adaptive-extension`、由 `-33` / `-34` 挂载。

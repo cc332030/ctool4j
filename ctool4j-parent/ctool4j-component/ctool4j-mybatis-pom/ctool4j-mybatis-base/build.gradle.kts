@@ -32,5 +32,5 @@ dependencies {
  *
  * 版本侧差异（mybatis-plus 3.5.17 起 `IService`/`ServiceImpl` 由 `extension.service` 迁到
  * `spring.service`）**不在本模块**：已下沉到中间模块 `ctool4j-mybatis-mp-java8`，
- * 由自适应层（`spi/IMybatisPlusSpi` 两侧各一份）吸收，公共契约 `ICService` 一族因此版本无关。
+ * 由自适应层（`spi/CMybatisPlusSpi` 两侧各一份）吸收，公共契约 `ICService` 一族因此版本无关。
  */

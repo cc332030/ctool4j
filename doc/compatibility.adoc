@@ -160,7 +160,7 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
   业务方法不再各写一遍
 | 已消除重复
 
-| +ctool4j-mybatis-base+ 的版本适配桥（+spi/IService+、+spi/IMybatisPlusSpi+、+spi/CMybatisPlusServiceImpl+、+service/impl/CBaseServiceImpl+）与 +CMpController+
+| +ctool4j-mybatis-base+ 的版本适配桥（+spi/IService+、+spi/CMybatisPlusSpi+、+spi/CMybatisPlusServiceImpl+、+service/impl/CBaseServiceImpl+）与 +CMpController+
 | 同名两份**不可避免**（mybatis-plus 3.5.17 起 +IService+/+ServiceImpl+ 由 +extension.service+ 迁到 +spring.service+，两坐标不能共存）。
   改为**自适应中间层 + 目录级互斥**：新建 +ctool4j-mybatis-mp-java8+，其 +java+ 放版本无关公共面（+ICCheckService+，随 jar 发布），
   +java-adaptive-{spring,extension}+ 放两侧自适应层（承各自 MP 坐标，承载**完全相同的相对路径集合**）、
