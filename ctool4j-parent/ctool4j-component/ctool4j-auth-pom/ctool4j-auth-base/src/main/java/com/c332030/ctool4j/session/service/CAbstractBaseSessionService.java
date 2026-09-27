@@ -5,6 +5,7 @@ import com.c332030.ctool4j.auth.util.CAuthUtils;
 import com.c332030.ctool4j.core.exception.CUnauthorizedException;
 import com.c332030.ctool4j.core.interfaces.ICGenericType;
 import com.c332030.ctool4j.core.validation.CValidUtils;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
 import com.c332030.ctool4j.redis.service.impl.CStringStringRedisService;
 import com.c332030.ctool4j.redis.util.CRedisUtils;
 import com.c332030.ctool4j.session.config.CSessionConfig;
@@ -15,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -137,7 +136,7 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
      * 从当前请求解出 token 并加载会话
      *
      * <p>流程：取请求 Authorization 头 token → 经 {@link CAuthUtils#getTokenByJwt} 校验并解析出业务 token
-     * → 按 token 查会话 → 命中则把 token 写入请求属性（{@link CTokenUtils#setToken(HttpServletRequest, String)}）。</p>
+     * → 按 token 查会话 → 命中则把 token 写入请求属性（{@link CTokenUtils#setToken(CHttpRequest, String)}）。</p>
      *
      * <p>可能收到其他系统误传的 token：解析失败（内部静默返回 null）或查不到会话时直接返回 null，
      * 不写入请求属性，由调用方决定后续处理（如保持未认证状态）。</p>
@@ -145,7 +144,7 @@ public abstract class CAbstractBaseSessionService<SESSION extends ICSession> imp
      * @param request 当前请求
      * @return 会话；token 缺失/解析失败/会话不存在返回 null
      */
-    public SESSION loadSession(HttpServletRequest request) {
+    public SESSION loadSession(CHttpRequest request) {
 
         val jwt = CTokenUtils.getHeaderToken(request);
         val token = CAuthUtils.getTokenByJwt(jwt);

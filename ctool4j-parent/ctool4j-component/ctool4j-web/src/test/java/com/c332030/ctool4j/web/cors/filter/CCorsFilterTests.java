@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.FilterChain;
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
@@ -52,7 +52,7 @@ public class CCorsFilterTests {
     private CCorsConfig config;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
-    private FilterChain chain;
+    private MockFilterChain chain;
 
     /**
      * 每个用例执行前的准备
@@ -62,7 +62,7 @@ public class CCorsFilterTests {
         config = new CCorsConfig();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        chain = mock(FilterChain.class);
+        chain = mock(MockFilterChain.class);
     }
 
     /**

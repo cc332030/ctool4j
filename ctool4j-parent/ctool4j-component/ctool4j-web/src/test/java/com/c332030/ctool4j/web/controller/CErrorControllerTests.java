@@ -1,13 +1,11 @@
 package com.c332030.ctool4j.web.controller;
 
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * <p>
@@ -48,8 +46,8 @@ class CErrorControllerTests {
      */
     @Test
     void testError_withStatusCode() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE)).thenReturn(500);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setAttribute(CHttpServletRequest.ERROR_STATUS_CODE, 500);
 
         CStrResult<Void> result = controller.error(request);
 
@@ -61,8 +59,8 @@ class CErrorControllerTests {
      */
     @Test
     void testError_withoutStatusCode_default500() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE)).thenReturn(null);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setAttribute(CHttpServletRequest.ERROR_STATUS_CODE, null);
 
         CStrResult<Void> result = Assertions.assertDoesNotThrow(() -> controller.error(request));
 
@@ -74,8 +72,8 @@ class CErrorControllerTests {
      */
     @Test
     void testError_invalidStatusCode_default500() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-        Mockito.when(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE)).thenReturn("abc");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setAttribute(CHttpServletRequest.ERROR_STATUS_CODE, "abc");
 
         CStrResult<Void> result = Assertions.assertDoesNotThrow(() -> controller.error(request));
 

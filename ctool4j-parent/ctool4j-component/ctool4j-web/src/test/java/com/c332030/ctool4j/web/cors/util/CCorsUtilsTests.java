@@ -1,5 +1,10 @@
 package com.c332030.ctool4j.web.cors.util;
 
+import com.c332030.ctool4j.definition.constant.CConstants;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
 import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import lombok.val;
@@ -11,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -79,10 +83,11 @@ import java.util.Set;
  *   <li>1.34 getOriginConfig_whenHostFallback（getOriginConfig_whenHostFallback）</li>
  *   <li>1.35 getOriginConfig_whenNotConfigured（getOriginConfig_whenNotConfigured）</li>
  *   <li>1.36 handleDo_whenMethodsEmpty（handleDo_whenMethodsEmpty）</li>
+ *   <li>1.37 handleDo_whenAllowedHeadersContainsStarAndSpecific（handleDo_whenAllowedHeadersContainsStarAndSpecific）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.1
+ * @version 1.2
  */
 public class CCorsUtilsTests {
 
@@ -113,6 +118,24 @@ public class CCorsUtilsTests {
     public void tearDown() {
         // 还原静态 config，避免污染其他用例
         CCorsUtils.setConfig(null);
+    }
+
+    /**
+     * 抽象层请求（按当前 Mock 请求包装）
+     *
+     * @return 抽象层请求
+     */
+    private CHttpRequest httpRequest() {
+        return CHttpServletRequest.of(request);
+    }
+
+    /**
+     * 抽象层响应（按当前 Mock 响应包装）
+     *
+     * @return 抽象层响应
+     */
+    private CHttpResponse httpResponse() {
+        return CHttpServletResponse.of(response);
     }
 
     /**
@@ -169,7 +192,7 @@ public class CCorsUtilsTests {
         CCorsUtils.setConfig(config);
         request.setMethod("OPTIONS");
 
-        val handled = CCorsUtils.handleOptions(request, response);
+        val handled = CCorsUtils.handleOptions(httpRequest(), httpResponse());
 
         Assertions.assertFalse(handled);
         Assertions.assertEquals(200, response.getStatus());
@@ -184,10 +207,10 @@ public class CCorsUtilsTests {
         enable();
         request.setMethod("OPTIONS");
 
-        val handled = CCorsUtils.handleOptions(request, response);
+        val handled = CCorsUtils.handleOptions(httpRequest(), httpResponse());
 
         Assertions.assertTrue(handled);
-        Assertions.assertEquals(HttpServletResponse.SC_NO_CONTENT, response.getStatus());
+        Assertions.assertEquals(MockHttpServletResponse.SC_NO_CONTENT, response.getStatus());
     }
 
     /**
@@ -199,7 +222,7 @@ public class CCorsUtilsTests {
         enable();
         request.setMethod("GET");
 
-        val handled = CCorsUtils.handleOptions(request, response);
+        val handled = CCorsUtils.handleOptions(httpRequest(), httpResponse());
 
         Assertions.assertFalse(handled);
     }
@@ -213,7 +236,7 @@ public class CCorsUtilsTests {
         enable();
         request.setMethod("options");
 
-        val handled = CCorsUtils.handleOptions(request, response);
+        val handled = CCorsUtils.handleOptions(httpRequest(), httpResponse());
 
         Assertions.assertTrue(handled);
     }
@@ -226,7 +249,7 @@ public class CCorsUtilsTests {
         // 异常：config 为 null 时异常被吞掉并返回 false
         request.setMethod("OPTIONS");
 
-        val handled = CCorsUtils.handleOptions(request, response);
+        val handled = CCorsUtils.handleOptions(httpRequest(), httpResponse());
 
         Assertions.assertFalse(handled);
     }
@@ -243,7 +266,7 @@ public class CCorsUtilsTests {
         enabledOrigin();
         corsRequest();
 
-        CCorsUtils.handle(request, response);
+        CCorsUtils.handle(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -258,7 +281,7 @@ public class CCorsUtilsTests {
         enabledOrigin();
         corsRequest();
 
-        CCorsUtils.handle(request, response);
+        CCorsUtils.handle(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -276,7 +299,7 @@ public class CCorsUtilsTests {
         request.setMethod("GET");
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -293,7 +316,7 @@ public class CCorsUtilsTests {
         request.addHeader(HttpHeaders.ORIGIN, "http://localhost:8080");
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -310,7 +333,7 @@ public class CCorsUtilsTests {
         request.addHeader(HttpHeaders.ORIGIN, "https://other.com");
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -326,7 +349,7 @@ public class CCorsUtilsTests {
         config.setOrigins(Collections.singletonMap("example.com", originConfig));
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -341,7 +364,7 @@ public class CCorsUtilsTests {
         originConfig(false, Boolean.TRUE, Boolean.TRUE);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
@@ -361,9 +384,28 @@ public class CCorsUtilsTests {
         request.addHeader(HttpHeaders.ORIGIN, ORIGIN);
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+    }
+
+    /**
+     * 允许方法配通配时，ALLOW_METHODS 仍回显当前方法（该响应头不支持 "*" 通配）
+     * <p>本头带上 "*" 会让浏览器按"方法不被允许"处理，整个跨域请求失败；故配置里的通配
+     * 不得直接落到该响应头。</p>
+     */
+    @Test
+    public void handleDo_whenAllowedMethodsWildcard_echoesConcreteMethod() {
+        // 正例：配置允许全部方法（通配），响应头仍是具体方法、不含 "*"
+        enable();
+        val originConfig = enabledOrigin();
+        originConfig.setAllowedMethods(Collections.singleton(CConstants.STAR));
+        corsRequest();
+
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
+
+        Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+        Assertions.assertEquals("GET", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
     }
 
     /**
@@ -374,14 +416,39 @@ public class CCorsUtilsTests {
         // 正例：允许全部请求头时，ALLOW_HEADERS 为通配符
         enable();
         val originConfig = enabledOrigin();
-        originConfig.setAllowedHeaders(Collections.singleton(CCorsConfig.ALL));
+        originConfig.setAllowedHeaders(Collections.singleton(CConstants.STAR));
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
-        Assertions.assertEquals(CCorsConfig.ALL, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
+        Assertions.assertEquals(CConstants.STAR, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
         Assertions.assertEquals("GET", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
+    }
+
+    /**
+     * 允许头集合同时含通配与具体头时，Allow-Headers 只输出 {@code *}、不再并列具体头名
+     * <p>{@code Access-Control-Allow-Headers: *,Authorization} 不是合法的 CORS 头值：按 Fetch 规范，
+     * 取值含通配时是<b>唯一取值</b>、不得再列出其它头名，浏览器会按"未允许 Authorization"处理，
+     * 即配置里"通配 + 具体头"的写法反而比只写通配更严；故含通配时只输出通配。</p>
+     */
+    @Test
+    public void handleDo_whenAllowedHeadersContainsStarAndSpecific() {
+        // 反例：混写具体头名时只输出 "*"，不得出现 "*,Authorization" 这种非法取值
+        enable();
+        val originConfig = enabledOrigin();
+
+        Set<String> allowedHeaders = new LinkedHashSet<String>();
+        allowedHeaders.add(CConstants.STAR);
+        allowedHeaders.add(HttpHeaders.AUTHORIZATION);
+        originConfig.setAllowedHeaders(allowedHeaders);
+        corsRequest();
+
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
+
+        Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+        Assertions.assertEquals(CConstants.STAR,
+            response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
     }
 
     /**
@@ -403,7 +470,7 @@ public class CCorsUtilsTests {
         request.addHeader(HttpHeaders.ORIGIN, ORIGIN);
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertEquals("Authorization,Content-Type",
@@ -421,7 +488,7 @@ public class CCorsUtilsTests {
         enabledOrigin();
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
@@ -437,7 +504,7 @@ public class CCorsUtilsTests {
         originConfig(true, Boolean.TRUE, null);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertEquals("true", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
@@ -453,7 +520,7 @@ public class CCorsUtilsTests {
         originConfig(true, Boolean.FALSE, null);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
@@ -469,7 +536,7 @@ public class CCorsUtilsTests {
         enabledOrigin();
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
@@ -485,7 +552,7 @@ public class CCorsUtilsTests {
         originConfig(true, null, Boolean.TRUE);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(HttpHeaders.AUTHORIZATION,
             response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
@@ -496,15 +563,15 @@ public class CCorsUtilsTests {
      */
     @Test
     public void handleDo_whenExposeHeadersEnabledAll() {
-        // 正例：exposeHeaders 开启且集合含 ALL 时，EXPOSE_HEADERS 使用通配符
+        // 正例：exposeHeaders 开启且集合含 STAR 时，EXPOSE_HEADERS 使用通配符
         enable();
         val originConfig = originConfig(true, null, Boolean.TRUE);
-        originConfig.setExposedHeaders(Collections.singleton(CCorsConfig.ALL));
+        originConfig.setExposedHeaders(Collections.singleton(CConstants.STAR));
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
-        Assertions.assertEquals(CCorsConfig.ALL,
+        Assertions.assertEquals(CConstants.STAR,
             response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
     }
 
@@ -519,7 +586,7 @@ public class CCorsUtilsTests {
         originConfig.setExposedHeaders(Collections.emptySet());
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
     }
@@ -534,7 +601,7 @@ public class CCorsUtilsTests {
         originConfig(true, null, Boolean.TRUE);
         corsRequest();
 
-        CCorsUtils.handle(request, response);
+        CCorsUtils.handle(httpRequest(), httpResponse());
 
         Assertions.assertEquals(HttpHeaders.AUTHORIZATION,
             response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
@@ -555,7 +622,7 @@ public class CCorsUtilsTests {
         originConfig.setExposedHeaders(exposedHeaders);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals("Authorization,X-TOKEN",
             response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
@@ -572,7 +639,7 @@ public class CCorsUtilsTests {
         originConfig.setExposedHeaders(null);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(HttpHeaders.AUTHORIZATION,
             response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
@@ -588,7 +655,7 @@ public class CCorsUtilsTests {
         config.setOrigins(Collections.emptyMap());
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -603,7 +670,7 @@ public class CCorsUtilsTests {
         config.setOrigins(null);
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
@@ -620,7 +687,7 @@ public class CCorsUtilsTests {
         request.addHeader(HttpHeaders.ORIGIN, ORIGIN);
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertEquals("DELETE", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
@@ -636,7 +703,7 @@ public class CCorsUtilsTests {
         enabledOrigin();
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals("Authorization,Content-Type",
             response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
@@ -655,7 +722,7 @@ public class CCorsUtilsTests {
         config.setOrigins(Collections.singletonMap("example.com", originConfig));
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
@@ -676,7 +743,7 @@ public class CCorsUtilsTests {
         request.addHeader(HttpHeaders.ORIGIN, "https://example.com:8081");
         request.addHeader(HttpHeaders.HOST, HOST);
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertEquals("https://example.com:8081",
             response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
@@ -705,13 +772,14 @@ public class CCorsUtilsTests {
         request.setMethod("GET");
         request.addHeader(HttpHeaders.ORIGIN, "https://other.com");
         request.addHeader(HttpHeaders.HOST, HOST);
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 
         val otherResponse = new MockHttpServletResponse();
         request.removeHeader(HttpHeaders.ORIGIN);
         request.addHeader(HttpHeaders.ORIGIN, ORIGIN);
-        CCorsUtils.handleDo(request, otherResponse);
+        val otherHttpResponse = CHttpServletResponse.of(otherResponse);
+        CCorsUtils.handleDo(httpRequest(), otherHttpResponse);
         Assertions.assertEquals(ORIGIN, otherResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertEquals("true", otherResponse.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS));
     }
@@ -773,7 +841,7 @@ public class CCorsUtilsTests {
         originConfig.setAllowedMethods(Collections.emptySet());
         corsRequest();
 
-        CCorsUtils.handleDo(request, response);
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
 
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }

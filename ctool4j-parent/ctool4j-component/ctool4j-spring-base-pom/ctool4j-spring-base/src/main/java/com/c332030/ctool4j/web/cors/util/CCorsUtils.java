@@ -1,12 +1,16 @@
 package com.c332030.ctool4j.web.cors.util;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.util.CBoolUtils;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CUrlUtils;
 import com.c332030.ctool4j.core.validation.CValidUtils;
+import com.c332030.ctool4j.definition.constant.CConstants;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
@@ -17,9 +21,8 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 import java.util.Set;
 
@@ -38,11 +41,40 @@ import java.util.Set;
  *   以 204 结束预检并返回 true；否则返回 false。预检的 CORS 响应头由 {@code handle}/{@code handleDo}
  *   在处理链中先行设置。</li>
  *   <li>{@code handle(request, response)}：{@code enable=true} 时委托 {@code handleDo} 设置跨域响应头。</li>
+ *   <li>{@code handleAndContinue(request, response)}：按 {@code handle} → {@code handleOptions} 的顺序处理，
+ *   返回是否继续后续处理（过滤器与拦截器两个接入点共用的编排）。</li>
  *   <li>{@code handleDo(request, response)}：按<b>域名级配置</b>校验并设置跨域响应头。</li>
  *   <li>{@code getOriginConfig(origin)}：按域名（{@code host:port} → 纯 {@code host}）取域名级配置。</li>
- *   <li>{@code getAllowedMethods}/{@code getAllowedHeaders}/{@code getExposedHeaders}：取域名级配置项，
- *   未配置时回落全局默认值。</li>
- *   <li>{@code setHeaderIfNotEmpty} / {@code joinHeaders}：头集合为空则不设置、含 {@code *} 用通配拼接。</li>
+ *   <li>{@code setHeaderWithHeaderNames}：设置"头名清单"类响应头（{@code Allow-Headers} / {@code Expose-Headers}）；
+ *   集合为空则不设置，含 {@code *} 时只输出 {@code *}。</li>
+ * </ul>
+ *
+ * <h2>设计要点</h2>
+ * <p><b>面向抽象层（与 javax/jakarta 无关）</b></p>
+ * <ul>
+ *   <li>入参用 {@link CHttpRequest} / {@link CHttpResponse} 而非某个 Servlet 包的请求/响应：
+ *   CORS 的判定与写出只用到两边公共面（读头、读方法、写头、写状态码），故本类不随容器切换而改，
+ *   由调用侧（Filter/Interceptor/Advice）负责把各自容器的对象包装成抽象层对象。</li>
+ *   <li>状态码取 Spring 的 {@link HttpStatus#NO_CONTENT}，不用某一侧 Servlet 包的 {@code SC_*} 常量。</li>
+ * </ul>
+ * <p><b>开关语义（配置了"不等于"启用了）</b></p>
+ * <ul>
+ *   <li>三层开关：全局 {@code cors.enable}、域名级 {@code cors.origins.<域名>.enable}；
+ *   两项都显式为 {@code true} 才处理（未配置即 {@code false}），避免"删掉配置后残留行为"。</li>
+ *   <li>凭据（{@code Access-Control-Allow-Credentials}）与响应头暴露（{@code Access-Control-Expose-Headers}）
+ *   各由域名级的独立开关控制，<b>默认禁用</b>，需显式开启。</li>
+ *   <li>各开关的取值兜底统一由 {@code CBoolUtils.isTrue} 完成（null 视为 false），不在配置类写默认值。</li>
+ * </ul>
+ * <p><b>域名级取值兜底</b></p>
+ * <ul>
+ *   <li>域名级配置项的回落<b>就在取值处完成</b>，不另写"取值 + 回落"的 getter——那层方法只是把单行兜底换个名字，
+ *   读代码时多一跳、取值形态还分叉成两种。集合取 {@code CollUtil.defaultIfEmpty}（未配置与空集合一律回落默认）；
+ *   请求方法与暴露响应头取 {@code ObjectUtil.defaultIfNull}（<b>仅 null 才回落</b>，保留"显式空集合"的语义：
+ *   不允许任何方法、不暴露任何头）。</li>
+ * </ul>
+ * <p><b>异常兜底</b></p>
+ * <ul>
+ *   <li>{@code handle}/{@code handleOptions} 外层 try-catch 捕获 Throwable 记录 error 日志，避免跨域处理异常影响主流程。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -69,19 +101,23 @@ import java.util.Set;
  *     <td>取 {@code CCorsConfig} 的同名默认值（默认值只在配置类声明一处）</td>
  *   </tr>
  *   <tr>
- *     <td>{@code allowedHeaders}/{@code exposedHeaders} 集合为 null 或空</td>
- *     <td>经 {@code setHeaderIfNotEmpty} 不设置对应响应头（避免空指针，空即不声明）</td>
+ *     <td>最终取到的头集合为 null 或空</td>
+ *     <td>经 {@code setHeaderWithHeaderNames} 不设置对应响应头（避免空指针，空即不声明）</td>
  *   </tr>
  * </table>
  *
  * <h2>适用范围</h2>
  * <ul>
  *   <li>跨域请求需要动态回显 Origin、按<b>域名</b>白名单放行来源与方法、并按域名独立开启凭据与响应头暴露的场景。</li>
+ *   <li>javax 与 jakarta 两套容器下的调用方共用同一份跨域逻辑（调用方各做一次包装）。</li>
  * </ul>
+ *
  * <h2>不适用与边界场景</h2>
  * <ul>
  *   <li>全局 {@code enable=false} 或该域名未配置/未启用时不做处理；{@code Origin} 为 null（非浏览器跨域）不处理。</li>
+ *   <li>需要读写 Cookie、二进制流等抽象层未暴露能力时，须由调用方在包装前自行处理。</li>
  * </ul>
+ *
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>采用"回显 Origin + 域名白名单校验"而非 {@code *} 通配，因此支持 {@code Allow-Credentials: true}（带凭据跨域）。</li>
@@ -89,22 +125,9 @@ import java.util.Set;
  *   （匹配时先按 {@code host:port}、再回落纯 {@code host}，见 {@link #getOriginConfig}）。</li>
  *   <li>预检请求的 CORS 头依赖 {@code handle}/{@code handleDo} 在处理链中先行设置，{@code handleOptions} 本身不再设置（有意设计）。</li>
  * </ul>
- * <h2>设计要点</h2>
- * <p><b>开关语义（配置了"不等于"启用了）</b></p>
- * <ul>
- *   <li>三层开关：全局 {@code cors.enable}、域名级 {@code cors.origins.<域名>.enable}；
- *   两项都显式为 {@code true} 才处理（未配置即 {@code false}），避免"删掉配置后残留行为"。</li>
- *   <li>凭据（{@code Access-Control-Allow-Credentials}）与响应头暴露（{@code Access-Control-Expose-Headers}）
- *   各由域名级的独立开关控制，<b>默认禁用</b>，需显式开启。</li>
- *   <li>各开关的取值兜底统一由 {@code CBoolUtils.isTrue} 完成（null 视为 false），不在配置类写默认值。</li>
- * </ul>
- * <p><b>异常兜底</b></p>
- * <ul>
- *   <li>{@code handle}/{@code handleOptions} 外层 try-catch 捕获 Throwable 记录 error 日志，避免跨域处理异常影响主流程。</li>
- * </ul>
  *
  * @since 2026/1/9
- * @version 1.1
+ * @version 1.4
  */
 @CustomLog
 @UtilityClass
@@ -128,12 +151,12 @@ public class CCorsUtils {
      * @param response 响应
      * @return true 表示本次为预检请求且已处理
      */
-    public boolean handleOptions(HttpServletRequest request, HttpServletResponse response) {
+    public boolean handleOptions(CHttpRequest request, CHttpResponse response) {
         try {
             if (CBoolUtils.isTrue(config.getEnable())) {
                 if (HttpMethod.OPTIONS.name().equalsIgnoreCase(request.getMethod())) {
                     log.debug("deal OPTIONS request");
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    response.setStatus(HttpStatus.NO_CONTENT.value());
                     return true;
                 }
             }
@@ -145,6 +168,21 @@ public class CCorsUtils {
     }
 
     /**
+     * 处理跨域并按预检结果决定是否继续后续处理
+     *
+     * <p>把 {@link #handle} 与 {@link #handleOptions} 的调用序收在一处：过滤器与拦截器两个接入点共用同一编排，
+     * 差异只在「不继续时如何结束」（过滤器直接返回、拦截器返回 false 中断处理链）。</p>
+     *
+     * @param request  请求
+     * @param response 响应
+     * @return true 表示继续后续处理；false 表示本次为已处理的 OPTIONS 预检（调用方不应再放行）
+     */
+    public boolean handleAndContinue(CHttpRequest request, CHttpResponse response) {
+        handle(request, response);
+        return !handleOptions(request, response);
+    }
+
+    /**
      * 处理跨域请求，开启跨域时设置响应头
      * <ul>
      *   <li>{@code handle(request, response)}：{@code enable=true} 时调用 {@code handleDo} 设置跨域响应头。</li>
@@ -153,7 +191,7 @@ public class CCorsUtils {
      * @param request  请求
      * @param response 响应
      */
-    public void handle(HttpServletRequest request, HttpServletResponse response) {
+    public void handle(CHttpRequest request, CHttpResponse response) {
         try {
             if (CBoolUtils.isTrue(config.getEnable())) {
                 handleDo(request, response);
@@ -175,8 +213,8 @@ public class CCorsUtils {
      *   <li>全部通过后设置响应头：</li>
      *   <li>{@code Access-Control-Allow-Origin} 回显请求 Origin</li>
      *   <li>{@code Access-Control-Allow-Methods}：回显当前请求方法</li>
-     *   <li>{@code Access-Control-Allow-Headers}：头集合经统一私有方法 {@code setHeaderIfNotEmpty}
-     *   （集合为 null/空则不设置）拼接 {@code joinHeaders}（含 {@code *} 用 {@code *}，否则逗号连接）</li>
+     *   <li>{@code Access-Control-Allow-Headers}：头集合经 {@code setHeaderWithHeaderNames}
+     *   （集合为 null/空则不设置）拼接；集合含 {@code *} 时<b>只输出 {@code *}</b>、不再并列具体头名</li>
      *   <li>{@code Access-Control-Allow-Credentials}：仅该域名 {@code credentials=true} 时设置固定 {@code true}（默认禁用）</li>
      *   <li>{@code Access-Control-Expose-Headers}：仅该域名 {@code exposeHeaders=true} 且集合非空时设置（默认禁用）</li>
      * </ul>
@@ -184,7 +222,7 @@ public class CCorsUtils {
      * @param request  请求
      * @param response 响应
      */
-    public void handleDo(HttpServletRequest request, HttpServletResponse response) {
+    public void handleDo(CHttpRequest request, CHttpResponse response) {
 
         val origin = request.getHeader(HttpHeaders.ORIGIN);
         if (StrUtil.isEmpty(origin)) {
@@ -211,19 +249,25 @@ public class CCorsUtils {
         }
 
         val method = request.getMethod();
-        if (!CCollUtils.containsAny(getAllowedMethods(originConfig), CCorsConfig.ALL, method)) {
+        // 域名级未配置（含空集合）时回落全局默认；显式空集合即"不允许任何方法"
+        val allowedMethods = ObjectUtil.defaultIfNull(originConfig.getAllowedMethods(), config.getAllowedMethods());
+        if (!CCollUtils.containsAny(allowedMethods, CConstants.STAR, method)) {
             log.info("Not allow origin with method: {} {}", method, origin);
             return;
         }
 
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-        // 允许当前请求方法类型
+        // 允许当前请求方法类型；本头的取值不支持 "*" 通配，故显式回显当前方法（配置里的 * 不直接落到响应头）
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, method);
 
-        setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, getAllowedHeaders(originConfig));
+        // 域名级未配置或空集合时回落全局默认
+        val allowedHeaders = CollUtil.defaultIfEmpty(originConfig.getAllowedHeaders(), config.getAllowedHeaders());
+        setHeaderWithHeaderNames(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, allowedHeaders);
         // 暴露给浏览器脚本可读的响应头（默认仅简单响应头可读，如 Authorization 需显式暴露）；默认禁用，需显式开启
         if (CBoolUtils.isTrue(originConfig.getExposeHeaders())) {
-            setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, getExposedHeaders(originConfig));
+            // 域名级未配置时回落全局默认；显式空集合即"不暴露任何头"
+            val exposedHeaders = ObjectUtil.defaultIfNull(originConfig.getExposedHeaders(), config.getExposedHeaders());
+            setHeaderWithHeaderNames(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, exposedHeaders);
         }
         // 是否允许携带凭据；默认禁用，需显式开启
         if (CBoolUtils.isTrue(originConfig.getCredentials())) {
@@ -259,71 +303,34 @@ public class CCorsUtils {
     }
 
     /**
-     * 取本域名允许的请求报文头：域名级未配置（null）时回落到全局默认值
+     * 设置"头名清单"类响应头（{@code Access-Control-Allow-Headers} / {@code Access-Control-Expose-Headers}）；
+     * 集合为 null 或空则均不设置
      *
-     * @param originConfig 域名级配置
-     * @return 允许的请求报文头集合
-     */
-    public Set<String> getAllowedHeaders(CCorsOriginConfig originConfig) {
-        return Objects.isNull(originConfig.getAllowedHeaders())
-            ? config.getAllowedHeaders()
-            : originConfig.getAllowedHeaders();
-    }
-
-    /**
-     * 取本域名允许的请求方法：域名级<b>未配置</b>（null）时回落到全局默认值
-     *
-     * <p>显式配置的空集合不回落到默认值——空集合即"不允许任何方法"，避免"写成空集合反而放开全部"。</p>
-     *
-     * @param originConfig 域名级配置
-     * @return 允许的请求方法集合
-     */
-    public Set<String> getAllowedMethods(CCorsOriginConfig originConfig) {
-        return Objects.isNull(originConfig.getAllowedMethods())
-            ? config.getAllowedMethods()
-            : originConfig.getAllowedMethods();
-    }
-
-    /**
-     * 取本域名暴露的响应报文头：域名级未配置（null）时回落到全局默认值
-     *
-     * @param originConfig 域名级配置
-     * @return 暴露的响应报文头集合
-     */
-    public Set<String> getExposedHeaders(CCorsOriginConfig originConfig) {
-        return Objects.isNull(originConfig.getExposedHeaders())
-            ? config.getExposedHeaders()
-            : originConfig.getExposedHeaders();
-    }
-
-    /**
-     * 头集合非空时，拼接（含 {@link CCorsConfig#ALL} 用 {@code *}）并设置响应头；集合为 null 或空则均不设置
+     * <p><b>{@code *} 是唯一取值</b>：这类头的取值是<b>头名清单</b>，按 Fetch 规范，取值含 {@code *} 时不得再列出
+     * 其它头名——{@code *,Authorization} 不是合法取值，浏览器会按"未允许 Authorization"处理，即混写反而比只写通配更严。
+     * 故集合含 {@link CConstants#STAR} 时只输出 {@code *}、不并列具体头名。</p>
      *
      * @param response   响应
      * @param headerName 响应头名
-     * @param headers    头集合
+     * @param headers    头名集合
      */
-    public void setHeaderIfNotEmpty(
-        HttpServletResponse response,
+    private void setHeaderWithHeaderNames(
+        CHttpResponse response,
         String headerName,
         Set<String> headers
     ) {
+
         if (CollUtil.isEmpty(headers)) {
             return;
         }
-        response.setHeader(headerName, joinHeaders(headers));
-    }
 
-    /**
-     * 将头集合转为逗号分隔的头值；集合含 {@link CCorsConfig#ALL} 时直接使用 {@code *} 通配
-     *
-     * @param headers 头集合（已保证非 null 非空，由 {@link #setHeaderIfNotEmpty} 调用）
-     * @return 头值
-     */
-    public String joinHeaders(Set<String> headers) {
-        return headers.contains(CCorsConfig.ALL)
-            ? CCorsConfig.ALL
-            : CollUtil.join(headers, ",");
+        if (headers.contains(CConstants.STAR)) {
+            response.setHeader(headerName, CConstants.STAR);
+            return;
+        }
+
+        response.setHeader(headerName, CollUtil.join(headers, ","));
+
     }
 
 }

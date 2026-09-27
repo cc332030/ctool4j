@@ -1,7 +1,9 @@
 package com.c332030.ctool4j.log.advice;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.c332030.ctool4j.web.advice.ICBaseResponseBodyAdvice;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
+import com.c332030.ctool4j.spring.interfaces.ICSpringResponseBodyAdvice;
 import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import lombok.CustomLog;
 import org.springframework.core.MethodParameter;
@@ -10,16 +12,13 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * <p>
  * Description: CLogResponseBodyAdvice
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CLogResponseBodyAdvice}（{@code @ControllerAdvice}）实现 {@code ICBaseResponseBodyAdvice&lt;Object&gt;}，在响应体写出前调用 {@code CRequestLogUtils.setRsp(body, null, response)} 采集响应体、响应状态码与响应头到请求日志上下文。</p>
+ * <p>{@code CLogResponseBodyAdvice}（{@code @ControllerAdvice}）实现 {@code ICSpringResponseBodyAdvice&lt;Object&gt;}，在响应体写出前调用 {@code CRequestLogUtils.setRsp(body, null, response)} 采集响应体、响应状态码与响应头到请求日志上下文。</p>
  * <h2>兜底设计</h2>
  * <table border="1">
  *   <caption>兜底行为</caption>
@@ -42,7 +41,7 @@ import javax.servlet.http.HttpServletResponse;
  * </ul>
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>依赖 {@code ICBaseResponseBodyAdvice} 的调用链（web 模块）。</li>
+ *   <li>依赖 {@code ICSpringResponseBodyAdvice} 的调用链（web 模块）。</li>
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
@@ -66,7 +65,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @CustomLog
 @ControllerAdvice
-public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> {
+public class CLogResponseBodyAdvice implements ICSpringResponseBodyAdvice<Object> {
 
     /**
      * 响应体写出前记录响应体到请求日志（仅记录，日志打印由 CRequestLogHandlerInterceptor.afterCompletion 统一执行）
@@ -86,8 +85,8 @@ public class CLogResponseBodyAdvice implements ICBaseResponseBodyAdvice<Object> 
             MethodParameter returnType,
             MediaType selectedContentType,
             Class<? extends HttpMessageConverter<?>> selectedConverterType,
-            HttpServletRequest request,
-            HttpServletResponse response
+            CHttpRequest request,
+            CHttpResponse response
     ) {
 
         if(BooleanUtil.isTrue(CRequestLogUtils.isEnable())) {

@@ -2,6 +2,8 @@ package com.c332030.ctool4j.web.interceptor;
 
 import com.c332030.ctool4j.core.util.CSet;
 import com.c332030.ctool4j.definition.annotation.CInnerApi;
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.config.CInnerApiConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -125,8 +127,8 @@ class CInnerApiInterceptorTests {
         CInnerApiInterceptor interceptor = new CInnerApiInterceptor(config);
 
         boolean result = interceptor.preHandle(
-            new MockHttpServletRequest(),
-            new MockHttpServletResponse(),
+            CHttpServletRequest.of(new MockHttpServletRequest()),
+            CHttpServletResponse.of(new MockHttpServletResponse()),
             new Object()
         );
 
@@ -149,7 +151,7 @@ class CInnerApiInterceptorTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("8.8.8.8");
 
-        boolean result = interceptor.preHandle(request, new MockHttpServletResponse(), handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(new MockHttpServletResponse()), handler);
 
         Assertions.assertTrue(result);
     }
@@ -168,8 +170,8 @@ class CInnerApiInterceptorTests {
         HandlerMethod handler = new HandlerMethod(bean, bean.getClass().getMethod("any"));
 
         boolean result = interceptor.preHandle(
-            new MockHttpServletRequest(),
-            new MockHttpServletResponse(),
+            CHttpServletRequest.of(new MockHttpServletRequest()),
+            CHttpServletResponse.of(new MockHttpServletResponse()),
             handler
         );
 
@@ -192,7 +194,7 @@ class CInnerApiInterceptorTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("192.168.1.5");
 
-        boolean result = interceptor.preHandle(request, new MockHttpServletResponse(), handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(new MockHttpServletResponse()), handler);
 
         Assertions.assertTrue(result);
     }
@@ -213,7 +215,7 @@ class CInnerApiInterceptorTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("192.168.1.5");
 
-        boolean result = interceptor.preHandle(request, new MockHttpServletResponse(), handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(new MockHttpServletResponse()), handler);
 
         Assertions.assertTrue(result);
     }
@@ -235,7 +237,7 @@ class CInnerApiInterceptorTests {
         request.setRemoteAddr("8.8.8.8");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        boolean result = interceptor.preHandle(request, response, handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), handler);
 
         Assertions.assertFalse(result);
         Assertions.assertEquals(MockHttpServletResponse.SC_FORBIDDEN, response.getStatus());
@@ -257,7 +259,7 @@ class CInnerApiInterceptorTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader("X-Forwarded-For", "10.1.2.3, 8.8.8.8");
 
-        boolean result = interceptor.preHandle(request, new MockHttpServletResponse(), handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(new MockHttpServletResponse()), handler);
 
         Assertions.assertTrue(result);
     }
@@ -281,7 +283,7 @@ class CInnerApiInterceptorTests {
         request.addHeader("X-Forwarded-For", "8.8.8.8, 10.1.2.3");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        boolean result = interceptor.preHandle(request, response, handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), handler);
 
         Assertions.assertFalse(result);
         Assertions.assertEquals(MockHttpServletResponse.SC_FORBIDDEN, response.getStatus());
@@ -307,7 +309,7 @@ class CInnerApiInterceptorTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("192.168.1.5");
 
-        boolean result = interceptor.preHandle(request, new MockHttpServletResponse(), handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(new MockHttpServletResponse()), handler);
 
         Assertions.assertTrue(result);
     }
@@ -332,7 +334,7 @@ class CInnerApiInterceptorTests {
         request.setRemoteAddr("8.8.8.8");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        boolean result = interceptor.preHandle(request, response, handler);
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), handler);
 
         Assertions.assertFalse(result);
         Assertions.assertEquals(MockHttpServletResponse.SC_FORBIDDEN, response.getStatus());

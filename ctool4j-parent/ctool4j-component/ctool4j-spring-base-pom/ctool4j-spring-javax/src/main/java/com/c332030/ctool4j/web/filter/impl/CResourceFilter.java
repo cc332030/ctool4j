@@ -1,9 +1,9 @@
 package com.c332030.ctool4j.web.filter.impl;
 
-import com.c332030.ctool4j.web.constant.CResourceUrlConstants;
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.filter.ICFilter;
-import lombok.CustomLog;
-import lombok.val;
+import com.c332030.ctool4j.web.util.CResourceUrlUtils;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +22,9 @@ import java.io.IOException;
  * <p>{@code CResourceFilter} 为静态资源忽略过滤器，{@code @Component} + {@code ICFilter} + {@code PriorityOrdered}， {@code getOrder()} 返回 {@code Integer.MIN_VALUE}（最高优先级，最先执行）。</p>
  * <p>核心方法 {@code doFilter(request, response, chain)}：</p>
  * <ul>
- *   <li>取 {@code request.getRequestURI()}</li>
- *   <li>命中 {@code CResourceUrlConstants.IGNORE_RESOURCE_URLS} 时，记录 debug 日志、以 204 状态码结束请求并返回</li>
- *   <li>否则 {@code chain.doFilter} 继续请求链</li>
+ *   <li>包装为抽象层对象后调用 {@code CResourceUrlUtils.handleAndContinue(request, response)}：
+ *   命中忽略集合时记 debug 日志并以 204 结束（返回 false）</li>
+ *   <li>{@code false} 时直接返回；否则 {@code chain.doFilter} 继续请求链</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -39,7 +39,7 @@ import java.io.IOException;
  *   </tr>
  *   <tr>
  *     <td>命中忽略集合</td>
- *     <td>记录 debug 日志，返回 204</td>
+ *     <td>由 {@code CResourceUrlUtils} 记 debug 日志并置 204，本过滤器直接返回</td>
  *   </tr>
  * </table>
  * <h2>适用范围</h2>
@@ -51,15 +51,15 @@ import java.io.IOException;
  *   <li>忽略资源集合来自 {@code CResourceUrlConstants} 常量，新增忽略资源需改常量。</li>
  * </ul>
  * <h2>设计要点</h2>
- * <p><b>忽略静态资源</b></p>
+ * <p><b>只留容器相关部分</b></p>
  * <ul>
- *   <li>对 favicon 等无需处理的静态资源直接以 204 结束，避免进入业务处理。</li>
+ *   <li>本类只做包装与放行判定；忽略集合判定与 204 结束收在 base 的 {@code CResourceUrlUtils}，
+ *   两侧不重复实现（见 {@code agent/AGENTS-PROJECT.MD} 的双栈规范：抽象层 + 两侧同名适配）。</li>
  * </ul>
  *
  * @since 2026/1/28
- * @version 1.0
+ * @version 1.1
  */
-@CustomLog
 @Component
 public class CResourceFilter implements ICFilter, PriorityOrdered {
 
@@ -87,10 +87,7 @@ public class CResourceFilter implements ICFilter, PriorityOrdered {
         FilterChain chain
     ) throws ServletException, IOException {
 
-        val requestURI = request.getRequestURI();
-        if(CResourceUrlConstants.IGNORE_RESOURCE_URLS.contains(requestURI)) {
-            log.debug("ignore: {}", requestURI);
-            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        if(!CResourceUrlUtils.handleAndContinue(CHttpServletRequest.of(request), CHttpServletResponse.of(response))) {
             return;
         }
 

@@ -1,5 +1,6 @@
 package com.c332030.ctool4j.web.cors;
 
+import com.c332030.ctool4j.definition.constant.CConstants;
 import lombok.Data;
 
 import java.util.Set;
@@ -102,7 +103,7 @@ public class CCorsOriginConfig {
 
     /**
      * 本域名允许的请求方法
-     * <p>未配置时取默认值（含通配 {@link CCorsConfig#ALL}，即允许全部）。</p>
+     * <p>未配置时取默认值（含通配 {@link CConstants#STAR}，即允许全部）。</p>
      */
     Set<String> allowedMethods;
 

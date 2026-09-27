@@ -2,8 +2,9 @@ package com.c332030.ctool4j.web.cors;
 
 import com.c332030.ctool4j.core.util.CMap;
 import com.c332030.ctool4j.core.util.CSet;
+import com.c332030.ctool4j.definition.constant.CConstants;
+import com.c332030.ctool4j.spring.annotation.CConfigurationProperties;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpHeaders;
 
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Set;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>{@code CCorsConfig} 为跨域（CORS）配置属性类，{@code @ConfigurationProperties("cors")} + {@code @Data}，
+ * <p>{@code CCorsConfig} 为跨域（CORS）配置属性类，{@code @CConfigurationProperties("cors")} + {@code @Data}，
  * 由 Spring Boot 绑定 {@code cors.*} 前缀的配置项。</p>
  * <p>属性：</p>
  * <ul>
@@ -23,14 +24,14 @@ import java.util.Set;
  *   <li>{@code origins}：<b>按域名</b>的跨域配置，key 为<b>纯 host</b>（如 {@code a.example.com}，
  *   含点号时须写成中括号 {@code cors.origins[a.example.com]}），value 为 {@link CCorsOriginConfig}；
  *   <b>未在其中的域名一律不放行</b></li>
- *   <li>{@code allowedMethods}：允许的请求方法<b>默认值</b>，默认 {@code CSet.of(ALL)}（即 {@code *}，允许全部）</li>
+ *   <li>{@code allowedMethods}：允许的请求方法<b>默认值</b>，默认 {@code CSet.of(CConstants.STAR)}（即 {@code *}，允许全部）</li>
  *   <li>{@code allowedHeaders}：额外允许的请求报文头<b>默认值</b>，默认含 {@code Authorization}、{@code Content-Type}</li>
  *   <li>（注释明确不支持 {@code application/json} 触发预检的场景，默认只支持</li>
  *   <li>{@code application/x-www-form-urlencoded}、{@code multipart/form-data}、{@code text/plain}）</li>
  *   <li>{@code exposedHeaders}：暴露给浏览器脚本可读的响应报文头<b>默认值</b>，默认仅 {@code Authorization}</li>
  *   <li>（浏览器脚本默认仅可读简单响应头，{@code Authorization} 需显式暴露）</li>
  * </ul>
- * <p>常量 {@code ALL = "*"}：表示允许全部来源、方法或头。</p>
+ * <p>通配取值取 {@link CConstants#STAR}：表示允许全部来源、方法或头。</p>
  *
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -77,8 +78,9 @@ import java.util.Set;
  * <h2>设计要点</h2>
  * <p><b>配置绑定</b></p>
  * <ul>
- *   <li>使用 {@code @ConfigurationProperties("cors")} 前缀绑定，全局 {@code enable} 默认即不开启跨域。</li>
+ *   <li>使用 {@code @CConfigurationProperties("cors")} 前缀绑定，全局 {@code enable} 默认即不开启跨域。</li>
  *   <li>域名级配置绑定 {@code cors.origins.<域名>}，由 {@link CCorsOriginConfig} 承载。</li>
+ *   <li>绑定开关（未知键、非法值的处置）由 {@link CConfigurationProperties} 给定，需要强校验时按其文档改用元注解。</li>
  * </ul>
  * <p><b>默认值集中</b></p>
  * <ul>
@@ -88,28 +90,22 @@ import java.util.Set;
  *
  * @author c332030
  * @since 2024/5/8
- * @version 1.1
+ * @version 1.3
  */
 @Data
-@ConfigurationProperties("cors")
+@CConfigurationProperties("cors")
 public class CCorsConfig {
-
-    /**
-     * 通配符，表示允许全部来源、方法或头
-     */
-    public static final String ALL = "*";
 
     Boolean enable = false;
 
-    Set<String> allowedMethods = CSet.of(ALL);
+    Set<String> allowedMethods = CSet.of(CConstants.STAR);
 
     /**
      * 跨域额外允许的请求报文头
      */
     Set<String> allowedHeaders = CSet.of(
-        HttpHeaders.AUTHORIZATION
-        // 不支持：application/json，默认只支持：application/x-www-form-urlencoded、multipart/form-data、text/plain
-        , HttpHeaders.CONTENT_TYPE
+        HttpHeaders.AUTHORIZATION,
+        HttpHeaders.CONTENT_TYPE
     );
 
     /**

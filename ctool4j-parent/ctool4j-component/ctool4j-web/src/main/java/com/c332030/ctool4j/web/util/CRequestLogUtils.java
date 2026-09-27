@@ -11,8 +11,11 @@ import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
 import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.core.util.CPatternUtils;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.spring.annotation.CAutowired;
 import com.c332030.ctool4j.spring.annotation.CAutowiredScan;
+import com.c332030.ctool4j.spring.util.CHttpRequestUtils;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.config.CRequestLogConfig;
 import com.c332030.ctool4j.web.model.CRequestLog;
@@ -22,8 +25,6 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -107,7 +108,7 @@ import java.util.*;
  *
  * @author c332030
  * @since 2024/3/6
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -290,7 +291,7 @@ public class CRequestLogUtils {
             .params(CMapUtils.mapValue(request.getParameterMap(), Arrays::asList))
             .req(EMPTY_REQ)
             .rsp(EMPTY_RSP)
-            .ip(CRequestUtils.getIp(request))
+            .ip(CHttpRequestUtils.getIp(request))
             .beginTimeMillis(System.currentTimeMillis())
             .build();
     }
@@ -301,7 +302,7 @@ public class CRequestLogUtils {
      * @param request HTTP 请求
      * @return 请求头 map（headerName → 值列表），无请求头时返回 null
      */
-    private Map<String, Collection<String>> collectHeaders(HttpServletRequest request) {
+    private Map<String, Collection<String>> collectHeaders(CHttpRequest request) {
         val headerNames = request.getHeaderNames();
         if (null == headerNames) {
             return null;
@@ -387,7 +388,7 @@ public class CRequestLogUtils {
      * @param throwable 异常，无则传 null
      * @param response  HTTP 响应（用于采集响应状态码与响应头），无则传 null
      */
-    public void setRsp(Object rsp, Throwable throwable, HttpServletResponse response) {
+    public void setRsp(Object rsp, Throwable throwable, CHttpResponse response) {
 
         val requestLogOpt = getOpt();
         if (!requestLogOpt.isPresent()) {
@@ -417,7 +418,7 @@ public class CRequestLogUtils {
      * @param response HTTP 响应
      * @return 响应头 map（headerName → 值列表），无响应头时返回 null
      */
-    private Map<String, Collection<String>> collectResponseHeaders(HttpServletResponse response) {
+    private Map<String, Collection<String>> collectResponseHeaders(CHttpResponse response) {
         val headerNames = response.getHeaderNames();
         if (CollUtil.isEmpty(headerNames)) {
             return null;

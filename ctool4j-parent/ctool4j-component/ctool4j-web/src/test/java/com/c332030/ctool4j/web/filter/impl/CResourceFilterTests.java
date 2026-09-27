@@ -3,10 +3,9 @@ package com.c332030.ctool4j.web.filter.impl;
 import com.c332030.ctool4j.web.constant.CResourceUrlConstants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import javax.servlet.FilterChain;
 
 import static org.mockito.Mockito.*;
 
@@ -50,7 +49,7 @@ public class CResourceFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(CResourceUrlConstants.FAVICON_ICO_URL);
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = mock(FilterChain.class);
+        MockFilterChain chain = mock(MockFilterChain.class);
 
         filter.doFilter(request, response, chain);
 
@@ -67,7 +66,7 @@ public class CResourceFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/index.html");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = mock(FilterChain.class);
+        MockFilterChain chain = mock(MockFilterChain.class);
 
         filter.doFilter(request, response, chain);
 

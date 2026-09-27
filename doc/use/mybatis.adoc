@@ -63,9 +63,56 @@ public class UserController extends CMpController<ICService<User>, User> { }
 
 | `CServiceImpl`
 | MyBatis-Plus `ServiceImpl` 的桥接实现（业务 Service 继承基类）
+
+| `CBaseTypeHandler` / `CCommaCollectionTypeHandler`
+| 单列 ↔ 对象的类型处理器基类：前者收敛 JDBC 四个端点为 `toTextValue`/`fromText`，后者实现「集合 ↔ 逗号分割字符串」；具体化子类 `CCommaIntegerCollectionTypeHandler`、`CCommaLongCollectionTypeHandler`、`CCommaStringCollectionTypeHandler`
 |===
 
 `@CBizId` 工具 `CBizIdUtils` 可生成/读取/回填业务 ID；逻辑删除用 `ICDeleted` / `CDeleted`（`@TableLogic`）。
+
+=== 类型转换（TypeHandler）
+
+实体字段若以逗号分割字符串落库（如 `1,2,3`），在字段上指定具体化子类即可，读写自动转换：
+
+[source,java]
+----
+@TableName(autoResultMap = true)
+public class OrderGiftProduct {
+
+    // List<Integer> ↔ "7,15,30"
+    @TableField(typeHandler = CCommaIntegerCollectionTypeHandler.class)
+    private List<Integer> freeDays;
+
+    // List<Long> ↔ "1,2,3"
+    @TableField(typeHandler = CCommaLongCollectionTypeHandler.class)
+    private List<Long> allowScrmUserIds;
+
+    // List<String> ↔ "a,b,c"
+    @TableField(typeHandler = CCommaStringCollectionTypeHandler.class)
+    private List<String> tags;
+}
+----
+
+读写语义（由 `CCommaCollectionTypeHandlerTests` 钉住）：
+
+[cols="2,3", options="header"]
+|===
+| 场景 | 行为
+
+| 写：集合为空 | 落库 `null`
+| 写：元素全为 `null` | 落库 `null`（无有效值，不落空串）
+| 写：含 `null` 元素 | 跳过该元素，不落成字面量 `null`
+| 读：空串 / 纯空白 / `null` | 返回 `null`（不是空集合）
+| 读：片段带空格 | 按 trim 处理
+| 读：无法转换的元素（脏数据） | 跳过该元素，不让整行查询失败
+|===
+
+注意：
+
+* 分隔符固定为英文逗号（`CConstants.COMMA`），**元素值本身不能含逗号**——这类场景应改用 JSON 序列化的类型处理器。
+* 新增元素类型只需一个"只声明类型"的子类（`extends CCommaCollectionTypeHandler<X>`），转换逻辑不必重写；泛型未具体化（仅透传）时构造即抛 `IllegalStateException`。
+* 读回**保持原顺序、不去重**；`List<String>` 的元素会被 trim 并去除首尾引号（`CStrUtils#splitToList` 的既有语义）。
+* 写库字符串也可用静态工具 `CCommaCollectionTypeHandler.toText(collection)` 直接取得，供 MP wrapper 的 `.set(...)` 复用（wrapper 不走实体注解上的 TypeHandler）。
 
 == 配置
 
