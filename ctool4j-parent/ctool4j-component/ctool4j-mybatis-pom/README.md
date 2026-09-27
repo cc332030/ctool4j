@@ -35,13 +35,29 @@
 | `ICBizService` | 接口 | 按业务 ID 增删改查/统计 |
 | `ICMainBizService` | 接口 | 按主业务 ID 查询统计 |
 | `ICMpLockService` | 接口 | Redis 锁加锁 CRUD |
-| `CBaseServiceImpl` | 实现 | ServiceImpl 桥接实现 |
+| `CBaseServiceImpl` | 实现 | service 实现基底（承版本侧实现桥 + `ICService`，消歧元素级方法） |
 | `CMpController` | 控制器 | 标准 CRUD 端点基类 |
 | `CBizIdUtils` | 工具类 | 业务 ID 生成与回填 |
 | `CMpPageUtils` | 工具类 | 分页与批量处理 |
 | `CMpSqlMethod` | 枚举 | 自定义 SQL 方法定义 |
 | `CPage` / `CPageReq` | 模型 | 分页请求模型 |
 | `CPageResult` | 模型 | 分页结果模型（不依赖 MP，作 `IPage` 的响应契约替代） |
+
+### 源目录与版本侧适配桥
+
+`ctool4j-mybatis-base` 的 `src/main/` 下除 `resources` 外有六个**彼此完全互斥**的源目录，其中五个由三个版本模块
+按需 `srcDir` 纳入（base 自身不编译）。版本相关的适配桥分两侧：
+
+| 目录 | 承的 MP 坐标 | 挂载者 |
+|------|-------------|--------|
+| `java-mp` | 无（版本无关公共面：`ICService` 一族、`CBizIdUtils`） | 三个版本模块 |
+| `java-mp-bridge` | `com.baomidou.mybatisplus.spring.service`（3.5.x） | `ctool4j-mybatis` |
+| `java-mp-bridge-ext` | `com.baomidou.mybatisplus.extension.service`（3.3.x/3.4.x） | `ctool4j-mybatis-33` / `-34` |
+| `java-mp-{jdk8,latest}-ext` | 无（档位专属 `CMpController`，Bean Validation 包名不同） | 各模块按档位 |
+
+两个桥目录的**相对路径集合完全一致**（互为镜像），故 `ICCheckService`、`ICService` 一族在两侧源码一字不差；
+任一模块只挂其中一侧，全限定名因此不会重复。`java-mp` 公共桶不引用任何版本侧符号——这是
+「一个模块下的多个源目录之间代码必须完全互斥」的落地要求。
 
 ### 依赖
 

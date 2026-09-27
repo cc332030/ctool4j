@@ -78,12 +78,14 @@
   - **容器侧是刻意的例外**：`src/<main|test>/java-javax` 与 `src/<main|test>/java-jakarta` 两目录**成对同包同名**（互为镜像，成员互引），jdk8 档位只用 `java-javax`、其余只用 `java-jakarta`。这取代了原先"`-javax` / `-jakarta` 各做一个模块"的形态。**这一对整体放行**（成对镜像本就不可能任一档位独立读得通），一致性由「成对文件互引 + 归一化比对自检」维护，见下「改 `java-javax` 源目录必须同步 `java-jakarta` 源目录」。
   - **档位专属目录 ↔ 容器侧目录仍不得同名**：同名即"同一份代码两份副本"，配置期校验会拦下。
   - 不能用"srcDir 追加 + exclude 同名文件"实现：Gradle 的 `exclude` 对**全部** srcDir 生效，会把专属目录里的同名文件一并排除、类彻底消失（已实测踩坑）。
-  - **已消除的重复（本次改造）**：`ctool4j-logback` 的 `CMdcLogback` 原为两份（javadoc + deque 方法差异），已把无档位差异的 deque 存储下沉到公共基类 `CMdcDequeAble`（`ctool4j-log-base`），两侧改为"另一侧实现 + 纯增量"的两文件形态；`ctool4j-mybatis-base` 的同名适配桥（`spi/IService`、`ServiceImpl`）与 `CMpController` 改为**目录级互斥**（见下「同名两份不可避免时」）。
+  - **已消除的重复（本次改造）**：`ctool4j-logback` 的 `CMdcLogback` 原为两份（javadoc + deque 方法差异），已把无档位差异的 deque 存储下沉到公共基类 `CMdcDequeAble`（`ctool4j-log-base`），两侧改为"另一侧实现 + 纯增量"的两文件形态；`ctool4j-mybatis-base` 的同名适配桥（`spi/IService`、`spi/IMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`、`service/ICCheckService`、`service/impl/CBaseServiceImpl`）与 `CMpController` 改为**目录级互斥**（见下「同名两份不可避免时」）。
 - **同名两份不可避免时：按"目录不相交"实现互斥**：当同一全限定名在两侧**都必须存在**（如 mybatis-plus 3.5.17 起 `IService` / `ServiceImpl` 从 `extension.service` 迁到 `spring.service`，两坐标不能共存），互斥不能靠"改类名"（避免同名等于改名，会把耦合转移到调用方），要靠**让两份落在互不相交的目录、由各模块按需挂载其一**：
-  - `ctool4j-mybatis-base/src/main/java-mp-bridge`（3.5.x 侧桥 + 两侧共用占位）、`java-mp-bridge-ext`（3.3.x/3.4.x 侧桥，两个版本侧共用）、`java-mp-{jdk8|latest}-ext`（档位专属控制器）——三者互不相交，任一模块只挂其中两个。
+  - `ctool4j-mybatis-base/src/main/java-mp-bridge`（3.5.x 侧桥：`spi/IService`、`spi/IMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`、`service/ICCheckService`、`service/impl/CBaseServiceImpl`）、`java-mp-bridge-ext`（3.3.x/3.4.x 侧桥，**相对路径集合与前者完全镜像**）、`java-mp-{jdk8|latest}-ext`（档位专属控制器）——三者互不相交，任一模块只挂其中两个。
   - 这些目录名**不带** `-jdk8` / `-latest` 后缀（除档位专属控制器外），故根脚本的配置期校验不覆盖它们；互斥由"目录本身不相交、同一时刻只挂一侧"保证。
-  - 目录内容故意按"只在某一侧存在的文件"分放（如 `java-mp-bridge` 里放 `CMybatisPlusSide`、`java-mp-bridge-ext` 里放侧别桥），使两个目录的**文件集合不重叠**——这样"目录级互斥"是可肉眼复核的，而不是靠记忆。
+  - **桥目录按"镜像"组织**：两侧目录承载**完全相同的相对路径集合**（同名同包），差异只在"承哪个 MP 坐标"上。于是 `ICCheckService`、`ICService` 一族在两侧**源码一字不差**——它们只引用本目录内的 `spi.IService`，不引用另一侧的任何类型。
+  - **公共桶不引用版本侧符号**：`java-mp` 里只放版本无关的公共面（`ICService` 一族、`CBizIdUtils`、`CMybatisPlusSide`），其源码**不出现对 `java-mp-bridge*` 独有类型的引用**——否则同一份源码会在三个模块里承不同血统（正是"不互斥的代码不能写在多源目录的模块下"要禁止的）。改动后可用 `grep -rn "mybatisplus\.spi\." src/main/java-mp/` 复核（应为空）。
   - 挂载用 `srcDir("../<模块>/src/main/<目录>")` 直接指向 base 的源码目录：目标包名由文件自身的 `package` 声明决定，与挂在哪个物理目录无关。
+- **改 `ctool4j-mybatis-base` 的多源目录后，除 `gradle build` 外还要核互斥三问**：① `java-mp` 是否引用了版本侧符号（`grep -rn "mybatisplus\.spi\." src/main/java-mp/` 应为空）；② 两个桥目录的相对路径集合是否仍互为镜像（`diff <(find java-mp-bridge -name "*.java" | sed "s|java-mp-bridge/||" | sort) <(find java-mp-bridge-ext -name "*.java" | sed "s|java-mp-bridge-ext/||" | sort)` 应为空）；③ 任一模块挂载的目录集合里全限定名是否唯一。
 - **改动后必须真验证**：跑 `gradle build`（覆盖编译、单测与 javadoc 生成）；只跑 `compileJava` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。日志落 `tmp/build/gradle-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。
 - **新增模块要两处登记**：（1）在模块目录放 `build.gradle.kts`（`settings.gradle.kts` 递归发现，无需改 settings）；（2）`ctool4j-dependencies/build.gradle.kts` 的 `ctool4jArtifacts` 清单登记（版本由根脚本统一给定，使用处不写版本）。漏第 2 处会让下游依赖解析失败（BOM 里没有该构件）；聚合/父 pom 也要放 `build.gradle.kts`（内容为注释即可），否则整个子树不会被发现。
 - **模块的纳入由档位决定（仅剩一种情形）**：适配模块已不拆侧，故**不再按 `-javax`/`-jakarta` 后缀过滤模块**；`settings.gradle.kts` 只保留"javax 专属模块"白名单（`ctool4j-doc-openapi2`——其 javax 依赖来自第三方 Springfox，无法靠自身换源目录切到 jakarta），在非 jdk8 档位排除。
