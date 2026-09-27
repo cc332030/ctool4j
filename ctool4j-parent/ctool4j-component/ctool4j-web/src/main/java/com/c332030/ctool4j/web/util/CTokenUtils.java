@@ -4,14 +4,13 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.validation.CAssert;
 import com.c332030.ctool4j.definition.interfaces.ICToken;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import lombok.CustomLog;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  * <ul>
  *   <li><b>请求/响应头</b>：{@link #TOKEN_PREFIX} 默认前缀 "Bearer"，{@link #removePrefix(String)} 移除前缀，
  *       {@link #getHeaderToken()} 系列从请求 Authorization 头取 token，{@link #setHeaderToken(String)} 系列设置响应 Authorization 头；</li>
- *   <li><b>请求属性</b>：{@link ICToken#TOKEN} 为属性名，{@link #getToken()}/{@link #setToken(HttpServletRequest, String)}
+ *   <li><b>请求属性</b>：{@link ICToken#TOKEN} 为属性名，{@link #getToken()}/{@link #setToken(CHttpRequest, String)}
  *       读写当前请求属性中的 token，{@link #getTokenOrNew()} 缺省生成。</li>
  * </ul>
  *
@@ -101,7 +100,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author c332030
  * @since 2026/3/16
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -141,7 +140,7 @@ public class CTokenUtils {
     /**
      * 获取请求头 token
      * <ul>
-     *   <li>前缀参数不额外兜底：{@link #getHeaderToken(HttpServletRequest, String)} 的 prefix 为 null 且请求头非空时抛 NPE。</li>
+     *   <li>前缀参数不额外兜底：{@link #getHeaderToken(CHttpRequest, String)} 的 prefix 为 null 且请求头非空时抛 NPE。</li>
      *   <li>{@code getHeaderToken(request, prefix)}：request 为 null 返回 null；{@code Authorization} 头为空、未以前缀开头、</li>
      *   <li>{@code getHeaderToken(request, prefix)} 的 prefix 为 null 且请求头非空时抛 NPE，前缀参数不额外兜底。</li>
      * </ul>
@@ -166,7 +165,7 @@ public class CTokenUtils {
      * @param request 请求
      * @return token
      */
-    public String getHeaderToken(HttpServletRequest request) {
+    public String getHeaderToken(CHttpRequest request) {
         return getHeaderToken(request, TOKEN_PREFIX);
     }
 
@@ -176,7 +175,7 @@ public class CTokenUtils {
      * @param prefix 前缀
      * @return token
      */
-    public String getHeaderToken(HttpServletRequest request, String prefix) {
+    public String getHeaderToken(CHttpRequest request, String prefix) {
 
         if(null == request) {
             return null;
@@ -197,7 +196,7 @@ public class CTokenUtils {
     /**
      * 设置响应头 token
      * <ul>
-     *   <li>{@link #setHeaderToken(String, String, HttpServletResponse)}：设置 {@code Authorization: {prefix} {token}} 响应头。</li>
+     *   <li>{@link #setHeaderToken(String, String, CHttpResponse)}：设置 {@code Authorization: {prefix} {token}} 响应头。</li>
      *   <li>{@code setHeaderToken(token, prefix, response)}：设置 {@code Authorization: {prefix} {token}} 响应头。</li>
      * </ul>
      *
@@ -221,7 +220,7 @@ public class CTokenUtils {
      * @param token token
      * @param response 响应
      */
-    public void setHeaderToken(String token, HttpServletResponse response) {
+    public void setHeaderToken(String token, CHttpResponse response) {
         setHeaderToken(token, TOKEN_PREFIX, response);
     }
 
@@ -231,7 +230,7 @@ public class CTokenUtils {
      * @param prefix 前缀
      * @param response 响应
      */
-    public void setHeaderToken(String token, String prefix, HttpServletResponse response) {
+    public void setHeaderToken(String token, String prefix, CHttpResponse response) {
         response.setHeader(HttpHeaders.AUTHORIZATION, prefix + " " + token);
     }
 
@@ -255,7 +254,7 @@ public class CTokenUtils {
      * @param request 请求
      * @param token   token
      */
-    public void setToken(HttpServletRequest request, String token) {
+    public void setToken(CHttpRequest request, String token) {
         request.setAttribute(ICToken.TOKEN, token);
     }
 

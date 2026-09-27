@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.web.util;
 
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import lombok.CustomLog;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -194,7 +196,7 @@ public class CTokenUtilsTests {
         // 正例：从请求头解析 token
         val request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer token-1");
-        Assertions.assertEquals("token-1", CTokenUtils.getHeaderToken(request, "Bearer"));
+        Assertions.assertEquals("token-1", CTokenUtils.getHeaderToken(CHttpServletRequest.of(request), "Bearer"));
     }
 
     /**
@@ -204,7 +206,7 @@ public class CTokenUtilsTests {
     public void getHeaderToken_noAuthorization() {
         // 边界：无 Authorization 头返回 null
         val request = new MockHttpServletRequest();
-        Assertions.assertNull(CTokenUtils.getHeaderToken(request, "Bearer"));
+        Assertions.assertNull(CTokenUtils.getHeaderToken(CHttpServletRequest.of(request), "Bearer"));
     }
 
     /**
@@ -215,7 +217,7 @@ public class CTokenUtilsTests {
         // 反例：前缀不匹配返回 null
         val request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.AUTHORIZATION, "Basic xxxx");
-        Assertions.assertNull(CTokenUtils.getHeaderToken(request, "Bearer"));
+        Assertions.assertNull(CTokenUtils.getHeaderToken(CHttpServletRequest.of(request), "Bearer"));
     }
 
     /**
@@ -226,7 +228,7 @@ public class CTokenUtilsTests {
         // 边界：authorization 长度等于前缀时不返回（<= prefix.length()）
         val request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer");
-        Assertions.assertNull(CTokenUtils.getHeaderToken(request, "Bearer"));
+        Assertions.assertNull(CTokenUtils.getHeaderToken(CHttpServletRequest.of(request), "Bearer"));
     }
 
     /**
@@ -246,7 +248,7 @@ public class CTokenUtilsTests {
         // 正例：自定义前缀解析
         val request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.AUTHORIZATION, "Custom token-2");
-        Assertions.assertEquals("token-2", CTokenUtils.getHeaderToken(request, "Custom"));
+        Assertions.assertEquals("token-2", CTokenUtils.getHeaderToken(CHttpServletRequest.of(request), "Custom"));
     }
 
     /**
@@ -284,7 +286,7 @@ public class CTokenUtilsTests {
     public void setHeaderToken_response() {
         // 正例：设置 Authorization 响应头
         val response = new MockHttpServletResponse();
-        CTokenUtils.setHeaderToken("token-3", "Bearer", response);
+        CTokenUtils.setHeaderToken("token-3", "Bearer", CHttpServletResponse.of(response));
         Assertions.assertEquals("Bearer token-3", response.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
@@ -295,7 +297,7 @@ public class CTokenUtilsTests {
     public void setHeaderToken_customPrefix() {
         // 正例：自定义前缀
         val response = new MockHttpServletResponse();
-        CTokenUtils.setHeaderToken("token-4", "Custom", response);
+        CTokenUtils.setHeaderToken("token-4", "Custom", CHttpServletResponse.of(response));
         Assertions.assertEquals("Custom token-4", response.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
@@ -348,7 +350,7 @@ public class CTokenUtilsTests {
     public void setHeaderToken_twoArgUsesDefaultPrefix() {
         // 正例：两参重载（token + response）前缀取默认 Bearer
         val response = new MockHttpServletResponse();
-        CTokenUtils.setHeaderToken("token-7", response);
+        CTokenUtils.setHeaderToken("token-7", CHttpServletResponse.of(response));
         Assertions.assertEquals("Bearer token-7", response.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
@@ -363,7 +365,7 @@ public class CTokenUtilsTests {
         val request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-        CTokenUtils.setToken(request, "attr-token");
+        CTokenUtils.setToken(CHttpServletRequest.of(request), "attr-token");
         Assertions.assertEquals("attr-token", CTokenUtils.getToken());
     }
 
@@ -388,7 +390,7 @@ public class CTokenUtilsTests {
         val request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-        CTokenUtils.setToken(request, "existing");
+        CTokenUtils.setToken(CHttpServletRequest.of(request), "existing");
         Assertions.assertEquals("existing", CTokenUtils.getTokenOrNew());
     }
 

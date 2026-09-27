@@ -15,7 +15,7 @@
 - **token 读写**：请求/响应头与请求属性的 token 读写由 `ctool4j-web` 的 `CTokenUtils` 提供
 - **会话服务**：`CAbstractSessionService` 基于 Redis 提供会话存取、按 jwt 取会话、当前会话获取；当前会话缺失（未授权）时 `get()`/`check()` 抛 `CUnauthorizedException`，由 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 统一转为响应体业务码 401（HTTP 状态保持 200，与模块内其余处理器一致；见 [未授权统一返回业务码 401 设计文档](../../../doc/design/web/unauthorized-401.adoc)）
 - **认证过滤器**：`CAbstractAuthFilter` 解析 token → 加载会话 → 构造 Spring Security 认证信息写入安全上下文；解析失败静默放行，交由后续授权规则拦截
-- **认证过滤器继承链**（自下而上，业务继承链末端）：`CAbstractWebAuthFilter`（`ctool4j-web`，类型契约）→ `CAbstractBaseAuthFilter`（auth-base，会话加载与过滤器骨架，不依赖 Spring Security）→ `CAbstractAuthFilter`（auth-spring，Security 认证构造）
+- **认证过滤器继承链**（自下而上，业务继承链末端）：`CAbstractWebAuthFilter`（`ctool4j-spring-javax`，类型契约，两侧同名）→ `CAbstractBaseAuthFilter`（auth-base，会话加载与过滤器骨架，不依赖 Spring Security）→ `CAbstractAuthFilter`（auth-spring，Security 认证构造）
 - **认证装配基类**：`CAbstractAuthBaseConfiguration`（auth-base）提供 mock 会话配置落点；`CAbstractAuthConfiguration`（auth-spring）在其上追加默认认证过滤器 bean，业务子类只需实现 `isAuthAnonymous`（二者按是否引入 Spring Security 择一继承）
 
 ## 模块结构

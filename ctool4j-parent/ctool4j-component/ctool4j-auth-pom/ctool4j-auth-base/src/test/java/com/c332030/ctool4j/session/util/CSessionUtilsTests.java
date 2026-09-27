@@ -1,6 +1,8 @@
 package com.c332030.ctool4j.session.util;
 
 import com.c332030.ctool4j.core.exception.CUnauthorizedException;
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.session.interfaces.ICSession;
 import com.c332030.ctool4j.session.service.CAbstractBaseSessionService;
 import lombok.Data;
@@ -10,8 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -123,8 +123,8 @@ class CSessionUtilsTests {
         val session = new SessionStub();
         sessionService.loadedSession = session;
 
-        Assertions.assertSame(session, CSessionUtils.load(request));
-        Assertions.assertSame(request, sessionService.lastRequest);
+        Assertions.assertSame(session, CSessionUtils.load(CHttpServletRequest.of(request)));
+        Assertions.assertSame(request, CHttpServletRequest.unwrap(sessionService.lastRequest));
         Assertions.assertEquals(1, sessionService.loadSessionCount);
 
     }
@@ -136,7 +136,7 @@ class CSessionUtilsTests {
     void load_withoutSession_returnsNull() {
 
         // 边界：未携带 token / 解析失败 / 查不到会话 → null，交由调用方判定
-        Assertions.assertNull(CSessionUtils.load(new MockHttpServletRequest()));
+        Assertions.assertNull(CSessionUtils.load(CHttpServletRequest.of(new MockHttpServletRequest())));
         Assertions.assertEquals(1, sessionService.loadSessionCount);
 
     }
@@ -362,7 +362,7 @@ class CSessionUtilsTests {
         /**
          * {@code loadSession} 收到的请求（null 表示未被调用）
          */
-        HttpServletRequest lastRequest;
+        CHttpRequest lastRequest;
 
         /**
          * {@code get(token)} 收到的 token（null 表示未被调用）
@@ -400,7 +400,7 @@ class CSessionUtilsTests {
         String removedToken;
 
         @Override
-        public SessionStub loadSession(HttpServletRequest request) {
+        public SessionStub loadSession(CHttpRequest request) {
 
             loadSessionCount++;
             lastRequest = request;

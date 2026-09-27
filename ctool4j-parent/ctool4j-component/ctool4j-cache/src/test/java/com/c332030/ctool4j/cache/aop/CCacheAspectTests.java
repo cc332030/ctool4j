@@ -65,6 +65,9 @@ public class CCacheAspectTests {
         val idB = 2;
 
         val a1 = cacheTestService.time(idA);
+        // 跨毫秒再取第二个 id：time() 返回 currentTimeMillis()，两次调用落在同一毫秒时
+        // 下面 a1/b1 的“不同 id 不共享缓存”断言会误报（值本就同毫秒相同，与缓存无关）
+        TimeUnit.MILLISECONDS.sleep(10);
         val b1 = cacheTestService.time(idB);
 
         val cacheUser = CCacheUser.builder()

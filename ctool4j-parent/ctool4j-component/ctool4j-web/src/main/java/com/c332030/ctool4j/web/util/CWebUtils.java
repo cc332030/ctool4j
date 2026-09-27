@@ -3,7 +3,7 @@ package com.c332030.ctool4j.web.util;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.spring.util.CFileUtils;
-import com.c332030.ctool4j.spring.util.CRequestUtils;
+import com.c332030.ctool4j.spring.util.CHttpRequestUtils;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -58,7 +58,7 @@ import java.io.InputStream;
  * </ul>
  *
  * @since 2025/9/28
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -101,7 +101,13 @@ public class CWebUtils {
     @SneakyThrows
     public void writeResponse(InputStream inputStream, Number contentLength, String filePath) {
 
-        val response = CRequestUtils.getResponse();
+        val attributes = CHttpRequestUtils.getServletRequestAttributes();
+        if(null == attributes || null == attributes.getResponse()) {
+            throw new IllegalArgumentException("response 不能为空");
+        }
+        // 二进制输出流（ServletOutputStream）抽象层表达不了，属容器专有能力：经 CRequestUtils 的容器逃生口
+        // 取底层响应（容器类型只用 val 承接、不 import 容器包），是与容器相关的唯一落点
+        val response = attributes.getResponse();
 
         val fileName = CFileUtils.getFileName(filePath);
         if(StrUtil.isNotEmpty(fileName)){

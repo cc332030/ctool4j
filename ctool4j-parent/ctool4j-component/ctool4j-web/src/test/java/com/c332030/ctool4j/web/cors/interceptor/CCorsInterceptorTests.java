@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.web.cors.interceptor;
 
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
 import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
@@ -74,7 +76,7 @@ public class CCorsInterceptorTests {
     @Test
     public void preHandle_whenNotEnabled() {
         // 未启用跨域时放行
-        boolean result = interceptor.preHandle(request, response, new Object());
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), new Object());
 
         Assertions.assertTrue(result);
     }
@@ -89,7 +91,7 @@ public class CCorsInterceptorTests {
         CCorsUtils.setConfig(config);
         request.setMethod("OPTIONS");
 
-        boolean result = interceptor.preHandle(request, response, new Object());
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), new Object());
 
         Assertions.assertFalse(result);
         Assertions.assertEquals(MockHttpServletResponse.SC_NO_CONTENT, response.getStatus());
@@ -105,7 +107,7 @@ public class CCorsInterceptorTests {
         CCorsUtils.setConfig(config);
         request.setMethod("GET");
 
-        boolean result = interceptor.preHandle(request, response, new Object());
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), new Object());
 
         Assertions.assertTrue(result);
     }
@@ -123,7 +125,7 @@ public class CCorsInterceptorTests {
         request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
         request.addHeader(HttpHeaders.HOST, "localhost:8080");
 
-        boolean result = interceptor.preHandle(request, response, new Object());
+        boolean result = interceptor.preHandle(CHttpServletRequest.of(request), CHttpServletResponse.of(response), new Object());
 
         Assertions.assertTrue(result);
         Assertions.assertNull(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));

@@ -1,5 +1,7 @@
 package com.c332030.ctool4j.web.cors.advice;
 
+import com.c332030.ctool4j.model.CHttpServletRequest;
+import com.c332030.ctool4j.model.CHttpServletResponse;
 import com.c332030.ctool4j.web.cors.CCorsConfig;
 import com.c332030.ctool4j.web.cors.CCorsOriginConfig;
 import com.c332030.ctool4j.web.cors.util.CCorsUtils;
@@ -83,7 +85,7 @@ public class CCorsResponseBodyAdviceTests {
         val body = new Object();
         Object result = advice.beforeBodyWrite(
             body, parameter, MediaType.APPLICATION_JSON, null,
-            request, response
+            CHttpServletRequest.of(request), CHttpServletResponse.of(response)
         );
 
         Assertions.assertSame(body, result);
@@ -107,7 +109,7 @@ public class CCorsResponseBodyAdviceTests {
 
         Object result = advice.beforeBodyWrite(
             body, parameter, MediaType.APPLICATION_JSON, null,
-            request, response
+            CHttpServletRequest.of(request), CHttpServletResponse.of(response)
         );
 
         Assertions.assertSame(body, result);
@@ -132,7 +134,7 @@ public class CCorsResponseBodyAdviceTests {
 
         Object result = advice.beforeBodyWrite(
             body, parameter, MediaType.APPLICATION_JSON, null,
-            request, response
+            CHttpServletRequest.of(request), CHttpServletResponse.of(response)
         );
 
         Assertions.assertSame(body, result);

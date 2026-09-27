@@ -1,7 +1,9 @@
 package com.c332030.ctool4j.log.interceptor;
 
+import com.c332030.ctool4j.interfaces.CHttpRequest;
+import com.c332030.ctool4j.interfaces.CHttpResponse;
+import com.c332030.ctool4j.spring.interfaces.ICSpringHandlerInterceptor;
 import com.c332030.ctool4j.web.config.CRequestLogConfig;
-import com.c332030.ctool4j.web.interceptor.ICHandlerInterceptor;
 import com.c332030.ctool4j.web.util.CCommUtils;
 import com.c332030.ctool4j.web.util.CRequestLogUtils;
 import com.c332030.ctool4j.web.util.CTraceUtils;
@@ -10,9 +12,6 @@ import lombok.CustomLog;
 import lombok.val;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -58,7 +57,7 @@ import javax.servlet.http.HttpServletResponse;
  * </ul>
  * <h2>不适用与边界场景</h2>
  * <ul>
- *   <li>依赖 {@code ICHandlerInterceptor} 调用链与请求日志配置（web 模块）。</li>
+ *   <li>依赖 {@code ICSpringHandlerInterceptor} 调用链与请求日志配置（web 模块）。</li>
  * </ul>
  * <h2>已知限制与取舍</h2>
  * <ul>
@@ -72,7 +71,7 @@ import javax.servlet.http.HttpServletResponse;
 @CustomLog
 @Component
 @AllArgsConstructor
-public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
+public class CRequestLogHandlerInterceptor implements ICSpringHandlerInterceptor {
 
     CRequestLogConfig config;
 
@@ -91,8 +90,8 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
      * @return 是否继续处理，恒为 true*/
     @Override
     public boolean preHandle(
-        HttpServletRequest request,
-        HttpServletResponse response,
+        CHttpRequest request,
+        CHttpResponse response,
         Object handler
     ) {
         try {
@@ -121,8 +120,8 @@ public class CRequestLogHandlerInterceptor implements ICHandlerInterceptor {
      * @param ex       处理异常*/
     @Override
     public void afterCompletion(
-        HttpServletRequest request,
-        HttpServletResponse response,
+        CHttpRequest request,
+        CHttpResponse response,
         Object handler,
         @Nullable Exception ex
     ) {
