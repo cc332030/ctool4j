@@ -55,7 +55,7 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 
 背景：本次迁移把项目从 Maven 改为 Gradle KTS，并支持双档位——*jdk8 档位*（默认，容器侧 javax、依赖沿用既有版本）与
 *最新 LTS 档位*（容器侧 jakarta、依赖更新到较新版本）。两档位现已**全流程绿**：
-+gradle build+ 通过（含编译、单测、javadoc），jdk8 档位 2039 用例 0 失败、最新 LTS 档位 2039 用例 0 失败（+ctool4j-doc-openapi2+ 见下）。
++gradle build+ 通过（含编译、单测、javadoc），jdk8 档位 2151 用例 0 失败、最新 LTS 档位 2057 用例 0 失败（+ctool4j-doc-openapi2+ 见下）。
 
 初次以最新 LTS 档位运行时暴露 41 个失败（41/2118 ≈ 1.9%），全部为"依赖升级后行为差异"，
 按根因归类如下（均已修复）：
@@ -120,6 +120,26 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 修复口径统一为：*主代码修真实适配缺口*（强封装过滤、lambda 类名、RestTemplate 转换器补齐），
 *测试改为版本无关断言或按运行时版本判定*（不把框架文案与实现细节写进测试）。
 +doc-openapi2+ 因依赖技术栈无 jakarta 版本，在最新 LTS 档位整体排除（不适用，非缺陷）。
+
+== 容器侧适配模块合并：artifact 坐标变更（需升级方改依赖声明）
+
+原 `-javax` / `-jakarta` 成对模块（http / spring / spring-security 三对、共 6 个）内容同构，
+只差 Servlet import 与措辞，靠人工逐文件对齐会漂移。现合并为单模块，按 JDK 档位自动切换源码目录
+（`src/main/java-javax` 与 `src/main/java-jakarta`，同包同名、由 `JDK_VERSION` 决定纳入哪一个）。
+
+[cols="2,2,1", options="header"]
+|===
+| 原 artifactId | 现 artifactId | 状态
+
+| +ctool4j-http-javax+ / +ctool4j-http-jakarta+ | +ctool4j-http-servlet+ | 已合并
+| +ctool4j-spring-javax+ / +ctool4j-spring-jakarta+ | +ctool4j-spring-servlet+ | 已合并
+| +ctool4j-spring-security-javax+ / +ctool4j-spring-security-jakarta+ | +ctool4j-spring-security-servlet+ | 已合并
+|===
+
+*影响面*：直接依赖上述 6 个 artifact 的使用方，需把依赖坐标改为对应新名字；
+类名与包名均未变化，代码侧无需改动。传递依赖方（如只依赖 +ctool4j-spring+）不受影响。
+*档位差异*：新模块的 servlet-api 依赖按档位取自版本目录（jdk8 → +javax.servlet:javax.servlet-api+，
+最新 LTS → +jakarta.servlet:jakarta.servlet-api+），均声明为 optional，不向使用方传递。
 
 == 相关入口
 
