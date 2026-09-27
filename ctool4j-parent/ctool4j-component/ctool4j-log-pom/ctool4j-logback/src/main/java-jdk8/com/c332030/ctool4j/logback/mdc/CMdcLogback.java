@@ -61,10 +61,14 @@ import java.util.Map;
  * <p><b>存储结构</b></p>
  * <ul>
  *   <li>存储与基础读写下沉至父类 {@code CMdc}（可变实例 + 不可变视图），本类只补充 slf4j 特有语义。</li>
+ *   <li><b>本档位没有 deque 语义</b>：SLF4J 1.7 的 {@code MDCAdapter} 没有
+ *   {@code pushByKey/popByKey/getCopyOfDequeByKey/clearDequeByKey}，故本份不实现；
+ *   另一档位的同名文件在本类基础上<b>纯增量</b>补齐这四个方法，deque 存储由
+ *   {@code com.c332030.ctool4j.log.mdc.CMdcDequeAble}（ctool4j-log-base）提供。</li>
  * </ul>
  *
  * @since 2025/9/26
- * @version 1.0
+ * @version 1.1
  */
 public class CMdcLogback extends CMdc implements MDCAdapter {
 

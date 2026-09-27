@@ -4,14 +4,16 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * Description: ServiceImpl（mybatis-plus 3.5.x 版本适配桥）
+ * Description: ServiceImpl（mybatis-plus 版本适配桥）
  * </p>
  *
  * <h2>能力目录</h2>
  * <p>{@code ServiceImpl}：以中性包名暴露 {@code spring.service.impl.ServiceImpl}。</p>
  * <h2>设计要点</h2>
  * <ul>
- *   <li>仅做继承桥接，实现全部由 3.5.x 的 ServiceImpl 提供</li>
+ *   <li>仅做继承桥接，实现全部由对应版本的 ServiceImpl 提供</li>
+ *   <li><b>本类只落在 {@code ctool4j-mybatis}（3.5.x）模块</b>：3.3.x / 3.4.x 侧有另一份同全限定名的
+ *   {@code spi/ServiceImpl}（承 {@code extension.service.impl} 坐标），落在只属于那一侧的桥目录里、不会被本模块挂载。</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <p>无</p>
@@ -23,7 +25,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * <p>抽象类</p>
  *
  * @since 2026/9/26
- * @version 1.0
+ * @version 1.1
  */
 public abstract class ServiceImpl<M extends BaseMapper<T>, T>
         extends com.baomidou.mybatisplus.spring.service.impl.ServiceImpl<M, T> {

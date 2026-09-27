@@ -215,44 +215,98 @@ subprojects {
             }
         }
 
-        // ---- 档位专属源码目录 ----
+        // ---- 档位专属源码目录（各目录之间必须完全互斥）----
         // 少数类在两档位下必须用不同的底层 API（Servlet 容器 javax/jakarta、HttpClient 4/5、
         // SLF4J 1/2 等），无法用同一份源码兼容。约定：差异实现按档位分放
-        // `src/<main|test>/java-jdk8` 与 `.../java-latest`（同包同名、互斥），由档位决定纳入哪一个；
-        // 两目录都不放"公共类"，故不存在同名覆盖问题。jdk8 档位只读 java-jdk8，非 jdk8 档位只读 java-latest。
-        // main 与 test 两套源码目录均适用本规则（仅当目录存在时才追加）。
-        val jdkSideSuffix = if (jdk8Profile) "jdk8" else "latest"
-        val variantSourceSetNames = listOf("main", "test")
-
-        // ---- 容器侧源码目录（javax / jakarta 同一模块内切换）----
-        // 容器侧适配类（原 `-javax` / `-jakarta` 模块）已合入本模块：两套源码**同包同名**，只有
-        // `javax.servlet` / `jakarta.servlet` 的 import 与措辞不同，故**只放一份模块**、按档位选源目录，
-        // 不再成对维护两个模块（旧的双模块形态要靠人工逐文件对齐，实测会漂移）。
+        // `src/<main|test>/java-jdk8` 与 `.../java-latest`（同包同名、互斥），由档位决定纳入哪一个。
         //
-        // 落点约定（与 java-jdk8 / java-latest 并列）：
+        // **互斥是硬约束**：同一模块内的档位专属目录承载的是"同一个全限定名的不同档位实现"，
+        // 因此**任何两个目录都不得出现同一个全限定名**。不互斥的代码要放进公共 `src/<main|test>/java`
+        // （或按职责另立模块），否则会出现两种坏情况：
+        // 1. 同名重复：同一全限定名存在多份副本，靠人工逐文件对齐，必然漂移（本仓库实测漂移过）；
+        // 2. 错位：只写在一侧的档位专属目录里，另一档位编译期直接缺类（`compileJava` 失败）。
+        // 下列 `assertExclusiveVariantSourceDirs` 在**配置期**静态校验，违反即构建失败——见其注释。
+        val jdkSideSuffix = if (jdk8Profile) "jdk8" else "latest"
+        val sourceSetNames = listOf("main", "test")
+
+        // 容器侧落点约定（与 java-jdk8 / java-latest 并列）：
         // - `src/<main|test>/java-javax`   → 仅在 jdk8 档位纳入（javax 侧）
         // - `src/<main|test>/java-jakarta` → 仅在非 jdk8 档位纳入（jakarta 侧）
-        // 只有承载容器侧适配类的模块才建这两个目录；两目录都不放"公共类"，故不存在同名覆盖问题。
+        // 只有承载容器侧适配类的模块才建这两个目录。
         val containerSideSuffix = if (jdk8Profile) "javax" else "jakarta"
 
-        variantSourceSetNames.forEach { sourceSetName ->
-            val variantSourceDir = moduleProject.file("src/$sourceSetName/java-$jdkSideSuffix")
-            if (variantSourceDir.exists()) {
-                moduleProject.extensions.getByType<JavaPluginExtension>()
-                    .sourceSets
-                    .named(sourceSetName)
-                    .configure {
-                        java.srcDir(variantSourceDir)
-                    }
+        /**
+         * 校验档位专属源码目录的**互斥性**，并返回本档位实际要纳入的目录。
+         *
+         * 互斥是硬约束（见上），且必须在**配置期**查清：jdk8 档位只编译 `java-jdk8`，
+         * 若某类被错放进 `java-latest`，只有最新 LTS 档位才会发现"缺类"——把两档位的同名/错位
+         * 一次性查清，任一档位构建都能当场失败。
+         *
+         * **例外：容器侧成对适配**（`java-javax` ↔ `java-jakarta`）**整体放行**。这一对**必须**保持
+         * 同包同名——两套源码互为镜像、各承一侧容器类型（成员互引，如 `*Adapter` 互相引用），
+         * 一致性由「成对文件互引 + 归一化比对自检」维护（见 `agent/AGENTS-PROJECT.MD`；
+         * 历史实测漂移过 7 个副本）。成对镜像本就不可能"任一档位独立读得通"，故不在此做机器校验。
+         *
+         * 判定用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名，够用），
+         * 只看目录**相对路径**、不读文件内容，故对配置缓存友好（路径集合是稳定输入）。
+         */
+        fun assertExclusiveVariantSourceDirs(sourceSetName: String): List<File> {
+
+            val jdkSideDirName = "java-$jdkSideSuffix"
+            val containerPairDirNames = listOf("java-javax", "java-jakarta")
+
+            val jdkSideDir = moduleProject.file("src/$sourceSetName/$jdkSideDirName")
+            val containerSideDir = moduleProject.file("src/$sourceSetName/java-$containerSideSuffix")
+
+            /** 列出目录下全部 .java 的全限定名（相对路径去扩展名），目录不存在则为空 */
+            fun relationalNames(dir: File): Set<String> =
+                if (!dir.exists()) {
+                    emptySet()
+                } else {
+                    dir.walkTopDown()
+                        .filter { it.isFile && it.name.endsWith(".java") }
+                        .map { it.relativeTo(dir).path.replace('\\', '/').removeSuffix(".java") }
+                        .toSet()
+                }
+
+            val jdkSideNames = relationalNames(jdkSideDir)
+            val containerSideNames = relationalNames(containerSideDir)
+
+            // 容器侧成对适配（java-javax ↔ java-jakarta）整体放行，见函数 javadoc 的「例外」。
+            // 这里只查"档位专属目录 ↔ 容器侧目录"的重名——那才是真错位（同一份代码两份副本）。
+            val crossDuplicates = jdkSideNames.intersect(containerSideNames)
+
+            val problems = crossDuplicates
+                .map { "$jdkSideDirName/$it ↔ java-$containerSideSuffix/$it" }
+                .sorted()
+
+            if (problems.isNotEmpty()) {
+                throw GradleException(
+                    "[$projectName] 档位专属源码目录不互斥：$problems；" +
+                            "同名类只能有一份：要么下沉到 src/$sourceSetName/java（公共），要么并入容器侧成对适配" +
+                            "（java-javax ↔ java-jakarta）作为镜像副本，不得既在 src/$jdkSideDirName 又在容器侧目录。"
+                )
             }
 
-            val containerSourceDir = moduleProject.file("src/$sourceSetName/java-$containerSideSuffix")
-            if (containerSourceDir.exists()) {
+            // ③ 档位专属目录自身：不得与容器侧目录重合使用（同一目录被两种规则同时纳入）
+            val variantDirs = mutableListOf<File>()
+            if (jdkSideDir.exists()) {
+                variantDirs.add(jdkSideDir)
+            }
+            if (containerSideDir.exists()) {
+                variantDirs.add(containerSideDir)
+            }
+            return variantDirs
+        }
+
+        sourceSetNames.forEach { sourceSetName ->
+            val variantSourceDirs = assertExclusiveVariantSourceDirs(sourceSetName)
+            if (variantSourceDirs.isNotEmpty()) {
                 moduleProject.extensions.getByType<JavaPluginExtension>()
                     .sourceSets
                     .named(sourceSetName)
                     .configure {
-                        java.srcDir(containerSourceDir)
+                        variantSourceDirs.forEach { java.srcDir(it) }
                     }
             }
         }

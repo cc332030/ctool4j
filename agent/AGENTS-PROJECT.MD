@@ -72,9 +72,18 @@
 - **JDK 档位是构建的输入**：`JDK_VERSION`（系统属性 > 环境变量 > `gradle.properties`），**默认 8**；决定 ① 容器侧源码目录（jdk8 → `src/<main|test>/java-javax`，其他 → `src/<main|test>/java-jakarta`，见下「档位专属源码目录」）② 依赖版本档位（见 `gradle/libs.versions.toml`：jdk8 用 `<别名>-jdk8`，其余用**无后缀**的 `<别名>`）③ 字节码目标（jdk8 → Java 8；否则 `release = 17`）。刻意**不读** JVM 的 `java.version` 系统属性（它恒等于构建机 JDK，会使"默认 jdk8"失效）。
 - **档位名以「jdk8 / 最新 LTS」表述，不用具体版本号**：jdk8 是当前公司主流版本、会长期存在，故可以按名出现；另一档位后续会升到更新的 LTS，故标识符里**不出现 `jdk25`**（如用 `ltsRelease`、`java-latest`、无后缀别名），避免升级后名称过期。仅"解释为何不用 `-jdk25`"的注释可提及。
 - **构建产物目录按档位分家**：jdk8 档位用 `target-8/build-8`、其余档位用 `target/build`（顶层与各模块同构，模块产物落在各自项目目录下）。**不用 Gradle 默认的 `build`**——默认目录名与档位无关，切档位构建会覆盖上一次的产物；顶层目录是容器、末级才是构建目录（与 Maven 的 `target` 约定同形）。根脚本用 `layout.buildDirectory` 分别对根项目与 `subprojects` 设置；路径写**目录名**（不拼 `projectDir`——Gradle 的 `projectDir` 是相对路径，`subprojects` 里解析会以「调用者所在项目」为基准而失败）。`buildSrc` 是独立构建、产物固定在 `buildSrc/build`，不受本布局影响；`settings.gradle.kts` 的模块发现要按 `target*` 一并排除（否则 jdk8 档位的 `target-8` 会被当成模块目录扫进去）。
-- **档位专属源码目录**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、SLF4J 1/2 等），无法用同一份源码兼容。约定：差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `src/<main|test>/java-latest`（**同包同名、互斥**，两目录都不放"公共类"），由档位决定纳入哪一个；jdk8 档位完全不读 `java-latest`，保证既有产物零变化。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
-  - **容器侧同理**：`src/<main|test>/java-javax` 与 `src/<main|test>/java-jakarta` 两目录**同包同名**，jdk8 档位只用 `java-javax`、其余只用 `java-jakarta`。这取代了原先"`-javax` / `-jakarta` 各做一个模块"的形态。
+- **档位专属源码目录（硬约束：彼此完全互斥）**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、SLF4J 1/2、Bean Validation 等），无法用同一份源码兼容。约定：差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `src/<main|test>/java-latest`，由档位决定纳入哪一个；jdk8 档位完全不读 `java-latest`，保证既有产物零变化。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
+  - **同一模块内的这些目录必须完全互斥：任一全限定名只能出现一次**。两个目录都放"公共类"，或把某类只写在一侧（另一档位编译期直接缺类），都属违规。不互斥的后果有且只有两种，且都不可接受：① 同名重复——同一份代码多份副本，靠人工逐文件对齐**必然漂移**（本仓库实测漂移过 7 个副本）；② 错位——某类只落在 `java-latest`，jdk8 档位 `compileJava` 当场缺类，而"只跑最新 LTS 档"的习惯会把它漏掉。
+  - **机器校验在配置期**：根脚本的 `assertExclusiveVariantSourceDirs` 会比对 `java-jdk8` 与 `java-latest` 的全限定名，命中重复即 `GradleException`（任一档位构建都会失败）。判据用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名），只看路径、不读文件内容，对配置缓存友好。
+  - **容器侧是刻意的例外**：`src/<main|test>/java-javax` 与 `src/<main|test>/java-jakarta` 两目录**成对同包同名**（互为镜像，成员互引），jdk8 档位只用 `java-javax`、其余只用 `java-jakarta`。这取代了原先"`-javax` / `-jakarta` 各做一个模块"的形态。**这一对整体放行**（成对镜像本就不可能任一档位独立读得通），一致性由「成对文件互引 + 归一化比对自检」维护，见下「改 `java-javax` 源目录必须同步 `java-jakarta` 源目录」。
+  - **档位专属目录 ↔ 容器侧目录仍不得同名**：同名即"同一份代码两份副本"，配置期校验会拦下。
   - 不能用"srcDir 追加 + exclude 同名文件"实现：Gradle 的 `exclude` 对**全部** srcDir 生效，会把专属目录里的同名文件一并排除、类彻底消失（已实测踩坑）。
+  - **已消除的重复（本次改造）**：`ctool4j-logback` 的 `CMdcLogback` 原为两份（javadoc + deque 方法差异），已把无档位差异的 deque 存储下沉到公共基类 `CMdcDequeAble`（`ctool4j-log-base`），两侧改为"另一侧实现 + 纯增量"的两文件形态；`ctool4j-mybatis-base` 的同名适配桥（`spi/IService`、`ServiceImpl`）与 `CMpController` 改为**目录级互斥**（见下「同名两份不可避免时」）。
+- **同名两份不可避免时：按"目录不相交"实现互斥**：当同一全限定名在两侧**都必须存在**（如 mybatis-plus 3.5.17 起 `IService` / `ServiceImpl` 从 `extension.service` 迁到 `spring.service`，两坐标不能共存），互斥不能靠"改类名"（避免同名等于改名，会把耦合转移到调用方），要靠**让两份落在互不相交的目录、由各模块按需挂载其一**：
+  - `ctool4j-mybatis-base/src/main/java-mp-bridge`（3.5.x 侧桥 + 两侧共用占位）、`java-mp-bridge-ext`（3.3.x/3.4.x 侧桥，两个版本侧共用）、`java-mp-{jdk8|latest}-ext`（档位专属控制器）——三者互不相交，任一模块只挂其中两个。
+  - 这些目录名**不带** `-jdk8` / `-latest` 后缀（除档位专属控制器外），故根脚本的配置期校验不覆盖它们；互斥由"目录本身不相交、同一时刻只挂一侧"保证。
+  - 目录内容故意按"只在某一侧存在的文件"分放（如 `java-mp-bridge` 里放 `CMybatisPlusSide`、`java-mp-bridge-ext` 里放侧别桥），使两个目录的**文件集合不重叠**——这样"目录级互斥"是可肉眼复核的，而不是靠记忆。
+  - 挂载用 `srcDir("../<模块>/src/main/<目录>")` 直接指向 base 的源码目录：目标包名由文件自身的 `package` 声明决定，与挂在哪个物理目录无关。
 - **改动后必须真验证**：跑 `gradle build`（覆盖编译、单测与 javadoc 生成）；只跑 `compileJava` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。日志落 `tmp/build/gradle-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。
 - **新增模块要两处登记**：（1）在模块目录放 `build.gradle.kts`（`settings.gradle.kts` 递归发现，无需改 settings）；（2）`ctool4j-dependencies/build.gradle.kts` 的 `ctool4jArtifacts` 清单登记（版本由根脚本统一给定，使用处不写版本）。漏第 2 处会让下游依赖解析失败（BOM 里没有该构件）；聚合/父 pom 也要放 `build.gradle.kts`（内容为注释即可），否则整个子树不会被发现。
 - **模块的纳入由档位决定（仅剩一种情形）**：适配模块已不拆侧，故**不再按 `-javax`/`-jakarta` 后缀过滤模块**；`settings.gradle.kts` 只保留"javax 专属模块"白名单（`ctool4j-doc-openapi2`——其 javax 依赖来自第三方 Springfox，无法靠自身换源目录切到 jakarta），在非 jdk8 档位排除。
@@ -96,10 +105,12 @@
   - **侧别专属**字样（`javax.servlet` 一类的 import、「本份承 javax 包」一类措辞）随侧别替换；**两侧成对提及**（同一处同时出现两个词，如「javax 与 jakarta」「`RequestDispatcher.ERROR_EXCEPTION` 两侧分别是 …」）在两侧保持**同一份原文**——用"整体互换/全量替换"的脚本同步会把双提及写成「jakarta 与 jakarta」，而归一化自检恰好看不出这种坏损。
   - **不得在 javadoc 里硬编码另一侧的源目录名**（如 javax 份写「与同模块的 `java-jakarta` 一份同包同名」）：归一化把两侧目录名都替成同一符号，自检看不出；且两侧都这么写时必然有一侧写反。需要指代另一侧时用**与侧别无关的措辞**（「与同模块的另一侧源码目录」）。
   - 两侧文件**行尾须一致**（按 `.gitattributes` 一律 LF）：行尾差异会被归一化比对报成"内容漂移"（本仓库实测：2 个 spring 侧文件因 javax 侧 CRLF / jakarta 侧 LF 而误报）。
-  - 自查范围是 **`src/main`**；测试只落在 `java-javax` 源目录，不要求两侧同名。
-  - **允许的真档位差异（不属漂移，不得"修平"）**：两侧因底层 API 能力不同而必须分叉时，各自写各自那份，**不要为了对齐而把另一侧也改成错的形式**。当前已知两处：
+  - 自查范围是 **`src/main`**；容器侧的测试只落在 `java-javax` 源目录，不要求两侧同名。
+  - **允许的真档位差异（不属漂移，不得"修平"）**：两侧因底层 API 能力不同而必须分叉时，各自写各自那份，**不要为了对齐而把另一侧也改成错的形式**。这类副本是"必须存在"的，别把它当成待消除的重复。当前清单：
     - `CHttpServletResponse#setStatus(int, String)`：Servlet 6.0（jakarta）已移除该 API，故 **java-jakarta 份不覆写**（沿 `CHttpResponse` 的 `default` 降级为仅设状态码），**java-javax 份保留覆写**以透传状态消息。
     - `CErrorController` 的 `ErrorController` import：Boot 4 起由 `org.springframework.boot.web.servlet.error` 迁至 `org.springframework.boot.webmvc.error`，故 **java-jakarta 份 import 后者**、java-javax 份 import 前者（两侧均为无方法标记接口）。
+    - `CMdcLogback`（ctool4j-logback）：SLF4J 2.0 起 `MDCAdapter` 新增 `pushByKey` / `popByKey` / `getCopyOfDequeByKey` / `clearDequeByKey`，jdk8 档位的 SLF4J 1.7 接口没有它们；**java-latest 份在 java-jdk8 份基础上纯增量补齐**，无档位差异的 deque 存储下沉 `CMdcDequeAble`。
+    - **`JAVA_HOME_8` / `JAVA_HOME_LATEST` 与 `JAVA_HOME_PATHS`**：本机双 JDK 的位置（`JAVA_HOME_PATHS` 以 `File.pathSeparator` 分隔多个候选），供 `gradle.properties` 本地配置。**仅本地验证用**，CI 由流水线提供档位 JDK。
     新增此类差异时**在同一提交内补登到本清单**（否则下一轮的归一化自检会把它当漂移重复报出）。
 - **servlet-api 依赖只有一份**：适配模块只声明一个 `lib("servlet-api")`，由版本目录按档位取坐标（jdk8 → `javax.servlet:javax.servlet-api`，其余 → `jakarta.servlet:jakarta.servlet-api`），声明为 optional。不再有"两侧 pom 依赖同构"的人工核对项。
 - **下沉/迁移方法时用例同迁**：方法下沉 base 后，其单元测试一并迁到该 base 模块的 `src/test`；base 模块没有 servlet-api，用例只 mock 抽象层类型（`CHttpRequest`/`CHttpResponse`），接口的 `default` 方法要用 `thenCallRealMethod()` 才会跑到真实实现（mock 默认不执行默认方法）；容器相关的用例留在适配模块的 `src/test/java-javax`。

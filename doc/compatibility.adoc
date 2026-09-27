@@ -141,6 +141,44 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 *档位差异*：新模块的 servlet-api 依赖按档位取自版本目录（jdk8 → +javax.servlet:javax.servlet-api+，
 最新 LTS → +jakarta.servlet:jakarta.servlet-api+），均声明为 optional，不向使用方传递。
 
+== 档位专属源目录：互斥成为硬约束（构建期校验）
+
+同一模块内的 +java-jdk8+ / +java-latest+ 两个档位源目录**必须完全互斥**（任一全限定名只能出现一次）：
+同名重复会让"靠人工逐文件对齐多份副本"必然漂移，错位（某类只落在一侧）则会让另一档位编译期直接缺类。
+根 +build.gradle.kts+ 的 +assertExclusiveVariantSourceDirs+ 在**配置期**做机器校验，命中即构建失败，
+故任一档位构建都能当场拦下，不必等到切档位才发现。
+
+本轮据此消除/收口的重复：
+
+[cols="2,3,1", options="header"]
+|===
+| 位置 | 处置 | 状态
+
+| +ctool4j-logback+ 的 +CMdcLogback+
+| 原为两份同名实现（javadoc 与 SLF4J 2.0 的 deque 方法差异）。无档位差异的 deque 存储与算法下沉到
+  公共基类 +CMdcDequeAble+（+ctool4j-log-base+）；两份改为"另一档位实现 + 纯增量补齐"的形态，
+  业务方法不再各写一遍
+| 已消除重复
+
+| +ctool4j-mybatis-base+ 的 +spi/IService+、+spi/ServiceImpl+ 与 +CMpController+
+| 同名两份**不可避免**（mybatis-plus 3.5.17 起 +IService+/+ServiceImpl+ 由 +extension.service+ 迁到 +spring.service+，两坐标不能共存）。
+  改为**目录级互斥**：+java-mp-bridge+（3.5.x 侧）、+java-mp-bridge-ext+（3.3.x/3.4.x 侧）、
+  +java-mp-{jdk8,latest}-ext+（档位专属控制器）三者互不相交，任一模块只挂其中两个
+| 已收口（同全限定名仍在，但目录不相交）
+
+| +ctool4j-doc-openapi2+ 的 +src/{main,test}/java-latest+
+| 该模块在非 jdk8 档位被整体排除（链接到 Springfox 的 javax 依赖，无 jakarta 形态），
+  故 +java-latest+ 目录永远不会被纳入——属"不可能生效的源码目录"，删除
+| 已删除
+|===
+
+*仍然保留两份的（真档位差异，详见 +agent/AGENTS-PROJECT.MD+ 的清单）*：
++CHttpServletRequest#setStatus(int, String)+、+CErrorController+ 的 +ErrorController+ import、
++CMdcLogback+ 的 deque 语义、+CRequired+ / +CRequiredValidator+（Bean Validation 包名）、
++ccache/CHttpClientUtils/CSecurityConfiguration+ 等按档位换底层 API 的实现，
+以及 +ctool4j-web+ 的 6 个异常处理器用例 / +CRequiredValidatorTests+（+AutoConfigureMockMvc+ 与 +javax.validation+ 双差异）。
+这些是"必须存在"的副本，不应按重复消除。
+
 == 相关入口
 
 - 文档导航入口：link:README.adoc[doc/README.adoc]

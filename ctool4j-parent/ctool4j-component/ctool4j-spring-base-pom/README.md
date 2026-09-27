@@ -35,6 +35,6 @@ javax 与 jakarta 两套同包同名源码，由 JDK 档位（`JDK_VERSION`）�
 ## 构建与验证
 
 ```bash
-# 构建本聚合下的全部已登记模块（注意：-pl 指定聚合 pom 不会递归子模块）
-./mvnw -f ctool4j-parent/ctool4j-component/ctool4j-spring-base-pom/pom.xml install
+# 构建本聚合下的全部已登记模块（Gradle 项目依赖：上游模块会被自动构建）
+gradle build
 ```

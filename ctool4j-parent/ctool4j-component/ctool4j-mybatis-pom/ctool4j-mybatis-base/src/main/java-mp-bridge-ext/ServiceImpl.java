@@ -12,6 +12,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * <h2>设计要点</h2>
  * <ul>
  *   <li>仅做继承桥接，实现全部由对应版本的 ServiceImpl 提供</li>
+ *   <li><b>为什么只在 3.3.x/3.4.x 侧的桥目录里</b>：mybatis-plus 3.5.17 起把 {@code ServiceImpl} 由
+ *   {@code extension.service.impl} 迁到 {@code spring.service.impl}，两坐标不能共存——本文件只对 3.3.x/3.4.x 成立，
+ *   3.5.x 侧落在公共桶 {@code java-mp-bridge} 的同名文件里。两处不会同时挂载，不需要"同一全限定名两份副本"。</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <p>无</p>
@@ -23,7 +26,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * <p>抽象类</p>
  *
  * @since 2026/9/26
- * @version 1.0
+ * @version 1.2
  */
 public abstract class ServiceImpl<M extends BaseMapper<T>, T>
         extends com.baomidou.mybatisplus.extension.service.impl.ServiceImpl<M, T> {

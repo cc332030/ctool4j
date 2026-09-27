@@ -258,14 +258,14 @@ graph LR
 | ctool4j-spring-security-servlet | ctool4j-core、ctool4j-http-servlet、ctool4j-spring-base、ctool4j-spring-security-base | 安全侧 Servlet 适配（`CAuthenticationEntryPoint` / `CAccessDeniedHandler` / `CSecurityResponseWriter`）；内部两套同包同名源码按档位自动切换；servlet-api 按档位取（optional）
 
 | ctool4j-log-base | ctool4j-spring、ctool4j-spring-cloud、ctool4j-web | 日志基础：请求日志、traceId 透传、MDC、日志级别热更新
-| ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）
+| ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）；`CMdcLogback` 分档位源码（SLF4J 2.0 的 deque 语义），公共 deque 存储基类 `CMdcDequeAble` 在 ctool4j-log-base
 | ctool4j-log4j | ctool4j-log-base | log4j2 后端适配（spring-boot-starter-logging + starter-log4j2）
 
 | ctool4j-feign | ctool4j-spring-cloud、ctool4j-log-base | Feign 增强（请求头传播、日志、拦截器）；feign-httpclient 为 optional
 | ctool4j-auth-base | ctool4j-web、ctool4j-cache | 认证基础（过滤器骨架、mock 会话、会话加载），与 Spring Security 解耦
 | ctool4j-auth-spring | ctool4j-auth-base、ctool4j-spring-security | 认证的 Security 落地（认证构造、安全上下文）
 
-| ctool4j-mybatis-base | ctool4j-transaction、ctool4j-db、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础；MP、jdbc 等由使用方提供
+| ctool4j-mybatis-base | ctool4j-transaction、ctool4j-db、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础；**版本相关的适配源码只放在本模块的独立目录里（`java-mp` / `java-mp-bridge` / `java-mp-bridge-ext` / `java-mp-{jdk8,latest}-ext`），由下游 mybatis 版本模块按需 `srcDir` 纳入**（base 自身不编译它们）；MP、jdbc 等由使用方提供
 | ctool4j-mybatis-33 | ctool4j-mybatis-base | MyBatis-Plus 3.3 适配（旧版分页插件签名）
 | ctool4j-mybatis-34 | ctool4j-mybatis-base | MyBatis-Plus 3.4 适配；mybatis-plus-join 为 optional
 | ctool4j-mybatis | ctool4j-mybatis-base | MyBatis-Plus 全套适配；mybatis-plus-join 为 optional
@@ -311,6 +311,10 @@ graph LR
   `spring-security-base → spring-security-servlet`；适配模块只被上层依赖，不得反向依赖。
   两侧（javax / jakarta）**不再是两个模块**：同一模块内按档位选用 `src/main/java-javax` 或 `src/main/java-jakarta`
   源目录，故不存在"某一侧未登记进构建"的情形，也无两侧互相依赖的余地。
+* **档位专属源目录之间完全互斥**（`java-jdk8` / `java-latest` 两目录，以及它们与 `java-javax` / `java-jakarta` 之间）：
+  任一全限定名只能出现一次，不互斥即构建失败（根脚本在配置期校验）。
+  容器侧的 `java-javax` / `java-jakarta` 这一对是刻意的例外（互为镜像，成员互引），
+  一致性由「成对文件互引 + 归一化比对自检」维护，见 `agent/AGENTS-PROJECT.MD`。
 * 认证链保持单向：`web → auth-base → auth-spring`；`auth-spring` 另依赖 `spring-security`，不得反向。
 * 中间件模块（log / mybatis / nacos / mq / job / file / doc）只依赖基础层，**彼此之间不互相依赖**；
   组合使用（如 `ctool4j-feign` + `ctool4j-log-base`）由使用方按需引入。

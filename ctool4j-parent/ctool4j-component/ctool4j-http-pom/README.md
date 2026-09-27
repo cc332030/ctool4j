@@ -38,8 +38,8 @@ Servlet 侧的**容器抽象层与容器适配**模块集：把「Servlet 类型
 ## 构建与验证
 
 ```bash
-# 构建本聚合下的全部模块（注意：-pl 指定聚合 pom 不会递归子模块）
-./mvnw -f ctool4j-parent/ctool4j-component/ctool4j-http-pom/pom.xml install
+# 构建本聚合下的全部模块（Gradle 项目依赖：上游模块会被自动构建）
+gradle build
 ```
 
 两套源码同包同名、互为镜像：`src/main/java-javax` 与 `src/main/java-jakarta` 下的同名文件除 `javax`/`jakarta`
