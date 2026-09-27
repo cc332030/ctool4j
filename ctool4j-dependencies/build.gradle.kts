@@ -53,6 +53,7 @@ val ctool4jArtifacts = listOf(
     "ctool4j-nacos-discovery",
     "ctool4j-transaction",
     "ctool4j-db",
+    "ctool4j-mybatis-mp-java8",
     "ctool4j-mybatis-base",
     "ctool4j-mybatis-33",
     "ctool4j-mybatis-34",

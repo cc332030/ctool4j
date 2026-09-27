@@ -18,9 +18,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * <h2>设计要点</h2>
  * <ul>
  *   <li>仅做继承桥接，实现全部由对应版本的上游 {@code ServiceImpl} 提供</li>
- *   <li><b>本类只落在 3.3.x / 3.4.x 侧的桥目录 {@code java-mp-bridge-ext}</b>：3.5.x 侧有另一份
+ *   <li><b>本类只落在 3.3.x / 3.4.x 侧的桥目录 {@code java-extension}</b>：3.5.x 侧有另一份
  *   同全限定名的 {@code spi/CMybatisPlusServiceImpl}（承 {@code spring.service.impl} 坐标），
- *   落在 {@code java-mp-bridge} 里、不会被 {@code -33} / {@code -34} 挂载——两个桥目录内容互不相交，
+ *   落在 {@code java-spring} 里、不会被 {@code -33} / {@code -34} 挂载——两个桥目录内容互不相交，
  *   满足仓库「一个模块下的多个源目录之间代码必须完全互斥」。</li>
  * </ul>
  *

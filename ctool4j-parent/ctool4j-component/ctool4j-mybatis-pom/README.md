@@ -4,7 +4,7 @@
 
 ## 简介
 
-`ctool4j-mybatis-pom` 是聚合 pom，包含 4 个子模块：`ctool4j-mybatis-base`（核心契约与增强基座）、`ctool4j-mybatis-33`（MP 3.3 适配）、`ctool4j-mybatis-34`（MP 3.4 适配）、`ctool4j-mybatis`（当前聚合版）。以「接口契约 + 版本实现」方式避免绑定具体 MyBatis-Plus 版本。
+`ctool4j-mybatis-pom` 是聚合 pom，包含 5 个子模块：`ctool4j-mybatis-mp-java8`（版本侧自适应中间层）、`ctool4j-mybatis-base`（核心契约与增强基座）、`ctool4j-mybatis-33`（MP 3.3 适配）、`ctool4j-mybatis-34`（MP 3.4 适配）、`ctool4j-mybatis`（当前聚合版）。以「接口契约 + 版本实现」方式避免绑定具体 MyBatis-Plus 版本。
 
 ---
 
@@ -19,7 +19,7 @@
   - `ICService`：核心 service 契约（实体工厂、多字段按值增删改查、分页 page 系列、saveIgnore / updateAllById）
   - `ICBizIdService` / `ICBizService` / `ICMainBizService`：按业务 ID / 主业务 ID 维度增删改查与统计
   - `ICMpLockService`：基于 Redis 锁的插入/更新/删除加锁执行
-  - `ICCheckService`：空值防御
+  - `ICCheckService`：空值防御（根契约；空安全实现由中间模块 `ctool4j-mybatis-mp-java8` 的自适应层提供）
 - **Controller 基类**：`CMpController` 提供 `/page`、`/get-by-id`、`/add`、`/update-by-id`、`/remove-by-id` 标准 CRUD 端点
 - **SQL 注入契约**：`ICMpMethod` / `ICMpSqlMethod` / `CMpSqlMethod`（INSERT_IGNORE、UPDATE_ALL_BY_ID）
 - **业务 ID 工具**：`CBizIdUtils` 扫描 `@CBizId` 注解字段，生成 / 读取 / 回填业务 ID
@@ -35,7 +35,7 @@
 | `ICBizService` | 接口 | 按业务 ID 增删改查/统计 |
 | `ICMainBizService` | 接口 | 按主业务 ID 查询统计 |
 | `ICMpLockService` | 接口 | Redis 锁加锁 CRUD |
-| `CBaseServiceImpl` | 实现 | service 实现基底（承版本侧实现桥 + `ICService`，消歧元素级方法） |
+| `CBaseServiceImpl` | 实现 | service 实现基底（在中间模块 `ctool4j-mybatis-mp-java8` 的两侧目录中，承自适应基底 + `ICService`，消歧元素级方法） |
 | `CMpController` | 控制器 | 标准 CRUD 端点基类 |
 | `CBizIdUtils` | 工具类 | 业务 ID 生成与回填 |
 | `CMpPageUtils` | 工具类 | 分页与批量处理 |
@@ -45,19 +45,21 @@
 
 ### 源目录与版本侧适配桥
 
-`ctool4j-mybatis-base` 的 `src/main/` 下除 `resources` 外有六个**彼此完全互斥**的源目录，其中五个由三个版本模块
-按需 `srcDir` 纳入（base 自身不编译）。版本相关的适配桥分两侧：
+`ctool4j-mybatis-base` 的 `src/main/` 下除 `resources` 外有三个**彼此完全互斥**的源目录，全部由 base 自己编译：
 
-| 目录 | 承的 MP 坐标 | 挂载者 |
-|------|-------------|--------|
-| `java-mp` | 无（版本无关公共面：`ICService` 一族、`CBizIdUtils`） | 三个版本模块 |
-| `java-mp-bridge` | `com.baomidou.mybatisplus.spring.service`（3.5.x） | `ctool4j-mybatis` |
-| `java-mp-bridge-ext` | `com.baomidou.mybatisplus.extension.service`（3.3.x/3.4.x） | `ctool4j-mybatis-33` / `-34` |
-| `java-mp-{jdk8,latest}-ext` | 无（档位专属 `CMpController`，Bean Validation 包名不同） | 各模块按档位 |
+| 目录 | 承载 |
+|------|------|
+| `java` | 版本无关公共面：`ICService` 一族、`CBizIdUtils`、mapper/model/handler/util 等 |
+| `java-javax` ↔ `java-jakarta` | **成对镜像**的档位专属 `CMpController`（`javax.validation` / `jakarta.validation`），按 JDK 档位二选一 |
 
-两个桥目录的**相对路径集合完全一致**（互为镜像），故 `ICCheckService`、`ICService` 一族在两侧源码一字不差；
-任一模块只挂其中一侧，全限定名因此不会重复。`java-mp` 公共桶不引用任何版本侧符号——这是
-「一个模块下的多个源目录之间代码必须完全互斥」的落地要求。
+mybatis-plus 版本侧差异（`IService` / `ServiceImpl` 的坐标迁移）**不在 base**，而是下沉到中间模块
+[`ctool4j-mybatis-mp-java8`](ctool4j-mybatis-mp-java8/README.md)：其中 `java` 放版本无关公共面
+（`ICCheckService` 等，随 jar 发布），`java-adaptive-{spring,extension}` 放两侧自适应层
+（同包同名、互为镜像、只挂其一），`java-base-{spring,extension}` 放两侧实现基底 `CBaseServiceImpl`。
+三个版本模块按侧 `srcDir` 挂载中间模块的对应目录，`java` 公共面由中间模块自身编译成 jar。
+
+于是任一模块的源码集合里都不会出现重复的全限定名、也不存在"公共面引用版本侧符号"的隐式耦合——
+这是「一个模块下的多个源目录之间代码必须完全互斥」的落地要求。
 
 ### 依赖
 

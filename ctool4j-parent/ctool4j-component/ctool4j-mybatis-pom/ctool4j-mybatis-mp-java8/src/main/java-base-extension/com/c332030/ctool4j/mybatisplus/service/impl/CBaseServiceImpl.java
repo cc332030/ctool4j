@@ -30,9 +30,11 @@ import java.util.Optional;
  *   {@link ICService}（经 {@code ICCheckService}）各自带一份同名 {@code default}，
  *   两边血统不同、Java 无法自动选择，必须由本类显式转交一侧，否则编译期报
  *   "inherits unrelated defaults"。转交 {@link ICService} 侧即取得本仓库统一的空安全语义。</li>
- *   <li><b>本文件在两侧桥目录各有一份</b>（{@code java-mp-bridge} / {@code java-mp-bridge-ext}）：
+ *   <li><b>本文件在两个版本侧目录各有一份</b>（{@code java-base-spring} / {@code java-base-extension}）：
  *   它承的是"版本侧 {@code CMybatisPlusServiceImpl} + 公共 {@code ICService}"的交叉点，
- *   两侧的实现类不是同一个对象，故无法只写一份。两目录内容互不相交、从不同时挂载。</li>
+ *   两侧的实现类不是同一个对象，故无法只写一份。本份落在 3.3.x / 3.4.x 侧的 java-extension 目录，
+ *   由 `ctool4j-mybatis-33` / `-34` 挂载；3.5.x 侧的同名文件落 java-spring、由 `ctool4j-mybatis` 挂载，
+ *   两者从不同时出现。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>

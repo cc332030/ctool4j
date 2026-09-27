@@ -42,6 +42,10 @@ import javax.validation.constraints.NotNull;
  * <p>控制器基类（抽象类，不可直接实例化）。</p>
  *
  * <h2>已知限制与取舍</h2>
+ * <ul>
+ *   <li>本份承接 jdk8 档位：Bean Validation 包名用 {@code javax.validation}；
+ *   除该包名外与最新 LTS 档位实现逐字节一致（成对镜像目录 java-javax ↔ java-jakarta）。</li>
+ * </ul>
  * <p>本类为抽象类，需子类提供具体 {@code ICService} 实现。</p>
  *
  * @since 2026/1/20

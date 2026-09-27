@@ -10,23 +10,22 @@
 
 ## 源目录布局
 
-本模块的 `src/main/` 下除 `resources` 外共六个目录，**它们之间代码完全互斥**（同一全限定名任一时刻只出现一次）：
-`java` 由本模块自己编译；其余五个是"挂在 base 名下、由各版本模块按需 `srcDir` 纳入"的源码，base 自身不编译。
+本模块的 `src/main/` 下除 `resources` 外共三个目录，**它们之间代码完全互斥**（同一全限定名任一时刻只出现一次）：
 
-| 目录 | 承载 | 挂载者 |
+| 目录 | 承载 | 编译者 |
 |------|------|--------|
-| `java` | base 自编（MP 版本无关） | 本模块 |
-| `java-mp` | 版本无关公共面：`ICService` 一族、`CBizIdUtils`、`CMybatisPlusSide` | 三个版本模块 |
-| `java-mp-bridge` | **3.5.x 侧**适配桥（`spi/IService`、`spi/IMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`、`service/ICCheckService`、`service/impl/CBaseServiceImpl`） | `ctool4j-mybatis` |
-| `java-mp-bridge-ext` | **3.3.x/3.4.x 侧**适配桥（相对路径集合与 `java-mp-bridge` 完全镜像，仅承的 MP 坐标不同） | `ctool4j-mybatis-33` / `-34` |
-| `java-mp-jdk8-ext` | jdk8 档位专属 `CMpController`（`javax.validation`） | 各模块（jdk8 档） |
-| `java-mp-latest-ext` | 最新 LTS 档位专属 `CMpController`（`jakarta.validation`） | 各模块（最新 LTS 档） |
+| `java` | 版本无关公共面：`ICService` 一族、`CBizIdUtils`，以及 mapper/model/handler/configuration/util | 本模块 |
+| `java-javax` | jdk8 档位容器侧 `CMpController`（`javax.validation`） | 本模块（jdk8 档） |
+| `java-jakarta` | 最新 LTS 档位容器侧 `CMpController`（`jakarta.validation`） | 本模块（最新 LTS 档） |
 
-**互斥的三条判定**（改动后可用 `git ls-files` 逐条复核）：
+`java-javax` ↔ `java-jakarta` 是**成对镜像**（同包同名、各承一侧容器类型、按 JDK 档位二选一），
+由根构建脚本的档位源码目录机制整体放行——与 `ctool4j-http-servlet` 等同构。
+两目录互为镜像（除 `javax`/`jakarta` 包名外逐字节一致），一致性由「成对文件互引 + 归一化比对」维护。
 
-1. `java-mp` 的源码不引用任何版本侧符号（不出现对 `java-mp-bridge*` 独有类型的引用）——公共桶与版本侧解耦；
-2. `java-mp-bridge` 与 `java-mp-bridge-ext` 的**相对路径集合完全一致**（互为镜像），但只有一侧被任一模块挂载，故不会出现重复全限定名；
-3. 任一模块挂载的目录集合里，全限定名去重后数量等于文件数（无重名）。
+**版本侧差异不在本模块**：mybatis-plus 3.5.17 起 `IService`/`ServiceImpl` 由
+`com.baomidou.mybatisplus.extension.service` 迁到 `com.baomidou.mybatisplus.spring.service`，
+该差异已下沉到中间模块 [`ctool4j-mybatis-mp-java8`](../ctool4j-mybatis-mp-java8/README.md)，
+由其中的自适应层（`spi/IMybatisPlusSpi` 两侧各一份）吸收，公共契约 `ICService` 一族因此与版本无关。
 
 ## 依赖
 
