@@ -2,6 +2,7 @@ package com.c332030.ctool4j.model;
 
 import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.interfaces.ICCookie;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;

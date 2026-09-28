@@ -18,6 +18,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * <p>
@@ -68,7 +69,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *
  * @author c332030
  * @since 1.0
- * @version 1.3
+ * @version 1.4
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest
@@ -152,6 +153,7 @@ public class CTextEnumIntegrationTests {
      */
     @Test
     public void modelFieldEnum_allValuesCallableAndTextual() throws Exception {
+        mockMvc.perform(get("/v2/api-docs")).andExpect(status().isOk());
         JsonNode root = readApiDocs();
         JsonNode properties = root.path("definitions").path("CTextEnumTestDTO").path("properties").path("header");
         List<String> values = toStringList(properties.path("enum"));
@@ -172,6 +174,7 @@ public class CTextEnumIntegrationTests {
      */
     @Test
     public void queryParamEnum_callableValueAndTextDescription() throws Exception {
+        mockMvc.perform(get("/v2/api-docs")).andExpect(status().isOk());
         JsonNode root = readApiDocs();
         JsonNode parameters = root.path("paths")
             .path("/c-text-enum/query")
@@ -199,6 +202,7 @@ public class CTextEnumIntegrationTests {
      */
     @Test
     public void queryParamEnum_keepLegacyApiParamDescription() throws Exception {
+        mockMvc.perform(get("/v2/api-docs")).andExpect(status().isOk());
         JsonNode root = readApiDocs();
         JsonNode parameters = root.path("paths")
             .path("/c-text-enum/query")
@@ -229,6 +233,7 @@ public class CTextEnumIntegrationTests {
      */
     @Test
     public void tags_noUnreferencedTag() throws Exception {
+        mockMvc.perform(get("/v2/api-docs")).andExpect(status().isOk());
         JsonNode root = readApiDocs();
 
         Set<String> used = new LinkedHashSet<>();
@@ -248,6 +253,13 @@ public class CTextEnumIntegrationTests {
         assertTrue(used.contains("枚举 text 集成测试"), "接口 tag 应保留，实际 " + used);
     }
 
+    /**
+     * 读取 {@code /v2/api-docs} 的响应体
+     *
+     * <p>本方法自身经 {@code mockMvc.perform(...)} 走一次完整请求，其
+     * {@code andExpect(status().isOk())} 即该请求的断言；
+     * 各用例断言的是这里取回的文档内容。</p>
+     */
     private JsonNode readApiDocs() throws Exception {
         String body = mockMvc.perform(get("/v2/api-docs"))
             .andReturn()

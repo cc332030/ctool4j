@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *   基层契约侧负责给使用方提供与容器无关的方法签名。</li>
  *   <li><b>桥接只做类型转换</b>：Servlet 请求/响应经 {@link CHttpServletRequest#of} / {@link CHttpServletResponse#of}
  *   包装后转交基层契约，不做任何业务加工。</li>
- *   <li><b>同名接口</b>：本接口在 {@code ctool4j-spring-jakarta} 与 {@code ctool4j-spring-javax} 中<b>同包同名</b>，
+ *   <li><b>同名接口</b>：本接口在 {@code ctool4j-spring-javax} 与 {@code ctool4j-spring-jakarta} 中<b>同包同名</b>，
  *   使用方切换依赖模块即可切换容器。</li>
  * </ul>
  *

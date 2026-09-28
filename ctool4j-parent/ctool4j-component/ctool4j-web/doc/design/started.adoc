@@ -69,6 +69,6 @@ Spring Boot 启动完成后的回调点有两个既有候选，都属 `SpringApp
 == 相关
 
 - 源码：`ICStarted`、`CStartedApplicationRunner`、`CSpringInit`（均在 `ctool4j-spring-pom/ctool4j-spring`）；`CWebInit`、`ConditionalOnMissingExceptionHandlerCondition`（均在 `ctool4j-web`）。
-- 相邻设计：link:../web/exception-fallback.adoc[异常兜底分层]（声明集缓存的用途与清理口径）。
-- 相邻回调：`ICSpringInit`（单例实例化完成后触发，见 link:../../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[模块 README]）。
-- 上级索引：link:README.adoc[spring 文档索引]。
+- 相邻设计：link:exception-fallback.adoc[异常兜底分层]（声明集缓存的用途与清理口径）。
+- 相邻回调：`ICSpringInit`（单例实例化完成后触发，见 link:../../../ctool4j-spring-pom/README.md[模块 README]）。
+- 设计文档索引：link:../../../../../doc/design/README.adoc[设计文档索引]。

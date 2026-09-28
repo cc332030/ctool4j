@@ -35,4 +35,4 @@ public class User extends CBaseCreateTimeEntity {
 == 相关
 
 - 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[ctool4j-definition README]
-- 文档注解设计（开发文档）：link:../design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
+- 文档注解设计（开发文档）：link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc[openapi-doc-annotations]

@@ -10,5 +10,5 @@
 
 == 相关入口
 
-- 上级索引：link:../README.adoc[core 文档索引]
-- 设计文档索引：link:../../README.adoc[设计文档索引]
+- 上级索引：link:../class-value.adoc[core 设计文档]
+- 设计文档索引：link:../../../../../../doc/design/README.adoc[doc/design/README.adoc]

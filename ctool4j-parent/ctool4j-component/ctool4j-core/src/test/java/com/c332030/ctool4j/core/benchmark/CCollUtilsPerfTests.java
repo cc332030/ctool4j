@@ -1,6 +1,7 @@
 package com.c332030.ctool4j.core.benchmark;
 
 import cn.hutool.core.collection.CollUtil;
+import org.junit.jupiter.api.Assertions;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.AccessLevel;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -83,7 +85,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2026/9/9
- * @version 1.0
+ * @version 1.1
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CCollUtilsPerfTests {
@@ -98,6 +100,9 @@ public class CCollUtilsPerfTests {
         CBenchmarkReport report = CBenchmarkRunner.run(cases(), "CCollUtils 集合转换性能对比");
         Path reportPath = Paths.get(System.getProperty("user.dir"), "tmp", "benchmark-report-ccollutils.md");
         report.writeTo(reportPath);
+        // 该用例的可断言产出即报告本身：用例非空、且报告已落盘（供性能结论引用）
+        Assertions.assertFalse(report.getResults().isEmpty(), "基准用例不应为空");
+        Assertions.assertTrue(Files.exists(reportPath), "性能测试报告应已写入 " + reportPath);
         System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());
     }
 

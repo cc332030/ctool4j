@@ -56,9 +56,9 @@ import java.lang.annotation.*;
  * </ul>
  *
  * @author c332030
- * @see "doc/design/definition/openapi-doc-annotations.adoc"
+ * @see "doc/design/openapi-doc-annotations.adoc"
  * @since 1.0
- * @version 1.0
+ * @version 1.1
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
