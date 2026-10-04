@@ -1,8 +1,8 @@
 package com.c332030.ctool4j.feign.config;
 
 import com.c332030.ctool4j.core.util.CMap;
+import com.c332030.ctool4j.spring.annotation.CConfigurationProperties;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
 
@@ -43,29 +43,12 @@ import java.util.Map;
  * @version 1.0
  */
 @Data
-@ConfigurationProperties(
-    value = "feign",
-    // 忽略格式不一样的字段
-    ignoreInvalidFields = true
-)
+@CConfigurationProperties("feign")
 public class CFeignConfig {
 
     /**
      * 客户端信息
      */
-    Map<String, ClientConfig> client = CMap.of();
-
-}
-
-/**
- * 客户端配置
- */
-@Data
-class ClientConfig {
-
-    /**
-     * 客户端地址
-     */
-    String url;
+    Map<String, CFeignClientConfig> client = CMap.of();
 
 }
