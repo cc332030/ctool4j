@@ -1,14 +1,10 @@
 package com.c332030.ctool4j.core.validation;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * <p>
@@ -55,18 +51,22 @@ import java.util.Objects;
  * <h2>已知限制与取舍</h2>
  * <ul>
  *   <li>本类标记 {@code @Deprecated}，其按类型判断有效性（isValid）的语义已迁移至 {@code CValidUtils}；</li>
- *   <li>保留本类以兼容既有使用（不删除），但标记废弃引导迁移至 {@code CValidUtils}。</li>
+ *   <li>保留本类以兼容既有使用（不删除），但标记废弃引导迁移至 {@code CValidUtils}；</li>
+ *   <li>除字符串 {@code isEmpty}/{@code isNotEmpty}（「null 或空串」）外，全部方法均<b>委托</b> {@code CValidUtils}，
+ *   不再持有第二份判定实现——修判定语义只需改一处。</li>
  * </ul>
  * <h2>设计要点</h2>
  * <p><b>判断语义</b></p>
  * <ul>
- *   <li>字符串空值：{@code isEmpty} 用 {@code StrUtil.isEmpty}（null 或空串）；{@code isBlank} 用 {@code StrUtil.isBlank}</li>
- *   <li>（null、空串、纯空白）。</li>
- *   <li>集合/Map/数组：{@code isEmpty} 用 {@code CollUtil.isEmpty} / {@code MapUtil.isEmpty} / {@code ArrayUtil.isEmpty}。</li>
+ *   <li>字符串：{@code isEmpty}/{@code isNotEmpty} 用 {@code StrUtil}（null 或空串，纯空白串不算空，
+ *   与 {@code CValidUtils} 的 blank 口径不同，故保留独立实现）；{@code isBlank}/{@code isNotBlank}
+ *   委托 {@code CValidUtils.isNotValid} / {@code isValid}（null、空串、纯空白）。</li>
+ *   <li>集合/Map/数组：{@code isEmpty}/{@code isNotEmpty} 委托 {@code CValidUtils.isNotValid} / {@code isValid}。</li>
+ *   <li>null 判定：{@code isNull}/{@code isNotNull} 委托 {@code CValidUtils.isNotValid} / {@code isValid}。</li>
  * </ul>
  *
  * @since 2026/1/20
- * @version 1.0
+ * @version 1.1
  */
 @Deprecated
 @UtilityClass
@@ -79,7 +79,7 @@ public class CValidateUtils {
      * @return 是否为 null
      */
     public boolean isNull(Object value) {
-        return Objects.isNull(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -89,7 +89,7 @@ public class CValidateUtils {
      * @return 是否不为 null
      */
     public boolean isNotNull(Object value) {
-        return Objects.nonNull(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -119,7 +119,7 @@ public class CValidateUtils {
      * @return 是否为空白
      */
     public boolean isBlank(CharSequence value) {
-        return StrUtil.isBlank(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -129,7 +129,7 @@ public class CValidateUtils {
      * @return 是否不为空白
      */
     public boolean isNotBlank(CharSequence value) {
-        return StrUtil.isNotBlank(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -139,7 +139,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(Iterable<?> value) {
-        return CollUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -149,7 +149,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(Iterable<?> value) {
-        return CollUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -159,7 +159,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(Collection<?> value) {
-        return CollUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -169,7 +169,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(Collection<?> value) {
-        return CollUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -179,7 +179,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(Map<?, ?> value) {
-        return MapUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -189,7 +189,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(Map<?, ?> value) {
-        return MapUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -199,7 +199,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(byte[] value) {
-        return ArrayUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -209,7 +209,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(byte[] value) {
-        return ArrayUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -219,7 +219,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(short[] value) {
-        return ArrayUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -229,7 +229,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(short[] value) {
-        return ArrayUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -239,7 +239,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(char[] value) {
-        return ArrayUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -249,7 +249,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(char[] value) {
-        return ArrayUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -259,7 +259,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(int[] value) {
-        return ArrayUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -269,7 +269,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(int[] value) {
-        return ArrayUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -279,7 +279,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(long[] value) {
-        return ArrayUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -289,7 +289,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(long[] value) {
-        return ArrayUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
     /**
@@ -299,7 +299,7 @@ public class CValidateUtils {
      * @return 是否为空
      */
     public boolean isEmpty(Object[] value) {
-        return ArrayUtil.isEmpty(value);
+        return CValidUtils.isNotValid(value);
     }
 
     /**
@@ -309,7 +309,7 @@ public class CValidateUtils {
      * @return 是否不为空
      */
     public boolean isNotEmpty(Object[] value) {
-        return ArrayUtil.isNotEmpty(value);
+        return CValidUtils.isValid(value);
     }
 
 }

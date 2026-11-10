@@ -89,7 +89,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/3/15
- * @version 1.1
+ * @version 1.2
  */
 @CustomLog
 @UtilityClass
@@ -361,7 +361,10 @@ public class CStrUtils {
      * @return 处理结果
      */
     public String trim(String string) {
-        return string == null ? null : string.trim();
+        if(null == string) {
+            return null;
+        }
+        return string.trim();
     }
 
     /**
@@ -370,7 +373,10 @@ public class CStrUtils {
      * @return 转换结果
      */
     public String toString(Object obj) {
-        return obj == null ? null : obj.toString();
+        if(null == obj) {
+            return null;
+        }
+        return obj.toString();
     }
 
     /**

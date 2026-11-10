@@ -99,7 +99,7 @@ import java.util.Objects;
  * </ul>
  *
  * @since 2025/12/6
- * @version 1.0
+ * @version 1.1
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class COpt<T> {
@@ -340,9 +340,10 @@ public final class COpt<T> {
      */
     @Override
     public String toString() {
-        val str = isPresent()
-                ? "[" + value + "]"
-                : ".empty";
+        String str = ".empty";
+        if(isPresent()) {
+            str = "[" + value + "]";
+        }
         return getClass() + str;
     }
 

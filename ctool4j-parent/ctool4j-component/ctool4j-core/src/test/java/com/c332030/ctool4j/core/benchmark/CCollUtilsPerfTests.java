@@ -2,7 +2,6 @@ package com.c332030.ctool4j.core.benchmark;
 
 import cn.hutool.core.collection.CollUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
-import com.c332030.ctool4j.definition.function.CPredicate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -592,7 +591,10 @@ public class CCollUtilsPerfTests {
 
         @Override
         public Object run() {
-            return items.isEmpty() ? null : items.get(0);
+            if(items.isEmpty()) {
+                return null;
+            }
+            return items.get(0);
         }
     }
 
@@ -654,7 +656,10 @@ public class CCollUtilsPerfTests {
 
         @Override
         public Object run() {
-            return items.isEmpty() ? null : items.get(items.size() - 1);
+            if(items.isEmpty()) {
+                return null;
+            }
+            return items.get(items.size() - 1);
         }
     }
 

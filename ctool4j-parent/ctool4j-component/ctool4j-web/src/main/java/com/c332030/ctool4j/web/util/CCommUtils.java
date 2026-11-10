@@ -6,7 +6,8 @@ import cn.hutool.core.util.StrUtil;
 import com.c332030.ctool4j.core.classes.CObjUtils;
 import com.c332030.ctool4j.core.log.CLog;
 import com.c332030.ctool4j.core.log.CLogUtils;
-import com.c332030.ctool4j.core.util.*;
+import com.c332030.ctool4j.core.util.CBoolUtils;
+import com.c332030.ctool4j.core.util.CMapUtils;
 import com.c332030.ctool4j.definition.interfaces.ICText;
 import com.c332030.ctool4j.web.config.CRequestLogBaseConfig;
 import com.c332030.ctool4j.web.enums.CRequestHeaderEnum;
@@ -15,7 +16,6 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -23,13 +23,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * <p>
  * Description: CCommUtils
  * </p>
  * <p>HTTP 请求日志拼接工具类，将请求日志信息拼接为类似 HTTP 请求+响应的完整报文 dump，功能设计与用例设计见设计文档。</p>
+ * <p>请求头/内容协商能力（Content-Type/Accept 设置、请求头渲染、body 是否文本、charset 解析）已归入
+ * {@link CHttpHeaderUtils}；本类保留同名方法作<b>兼容委托</b>，签名与语义不变。</p>
  *
  * <h2>能力目录</h2>
  * <p>{@code CCommUtils} 为 HTTP 请求日志拼接工具类，将请求日志信息（{@code CRequestLog}）拼接为类似 HTTP 请求+响应的完整报文 dump，输出格式：</p>
@@ -43,55 +44,50 @@ import java.util.stream.Collectors;
  * <p>{@code logSlowRequest} 为 web/feign 共用的慢请求日志统一出口：耗时（{@code endTimeMillis - beginTimeMillis}）超过 {@code slowLogMillis} 时输出 warn 慢日志； 慢日志不受请求日志 {@code enable}/{@code logAll} 总开关控制（由 {@code slowLogEnable} 独立控制，默认启用），耗时从 {@code CRequestLog} 起止时间计算（调用方保证有值），输出带来源标识（{@code [mvc]}/{@code [feign]}）置于最前。</p>
  *
  * @since 2025/3/15
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CCommUtils {
 
     /**
-     * 设置表单提交 Content-Type
+     * 设置表单提交 Content-Type（委托 {@link CHttpHeaderUtils#contextTypeForm(HttpHeaders)}）
      *
      * @param headers 请求头
      */
     public void contextTypeForm(HttpHeaders headers) {
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        CHttpHeaderUtils.contextTypeForm(headers);
     }
 
     /**
-     * 设置 JSON Content-Type
+     * 设置 JSON Content-Type（委托 {@link CHttpHeaderUtils#contextTypeJson(HttpHeaders)}）
      *
      * @param headers 请求头
      */
     public void contextTypeJson(HttpHeaders headers) {
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        CHttpHeaderUtils.contextTypeJson(headers);
     }
 
     /**
-     * 设置 Accept 为 JSON
+     * 设置 Accept 为 JSON（委托 {@link CHttpHeaderUtils#acceptJson(HttpHeaders)}）
      *
      * @param headers 请求头
      */
     public void acceptJson(HttpHeaders headers) {
-        headers.setAccept(CList.of(MediaType.APPLICATION_JSON));
+        CHttpHeaderUtils.acceptJson(headers);
     }
 
     /**
-     * 请求头拼为字符串（每个 header 一行）
+     * 请求头拼为字符串（每个 header 一行，委托 {@link CHttpHeaderUtils#getFullHeaderStr(Map)}）
      *
      * @param headers 请求头
      * @return 请求头字符串，为空时返回 null
      */
     public String getFullHeaderStr(Map<String, Collection<String>> headers) {
-
-        if(MapUtil.isEmpty(headers)) {
-            return null;
-        }
-
-        return getFullHeaderStr(headers, entry -> true);
+        return CHttpHeaderUtils.getFullHeaderStr(headers);
     }
 
     /**
-     * 请求头拼为字符串（按条件过滤，每个 header 一行）
+     * 请求头拼为字符串（按条件过滤，每个 header 一行，委托 {@link CHttpHeaderUtils#getFullHeaderStr(Map, Predicate)}）
      *
      * @param headers   请求头
      * @param predicate 过滤条件
@@ -101,58 +97,27 @@ public class CCommUtils {
             Map<String, Collection<String>> headers,
             Predicate<Map.Entry<String, Collection<String>>> predicate
     ) {
-
-        if(MapUtil.isEmpty(headers)) {
-            return null;
-        }
-
-        return headers.entrySet().stream()
-                .filter(predicate)
-                .map(entry -> entry.getKey()
-                        + ": "
-                        +  StrUtil.join(",", entry.getValue())
-                ).collect(Collectors.joining("\n"));
+        return CHttpHeaderUtils.getFullHeaderStr(headers, predicate);
     }
 
     /**
-     * 判断请求体是否为文本类型
+     * 判断请求体是否为文本类型（委托 {@link CHttpHeaderUtils#isTextBody(Map)}）
      *
      * @param headers 请求头
      * @return 是否为文本类型
      */
     public boolean isTextBody(Map<String, Collection<String>> headers) {
-
-        if(MapUtil.isEmpty(headers)) {
-            return false;
-        }
-
-        val contentTypes = CCollUtils.defaultEmpty(headers.get(HttpHeaders.CONTENT_TYPE));
-        return contentTypes.stream().anyMatch(CMediaTypeUtils::isText);
+        return CHttpHeaderUtils.isTextBody(headers);
     }
 
     /**
-     * 从 Content-Type 解析字符集，未声明时默认 UTF-8；无法解析的 Content-Type 忽略
+     * 从 Content-Type 解析字符集，未声明时默认 UTF-8（委托 {@link CHttpHeaderUtils#getCharsetOrDefault(Map)}）
+     *
      * @param headers 请求/响应头
      * @return 字符集
      */
     public Charset getCharsetOrDefault(Map<String, Collection<String>> headers) {
-
-        if(MapUtil.isEmpty(headers)) {
-            return CCharsets.UTF_8;
-        }
-
-        val contentTypes = CCollUtils.defaultEmpty(headers.get(HttpHeaders.CONTENT_TYPE));
-        for (val contentType : contentTypes) {
-            try {
-                val charset = MediaType.parseMediaType(contentType).getCharset();
-                if (null != charset) {
-                    return charset;
-                }
-            } catch (Exception e) {
-                // 无法解析的 Content-Type 忽略，继续尝试下一个
-            }
-        }
-        return CCharsets.UTF_8;
+        return CHttpHeaderUtils.getCharsetOrDefault(headers);
     }
 
     /**

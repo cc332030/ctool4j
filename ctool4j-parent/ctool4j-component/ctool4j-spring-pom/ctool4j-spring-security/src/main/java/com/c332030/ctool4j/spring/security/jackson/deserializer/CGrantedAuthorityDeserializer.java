@@ -72,7 +72,7 @@ import java.io.IOException;
  * </ul>
  *
  * @since 2026/9/14
- * @version 1.0
+ * @version 1.1
  */
 public class CGrantedAuthorityDeserializer extends JsonDeserializer<GrantedAuthority> {
 
@@ -101,9 +101,12 @@ public class CGrantedAuthorityDeserializer extends JsonDeserializer<GrantedAutho
             return null;
         }
 
-        String authority = node.isTextual()
-            ? node.asText()
-            : node.path(FIELD_AUTHORITY).asText(null);
+        String authority;
+        if (node.isTextual()) {
+            authority = node.asText();
+        } else {
+            authority = node.path(FIELD_AUTHORITY).asText(null);
+        }
 
         // 统一经权限常量池构造：同值复用同一实例；null/空白在此返回 null
         return CGrantedAuthorityUtils.get(authority);

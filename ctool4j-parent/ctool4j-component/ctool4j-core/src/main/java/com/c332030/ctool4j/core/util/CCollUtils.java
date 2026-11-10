@@ -121,7 +121,7 @@ import java.util.stream.Stream;
  * </ul>
  *
  * @since 2024/11/21
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CCollUtils {
@@ -134,7 +134,10 @@ public class CCollUtils {
      * @return 原集合或空集合
      */
     public <T> Collection<T> defaultEmpty(Collection<T> collection) {
-        return CollUtil.isEmpty(collection) ? CList.of() : collection;
+        if(CollUtil.isEmpty(collection)) {
+            return CList.of();
+        }
+        return collection;
     }
 
     /**
@@ -145,7 +148,10 @@ public class CCollUtils {
      * @return 原列表或空列表
      */
     public <T> List<T> defaultEmpty(List<T> list) {
-        return CollUtil.isEmpty(list) ? CList.of() : list;
+        if(CollUtil.isEmpty(list)) {
+            return CList.of();
+        }
+        return list;
     }
 
     /**
@@ -156,7 +162,10 @@ public class CCollUtils {
      * @return 原集合或空集合
      */
     public <T> Set<T> defaultEmpty(Set<T> list) {
-        return CollUtil.isEmpty(list) ? CSet.of() : list;
+        if(CollUtil.isEmpty(list)) {
+            return CSet.of();
+        }
+        return list;
     }
 
     /**
@@ -276,7 +285,10 @@ public class CCollUtils {
      */
     public <P> List<P> concatOne(P p, Collection<? extends P> collection) {
 
-        val size1 = null == p ? 0 : 1;
+        int size1 = 0;
+        if(null != p) {
+            size1 = 1;
+        }
         val size2 = size(collection);
 
         val list = new ArrayList<P>(size1 + size2);
@@ -299,7 +311,10 @@ public class CCollUtils {
      */
     public <P> List<P> concatOne(Collection<? extends P> collection, P p) {
 
-        val size1 = null == p ? 0 : 1;
+        int size1 = 0;
+        if(null != p) {
+            size1 = 1;
+        }
         val size2 = size(collection);
 
         val list = new ArrayList<P>(size1 + size2);
@@ -666,7 +681,10 @@ public class CCollUtils {
      * @return 列表
      */
     public <O, R> List<R> convertToList(O o, CFunction<O, List<R>> function) {
-        return Objects.nonNull(o) ? function.apply(o) : CList.of();
+        if(Objects.nonNull(o)) {
+            return function.apply(o);
+        }
+        return CList.of();
     }
 
     /**
@@ -679,7 +697,10 @@ public class CCollUtils {
      * @return 集合
      */
     public static <O, R> Set<R> convertToSet(O o, CFunction<O, Set<R>> function) {
-        return Objects.nonNull(o) ? function.apply(o) : CSet.of();
+        if(Objects.nonNull(o)) {
+            return function.apply(o);
+        }
+        return CSet.of();
     }
 
     /**
@@ -692,7 +713,10 @@ public class CCollUtils {
      * @return 集合
      */
     public static <O, R> Collection<R> convertToCollection(O o, CFunction<O, Collection<R>> function) {
-        return Objects.nonNull(o) ? function.apply(o) : CList.of();
+        if(Objects.nonNull(o)) {
+            return function.apply(o);
+        }
+        return CList.of();
     }
 
     /**
@@ -1147,7 +1171,7 @@ public class CCollUtils {
 
             if(null == map) {
                 // key 已保证非空，据其类型推断 Map 实现（枚举键用 EnumMap，其余用 LinkedHashMap）
-                map = CMapUtils.<K, V>newMap(key.getClass(), collection.size());
+                map = CMapUtils.newMap(key.getClass(), collection.size());
             }
 
             map.compute(key,

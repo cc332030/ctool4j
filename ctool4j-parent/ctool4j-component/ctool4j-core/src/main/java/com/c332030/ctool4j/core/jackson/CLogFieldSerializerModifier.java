@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  *
  * @param <A> 注解类型
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 public abstract class CLogFieldSerializerModifier<A extends Annotation> extends BeanSerializerModifier {
 
@@ -111,7 +111,10 @@ public abstract class CLogFieldSerializerModifier<A extends Annotation> extends 
      */
     private static <A extends Annotation> A getFieldAnnotation(Class<?> type, String fieldName, Class<A> annotationType) {
         val field = CReflectUtils.FIELD_MAP_CLASS_VALUE.get(type).get(fieldName);
-        return null == field ? null : field.getAnnotation(annotationType);
+        if(null == field) {
+            return null;
+        }
+        return field.getAnnotation(annotationType);
     }
 
     /**

@@ -59,7 +59,7 @@ import java.util.*;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.5
+ * @version 1.6
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CHttpServletRequest implements CHttpRequest {
@@ -629,6 +629,9 @@ public final class CHttpServletRequest implements CHttpRequest {
     @Override
     public ICHttpSession getSession(boolean create) {
         val session = request.getSession(create);
-        return null == session ? null : CHttpSession.of(session);
+        if (null == session) {
+            return null;
+        }
+        return CHttpSession.of(session);
     }
 }

@@ -2,11 +2,7 @@ package com.c332030.ctool4j.base.processor;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.lang.model.SourceVersion;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -62,7 +58,7 @@ import java.nio.charset.StandardCharsets;
  * </ul>
  *
  * @since 2026/5/31
- * @version 1.0
+ * @version 1.1
  */
 public abstract class CAbstractProcessor extends AbstractProcessor {
 
@@ -87,7 +83,10 @@ public abstract class CAbstractProcessor extends AbstractProcessor {
      */
     protected String loadResource(String path) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream is = null == loader ? null : loader.getResourceAsStream(path);
+        InputStream is = null;
+        if (null != loader) {
+            is = loader.getResourceAsStream(path);
+        }
         if (null == is) {
             is = getClass().getResourceAsStream(path);
         }

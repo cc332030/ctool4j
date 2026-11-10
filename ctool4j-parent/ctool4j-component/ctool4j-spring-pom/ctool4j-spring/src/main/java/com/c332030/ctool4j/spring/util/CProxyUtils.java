@@ -88,7 +88,7 @@ import java.lang.reflect.Proxy;
  * </ul>
  *
  * @since 2025/11/22
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @UtilityClass
@@ -222,7 +222,10 @@ public class CProxyUtils {
 
         // 2. 退回类加载器记录的包定义（供 getPackage() 为 null 的动态生成类使用）
         val pkgName = getDeclaredPackageName(clazz);
-        return null == pkgName || pkgName.isEmpty() ? null : pkgName;
+        if (null == pkgName || pkgName.isEmpty()) {
+            return null;
+        }
+        return pkgName;
     }
 
     /**

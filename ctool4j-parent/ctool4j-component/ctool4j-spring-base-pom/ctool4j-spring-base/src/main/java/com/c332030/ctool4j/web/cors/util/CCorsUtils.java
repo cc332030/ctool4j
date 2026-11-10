@@ -126,7 +126,7 @@ import java.util.Set;
  * </ul>
  *
  * @since 2026/1/9
- * @version 1.4
+ * @version 1.5
  */
 @CustomLog
 @UtilityClass
@@ -326,9 +326,10 @@ public class CCorsUtils {
      * @return 头值
      */
     public String joinHeaders(Set<String> headers) {
-        return headers.contains(CConstants.STAR)
-            ? CConstants.STAR
-            : CollUtil.join(headers, ",");
+        if (headers.contains(CConstants.STAR)) {
+            return CConstants.STAR;
+        }
+        return CollUtil.join(headers, ",");
     }
 
 }

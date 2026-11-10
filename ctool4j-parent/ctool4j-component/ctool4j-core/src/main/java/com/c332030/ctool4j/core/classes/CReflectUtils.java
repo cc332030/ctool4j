@@ -128,7 +128,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/4/2
- * @version 1.2
+ * @version 1.3
  * @see "doc/design/core/method-handle.adoc"
  */
 @CustomLog
@@ -224,9 +224,17 @@ public class CReflectUtils {
         // 不得改为 CArrUtils.convert(args, Object::getClass)：遇 null 实参抛空指针；
         // 也不得直接传 args（Object[] 既匹配本重载又匹配类型版，传 null 数组时重载歧义、
         // 会按本重载递归调用自身直至栈溢出）
-        val argTypes = ArrayUtil.isEmpty(args)
-                ? CArrUtils.EMPTY_OBJECT_ARRAY
-                : Arrays.stream(args).map(arg -> null == arg ? null : arg.getClass()).toArray(Object[]::new);
+        Object[] argTypes;
+        if(ArrayUtil.isEmpty(args)) {
+            argTypes = CArrUtils.EMPTY_OBJECT_ARRAY;
+        } else {
+            argTypes = Arrays.stream(args).map(arg -> {
+                if(null == arg) {
+                    return null;
+                }
+                return arg.getClass();
+            }).toArray(Object[]::new);
+        }
         return getConstructors(tClass, CArrUtils.convert(argTypes, Class[]::new, CObjUtils::anyType));
     }
 

@@ -86,7 +86,7 @@ import java.util.function.Supplier;
  * </ul>
  *
  * @since 2025/11/3
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @Service
@@ -582,9 +582,12 @@ public class CLockService {
 
         RLock lock = getLock(key);
 
-        boolean locked = Objects.isNull(timeUnit)
-                ? tryLock(lock)
-                : tryLock(lock, waitTime, timeUnit);
+        boolean locked;
+        if (Objects.isNull(timeUnit)) {
+            locked = tryLock(lock);
+        } else {
+            locked = tryLock(lock, waitTime, timeUnit);
+        }
         if(locked) {
             log.debug("tryLockThenRun lock success, key: {}", key);
             try {

@@ -48,7 +48,7 @@ import java.util.*;
  * </ul>
  *
  * @since 2025/12/2
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @AllArgsConstructor
@@ -212,10 +212,13 @@ public class CFeignLogger extends Logger {
             return null;
         }
         val headerMap = new LinkedHashMap<String, Collection<String>>();
-        headers.forEach((key, values) -> headerMap.put(
-            key,
-            null == values ? null : Collections.unmodifiableList(new ArrayList<>(values))
-        ));
+        headers.forEach((key, values) -> {
+            if (null == values) {
+                headerMap.put(key, null);
+                return;
+            }
+            headerMap.put(key, Collections.unmodifiableList(new ArrayList<>(values)));
+        });
         return Collections.unmodifiableMap(headerMap);
     }
 
@@ -242,7 +245,10 @@ public class CFeignLogger extends Logger {
      * @return 完整展示路径
      */
     private String appendQuery(String path, String query) {
-        return StrUtil.isEmpty(query) ? path : path + "?" + query;
+        if (StrUtil.isEmpty(query)) {
+            return path;
+        }
+        return path + "?" + query;
     }
 
     /**

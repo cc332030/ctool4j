@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -294,7 +293,10 @@ public class ConditionalOnMissingExceptionHandlerConditionTests {
                 switch (method.getName()) {
                     case "getBeanNamesForAnnotation":
                         // 第一次：容器装配期还没有 advice；第二次：advice 已注册
-                        return 0 == calls[0]++ ? new String[0] : beanNames;
+                        if(0 == calls[0]++) {
+                            return new String[0];
+                        }
+                        return beanNames;
                     case "getType":
                         return adviceTypes[Arrays.asList(beanNames).indexOf(args[0])];
                     case "equals":

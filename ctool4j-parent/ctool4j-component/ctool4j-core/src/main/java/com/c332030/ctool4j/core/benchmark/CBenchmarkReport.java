@@ -43,7 +43,7 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/8/20
- * @version 1.1
+ * @version 1.2
  */
 @SuperBuilder
 @RequiredArgsConstructor
@@ -96,13 +96,17 @@ public class CBenchmarkReport {
         sb.append("| 实现方式 | Avg(ns/op) | 离散度(极差 ns/op) | 相对离散度 | ops/s | 相对基线 | 结论 |\n");
         sb.append("| --- | ---: | ---: | ---: | ---: | ---: | --- |\n");
         for (CBenchmarkResult result : results) {
+            String conclusion = "基线";
+            if(result != baseline) {
+                conclusion = conclusionOf(result, baseline);
+            }
             sb.append("| ").append(result.getName())
                 .append(" | ").append(String.format("%.1f", result.avgNanos()))
                 .append(" | ").append(String.format("%.1f", result.dispersionNanos()))
                 .append(" | ").append(String.format("%.1f%%", result.dispersionRatio() * 100))
                 .append(" | ").append(formatOpsPerSecond(result))
                 .append(" | ").append(formatRatio(result.avgNanos(), baselineAvg))
-                .append(" | ").append(result == baseline ? "基线" : conclusionOf(result, baseline))
+                .append(" | ").append(conclusion)
                 .append(" |\n");
         }
         sb.append("\n");
@@ -157,7 +161,10 @@ public class CBenchmarkReport {
             return "无显著差异（差异 < 离散度）";
         }
 
-        return delta < 0 ? "优于基线" : "劣于基线";
+        if(delta < 0) {
+            return "优于基线";
+        }
+        return "劣于基线";
     }
 
     /**

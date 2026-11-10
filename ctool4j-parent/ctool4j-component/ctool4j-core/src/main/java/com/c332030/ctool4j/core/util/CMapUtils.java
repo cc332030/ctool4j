@@ -129,7 +129,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/2/26
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -203,7 +203,10 @@ public class CMapUtils {
      * @return 原 Map 或 空 Map
      */
     public <K, V> Map<K, V> defaultEmpty(Map<K, V> map) {
-        return MapUtil.isEmpty(map) ? Collections.emptyMap() : map;
+        if(MapUtil.isEmpty(map)) {
+            return Collections.emptyMap();
+        }
+        return map;
     }
 
     /**

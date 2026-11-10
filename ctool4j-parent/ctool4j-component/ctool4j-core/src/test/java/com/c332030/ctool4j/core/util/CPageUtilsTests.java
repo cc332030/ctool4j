@@ -73,7 +73,10 @@ public class CPageUtilsTests {
         CPageUtils.pageThenDo(
                 page -> {
                     pages.add(page);
-                    return page < 3 ? "data" : null;
+                    if(page < 3) {
+                        return "data";
+                    }
+                    return null;
                 },
                 data -> true);
 
@@ -91,7 +94,10 @@ public class CPageUtilsTests {
         CPageUtils.pageThenDo(
                 page -> {
                     pages.add(page);
-                    return page == 2 ? "stop" : "go";
+                    if(2 == page) {
+                        return "stop";
+                    }
+                    return "go";
                 },
                 data -> !"stop".equals(data));
 

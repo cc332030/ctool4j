@@ -34,7 +34,7 @@ import lombok.experimental.SuperBuilder;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 @Getter
 @SuperBuilder
@@ -78,7 +78,10 @@ public class CBenchmarkResult {
      */
     public double opsPerSecond() {
         double avg = avgNanos();
-        return avg <= 0 ? Double.POSITIVE_INFINITY : 1_000_000_000.0 / avg;
+        if(avg <= 0) {
+            return Double.POSITIVE_INFINITY;
+        }
+        return 1_000_000_000.0 / avg;
     }
 
     /**
@@ -109,7 +112,10 @@ public class CBenchmarkResult {
      */
     public double dispersionRatio() {
         double avg = avgNanos();
-        return avg <= 0 ? 0 : dispersionNanos() / avg;
+        if(avg <= 0) {
+            return 0;
+        }
+        return dispersionNanos() / avg;
     }
 
 }

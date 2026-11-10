@@ -62,7 +62,7 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 public class CBenchmarkRunner {
@@ -197,13 +197,17 @@ public class CBenchmarkRunner {
             double delta = result.avgNanos() - baseline;
             // 差异小于两者离散度之和即视为无显著差异（不为噪声宣称胜出）
             boolean significant = Math.abs(delta) > (result.dispersionNanos() + baselineDispersion);
+            String significanceNote = "";
+            if(!significant && result != report.getResults().get(0)) {
+                significanceNote = "(无显著差异)";
+            }
             log.info(String.format("%-24s %16.1f %16.1f %14.0f %12.2fx %s",
                     result.getName(),
                     result.avgNanos(),
                     result.dispersionNanos(),
                     result.opsPerSecond(),
                     result.avgNanos() / baseline,
-                    significant || result == report.getResults().get(0) ? "" : "(无显著差异)"
+                    significanceNote
             ));
         }
     }

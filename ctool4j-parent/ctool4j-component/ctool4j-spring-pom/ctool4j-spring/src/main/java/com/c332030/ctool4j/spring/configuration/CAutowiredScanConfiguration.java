@@ -104,7 +104,7 @@ import java.util.Set;
  * </ul>
  *
  * @since 2026/9/11
- * @version 1.0
+ * @version 1.1
  * @see CAutowiredUtils#autowiredScan(ApplicationContext)
  */
 @Lazy(false)
@@ -161,7 +161,10 @@ public class CAutowiredScanConfiguration implements BeanDefinitionRegistryPostPr
         val initClassNames = new LinkedHashSet<String>();
         for (val candidateClassName : listAutowiredScanClassNames()) {
             val separatorIndex = candidateClassName.lastIndexOf('.');
-            val packageName = separatorIndex < 0 ? "" : candidateClassName.substring(0, separatorIndex) + ".";
+            String packageName = "";
+            if (separatorIndex >= 0) {
+                packageName = candidateClassName.substring(0, separatorIndex) + ".";
+            }
             val simpleName = candidateClassName.substring(separatorIndex + 1);
             initClassNames.add(packageName + simpleName + "Init");
         }
@@ -272,7 +275,10 @@ public class CAutowiredScanConfiguration implements BeanDefinitionRegistryPostPr
      */
     private ClassLoader getClassLoader() {
         val classLoader = Thread.currentThread().getContextClassLoader();
-        return null == classLoader ? getClass().getClassLoader() : classLoader;
+        if (null == classLoader) {
+            return getClass().getClassLoader();
+        }
+        return classLoader;
     }
 
 }

@@ -115,7 +115,7 @@ import java.util.Set;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.4
+ * @version 1.5
  * @see "doc/design/web/exception-fallback.adoc"
  */
 @CustomLog
@@ -149,12 +149,20 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
         // 在缺失该类的环境无法解析为 Class，按字符串比较可避免类加载失败
         String valueName = CAnnotationUtils.getAnnotationAttributeValue(metadata, annotationType, VALUE_NAME);
         val byName = null != valueName && !valueName.isEmpty();
-        Class<Throwable> throwableClass = byName ? null : CAnnotationUtils.getAnnotationValue(metadata, annotationType);
+        Class<Throwable> throwableClass = null;
+        if(!byName) {
+            throwableClass = CAnnotationUtils.getAnnotationValue(metadata, annotationType);
+        }
         if (!byName) {
             Assert.notNull(throwableClass, () -> "注解不存在：" + annotationType.getName());
         }
 
-        val throwableClassName = byName ? valueName : throwableClass.getSimpleName();
+        String throwableClassName;
+        if(byName) {
+            throwableClassName = valueName;
+        } else {
+            throwableClassName = throwableClass.getSimpleName();
+        }
 
         val beanFactory = context.getBeanFactory();
         Assert.notNull(beanFactory, "beanFactory must not be null");
@@ -165,7 +173,7 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
             return true;
         }
 
-        val adviceTypes = resolveAdviceTypes((ListableBeanFactory) beanFactory);
+        val adviceTypes = resolveAdviceTypes(beanFactory);
         if (ArrayUtil.isEmpty(adviceTypes)) {
             log.debug("enable default @ExceptionHandler for {} because no ControllerAdvice defined", throwableClassName);
             return true;
@@ -177,9 +185,12 @@ public class ConditionalOnMissingExceptionHandlerCondition implements Condition 
             val declarations = DECLARATIONS_CLASS_VALUE.get(adviceType);
 
             // valueName 按类名比较、value 按类型比较
-            val matched = byName
-                ? declarations.declaredNames().contains(valueName)
-                : declarations.declaredTypes().contains(throwableClass);
+            boolean matched;
+            if(byName) {
+                matched = declarations.declaredNames().contains(valueName);
+            } else {
+                matched = declarations.declaredTypes().contains(throwableClass);
+            }
             if (matched) {
                 log.debug("disable default @ExceptionHandler for {} because {} defined",
                     throwableClassName, adviceType.getSimpleName());

@@ -5,6 +5,7 @@ import com.c332030.ctool4j.spring.security.util.CSpringSecurityUtils;
 import lombok.val;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 /**
  * <p>
@@ -69,7 +70,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  *
  * @author c332030
  * @since 2026/3/16
- * @version 1.2
+ * @version 1.3
  */
 public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> extends CAbstractBaseAuthFilter<SESSION> {
 
@@ -90,9 +91,12 @@ public abstract class CAbstractAuthFilter<SESSION extends ICSecuritySession> ext
     @Override
     protected void setAuthentication(SESSION session) {
 
-        val authentication = isAnonymous(session)
-            ? new AnonymousAuthenticationToken(ANONYMOUS_KEY, session, CSpringSecurityUtils.ANONYMOUS_AUTHORITIES)
-            : UsernamePasswordAuthenticationToken.authenticated(session, null, session.getAuthorities());
+        Authentication authentication;
+        if (isAnonymous(session)) {
+            authentication = new AnonymousAuthenticationToken(ANONYMOUS_KEY, session, CSpringSecurityUtils.ANONYMOUS_AUTHORITIES);
+        } else {
+            authentication = UsernamePasswordAuthenticationToken.authenticated(session, null, session.getAuthorities());
+        }
 
         CSpringSecurityUtils.setAuthentication(authentication);
 

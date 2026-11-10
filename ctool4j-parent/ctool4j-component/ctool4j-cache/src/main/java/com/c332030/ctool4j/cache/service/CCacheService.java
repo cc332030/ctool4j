@@ -52,7 +52,7 @@ import java.util.function.Supplier;
  * <p>详细设计、详细步骤、兜底与已知限制见各方法与内部类 javadoc。</p>
  *
  * @since 2025/9/26
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @Service
@@ -484,7 +484,12 @@ public class CCacheService implements DisposableBean {
                 .onLockFail(onLockFail);
 
             return lockBuilder.execute(() -> computeAndWrite(key, tClass, valueSupplier,
-                t -> null == expireDurationFunction ? expireDuration : expireDurationFunction.apply(t)));
+                t -> {
+                    if (null == expireDurationFunction) {
+                        return expireDuration;
+                    }
+                    return expireDurationFunction.apply(t);
+                }));
         }
 
         /**
@@ -533,7 +538,10 @@ public class CCacheService implements DisposableBean {
                             // 双重检查：锁内可能已被其他线程刷新（未到期）；TTL=-1（永久缓存）也无需刷新；
                             // TTL=-2（key 不存在）不在此分支，继续计算写缓存（Q6）
                             val currentWithTtl = redisService.getValueWithTtl(key, tClass);
-                            val currentTtl = null == currentWithTtl ? null : currentWithTtl.getTtl();
+                            Long currentTtl = null;
+                            if (null != currentWithTtl) {
+                                currentTtl = currentWithTtl.getTtl();
+                            }
                             if (null != currentTtl
                                 && (currentTtl == -1L || currentTtl > 0 && currentTtl * 1000 > refreshWindow.toMillis())
                             ) {
@@ -546,9 +554,10 @@ public class CCacheService implements DisposableBean {
                                 return null;
                             }
 
-                            val cacheDuration = null == expireDurationFunction
-                                ? expireDuration
-                                : expireDurationFunction.apply(tNew);
+                            Duration cacheDuration = expireDuration;
+                            if (null != expireDurationFunction) {
+                                cacheDuration = expireDurationFunction.apply(tNew);
+                            }
                             redisService.setValue(key, tNew, cacheDuration);
                             log.debug("cacheBuilder refreshAsync refresh successfully, key: {}, cacheDuration: {}",
                                 key, cacheDuration);

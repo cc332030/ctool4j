@@ -71,7 +71,7 @@ import java.util.Objects;
  * </ul>
  *
  * @since 2024/3/19
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CObjUtils {
@@ -137,7 +137,10 @@ public class CObjUtils {
      * @return 对象或默认值
      */
     public <T> T defaultIfNull(final T object, CSupplier<T> defaultValueSupplier) {
-        return object != null ? object : defaultValueSupplier.get();
+        if(null != object) {
+            return object;
+        }
+        return defaultValueSupplier.get();
     }
 
     /**

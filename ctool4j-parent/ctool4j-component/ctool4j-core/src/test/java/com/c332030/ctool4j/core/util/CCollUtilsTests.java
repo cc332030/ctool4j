@@ -448,7 +448,12 @@ public class CCollUtilsTests {
 
         // max 过滤 null 元素；min/max 过滤 convert 结果为 null 的元素
         Assertions.assertEquals(3, CCollUtils.max(Arrays.asList(1, null, 3), e -> e));
-        Assertions.assertEquals(2, CCollUtils.min(CList.of(1, 2), e -> e > 1 ? e : null));
+        Assertions.assertEquals(2, CCollUtils.min(CList.of(1, 2), e -> {
+            if(e > 1) {
+                return e;
+            }
+            return null;
+        }));
         Assertions.assertNull(CCollUtils.max(CList.of(1, 2), e -> null));
 
         // min 与 max 一致：过滤 null 元素

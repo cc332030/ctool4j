@@ -67,7 +67,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2025/9/26
- * @version 1.1
+ * @version 1.2
  */
 public class CMdcLogback extends CMdcDequeAble implements MDCAdapter {
 
@@ -125,7 +125,10 @@ public class CMdcLogback extends CMdcDequeAble implements MDCAdapter {
     public String popByKey(String key) {
 
         val deque = getDequeMap().get(key);
-        return (null == deque || deque.isEmpty()) ? null : deque.pop();
+        if (null == deque || deque.isEmpty()) {
+            return null;
+        }
+        return deque.pop();
     }
 
     /**
@@ -138,7 +141,10 @@ public class CMdcLogback extends CMdcDequeAble implements MDCAdapter {
     public Deque<String> getCopyOfDequeByKey(String key) {
 
         val deque = getDequeMap().get(key);
-        return (null == deque) ? new ArrayDeque<>() : new ArrayDeque<>(deque);
+        if (null == deque) {
+            return new ArrayDeque<>();
+        }
+        return new ArrayDeque<>(deque);
     }
 
     /**

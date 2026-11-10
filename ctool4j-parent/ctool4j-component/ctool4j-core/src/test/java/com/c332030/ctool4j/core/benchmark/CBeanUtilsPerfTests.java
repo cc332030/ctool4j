@@ -145,9 +145,12 @@ public class CBeanUtilsPerfTests {
         while(null != base && !Files.isDirectory(base.resolve("doc").resolve("design"))) {
             base = base.getParent();
         }
-        Path reportPath = null == base
-                ? Paths.get(System.getProperty("user.dir"), "target", fileName)
-                : base.resolve("doc").resolve("design").resolve("core").resolve("perf").resolve(fileName);
+        Path reportPath;
+        if(null == base) {
+            reportPath = Paths.get(System.getProperty("user.dir"), "target", fileName);
+        } else {
+            reportPath = base.resolve("doc").resolve("design").resolve("core").resolve("perf").resolve(fileName);
+        }
 
         report.writeTo(reportPath);
         System.out.println("性能测试报告已写入: " + reportPath.toAbsolutePath());

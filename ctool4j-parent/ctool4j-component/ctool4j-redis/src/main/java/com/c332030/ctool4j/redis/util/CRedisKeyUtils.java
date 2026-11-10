@@ -71,7 +71,7 @@ import java.lang.reflect.Method;
  * </ul>
  *
  * @since 2026/9/9
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CRedisKeyUtils {
@@ -115,13 +115,16 @@ public class CRedisKeyUtils {
         Object bizId
     ) {
 
-        val base = prefix + CRedisUtils.KEY_SEPARATOR + simpleName
-            + (useMethodName ? CRedisUtils.KEY_SEPARATOR + methodName : "");
+        val base = prefix + CRedisUtils.KEY_SEPARATOR + simpleName;
+        String key = base;
+        if (useMethodName) {
+            key = base + CRedisUtils.KEY_SEPARATOR + methodName;
+        }
 
         if (isBlankSpecKey(bizId)) {
-            return base;
+            return key;
         }
-        return base + CRedisUtils.KEY_SEPARATOR + bizId;
+        return key + CRedisUtils.KEY_SEPARATOR + bizId;
     }
 
     /**

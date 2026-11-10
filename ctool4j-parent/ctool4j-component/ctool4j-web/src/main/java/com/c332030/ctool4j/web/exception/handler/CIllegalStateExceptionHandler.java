@@ -4,7 +4,6 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
-import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,7 +49,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -71,9 +70,15 @@ public class CIllegalStateExceptionHandler {
 
         log.debug("handle IllegalStateException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
 
-        val message = null == e ? null : e.getMessage();
+        String message = null;
+        if(null != e) {
+            message = e.getMessage();
+        }
         if (null == message) {
-            return CStrResult.error(null == e ? "非法状态" : e.getClass().getSimpleName());
+            if(null == e) {
+                return CStrResult.error("非法状态");
+            }
+            return CStrResult.error(e.getClass().getSimpleName());
         }
 
         return CStrResult.error(message);

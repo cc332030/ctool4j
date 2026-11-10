@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/12/2
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CUrlUtils {
@@ -158,7 +158,10 @@ public class CUrlUtils {
      */
     public Integer getPort(URI uri) {
         val port = uri.getPort();
-        return port == -1 ? null : port;
+        if(-1 == port) {
+            return null;
+        }
+        return port;
     }
 
     /**
@@ -173,7 +176,10 @@ public class CUrlUtils {
 
         val host = getHost(uri);
         val port = getPort(uri);
-        return port == null ? host : host + ":" + port;
+        if(null == port) {
+            return host;
+        }
+        return host + ":" + port;
     }
 
     /**
@@ -397,8 +403,16 @@ public class CUrlUtils {
 
         val uri = getURI(url);
         val path = StrUtil.nullToEmpty(uri.getRawPath());
-        val query = StrUtil.isNotEmpty(uri.getRawQuery()) ? "?" + uri.getRawQuery() : "";
-        val fragment = StrUtil.isNotEmpty(uri.getRawFragment()) ? "#" + uri.getRawFragment() : "";
+        val rawQuery = uri.getRawQuery();
+        String query = "";
+        if(StrUtil.isNotEmpty(rawQuery)) {
+            query = "?" + rawQuery;
+        }
+        val rawFragment = uri.getRawFragment();
+        String fragment = "";
+        if(StrUtil.isNotEmpty(rawFragment)) {
+            fragment = "#" + rawFragment;
+        }
         return newDomain + path + query + fragment;
     }
 

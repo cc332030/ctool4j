@@ -75,7 +75,7 @@ import java.util.function.Consumer;
  * </ul>
  *
  * @since 2025/9/10
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -298,7 +298,11 @@ public class CSpringUtils {
      */
     public CProfileEnum getActiveProfile() {
         val activeProfiles = getApplicationContext().getEnvironment().getActiveProfiles();
-        return CProfileEnum.of(ArrayUtil.isEmpty(activeProfiles) ? null : activeProfiles[0]);
+        String activeProfile = null;
+        if (!ArrayUtil.isEmpty(activeProfiles)) {
+            activeProfile = activeProfiles[0];
+        }
+        return CProfileEnum.of(activeProfile);
     }
 
     /**

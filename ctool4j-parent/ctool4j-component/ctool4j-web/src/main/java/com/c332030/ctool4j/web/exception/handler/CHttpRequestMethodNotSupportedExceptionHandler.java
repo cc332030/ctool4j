@@ -4,7 +4,6 @@ import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.spring.util.CRequestUtils;
 import com.c332030.ctool4j.web.exception.annotation.ConditionalOnMissingExceptionHandler;
 import lombok.CustomLog;
-import lombok.val;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,7 +50,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * </ul>
  *
  * @since 2026/4/9
- * @version 1.2
+ * @version 1.3
  */
 @CustomLog
 @Order(CExceptionHandlerOrder.CONCRETE)
@@ -72,7 +71,10 @@ public class CHttpRequestMethodNotSupportedExceptionHandler {
 
         log.debug("handle HttpRequestMethodNotSupportedException，requestURI: {}", CRequestUtils.getRequestURIDefaultNull(), e);
 
-        val message = null == e ? null : e.getMessage();
+        String message = null;
+        if(null != e) {
+            message = e.getMessage();
+        }
         if (null == message) {
             return CStrResult.error("请求方法不支持");
         }

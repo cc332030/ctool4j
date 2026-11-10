@@ -79,7 +79,7 @@ import java.util.Date;
  * </ul>
  *
  * @since 2025/12/7
- * @version 1.0
+ * @version 1.1
  */
 @CustomLog
 @UtilityClass
@@ -275,7 +275,10 @@ public class CDateUtils {
             return null;
         }
         val millis = toMillis(mills);
-        return null == millis ? null : new Date(millis);
+        if(null == millis) {
+            return null;
+        }
+        return new Date(millis);
     }
 
     /**
@@ -357,7 +360,10 @@ public class CDateUtils {
             return null;
         }
         val millis = toMillis(mills);
-        return null == millis ? null : Instant.ofEpochMilli(millis);
+        if(null == millis) {
+            return null;
+        }
+        return Instant.ofEpochMilli(millis);
     }
 
     /**

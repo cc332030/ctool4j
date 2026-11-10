@@ -3,7 +3,6 @@ package com.c332030.ctool4j.spring.security.util;
 import com.c332030.ctool4j.definition.model.result.impl.CStrResult;
 import com.c332030.ctool4j.exception.CServletException;
 import com.c332030.ctool4j.interfaces.CHttpResponse;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -74,7 +73,7 @@ import java.nio.charset.StandardCharsets;
  * </ul>
  *
  * @since 2026/9/24
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CSecurityResponseUtils {
@@ -104,7 +103,10 @@ public class CSecurityResponseUtils {
      */
     public void writeJsonError(HttpStatus httpStatus, String message, CHttpResponse response) {
 
-        val text = StringUtils.hasText(message) ? message : httpStatus.getReasonPhrase();
+        String text = message;
+        if (!StringUtils.hasText(message)) {
+            text = httpStatus.getReasonPhrase();
+        }
         val errorResult = CStrResult.error(String.valueOf(httpStatus.value()), text);
 
         response.setStatus(httpStatus.value());

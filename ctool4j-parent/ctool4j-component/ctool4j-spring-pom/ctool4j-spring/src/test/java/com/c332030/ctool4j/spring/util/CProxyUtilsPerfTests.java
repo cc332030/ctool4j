@@ -239,7 +239,10 @@ public class CProxyUtilsPerfTests {
         }
 
         val targetClass = AopUtils.getTargetClass(object);
-        return null == targetClass ? object.getClass().getName() : targetClass.getName();
+        if (null == targetClass) {
+            return object.getClass().getName();
+        }
+        return targetClass.getName();
     }
 
     /**
@@ -251,7 +254,10 @@ public class CProxyUtilsPerfTests {
     private static String advisedFastPath(Object object) {
 
         if (null == object || !(object instanceof Advised)) {
-            return null == object ? null : object.getClass().getName();
+            if (null == object) {
+                return null;
+            }
+            return object.getClass().getName();
         }
 
         val target = getTarget(object);

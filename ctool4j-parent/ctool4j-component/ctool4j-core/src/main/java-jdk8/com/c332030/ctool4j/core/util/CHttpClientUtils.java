@@ -82,7 +82,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
  * </ul>
  *
  * @since 2025/12/1
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CHttpClientUtils {
@@ -137,7 +137,10 @@ public class CHttpClientUtils {
      */
     public final ConnectionKeepAliveStrategy KEEP_ALIVE_STRATEGY = (response, context) -> {
         val timeout = DefaultConnectionKeepAliveStrategy.INSTANCE.getKeepAliveDuration(response, context);
-        return timeout > 0 ? timeout : KEEP_ALIVE_TIMEOUT;
+        if(timeout > 0) {
+            return timeout;
+        }
+        return KEEP_ALIVE_TIMEOUT;
     };
 
     /**
