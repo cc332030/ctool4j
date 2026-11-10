@@ -42,9 +42,10 @@ import java.util.function.Supplier;
  *   {@code Collection}/{@code Locale}/{@code PrintWriter}/{@code Supplier} 这类 JDK 类型。二进制输出以 JDK 的
  *   {@code OutputStream} 暴露 {@code getOutputStream}；写 Cookie 以自有类型 {@link ICCookie} 为入参的 {@code addCookie} 纳入。
  *   已弃用的 {@code encodeUrl}/{@code encodeRedirectUrl} 不进（新增代码不得使用弃用 API）。</li>
- *   <li><b>底层决定用哪个包</b>：本接口不含任何 Servlet 依赖（{@code ctool4j-http-base} 不引 servlet-api）；
- *   由适配模块承接——{@code ctool4j-http-servlet} 按档位选用 {@code javax.servlet} 或 {@code jakarta.servlet}
- *   源码目录，使用方按自身容器依赖引入对应档位产物。</li>
+ *   <li><b>底层决定用哪个包</b>：本接口不含任何 Servlet 依赖；由同模块的容器落地承接——
+ *   {@code CHttpServletRequest} 等在 {@code src/main/java-jdk8} / {@code src/main/java-latest} 各一份同包同名，
+ *   按档位选用 {@code javax.servlet} 或 {@code jakarta.servlet} 源码目录，servlet-api 由本模块按档位
+ *   以 optional 声明，使用方按自身容器依赖引入对应档位产物。</li>
  *   <li><b>接口只声明、不实现</b>：实现是纯转发，契约与语义完全沿用 Servlet 规范，本接口不新增语义、不做兜底。</li>
  *   <li><b>与请求抽象层对称</b>：{@link CHttpRequest} 与 {@code CHttpResponse} 同属该抽象层、同一套取法
  *   （只声明两边公共面、由实现模块选包）。</li>

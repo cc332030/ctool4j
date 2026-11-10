@@ -10,34 +10,37 @@
 
 ## 源目录布局
 
-本模块**只有一个主源码目录** `src/main/java`（外加 `src/main/resources`）：
+公共源码目录 `src/main/java`（外加 `src/main/resources`）承版本无关内容；**版本适配层 `spi`**（原
+`ctool4j-mybatis-adapter`，已并回）落在两个档位源目录：
 
 | 目录 | 承载 |
 |------|------|
-| `java` | 全部主代码：`ICService` 一族（含 `ICCheckService`）、`CServiceImpl`、`CMpController`，以及 mapper/model/handler/configuration/util |
+| `java` | 版本无关主代码：`ICService` 一族（含 `ICCheckService`）、`CServiceImpl`、`CMpController`，以及 mapper/model/handler/configuration/util |
+| `java-jdk8` | `spi` 适配层，承 MP < 3.5.17 的 `extension.service` 包名（jdk8 档） |
+| `java-latest` | `spi` 适配层，承 MP >= 3.5.17 的 `spring.service` 包名（最新 LTS 档） |
 | `resources` | 资源 |
 
-**版本侧差异不在本模块**：mybatis-plus 3.5.17 起 `IService`/`ServiceImpl` 由
+**版本侧差异收敛在本模块的 `spi` 档位源目录**：mybatis-plus 3.5.17 起 `IService`/`ServiceImpl` 由
 `com.baomidou.mybatisplus.extension.service` 迁到 `com.baomidou.mybatisplus.spring.service`，
-该差异已下沉到适配模块 [`ctool4j-mybatis-adapter`](../ctool4j-mybatis-adapter/README.md)——
-它按 JDK 档位出两个档位的 jar（`java` / `java-jdk8`），公共契约 `ICService` 一族因此与版本无关。
+两个档位目录以同一组中性全限定名（`com.c332030.ctool4j.mybatisplus.spi`）同包同名承接、按档位只编其一
+（追加语义天然互斥），公共契约 `ICService` 一族因此与版本无关。
 
 **容器侧差异也不在本模块**：`CMpController` 的参数级必填用 ctool4j-web 的中立注解 `@CRequired`
-（`javax.validation` 与 `jakarta.validation` 的统一抽象），故不再按档位拆 `java-javax`。
+（`javax.validation` 与 `jakarta.validation` 的统一抽象），公共源目录不按档位拆。
 
-> 本模块**不得**再出现第二个源目录（`java-javax` / `java-jdk8` / `java-latest` 等），
-> 也不得 `srcDir` 指向别的模块——多源只允许出现在适配模块。
+> 除 `spi` 的 `java-jdk8` / `java-latest` 外，本模块**不得**再出现其他源目录，
+> 也不得 `srcDir` 指向别的模块——多源只允许出现在 `spi` 适配层。
 
 ## 依赖
 
 | 依赖 | 作用域 | 说明 |
 |------|--------|------|
-| `ctool4j-mybatis-adapter` | compile（api） | 版本适配层（中性 `spi/` 三名） |
+| `ctool4j-core` | compile（api） | 工具与空安全实现（`CList` 等） |
 | `ctool4j-transaction` | compile | `@CTransactional` 事务约定 |
 | `ctool4j-db` | compile | SQL 拼接工具 |
 | `ctool4j-web` | provided | `@CRequired` 等中立校验注解（`CMpController` 用） |
 | `ctool4j-redis` | provided | 分布式锁；由使用方引入 Redis 依赖后生效 |
-| `ctool4j-core` / `ctool4j-definition` / `ctool4j-spring` | 经 `ctool4j-transaction` 传递 | 工具与 Spring 基础设施 |
+| `ctool4j-definition` / `ctool4j-spring` | 经 `ctool4j-transaction` 传递 | 定义契约与 Spring 基础设施 |
 | `mybatis-plus-boot-starter` | provided | MP 抽象；**不锁定版本**，由使用方按其 MP 版本提供 |
 | `spring-boot-starter-jdbc` | provided | 由 `ctool4j-mybatis-pom` 统一下发 |
 

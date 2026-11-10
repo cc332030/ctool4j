@@ -4,12 +4,11 @@
 
 ## 简介
 
-`ctool4j-mybatis-pom` 是聚合 pom，包含 5 个子模块：
+`ctool4j-mybatis-pom` 是聚合 pom，包含 4 个子模块：
 
 | 模块 | 角色 |
 |------|------|
-| `ctool4j-mybatis-adapter` | **版本适配层**：MP 包名差异（`extension.service` ↔ `spring.service`）到此为止，`src/main/java` 与 `src/main/java-jdk8` 同包同名、按档位二选一 |
-| `ctool4j-mybatis-base` | 核心契约与增强基座（`ICService` 一族、`CServiceImpl`、`CMpController`、分页/注入/业务 ID 工具） |
+| `ctool4j-mybatis-base` | 核心契约与增强基座（`ICService` 一族、`CServiceImpl`、`CMpController`、分页/注入/业务 ID 工具）；**内含版本适配层 `spi`**（原 `ctool4j-mybatis-adapter`，已并回）：MP 包名差异（`extension.service` ↔ `spring.service`）到此为止，档位源目录 `src/main/java-jdk8` 与 `src/main/java-latest` 同包同名、按档位二选一 |
 | `ctool4j-mybatis-33` | MP 3.3 适配（旧版分页插件、旧版注入器签名），**仅 jdk8 档位构建** |
 | `ctool4j-mybatis-34` | MP 3.4 适配（新版插件体系、新版注入器签名），**仅 jdk8 档位构建** |
 | `ctool4j-mybatis` | 当前主推聚合版（MP 3.5.x：jdk8 档 3.5.16、最新 LTS 档 3.5.17） |
@@ -18,23 +17,22 @@
 
 ---
 
-## 子模块一：ctool4j-mybatis-adapter
+## 子模块一：ctool4j-mybatis-base
 
-> 把 `IService` / `ServiceImpl` 的包名迁移差异收敛为一个模块，使用方感知不到版本。
+> MyBatis-Plus 面向业务的分层增强基座（纯接口/抽象，不注册 Bean）；其 `spi` 档位源目录把 `IService` / `ServiceImpl` 的包名迁移差异收敛掉，使用方感知不到版本。
 
 mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从 `com.baomidou.mybatisplus.extension.service`
-迁到 `com.baomidou.mybatisplus.spring.service`，两个坐标不能共存。本模块用**同一组中性全限定名**
-（`com.c332030.ctool4j.mybatisplus.spi`）承接，靠两个档位专属源目录二选一：
+迁到 `com.baomidou.mybatisplus.spring.service`，两个坐标不能共存。**版本适配层 `spi`**（原 `ctool4j-mybatis-adapter`，已并回）
+用**同一组中性全限定名**（`com.c332030.ctool4j.mybatisplus.spi`）承接，靠两个档位专属源目录二选一：
 
 | 目录 | 内容 | 生效档位 |
 |------|------|----------|
-| `src/main/java` | 承 `spring.service` 包名，对应 MP 3.5.17+ | 最新 LTS（默认） |
+| `src/main/java-latest` | 承 `spring.service` 包名，对应 MP 3.5.17+ | 最新 LTS |
 | `src/main/java-jdk8` | 承 `extension.service` 包名，对应 MP 3.3.x / 3.4.x / 3.5.16 | jdk8 |
 
-本模块**只有这两个源目录**：内容仅三个按版本侧各写一份的类，版本无关的代码都在 base。
+档位目录里**只有三个按版本侧各写一份的类**，版本无关的代码都在公共源目录 `src/main/java`。
 
-两个目录**永不共存**（同包同名的两份 class 同时进 classpath 时 JVM 取先命中者且不报错）。jdk8 档位由
-本模块 `build.gradle.kts` 把主源集整体替换为 `java-jdk8`（根脚本对 `java-<side>` 是追加语义，本模块同名同包、追加即重复）。
+两个目录**永不共存**：同一次编译按档位只追加其一（追加语义天然互斥），不存在同包同名重复。
 
 核心类：
 
@@ -47,15 +45,6 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从 `com.baomidou.mybatisp
 `cCount(...)` 吸收 `ChainQuery#count()` 的返回值漂移（3.3.x `Integer` / 3.4.x 起 `Long`，
 描述符不兼容）：jdk8 档产物要同时服务三个版本，故那一侧用方法句柄取运行期返回值、再按
 `Number` 收口；最新 LTS 档只对 3.5.17+ 成立，直接调用。
-
-依赖：`mybatis-plus-boot-starter`（**compileOnly**，不向下游传递 MP 版本，避免与 `-33` / `-34`
-的 `strictly` 钉版冲突）、`ctool4j-core`（api）。
-
----
-
-## 子模块二：ctool4j-mybatis-base
-
-> MyBatis-Plus 面向业务的分层增强基座（纯接口/抽象，不注册 Bean）。
 
 ### 功能特性
 
@@ -91,13 +80,13 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从 `com.baomidou.mybatisp
 
 ### 源目录
 
-**只有一个主源码目录** `src/main/java`（外加 `src/main/resources`）：
+公共源码目录 `src/main/java`（外加 `src/main/resources`）承版本无关内容；版本适配层 `spi` 落档位源目录（见上）：
 
-- 版本差异由 `ctool4j-mybatis-adapter` 吸收；
+- 版本差异由本模块的 `spi` 档位源目录吸收；
 - 容器（`javax` / `jakarta`）差异由 ctool4j-web 的中立类型吸收（`CMpController` 的参数级必填用
-  `@CRequired`，不再按档位拆源目录）。
+  `@CRequired`，公共源目录不按档位拆）。
 
-本模块**不得**出现 `java-javax` / `java-jdk8` / `java-latest` 等第二个源目录，也不得
+除 `spi` 的 `java-jdk8` / `java-latest` 外，本模块**不得**再出现其他源目录，也不得
 `srcDir` 指向别的模块。
 
 ### 依赖
@@ -108,21 +97,21 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从 `com.baomidou.mybatisp
 | `ctool4j-spring` | Spring 能力 |
 | `ctool4j-web`（provided） | `@CRequired` 等中立校验注解 |
 | `ctool4j-redis`（provided） | 分布式锁 |
-| `mybatis-plus`（provided，泛型引用，不锁定版本） | MP 抽象 |
+| `mybatis-plus`（provided，泛型引用，不锁定版本） | MP 抽象；不向下游传递 MP 版本，避免与 `-33` / `-34` 的 `strictly` 钉版冲突 |
 
 ---
 
-## 子模块三：ctool4j-mybatis-33（MP 3.3 适配）
+## 子模块二：ctool4j-mybatis-33（MP 3.3 适配）
 
 - 注册旧版 `PaginationInterceptor` 分页插件（`@ConditionalOnMissingBean`）
 - `CSqlInjector` 按 3.3 签名注入 insertIgnore / updateAllById
 - `CInsertIgnoreMethod` / `CUpdateAllByIdMethod` 手工构造 SQL
 - 版本钉住 `3.3.2`（`strictly`）；**只在 jdk8 档位参与构建**（3.3.x 只有 `extension.service` 包名，
-  与最新 LTS 档的适配 jar 不同侧）
+  与最新 LTS 档的 base jar 不同侧）
 
 ---
 
-## 子模块四：ctool4j-mybatis-34（MP 3.4 适配）
+## 子模块三：ctool4j-mybatis-34（MP 3.4 适配）
 
 - 采用新版插件体系：`MybatisPlusInterceptor` + `PaginationInnerInterceptor` + `BlockAttackInnerInterceptor`（防全表更新/删除）
 - `CSqlInjector` 按 3.4 签名（getMethodList 带 Configuration / TableInfo）
@@ -131,7 +120,7 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从 `com.baomidou.mybatisp
 
 ---
 
-## 子模块五：ctool4j-mybatis（当前聚合版）
+## 子模块四：ctool4j-mybatis（当前聚合版）
 
 - 综合 base + 版本实现，采用 MP 新版插件体系
 - `CInsertIgnoreMethod` 继承 MP `Insert` 类 + 字符串替换实现（简洁、自动处理自增列）

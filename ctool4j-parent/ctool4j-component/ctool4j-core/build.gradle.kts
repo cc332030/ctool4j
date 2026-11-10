@@ -5,10 +5,11 @@ plugins {
     `java-library`
 }
 
-import com.c332030.ctool4j.gradle.buildsrc.util.cOptional
-import com.c332030.ctool4j.gradle.buildsrc.util.lib
-
 dependencies {
+
+    // HttpClient：按档位取——jdk8 → `httpclient-jdk8`（HC4 4.5.14 末版），其余 → `httpclient`（HC5，Boot 4 BOM 管理）；
+    // 供 `CHttpClientUtils`（java-jdk8 / java-latest 各一份同包同名实现）使用
+    api(lib("httpclient"))
 
     api(lib("commons-text"))
     api(lib("guava"))

@@ -12,7 +12,7 @@ dependencies {
     api(lib("mybatis-plus-jsqlparser-4-9"))
     cOptional(lib("mybatis-plus-join"))
 
-    // 适配层与 base 的版本差异已收敛在 `ctool4j-mybatis-adapter`（按档位出 jar），本模块只依赖 base
+    // 版本差异已收敛在 base 的 `spi` 适配层（java-latest / java-jdk8 追加承载），本模块只依赖 base
     api(project(":ctool4j-mybatis-base"))
 
     // 本模块源码只做版本差异（插件 / 注入器签名），共享的 service 契约（含 ICMpLockService）
@@ -22,6 +22,6 @@ dependencies {
 
 /**
  * 本模块是"当前主流版本"的聚合：MP 3.5.x（jdk8 档 3.5.16、最新 LTS 档 3.5.17）+ 本仓库的
- * injector / 配置增强。`IService` / `ServiceImpl` 的包名差异由 `ctool4j-mybatis-adapter`
+ * injector / 配置增强。`IService` / `ServiceImpl` 的包名差异由 base 的 `spi` 适配层
  * 按档位二选一吸收，本模块的单源目录对两档都成立。
  */

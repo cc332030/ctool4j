@@ -42,8 +42,8 @@ import java.util.Optional;
  *   3.4.x 只有 {@code currentModelClass()}（3.5.16 起已删）。"沿父类找第二个泛型实参"对四个版本都成立，
  *   故只写一份。</li>
  *   <li><b>本类全仓只有一份、位于 base 的单源目录</b>：它承的是"版本侧 {@code CMybatisPlusServiceImpl}"
- *   ＋"公共 {@code ICService}"的交叉点，而版本差异已在适配模块
- *   （{@code ctool4j-mybatis-adapter}）收敛为同全限定名的两份、按 JDK 档位二选一，
+ *   ＋"公共 {@code ICService}"的交叉点，而版本差异已在 base 的 {@code spi} 档位源目录
+ *   （原独立适配模块 {@code ctool4j-mybatis-adapter}，已并回）收敛为同全限定名的两份、按 JDK 档位二选一，
  *   故此处不再需要按版本复制。</li>
  * </ul>
  *

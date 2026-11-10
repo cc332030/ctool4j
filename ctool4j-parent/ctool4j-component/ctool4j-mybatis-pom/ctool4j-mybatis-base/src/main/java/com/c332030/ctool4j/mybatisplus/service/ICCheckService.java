@@ -26,8 +26,9 @@ import com.c332030.ctool4j.mybatisplus.spi.CMybatisPlusSpi;
  *   而本仓库全部 service 契约都以本接口为根。适配模块把"承哪个 MP 包名"收敛到同全限定名的
  *   {@link CMybatisPlusSpi}（两侧各一份、按 JDK 档位二选一）上，本接口因此版本无关。</li>
  *   <li><b>本接口是本仓库"继承链的公共段"</b>：{@code MP IService → spi/CMybatisPlusSpi → ICCheckService
- *   → ICBizIdService → ICService}。前两段（含 {@code spi/CMybatisPlusSpi}）由适配模块
- *   {@code ctool4j-mybatis-adapter} 提供，本接口及其后继落在 base——两者都是"任何版本模块都能直接编译"的公共面。</li>
+ *   → ICBizIdService → ICService}。前两段（含 {@code spi/CMybatisPlusSpi}）落在 base 的 {@code spi}
+ *   档位源目录（原独立适配模块 {@code ctool4j-mybatis-adapter}，已并回），本接口及其后继落在 base
+ *   公共源目录——都在"任何版本模块都能直接编译"的公共面上。</li>
  *   <li><b>为什么本接口不放空安全实现</b>：空安全实现必须调用 {@code 上游.super.x(...)}，
  *   而 Java 规定 {@code X.super.m()} 中的 {@code X} 必须<em>自己</em>声明 {@code m} 为 {@code default}——
  *   那会让本接口编译期就必须解析版本侧类型，公共面随即失效。故实现下沉到 {@link CMybatisPlusSpi}。</li>

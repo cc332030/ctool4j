@@ -5,8 +5,8 @@
  * </p>
  *
  * 模块发现：递归查找含 build.gradle.kts 的目录，按扁平逻辑名（:ctool4j-xxx）注册。
- * 容器侧（javax / jakarta）**不再按模块拆**：侧适配类合入同一模块、按 JDK 档位选用源码目录
- * （`src/main/java` 承 jakarta、`src/main/java-javax` 承 javax，见根 `build.gradle.kts`），故此处不做侧过滤。
+ * 容器侧（javax / jakarta）**不按模块拆**：侧适配类合入同一模块、落在档位源目录
+ * （`src/main/java-jdk8` 承 javax、`src/main/java-latest` 承 jakarta，见根 `build.gradle.kts`），故此处不做侧过滤。
  * 仍有一个「只有 javax 形态、无法在两档位共存」的模块，按白名单在非 jdk8 档位排除（见 javaxOnlyModuleNames）。
  * 档位取值：JDK_VERSION（系统属性 > 环境变量 > gradle.properties），默认 8；
  * 刻意不读 JVM 的 java.version 系统属性，否则默认档位会变成构建机 JDK。
@@ -63,7 +63,7 @@ val javaxOnlyModuleNames = setOf(
  * jdk8 档位专属模块白名单（仅在 jdk8 档位纳入）。
  *
  * `ctool4j-mybatis-33` / `-34`：MP 3.3.x / 3.4.x 只有 `extension.service` 包名，
- * 而 `ctool4j-mybatis-adapter` 在最新 LTS 档出的是 `spring.service` 包名侧（只对 3.5.17+ 成立），
+ * 而 `ctool4j-mybatis-base` 在最新 LTS 档出的是 `spring.service` 包名侧（只对 3.5.17+ 成立），
  * 两者不同侧、无从共存。故这两个模块只在 jdk8 档位参与构建（该档位的适配 jar 正是
  * `extension.service` 侧，与 3.3.x / 3.4.x / 3.5.16 同侧）。
  */

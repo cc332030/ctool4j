@@ -217,17 +217,13 @@ subprojects {
 
         // ---- 档位专属源码目录 ----
         // 少数类在两档位下必须用不同的底层 API（Servlet 容器 javax/jakarta、HttpClient 4/5、
-        // SLF4J 1/2 等），无法用同一份源码兼容。按「两份实现的关系」分两种形态：
+        // SLF4J 1/2 等），无法用同一份源码兼容。全仓只有一种形态——**追加**：
+        // `src/<main|test>/java` 放公共类，档位目录放档位专属类（与之不相交）；
+        // jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`（如 `ctool4j-core` 的
+        // `CHttpClientUtils`、`ctool4j-logback` 的 `CMdcLogback`）。
         //
-        // ① 追加（默认）：`src/<main|test>/java` 放公共类，档位目录放**与之不相交**的类；
-        //    jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`（如 `ctool4j-spring-security-autoconfigure`）。
-        // ② 整体替换：`src/<main|test>/java` 与另一侧目录承载**同一个全限定名**的两份实现
-        //    （`CMdcLogback`、`CHttpServletRequest` 等），追加必然重复（同包同名的两份 class 同时
-        //    进 classpath 时 JVM 取先命中者且**不报错**）。这类模块在自己的 `build.gradle.kts` 里调
-        //    `cExclusiveJdk8SourceDirs("<另一侧目录名>")`，由它 `setSrcDirs` 整体替换。
-        //
-        // **每个模块都必须有 `src/<main|test>/java`**：形态 ① 下它是公共源目录、形态 ② 下它是
-        // 「默认侧」（最新 LTS / jakarta）的实现目录。没有它的模块视为目录结构错误（下方配置期校验）。
+        // 「同一个全限定名的两份实现」同样用追加承载：两份实现分别落在 `java-jdk8` /
+        // `java-latest`，同一次编译只追加其一，天然互斥、不会重复。
         //
         // **互斥是硬约束**：判据是「同一源集最终纳入的多个源码目录里不得有同一全限定名」——
         // 这类重复在编译期不报错，只能静态查（见下方 `assertNoDuplicateJavaSources`）。
@@ -252,10 +248,9 @@ subprojects {
          * 两者**永不编进同一档位**，故同名重复在编译期不可见——同包同名的两份 class 同时进 classpath 时
          * JVM 取先命中者且不报错，表现为"改了源码没生效"这类极难定位的故障。
          *
-         * 为什么放在 `afterEvaluate`：形态 ② 的模块会调 `cExclusiveJdk8SourceDirs(...)` 整体替换源集，
-         * 替换后 `src/main/java` 并不参与编译——只有等模块脚本跑完、源集定稿后才知道"这一档到底编哪些目录"。
-         * 定稿后判定才既不会误报（`java` 与 `java-javax` 同包同名是形态 ② 的**设计**），
-         * 又能拦住真正的错（形态 ② 忘了调 `cExclusiveJdk8SourceDirs`，`java` 与 `java-javax` 会同时被追加）。
+         * 为什么放在 `afterEvaluate`：模块脚本（在根脚本 `subprojects {}` 之后求值）仍可能调整源集
+         * 目录，等所有脚本跑完、源集定稿后判定才可靠——既不会把"档位目录与公共目录是追加关系"
+         * 误报成重复，又能拦住真正的错（档位目录与公共目录出现同包同名）。
          *
          * 判定用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名，够用），
          * 只看目录**相对路径**、不读文件内容。只有一个目录时直接跳过（绝大多数模块属此列，不产生额外 IO）。
@@ -286,8 +281,7 @@ subprojects {
                     "[$projectName] 源集 $sourceSetName 内出现重复全限定名：" +
                             duplicates.entries.joinToString("；") { (fqn, dirs) -> "$fqn（${dirs.joinToString(" ↔ ")}）" } +
                             "；同一次编译里同包同名只会取先命中者且不报错。" +
-                            "要「两份实现二选一」就在本模块 build.gradle.kts 调 cExclusiveJdk8SourceDirs(\"<另一侧目录>\")；" +
-                            "要「不同类」就把公共类留在 src/$sourceSetName/java。"
+                            "把档位专属类挪进 java-jdk8 / java-latest（与公共目录不相交），公共类留在 src/$sourceSetName/java。"
                 )
             }
         }
@@ -296,18 +290,24 @@ subprojects {
             sourceSetNames.forEach { assertNoDuplicateJavaSources(it) }
         }
 
-        // ---- 每个有 Java 源码的模块都必须有 src/main/java ----
-        // 形态 ① 下它是公共源目录、形态 ② 下它是「默认侧」的实现目录；缺了它意味着所有类都挤在
-        // 档位目录里，IDE 与 `withSourcesJar` 的默认根目录会落空，且新人无从判断"默认侧是哪边"。
-        // 只对**确有 Java 源码**的模块生效：纯聚合/占位模块（无 src/main 或只有资源）不受约束。
+        // ---- 有 Java 源码的模块，源码必须落在标准源目录里 ----
+        // 标准源目录是 src/main/java（公共类）与 java-jdk8 / java-latest（档位专属类）；
+        // 全部源码都在档位目录（无公共类）也合法（如 `ctool4j-logback`），故不强制 src/main/java 存在，
+        // 只拦「源码散落在标准目录之外」的结构错误。纯聚合/占位模块（无 src/main 或只有资源）不受约束。
         run {
             val mainDir = moduleProject.file("src/main")
-            val hasJavaSource = mainDir.exists() &&
-                    mainDir.walkTopDown().any { it.isFile && it.name.endsWith(".java") }
-            if (hasJavaSource && !moduleProject.file("src/main/java").exists()) {
+            val standardDirNames = setOf("java", "java-jdk8", "java-latest")
+            val strayFiles = mainDir.takeIf { it.exists() }
+                ?.walkTopDown()
+                ?.filter { it.isFile && it.name.endsWith(".java") }
+                ?.filter { it.relativeTo(mainDir).invariantSeparatorsPath.substringBefore('/') !in standardDirNames }
+                ?.toList()
+                .orEmpty()
+            if (strayFiles.isNotEmpty()) {
                 throw GradleException(
-                    "[$projectName] 缺少 src/main/java：每个含 Java 源码的模块都必须有该目录" +
-                            "（默认侧放这里，另一侧用 java-jdk8 / java-javax 之类并列，见根脚本「档位专属源码目录」）。"
+                    "[$projectName] Java 源码落在标准源目录之外：" +
+                            strayFiles.joinToString("、") { it.relativeTo(moduleProject.projectDir).invariantSeparatorsPath } +
+                            "；公共类放 src/main/java，档位专属类放 java-jdk8 / java-latest（见根脚本「档位专属源码目录」）。"
                 )
             }
         }
@@ -420,7 +420,7 @@ subprojects {
                 addToAll(listOf("compileOnly", "testImplementation"), lib("jackson-datatype-jsr310"))
 
                 // HttpClient 5：仅最新 LTS 档位（Spring 7 的 HttpComponentsClientHttpRequestFactory 只接受 HC5）；
-                // jdk8 档位沿用 HttpClient 4（经 ctool4j-httpclient 模块的 `httpclient-jdk8` 别名承载），不注入本依赖
+                // jdk8 档位沿用 HttpClient 4（经 ctool4j-core 的 `httpclient-jdk8` 别名承载，CHttpClientUtils 用），不注入本依赖
                 if (!jdk8Profile) {
                     addToAll(listOf("compileOnly", "testImplementation"), lib("httpclient5"))
                 }

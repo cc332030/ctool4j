@@ -14,9 +14,9 @@ ctool4j（根，packaging=pom）
 ├── ctool4j-processor-pom    编译期注解处理器（代码生成）
 └── ctool4j-parent
     └── ctool4j-component
-        ├── 基础层    definition / core / http-pom（http-base / http-servlet）/ db / transaction
-        ├── Spring 层 spring-base-pom（spring-base / spring-servlet / spring-security-base / spring-security-servlet）
-        │             spring-pom（spring / spring-security / spring-security-autoconfigure / spring-cloud）
+        ├── 基础层    definition / core / http-pom（http-base）/ db / transaction
+        ├── Spring 层 spring-base-pom（spring-base / spring-security-base）
+        │             spring-pom（spring / spring-security / spring-cloud）
         ├── 应用层    web / feign / redis / cache
         ├── 认证层    auth-pom（auth-base / auth-spring）
         ├── 中间件层  log-pom / mybatis-pom / nacos-pom / mq-pom / job-pom
@@ -36,15 +36,13 @@ ctool4j（根，packaging=pom）
 | 模块 | 定位 | 文档
 
 | ctool4j-definition | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 | link:ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[README]
-| ctool4j-core | 核心工具库：字符串/集合/日期/JSON/反射/异常/日志/校验 | link:ctool4j-parent/ctool4j-component/ctool4j-core/README.md[README]
-| ctool4j-httpclient | HTTP 客户端工具 CHttpClientUtils（HttpClient 4/5 按档位切换，独立成模块使 core 主源集单源） | link:ctool4j-parent/ctool4j-component/ctool4j-httpclient/README.md[README]
-| ctool4j-http-pom | Servlet 容器抽象层与容器适配（http-base / http-servlet，模块内按档位切换 javax/jakarta 源目录） | link:ctool4j-parent/ctool4j-component/ctool4j-http-pom/README.md[README]
+| ctool4j-core | 核心工具库：字符串/集合/日期/JSON/反射/异常/日志/校验，含 HTTP 客户端工具 CHttpClientUtils（HttpClient 4/5 按档位切换） | link:ctool4j-parent/ctool4j-component/ctool4j-core/README.md[README]
+| ctool4j-http-pom | Servlet 容器抽象层与容器适配（http-base，模块内档位源目录切换 javax/jakarta） | link:ctool4j-parent/ctool4j-component/ctool4j-http-pom/README.md[README]
 | ctool4j-db | SQL 拼接工具 | link:ctool4j-parent/ctool4j-component/ctool4j-db/README.md[README]
 | ctool4j-transaction | 事务注解约定（@CTransactional） | link:ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[README]
 | ctool4j-spring-base-pom | Spring 侧抽象契约与两侧适配：拦截器、响应体增强、配置属性、cors、安全错误响应 | link:ctool4j-parent/ctool4j-component/ctool4j-spring-base-pom/README.md[README]
 | ctool4j-spring-pom | Spring 基础设施：Bean 装配、Context 工具、Security、Cloud | link:ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[README]
-| ctool4j-web | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId 透传 | link:ctool4j-parent/ctool4j-component/ctool4j-web/README.md[README]
-| ctool4j-web-validation | 必填校验注解 @CRequired / @CNotRequired 与校验器（Bean Validation 包名按档位切换） | link:ctool4j-parent/ctool4j-component/ctool4j-web-validation/README.md[README]
+| ctool4j-web | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId 透传、必填校验注解 @CRequired / @CNotRequired（Bean Validation 包名按档位切换） | link:ctool4j-parent/ctool4j-component/ctool4j-web/README.md[README]
 | ctool4j-auth-pom | 认证：JWT 校验/签发、token 读写、会话服务、认证过滤器 | link:ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[README]
 | ctool4j-feign | Feign 增强：请求头传播、日志、自定义拦截器 | link:ctool4j-parent/ctool4j-component/ctool4j-feign/README.md[README]
 | ctool4j-redis |  Redis 操作、Redisson 分布式锁、@CRateLimit 限流、@CIdempotent 幂等 | link:ctool4j-parent/ctool4j-component/ctool4j-redis/README.md[README]
@@ -69,21 +67,17 @@ ctool4j（根，packaging=pom）
 - *最新 LTS 档位*：容器侧 jakarta、依赖更新到较新版本、字节码 Java 17；产物版本号**无后缀**。
 档位名以「jdk8 / 最新 LTS」表述而非具体版本号（jdk8 是当前公司主流版本；LTS 会持续升级）。
 
-少数类在两档位下必须用不同的底层 API（如 HttpClient 4/5、SLF4J 1/2）。差异实现有两种形态：
-
-- *追加*（默认）：`src/<main|test>/java` 放公共类，档位目录（`java-jdk8` / `java-latest`）放**与 `src/main/java` 不相交**的类（两个档位目录之间可以同包同名——那是同一个类的两档实现，永不共存）。
-- *整体替换*：`src/<main|test>/java` 放「默认侧」实现，另一侧用 `java-jdk8`（或容器侧的 `java-javax`）并列，
-  两目录**同包同名**，由模块 `build.gradle.kts` 的 `cExclusiveJdk8SourceDirs(...)` 整体替换主源集。
-
-**每个模块都必须有 `src/main/java`**：形态一里它是公共源目录，形态二里它是默认侧（最新 LTS / jakarta）的实现目录。
-缺了它在配置期直接构建失败。
+少数类在两档位下必须用不同的底层 API（如 HttpClient 4/5、SLF4J 1/2、javax/jakarta）。全仓只有一种形态——*追加*：
+`src/<main|test>/java` 放公共类，档位目录（`java-jdk8` / `java-latest`）放档位专属类；
+jdk8 档位追加 `java-jdk8`、其余档位追加 `java-latest`（两个档位目录之间可以同包同名——那是同一个类的两档实现，永不共存）。
+全部主源码都在档位目录（无公共类）也合法（如 +ctool4j-logback+）。
 
 这组目录有一条**硬约束：同一档实际纳入的多个源码目录里，任一全限定名只能出现一次**——同名重复在编译期不可见
 （JVM 取先命中者且不报错），只能靠根脚本 `afterEvaluate` 时比对定稿源集的全限定名查清（命中即构建失败）。
 
-*容器侧适配*（javax / jakarta）同理：`src/main/java` 放 jakarta 侧、`src/main/java-javax` 放 javax 侧，两套**同包同名**，
-jdk8 档位整体替换主源集（其余档位不读 `java-javax`），不再拆成两个模块——**业务依赖坐标与 import 都不变**。
-这一对靠「成对文件互引 + 归一化比对自检」维护一致性（见 link:agent/AGENTS-PROJECT.MD[项目特有规范]）。
+*容器侧适配*（javax / jakarta）同样按追加承载：`src/main/java-jdk8` 放 javax 侧、`src/main/java-latest` 放 jakarta 侧，
+两套**同包同名成对镜像**，由 `JDK_VERSION` 按档位追加其一——**业务依赖坐标与 import 都不变**。
+镜像对靠「成对文件互引 + 归一化比对自检」维护一致性（见 link:agent/AGENTS-PROJECT.MD[项目特有规范]）。
 
 *构建产物目录同样按档位分家*（不用 Gradle 默认的 `build`，否则切档位构建会覆盖上一次的产物）：
 

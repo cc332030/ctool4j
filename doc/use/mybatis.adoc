@@ -15,7 +15,7 @@
 三者差异（插件体系、SQL 注入实现）见开发文档模块 README（link:../../ctool4j-parent/ctool4j-component/ctool4j-mybatis-pom/README.md[ctool4j-mybatis-pom]）；`-base` 随所选实现自动带入。
 
 `-33` / `-34` 只在 **jdk8 档位**构建、也只用于 JDK 8 应用：mybatis-plus 3.3.x / 3.4.x 只有
-`extension.service` 包名，而 `ctool4j-mybatis-adapter` 在最新 LTS 档提供的是 `spring.service` 包名侧，
+`extension.service` 包名，而 `ctool4j-mybatis-base` 在最新 LTS 档提供的是 `spring.service` 包名侧，
 两者不同侧、无从共存。
 
 == 用法

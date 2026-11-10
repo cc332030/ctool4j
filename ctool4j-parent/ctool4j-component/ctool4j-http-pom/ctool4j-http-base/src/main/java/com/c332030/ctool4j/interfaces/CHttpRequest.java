@@ -53,9 +53,10 @@ import java.util.Map;
  *   {@link CRequestDispatcher}。返回 Servlet 类型的 {@code getCookies}、{@code getSession} 已以自有类型（{@link ICCookie}、{@link ICHttpSession}）统一<b>纳入</b>；
  *   {@code getParts}、{@code getServletContext}、{@code getPart}、{@code upgrade} 留待同类包装、暂不纳入（声明在一个方法上必然偏向其中一边）；
  *   抛 Servlet 异常的 {@code login}/{@code logout} 经 {@link CServletException} 包装后<b>已纳入</b>本接口。</li>
- *   <li><b>底层决定用哪个包</b>：本接口不含任何 Servlet 依赖（{@code ctool4j-http-base} 不引 servlet-api）；
- *   由适配模块承接——{@code ctool4j-http-servlet} 按档位选用 {@code javax.servlet} 或 {@code jakarta.servlet}
- *   源码目录，使用方按自身容器依赖引入对应档位产物。</li>
+ *   <li><b>底层决定用哪个包</b>：本接口不含任何 Servlet 依赖；由同模块的容器落地承接——
+ *   {@code CHttpServletRequest} 等在 {@code src/main/java-jdk8} / {@code src/main/java-latest} 各一份同包同名，
+ *   按档位选用 {@code javax.servlet} 或 {@code jakarta.servlet} 源码目录，servlet-api 由本模块按档位
+ *   以 optional 声明，使用方按自身容器依赖引入对应档位产物。</li>
  *   <li><b>接口只声明、不实现</b>：实现是纯转发，契约与语义完全沿用 Servlet 规范，本接口不新增语义、
  *   不做兜底（如 {@code getParameter} 查不到即按规范返回 {@code null}）。</li>
  *   <li><b>跨包异常包装</b>：底层 Servlet 异常（{@code javax.servlet.ServletException} 与

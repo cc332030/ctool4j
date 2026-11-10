@@ -97,8 +97,8 @@
 | Spring 基础装配与工具、`@CAutowired` 静态注入、`@CSpringBootApplication`、代理解析
 | link:spring.adoc[spring]
 
-| +ctool4j-spring-security+ ／ +ctool4j-spring-security-autoconfigure+
-| Spring Security 契约（模型/工具/Jackson）；过滤器链自动装配在 autoconfigure
+| +ctool4j-spring-security+
+| Spring Security 契约与过滤器链自动装配（模型/工具/Jackson）
 | link:spring-security.adoc[spring-security]
 
 | +ctool4j-spring-cloud+

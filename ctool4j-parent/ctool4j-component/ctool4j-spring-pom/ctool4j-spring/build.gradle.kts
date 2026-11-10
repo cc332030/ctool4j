@@ -4,11 +4,10 @@ plugins {
     `java-library`
 }
 
-import com.c332030.ctool4j.gradle.buildsrc.util.isJdk8
-
 /**
- * 容器侧适配模块：`ctool4j-spring-servlet` 内在 `src/main/java`（jakarta）与 `src/main/java-javax`
- * 两套同包同名源码间按档位自动切换（见根 `build.gradle.kts`），故依赖模块恒定、不再按侧拼接模块名。
+ * 容器侧适配已并回 `ctool4j-spring-base`：容器契约类落在其 `src/main/java-jdk8`（javax）
+ * 与 `src/main/java-latest`（jakarta）档位源目录内，追加语义天然互斥（见根 `build.gradle.kts`），
+ * 故本模块依赖恒定为 `ctool4j-spring-base`、不再按侧拼接模块名。
  */
 
 dependencies {
@@ -21,10 +20,7 @@ dependencies {
 
     api("org.aspectj:aspectjweaver")
     api(project(":ctool4j-core"))
-    // `CRestTemplateUtils` 经 `CHttpClientUtils.REQUEST_FACTORY` 构建连接池化的 RestTemplate；
-    // 该类已从 ctool4j-core 迁至独立模块（HttpClient 4/5 按档位分流），故显式引入
-    api(project(":ctool4j-httpclient"))
-    api(project(":ctool4j-spring-servlet"))
+    api(project(":ctool4j-spring-base"))
     api(project(":ctool4j-autowired-processor"))
 
 }

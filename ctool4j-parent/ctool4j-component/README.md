@@ -1,6 +1,6 @@
 # ctool4j-component
 
-> 组件模块聚合：23 个组件模块的容器，并按层组织（基础层 → Spring 层 → 应用层 → 中间件层 → 配套层）。
+> 组件模块聚合：37 个 jar 组件模块与 12 个聚合 pom 的容器，并按层组织（基础层 → Spring 层 → 应用层 → 中间件层 → 配套层）。
 
 ## 简介
 
@@ -13,15 +13,13 @@
 | 层 | 模块 | 定位 |
 |----|------|------|
 | 基础层 | [ctool4j-definition](ctool4j-definition/README.md) | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 |
-| | [ctool4j-core](ctool4j-core/README.md) | 核心工具库：字符串 / 集合 / 日期 / JSON / 反射 / 异常 / 日志 / 校验 |
-| | [ctool4j-httpclient](ctool4j-httpclient/README.md) | HTTP 客户端工具 `CHttpClientUtils`（HttpClient 4/5 按档位整体替换，独立成模块使 `ctool4j-core` 主源集单源） |
-| | [ctool4j-http-pom](ctool4j-http-pom/README.md) | Servlet 容器抽象层与容器适配：`ctool4j-http-base` / `ctool4j-http-servlet`（模块内按档位切换 javax/jakarta 源目录） |
+| | [ctool4j-core](ctool4j-core/README.md) | 核心工具库：字符串 / 集合 / 日期 / JSON / 反射 / 异常 / 日志 / 校验，含 HTTP 客户端工具 `CHttpClientUtils`（HttpClient 4/5 按档位源目录切换） |
+| | [ctool4j-http-pom](ctool4j-http-pom/README.md) | Servlet 容器抽象层与容器适配：`ctool4j-http-base`（模块内档位源目录切换 javax/jakarta） |
 | | [ctool4j-db](ctool4j-db/README.md) | SQL 拼接工具 |
 | | [ctool4j-transaction](ctool4j-transaction/README.md) | 事务注解约定（`@CTransactional`） |
-| Spring 层 | [ctool4j-spring-base-pom](ctool4j-spring-base-pom/README.md) | Spring 侧抽象契约与容器适配：拦截器 / 响应体增强 / 配置属性 / cors / 安全错误响应（`ctool4j-spring-servlet` / `ctool4j-spring-security-servlet`，模块内按档位切换 javax/jakarta 源目录） |
-| | [ctool4j-spring-pom](ctool4j-spring-pom/README.md) | `ctool4j-spring` / `ctool4j-spring-security` / `ctool4j-spring-security-autoconfigure` / `ctool4j-spring-cloud` |
-| 应用层 | [ctool4j-web](ctool4j-web/README.md) | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId |
-| | [ctool4j-web-validation](ctool4j-web-validation/README.md) | 必填校验注解 `@CRequired` / `@CNotRequired` 与校验器（Bean Validation 包名按档位切换，故独立成模块） |
+| Spring 层 | [ctool4j-spring-base-pom](ctool4j-spring-base-pom/README.md) | Spring 侧抽象契约与容器适配：拦截器 / 响应体增强 / 配置属性 / cors / 安全错误响应（`ctool4j-spring-base` / `ctool4j-spring-security-base`，模块内档位源目录切换 javax/jakarta） |
+| | [ctool4j-spring-pom](ctool4j-spring-pom/README.md) | `ctool4j-spring` / `ctool4j-spring-security` / `ctool4j-spring-cloud` |
+| 应用层 | [ctool4j-web](ctool4j-web/README.md) | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId、必填校验注解（Bean Validation 包名按档位切换） |
 | | [ctool4j-feign](ctool4j-feign/README.md) | Feign 增强：请求头传播、日志、自定义拦截器 |
 | | [ctool4j-redis](ctool4j-redis/README.md) | Redis 操作、Redisson 分布式锁、限流、幂等 |
 | | [ctool4j-cache](ctool4j-cache/README.md) | 二级缓存：本地缓存 + Redis，防击穿 / 防雪崩 |

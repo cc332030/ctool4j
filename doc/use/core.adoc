@@ -30,8 +30,8 @@
 
 包名均为 +com.c332030.ctool4j.+ 前缀（下表同）。
 
-HTTP 客户端配置工具 +CHttpClientUtils+ 已迁至独立模块 +ctool4j-httpclient+（HttpClient 4/5 按档位分流，
-+ctool4j-spring+ 等使用方显式引入），见 link:../../ctool4j-parent/ctool4j-component/ctool4j-httpclient/README.md[其 README]。
+HTTP 客户端配置工具 +CHttpClientUtils+ 在本模块内按档位分流（+java-jdk8+ 承 HttpClient 4、+java-latest+ 承 HttpClient 5，
+依赖坐标由版本目录按档位取），见 link:../../ctool4j-parent/ctool4j-component/ctool4j-core/README.md[本模块 README]。
 
 == 用法
 
