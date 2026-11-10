@@ -193,13 +193,46 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
   +src/main/java-javax+ 承 javax，`cExclusiveJdk8SourceDirs(...)` 整体替换），**全限定名不变**；
   +ctool4j-web+ 以 +api+ 依赖它，主源集回到单源（测试源集仍按 +AutoConfigureMockMvc+ 等差异分档位）
 | 已拆分
+
+| +ctool4j-cache+ 的 +CCacheService+、+ctool4j-nacos-discovery+ 的 +CFeignLocalClientInit+（+java-jdk8+ / +java-latest+）
+| 两类都只因 +@PreDestroy+ 的包名（+javax.annotation+ / +jakarta.annotation+）分两份。改用
+  Spring 自有的 +DisposableBean+（两档位同包同名）承载销毁回调（+CFeignLocalClientInit.destroy+ 委托
+  +close+，防重入不变），行为等价（容器销毁时触发、先于 destroy-method）；两模块主源集回到单源
+| 已消除
+
+| +CHttpClientUtils+ 的 +src/{main,test}/java-{jdk8,latest}+（+ctool4j-core+）
+| HttpClient 4 / 5 包名空间与 API 全然不同，Spring 7 的 +HttpComponentsClientHttpRequestFactory+ 只接受 HC5——整类不可调和；
+  独立成模块 +ctool4j-httpclient+（+src/main/java+ 承 HC5、+src/main/java-jdk8+ 承 HC4，整体替换），
+  +ctool4j-core+ 主源集单源化，使用方（+ctool4j-spring+ 等）显式引入
+| 已迁移
+
+| +ctool4j-web+ 测试的 +javax/jakarta.validation.Valid+
+| 接口校验触发器统一为 Spring 的 +@Validated+（+org.springframework.validation.annotation+，包名两档一致，
+  对 +@RequestBody+ 同样触发校验并抛 +MethodArgumentNotValidException+）；
+  +CRequiredValidatorTestController+ 回到公共测试目录，+javax/jakarta.validation.Valid+ 在仓内清零
+| 已消除
+
+| +CSecurityConfiguration+（+java-jdk8+ / +java-latest+，原 +ctool4j-spring-security+）
+| SS 5.7 / 7 的实质差异仅 +antMatchers+ vs +requestMatchers+（后者 SS 5.8 才有），整类不可调和；
+  抽离为独立模块 +ctool4j-spring-security-autoconfigure+（追加形态：+src/main/java+ 承公共类、
+  两档位目录各承一份同包同名 +CSecurityConfiguration+），+ctool4j-spring-security+ 主源集单源化，
+  需要装配的使用方（+ctool4j-auth-spring+ 等）显式引入
+| 已抽离
+
+| +ctool4j-doc-openapi2+ 的 +src/{main,test}/java-jdk8+
+| 该模块在非 jdk8 档位被整体排除（Springfox 的 javax 依赖），+java-jdk8+ 目录永远不会与标准目录分流——
+  "档位目录"形态对 jdk8 专属模块毫无意义。5 个文件并入标准目录 +src/{main,test}/java+，档位目录删除
+| 已合并
 |===
 
 *仍然保留两份的（真档位差异，详见 +agent/AGENTS-PROJECT.MD+ 的清单）*：
 +CHttpServletRequest#setStatus(int, String)+、+CErrorController+ 的 +ErrorController+ import、
 +CMdcLogback+ 的 deque 语义、+CRequired+ / +CRequiredValidator+（Bean Validation 包名，已移入 +ctool4j-web-validation+）、
-+ccache/CHttpClientUtils/CSecurityConfiguration+ 等按档位换底层 API 的实现，
-以及 +ctool4j-web+ 的 6 个异常处理器用例 / +CRequiredValidatorTests+（+AutoConfigureMockMvc+ 与 +javax.validation+ 双差异）。
++CSecurityConfiguration+（Spring Security 5/7：实质差异仅 +antMatchers+ vs +requestMatchers+——后者 SS 5.8 才有；
+已抽离至 +ctool4j-spring-security-autoconfigure+，按档位追加承载）、
++ctool4j-core+ 测试的 +CClassUtilsTests+（JDK 8 专有样本类）等，
+以及 +ctool4j-web+ 测试的 6 个异常处理器用例 / +CRequiredValidatorTests+（+AutoConfigureMockMvc+ 包名迁移与
+Bean Validation API 直用双差异；接口校验触发器已统一为 Spring 的 +@Validated+）。
 这些是"必须存在"的副本，不应按重复消除。
 
 == 相关入口

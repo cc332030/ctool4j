@@ -1,10 +1,10 @@
 # ctool4j-spring-pom
 
-> Spring 基础设施聚合模块，包含 3 个子模块：`ctool4j-spring`、`ctool4j-spring-security`、`ctool4j-spring-cloud`。
+> Spring 基础设施聚合模块，包含 4 个子模块：`ctool4j-spring`、`ctool4j-spring-security`、`ctool4j-spring-security-autoconfigure`、`ctool4j-spring-cloud`。
 
 ## 简介
 
-`ctool4j-spring-pom` 是聚合 pom，无自身源码。三个子模块分别提供：Spring 基础装配与工具、Spring Security + JWT 认证授权、Spring Cloud 微服务能力。
+`ctool4j-spring-pom` 是聚合 pom，无自身源码。四个子模块分别提供：Spring 基础装配与工具、Spring Security 契约（模型/服务/工具）、Spring Security 安全链自动装配、Spring Cloud 微服务能力。
 
 ---
 
@@ -71,44 +71,70 @@
 
 ## 子模块二：ctool4j-spring-security
 
-> Spring Security + JWT + Redis Session 的认证授权装配模块。
+> Spring Security 契约模块：安全用户模型、认证服务抽象、安全上下文工具与 Jackson 支持。
 
 ### 功能特性
 
-- 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`）
-- 安全过滤器链装配时按类型契约 `CAbstractWebAuthFilter`（`ctool4j-spring-servlet`，模块内按档位切换容器侧）注入认证过滤器，实现由 `ctool4j-auth-*` 模块提供（本模块不再提供过滤器基类）
-- 未认证 / 拒绝访问 / 会话过期统一处理（JSON 返回）
 - 用户认证服务抽象：`ICUserDetailsService` / `ICAuthenticationUserDetailsService` / `ICUserDetailsPasswordService`
 - 安全上下文与认证工具：`CSpringSecurityUtils` / `CAuthenticationUtils`
-- 放行 / 禁止路径配置（`ICRequestMatchersConfig`）
 - 安全用户模型 `CSecurityUser`
+- Jackson 支持：会话/用户对象经 Redis 读回时的 `GrantedAuthority` 反序列化（`CSecurityJacksonModule`）
 
 ### 核心类
 
 | 类 | 类型 | 职责 |
 |----|------|------|
-| `CSecurityConfiguration` | 配置 | SecurityFilterChain 装配与初始化 |
-| `CAuthenticationEntryPoint` | 处理器 | 未认证统一处理（置于 `ctool4j-spring-security-servlet`，模块内按档位切换容器侧） |
-| `CAccessDeniedHandler` | 处理器 | 拒绝访问统一处理（置于 `ctool4j-spring-security-servlet`，模块内按档位切换容器侧） |
 | `CSessionInformationExpiredStrategy` | 处理器 | 会话过期处理 |
 | `ICUserDetailsService` | 接口 | 用户认证服务抽象 |
 | `CSecurityUser` | 模型 | 安全用户模型 |
 | `CSpringSecurityUtils` | 工具类 | 安全上下文工具 |
 | `CEmptyUserDetailService` | 实现 | 空实现兜底 UserDetailsService |
-| `CSpringSecurityRequestMatchersPathConfig` | 配置 | 放行/禁止路径配置项 |
 
 ### 依赖
 
 | 依赖 | 说明 |
 |------|------|
 | `ctool4j-web` | Web 通用能力 |
+| `ctool4j-spring-security-servlet` | 容器侧安全处理器（模块内按档位切换容器侧） |
 | `spring-boot-starter-security` | Security |
 | `spring-session-data-redis`（optional） | Redis Session |
 | `spring-boot-starter-data-redis`（optional） | Redis |
 
 ---
 
-## 子模块三：ctool4j-spring-cloud
+## 子模块三：ctool4j-spring-security-autoconfigure
+
+> Spring Security 自动装配模块：`SecurityFilterChain` 装配及配套配置。
+
+### 功能特性
+
+- 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`；SS 5.7 / SS 7 的 `antMatchers` 与 `requestMatchers` 差异由模块内按档位追加的源码目录承载）
+- 安全过滤器链装配时按类型契约 `CAbstractWebAuthFilter`（`ctool4j-spring-servlet`，模块内按档位切换容器侧）注入认证过滤器，实现由 `ctool4j-auth-*` 模块提供
+- 未认证 / 拒绝访问 / 会话过期统一处理（JSON 返回）
+- 放行 / 禁止路径配置（`ICRequestMatchersConfig` / `CSpringSecurityRequestMatchersPathConfig`）
+
+### 核心类
+
+| 类 | 类型 | 职责 |
+|----|------|------|
+| `CSecurityConfiguration` | 配置 | SecurityFilterChain 装配与初始化（`java-jdk8` / `java-latest` 各一份同包同名实现） |
+| `CSpringSecurityRequestMatchersPathConfig` | 配置 | 放行/禁止路径配置项 |
+| `ICRequestMatchersConfig` | 接口 | 放行/禁止路径契约 |
+| `CSecurityInit` | 初始化 | Security 初始化回调 |
+
+### 依赖
+
+| 依赖 | 说明 |
+|------|------|
+| `ctool4j-spring-security` | Security 契约 |
+| `ctool4j-spring-security-servlet` | 容器侧安全处理器 |
+| `ctool4j-web` | Web 通用能力 |
+| `spring-boot-starter-security` | Security |
+| `spring-cloud-context` | `@RefreshScope` |
+
+---
+
+## 子模块四：ctool4j-spring-cloud
 
 > Spring Cloud 通用能力最小装配模块。
 

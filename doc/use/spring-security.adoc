@@ -1,10 +1,15 @@
 = 使用：ctool4j-spring-security（Security 装配）
 
-坐标：+com.c332030:ctool4j-spring-security+　｜　依赖：+ctool4j-web+、spring-boot-starter-security
+坐标：+com.c332030:ctool4j-spring-security+（契约）与 +com.c332030:ctool4j-spring-security-autoconfigure+（装配）
+｜　依赖：+ctool4j-web+、spring-boot-starter-security
+
+装配已从 +ctool4j-spring-security+ 抽离至 +ctool4j-spring-security-autoconfigure+（依赖方向单向：
+autoconfigure → spring-security）。**要自动装配引入后者**（经组件扫描生效，无需 spring.factories）；
+只使用模型 / 工具 / Jackson 支持时引前者即可。
 
 == 能力
 
-* 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`）：引入依赖即生效，无需业务手工配 `@Bean`。
+* 自动装配 `SecurityFilterChain`（`CSecurityConfiguration`，在 autoconfigure）：引入装配模块即生效，无需业务手工配 `@Bean`。
 * 未认证 / 拒绝访问 / 会话过期**统一 JSON 返回**（`CAuthenticationEntryPoint`、`CAccessDeniedHandler`、`CSessionInformationExpiredStrategy`）。
 * 认证过滤器**按类型契约注入**：过滤器链注入 `CAbstractWebAuthFilter`（+ctool4j-spring-servlet+ 的类型契约，模块内按档位自动切换容器侧），实现由 auth 模块提供（见 link:auth.adoc[auth]）。
 * 用户认证服务抽象：`ICUserDetailsService` / `ICAuthenticationUserDetailsService` / `ICUserDetailsPasswordService`（不实现时用 `CEmptyUserDetailService` 兜底）。

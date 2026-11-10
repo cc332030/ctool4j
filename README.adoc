@@ -16,7 +16,7 @@ ctool4j（根，packaging=pom）
     └── ctool4j-component
         ├── 基础层    definition / core / http-pom（http-base / http-servlet）/ db / transaction
         ├── Spring 层 spring-base-pom（spring-base / spring-servlet / spring-security-base / spring-security-servlet）
-        │             spring-pom（spring / spring-security / spring-cloud）
+        │             spring-pom（spring / spring-security / spring-security-autoconfigure / spring-cloud）
         ├── 应用层    web / feign / redis / cache
         ├── 认证层    auth-pom（auth-base / auth-spring）
         ├── 中间件层  log-pom / mybatis-pom / nacos-pom / mq-pom / job-pom
@@ -37,6 +37,7 @@ ctool4j（根，packaging=pom）
 
 | ctool4j-definition | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 | link:ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[README]
 | ctool4j-core | 核心工具库：字符串/集合/日期/JSON/反射/异常/日志/校验 | link:ctool4j-parent/ctool4j-component/ctool4j-core/README.md[README]
+| ctool4j-httpclient | HTTP 客户端工具 CHttpClientUtils（HttpClient 4/5 按档位切换，独立成模块使 core 主源集单源） | link:ctool4j-parent/ctool4j-component/ctool4j-httpclient/README.md[README]
 | ctool4j-http-pom | Servlet 容器抽象层与容器适配（http-base / http-servlet，模块内按档位切换 javax/jakarta 源目录） | link:ctool4j-parent/ctool4j-component/ctool4j-http-pom/README.md[README]
 | ctool4j-db | SQL 拼接工具 | link:ctool4j-parent/ctool4j-component/ctool4j-db/README.md[README]
 | ctool4j-transaction | 事务注解约定（@CTransactional） | link:ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[README]

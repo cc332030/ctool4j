@@ -10,13 +10,13 @@ import lombok.Setter;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ import java.io.IOException;
  * 由容器内装配的异常处理器链路处理，用于断言"哪个处理器命中"这一对外可观测结果。</p>
  * <ul>
  *   <li>{@code GET /c-exception-handler/{type}}：抛出对应异常（子类端点抛子类实例）。</li>
- *   <li>{@code POST /c-exception-handler/not-valid}：{@code @Valid @RequestBody} 自然触发 {@code MethodArgumentNotValidException}。</li>
+ *   <li>{@code POST /c-exception-handler/not-valid}：{@code @Validated @RequestBody} 自然触发 {@code MethodArgumentNotValidException}。</li>
  *   <li>{@code GET /c-exception-handler/type-mismatch}：{@code @RequestParam Integer} 传非数字自然触发 {@code MethodArgumentTypeMismatchException}。</li>
  *   <li>{@code GET /c-exception-handler/missing-param}：缺必填 {@code @RequestParam} 自然触发 {@code MissingServletRequestParameterException}。</li>
  * </ul>
@@ -252,13 +252,13 @@ public class CExceptionHandlerTestController {
     }
 
     /**
-     * 参数校验异常（自然触发：{@code @Valid} + {@code @NotNull}）
+     * 参数校验异常（自然触发：{@code @Validated} + {@code @NotNull}）
      *
      * @param dto 请求体
      * @return 不返回
      */
     @PostMapping("/c-exception-handler/not-valid")
-    public String notValid(@Valid @RequestBody CNotValidDTO dto) {
+    public String notValid(@Validated @RequestBody CNotValidDTO dto) {
         throw new IllegalStateException("不会执行到此：dto=" + dto);
     }
 

@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.validation.ConstraintViolation;
 import javax.validation.Payload;
 import javax.validation.Validator;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <p>
  * Description: CRequiredValidator 按类型自动校验逻辑测试：启动 Spring 容器（@CTool4jSpringBootTest），
  * 经容器注入的真实 {@link Validator} 完整校验（验证 message 等属性生效），并通过 MockMvc
- * 走真实接口（@Valid @RequestBody）验证必填/非必填生效，贴近真实使用场景
+ * 走真实接口（@Validated @RequestBody）验证必填/非必填生效，贴近真实使用场景
  * </p>
  *
  * <p>
@@ -38,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * <h2>设计思路</h2>
  * <ul>
- *   <li>启动真实 Spring 容器（{@code @CTool4jSpringBootTest} + {@code @AutoConfigureMockMvc}），经容器注入的真实 {@code Validator} 做按类型分发的直接校验，并走真实接口（MockMvc 调 {@code CRequiredValidatorTestController} 的 {@code POST /c-required-validator/test}，{@code @Valid @RequestBody} 触发校验）验证必填/非必填生效，贴近真实使用场景。</li>
+ *   <li>启动真实 Spring 容器（{@code @CTool4jSpringBootTest} + {@code @AutoConfigureMockMvc}），经容器注入的真实 {@code Validator} 做按类型分发的直接校验，并走真实接口（MockMvc 调 {@code CRequiredValidatorTestController} 的 {@code POST /c-required-validator/test}，{@code @Validated @RequestBody} 触发校验）验证必填/非必填生效，贴近真实使用场景。</li>
  *   <li>覆盖标注 {@code @CRequired}（即必填）时 null/字符串（notBlank）/集合（notEmpty）/Map（notEmpty）/数组（notEmpty）/其他对象（notNull），以及 message 自定义提示、groups/payload 兼容。</li>
  *   <li>分类 1 用容器 {@code Validator} 直接校验各类型分发分支；分类 2 用 MockMvc 走真实接口验证必填/非必填。</li>
  * </ul>

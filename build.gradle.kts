@@ -220,7 +220,7 @@ subprojects {
         // SLF4J 1/2 等），无法用同一份源码兼容。按「两份实现的关系」分两种形态：
         //
         // ① 追加（默认）：`src/<main|test>/java` 放公共类，档位目录放**与之不相交**的类；
-        //    jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`（如 `ctool4j-core`）。
+        //    jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`（如 `ctool4j-spring-security-autoconfigure`）。
         // ② 整体替换：`src/<main|test>/java` 与另一侧目录承载**同一个全限定名**的两份实现
         //    （`CMdcLogback`、`CHttpServletRequest` 等），追加必然重复（同包同名的两份 class 同时
         //    进 classpath 时 JVM 取先命中者且**不报错**）。这类模块在自己的 `build.gradle.kts` 里调
@@ -420,7 +420,7 @@ subprojects {
                 addToAll(listOf("compileOnly", "testImplementation"), lib("jackson-datatype-jsr310"))
 
                 // HttpClient 5：仅最新 LTS 档位（Spring 7 的 HttpComponentsClientHttpRequestFactory 只接受 HC5）；
-                // jdk8 档位沿用 HttpClient 4（经 httpmime 传递），不注入本依赖
+                // jdk8 档位沿用 HttpClient 4（经 ctool4j-httpclient 模块的 `httpclient-jdk8` 别名承载），不注入本依赖
                 if (!jdk8Profile) {
                     addToAll(listOf("compileOnly", "testImplementation"), lib("httpclient5"))
                 }

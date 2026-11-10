@@ -21,6 +21,9 @@ dependencies {
 
     api("org.aspectj:aspectjweaver")
     api(project(":ctool4j-core"))
+    // `CRestTemplateUtils` 经 `CHttpClientUtils.REQUEST_FACTORY` 构建连接池化的 RestTemplate；
+    // 该类已从 ctool4j-core 迁至独立模块（HttpClient 4/5 按档位分流），故显式引入
+    api(project(":ctool4j-httpclient"))
     api(project(":ctool4j-spring-servlet"))
     api(project(":ctool4j-autowired-processor"))
 

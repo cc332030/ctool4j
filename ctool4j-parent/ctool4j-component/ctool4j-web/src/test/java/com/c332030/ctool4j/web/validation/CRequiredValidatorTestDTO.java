@@ -1,14 +1,13 @@
 package com.c332030.ctool4j.web.validation;
 
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
-
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
  * Description: CRequired 校验集成测试用 DTO：必填字段用 {@code @CRequired} 标注，
- * 用于在启动 Spring 容器后经真实接口（MockMvc、@Valid @RequestBody）验证接口必填/非必填生效
+ * 用于在启动 Spring 容器后经真实接口（MockMvc、@Validated @RequestBody）验证接口必填/非必填生效
  * </p>
  *
  * <h2>功能说明</h2>

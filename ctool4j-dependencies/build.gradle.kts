@@ -28,6 +28,7 @@ val ctool4jArtifacts = listOf(
 
     "ctool4j-definition",
     "ctool4j-core",
+    "ctool4j-httpclient",
     "ctool4j-log-base",
     "ctool4j-auth-pom",
     "ctool4j-auth-base",
@@ -45,6 +46,7 @@ val ctool4jArtifacts = listOf(
     "ctool4j-rabbitmq",
     "ctool4j-spring",
     "ctool4j-spring-security",
+    "ctool4j-spring-security-autoconfigure",
     "ctool4j-spring-cloud",
     "ctool4j-web",
     "ctool4j-web-validation",

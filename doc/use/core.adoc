@@ -11,7 +11,7 @@
 | +core.classes+
 | `CBeanUtils`（对象/Map 属性拷贝，**集合与嵌套对象为深拷贝**）、`CClassUtils`、`CReflectUtils`、`CMethodHandleUtils`、`CLambdaUtils`、`CObjUtils`、`CConvertUtils`、`CClassConvert`/`CClassConverter`、`CElKeyResolveUtils`
 | +core.util+
-| `CStrUtils`、`CCollUtils`、`CMapUtils`、`CList`、`CSet`、`CList`/`CMap`/`CSet` 的视图 `CListView`/`CMapView`/`CSetView`、`CCollectors`、`CStreamUtils`、`CDateUtils`、`CNumUtils`、`CAmountUtils`、`CBase62Utils`、`CBase64Utils`、`CJsonUtils`、`CEnumUtils`、`CComparatorUtils`、`COpt`、`CUrlUtils`、`CDesUtils`、`CIdUtils`、`CResultUtils`、`CPageUtils`、`CThreadLocalUtils`、`CThreadUtils`、`CSpiUtils`、`CHttpClientUtils`、`CResUtils`、`CPatternUtils`、`CMediaTypeUtils`、`CLocalCacheUtils`、`CTestUtils`（测试环境判断）
+| `CStrUtils`、`CCollUtils`、`CMapUtils`、`CList`、`CSet`、`CList`/`CMap`/`CSet` 的视图 `CListView`/`CMapView`/`CSetView`、`CCollectors`、`CStreamUtils`、`CDateUtils`、`CNumUtils`、`CAmountUtils`、`CBase62Utils`、`CBase64Utils`、`CJsonUtils`、`CEnumUtils`、`CComparatorUtils`、`COpt`、`CUrlUtils`、`CDesUtils`、`CIdUtils`、`CResultUtils`、`CPageUtils`、`CThreadLocalUtils`、`CThreadUtils`、`CSpiUtils`、`CResUtils`、`CPatternUtils`、`CMediaTypeUtils`、`CLocalCacheUtils`、`CTestUtils`（测试环境判断）
 | +core.exception+
 | `CException`（受检异常基类）、`CBusinessException`（业务异常）、`CUnauthorizedException`（未认证语义，由 +ctool4j-web+ 转为响应体业务码 401）、`CExceptionUtils`、异常提供者 SPI
 | +core.log+
@@ -29,6 +29,9 @@
 |===
 
 包名均为 +com.c332030.ctool4j.+ 前缀（下表同）。
+
+HTTP 客户端配置工具 +CHttpClientUtils+ 已迁至独立模块 +ctool4j-httpclient+（HttpClient 4/5 按档位分流，
++ctool4j-spring+ 等使用方显式引入），见 link:../../ctool4j-parent/ctool4j-component/ctool4j-httpclient/README.md[其 README]。
 
 == 用法
 
