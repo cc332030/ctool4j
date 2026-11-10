@@ -8,12 +8,13 @@ plugins {
 
 dependencies {
 
+    // MP 版本按档位取：jdk8 档 3.5.16、最新 LTS 档 3.5.17（见 gradle/libs.versions.toml）
     api(lib("mybatis-plus-boot-starter"))
     api(lib("mybatis-plus-jsqlparser-4-9"))
     cOptional(lib("mybatis-plus-join"))
 
+    // 适配层与 base 的版本差异已收敛在 `ctool4j-mybatis-adapter`（按档位出 jar），本模块只依赖 base
     api(project(":ctool4j-mybatis-base"))
-    api(project(":ctool4j-mybatis-mp-java8"))
 
     // 共享的 service 源码（ICMpLockService 等）在本模块编译，需与 base 相同的 provided 依赖
     cProvided(project(":ctool4j-redis"))
@@ -21,25 +22,7 @@ dependencies {
 }
 
 /**
- * 挂载中间模块的 **3.5.x 侧**自适应源码目录。
- *
- * 中间模块 `ctool4j-mybatis-mp-java8` 的公共面（`ICCheckService`、`CMybatisPlusSide`）随其 jar 发布；
- * 版本侧部分（自适应层 `spi/CMybatisPlusSpi` / `spi/IService` / `spi/CMybatisPlusServiceImpl`
- * 与实现基底 `service/impl/CBaseServiceImpl`）由本模块按侧纳入：
- * 本模块是 mybatis-plus 3.5.x（`com.baomidou.mybatisplus.spring.service`）侧，
- * 故挂 `java-adaptive-spring` + `java-base-spring`；3.3.x / 3.4.x 侧的同名文件落 `java-adaptive-extension`、由 `-33` / `-34` 挂载。
- *
- * 两侧的相对路径集合完全镜像、内容互不相交，任一模块只挂其一——于是本模块的源码集合里
- * 不会出现重复的全限定名，公共面也不引用任何版本侧符号。
- *
- * 挂载方式：`srcDir` 直接指向中间模块的源码目录（路径相对本模块项目目录解析）——
- * 目标包名由文件自身的 `package` 声明决定，与挂在哪个物理目录无关。
+ * 本模块是"当前主流版本"的聚合：MP 3.5.x（jdk8 档 3.5.16、最新 LTS 档 3.5.17）+ 本仓库的
+ * injector / 配置增强。`IService` / `ServiceImpl` 的包名差异由 `ctool4j-mybatis-adapter`
+ * 按档位二选一吸收，本模块的单源目录对两档都成立。
  */
-sourceSets {
-    main {
-        java {
-            srcDir("../ctool4j-mybatis-mp-java8/src/main/java-adaptive-spring")
-            srcDir("../ctool4j-mybatis-mp-java8/src/main/java-base-spring")
-        }
-    }
-}

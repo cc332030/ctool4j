@@ -160,13 +160,14 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
   业务方法不再各写一遍
 | 已消除重复
 
-| +ctool4j-mybatis-base+ 的版本适配桥（+spi/IService+、+spi/CMybatisPlusSpi+、+spi/CMybatisPlusServiceImpl+、+service/impl/CBaseServiceImpl+）与 +CMpController+
+| +ctool4j-mybatis-base+ 的版本适配桥（+spi/IService+、+spi/CMybatisPlusSpi+、+spi/CMybatisPlusServiceImpl+）与 +CMpController+
 | 同名两份**不可避免**（mybatis-plus 3.5.17 起 +IService+/+ServiceImpl+ 由 +extension.service+ 迁到 +spring.service+，两坐标不能共存）。
-  改为**自适应中间层 + 目录级互斥**：新建 +ctool4j-mybatis-mp-java8+，其 +java+ 放版本无关公共面（+ICCheckService+，随 jar 发布），
-  +java-adaptive-{spring,extension}+ 放两侧自适应层（承各自 MP 坐标，承载**完全相同的相对路径集合**）、
-  +java-base-{spring,extension}+ 放两侧实现基底；+CMpController+ 改落 base 的 +java-javax+ / +java-jakarta+（成对镜像、按 JDK 档位二选一）——
-  各组目录互不相交，任一模块只挂其一；公共契约（+ICCheckService+ → +ICService+ 一族）不再引用任何版本侧符号
-| 已收口（同全限定名仍在，但收敛到自适应层、目录不相交、公共面无版本耦合）
+  改为**独立适配模块 + 档位源目录**：新建 +ctool4j-mybatis-adapter+（全仓唯一允许出现多源的模块），
+  +java+ 承 +spring.service+（3.5.17+，默认档）、+java-jdk8+ 承 +extension.service+（3.3.x / 3.4.x / 3.5.16），
+  两目录承载**完全相同的相对路径集合**、永不共存（jdk8 档位由该模块构建脚本整体替换主源集）；base 改为单源目录（+java+），
+  +CBaseServiceImpl+ 并入 +CServiceImpl+，+CMpController+ 收为单份并用 ctool4j-web 的 +@CRequired+ 取代 +@NotNull+
+  （+javax.validation+ / +jakarta.validation+ 不能同时 import）。公共契约（+ICCheckService+ → +ICService+ 一族）不再引用任何版本侧符号
+| 已收口（同全限定名仍在，但收敛到独立模块、目录不相交、公共面无版本耦合）
 
 | +ctool4j-doc-openapi2+ 的 +src/{main,test}/java-latest+
 | 该模块在非 jdk8 档位被整体排除（链接到 Springfox 的 javax 依赖，无 jakarta 形态），

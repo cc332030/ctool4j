@@ -58,6 +58,20 @@ val isJdk8 = 8 == jdkVersion
 val javaxOnlyModuleNames = setOf(
     "ctool4j-doc-openapi2"
 )
+
+/**
+ * jdk8 档位专属模块白名单（仅在 jdk8 档位纳入）。
+ *
+ * `ctool4j-mybatis-33` / `-34`：MP 3.3.x / 3.4.x 只有 `extension.service` 包名，
+ * 而 `ctool4j-mybatis-adapter` 在最新 LTS 档出的是 `spring.service` 包名侧（只对 3.5.17+ 成立），
+ * 两者不同侧、无从共存。故这两个模块只在 jdk8 档位参与构建（该档位的适配 jar 正是
+ * `extension.service` 侧，与 3.3.x / 3.4.x / 3.5.16 同侧）。
+ */
+val jdk8OnlyModuleNames = setOf(
+    "ctool4j-mybatis-33",
+    "ctool4j-mybatis-34"
+)
+
 println("ctool4j settings: jdkVersion=$jdkVersion, containerSide=${if (isJdk8) "javax" else "jakarta"}")
 
 rootProject.name = "ctool4j"
@@ -96,8 +110,8 @@ baseDir.walkTopDown()
         val moduleName = moduleDir.name
 
         // 容器侧不按模块拆（含 javax/jakarta 源码目录的模块按档位选源目录），
-        // 只有「无 jakarta 形态的 javax 专属模块」需要在非 jdk8 档位排除
-        if (!isJdk8 && moduleName in javaxOnlyModuleNames) {
+        // 只有「无 jakarta 形态的 javax 专属模块」与「只在 jdk8 档位成立的版本模块」需要按档位排除
+        if (!isJdk8 && (moduleName in javaxOnlyModuleNames || moduleName in jdk8OnlyModuleNames)) {
             return@forEach
         }
 

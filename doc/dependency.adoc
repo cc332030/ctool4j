@@ -152,7 +152,7 @@ graph LR
   db["ctool4j-db"]
   redis["ctool4j-redis"]
 
-  mybatisMp8["ctool4j-mybatis-mp-java8"]
+  mybatisAdapter["ctool4j-mybatis-adapter"]
   mybatisBase["ctool4j-mybatis-base"]
   mybatis33["ctool4j-mybatis-33"]
   mybatis34["ctool4j-mybatis-34"]
@@ -181,8 +181,8 @@ graph LR
   testCore["ctool4j-test-core"]
   testSpring["ctool4j-test-spring"]
 
-  mybatisMp8 -.-> core
-  mybatisBase -.-> mybatisMp8
+  mybatisAdapter -.-> core
+  mybatisBase -.-> mybatisAdapter
   mybatisBase -.-> core
   mybatisBase -.-> definition
   mybatisBase -.-> transaction
@@ -191,9 +191,9 @@ graph LR
   mybatis33 -.-> mybatisBase
   mybatis34 -.-> mybatisBase
   mybatis -.-> mybatisBase
-  mybatis33 -.-> mybatisMp8
-  mybatis34 -.-> mybatisMp8
-  mybatis -.-> mybatisMp8
+  mybatis33 -.-> mybatisAdapter
+  mybatis34 -.-> mybatisAdapter
+  mybatis -.-> mybatisAdapter
   mybatisP -.-> mybatis
 
   mqBase -.-> spring
@@ -271,11 +271,11 @@ graph LR
 | ctool4j-auth-base | ctool4j-web、ctool4j-cache | 认证基础（过滤器骨架、mock 会话、会话加载），与 Spring Security 解耦
 | ctool4j-auth-spring | ctool4j-auth-base、ctool4j-spring-security | 认证的 Security 落地（认证构造、安全上下文）
 
-| ctool4j-mybatis-mp-java8 | ctool4j-core、mybatis-plus-boot-starter（api） | **MyBatis-Plus 版本侧自适应中间层**：把 `IService`/`ServiceImpl` 的坐标迁移差异（3.5.17 起 `extension.service` → `spring.service`）收敛于此。`java` 放版本无关公共面（`ICCheckService`、`CMybatisPlusSide`，随 jar 发布）；`java-adaptive-{spring,extension}` 放两侧自适应层（同包同名、互为镜像、只挂其一，由消费模块 `srcDir` 挂载）；`java-base-{spring,extension}` 放两侧实现基底 `CBaseServiceImpl`。MP 版本由使用方/BOM 决定
-| ctool4j-mybatis-base | ctool4j-mybatis-mp-java8、ctool4j-transaction、ctool4j-db、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础。`java` 放版本无关公共面（`ICService` 一族、`CBizIdUtils`、mapper/model/handler/util）；`java-javax` ↔ `java-jakarta` 是**成对镜像**的档位专属 `CMpController`，按 JDK 档位二选一。**各源目录的代码彼此完全互斥**。MP、jdbc 等由使用方提供
-| ctool4j-mybatis-33 | ctool4j-mybatis-base、ctool4j-mybatis-mp-java8 | MyBatis-Plus 3.3 适配（旧版分页插件签名）
-| ctool4j-mybatis-34 | ctool4j-mybatis-base、ctool4j-mybatis-mp-java8 | MyBatis-Plus 3.4 适配；mybatis-plus-join 为 optional
-| ctool4j-mybatis | ctool4j-mybatis-base、ctool4j-mybatis-mp-java8 | MyBatis-Plus 全套适配；mybatis-plus-join 为 optional
+| ctool4j-mybatis-adapter | ctool4j-core（api）、mybatis-plus-boot-starter（provided） | **MyBatis-Plus 版本适配层**：把 `IService`/`ServiceImpl` 的包名迁移差异（3.5.17 起 `extension.service` → `spring.service`）收敛于此，上层 `ICService` 一族因此版本无关。**全仓唯一允许出现多源的模块**：`java` 承 `spring.service`（3.5.17+，默认/最新 LTS 档生效）、`java-jdk8` 承 `extension.service`（3.3.x / 3.4.x / 3.5.16，jdk8 档生效），两目录互为镜像（同包同名的 `spi/IService`、`spi/CMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`）且永不共存；jdk8 档位由该模块 `build.gradle.kts` 整体替换主源集（根脚本对 `java-<side>` 是追加语义）。MP 只做编译期可见、不向下游传递（不锁版本）
+| ctool4j-mybatis-base | ctool4j-mybatis-adapter、ctool4j-transaction、ctool4j-db、ctool4j-web（provided）、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础。**单源目录** `java`：`ICService` 一族（含 `ICCheckService`）、`CServiceImpl`、`CMpController`、`CBizIdUtils`、mapper/model/handler/util；版本差异由 adapter 吸收、容器差异由 ctool4j-web 的 `@CRequired` 吸收，故不按档位拆源目录。MP、jdbc 等由使用方提供
+| ctool4j-mybatis-33 | ctool4j-mybatis-base | MyBatis-Plus 3.3 适配（旧版分页插件签名）；**只在 jdk8 档位参与构建**
+| ctool4j-mybatis-34 | ctool4j-mybatis-base | MyBatis-Plus 3.4 适配；mybatis-plus-join 为 optional；**只在 jdk8 档位参与构建**
+| ctool4j-mybatis | ctool4j-mybatis-base | MyBatis-Plus 全套适配；mybatis-plus-join 为 optional；MP 版本按档位取（jdk8 → 3.5.16、最新 LTS → 3.5.17）
 
 | ctool4j-nacos-discovery | ctool4j-spring-cloud | Feign 本地实例注册/反注册
 | ctool4j-nacos-config | ctool4j-spring-cloud | 占位（暂无源码，配置中心待实现；config starter 已声明）
@@ -303,7 +303,7 @@ graph LR
 模块 A 依赖 B 时，B 的 `compile` 依赖会传递到 A，但**以下三类不传递**，B 中"仅靠 provided/optional 能满足"的能力，
 到 A 处会缺依赖、编译或运行失败——此时应由 A 显式声明，**不属于重复声明**：
 
-* `provided`：如 `ctool4j-web` 的 spring-boot-starter-web、`ctool4j-mybatis-mp-java8` 的 mybatis-plus-boot-starter（api）、`ctool4j-mybatis-base` 的 `ctool4j-redis`
+* `provided`：如 `ctool4j-web` 的 spring-boot-starter-web、`ctool4j-mybatis-adapter` 的 mybatis-plus-boot-starter、`ctool4j-mybatis-base` 的 `ctool4j-redis` 与 `ctool4j-web`
   （前者依赖由使用方提供）。
 * `optional`：如 `ctool4j-core` 的 guava、java-uuid-generator、jnanoid、ulid-creator、httpmime。
 * `test`：如 `ctool4j-mybatis-processor` 的 ctool4j-mybatis（仅供其测试使用）。

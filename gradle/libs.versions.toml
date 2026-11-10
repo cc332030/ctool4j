@@ -43,10 +43,16 @@ xxl-job = "3.4.2"
 lombok-jdk8 = "1.18.38"
 lombok = "1.18.48"
 
-# ===== 两档位取值相同的依赖 =====
-# mybatis-plus 3.5.17 起把 `com.baomidou.mybatisplus.extension` 的包名改为 `com.baomidou.mybatisplus.spring`
-# （官方发布说明：解决 JDK 9+ 模块化编译的包名冲突），`IService` / `ServiceImpl` 随之从 `mybatis-plus-spring`
-# jar 的 `.../extension/service` 移到 `.../spring/service`；本项目源码已按新包名引用（两档位同值）。
+# ===== mybatis-plus =====
+# 3.5.17 起 `com.baomidou.mybatisplus.extension` 的包名改为 `com.baomidou.mybatisplus.spring`
+# （官方发布说明：解决 JDK 9+ 模块化编译的包名冲突），`IService` / `ServiceImpl` 随之从
+# `mybatis-plus-spring` jar 的 `.../extension/service` 移到 `.../spring/service`。
+#
+# 两档位按版本分开取：MP 3.5.17 的字节码目标是 JDK 17，jdk8 档位钉在 3.5.16
+# （包名仍是 `extension.service`、字节码仍是 Java 8）。包名差异由 `ctool4j-mybatis-adapter`
+# 的两个档位源目录（`java-jdk8` / `java-latest`）吸收，使用方不感知。
+mybatis-plus-jdk8 = "3.5.16"
+mybatis-plus-jsqlparser-jdk8 = "3.5.16"
 mybatis-plus = "3.5.17"
 mybatis-plus-jsqlparser = "3.5.17"
 dynamic-datasource = "4.5.0"
@@ -97,6 +103,8 @@ xxl-job = { module = "com.xuxueli:xxl-job-core", version.ref = "xxl-job" }
 lombok-jdk8 = { module = "org.projectlombok:lombok", version.ref = "lombok-jdk8" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
+mybatis-plus-boot-starter-jdk8 = { module = "com.baomidou:mybatis-plus-boot-starter", version.ref = "mybatis-plus-jdk8" }
+mybatis-plus-jsqlparser-4-9-jdk8 = { module = "com.baomidou:mybatis-plus-jsqlparser-4.9", version.ref = "mybatis-plus-jsqlparser-jdk8" }
 mybatis-plus-boot-starter = { module = "com.baomidou:mybatis-plus-boot-starter", version.ref = "mybatis-plus" }
 mybatis-plus-jsqlparser-4-9 = { module = "com.baomidou:mybatis-plus-jsqlparser-4.9", version.ref = "mybatis-plus-jsqlparser" }
 dynamic-datasource-spring-boot-starter = { module = "com.baomidou:dynamic-datasource-spring-boot-starter", version.ref = "dynamic-datasource" }

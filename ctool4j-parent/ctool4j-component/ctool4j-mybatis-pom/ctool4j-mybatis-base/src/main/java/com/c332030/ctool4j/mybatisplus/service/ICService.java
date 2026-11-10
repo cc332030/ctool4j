@@ -34,10 +34,14 @@ import java.util.Set;
  * <p>{@code ICService}：服务接口。</p>
  * <h2>设计要点</h2>
  * <ul>
- *   <li>扩展 ICBizIdService，提供实体/mapper/分页等公共能力</li>
+ *   <li>扩展 ICBizIdService，提供实体/mapper/分页/按列取值/计数等公共能力</li>
+ *   <li>MP 的 service 面经 {@code ICCheckService} → {@code spi/CMybatisPlusSpi} 继承，本接口
+ *   **不出现任何版本侧类型**，故同一份源码对 3.3 / 3.4 / 3.5.16 / 3.5.17 都成立</li>
+ *   <li>计数统一走 {@code cCount(...)}（适配层提供），不直接调 {@code ChainQuery#count()}：
+ *   后者 3.3.x 返回 {@code Integer}、3.4.x 起返回 {@code Long}，描述符不兼容</li>
  * </ul>
  * <h2>兜底设计</h2>
- * <p>默认实现</p>
+ * <p>空实体 / 空集合 / 空值一律短路并返回空结果（{@code 0L}、空列表、{@code false}），不触发查询。</p>
  * <h2>适用范围</h2>
  * <p>服务接口</p>
  * <h2>不适用与边界场景</h2>
@@ -46,7 +50,7 @@ import java.util.Set;
  * <p>接口</p>
  *
  * @since 2025/11/27
- * @version 1.0
+ * @version 1.1
  */
 public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
 
@@ -360,10 +364,8 @@ public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
         if(null == value) {
             return 0L;
         }
-        return lambdaQuery()
-                .eq(column, value)
-                .count()
-                .longValue();
+        return cCount(lambdaQuery()
+                .eq(column, value));
     }
 
     /**
@@ -395,10 +397,8 @@ public interface ICService<ENTITY> extends ICBizIdService<ENTITY> {
         if(CollUtil.isEmpty(values)) {
             return 0L;
         }
-        return lambdaQuery()
-                .in(column, values)
-                .count()
-                .longValue();
+        return cCount(lambdaQuery()
+                .in(column, values));
     }
 
     /**

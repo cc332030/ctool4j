@@ -1,4 +1,7 @@
-import com.c332030.ctool4j.gradle.buildsrc.util.*
+import com.c332030.ctool4j.gradle.buildsrc.util.cApiStrict
+import com.c332030.ctool4j.gradle.buildsrc.util.cOptional
+import com.c332030.ctool4j.gradle.buildsrc.util.cProvided
+import com.c332030.ctool4j.gradle.buildsrc.util.lib
 
 plugins {
     `java-library`
@@ -11,8 +14,10 @@ dependencies {
 
     cOptional(lib("mybatis-plus-join"))
 
+    // 版本差异（`IService` / `ServiceImpl` 的包名）由 `ctool4j-mybatis-adapter` 吸收；
+    // 适配模块的 jdk8 档产物即 extension 包名侧，与 3.3.x / 3.4.x / 3.5.16 同侧，
+    // 经 base 的 `api` 传递到本模块，故这里不再单独声明。
     api(project(":ctool4j-mybatis-base"))
-    api(project(":ctool4j-mybatis-mp-java8"))
 
     // 共享的 service 源码（ICMpLockService 等）在本模块编译，需与 base 相同的 provided 依赖
     cProvided(project(":ctool4j-redis"))
@@ -20,25 +25,9 @@ dependencies {
 }
 
 /**
- * 挂载中间模块的 **3.3.x / 3.4.x 侧**自适应源码目录。
+ * 本模块只在 **jdk8 档位**参与构建（`settings.gradle.kts` 的 `jdk8OnlyModuleNames`）。
  *
- * 中间模块 `ctool4j-mybatis-mp-java8` 的公共面（`ICCheckService`、`CMybatisPlusSide`）随其 jar 发布；
- * 版本侧部分（自适应层 `spi/CMybatisPlusSpi` / `spi/IService` / `spi/CMybatisPlusServiceImpl`
- * 与实现基底 `service/impl/CBaseServiceImpl`）由本模块按侧纳入：
- * 本模块是 mybatis-plus 3.3.x / 3.4.x（`com.baomidou.mybatisplus.extension.service`）侧，
- * 故挂 `java-adaptive-extension`；3.5.x 侧的同名文件落 `java-adaptive-spring`、由 `ctool4j-mybatis` 挂载。
- *
- * 两侧的相对路径集合完全镜像、内容互不相交，任一模块只挂其一——于是本模块的源码集合里
- * 不会出现重复的全限定名，公共面也不引用任何版本侧符号。
- *
- * 挂载方式：`srcDir` 直接指向中间模块的源码目录（路径相对本模块项目目录解析）——
- * 目标包名由文件自身的 `package` 声明决定，与挂在哪个物理目录无关。
+ * 原因：适配模块按档位出 jar——jdk8 档是 `extension.service` 包名侧（与 3.4.x 同侧），
+ * 最新 LTS 档是 `spring.service` 包名侧（只对 3.5.17+ 成立）。3.4.x 没有 spring 包名，
+ * 与最新 LTS 档的适配 jar 不同侧，无从共存，故该档位不纳入本模块。
  */
-sourceSets {
-    main {
-        java {
-            srcDir("../ctool4j-mybatis-mp-java8/src/main/java-adaptive-extension")
-            srcDir("../ctool4j-mybatis-mp-java8/src/main/java-base-extension")
-        }
-    }
-}

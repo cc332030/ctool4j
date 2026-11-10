@@ -9,28 +9,28 @@ dependencies {
 
     cProvided(lib("mybatis-plus-boot-starter"))
 
-    api(project(":ctool4j-mybatis-mp-java8"))
+    api(project(":ctool4j-mybatis-adapter"))
     api(project(":ctool4j-transaction"))
     api(project(":ctool4j-db"))
 
     cProvided(project(":ctool4j-redis"))
 
+    /** `CMpController` 的参数级必填用 `@CRequired`（javax/jakarta 两栈的统一抽象），仅编译期需要 */
+    cProvided(project(":ctool4j-web"))
+
 }
 
 /**
- * 本模块的源码分家（**各目录之间必须完全互斥**）。
+ * 本模块**只有一个主源码目录** `src/main/java`：版本差异已由 `ctool4j-mybatis-adapter` 吸收
+ * （它是全仓唯一允许出现多源的模块），容器（javax/jakarta）差异已由 ctool4j-web 的 `@CRequired`
+ * 等中立类型吸收。
  *
- * - `src/main/java`              版本无关公共面：`ICService` 一族（`ICCheckService` 在中间模块）、
- *                                `CBizIdUtils`、mapper/model/handler/injector/util 等
- * - `src/main/java-javax`        jdk8 档位的容器侧适配（`CMpController`，`javax.validation`）
- * - `src/main/java-jakarta`      最新 LTS 档位的容器侧适配（`CMpController`，`jakarta.validation`）
- * - `src/main/resources`         资源
+ * 落点：
+ * - `service/ICService` 一族（含 `ICCheckService`）、`service/impl/CServiceImpl`
+ * - `controller/CMpController`（单份、对四个 MP 版本都成立，见类 javadoc）
+ * - mapper/model/handler/injector/util 等
+ * - `src/main/resources` 资源
  *
- * `java-javax` ↔ `java-jakarta` 是**成对镜像**（同包同名、按 JDK 档位二选一），
- * 由根脚本的档位源码目录机制整体放行——与 `ctool4j-http-servlet` 等同构；
- * 两目录互为镜像、各承一侧容器类型，一致性由「成对文件互引 + 归一化比对」维护。
- *
- * 版本侧差异（mybatis-plus 3.5.17 起 `IService`/`ServiceImpl` 由 `extension.service` 迁到
- * `spring.service`）**不在本模块**：已下沉到中间模块 `ctool4j-mybatis-mp-java8`，
- * 由自适应层（`spi/CMybatisPlusSpi` 两侧各一份）吸收，公共契约 `ICService` 一族因此版本无关。
+ * 本模块**不得**再出现 `java-javax` / `java-jakarta` / `java-jdk8` / `java-latest` 等第二个源目录，
+ * 也不得 `srcDir` 指向别的模块。
  */
