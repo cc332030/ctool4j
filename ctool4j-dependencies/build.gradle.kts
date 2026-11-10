@@ -47,6 +47,7 @@ val ctool4jArtifacts = listOf(
     "ctool4j-spring-security",
     "ctool4j-spring-cloud",
     "ctool4j-web",
+    "ctool4j-web-validation",
     "ctool4j-redis",
     "ctool4j-cache",
     "ctool4j-nacos-config",

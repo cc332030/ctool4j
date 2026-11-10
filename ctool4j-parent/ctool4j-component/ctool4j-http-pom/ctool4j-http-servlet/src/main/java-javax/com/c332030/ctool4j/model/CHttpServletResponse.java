@@ -2,12 +2,12 @@ package com.c332030.ctool4j.model;
 
 import com.c332030.ctool4j.interfaces.CHttpResponse;
 import com.c332030.ctool4j.interfaces.ICCookie;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  * <ul>
  *   <li><b>纯转发、不加工</b>：每个方法只把调用交给底层响应，契约、边界与返回值语义完全沿用
  *   {@link CHttpResponse}（见该接口文档），此处不重复描述、不做兜底。</li>
- *   <li><b>由档位选源目录</b>：本份承 javax 包（{@code src/main/java-javax}），与同模块的另一侧源码目录
+ *   <li><b>由档位选源目录</b>：本份承 javax 包，与同模块的另一侧源码目录
  *   一份同包同名、互为镜像；由 JDK 档位选用其一，使用方按自身容器引入对应档位产物。</li>
  *   <li><b>与请求适配器对称</b>：{@link CHttpServletRequest} 与 {@code CHttpServletResponse} 同属 javax 侧落地，
  *   创建方式与转发形态一致。</li>

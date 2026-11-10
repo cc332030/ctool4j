@@ -33,7 +33,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  *   本接口是<b>底层适配</b>（性质类似 {@code sun.*} 的桥接层，只做类型转换、不含业务），故加 {@code Spring} 限定。</li>
  *   <li><b>桥接只做类型转换</b>：解包依赖 Servlet 系实现（{@link ServletServerHttpRequest}），
  *   非 Servlet 环境（WebFlux）会在强转处失败——该场景本就不适用。</li>
- *   <li><b>同名接口</b>：本接口在 {@code src/main/java-javax} 与 {@code src/main/java-jakarta} 两份中<b>同包同名</b>，
+ *   <li><b>同名接口</b>：本接口与同模块另一侧源码目录中的同名接口<b>同包同名</b>，
  *   由 JDK 档位选用其一，使用方无需切换依赖模块即可切换容器。</li>
  * </ul>
  *

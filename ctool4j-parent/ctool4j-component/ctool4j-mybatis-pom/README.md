@@ -8,7 +8,7 @@
 
 | 模块 | 角色 |
 |------|------|
-| `ctool4j-mybatis-adapter` | **版本适配层**：MP 包名差异（`extension.service` ↔ `spring.service`）到此为止，全仓唯一允许出现多源目录的模块 |
+| `ctool4j-mybatis-adapter` | **版本适配层**：MP 包名差异（`extension.service` ↔ `spring.service`）到此为止，`src/main/java` 与 `src/main/java-jdk8` 同包同名、按档位二选一 |
 | `ctool4j-mybatis-base` | 核心契约与增强基座（`ICService` 一族、`CServiceImpl`、`CMpController`、分页/注入/业务 ID 工具） |
 | `ctool4j-mybatis-33` | MP 3.3 适配（旧版分页插件、旧版注入器签名），**仅 jdk8 档位构建** |
 | `ctool4j-mybatis-34` | MP 3.4 适配（新版插件体系、新版注入器签名），**仅 jdk8 档位构建** |
@@ -97,7 +97,7 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从 `com.baomidou.mybatisp
 - 容器（`javax` / `jakarta`）差异由 ctool4j-web 的中立类型吸收（`CMpController` 的参数级必填用
   `@CRequired`，不再按档位拆源目录）。
 
-本模块**不得**出现 `java-javax` / `java-jakarta` / `java-jdk8` / `java-latest` 等第二个源目录，也不得
+本模块**不得**出现 `java-javax` / `java-jdk8` / `java-latest` 等第二个源目录，也不得
 `srcDir` 指向别的模块。
 
 ### 依赖

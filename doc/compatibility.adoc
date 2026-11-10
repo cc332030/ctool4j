@@ -7,8 +7,8 @@
 
 * *review 豁免*：已在本文件登记的条目，code review 时**不再作为问题提出**（对应远端 code review 规范的 +KNOWN+ 归类：仅留痕、不进入待处理问题序列）。这类问题受当前基线约束、无法立即修复，反复提出只挤占注意力而不产生行动。
 * *登记即留痕*：条目须写明可执行的处置（或处理方案）与状态；状态取值 +待处理+（处置已定、未落地）/ +已修复+ / +待评估+（尚未定处置）；处置落地或结论变化时，在同一提交内更新本条目。
-* *收录边界*：只收录「当前基线可正常运行、升级后失效或行为改变」的问题；**不复制第三方依赖版本与清单**（属根 link:../pom.xml[pom.xml] 与 +ctool4j-bom+ 的范围）。
-* *适用范围*：基线（Spring Boot 2.x）升级至 Spring Boot 3.x / JDK 17；当前基线取值见根 link:../pom.xml[pom.xml]，本文件不重复。
+* *收录边界*：只收录「当前基线可正常运行、升级后失效或行为改变」的问题；**不复制第三方依赖版本与清单**（属根 link:../gradle/libs.versions.toml[libs.versions.toml] 与 +ctool4j-bom+ 的范围）。
+* *适用范围*：基线（Spring Boot 2.x）升级至 Spring Boot 3.x / JDK 17；当前基线取值见根 link:../gradle/libs.versions.toml[libs.versions.toml]，本文件不重复。
 * *双档位口径*：本仓库同时维护 jdk8 档位（+JDK_VERSION=8+）与最新 LTS 档位（+JDK_VERSION=25+）；两档位的差异（含"依赖无 jakarta 版本"的模块排除）统一登记在下文「双档位运行」小节。
 
 == 兼容项
@@ -48,7 +48,7 @@
 迁移后只保留新注册入口一处（Boot 2.7 与 3.x 都读它，不再需要两处并存）。生效验证：+ctool4j-spring+ 的
 link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/configuration/CSpringConfigurationAutoConfigTests.java[CSpringConfigurationAutoConfigTests]
 （经 +@EnableAutoConfiguration+ 装配、不直接引入配置类）与
-link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/test/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
+link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/test/java/com/c332030/ctool4j/spring/util/CAutowiredUtilsBootTests.java[CAutowiredUtilsBootTests]
 在该模块全量测试中通过，证明迁移后自动配置仍被装配。
 
 == 双档位运行：最新 LTS 档位的测试失败（已全部修复）
@@ -125,7 +125,7 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 
 原 `-javax` / `-jakarta` 成对模块（http / spring / spring-security 三对、共 6 个）内容同构，
 只差 Servlet import 与措辞，靠人工逐文件对齐会漂移。现合并为单模块，按 JDK 档位自动切换源码目录
-（`src/main/java-javax` 与 `src/main/java-jakarta`，同包同名、由 `JDK_VERSION` 决定纳入哪一个）。
+（`src/main/java` 承 jakarta、`src/main/java-javax` 承 javax，同包同名、由 `JDK_VERSION` 决定纳入哪一个）。
 
 [cols="2,2,1", options="header"]
 |===
@@ -143,10 +143,17 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 
 == 档位专属源目录：互斥成为硬约束（构建期校验）
 
-同一模块内的 +java-jdk8+ / +java-latest+ 两个档位源目录**必须完全互斥**（任一全限定名只能出现一次）：
+源码目录只有两种形态，模块按"两份实现是否同全限定名"二选一：
+
+* *追加*：`src/main/java` 放公共类，`java-jdk8` / `java-latest` 放**与公共目录不相交**的类，根脚本追加进主源集。
+  同一档实际纳入的多个目录**不得重复**（任一全限定名只能出现一次）；两个档位目录之间可以同包同名，那是同一个类的两档实现。
+* *整体替换*：`src/main/java` 放默认侧（最新 LTS / jakarta）实现，另一侧放 `java-jdk8` / `java-javax` 且**同包同名**，
+  模块调 `cExclusiveJdk8SourceDirs("<另一侧目录>")` 让主源集只含一侧。
+
 同名重复会让"靠人工逐文件对齐多份副本"必然漂移，错位（某类只落在一侧）则会让另一档位编译期直接缺类。
-根 +build.gradle.kts+ 的 +assertExclusiveVariantSourceDirs+ 在**配置期**做机器校验，命中即构建失败，
-故任一档位构建都能当场拦下，不必等到切档位才发现。
+根 +build.gradle.kts+ 在**配置期**做机器校验，命中即构建失败，故任一档位构建都能当场拦下，不必等到切档位才发现：
+`assertNoDuplicateJavaSources` 在 `afterEvaluate`（源集定稿后）比对**这一档实际纳入的**多个源码目录的全限定名（追加形态即 `java` ↔ `java-jdk8` / `java-latest`），
+另一条校验要求**每个含 Java 源码的模块都必须有 `src/main/java`**（整体替换形态下它就是默认侧，缺了就没有默认实现）。
 
 本轮据此消除/收口的重复：
 
@@ -162,9 +169,9 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 
 | +ctool4j-mybatis-base+ 的版本适配桥（+spi/IService+、+spi/CMybatisPlusSpi+、+spi/CMybatisPlusServiceImpl+）与 +CMpController+
 | 同名两份**不可避免**（mybatis-plus 3.5.17 起 +IService+/+ServiceImpl+ 由 +extension.service+ 迁到 +spring.service+，两坐标不能共存）。
-  改为**独立适配模块 + 档位源目录**：新建 +ctool4j-mybatis-adapter+（全仓唯一允许出现多源的模块），
+  改为**独立适配模块 + 档位源目录**：新建 +ctool4j-mybatis-adapter+，
   +java+ 承 +spring.service+（3.5.17+，默认档）、+java-jdk8+ 承 +extension.service+（3.3.x / 3.4.x / 3.5.16），
-  两目录承载**完全相同的相对路径集合**、永不共存（jdk8 档位由该模块构建脚本整体替换主源集）；base 改为单源目录（+java+），
+  两目录承载**完全相同的相对路径集合**、永不共存（jdk8 档位由 `cExclusiveJdk8SourceDirs("java-jdk8")` 整体替换主源集）；base 改为单源目录（+java+），
   +CBaseServiceImpl+ 并入 +CServiceImpl+，+CMpController+ 收为单份并用 ctool4j-web 的 +@CRequired+ 取代 +@NotNull+
   （+javax.validation+ / +jakarta.validation+ 不能同时 import）。公共契约（+ICCheckService+ → +ICService+ 一族）不再引用任何版本侧符号
 | 已收口（同全限定名仍在，但收敛到独立模块、目录不相交、公共面无版本耦合）
@@ -173,11 +180,24 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 | 该模块在非 jdk8 档位被整体排除（链接到 Springfox 的 javax 依赖，无 jakarta 形态），
   故 +java-latest+ 目录永远不会被纳入——属"不可能生效的源码目录"，删除
 | 已删除
+
+| +ctool4j-logback+ 的 +java-latest+、+ctool4j-{http,spring,spring-security}-servlet+ 的 +java-jakarta+
+| 默认侧（最新 LTS / jakarta）原本另起目录名，导致这四个模块**没有** `src/main/java`，
+  与其余模块的目录语义不一致（同一位置在不同模块含义不同）。默认侧一律移入 `src/main/java`，
+  另一侧保持 +java-jdk8+ / +java-javax+ 并 `cExclusiveJdk8SourceDirs(...)` 整体替换
+| 已统一
+
+| +ctool4j-web+ 的 +CRequired+ / +CNotRequired+ / +CRequiredValidator+（+java-jdk8+ / +java-latest+）
+| 三个类只因 Bean Validation 包名（+javax.validation+ / +jakarta.validation+）分两份，却让 +ctool4j-web+ 的其余
+  46 个类一起按档位拆主源目录。抽到独立模块 +ctool4j-web-validation+（+src/main/java+ 承 jakarta、
+  +src/main/java-javax+ 承 javax，`cExclusiveJdk8SourceDirs(...)` 整体替换），**全限定名不变**；
+  +ctool4j-web+ 以 +api+ 依赖它，主源集回到单源（测试源集仍按 +AutoConfigureMockMvc+ 等差异分档位）
+| 已拆分
 |===
 
 *仍然保留两份的（真档位差异，详见 +agent/AGENTS-PROJECT.MD+ 的清单）*：
 +CHttpServletRequest#setStatus(int, String)+、+CErrorController+ 的 +ErrorController+ import、
-+CMdcLogback+ 的 deque 语义、+CRequired+ / +CRequiredValidator+（Bean Validation 包名）、
++CMdcLogback+ 的 deque 语义、+CRequired+ / +CRequiredValidator+（Bean Validation 包名，已移入 +ctool4j-web-validation+）、
 +ccache/CHttpClientUtils/CSecurityConfiguration+ 等按档位换底层 API 的实现，
 以及 +ctool4j-web+ 的 6 个异常处理器用例 / +CRequiredValidatorTests+（+AutoConfigureMockMvc+ 与 +javax.validation+ 双差异）。
 这些是"必须存在"的副本，不应按重复消除。

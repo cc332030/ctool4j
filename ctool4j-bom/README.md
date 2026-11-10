@@ -1,6 +1,6 @@
 # ctool4j-bom
 
-> BOM：统一管理第三方依赖版本，并 import `ctool4j-dependencies` 管理自研构件版本（依赖清单见 [pom.xml](pom.xml)）。
+> BOM：统一管理第三方依赖版本，并 import `ctool4j-dependencies` 管理自研构件版本（依赖清单见 [build.gradle.kts](build.gradle.kts)）。
 
 ## 简介
 

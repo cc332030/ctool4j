@@ -6,7 +6,7 @@
  *
  * 模块发现：递归查找含 build.gradle.kts 的目录，按扁平逻辑名（:ctool4j-xxx）注册。
  * 容器侧（javax / jakarta）**不再按模块拆**：侧适配类合入同一模块、按 JDK 档位选用源码目录
- * （`src/main/java-javax` 与 `src/main/java-jakarta`，见根 `build.gradle.kts`），故此处不做侧过滤。
+ * （`src/main/java` 承 jakarta、`src/main/java-javax` 承 javax，见根 `build.gradle.kts`），故此处不做侧过滤。
  * 仍有一个「只有 javax 形态、无法在两档位共存」的模块，按白名单在非 jdk8 档位排除（见 javaxOnlyModuleNames）。
  * 档位取值：JDK_VERSION（系统属性 > 环境变量 > gradle.properties），默认 8；
  * 刻意不读 JVM 的 java.version 系统属性，否则默认档位会变成构建机 JDK。

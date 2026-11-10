@@ -10,13 +10,13 @@ Servlet 侧的**容器抽象层与容器适配**模块集：把「Servlet 类型
 | 模块 | 定位 | 内容 |
 | --- | --- | --- |
 | `ctool4j-http-base` | 抽象契约（容器无关，不引 servlet-api） | 请求/响应契约 `CHttpRequest` / `CHttpResponse`；过滤器契约 `CFilter` / `CFilterChain`；转发器契约 `CRequestDispatcher`；跨包异常 `CServletException` |
-| `ctool4j-http-servlet` | 容器适配（底层桥接，不含业务） | 契约的容器落地：`CHttpServletRequest` / `CHttpServletResponse` / `CFilterAdapter` / `CFilterChainAdapter` / `CRequestDispatcherAdapter`。**javax 与 jakarta 两套源码同包同名、同在一个模块内**，按 JDK 档位选用 `src/main/java-javax` 或 `src/main/java-jakarta`，不再拆成两个模块 |
+| `ctool4j-http-servlet` | 容器适配（底层桥接，不含业务） | 契约的容器落地：`CHttpServletRequest` / `CHttpServletResponse` / `CFilterAdapter` / `CFilterChainAdapter` / `CRequestDispatcherAdapter`。**javax 与 jakarta 两套源码同包同名、同在一个模块内**：`src/main/java` 承 jakarta，`src/main/java-javax` 承 javax，按 JDK 档位整体替换，不再拆成两个模块 |
 
 ## 切换容器
 
 **不需要换依赖模块**：`ctool4j-http-servlet` 内已同时容纳 javax 与 jakarta 两套同包同名源码，
 由 JDK 档位（`JDK_VERSION`）自动选用——jdk8 档位读 `src/main/java-javax`（`javax.servlet`），
-其余档位读 `src/main/java-jakarta`（`jakarta.servlet`）。业务代码与依赖坐标都不变。
+其余档位读 `src/main/java`（`jakarta.servlet`）。业务代码与依赖坐标都不变。
 
 ```xml
 <dependency>
@@ -42,7 +42,7 @@ Servlet 侧的**容器抽象层与容器适配**模块集：把「Servlet 类型
 gradle build
 ```
 
-两套源码同包同名、互为镜像：`src/main/java-javax` 与 `src/main/java-jakarta` 下的同名文件除 `javax`/`jakarta`
+两套源码同包同名、互为镜像：`src/main/java`（jakarta）与 `src/main/java-javax` 下的同名文件除 `javax`/`jakarta`
 字样外应**完全一致**（规范见 `agent/AGENTS-PROJECT.MD`「javax/jakarta 双栈」）。
 
 ```bash

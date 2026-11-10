@@ -22,7 +22,7 @@ dependencies {
 
 /**
  * 本模块**只有一个主源码目录** `src/main/java`：版本差异已由 `ctool4j-mybatis-adapter` 吸收
- * （它是全仓唯一允许出现多源的模块），容器（javax/jakarta）差异已由 ctool4j-web 的 `@CRequired`
+ * （多源只出现在需要"同全限定名两份实现"的模块），容器（javax/jakarta）差异已由 ctool4j-web 的 `@CRequired`
  * 等中立类型吸收。
  *
  * 落点：
@@ -31,6 +31,6 @@ dependencies {
  * - mapper/model/handler/injector/util 等
  * - `src/main/resources` 资源
  *
- * 本模块**不得**再出现 `java-javax` / `java-jakarta` / `java-jdk8` / `java-latest` 等第二个源目录，
+ * 本模块**不得**再出现 `java-javax` / `java-jdk8` / `java-latest` 等第二个源目录，
  * 也不得 `srcDir` 指向别的模块。
  */

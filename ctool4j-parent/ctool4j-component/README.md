@@ -1,6 +1,6 @@
 # ctool4j-component
 
-> 组件模块聚合：20 个组件模块的容器，并按层组织（基础层 → Spring 层 → 应用层 → 中间件层 → 配套层）。
+> 组件模块聚合：21 个组件模块的容器，并按层组织（基础层 → Spring 层 → 应用层 → 中间件层 → 配套层）。
 
 ## 简介
 
@@ -20,6 +20,7 @@
 | Spring 层 | [ctool4j-spring-base-pom](ctool4j-spring-base-pom/README.md) | Spring 侧抽象契约与容器适配：拦截器 / 响应体增强 / 配置属性 / cors / 安全错误响应（`ctool4j-spring-servlet` / `ctool4j-spring-security-servlet`，模块内按档位切换 javax/jakarta 源目录） |
 | | [ctool4j-spring-pom](ctool4j-spring-pom/README.md) | `ctool4j-spring` / `ctool4j-spring-security` / `ctool4j-spring-cloud` |
 | 应用层 | [ctool4j-web](ctool4j-web/README.md) | Web MVC 通用能力：全局异常、跨域、JWT、请求日志、traceId |
+| | [ctool4j-web-validation](ctool4j-web-validation/README.md) | 必填校验注解 `@CRequired` / `@CNotRequired` 与校验器（Bean Validation 包名按档位切换，故独立成模块） |
 | | [ctool4j-feign](ctool4j-feign/README.md) | Feign 增强：请求头传播、日志、自定义拦截器 |
 | | [ctool4j-redis](ctool4j-redis/README.md) | Redis 操作、Redisson 分布式锁、限流、幂等 |
 | | [ctool4j-cache](ctool4j-cache/README.md) | 二级缓存：本地缓存 + Redis，防击穿 / 防雪崩 |

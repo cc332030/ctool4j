@@ -2,9 +2,7 @@ package com.c332030.ctool4j.spring.interfaces;
 
 import com.c332030.ctool4j.model.CHttpServletRequest;
 import com.c332030.ctool4j.model.CHttpServletResponse;
-
 import lombok.val;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  *   基层契约侧负责给使用方提供与容器无关的方法签名。</li>
  *   <li><b>桥接只做类型转换</b>：Servlet 请求/响应经 {@link CHttpServletRequest#of} / {@link CHttpServletResponse#of}
  *   包装后转交基层契约，不做任何业务加工。</li>
- *   <li><b>同名接口</b>：本接口在 {@code src/main/java-javax} 与 {@code src/main/java-jakarta} 两份中<b>同包同名</b>，
+ *   <li><b>同名接口</b>：本接口与同模块另一侧源码目录中的同名接口<b>同包同名</b>，
  *   由 JDK 档位选用其一，使用方无需切换依赖模块即可切换容器。</li>
  * </ul>
  *

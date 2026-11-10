@@ -11,8 +11,8 @@
 
 | 子模块 | 定位 | 依赖 | 详细文档 |
 |--------|------|------|----------|
-| `ctool4j-boot-parent` | Spring Boot 应用父级：绑定 `spring-boot-maven-plugin`、把部署插件统一为 `deployAtEnd` | 无模块依赖 | [pom.xml](ctool4j-boot-parent/pom.xml) |
-| `ctool4j-processor-parent` | 使用注解处理器模块的父级：统一下发 `ctool4j-mybatis-processor`、`ctool4j-mq-processor`（provided）与编译参数 | 两个处理器（provided） | [pom.xml](ctool4j-processor-parent/pom.xml) |
+| `ctool4j-boot-parent` | Spring Boot 应用父级：绑定 `spring-boot-maven-plugin`、把部署插件统一为 `deployAtEnd` | 无模块依赖 | [build.gradle.kts](ctool4j-boot-parent/build.gradle.kts) |
+| `ctool4j-processor-parent` | 使用注解处理器模块的父级：统一下发 `ctool4j-mybatis-processor`、`ctool4j-mq-processor`（provided）与编译参数 | 两个处理器（provided） | [build.gradle.kts](ctool4j-processor-parent/build.gradle.kts) |
 
 ## 使用方式
 

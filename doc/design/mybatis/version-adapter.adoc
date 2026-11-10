@@ -69,14 +69,14 @@
 | 版本专属装配（配置、SQL 注入器、枚举接口）。**单源，只吃 adapter 的 jar**
 |===
 
-=== 多源只允许出现在 adapter
+=== 多源只有一种形态：「默认侧在 src/main/java，另一侧整体替换」
 
-源目录互斥的约束（同一模块内多个源目录之间不得出现同一个全限定名）只在 adapter 内部成立，其它模块一律只有 `src/main/java` 一个源目录：
+本层的版本适配只用*整体替换*形态（与容器适配模块同形，但差异类型不同——这里是 MP 包名、那里是 `javax`/`jakarta`）：
 
-* adapter：`src/main/java`（3.5.17+ 侧，默认档）与 `src/main/java-jdk8`（< 3.5.17 侧）——同名同包、互斥，jdk8 档位由本模块 `build.gradle.kts` **替换**主源集（见下「替换而非追加」）；本模块内容只有那三个按版本侧各写一份的类，没有第三份公共源码；
-* base、`-33`、`-34`、`ctool4j-mybatis`：只有 `src/main/java`，**不得**再用 `srcDir` 挂别的模块的源码目录，也不得再有 `java-javax` / `java-jakarta` 一类的档位镜像目录。
+* adapter：`src/main/java`（3.5.17+ 侧，默认档）与 `src/main/java-jdk8`（< 3.5.17 侧）——同名同包、互斥，jdk8 档位由本模块 `build.gradle.kts` 调 `cExclusiveJdk8SourceDirs("java-jdk8")` **替换**主源集（见下「替换而非追加」）；本模块内容只有那三个按版本侧各写一份的类，没有第三份公共源码；
+* base、`-33`、`-34`、`ctool4j-mybatis`：单源目录 `src/main/java`，**不得**再用 `srcDir` 挂别的模块的源码目录，也不得再有第二个源目录。
 
-「当前/默认」侧用标准目录 `src/main/java`、「旧档」侧用 `java-jdk8`，与 Maven 的"主源码目录 + profile 专属目录"一致，IDE 里不会出现会过期的 `java-latest`。
+「当前/默认」侧用标准目录 `src/main/java`、「旧档」侧用 `java-jdk8`，与 Maven 的"主源码目录 + profile 专属目录"一致，IDE 里不会出现会过期的 `java-latest`；每个含 Java 源码的模块都必须有 `src/main/java`，由根脚本在配置期强制。
 
 === 差异层的两个源目录（互斥，只处理包名）
 
@@ -189,7 +189,7 @@
 
 == CMpController 的接法
 
-`CMpController<S extends ICService<T>, T>` 落在 base 的 `src/main/java`（**单份，不再有 `java-javax` / `java-jakarta` 镜像**）。依据是它只依赖两样东西：
+`CMpController<S extends ICService<T>, T>` 落在 base 的 `src/main/java`（**单份，不按档位再拆镜像**）。依据是它只依赖两样东西：
 
 . `ICService` 自己的 default：`getEntitySimpleName()`、`page(CPageReq)`（后者内部转 `page(IPage)` / `page(IPage, Wrapper)`，描述符四版一致）；
 . MP 的元素级方法：`getById(Serializable)`、`save(T)`、`updateById(T)`、`removeById(Serializable)` —— 描述符四版一致（见上表）。
@@ -198,7 +198,7 @@
 
 原先迫使 base 拆档位目录的唯一导入是 `javax.validation.constraints.NotNull` / `jakarta.validation.constraints.NotNull`。处理方式：
 
-* 参数级"必填"改用上游已按档位抽象好的 `com.c332030.ctool4j.web.validation.annotation.CRequired`（ctool4j-web 内部用 `java-jdk8` / `java-latest` 两套同名注解吸收 javax→jakarta 的包名差异），base 以 `provided` 引入 `ctool4j-web`——与既有的 `@CSchema` / `@COperation` 同属"文档/校验注解由使用方运行时提供"的约定；
+* 参数级"必填"改用上游已按档位抽象好的 `com.c332030.ctool4j.web.validation.annotation.CRequired`（`ctool4j-web-validation` 内部用 `src/main/java` / `src/main/java-javax` 两套同名注解吸收 javax→jakarta 的包名差异），base 以 `provided` 引入 `ctool4j-web`——与既有的 `@CSchema` / `@COperation` 同属"文档/校验注解由使用方运行时提供"的约定；
 * `@Validated` 保留（Spring 自有注解，两档同名），仍由它触发 request body 的 Bean Validation。
 
 约束（落在评审口径里，不是可选项）：
@@ -257,7 +257,7 @@
 == 测试设计
 
 * **编译矩阵**（模块级，唯一能覆盖四个版本的机械防线）：jdk8 档编 `-33`（3.3.2）、`-34`（3.4.3.4）及其余模块（3.5.16）；latest 档编 `ctool4j-mybatis` 与 base / adapter（3.5.17）。`-33` / `-34` 不进 latest 档。
-* **多源校验**：adapter 两个目录互为镜像（相对路径集合相同），由评审口径 + 一条 `diff` 自查保证（见 `agent/AGENTS-PROJECT.MD`）；其余模块不得再出现第二个源目录（出现即评审不通过）。根脚本 `assertExclusiveVariantSourceDirs` 目前只拦"档位专属目录 ↔ 容器侧目录（`java-javax` / `java-jakarta`）重名"，不含 adapter 的 `java` ↔ `java-jdk8` 镜像比对——后者是本层依赖的**人工约定**（两者同名同包本就无法靠路径集合机器判定，但"镜像"性质可由 `diff` 核）。
+* **多源校验**：adapter 两个目录互为镜像（相对路径集合相同），由评审口径 + 一条 `diff` 自查保证（见 `agent/AGENTS-PROJECT.MD`）；其余 MyBatis 模块不得出现第二个源目录（出现即评审不通过）。根脚本 `assertNoDuplicateJavaSources` 只查「同一档实际纳入的多个目录里全限定名重复」——它能拦住"忘了整体替换以致 `java` 与 `java-jdk8` 同时参与编译"，但**不查**两目录是否镜像（「整体替换」形态本就同包同名，路径集合无法判定先后），其"镜像"性质是本层依赖的**人工约定**（由 `diff` 核）。
 * **用例**：`CMybatisPlusConfigurationTests`（各版本模块已有的装配用例）不改判；新增 `ctool4j-mybatis-base` 的 `CServiceImplTests`，覆盖 `getEntityClass()`（具体继承 / 中间层泛型承接 / 整链无具体实参报错 / 实例缓存）与三个消歧方法的空安全短路。该用例不启 Spring、不连库，故**两档各跑一次**——jdk8 档跑的是 `java-jdk8` 侧的适配桥（3.5.16），latest 档跑的是 `java` 侧（3.5.17）。
 * **不覆盖**：注入器生成的 SQL 文本逐字比对属版本模块既有用例，本层不重复。
 
@@ -276,10 +276,10 @@
 | 已否决
 
 | 版本模块 `srcDir` 挂 adapter 的源目录（源码覆盖 jar）
-| 违反"只有 adapter 允许多源"，且等于把同一份源码编进多个模块
+| 等于把同一份源码编进多个模块，且版本差异会从 adapter 漏回上层
 | 已否决（改为一律用 jar）
 
-| base 保留 `java-javax` / `java-jakarta` 的 `CMpController` 镜像
+| base 保留 `CMpController` 的两份档位镜像
 | 为一个 `@NotNull` 导入维护两套同包同名文件，且与"base 单源"冲突
 | 已否决（改用上游 `@CRequired`）
 

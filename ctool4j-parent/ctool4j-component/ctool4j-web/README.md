@@ -31,7 +31,7 @@
 | `interceptor` | 内部接口 IP 白名单拦截器（拦截器契约在容器适配模块） |
 | `model` / `spi` | 请求日志与 traceId 模型、traceId 提供者 SPI |
 | `util` | JWT、token、请求日志、Servlet / Web 工具 |
-| `enums` / `validation` | 请求头枚举、校验注解与校验器 |
+| `enums` | 请求头枚举（校验注解 `@CRequired` / `@CNotRequired` 在 [ctool4j-web-validation](../ctool4j-web-validation/README.md)，同包 `web.validation`） |
 
 ## 核心类
 
@@ -66,9 +66,10 @@
 | 依赖 | 说明 |
 |------|------|
 | `ctool4j-spring` | Spring 基础设施 |
+| `ctool4j-web-validation` | 必填校验注解与校验器（`@CRequired` / `@CNotRequired` / `CRequiredValidator`） |
 | `ctool4j-core` | 业务异常、工具 |
 | `spring-boot-starter-web` | Web MVC |
-| `validation` | 参数校验 |
+| `validation` | 参数校验实现（hibernate-validator）与校验注解 API |
 
 ## 使用与配置（引用方）
 

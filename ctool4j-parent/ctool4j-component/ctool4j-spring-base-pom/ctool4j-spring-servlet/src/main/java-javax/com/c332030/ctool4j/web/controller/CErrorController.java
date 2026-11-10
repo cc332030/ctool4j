@@ -64,6 +64,8 @@ import javax.servlet.http.HttpServletRequest;
  * <p><b>条件装配</b></p>
  * <ul>
  *   <li>{@code @ConditionalOnMissingBean(ErrorController.class)}：业务方自定义 ErrorController 时本类不生效。</li>
+ *   <li><b>两侧 import 不同</b>：{@code ErrorController} 在 Boot 2.7 位于 {@code org.springframework.boot.web.servlet.error}、
+ *   Boot 4 起迁至 {@code org.springframework.boot.webmvc.error}（均为无方法的标记接口），故 javax 侧与 jakarta 侧各取对应包。</li>
  * </ul>
  * <p><b>只留容器相关部分</b></p>
  * <ul>

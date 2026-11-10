@@ -1,5 +1,4 @@
 import com.c332030.ctool4j.gradle.buildsrc.util.cOptional
-import com.c332030.ctool4j.gradle.buildsrc.util.cProvided
 import com.c332030.ctool4j.gradle.buildsrc.util.lib
 
 plugins {
@@ -16,8 +15,8 @@ dependencies {
     // 适配层与 base 的版本差异已收敛在 `ctool4j-mybatis-adapter`（按档位出 jar），本模块只依赖 base
     api(project(":ctool4j-mybatis-base"))
 
-    // 共享的 service 源码（ICMpLockService 等）在本模块编译，需与 base 相同的 provided 依赖
-    cProvided(project(":ctool4j-redis"))
+    // 本模块源码只做版本差异（插件 / 注入器签名），共享的 service 契约（含 ICMpLockService）
+    // 都在 base，其 provided 依赖由 base 自己声明，此处不再重复。
 
 }
 

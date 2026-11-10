@@ -85,6 +85,7 @@ graph LR
   springServlet["ctool4j-spring-servlet"]
   springCloud["ctool4j-spring-cloud"]
   web["ctool4j-web"]
+  webValidation["ctool4j-web-validation"]
   springSecurityBase["ctool4j-spring-security-base"]
   springSecurityServlet["ctool4j-spring-security-servlet"]
   springSecurity["ctool4j-spring-security"]
@@ -110,6 +111,7 @@ graph LR
   spring -.-> springServlet
   springCloud -.-> spring
   web -.-> spring
+  web -.-> webValidation
   springSecurityBase -.-> springBase
   springSecurityBase -.-> definition
   springSecurityServlet -.-> core
@@ -249,14 +251,15 @@ graph LR
 | ctool4j-spring-cloud | ctool4j-spring | Spring Cloud 基础封装
 | ctool4j-spring-security | ctool4j-web、ctool4j-spring-security-servlet | Security 装配；redis session / data-redis 标 optional
 
-| ctool4j-web | ctool4j-spring | Web MVC 通用能力（全局异常、跨域、JWT、请求日志、traceId）；另有 spring-boot-starter-web（provided）
+| ctool4j-web | ctool4j-spring、ctool4j-web-validation | Web MVC 通用能力（全局异常、跨域、JWT、请求日志、traceId）；另有 spring-boot-starter-web（provided）
+| ctool4j-web-validation | ctool4j-core；validation-api（按档位取 javax / jakarta） | 必填校验注解 `@CRequired` / `@CNotRequired` 与 `CRequiredValidator`。**整体替换形态**：`src/main/java` 承 jakarta、`src/main/java-javax` 承 javax，故 Bean Validation 包名的档位差异不再污染 `ctool4j-web` 的主源集
 | ctool4j-redis | ctool4j-spring | Redis 操作、Redisson 分布式锁、@CRateLimit / @CIdempotent
 | ctool4j-cache | ctool4j-redis | 二级缓存（本地 + Redis）防击穿/防雪崩；spring-boot-starter-data-redis 为 provided
 | ctool4j-transaction | ctool4j-spring | @CTransactional 事务注解约定；spring-boot-starter-jdbc 为 optional
 | ctool4j-db | ctool4j-core | SQL 拼接工具（不依赖 Spring）
 
 | ctool4j-http-base | 无 | Servlet 抽象契约（`CHttpRequest` / `CHttpResponse` / `CFilter` / `CFilterChain` / `CRequestDispatcher` / `CServletException`），不引 servlet-api
-| ctool4j-http-servlet | ctool4j-http-base | Servlet 侧适配（`CHttpServletRequest` 等契约落地）；内部 `src/main/java-javax` 与 `src/main/java-jakarta` 两套同包同名源码按档位自动切换；servlet-api 按档位取（optional）
+| ctool4j-http-servlet | ctool4j-http-base | Servlet 侧适配（`CHttpServletRequest` 等契约落地）；内部 `src/main/java`（jakarta）与 `src/main/java-javax` 两套同包同名源码按档位整体替换；servlet-api 按档位取（optional）
 
 | ctool4j-spring-base | ctool4j-http-base、ctool4j-core、ctool4j-definition、ctool4j-autowired-processor | Spring 侧抽象契约（`ICHandlerInterceptor` / `ICResponseBodyAdvice`、`@CConfigurationProperties`）与 cors 配置/工具；两侧同名类的公共实现（`CHttpRequestUtils` / `CErrorUtils` / `CResourceUrlUtils`）
 | ctool4j-spring-servlet | ctool4j-http-servlet、ctool4j-spring-base、ctool4j-core | Spring 侧 Servlet 适配（`ICSpringHandlerInterceptor` / `ICSpringResponseBodyAdvice`、`CRequestUtils`、过滤器、`CErrorController`），只留接触容器的部分；内部两套同包同名源码按档位自动切换；servlet-api 按档位取（optional）
@@ -264,15 +267,15 @@ graph LR
 | ctool4j-spring-security-servlet | ctool4j-core、ctool4j-http-servlet、ctool4j-spring-base、ctool4j-spring-security-base | 安全侧 Servlet 适配（`CAuthenticationEntryPoint` / `CAccessDeniedHandler` / `CSecurityResponseWriter`）；内部两套同包同名源码按档位自动切换；servlet-api 按档位取（optional）
 
 | ctool4j-log-base | ctool4j-spring、ctool4j-spring-cloud、ctool4j-web | 日志基础：请求日志、traceId 透传、MDC、日志级别热更新
-| ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）；`CMdcLogback` 分档位源码（SLF4J 2.0 的 deque 语义），公共 deque 存储基类 `CMdcDequeAble` 在 ctool4j-log-base
+| ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）；`CMdcLogback` 分档位源码（SLF4J 2.0 的 deque 语义，`src/main/java` 承 2.0、`src/main/java-jdk8` 承 1.7），公共 deque 存储基类 `CMdcDequeAble` 在 ctool4j-log-base
 | ctool4j-log4j | ctool4j-log-base | log4j2 后端适配（spring-boot-starter-logging + starter-log4j2）
 
 | ctool4j-feign | ctool4j-spring-cloud、ctool4j-log-base | Feign 增强（请求头传播、日志、拦截器）；feign-httpclient 为 optional
 | ctool4j-auth-base | ctool4j-web、ctool4j-cache | 认证基础（过滤器骨架、mock 会话、会话加载），与 Spring Security 解耦
 | ctool4j-auth-spring | ctool4j-auth-base、ctool4j-spring-security | 认证的 Security 落地（认证构造、安全上下文）
 
-| ctool4j-mybatis-adapter | ctool4j-core（api）、mybatis-plus-boot-starter（provided） | **MyBatis-Plus 版本适配层**：把 `IService`/`ServiceImpl` 的包名迁移差异（3.5.17 起 `extension.service` → `spring.service`）收敛于此，上层 `ICService` 一族因此版本无关。**全仓唯一允许出现多源的模块**：`java` 承 `spring.service`（3.5.17+，默认/最新 LTS 档生效）、`java-jdk8` 承 `extension.service`（3.3.x / 3.4.x / 3.5.16，jdk8 档生效），两目录互为镜像（同包同名的 `spi/IService`、`spi/CMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`）且永不共存；jdk8 档位由该模块 `build.gradle.kts` 整体替换主源集（根脚本对 `java-<side>` 是追加语义）。MP 只做编译期可见、不向下游传递（不锁版本）
-| ctool4j-mybatis-base | ctool4j-mybatis-adapter、ctool4j-transaction、ctool4j-db、ctool4j-web（provided）、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础。**单源目录** `java`：`ICService` 一族（含 `ICCheckService`）、`CServiceImpl`、`CMpController`、`CBizIdUtils`、mapper/model/handler/util；版本差异由 adapter 吸收、容器差异由 ctool4j-web 的 `@CRequired` 吸收，故不按档位拆源目录。MP、jdbc 等由使用方提供
+| ctool4j-mybatis-adapter | ctool4j-core（api）、mybatis-plus-boot-starter（provided） | **MyBatis-Plus 版本适配层**：把 `IService`/`ServiceImpl` 的包名迁移差异（3.5.17 起 `extension.service` → `spring.service`）收敛于此，上层 `ICService` 一族因此版本无关。`src/main/java` 承 `spring.service`（3.5.17+，默认/最新 LTS 档生效）、`src/main/java-jdk8` 承 `extension.service`（3.3.x / 3.4.x / 3.5.16，jdk8 档生效），两目录互为镜像（同包同名的 `spi/IService`、`spi/CMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`）且永不共存；jdk8 档位由该模块 `build.gradle.kts` 的 `cExclusiveJdk8SourceDirs("java-jdk8")` 整体替换主源集（根脚本对 `java-<side>` 是追加语义）。MP 只做编译期可见、不向下游传递（不锁版本）
+| ctool4j-mybatis-base | ctool4j-mybatis-adapter、ctool4j-transaction、ctool4j-db、ctool4j-web（provided）、ctool4j-redis（provided） | MP 分层契约、分页、SQL 注入的基础。**单源目录** `java`：`ICService` 一族（含 `ICCheckService`）、`CServiceImpl`、`CMpController`、`CBizIdUtils`、mapper/model/handler/util；版本差异由 adapter 吸收、容器差异由 `ctool4j-web-validation` 的 `@CRequired` 吸收，故不按档位拆源目录。MP、jdbc 等由使用方提供
 | ctool4j-mybatis-33 | ctool4j-mybatis-base | MyBatis-Plus 3.3 适配（旧版分页插件签名）；**只在 jdk8 档位参与构建**
 | ctool4j-mybatis-34 | ctool4j-mybatis-base | MyBatis-Plus 3.4 适配；mybatis-plus-join 为 optional；**只在 jdk8 档位参与构建**
 | ctool4j-mybatis | ctool4j-mybatis-base | MyBatis-Plus 全套适配；mybatis-plus-join 为 optional；MP 版本按档位取（jdk8 → 3.5.16、最新 LTS → 3.5.17）
@@ -316,12 +319,12 @@ graph LR
 * `ctool4j-definition` 与 `ctool4j-http-base` 是"零模块依赖"底座，任何模块都可安全依赖。
 * 容器抽象层保持单向：`http-base → http-servlet`、`spring-base → spring-servlet`、
   `spring-security-base → spring-security-servlet`；适配模块只被上层依赖，不得反向依赖。
-  两侧（javax / jakarta）**不再是两个模块**：同一模块内按档位选用 `src/main/java-javax` 或 `src/main/java-jakarta`
+  两侧（javax / jakarta）**不再是两个模块**：同一模块内按档位选用 `src/main/java-javax` 或 `src/main/java`
   源目录，故不存在"某一侧未登记进构建"的情形，也无两侧互相依赖的余地。
-* **档位专属源目录之间完全互斥**（`java-jdk8` / `java-latest` 两目录，以及它们与 `java-javax` / `java-jakarta` 之间）：
-  任一全限定名只能出现一次，不互斥即构建失败（根脚本在配置期校验）。
-  容器侧的 `java-javax` / `java-jakarta` 这一对是刻意的例外（互为镜像，成员互引），
-  一致性由「成对文件互引 + 归一化比对自检」维护，见 `agent/AGENTS-PROJECT.MD`。
+* **源码目录只有两种形态**：*追加*（`src/main/java` 放公共类 + `java-jdk8` / `java-latest` 放与公共目录不相交的类，两档位目录之间允许同包同名）
+  与*整体替换*（`src/main/java` 放默认侧 + 另一侧 `java-jdk8` / `java-javax` 同包同名，`cExclusiveJdk8SourceDirs(...)` 二选一）。
+  每个含 Java 源码的模块**都必须有 `src/main/java`**；同一档实际纳入的多个目录里全限定名重复即构建失败（根脚本 `afterEvaluate` 校验）。
+  一致性与互斥口径见 `agent/AGENTS-PROJECT.MD`。
 * 认证链保持单向：`web → auth-base → auth-spring`；`auth-spring` 另依赖 `spring-security`，不得反向。
 * 中间件模块（log / mybatis / nacos / mq / job / file / doc）只依赖基础层，**彼此之间不互相依赖**；
   组合使用（如 `ctool4j-feign` + `ctool4j-log-base`）由使用方按需引入。

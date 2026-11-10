@@ -20,7 +20,7 @@
 ### 模块分层
 
 - **base 模块（抽象契约，容器无关）**：`ctool4j-http-base`、`ctool4j-spring-base`、`ctool4j-spring-security-base`。只放不依赖任何 Servlet 包的接口、常量与工具。
-- **容器适配模块（`ctool4j-http-servlet` / `ctool4j-spring-servlet` / `ctool4j-spring-security-servlet`）**：性质是**底层桥接**（类比 JDK 的 `sun.*`），只做「容器对象 ↔ 抽象层对象」的类型转换，不放业务逻辑。**两侧不是两个模块、而是同一模块内的两个源码目录**（`src/main/java-javax` 与 `src/main/java-jakarta`，同包同名），由 JDK 档位选用其一——切换容器既不换依赖坐标、也不改 import，`JDK_VERSION` 一条即切。
+- **容器适配模块（`ctool4j-http-servlet` / `ctool4j-spring-servlet` / `ctool4j-spring-security-servlet`）**：性质是**底层桥接**（类比 JDK 的 `sun.*`），只做「容器对象 ↔ 抽象层对象」的类型转换，不放业务逻辑。**两侧不是两个模块、而是同一模块内的两个源码目录**：`src/main/java` 放 jakarta（默认/最新 LTS）侧、`src/main/java-javax` 放 javax 侧，两目录同包同名，jdk8 档位用 `cExclusiveJdk8SourceDirs("java-javax")` 整体替换主源集——切换容器既不换依赖坐标、也不改 import，`JDK_VERSION` 一条即切。
 - **公共内容的落点判定**：只与 Servlet 公共面有关（请求、响应、过滤器、转发器、跨包异常）→ `ctool4j-http-base`；属 Spring 扩展点体系（拦截器、响应体增强、请求工具、cors 配置与工具、错误响应组装）→ `ctool4j-spring-base`（**不引 servlet-api**，只用 `ctool4j-http-base` 的抽象类型）；安全侧（未认证、访问拒绝）→ `ctool4j-spring-security-base`；跨模块通用常量与返回体 → `ctool4j-definition`。
 - **命名分层**（本仓库固定的继承方向）：
   - 基层契约用正名 `ICXxx`，如 `ICHandlerInterceptor`、`ICResponseBodyAdvice`。
@@ -53,7 +53,7 @@
 - 抽象层方法只声明容器无关的异常（`CServletException`、`IOException`），不引入 `ServletException`。
 - 适配模块若使用日志门面（`@CustomLog`），须显式声明 `ctool4j-core` 依赖（`ctool4j-http-base` 不传递 core）。
 - **业务模块（含测试）不得出现 `javax.servlet` / `jakarta.servlet` 的 import**——判断标准是"是否 import"，javadoc 里解释两栈时提及包名不算。自查：
-  `Get-ChildItem 'ctool4j-parent' -Recurse -Filter *.java | Select-String '^\s*import (javax|jakarta)\.servlet'`，命中**必须只落在适配模块的 `src/main/java-javax` / `src/main/java-jakarta` 源目录内**。
+  `Get-ChildItem 'ctool4j-parent' -Recurse -Filter *.java | Select-String '^\s*import (javax|jakarta)\.servlet'`，命中**必须只落在适配模块的 `src/main/java` / `src/main/java-javax` 源目录内**（测试一律不落这两个目录，见下）。
   - 主代码：用抽象层类型（`CHttpRequest`/`CHttpResponse`/`CFilterChain`）。
   - 测试：用 ①Spring Mock（`MockHttpServletRequest`/`MockHttpServletResponse`/`MockFilterChain`，其实现随 Spring 版本自动切换 servlet 包，源码零 import）②适配层同名常量（`CHttpServletRequest.ERROR_STATUS_CODE`）③需要"验证交互"时 mock 这些 Spring 类型（`mock(MockFilterChain.class)`），`verify(...)` 照常可用。
   - 反例（本轮修掉的三类）：`mock(FilterChain.class)`、`Mockito.mock(HttpServletRequest.class)`、`RequestDispatcher.ERROR_STATUS_CODE`、以及**覆写 Servlet 版 `doFilterInternal`**（那是"绕过抽象层骨架"，`CAbstractWebAuthFilter` 子类应覆写抽象层版本、多数字类连覆写都不需要）。
@@ -69,23 +69,26 @@
 ### 构建与验证
 
 - **构建体系为 Gradle KTS**（已由 Maven 迁移而来）：全仓构建用 `gradle build`（编译 + 单测 + javadoc + jar 一次到位）；模块间依赖用 **Gradle 项目依赖**，构建某模块时上游会被自动构建，不存在"上游改了没 install 导致取到旧 jar"的问题（该风险只在"以仓库坐标取依赖"的场景存在，必要时 `gradle publishToMavenLocal`）。
-- **JDK 档位是构建的输入**：`JDK_VERSION`（系统属性 > 环境变量 > `gradle.properties`），**默认 8**；决定 ① 容器侧源码目录（jdk8 → `src/<main|test>/java-javax`，其他 → `src/<main|test>/java-jakarta`，见下「档位专属源码目录」）② 依赖版本档位（见 `gradle/libs.versions.toml`：jdk8 用 `<别名>-jdk8`，其余用**无后缀**的 `<别名>`）③ 字节码目标（jdk8 → Java 8；否则 `release = 17`）。刻意**不读** JVM 的 `java.version` 系统属性（它恒等于构建机 JDK，会使"默认 jdk8"失效）。**启动 JVM 与编译 JVM 是两件事**：Gradle 自身必须跑在 17+（`JAVA_HOME` 指向 jdk8 时直接报 `Gradle requires JVM 17 or later`，连配置阶段都进不去），源码编译的 JDK 由 toolchain 按档位自动切换——所以"用 jdk25 跑 Gradle、编 jdk8 档位源码"是正常姿势（`JAVA_HOME=<jdk17+> ./gradlew build -DJDK_VERSION=8`）。
+- **JDK 档位是构建的输入**：`JDK_VERSION`（系统属性 > 环境变量 > `gradle.properties`），**默认 8**；决定 ① 容器侧源码目录（jdk8 → `src/main/java-javax` 整体替换主源集，其他 → `src/main/java`，见下「档位专属源码目录」）② 依赖版本档位（见 `gradle/libs.versions.toml`：jdk8 用 `<别名>-jdk8`，其余用**无后缀**的 `<别名>`）③ 字节码目标（jdk8 → Java 8；否则 `release = 17`）。刻意**不读** JVM 的 `java.version` 系统属性（它恒等于构建机 JDK，会使"默认 jdk8"失效）。**启动 JVM 与编译 JVM 是两件事**：Gradle 自身必须跑在 17+（`JAVA_HOME` 指向 jdk8 时直接报 `Gradle requires JVM 17 or later`，连配置阶段都进不去），源码编译的 JDK 由 toolchain 按档位自动切换——所以"用 jdk25 跑 Gradle、编 jdk8 档位源码"是正常姿势（`JAVA_HOME=<jdk17+> ./gradlew build -DJDK_VERSION=8`）。
 - **档位名以「jdk8 / 最新 LTS」表述，不用具体版本号**：jdk8 是当前公司主流版本、会长期存在，故可以按名出现；另一档位后续会升到更新的 LTS，故标识符里**不出现 `jdk25`**（如用 `ltsRelease`、`java-latest`、无后缀别名），避免升级后名称过期。仅"解释为何不用 `-jdk25`"的注释可提及。
 - **构建产物目录按档位分家**：jdk8 档位用 `target-8/build-8`、其余档位用 `target/build`（顶层与各模块同构，模块产物落在各自项目目录下）。**不用 Gradle 默认的 `build`**——默认目录名与档位无关，切档位构建会覆盖上一次的产物；顶层目录是容器、末级才是构建目录（与 Maven 的 `target` 约定同形）。根脚本用 `layout.buildDirectory` 分别对根项目与 `subprojects` 设置；路径写**目录名**（不拼 `projectDir`——Gradle 的 `projectDir` 是相对路径，`subprojects` 里解析会以「调用者所在项目」为基准而失败）。`buildSrc` 是独立构建、产物固定在 `buildSrc/build`，不受本布局影响；`settings.gradle.kts` 的模块发现要按 `target*` 一并排除（否则 jdk8 档位的 `target-8` 会被当成模块目录扫进去）。
-- **档位专属源码目录（硬约束：彼此完全互斥）**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、SLF4J 1/2、Bean Validation 等），无法用同一份源码兼容。约定：差异实现按档位分放 `src/<main|test>/java-jdk8` 与 `src/<main|test>/java-latest`，由档位决定纳入哪一个；jdk8 档位完全不读 `java-latest`，保证既有产物零变化。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
-  - **同一模块内的这些目录必须完全互斥：任一全限定名只能出现一次**。两个目录都放"公共类"，或把某类只写在一侧（另一档位编译期直接缺类），都属违规。不互斥的后果有且只有两种，且都不可接受：① 同名重复——同一份代码多份副本，靠人工逐文件对齐**必然漂移**（本仓库实测漂移过 7 个副本）；② 错位——某类只落在 `java-latest`，jdk8 档位 `compileJava` 当场缺类，而"只跑最新 LTS 档"的习惯会把它漏掉。
-  - **机器校验在配置期**：根脚本的 `assertExclusiveVariantSourceDirs` 会比对 `java-jdk8` 与 `java-latest` 的全限定名，命中重复即 `GradleException`（任一档位构建都会失败）。判据用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名），只看路径、不读文件内容，对配置缓存友好。
-  - **容器侧是刻意的例外**：`src/<main|test>/java-javax` 与 `src/<main|test>/java-jakarta` 两目录**成对同包同名**（互为镜像，成员互引），jdk8 档位只用 `java-javax`、其余只用 `java-jakarta`。这取代了原先"`-javax` / `-jakarta` 各做一个模块"的形态。**这一对整体放行**（成对镜像本就不可能任一档位独立读得通），一致性由「成对文件互引 + 归一化比对自检」维护，见下「改 `java-javax` 源目录必须同步 `java-jakarta` 源目录」。
-  - **档位专属目录 ↔ 容器侧目录仍不得同名**：同名即"同一份代码两份副本"，配置期校验会拦下。
+- **档位专属源码目录**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、SLF4J 1/2、Bean Validation 等），无法用同一份源码兼容。差异实现有两种形态，**两种都要求模块有 `src/main/java`**：
+  - *追加*（默认）：`src/<main|test>/java` 放公共类，档位目录（`java-jdk8` / `java-latest`）放**与 `src/main/java` 不相交**的类；两个档位目录之间可以**同包同名**（那是同一个类的两档实现，永不共存，如 `ctool4j-core` 的 `CHttpClientUtils`），但都没写进公共目录的类仍属"错位"。jdk8 档位完全不读 `java-latest`，保证既有产物零变化。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
+  - *整体替换*：`src/<main|test>/java` 放「默认侧」（最新 LTS / jakarta）实现，另一侧用 `java-jdk8` / `java-javax` 并列且**同包同名**；模块 `build.gradle.kts` 调 `cExclusiveJdk8SourceDirs("<另一侧目录名>")`（`buildSrc` 的 `CGradleSourceSetUtils`），**jdk8 档位**且该目录存在时由它 `setSrcDirs` 整体替换主源集（其余档位保持 `src/<set>/java`）。根脚本的 `subprojects {}` 先执行（追加 `java-<side>`）、模块脚本后执行（覆盖），顺序由 Gradle 求值次序保证。
+- **每个有 Java 源码的模块都必须有 `src/main/java`**（配置期校验，缺失即 `GradleException`）：追加形态里它是公共源目录，替换形态里它是默认侧的实现目录。没它意味着所有类都挤在档位目录里，IDE 与 `withSourcesJar` 的默认根目录会落空、新人也无从判断"默认侧是哪边"。纯聚合/占位模块（无 `src/main` 或只有资源）不受约束。
+  - **同一源集最终纳入的多个源码目录里，任一全限定名只能出现一次**。两个目录都放"公共类"，或把某类只写在一侧（另一档位编译期直接缺类），都属违规。不互斥的后果有且只有两种，且都不可接受：① 同名重复——同一份代码多份副本，靠人工逐文件对齐**必然漂移**（本仓库实测漂移过 7 个副本）；② 错位——某类只落在 `java-latest`，jdk8 档位 `compileJava` 当场缺类，而"只跑最新 LTS 档"的习惯会把它漏掉。
+  - **机器校验**：根脚本的 `assertNoDuplicateJavaSources` 在 `afterEvaluate`（源集定稿后）比对**这一档实际纳入的**多个源码目录的全限定名，命中重复即 `GradleException`。放在定稿后是必须的——替换形态下 `src/main/java` 不参与编译，只有等模块脚本的 `cExclusiveJdk8SourceDirs(...)` 跑完才知道"这一档到底编哪些目录"；否则替换形态（`java` 与 `java-javax` 同包同名是**设计**）会被整片误报。判据用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名），只看路径、不读文件内容。
+  - **容器侧也属"整体替换"形态**：`src/main/java` 放 jakarta（默认/最新 LTS）侧、`src/main/java-javax` 放 javax 侧，两目录**成对同包同名**（互为镜像，成员互引），jdk8 档位由 `cExclusiveJdk8SourceDirs("java-javax")` 整体替换主源集。这取代了原先"`-javax` / `-jakarta` 各做一个模块"的形态。一致性由「成对文件互引 + 归一化比对自检」维护，见下「改 `java-javax` 源目录必须同步 `src/main/java`」。
+  - **一个模块只能有一种"另一侧"目录**：`java-jdk8` / `java-latest`（档位差异）与 `java-javax`（容器差异）不得并存——并存意味着两类差异混在一个模块里，两类差异的侧别判定会互相覆盖，且 `cExclusiveJdk8SourceDirs` 只能指一个目录、另一个会被静默忽略。这是**评审口径**，机器查不出（形态合法的单目录源集看不出"本该有两个"）。
   - 不能用"srcDir 追加 + exclude 同名文件"实现：Gradle 的 `exclude` 对**全部** srcDir 生效，会把专属目录里的同名文件一并排除、类彻底消失（已实测踩坑）。
   - **已消除的重复（本次改造）**：`ctool4j-logback` 的 `CMdcLogback` 原为两份（javadoc + deque 方法差异），已把无档位差异的 deque 存储下沉到公共基类 `CMdcDequeAble`（`ctool4j-log-base`），两侧改为"另一侧实现 + 纯增量"的两文件形态；`ctool4j-mybatis-pom` 一侧的重复已整体收敛——原先 `ctool4j-mybatis-base` 的适配桥（`spi/IService`、`spi/CMybatisPlusSpi`、`spi/CMybatisPlusServiceImpl`、`service/impl/CBaseServiceImpl`）与 `CMpController` 两侧各一份，现改为**只在 adapter 模块保留两个档位目录**（见下「同名两份不可避免时」），base 收敛为单源。
 - **同名两份不可避免时：按"目录不相交 + 档位二选一"实现互斥**：当同一全限定名在两侧**都必须存在**（如 mybatis-plus 3.5.17 起 `IService` / `ServiceImpl` 从 `extension.service` 迁到 `spring.service`，两坐标不能共存），互斥不能靠"改类名"（避免同名等于改名，会把耦合转移到调用方），要靠**让两份落在互不相交的档位目录、由根脚本按档位只挂其一**：
-  - **本仓只有 `ctool4j-mybatis-adapter` 这样做**：`src/main/java`（MP `>= 3.5.17` 侧，`com.baomidou.mybatisplus.spring.service`，默认档）与 `src/main/java-jdk8`（MP `< 3.5.17` 侧，`com.baomidou.mybatisplus.extension.service`），两目录承载**完全相同的相对路径集合**（`com/c332030/ctool4j/mybatisplus/spi/{IService,CMybatisPlusSpi,CMybatisPlusServiceImpl}.java`），差异只在类体里 `extends` 的那一行。默认侧用标准目录 `src/main/java`、旧档侧用 `java-jdk8`，避免 `java-latest` 随升级过期。
-  - **其余 mybatis 模块一律单源**：`ctool4j-mybatis-base`（契约、`CServiceImpl`、`CMpController`）与 `-33` / `-34` / `ctool4j-mybatis` 只有 `src/main/java`，**不得**再出现第二个源目录，也不得 `srcDir` 指向别的模块——版本差异已在 adapter 收敛，容器差异已由 ctool4j-web 的 `@CRequired` 等中立类型收敛。
+  - **本仓六个模块这样分**：`ctool4j-mybatis-adapter`（`java` 承 MP `>= 3.5.17` 的 `spring.service`、`java-jdk8` 承 `< 3.5.17` 的 `extension.service`，两目录承载**完全相同的相对路径集合**，差异只在 `extends` 那一行）、`ctool4j-logback`（`CMdcLogback` 的 SLF4J 1.7 / 2.0 两份）、`ctool4j-http-servlet` / `ctool4j-spring-servlet` / `ctool4j-spring-security-servlet` / `ctool4j-web-validation`（javax / jakarta 两份，后者是 Bean Validation 包名）。声明方式一致：`cExclusiveJdk8SourceDirs("java-jdk8")` 或 `cExclusiveJdk8SourceDirs("java-javax")`。
+  - **其余 mybatis 模块一律单源**：`ctool4j-mybatis-base`（契约、`CServiceImpl`、`CMpController`）与 `-33` / `-34` / `ctool4j-mybatis` 只有 `src/main/java`，**不得**再出现第二个源目录，也不得 `srcDir` 指向别的模块——版本差异已在 adapter 收敛，容器差异已由 `ctool4j-web-validation` 的 `@CRequired` 等中立类型收敛。
   - **中性全限定名是关键**：两侧的 `spi.IService` / `spi.CMybatisPlusSpi` / `spi.CMybatisPlusServiceImpl` 同名同包，被绑定的 MP 坐标藏在类体内，于是 `ICService.class`、`CServiceImpl.class` 里**不出现任何 MP 包名**，一份 adapter jar 可被两侧共用；下游只用 jar，不用源码覆盖。
   - **`getEntityClass()` 解析留在 base**：读 `entityClass` 字段（3.5.16 起私有）、`currentModelClass()`（3.5.16 起删除）都不跨版本；改走"沿父类链取第二个泛型实参"对四个版本都成立，且与包名无关，故写在 base 的单份 `CServiceImpl` 里，adapter 两侧保持零逻辑。
-  - 这一对的形态是「标准目录 `src/main/java` ↔ 档位专属目录 `src/main/java-jdk8`」：`src/main/java` 不在根脚本的档位目录体系里（它是各模块公用的标准目录），故 `assertExclusiveVariantSourceDirs` 管不到这一对——它只查"档位专属目录 ↔ 容器侧目录（`java-javax` / `java-jakarta`）"的重名，而两侧永不同档纳入、配置期看不到另一侧。adapter 的镜像关系因此是**人工约定**，改动后必须自查。
-  - **必须用"替换"而非"追加"**：根脚本对存在 `java-jdk8` 的模块是**追加**（`src/main/java` 仍会编译），而 adapter 的两份是同全限定名，同档共存必冲突。故该模块 `build.gradle.kts` 末尾在 `if (isJdk8())` 里用 `java.setSrcDirs(listOf("src/main/java-jdk8"))` 整体替换主源集——本仓唯一这么做的模块。
+  - 这一对的形态是「标准目录 `src/main/java` ↔ 另一侧目录 `src/main/java-jdk8`」：`src/main/java` 不在根脚本的"档位目录"体系里（它是各模块公用的标准目录），`assertNoDuplicateJavaSources` 在替换生效后只看到单目录、**不查这一对是否镜像**（同包同名是设计，路径集合无法判定谁该有谁）。**镜像关系是人工约定**，改动后必须自查。
+  - **必须用"替换"而非"追加"**：根脚本对存在 `java-jdk8` 的模块是**追加**（`src/main/java` 仍会编译），而这一对是同全限定名，同档共存必冲突。故用 `cExclusiveJdk8SourceDirs("java-jdk8")` 整体替换主源集（实现见 `buildSrc` 的 `CGradleSourceSetUtils`），不要手写 `java.setSrcDirs(...)`。
 - **改 `ctool4j-mybatis-adapter` 的档位目录后要核两问**：① 两侧相对路径集合是否仍互为镜像（`diff <(cd ctool4j-mybatis-adapter/src/main/java-jdk8 && find . -name "*.java" | sort) <(cd ctool4j-mybatis-adapter/src/main/java && find . -name "*.java" | sort)` 应为空）；② 逐文件比对时差异是否只落在"MP 包名"与"`cCount` 实现"这两处。`doc/design/mybatis/version-adapter.adoc` 记录了逐条差异的依据。
 - **`-33` / `-34` 只在 jdk8 档位存在**：latest 档的 adapter jar 是 spring 侧，与 3.3 / 3.4 不同侧，无从共存；由 `settings.gradle.kts` 的 `jdk8OnlyModuleNames` 在非 jdk8 档位**不注册**（不是"注册后跳过"，所以最新档的 `gradle projects` 里看不到它们）。
 - **改动后必须真验证**：跑 `gradle build`（覆盖编译、单测与 javadoc 生成）；只跑 `compileJava` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。日志落 `tmp/build/gradle-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。
@@ -94,30 +97,30 @@
 - **构建布局与"按档位分组"**：根 `build.gradle.kts` 承担全仓统一配置（等价 Maven 父 pom 继承：工具链、编译/测试选项、sources/javadoc jar、发布），按**目录归属**分组注入公共依赖——`ctool4j-parent/ctool4j-component` 子树 → component 档（另有 `ctool4j-spring-pom` / `ctool4j-mybatis-pom` 两个子档：这两个聚合 pom 自身带 provided 依赖，会传给其子模块）、`ctool4j-processor-pom` 子树 → processor 档；各模块 `build.gradle.kts` 只声明本模块专属依赖。聚合/父 pom 只发布 pom，BOM 用 `java-platform`。
 - **依赖版本对齐 Maven 语义**：上游 BOM 用 `enforcedPlatform`（= Maven `dependencyManagement` 以 BOM 为准，而非 Gradle 默认的"冲突取最高版本"）；本项目在版本目录里**显式覆盖**且与上游 BOM 同名的构件，须在根脚本用 `cAlignModuleVersion` 对齐（现有 lombok、guava 两项），否则会被上游 BOM 拉回。
 - **发布 pom 的 `<parent>` 由目录归属推导注入**（`CGradlePublishUtils`）；聚合/父 pom 的 `<dependencies>` / `<build>` 配置不注入（构建期职责已由根脚本承担），唯一例外是 `ctool4j-boot-parent`——额外注入了 spring-boot-maven-plugin 配置（它对外是业务应用的 Maven 父 pom）。
-- **改 `java-javax` 源目录必须同步 `java-jakarta` 源目录**：适配模块内两目录的同名文件除 `javax`/`jakarta` 字样外应**完全一致**。两份副本仍靠人工维护、会漂移（本仓库曾出现 7 个副本滞后：`http` 侧适配器 5 个、spring 侧 2 个），故仍需在改动后自查。改完后按下式自查，差异应为空：
+- **改 `java-javax` 源目录必须同步 `src/main/java` 源目录**：适配模块内两目录的同名文件除 `javax`/`jakarta` 字样外应**完全一致**。两份副本仍靠人工维护、会漂移（本仓库曾出现 7 个副本滞后：`http` 侧适配器 5 个、spring 侧 2 个），故仍需在改动后自查。改完后按下式自查，差异应为空：
 
   ```bash
   # 归一化 javax/jakarta 字样后逐文件比对，输出两侧不一致的文件
-  # <适配模块目录> 下应同时存在 src/main/java-javax 与 src/main/java-jakarta
+  # <适配模块目录> 下应有 src/main/java（jakarta 侧）与 src/main/java-javax（javax 侧）
   mod='<适配模块目录>'
-  diff -r "$mod/src/main/java-javax" "$mod/src/main/java-jakarta" | sed 's/javax/SIDE/g' | grep -v '^[0-9]' | head
+  diff -r "$mod/src/main/java" "$mod/src/main/java-javax" | sed 's/javax/SIDE/g' | grep -v '^[0-9]' | head
   # 更严谨：逐文件读全量文本、把 javax/jakarta 归一化后比对（行首 `
 ` 也须先去掉）
   ```
 
 - **两侧同文的判定口径（自检的适用边界）**：
   - **侧别专属**字样（`javax.servlet` 一类的 import、「本份承 javax 包」一类措辞）随侧别替换；**两侧成对提及**（同一处同时出现两个词，如「javax 与 jakarta」「`RequestDispatcher.ERROR_EXCEPTION` 两侧分别是 …」）在两侧保持**同一份原文**——用"整体互换/全量替换"的脚本同步会把双提及写成「jakarta 与 jakarta」，而归一化自检恰好看不出这种坏损。
-  - **不得在 javadoc 里硬编码另一侧的源目录名**（如 javax 份写「与同模块的 `java-jakarta` 一份同包同名」）：归一化把两侧目录名都替成同一符号，自检看不出；且两侧都这么写时必然有一侧写反。需要指代另一侧时用**与侧别无关的措辞**（「与同模块的另一侧源码目录」）。
+  - **不得在 javadoc 里硬编码另一侧的源目录名**（如 javax 份写「与同模块的 `src/main/java` 一份同包同名」）：归一化把两侧目录名都替成同一符号，自检看不出；且两侧都这么写时必然有一侧写反。需要指代另一侧时用**与侧别无关的措辞**（「与同模块的另一侧源码目录」）。
   - 两侧文件**行尾须一致**（按 `.gitattributes` 一律 LF）：行尾差异会被归一化比对报成"内容漂移"（本仓库实测：2 个 spring 侧文件因 javax 侧 CRLF / jakarta 侧 LF 而误报）。
-  - 自查范围是 **`src/main`**；容器侧的测试只落在 `java-javax` 源目录，不要求两侧同名。
+  - 自查范围是 **`src/main`**；适配模块的测试只有一份（`src/test/java`），断言写在中立类型（`CHttpServletRequest.ERROR_STATUS_CODE` 一类）上，不随侧别分叉，也不参与两侧比对。
   - **允许的真档位差异（不属漂移，不得"修平"）**：两侧因底层 API 能力不同而必须分叉时，各自写各自那份，**不要为了对齐而把另一侧也改成错的形式**。这类副本是"必须存在"的，别把它当成待消除的重复。当前清单：
-    - `CHttpServletResponse#setStatus(int, String)`：Servlet 6.0（jakarta）已移除该 API，故 **java-jakarta 份不覆写**（沿 `CHttpResponse` 的 `default` 降级为仅设状态码），**java-javax 份保留覆写**以透传状态消息。
-    - `CErrorController` 的 `ErrorController` import：Boot 4 起由 `org.springframework.boot.web.servlet.error` 迁至 `org.springframework.boot.webmvc.error`，故 **java-jakarta 份 import 后者**、java-javax 份 import 前者（两侧均为无方法标记接口）。
-    - `CMdcLogback`（ctool4j-logback）：SLF4J 2.0 起 `MDCAdapter` 新增 `pushByKey` / `popByKey` / `getCopyOfDequeByKey` / `clearDequeByKey`，jdk8 档位的 SLF4J 1.7 接口没有它们；**java-latest 份在 java-jdk8 份基础上纯增量补齐**，无档位差异的 deque 存储下沉 `CMdcDequeAble`。
+    - `CHttpServletResponse#setStatus(int, String)`：Servlet 6.0（jakarta）已移除该 API，故 **`src/main/java`（jakarta）份不覆写**（沿 `CHttpResponse` 的 `default` 降级为仅设状态码），**`java-javax` 份保留覆写**以透传状态消息。
+    - `CErrorController` 的 `ErrorController` import：Boot 4 起由 `org.springframework.boot.web.servlet.error` 迁至 `org.springframework.boot.webmvc.error`，故 **`src/main/java`（jakarta）份 import 后者**、`java-javax` 份 import 前者（两侧均为无方法标记接口）。
+    - `CMdcLogback`（ctool4j-logback）：SLF4J 2.0 起 `MDCAdapter` 新增 `pushByKey` / `popByKey` / `getCopyOfDequeByKey` / `clearDequeByKey`，jdk8 档位的 SLF4J 1.7 接口没有它们；**`src/main/java` 份在 `java-jdk8` 份基础上纯增量补齐**，无档位差异的 deque 存储下沉 `CMdcDequeAble`。
     - **`JAVA_HOME_8` / `JAVA_HOME_LATEST` 与 `JAVA_HOME_PATHS`**：本机双 JDK 的位置（`JAVA_HOME_PATHS` 以 `File.pathSeparator` 分隔多个候选），供 `gradle.properties` 本地配置。**仅本地验证用**，CI 由流水线提供档位 JDK。
     新增此类差异时**在同一提交内补登到本清单**（否则下一轮的归一化自检会把它当漂移重复报出）。
 - **servlet-api 依赖只有一份**：适配模块只声明一个 `lib("servlet-api")`，由版本目录按档位取坐标（jdk8 → `javax.servlet:javax.servlet-api`，其余 → `jakarta.servlet:jakarta.servlet-api`），声明为 optional。不再有"两侧 pom 依赖同构"的人工核对项。
-- **下沉/迁移方法时用例同迁**：方法下沉 base 后，其单元测试一并迁到该 base 模块的 `src/test`；base 模块没有 servlet-api，用例只 mock 抽象层类型（`CHttpRequest`/`CHttpResponse`），接口的 `default` 方法要用 `thenCallRealMethod()` 才会跑到真实实现（mock 默认不执行默认方法）；容器相关的用例留在适配模块的 `src/test/java-javax`。
+- **下沉/迁移方法时用例同迁**：方法下沉 base 后，其单元测试一并迁到该 base 模块的 `src/test`；base 模块没有 servlet-api，用例只 mock 抽象层类型（`CHttpRequest`/`CHttpResponse`），接口的 `default` 方法要用 `thenCallRealMethod()` 才会跑到真实实现（mock 默认不执行默认方法）；容器相关的用例留在适配模块的 `src/test/java`（单份，断言只碰中立类型，两档位都会跑）。
 
 - **桥接方法一律走动态分派**：桥接里调用抽象层方法时写普通调用（`preHandle(...)`），**不得**写 `IXxx.super.preHandle(...)`——后者直接调基层契约的默认实现、**绕过实现类的覆写**，下游覆写失效且不会报错。唯一例外是「Spring 侧为抽象方法、必须给默认值」的场景（如 `ResponseBodyAdvice#supports`）。
 

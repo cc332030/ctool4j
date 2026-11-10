@@ -10,7 +10,7 @@ Spring 侧的**容器抽象层与容器适配**模块集：把「Spring 扩展�
 | 模块 | 定位 | 内容 |
 | --- | --- | --- |
 | `ctool4j-spring-base` | 抽象契约（容器无关） | 基层契约 `ICHandlerInterceptor`、`ICResponseBodyAdvice`；`CConfigurationProperties`（配置属性组合注解）；cors 配置与工具（`CCorsConfig`、`CCorsOriginConfig`、`CCorsUtils`）；`CResourceUrlConstants`；适配层同名类**调用**的公共工具：`CHttpRequestUtils`（请求工具的容器无关部分）、`CErrorUtils`（错误响应组装）、`CResourceUrlUtils`（静态资源忽略判定） |
-| `ctool4j-spring-servlet` | Spring 侧容器适配 | `ICSpringHandlerInterceptor`、`ICSpringResponseBodyAdvice`（桥接接口）；`ICFilter`、`CAbstractWebAuthFilter`、`CResourceFilter`、`CCorsFilter`；`CRequestUtils`（容器无关部分在 `CHttpRequestUtils`，本类只留取当前请求/响应等接触容器的入口）、`CErrorController`（只留取属性、记日志与包装）。**javax 与 jakarta 两套源码同包同名、同在一个模块内**，按档位选用 `src/main/java-javax` 或 `src/main/java-jakarta` |
+| `ctool4j-spring-servlet` | Spring 侧容器适配 | `ICSpringHandlerInterceptor`、`ICSpringResponseBodyAdvice`（桥接接口）；`ICFilter`、`CAbstractWebAuthFilter`、`CResourceFilter`、`CCorsFilter`；`CRequestUtils`（容器无关部分在 `CHttpRequestUtils`，本类只留取当前请求/响应等接触容器的入口）、`CErrorController`（只留取属性、记日志与包装）。**javax 与 jakarta 两套源码同包同名、同在一个模块内**：`src/main/java` 承 jakarta，`src/main/java-javax` 承 javax，按档位整体替换 |
 | `ctool4j-spring-security-base` | 安全侧抽象契约 | `CSecurityResponseUtils`（只依赖抽象层响应的统一 JSON 错误写出）、`CUnauthorizedHandler` / `CForbiddenHandler` 与默认实现 |
 | `ctool4j-spring-security-servlet` | 安全侧容器适配 | `CAuthenticationEntryPoint`、`CAccessDeniedHandler`（Spring Security 定签名）、`CSecurityResponseWriter`；同样按档位在两套同包同名源码间切换 |
 
@@ -18,7 +18,7 @@ Spring 侧的**容器抽象层与容器适配**模块集：把「Spring 扩展�
 
 **不需要换依赖模块**：`ctool4j-spring-servlet` 与 `ctool4j-spring-security-servlet` 内已同时容纳
 javax 与 jakarta 两套同包同名源码，由 JDK 档位（`JDK_VERSION`）自动选用——jdk8 档位读 `src/main/java-javax`
-（`javax.servlet`），其余档位读 `src/main/java-jakarta`（`jakarta.servlet`）。业务代码与依赖坐标都不变。
+（`javax.servlet`），其余档位读 `src/main/java`（`jakarta.servlet`）。业务代码与依赖坐标都不变。
 
 两档位对应不同的 Spring 矩阵（jdk8 → Spring 5.3 / Boot 2.7；其余 → Spring 6+ / Boot 3+），由版本目录按档位给值，
 故不再有"某一侧未登记进构建"的情形。

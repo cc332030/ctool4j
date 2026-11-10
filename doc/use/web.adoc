@@ -11,7 +11,7 @@
 * *JWT 与 token*：`CJwtUtils`（生成/解析）、`CTokenUtils`（token 前缀、请求头/响应头/请求属性读写）、`CRequestHeaderEnum`（统一请求头名）。
 * *HTTP 请求日志*：`CRequestLogUtils` + `CRequestLog`（HTTP 报文 dump）、`CCommUtils.appendHttpLog`；配置 `CRequestLogConfig`（`logging.request-log`）。
 * *traceId 透传*：`CTraceUtils` 从请求头读取（无则生成），写入 ThreadLocal + MDC（key = `c-trace-id`），可用 SPI `ICTraceInfoProvider` 定制。
-* *必填注解*：`@CRequired`（request body/字段必填）、`@CNotRequired`（request param 显式非必填）。
+* *必填注解*：`@CRequired`（request body/字段必填）、`@CNotRequired`（request param 显式非必填）。实现在 +ctool4j-web-validation+（Bean Validation 包名按档位切换），本模块已 `api` 依赖它，使用方照旧只引 +ctool4j-web+。
 * *内部接口 IP 白名单*：`@CInnerApi`（声明内部接口，定义在 +ctool4j-definition+）+ `CInnerApiInterceptor`（按 `inner-api.allowed-ips` 做 IP/CIDR 白名单校验，未命中返回 403）。
 * *其他*：`CWebMvcConfigurer`、`CServletUtils`、`CWebUtils`；请求体增强抽象 `ICBaseRequestBodyAdvice`（响应体增强契约改为 `ICResponseBodyAdvice`，由 +ctool4j-spring-base+ 承载、容器适配 +ctool4j-spring-servlet+ 提供 `ICSpringResponseBodyAdvice`）。
 * *容器适配部分*（+ctool4j-spring-servlet+，模块内按档位自动切换 javax/jakarta 源目录，依赖坐标不变）：`CResourceFilter`、`CErrorController`、`ICFilter`、认证过滤器类型契约 `CAbstractWebAuthFilter`、拦截器契约 `ICSpringHandlerInterceptor`。

@@ -1,10 +1,10 @@
 package com.c332030.ctool4j.model;
 
 import com.c332030.ctool4j.interfaces.ICHttpSession;
-import javax.servlet.http.HttpSession;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
 import java.util.Objects;
 
@@ -22,7 +22,7 @@ import java.util.Objects;
  * <ul>
  *   <li><b>纯转发、不加工</b>：每个方法只把调用交给底层会话，契约、边界与返回值语义完全沿用
  *   {@link ICHttpSession}（见该接口文档），此处不重复描述、不做兜底。</li>
- *   <li><b>由档位选源目录</b>：本份承 javax 包（{@code src/main/java-javax}），与同模块的另一侧源码目录
+ *   <li><b>由档位选源目录</b>：本份承 javax 包，与同模块的另一侧源码目录
  *   一份同包同名、互为镜像；由 JDK 档位选用其一，使用方按自身容器引入对应档位产物。</li>
  * </ul>
  *

@@ -215,99 +215,100 @@ subprojects {
             }
         }
 
-        // ---- 档位专属源码目录（各目录之间必须完全互斥）----
+        // ---- 档位专属源码目录 ----
         // 少数类在两档位下必须用不同的底层 API（Servlet 容器 javax/jakarta、HttpClient 4/5、
-        // SLF4J 1/2 等），无法用同一份源码兼容。约定：差异实现按档位分放
-        // `src/<main|test>/java-jdk8` 与 `.../java-latest`（同包同名、互斥），由档位决定纳入哪一个。
+        // SLF4J 1/2 等），无法用同一份源码兼容。按「两份实现的关系」分两种形态：
         //
-        // **互斥是硬约束**：同一模块内的档位专属目录承载的是"同一个全限定名的不同档位实现"，
-        // 因此**任何两个目录都不得出现同一个全限定名**。不互斥的代码要放进公共 `src/<main|test>/java`
-        // （或按职责另立模块），否则会出现两种坏情况：
-        // 1. 同名重复：同一全限定名存在多份副本，靠人工逐文件对齐，必然漂移（本仓库实测漂移过）；
-        // 2. 错位：只写在一侧的档位专属目录里，另一档位编译期直接缺类（`compileJava` 失败）。
-        // 下列 `assertExclusiveVariantSourceDirs` 在**配置期**静态校验，违反即构建失败——见其注释。
+        // ① 追加（默认）：`src/<main|test>/java` 放公共类，档位目录放**与之不相交**的类；
+        //    jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`（如 `ctool4j-core`）。
+        // ② 整体替换：`src/<main|test>/java` 与另一侧目录承载**同一个全限定名**的两份实现
+        //    （`CMdcLogback`、`CHttpServletRequest` 等），追加必然重复（同包同名的两份 class 同时
+        //    进 classpath 时 JVM 取先命中者且**不报错**）。这类模块在自己的 `build.gradle.kts` 里调
+        //    `cExclusiveJdk8SourceDirs("<另一侧目录名>")`，由它 `setSrcDirs` 整体替换。
+        //
+        // **每个模块都必须有 `src/<main|test>/java`**：形态 ① 下它是公共源目录、形态 ② 下它是
+        // 「默认侧」（最新 LTS / jakarta）的实现目录。没有它的模块视为目录结构错误（下方配置期校验）。
+        //
+        // **互斥是硬约束**：判据是「同一源集最终纳入的多个源码目录里不得有同一全限定名」——
+        // 这类重复在编译期不报错，只能静态查（见下方 `assertNoDuplicateJavaSources`）。
         val jdkSideSuffix = if (jdk8Profile) "jdk8" else "latest"
+        val variantSourceDirName = "java-$jdkSideSuffix"
         val sourceSetNames = listOf("main", "test")
 
-        // 容器侧落点约定（与 java-jdk8 / java-latest 并列）：
-        // - `src/<main|test>/java-javax`   → 仅在 jdk8 档位纳入（javax 侧）
-        // - `src/<main|test>/java-jakarta` → 仅在非 jdk8 档位纳入（jakarta 侧）
-        // 只有承载容器侧适配类的模块才建这两个目录。
-        val containerSideSuffix = if (jdk8Profile) "javax" else "jakarta"
-
-        /**
-         * 校验档位专属源码目录的**互斥性**，并返回本档位实际要纳入的目录。
-         *
-         * 互斥是硬约束（见上），且必须在**配置期**查清：jdk8 档位只编译 `java-jdk8`，
-         * 若某类被错放进 `java-latest`，只有最新 LTS 档位才会发现"缺类"——把两档位的同名/错位
-         * 一次性查清，任一档位构建都能当场失败。
-         *
-         * **例外：容器侧成对适配**（`java-javax` ↔ `java-jakarta`）**整体放行**。这一对**必须**保持
-         * 同包同名——两套源码互为镜像、各承一侧容器类型（成员互引，如 `*Adapter` 互相引用），
-         * 一致性由「成对文件互引 + 归一化比对自检」维护（见 `agent/AGENTS-PROJECT.MD`；
-         * 历史实测漂移过 7 个副本）。成对镜像本就不可能"任一档位独立读得通"，故不在此做机器校验。
-         *
-         * 判定用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名，够用），
-         * 只看目录**相对路径**、不读文件内容，故对配置缓存友好（路径集合是稳定输入）。
-         */
-        fun assertExclusiveVariantSourceDirs(sourceSetName: String): List<File> {
-
-            val jdkSideDirName = "java-$jdkSideSuffix"
-            val containerPairDirNames = listOf("java-javax", "java-jakarta")
-
-            val jdkSideDir = moduleProject.file("src/$sourceSetName/$jdkSideDirName")
-            val containerSideDir = moduleProject.file("src/$sourceSetName/java-$containerSideSuffix")
-
-            /** 列出目录下全部 .java 的全限定名（相对路径去扩展名），目录不存在则为空 */
-            fun relationalNames(dir: File): Set<String> =
-                if (!dir.exists()) {
-                    emptySet()
-                } else {
-                    dir.walkTopDown()
-                        .filter { it.isFile && it.name.endsWith(".java") }
-                        .map { it.relativeTo(dir).path.replace('\\', '/').removeSuffix(".java") }
-                        .toSet()
-                }
-
-            val jdkSideNames = relationalNames(jdkSideDir)
-            val containerSideNames = relationalNames(containerSideDir)
-
-            // 容器侧成对适配（java-javax ↔ java-jakarta）整体放行，见函数 javadoc 的「例外」。
-            // 这里只查"档位专属目录 ↔ 容器侧目录"的重名——那才是真错位（同一份代码两份副本）。
-            val crossDuplicates = jdkSideNames.intersect(containerSideNames)
-
-            val problems = crossDuplicates
-                .map { "$jdkSideDirName/$it ↔ java-$containerSideSuffix/$it" }
-                .sorted()
-
-            if (problems.isNotEmpty()) {
-                throw GradleException(
-                    "[$projectName] 档位专属源码目录不互斥：$problems；" +
-                            "同名类只能有一份：要么下沉到 src/$sourceSetName/java（公共），要么并入容器侧成对适配" +
-                            "（java-javax ↔ java-jakarta）作为镜像副本，不得既在 src/$jdkSideDirName 又在容器侧目录。"
-                )
-            }
-
-            // ③ 档位专属目录自身：不得与容器侧目录重合使用（同一目录被两种规则同时纳入）
-            val variantDirs = mutableListOf<File>()
-            if (jdkSideDir.exists()) {
-                variantDirs.add(jdkSideDir)
-            }
-            if (containerSideDir.exists()) {
-                variantDirs.add(containerSideDir)
-            }
-            return variantDirs
-        }
-
         sourceSetNames.forEach { sourceSetName ->
-            val variantSourceDirs = assertExclusiveVariantSourceDirs(sourceSetName)
-            if (variantSourceDirs.isNotEmpty()) {
+            val variantDir = moduleProject.file("src/$sourceSetName/$variantSourceDirName")
+            if (variantDir.exists()) {
                 moduleProject.extensions.getByType<JavaPluginExtension>()
                     .sourceSets
                     .named(sourceSetName)
-                    .configure {
-                        variantSourceDirs.forEach { java.srcDir(it) }
+                    .configure { java.srcDir(variantDir) }
+            }
+        }
+
+        /**
+         * 校验同一源集**最终纳入的**多个源码目录之间没有重复的全限定名。
+         *
+         * 为什么必须查：`java-jdk8` 与 `java-latest` 这类并列目录承载的是"同一全限定名的两档实现"，
+         * 两者**永不编进同一档位**，故同名重复在编译期不可见——同包同名的两份 class 同时进 classpath 时
+         * JVM 取先命中者且不报错，表现为"改了源码没生效"这类极难定位的故障。
+         *
+         * 为什么放在 `afterEvaluate`：形态 ② 的模块会调 `cExclusiveJdk8SourceDirs(...)` 整体替换源集，
+         * 替换后 `src/main/java` 并不参与编译——只有等模块脚本跑完、源集定稿后才知道"这一档到底编哪些目录"。
+         * 定稿后判定才既不会误报（`java` 与 `java-javax` 同包同名是形态 ② 的**设计**），
+         * 又能拦住真正的错（形态 ② 忘了调 `cExclusiveJdk8SourceDirs`，`java` 与 `java-javax` 会同时被追加）。
+         *
+         * 判定用"源文件相对路径去扩展名"当全限定名（Java 的公开类型与文件同名，够用），
+         * 只看目录**相对路径**、不读文件内容。只有一个目录时直接跳过（绝大多数模块属此列，不产生额外 IO）。
+         */
+        fun assertNoDuplicateJavaSources(sourceSetName: String) {
+
+            val javaSourceSets = moduleProject.extensions.getByType<JavaPluginExtension>().sourceSets
+            val sourceSet = javaSourceSets.findByName(sourceSetName) ?: return
+            val existingDirs = sourceSet.java.srcDirs.filter { it.isDirectory }
+            if (existingDirs.size < 2) {
+                return
+            }
+
+            val owners = sortedMapOf<String, MutableList<String>>()
+            existingDirs.forEach { dir ->
+                val dirName = dir.relativeTo(moduleProject.projectDir).path.replace('\\', '/')
+                dir.walkTopDown()
+                    .filter { it.isFile && it.name.endsWith(".java") }
+                    .forEach { file ->
+                        val fqn = file.relativeTo(dir).path.replace('\\', '/').removeSuffix(".java")
+                        owners.getOrPut(fqn) { mutableListOf() }.add(dirName)
                     }
+            }
+
+            val duplicates = owners.filterValues { it.size > 1 }
+            if (duplicates.isNotEmpty()) {
+                throw GradleException(
+                    "[$projectName] 源集 $sourceSetName 内出现重复全限定名：" +
+                            duplicates.entries.joinToString("；") { (fqn, dirs) -> "$fqn（${dirs.joinToString(" ↔ ")}）" } +
+                            "；同一次编译里同包同名只会取先命中者且不报错。" +
+                            "要「两份实现二选一」就在本模块 build.gradle.kts 调 cExclusiveJdk8SourceDirs(\"<另一侧目录>\")；" +
+                            "要「不同类」就把公共类留在 src/$sourceSetName/java。"
+                )
+            }
+        }
+
+        moduleProject.afterEvaluate {
+            sourceSetNames.forEach { assertNoDuplicateJavaSources(it) }
+        }
+
+        // ---- 每个有 Java 源码的模块都必须有 src/main/java ----
+        // 形态 ① 下它是公共源目录、形态 ② 下它是「默认侧」的实现目录；缺了它意味着所有类都挤在
+        // 档位目录里，IDE 与 `withSourcesJar` 的默认根目录会落空，且新人无从判断"默认侧是哪边"。
+        // 只对**确有 Java 源码**的模块生效：纯聚合/占位模块（无 src/main 或只有资源）不受约束。
+        run {
+            val mainDir = moduleProject.file("src/main")
+            val hasJavaSource = mainDir.exists() &&
+                    mainDir.walkTopDown().any { it.isFile && it.name.endsWith(".java") }
+            if (hasJavaSource && !moduleProject.file("src/main/java").exists()) {
+                throw GradleException(
+                    "[$projectName] 缺少 src/main/java：每个含 Java 源码的模块都必须有该目录" +
+                            "（默认侧放这里，另一侧用 java-jdk8 / java-javax 之类并列，见根脚本「档位专属源码目录」）。"
+                )
             }
         }
 

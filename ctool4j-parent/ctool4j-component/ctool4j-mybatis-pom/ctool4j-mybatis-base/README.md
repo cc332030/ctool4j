@@ -23,9 +23,9 @@
 它按 JDK 档位出两个档位的 jar（`java` / `java-jdk8`），公共契约 `ICService` 一族因此与版本无关。
 
 **容器侧差异也不在本模块**：`CMpController` 的参数级必填用 ctool4j-web 的中立注解 `@CRequired`
-（`javax.validation` 与 `jakarta.validation` 的统一抽象），故不再按档位拆 `java-javax` / `java-jakarta`。
+（`javax.validation` 与 `jakarta.validation` 的统一抽象），故不再按档位拆 `java-javax`。
 
-> 本模块**不得**再出现第二个源目录（`java-javax` / `java-jakarta` / `java-jdk8` / `java-latest` 等），
+> 本模块**不得**再出现第二个源目录（`java-javax` / `java-jdk8` / `java-latest` 等），
 > 也不得 `srcDir` 指向别的模块——多源只允许出现在适配模块。
 
 ## 依赖

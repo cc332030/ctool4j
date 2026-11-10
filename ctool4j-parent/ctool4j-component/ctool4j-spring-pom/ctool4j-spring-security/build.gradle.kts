@@ -1,10 +1,12 @@
+import com.c332030.ctool4j.gradle.buildsrc.util.cOptional
+
 plugins {
     `java-library`
 }
 
 import com.c332030.ctool4j.gradle.buildsrc.util.cOptional
 /**
- * 容器侧适配模块：`ctool4j-spring-security-servlet` 内在 `src/main/java-javax` 与 `src/main/java-jakarta`
+ * 容器侧适配模块：`ctool4j-spring-security-servlet` 内在 `src/main/java`（jakarta）与 `src/main/java-javax`
  * 两套同包同名源码间按档位自动切换（见根 `build.gradle.kts`），故依赖模块恒定、不再按侧拼接模块名。
  */
 

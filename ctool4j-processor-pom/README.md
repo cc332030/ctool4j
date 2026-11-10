@@ -11,10 +11,10 @@
 
 | 子模块 | 定位 | 依赖 | 详细文档 |
 |--------|------|------|----------|
-| `ctool4j-processor-base` | 处理器基础（SPI 骨架与共用支撑） | 无 | [pom.xml](ctool4j-processor-base/pom.xml) |
-| `ctool4j-autowired-processor` | 处理 `@CAutowired` / `@CAutowiredScan`，为静态字段生成构造器注入类 | `ctool4j-processor-base` | [pom.xml](ctool4j-autowired-processor/pom.xml) |
+| `ctool4j-processor-base` | 处理器基础（SPI 骨架与共用支撑） | 无 | [build.gradle.kts](ctool4j-processor-base/build.gradle.kts) |
+| `ctool4j-autowired-processor` | 处理 `@CAutowired` / `@CAutowiredScan`，为静态字段生成构造器注入类 | `ctool4j-processor-base` | [build.gradle.kts](ctool4j-autowired-processor/build.gradle.kts) |
 | `ctool4j-mybatis-processor` | 处理 `@CAutoBizService`，按实体 getter 生成业务 Service 接口 | `ctool4j-processor-base`、`ctool4j-mybatis`（test） | [README](ctool4j-mybatis-processor/README.md) |
-| `ctool4j-mq-processor` | 占位，待实现 | `ctool4j-processor-base` | [pom.xml](ctool4j-mq-processor/pom.xml) |
+| `ctool4j-mq-processor` | 占位，待实现 | `ctool4j-processor-base` | [build.gradle.kts](ctool4j-mq-processor/build.gradle.kts) |
 
 ## 使用方式
 

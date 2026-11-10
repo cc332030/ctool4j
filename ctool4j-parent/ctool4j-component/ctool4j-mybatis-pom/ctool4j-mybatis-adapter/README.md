@@ -14,7 +14,7 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从
 - 上层（`ctool4j-mybatis-base` 的 `ICService` 一族）源码对四个 MP 版本一字不改；
 - 消费者拿到的是**按档位编好的 jar**，不需要再从别的模块 `srcDir` 挂载源码。
 
-## 源目录布局（全仓唯一允许出现多源的模块）
+## 源目录布局（两个目录，同包同名、档位二选一）
 
 | 目录 | 内容 | 生效档位 |
 |------|------|----------|
@@ -27,8 +27,8 @@ mybatis-plus 3.5.17 起把 `IService` / `ServiceImpl` 从
 
 两个目录承载**完全相同的相对路径集合**（互为镜像），差异只在"承哪个 MP 包名"上。它们**永不共存**：
 同包同名的两份 class 同时进 classpath 时，JVM 取先命中者且**不报错**。根脚本对 `java-<side>` 是
-**追加**语义，本模块两目录同名同包、追加即重复，故 jdk8 档位由本模块的 `build.gradle.kts` 把主源集
-**整体替换**为 `java-jdk8`（全仓唯一这样做的模块）。
+**追加**语义，本模块两目录同名同包、追加即重复，故 jdk8 档位由本模块的 `build.gradle.kts` 调
+`cExclusiveJdk8SourceDirs("java-jdk8")` 把主源集**整体替换**为 `java-jdk8`。
 
 ## 核心类
 

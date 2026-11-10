@@ -26,7 +26,7 @@ public class OrderController {
 ----
 
 * 注解是**纯声明**，不依赖文档框架；翻译逻辑在本模块插件中（`CTagAnnotationPlugin`、`COperationAnnotationPlugin`、`CParameterAnnotationPlugin`、`CSchemaAnnotationModelPropertyPlugin`、`CRequiredAnnotationPlugin`、`CNotEmptyAnnotationPlugin`、`CTextEnumModelPropertyPlugin`、`CTextEnumParameterPlugin`），因此业务只依赖 +ctool4j-definition+ 的注解也能编译。
-* request body 字段默认非必填：需要必填时标 `@CRequired`；request param 需非必填时标 `@CNotRequired`（`@CNotRequired` 在 +ctool4j-web+）。
+* request body 字段默认非必填：需要必填时标 `@CRequired`；request param 需非必填时标 `@CNotRequired`（两者在 +ctool4j-web-validation+，经 +ctool4j-web+ 传递）。
 
 == 配置
 

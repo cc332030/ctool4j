@@ -1,5 +1,4 @@
 import com.c332030.ctool4j.gradle.buildsrc.util.cApiStrict
-import com.c332030.ctool4j.gradle.buildsrc.util.cProvided
 
 plugins {
     `java-library`
@@ -15,8 +14,8 @@ dependencies {
     // 经 base 的 `api` 传递到本模块，故这里不再单独声明。
     api(project(":ctool4j-mybatis-base"))
 
-    // 共享的 service 源码（ICMpLockService 等）在本模块编译，需与 base 相同的 provided 依赖
-    cProvided(project(":ctool4j-redis"))
+    // 本模块源码只做版本差异（插件 / 注入器签名），共享的 service 契约（含 ICMpLockService）
+    // 都在 base，其 provided 依赖由 base 自己声明，此处不再重复。
 
 }
 
