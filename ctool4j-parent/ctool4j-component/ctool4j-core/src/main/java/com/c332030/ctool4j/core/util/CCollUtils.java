@@ -696,7 +696,7 @@ public class CCollUtils {
      * @param <R>      集合元素类型
      * @return 集合
      */
-    public static <O, R> Set<R> convertToSet(O o, CFunction<O, Set<R>> function) {
+    public <O, R> Set<R> convertToSet(O o, CFunction<O, Set<R>> function) {
         if(Objects.nonNull(o)) {
             return function.apply(o);
         }
@@ -712,7 +712,7 @@ public class CCollUtils {
      * @param <R>      集合元素类型
      * @return 集合
      */
-    public static <O, R> Collection<R> convertToCollection(O o, CFunction<O, Collection<R>> function) {
+    public <O, R> Collection<R> convertToCollection(O o, CFunction<O, Collection<R>> function) {
         if(Objects.nonNull(o)) {
             return function.apply(o);
         }
@@ -727,7 +727,7 @@ public class CCollUtils {
      * @param <T>        元素类型
      * @return 字符串集合
      */
-    public static <T> Collection<String> convertString(Collection<T> collection, CFunction<T, String> convert) {
+    public <T> Collection<String> convertString(Collection<T> collection, CFunction<T, String> convert) {
         return convert(collection, convert, StrUtil::isNotBlank);
     }
 
@@ -740,7 +740,7 @@ public class CCollUtils {
      * @param <K>        目标元素类型
      * @return 转换后的集合
      */
-    public static <T, K> Collection<K> convertCollection(Collection<T> collection, CFunction<Collection<T>, Collection<K>> convert) {
+    public <T, K> Collection<K> convertCollection(Collection<T> collection, CFunction<Collection<T>, Collection<K>> convert) {
 
         collection = defaultEmpty(collection);
         collection = collection.stream()
@@ -764,7 +764,7 @@ public class CCollUtils {
      * @param <T>  元素类型
      * @return 列表
      */
-    public static <T> List<T> newList(int size) {
+    public <T> List<T> newList(int size) {
         if(0 == size) {
             return CList.of();
         }
@@ -778,7 +778,7 @@ public class CCollUtils {
      * @param <T>  元素类型
      * @return 集合
      */
-    public static <T> Set<T> newSet(int size) {
+    public <T> Set<T> newSet(int size) {
         if(0 == size) {
             return CSet.of();
         }
@@ -792,7 +792,7 @@ public class CCollUtils {
      * @param <T>  元素类型
      * @return 有序集合
      */
-    public static <T> Set<T> newLinkedSet(int size) {
+    public <T> Set<T> newLinkedSet(int size) {
         if(0 == size) {
             return CSet.of();
         }
@@ -807,7 +807,7 @@ public class CCollUtils {
      * @param <V>  值类型
      * @return Map
      */
-    public static <K, V> Map<K, V> newMap(int size) {
+    public <K, V> Map<K, V> newMap(int size) {
         if(0 == size) {
             return CMap.of();
         }
@@ -822,7 +822,7 @@ public class CCollUtils {
      * @param <V>  值类型
      * @return 有序 Map
      */
-    public static <K, V> Map<K, V> newLinkedMap(int size) {
+    public <K, V> Map<K, V> newLinkedMap(int size) {
         if(0 == size) {
             return CMap.of();
         }
@@ -837,7 +837,7 @@ public class CCollUtils {
      * @param <T>        元素类型
      * @return 是否包含
      */
-    public static <T> boolean contains(Collection<T> collection, T element) {
+    public <T> boolean contains(Collection<T> collection, T element) {
         if(CollUtil.isEmpty(collection)) {
             return false;
         }
@@ -852,7 +852,7 @@ public class CCollUtils {
      * @param <T>   元素类型
      * @return 元素，越界或为空时返回 null
      */
-    public static <T> T get(List<T> list, int index) {
+    public <T> T get(List<T> list, int index) {
         if(CollUtil.isEmpty(list) || index < 0 || index >= list.size()) {
             return null;
         }
@@ -867,7 +867,7 @@ public class CCollUtils {
      * @param <T>        元素类型
      * @return 第一个元素，为空时返回 null
      */
-    public static <T> T first(Collection<T> collection) {
+    public <T> T first(Collection<T> collection) {
 
         if(CollUtil.isEmpty(collection)) {
             return null;
@@ -887,7 +887,7 @@ public class CCollUtils {
      * @param <T>        元素类型
      * @return 最后一个元素，为空时返回 null
      */
-    public static <T> T last(Collection<T> collection) {
+    public <T> T last(Collection<T> collection) {
 
         if(CollUtil.isEmpty(collection)) {
             return null;
@@ -935,7 +935,7 @@ public class CCollUtils {
      * @param <U>        比较值类型
      * @return 最小值，为空时返回 null
      */
-    public static <T, U extends Comparable<? super U>> T min(Collection<T> collection, CFunction<? super T, ? extends U> convert) {
+    public <T, U extends Comparable<? super U>> T min(Collection<T> collection, CFunction<? super T, ? extends U> convert) {
 
         if(CollUtil.isEmpty(collection)) {
             return null;
@@ -970,7 +970,7 @@ public class CCollUtils {
      * @param <U>        比较值类型
      * @return 最大值，为空时返回 null
      */
-    public static <T, U extends Comparable<? super U>> T max(Collection<T> collection, CFunction<? super T, ? extends U> convert) {
+    public <T, U extends Comparable<? super U>> T max(Collection<T> collection, CFunction<? super T, ? extends U> convert) {
 
         if(CollUtil.isEmpty(collection)) {
             return null;
@@ -1003,7 +1003,7 @@ public class CCollUtils {
      * @param <T>        元素类型
      * @return Stream
      */
-    public static <T> Stream<T> stream(Collection<T> collection) {
+    public <T> Stream<T> stream(Collection<T> collection) {
         return defaultEmpty(collection).stream();
     }
 
@@ -1016,7 +1016,7 @@ public class CCollUtils {
      * @param <K>        键类型
      * @return 不可变 Map
      */
-    public static <T, K> Map<K, T> toMap(
+    public <T, K> Map<K, T> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey
     ) {
@@ -1033,7 +1033,7 @@ public class CCollUtils {
      * @param <K>        键类型
      * @return 不可变 Map
      */
-    public static <T, K> Map<K, T> toMap(
+    public <T, K> Map<K, T> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey,
             CPredicate<K> predicate
@@ -1051,7 +1051,7 @@ public class CCollUtils {
      * @param <K>          键类型
      * @return 不可变 Map
      */
-    public static <T, K> Map<K, T> toMap(
+    public <T, K> Map<K, T> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey,
             CBiFunction<T, T, T> mergeFunction
@@ -1070,7 +1070,7 @@ public class CCollUtils {
      * @param <K>          键类型
      * @return 不可变 Map
      */
-    public static <T, K> Map<K, T> toMap(
+    public <T, K> Map<K, T> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey,
             CPredicate<K> predicate,
@@ -1090,7 +1090,7 @@ public class CCollUtils {
      * @param <V>        值类型
      * @return 不可变 Map
      */
-    public static <T, K, V> Map<K, V> toMap(
+    public <T, K, V> Map<K, V> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey,
             CFunction<T, V> toValue
@@ -1110,7 +1110,7 @@ public class CCollUtils {
      * @param <V>          值类型
      * @return 不可变 Map
      */
-    public static <T, K, V> Map<K, V> toMap(
+    public <T, K, V> Map<K, V> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey,
             CFunction<T, V> toValue,
@@ -1132,7 +1132,7 @@ public class CCollUtils {
      * @param <V>          值类型
      * @return 不可变 Map
      */
-    public static <T, K, V> Map<K, V> toMap(
+    public <T, K, V> Map<K, V> toMap(
             Collection<T> collection,
             CFunction<T, K> toKey,
             CFunction<T, V> toValue,

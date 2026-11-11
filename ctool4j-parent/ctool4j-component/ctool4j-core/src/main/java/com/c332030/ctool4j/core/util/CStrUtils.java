@@ -130,14 +130,14 @@ public class CStrUtils {
     /**
      * 不可用字符串集合
      */
-    public static final Set<String> NOT_AVAILABLE_STRINGS = CSet.of(
+    public final Set<String> NOT_AVAILABLE_STRINGS = CSet.of(
             NULL, UNDEFINED
     );
 
     /**
      * UTF-8 BOM
      */
-    public static final String UTF8_BOM = "\uFEFF";
+    public final String UTF8_BOM = "\uFEFF";
 
     /**
      * 字符串格式化
@@ -541,7 +541,7 @@ public class CStrUtils {
      * @param value 待分割字符串
      * @return 分割结果
      */
-    public static Set<Long> splitToLongSet(String value) {
+    public Set<Long> splitToLongSet(String value) {
         return splitToSet(value, Long::parseLong);
     }
 
@@ -557,7 +557,7 @@ public class CStrUtils {
      * @param <V> Map value 泛型
      * @return 分割结果
      */
-    public static <K, V> Map<K, V> splitToMap(
+    public <K, V> Map<K, V> splitToMap(
             String string,
             String separatorEntry, String separatorKeyValue,
             Function<String, K> kFunction, Function<String, V> vFunction,
@@ -601,7 +601,7 @@ public class CStrUtils {
      * @param <V> Map value 泛型
      * @return 分割结果
      */
-    public static <K, V> Map<K, V> splitToMap(String string, Function<String, K> kFunction, Function<String, V> vFunction) {
+    public <K, V> Map<K, V> splitToMap(String string, Function<String, K> kFunction, Function<String, V> vFunction) {
         return splitToMap(string, null, null, kFunction, vFunction, CCollUtils::newLinkedMap);
     }
 
@@ -610,7 +610,7 @@ public class CStrUtils {
      * @param string 待分割字符串
      * @return 分割结果
      */
-    public static Map<String, String> splitToMap(String string) {
+    public Map<String, String> splitToMap(String string) {
         return splitToMap(string, Function.identity(), Function.identity());
     }
 
@@ -641,7 +641,7 @@ public class CStrUtils {
      * @param strings 字符串数组
      * @return 连接后的字符串
      */
-    public static String concat(String separator, String... strings) {
+    public String concat(String separator, String... strings) {
 
         if(ArrayUtil.isEmpty(strings)) {
             return null;
@@ -681,7 +681,7 @@ public class CStrUtils {
      * @param <T> 值泛型
      * @return 值
      */
-    public static <T> T notEmptyThenGet(String value, CSupplier<T> supplier) {
+    public <T> T notEmptyThenGet(String value, CSupplier<T> supplier) {
         return CObjUtils.ifThenGet(StrUtil.isNotEmpty(value), supplier);
     }
 
@@ -692,7 +692,7 @@ public class CStrUtils {
      * @param <T> 值泛型
      * @return 值
      */
-    public static <T> T notBlackThenGet(String value, CSupplier<T> supplier) {
+    public <T> T notBlackThenGet(String value, CSupplier<T> supplier) {
         return CObjUtils.ifThenGet(StrUtil.isNotBlank(value), supplier);
     }
 
@@ -703,7 +703,7 @@ public class CStrUtils {
      * @param <R> 泛型
      * @return 转换后的字符串
      */
-    public static <R> R convertNotEmpty(String o, Function<String, R> function) {
+    public <R> R convertNotEmpty(String o, Function<String, R> function) {
         return convertNotEmpty(o, function, null);
     }
 
@@ -715,7 +715,7 @@ public class CStrUtils {
      * @param <R> R
      * @return 转换后的字符串
      */
-    public static <R> R convertNotEmpty(String o, Function<String, R> function, R defaultValue) {
+    public <R> R convertNotEmpty(String o, Function<String, R> function, R defaultValue) {
 
         if(StrUtil.isBlank(o)) {
             return defaultValue;
@@ -736,7 +736,7 @@ public class CStrUtils {
      * @return 转换后的字符串
      * @param <R> R
      */
-    public static <R> R convertNotBlank(String o, Function<String, R> function) {
+    public <R> R convertNotBlank(String o, Function<String, R> function) {
         return convertNotBlank(o, function, null);
     }
 
@@ -748,7 +748,7 @@ public class CStrUtils {
      * @return 转换后的字符串
      * @param <R> R
      */
-    public static <R> R convertNotBlank(String o, Function<String, R> function, R defaultValue) {
+    public <R> R convertNotBlank(String o, Function<String, R> function, R defaultValue) {
 
         if(StrUtil.isBlank(o)) {
             return defaultValue;
@@ -768,7 +768,7 @@ public class CStrUtils {
      * @param index 索引
      * @return 字符
      */
-    public static Character charAt(String string, int index) {
+    public Character charAt(String string, int index) {
 
         if(index < 0 || index >= string.length()) {
             return null;
@@ -781,7 +781,7 @@ public class CStrUtils {
      * @param string 字符串
      * @return 结果
      */
-    public static boolean isAvailable(String string) {
+    public boolean isAvailable(String string) {
         return StrUtil.isNotEmpty(toAvailable(string));
     }
 
@@ -797,7 +797,7 @@ public class CStrUtils {
      *
      * @param string 待转换字符串
      * @return 可用字符串*/
-    public static String toAvailable(String string) {
+    public String toAvailable(String string) {
 
         string = CStrUtils.trim(string);
         if(StrUtil.isEmpty(string)) {
@@ -839,7 +839,7 @@ public class CStrUtils {
      * @param strings 待转换字符串数组
      * @return 可用字符串
      */
-    public static List<String> toAvailable(String[] strings) {
+    public List<String> toAvailable(String[] strings) {
         return toAvailable(Arrays.asList(strings));
     }
 
@@ -848,7 +848,7 @@ public class CStrUtils {
      * @param strings 待转换字符串集合
      * @return 可用字符串
      */
-    public static List<String> toAvailable(Collection<String> strings) {
+    public List<String> toAvailable(Collection<String> strings) {
         return strings.stream()
                 .map(CStrUtils::toAvailable)
                 .filter(Objects::nonNull)
@@ -863,7 +863,7 @@ public class CStrUtils {
      * @param <T> 泛型
      * @return 可用字符串
      */
-    public static <T> T convertAvailable(String string, StringFunction<T> function) {
+    public <T> T convertAvailable(String string, StringFunction<T> function) {
 
         val value = toAvailable(string);
         if(null == value) {
@@ -907,7 +907,7 @@ public class CStrUtils {
      * @param strings 字符串数组
      * @return 默认字符串
      */
-    public static String defaultString(String... strings) {
+    public String defaultString(String... strings) {
 
         if(ArrayUtil.isEmpty(strings)) {
             return null;

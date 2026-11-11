@@ -110,7 +110,7 @@ public class CResultUtils {
      * @param result 结果
      * @return 是否成功，结果为 null 或 code 为空时返回 false
      */
-    public static boolean isSuccess(@Nullable ICBaseResult<?, ?> result) {
+    public boolean isSuccess(@Nullable ICBaseResult<?, ?> result) {
 
         val code = Opt.ofNullable(result)
             .map(ICBaseResult::getCode)
@@ -129,7 +129,7 @@ public class CResultUtils {
      * @param result 结果
      * @return 是否失败
      */
-    public static boolean isNotSuccess(@Nullable ICBaseResult<?, ?> result) {
+    public boolean isNotSuccess(@Nullable ICBaseResult<?, ?> result) {
         return !isSuccess(result);
     }
 
@@ -165,7 +165,7 @@ public class CResultUtils {
      * @param <T>    数据类型
      * @return 数据，为 null 时返回 null
      */
-    public static <T> T getData(@Nullable ICBaseResult<?, T> result) {
+    public <T> T getData(@Nullable ICBaseResult<?, T> result) {
         return getData(result, null);
     }
 
@@ -176,7 +176,7 @@ public class CResultUtils {
      * @param <T>    数据类型
      * @return 数据或空列表
      */
-    public static <T> List<T> getDataDefaultEmptyList(@Nullable ICBaseResult<?, List<T>> result) {
+    public <T> List<T> getDataDefaultEmptyList(@Nullable ICBaseResult<?, List<T>> result) {
         return getData(result, CList.of());
     }
 
@@ -188,7 +188,7 @@ public class CResultUtils {
      * @param <T>          数据类型
      * @return 数据或默认值
      */
-    public static <T> T getData(@Nullable ICBaseResult<?, T> result, T defaultValue) {
+    public <T> T getData(@Nullable ICBaseResult<?, T> result, T defaultValue) {
 
         assertSuccess(result);
         return ObjUtil.defaultIfNull(result.getData(), defaultValue);

@@ -121,7 +121,7 @@ public class CHttpRequestUtils {
     /**
      * 请求后-清洁工作回调
      */
-    private static final Set<CBiConsumer<CHttpRequest, CHttpResponse>> CLEAR_CONSUMERS = new CopyOnWriteArraySet<>();
+    private final Set<CBiConsumer<CHttpRequest, CHttpResponse>> CLEAR_CONSUMERS = new CopyOnWriteArraySet<>();
 
     /**
      * 注册请求前初始化回调

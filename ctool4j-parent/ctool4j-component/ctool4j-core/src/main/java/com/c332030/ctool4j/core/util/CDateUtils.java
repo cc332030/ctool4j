@@ -93,7 +93,7 @@ public class CDateUtils {
     /**
      * 默认时区（系统时区）
      */
-    public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
+    public final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
     /**
      * 获取初始日期（epoch 0）

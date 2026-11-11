@@ -150,7 +150,7 @@ public class CReflectUtils {
     /**
      * 实例字段（非静态）名到字段的缓存
      */
-    public static final CClassValue<Map<String, Field>> INSTANCE_FIELD_MAP_CLASS_VALUE =
+    public final CClassValue<Map<String, Field>> INSTANCE_FIELD_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
@@ -162,7 +162,7 @@ public class CReflectUtils {
     /**
      * 实例字段 getter MethodHandle 缓存（非静态字段，统一 Object 签名，供 invokeExact 快速路径直接调用）
      */
-    public static final CClassValue<Map<String, MethodHandle>> GETTER_HANDLE_MAP_CLASS_VALUE =
+    public final CClassValue<Map<String, MethodHandle>> GETTER_HANDLE_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
@@ -174,7 +174,7 @@ public class CReflectUtils {
     /**
      * 实例字段 setter MethodHandle 缓存（非静态、非 final 字段，统一 Object 签名）
      */
-    public static final CClassValue<Map<String, MethodHandle>> SETTER_HANDLE_MAP_CLASS_VALUE =
+    public final CClassValue<Map<String, MethodHandle>> SETTER_HANDLE_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
@@ -191,7 +191,7 @@ public class CReflectUtils {
      * {@code setAccessible(true)}，可访问性不构成限制）。行为副作用：{@code getConstructors(Type, Class...)}
      * 的匹配面随之扩大到非 public 构造器（按参数类型匹配，不改变匹配语义）。</p>
      */
-    private static final CClassValue<Map<Integer, List<Constructor<?>>>> CONSTRUCTOR_MAP_CLASS_VALUE =
+    private final CClassValue<Map<Integer, List<Constructor<?>>>> CONSTRUCTOR_MAP_CLASS_VALUE =
             CClassValue.of(type -> Arrays.stream(type.getDeclaredConstructors())
                     // 模块强封装拒绝访问的构造器（如 java.util.TreeSet 的包私有构造）如实剔除，
                     // 不让一次 InaccessibleObjectException 冒泡使整个构造器表不可用（同 makeAccessible 的取舍）
@@ -318,7 +318,7 @@ public class CReflectUtils {
      * （如 {@link #newInstance(Constructor, Object...)}）生成并缓存同一句柄，命中即共享、免去重复 unreflect；
      * 本处按类只计算一次，弱 key 缓存查找不构成重复开销</p>
      */
-    private static final CClassValue<MethodHandle> NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE =
+    private final CClassValue<MethodHandle> NO_ARG_CONSTRUCTOR_HANDLE_CLASS_VALUE =
             CClassValue.of(type -> {
 
                 val noArgConstructor = getNoArgConstructor(type);
@@ -372,7 +372,7 @@ public class CReflectUtils {
     /**
      * 类所有方法缓存
      */
-    public static final CClassValue<List<Method>> ALL_METHODS_CLASS_VALUE =
+    public final CClassValue<List<Method>> ALL_METHODS_CLASS_VALUE =
         CClassValue.of(CReflectUtils::getAllMethods);
 
     /**
@@ -388,7 +388,7 @@ public class CReflectUtils {
     /**
      * 方法名到方法列表的缓存
      */
-    public static final CClassValue<Map<String, List<Method>>> METHOD_MAP_CLASS_VALUE =
+    public final CClassValue<Map<String, List<Method>>> METHOD_MAP_CLASS_VALUE =
             CClassValue.of(type -> ALL_METHODS_CLASS_VALUE.get(type)
                     .stream()
                     .collect(Collectors.groupingBy(Method::getName))
@@ -534,7 +534,7 @@ public class CReflectUtils {
      * @param field 字段
      * @return true 表示已置为可访问（或本就可访问）；false 表示 JDK 模块强封装拒绝访问
      */
-    public static boolean makeAccessible(Field field) {
+    public boolean makeAccessible(Field field) {
         try {
             field.setAccessible(true);
             return true;
@@ -557,7 +557,7 @@ public class CReflectUtils {
      * @param e 异常
      * @return true 表示模块强封装拒绝访问
      */
-    private static boolean isInaccessibleObjectException(Throwable e) {
+    private boolean isInaccessibleObjectException(Throwable e) {
         return "java.lang.reflect.InaccessibleObjectException".equals(e.getClass().getName());
     }
 
@@ -571,7 +571,7 @@ public class CReflectUtils {
      * @param constructor 构造器
      * @return true 表示已置为可访问；false 表示 JDK 模块强封装拒绝访问
      */
-    public static boolean makeAccessible(Constructor<?> constructor) {
+    public boolean makeAccessible(Constructor<?> constructor) {
         try {
             constructor.setAccessible(true);
             return true;

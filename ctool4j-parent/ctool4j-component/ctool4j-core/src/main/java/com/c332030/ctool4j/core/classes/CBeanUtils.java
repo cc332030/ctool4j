@@ -197,27 +197,27 @@ public class CBeanUtils {
     /**
      * 转 map 计划缓存：按类缓存
      */
-    private static final CClassValue<ToMapPlan> TO_MAP_PLAN_CLASS_VALUE = CClassValue.of(CBeanUtils::getToMapPlan);
+    private final CClassValue<ToMapPlan> TO_MAP_PLAN_CLASS_VALUE = CClassValue.of(CBeanUtils::getToMapPlan);
 
     /**
      * 属性复制动作缓存：按 (值的运行时类型, 目标字段声明类型) 缓存唯一决议结果
      * <p>仅"计划期无法证明"的字段（源声明类型非 final/原始且非容器）在运行期查此表；
      * 计划期已证实的字段由 {@link CopyEntry#action} 内联，不查表。</p>
      */
-    private static final CBiClassValue<CopyAction> COPY_ACTION_BI_CLASS_VALUE =
+    private final CBiClassValue<CopyAction> COPY_ACTION_BI_CLASS_VALUE =
             CBiClassValue.of(CBeanUtils::resolveCopyAction);
 
     /**
      * 空复制计划（JDK 源类使用，热路径零操作）
      */
-    private static final CopyPlan EMPTY_COPY_PLAN = CopyPlan.builder()
+    private final CopyPlan EMPTY_COPY_PLAN = CopyPlan.builder()
             .entries(new CopyEntry[0])
             .build();
 
     /**
      * 空转 map 计划（JDK 类使用，热路径零操作）
      */
-    private static final ToMapPlan EMPTY_TO_MAP_PLAN = ToMapPlan.builder()
+    private final ToMapPlan EMPTY_TO_MAP_PLAN = ToMapPlan.builder()
             .entries(new ToMapEntry[0])
             .build();
 
@@ -684,17 +684,17 @@ public class CBeanUtils {
     /**
      * 共享写入动作（不可变值与目标兼容：直接写入同一引用）
      */
-    private static final CopyAction SHARE_ACTION = CopyAction.builder().kind(CopyActionKind.SHARE).build();
+    private final CopyAction SHARE_ACTION = CopyAction.builder().kind(CopyActionKind.SHARE).build();
 
     /**
      * 深拷贝写入动作（可变值与目标兼容，或跨类型结构拷贝）
      */
-    private static final CopyAction DEEP_ACTION = CopyAction.builder().kind(CopyActionKind.DEEP).build();
+    private final CopyAction DEEP_ACTION = CopyAction.builder().kind(CopyActionKind.DEEP).build();
 
     /**
      * 跳过动作（无可用写入方式）
      */
-    private static final CopyAction SKIP_ACTION = CopyAction.builder().kind(CopyActionKind.SKIP).build();
+    private final CopyAction SKIP_ACTION = CopyAction.builder().kind(CopyActionKind.SKIP).build();
 
     /**
      * 决议单个属性的复制动作（<b>唯一决议点</b>）
@@ -737,7 +737,7 @@ public class CBeanUtils {
      * @param toClass    目标字段声明类型
      * @return 决议结果（共享 / 转换 / 深拷贝 / 跳过）
      */
-    private static CopyAction resolveCopyAction(Class<?> valueClass, Class<?> toClass) {
+    private CopyAction resolveCopyAction(Class<?> valueClass, Class<?> toClass) {
 
         val action = doResolveCopyAction(valueClass, toClass);
 
@@ -753,7 +753,7 @@ public class CBeanUtils {
      * @param toClass    目标字段声明类型
      * @return 决议结果
      */
-    private static CopyAction doResolveCopyAction(Class<?> valueClass, Class<?> toClass) {
+    private CopyAction doResolveCopyAction(Class<?> valueClass, Class<?> toClass) {
 
         if(CDeepCopyUtils.isNotCopyable(valueClass)) {
             // 不可变值：无深拷贝可言——可赋值即共享，否则只能转换（无转换器则跳过）
@@ -820,7 +820,7 @@ public class CBeanUtils {
      * @param type 类型（值的运行时类型或目标声明类型）
      * @return true 表示支持结构深拷贝
      */
-    static boolean isDeepCopyCapable(Class<?> type) {
+    boolean isDeepCopyCapable(Class<?> type) {
 
         if(!CClassUtils.isJdkClass(type)) {
             return true;
@@ -840,7 +840,7 @@ public class CBeanUtils {
      * @param converter 转换器
      * @return 转换动作
      */
-    private static CopyAction convertAction(CFunction<Object, ?> converter) {
+    private CopyAction convertAction(CFunction<Object, ?> converter) {
         return CopyAction.builder()
                 .kind(CopyActionKind.CONVERT)
                 .converter(converter)
@@ -858,7 +858,7 @@ public class CBeanUtils {
      * @param depth       当前对象所在层级（深拷贝递归深度保护基数）
      * @return 要写入的值；{@link CDeepCopyUtils#SKIP_VALUE} 表示不写入（跳过 / 转换结果为 null / 深拷贝失败）
      */
-    private static Object applyCopyAction(
+    private Object applyCopyAction(
             CopyAction action, Object fromValue, Type genericType, String fieldName,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -913,7 +913,7 @@ public class CBeanUtils {
      * @param toClass   目标类
      * @return 复制计划
      */
-    private static CopyPlan getCopyPlan(Class<?> fromClass, Class<?> toClass) {
+    private CopyPlan getCopyPlan(Class<?> fromClass, Class<?> toClass) {
 
         // JDK 源类无实例字段可拷贝（判断结果按类恒定，置于计划期仅计算一次）
         if(CClassUtils.isJdkClass(fromClass)) {
@@ -973,7 +973,7 @@ public class CBeanUtils {
      * @param toType   目标字段声明类型
      * @return 可内联的决议（共享/转换/深拷贝/跳过）；不可证返回 null
      */
-    private static CopyAction resolvePlanAction(Class<?> fromType, Class<?> toType) {
+    private CopyAction resolvePlanAction(Class<?> fromType, Class<?> toType) {
 
         // 容器声明：值必为容器（可变）且容器源不参与转换 ⇒ 深拷贝
         if(isContainerType(fromType)) {
@@ -994,7 +994,7 @@ public class CBeanUtils {
      * @param type 声明类型
      * @return true 表示容器声明
      */
-    private static boolean isContainerType(Class<?> type) {
+    private boolean isContainerType(Class<?> type) {
         return Collection.class.isAssignableFrom(type)
                 || Map.class.isAssignableFrom(type)
                 || type.isArray();
@@ -1006,7 +1006,7 @@ public class CBeanUtils {
      * @param objClass 目标对象类
      * @return 转 map 计划；JDK 类返回空计划
      */
-    private static ToMapPlan getToMapPlan(Class<?> objClass) {
+    private ToMapPlan getToMapPlan(Class<?> objClass) {
 
         // JDK 类转 map 为空（判断结果按类恒定，置于计划期仅计算一次）
         if(CClassUtils.isJdkClass(objClass)) {
@@ -1041,7 +1041,7 @@ public class CBeanUtils {
      * @param action       计划期内联的决议；null 表示运行期按实际值类型决议
      * @return 复制条目
      */
-    private static CopyEntry newCopyEntry(
+    private CopyEntry newCopyEntry(
             MethodHandle getterHandle, MethodHandle setterHandle, Class<?> toType, Type genericType,
             String fieldName, CopyAction action
     ) {

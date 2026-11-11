@@ -203,7 +203,7 @@ public class CJacksonUtils {
      * 不用 {@code PropertyNamingStrategy.SNAKE_CASE}——该常量已在 Jackson 2.21 移除，用它会编译失败。
      * </p>
      */
-    private static void configureSnakeCase(ObjectMapper objectMapper) {
+    private void configureSnakeCase(ObjectMapper objectMapper) {
 
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
@@ -231,7 +231,7 @@ public class CJacksonUtils {
      * 配置 ObjectMapper 通用 feature（json5 宽松解析、时间戳关闭等）
      * <p>供 configure 与 OBJECT_MAPPER_NATIVE 复用，避免两种 mapper 的解析行为不一致</p>
      */
-    private static void configureFeature(ObjectMapper objectMapper) {
+    private void configureFeature(ObjectMapper objectMapper) {
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

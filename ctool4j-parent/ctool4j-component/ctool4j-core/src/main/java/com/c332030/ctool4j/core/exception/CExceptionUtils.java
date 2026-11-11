@@ -101,7 +101,7 @@ public class CExceptionUtils {
      * 业务异常提供者（优先取自定义 SPI 实现）
      */
     @SuppressWarnings("unchecked")
-    public static final ICBusinessExceptionProvider<? extends Throwable> BUSINESS_EXCEPTION_PROVIDER =
+    public final ICBusinessExceptionProvider<? extends Throwable> BUSINESS_EXCEPTION_PROVIDER =
             CSpiUtils.getFirstCustomImplOrDefault(ICBusinessExceptionProvider.class, CBusinessExceptionProvider.class);
 
     /**

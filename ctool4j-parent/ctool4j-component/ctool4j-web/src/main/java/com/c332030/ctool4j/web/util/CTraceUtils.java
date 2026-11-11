@@ -78,10 +78,10 @@ public class CTraceUtils {
      * 追踪信息提供者，优先使用自定义实现，否则使用默认实现
      */
     @SuppressWarnings("unchecked")
-    public static final ICTraceInfoProvider<ICTraceInfo> BUSINESS_EXCEPTION_PROVIDER =
+    public final ICTraceInfoProvider<ICTraceInfo> BUSINESS_EXCEPTION_PROVIDER =
             CSpiUtils.getFirstCustomImplOrDefault(ICTraceInfoProvider.class, CTraceInfoProvider.class);
 
-    private static final TransmittableThreadLocal<ICTraceInfo> TRACE_INFO_THREAD_LOCAL =
+    private final TransmittableThreadLocal<ICTraceInfo> TRACE_INFO_THREAD_LOCAL =
             TransmittableThreadLocal.withInitial(BUSINESS_EXCEPTION_PROVIDER::getTraceInfo);
 
     /**

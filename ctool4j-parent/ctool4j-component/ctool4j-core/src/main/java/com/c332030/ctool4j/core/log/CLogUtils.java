@@ -145,7 +145,7 @@ public class CLogUtils {
     /**
      * 不转 json 的包名
      */
-    private static final Set<String> NOT_JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
+    private final Set<String> NOT_JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
             ".sun.",
             ".apache."
     ));
@@ -153,7 +153,7 @@ public class CLogUtils {
     /**
      * 转 json 的包名
      */
-    private static final Set<String> JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
+    private final Set<String> JSON_LOG_DOMAIN_PACKAGE = new CopyOnWriteArraySet<>(CSet.of(
             ".config.",
             ".entity.",
             ".model.",
@@ -179,7 +179,7 @@ public class CLogUtils {
     /**
      * 转 json 的注解
      */
-    private static final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = new CopyOnWriteArraySet<>(CSet.of(
+    private final Set<Class<? extends Annotation>> JSON_LOG_ANNOTATIONS = new CopyOnWriteArraySet<>(CSet.of(
             CJsonLog.class,
             ConfigurationProperties.class
     ));
@@ -195,7 +195,7 @@ public class CLogUtils {
     /**
      * 不转 json 的父类
      */
-    private static final Set<Class<?>> NOT_JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
+    private final Set<Class<?>> NOT_JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
             DataSource.class,
             InputStream.class,
             OutputStream.class,
@@ -214,7 +214,7 @@ public class CLogUtils {
     /**
      * 转 json 的父类
      */
-    private static final Set<Class<?>> JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
+    private final Set<Class<?>> JSON_LOG_SUPERCLASSES = new CopyOnWriteArraySet<>(CSet.of(
             ICBaseResult.class,
             Collection.class,
             Map.class
@@ -231,7 +231,7 @@ public class CLogUtils {
     /**
      * 是否转换 json 缓存
      */
-    public static final CRefClassValue<Boolean> JSON_LOG_CLASS_VALUE = CRefClassValue.of(
+    public final CRefClassValue<Boolean> JSON_LOG_CLASS_VALUE = CRefClassValue.of(
             type -> {
 
                 if (type.isEnum()) {

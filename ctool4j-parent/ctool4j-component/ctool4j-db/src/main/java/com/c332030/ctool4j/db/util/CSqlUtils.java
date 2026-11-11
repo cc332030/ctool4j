@@ -129,17 +129,17 @@ public class CSqlUtils {
     /**
      * 表别名 t
      */
-    public static final String TABLE_ALIAS_T = "t";
+    public final String TABLE_ALIAS_T = "t";
 
     /**
      * 表别名 t1
      */
-    public static final String TABLE_ALIAS_T1 = "t1";
+    public final String TABLE_ALIAS_T1 = "t1";
 
     /**
      * 表别名 t2
      */
-    public static final String TABLE_ALIAS_T2 = "t2";
+    public final String TABLE_ALIAS_T2 = "t2";
 
     /**
      * 获取表别名 sql（别名非空白时加 "别名."）

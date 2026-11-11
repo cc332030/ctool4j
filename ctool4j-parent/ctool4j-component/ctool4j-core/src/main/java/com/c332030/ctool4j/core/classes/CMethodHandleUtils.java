@@ -76,7 +76,7 @@ public class CMethodHandleUtils {
     /**
      * setter MethodHandle 的统一签名：以 Object 接收者写入 Object 值
      */
-    public static final MethodType SETTER_HANDLE_TYPE = MethodType.methodType(void.class, Object.class, Object.class);
+    public final MethodType SETTER_HANDLE_TYPE = MethodType.methodType(void.class, Object.class, Object.class);
 
     /**
      * 生成字段 getter 方法句柄

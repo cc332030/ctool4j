@@ -183,7 +183,7 @@ public class CConvertUtils {
      * @param includeObjectFallback 是否包含 Object 源兜底转换器（如 Object→String）
      * @return 转换器，未匹配时返回 null
      */
-    private static CFunction<Object, ?> findConverter(
+    private CFunction<Object, ?> findConverter(
             Class<?> fromClass,
             Class<?> toClass,
             boolean includeObjectFallback

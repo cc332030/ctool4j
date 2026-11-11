@@ -236,7 +236,7 @@ public class CProxyUtils {
      * @param clazz 类
      * @return 包名；取不到时返回 null
      */
-    private static String getDeclaredPackageName(Class<?> clazz) {
+    private String getDeclaredPackageName(Class<?> clazz) {
 
         if (clazz.isArray() || clazz.isPrimitive()) {
             return null;
@@ -259,7 +259,7 @@ public class CProxyUtils {
      * @param object 待解析对象
      * @return 目标实例；取不到时返回 null
      */
-    private static Object getTarget(Object object) {
+    private Object getTarget(Object object) {
 
         if (!(object instanceof Advised)) {
             return null;

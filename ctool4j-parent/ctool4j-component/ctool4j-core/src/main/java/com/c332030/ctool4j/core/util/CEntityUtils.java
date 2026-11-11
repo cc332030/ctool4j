@@ -145,7 +145,7 @@ public class CEntityUtils {
     /**
      * 各实体类清除方法缓存
      */
-    private static final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(
+    private final CClassValue<CConsumer<Object>> CLEAN_ENTITY_CONSUMER = CClassValue.of(
         CEntityUtils::findNearestClear
     );
 

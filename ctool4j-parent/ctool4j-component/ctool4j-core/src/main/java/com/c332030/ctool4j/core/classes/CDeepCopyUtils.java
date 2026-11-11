@@ -103,7 +103,7 @@ class CDeepCopyUtils {
     /**
      * 视图/不可变封装的类名前缀：这类实现不做同源复制，深拷贝时降级为可变标准实现
      */
-    static final String[] VIEW_OR_IMMUTABLE_PREFIXES = {
+    final String[] VIEW_OR_IMMUTABLE_PREFIXES = {
         "java.util.Collections$",
         "java.util.Arrays$",
         "java.util.ImmutableCollections$",
@@ -122,7 +122,7 @@ class CDeepCopyUtils {
      * @param depth       当前深度
      * @return 副本或原引用
      */
-    static Object deepCopyValue(Object from, Type declaredType, IdentityHashMap<Object, Object> visited, int depth) {
+    Object deepCopyValue(Object from, Type declaredType, IdentityHashMap<Object, Object> visited, int depth) {
 
         if(null == from) {
             return null;
@@ -228,7 +228,7 @@ class CDeepCopyUtils {
     /**
      * 不可拷贝判定缓存：按类缓存（判定结果按类恒定，且含注解查询，热路径避免重复反射）
      */
-    static final CClassValue<Boolean> IS_NOT_COPYABLE_CLASS_VALUE =
+    final CClassValue<Boolean> IS_NOT_COPYABLE_CLASS_VALUE =
             CClassValue.of(CDeepCopyUtils::checkNotCopyable);
 
     /**
@@ -237,7 +237,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return true 表示原样返回（不拷贝）
      */
-    static boolean isNotCopyable(Class<?> type) {
+    boolean isNotCopyable(Class<?> type) {
         return IS_NOT_COPYABLE_CLASS_VALUE.get(type);
     }
 
@@ -247,7 +247,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return true 表示无需拷贝
      */
-    static boolean checkNotCopyable(Class<?> type) {
+    boolean checkNotCopyable(Class<?> type) {
 
         if(type.isPrimitive() || type.isEnum() || type.isAnnotation() || type.isInterface()) {
             return true;
@@ -283,7 +283,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return true 表示 lambda / 方法引用的运行期类
      */
-    static boolean isLambdaType(Class<?> type) {
+    boolean isLambdaType(Class<?> type) {
         val name = type.getName();
         // JDK8：pkg.Foo$$Lambda$1/0x...；JDK15+ 隐藏类：pkg.Foo$$Lambda/0x...
         return name.contains("$$Lambda$") || name.contains("$$Lambda/");
@@ -297,7 +297,7 @@ class CDeepCopyUtils {
      * @param depth   当前深度
      * @return 新数组
      */
-    static Object deepCopyArray(
+    Object deepCopyArray(
             Object from, Type declaredType, Class<?> toClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -360,7 +360,7 @@ class CDeepCopyUtils {
      * @param fromKind 源容器形态（{@code Collection} 或 {@code Map}）
      * @return true 表示可写回
      */
-    static boolean canWriteBackContainer(Class<?> toClass, Class<?> fromKind) {
+    boolean canWriteBackContainer(Class<?> toClass, Class<?> fromKind) {
 
         // 未声明/宽声明：结果按源形态返回，写回由 setter 兜底
         if(null == toClass || Object.class == toClass) {
@@ -383,7 +383,7 @@ class CDeepCopyUtils {
      * @param element       元素（非 null）
      * @return true 表示可写入
      */
-    static boolean isAssignableToComponent(Class<?> componentType, Object element) {
+    boolean isAssignableToComponent(Class<?> componentType, Object element) {
 
         if(componentType.isPrimitive()) {
             return wrapperOf(componentType).isInstance(element);
@@ -398,7 +398,7 @@ class CDeepCopyUtils {
      * @param primitive 基本类型
      * @return 对应包装类型；非基本类型原样返回
      */
-    static Class<?> wrapperOf(Class<?> primitive) {
+    Class<?> wrapperOf(Class<?> primitive) {
 
         if(boolean.class == primitive) { return Boolean.class; }
         if(byte.class == primitive) { return Byte.class; }
@@ -425,7 +425,7 @@ class CDeepCopyUtils {
      * @param depth        当前深度
      * @return 新容器
      */
-    static Object deepCopyArrayToContainer(
+    Object deepCopyArrayToContainer(
             Object from, Type declaredType, Class<?> toClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -454,7 +454,7 @@ class CDeepCopyUtils {
      * @return 新容器
      */
     @SuppressWarnings("unchecked")
-    static Object deepCopyElementsToContainer(
+    Object deepCopyElementsToContainer(
             Collection<?> elements, Type declaredType, Class<?> containerClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -485,7 +485,7 @@ class CDeepCopyUtils {
      * @param container 目标实现类（{@link #containerFor} 的输出，非 null）
      * @return 兜底容器实例
      */
-    static Object fallbackContainer(Class<?> container) {
+    Object fallbackContainer(Class<?> container) {
 
         if(Set.class.isAssignableFrom(container)) {
             return new LinkedHashSet<>();
@@ -510,7 +510,7 @@ class CDeepCopyUtils {
      * @param toClass 目标容器实现类
      * @return 空容器实例
      */
-    static Object newDeepCopyContainer(Class<?> toClass) {
+    Object newDeepCopyContainer(Class<?> toClass) {
 
         val container = containerFor(toClass, List.class);
         // 标准实现直接构造（热点快路径：省去可按类实例化查表与构造句柄调用）
@@ -557,7 +557,7 @@ class CDeepCopyUtils {
      * @param from 源值
      * @return 可重新迭代的集合；不属迭代器/流时返回 {@code null}
      */
-    static Collection<?> viewedIterable(Object from) {
+    Collection<?> viewedIterable(Object from) {
 
         if(from instanceof Collection) {
             return null;
@@ -578,7 +578,7 @@ class CDeepCopyUtils {
      * @param from 源迭代器
      * @return 迭代顺序的集合（{@link ArrayList}）
      */
-    static Collection<?> collectIterator(Iterator<?> from) {
+    Collection<?> collectIterator(Iterator<?> from) {
 
         val collected = new ArrayList<>();
         from.forEachRemaining(collected::add);
@@ -596,7 +596,7 @@ class CDeepCopyUtils {
      * @param from 源流
      * @return 流的元素集合（{@link ArrayList}）
      */
-    static Collection<?> collectStream(BaseStream<?, ?> from) {
+    Collection<?> collectStream(BaseStream<?, ?> from) {
 
         val collected = new ArrayList<>();
         if(from instanceof Stream) {
@@ -627,7 +627,7 @@ class CDeepCopyUtils {
      * @param depth        当前深度
      * @return 重建后的容器
      */
-    static Object deepCopyIterable(
+    Object deepCopyIterable(
             Collection<?> from, Type declaredType, Class<?> fromClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -656,7 +656,7 @@ class CDeepCopyUtils {
      * @param fallback 目标不可用且无法判定族时的兜底实现
      * @return 容器实现类
      */
-    static Class<?> containerFor(Class<?> target, Class<?> fallback) {
+    Class<?> containerFor(Class<?> target, Class<?> fallback) {
 
         if(null == target || Object.class == target) {
             return fallback;
@@ -678,7 +678,7 @@ class CDeepCopyUtils {
      * 故可安全按类缓存——深拷贝热点每次建容器都走此判定，缓存后由"assignable 链 + 实例化查表"
      * 降为一次 {@code ClassValue} 查表。</p>
      */
-    static final CClassValue<Class<?>> CONTAINER_FOR_CLASS_VALUE =
+    final CClassValue<Class<?>> CONTAINER_FOR_CLASS_VALUE =
             CClassValue.of(CDeepCopyUtils::resolveContainerFor);
 
     /**
@@ -687,7 +687,7 @@ class CDeepCopyUtils {
      * @param target 目标声明类型（非 null、非 Object，调用方已判）
      * @return 容器实现类；无法判定族时返回 {@code null}（由调用方按 fallback 处置）
      */
-    static Class<?> resolveContainerFor(Class<?> target) {
+    Class<?> resolveContainerFor(Class<?> target) {
 
         val usable = usableContainerClass(target);
         if(null != usable) {
@@ -721,7 +721,7 @@ class CDeepCopyUtils {
      * @param target 目标声明类型（可空）
      * @return 可实例化的实现类；不可用时返回 {@code null}
      */
-    static Class<?> usableContainerClass(Class<?> target) {
+    Class<?> usableContainerClass(Class<?> target) {
 
         if(null == target || Object.class == target || target.isInterface() || Modifier.isAbstract(target.getModifiers())) {
             return null;
@@ -744,7 +744,7 @@ class CDeepCopyUtils {
      * @return 新集合
      */
     @SuppressWarnings("unchecked")
-    static Object deepCopyCollection(
+    Object deepCopyCollection(
             Collection<?> from, Type declaredType, Class<?> toClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -787,7 +787,7 @@ class CDeepCopyUtils {
      * @param depth         当前深度
      * @return 新数组
      */
-    static Object deepCopyCollectionToArray(
+    Object deepCopyCollectionToArray(
             Collection<?> from, Class<?> componentType,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -835,7 +835,7 @@ class CDeepCopyUtils {
      * @param depth        当前深度
      * @return 副本
      */
-    static Object deepCopyEntry(
+    Object deepCopyEntry(
             Map.Entry<?, ?> from, Type declaredType, Class<?> toClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -870,7 +870,7 @@ class CDeepCopyUtils {
      * @return 单条记录的 Map
      */
     @SuppressWarnings("unchecked")
-    static Object deepCopyEntryToMap(Object key, Object value, Class<?> toClass) {
+    Object deepCopyEntryToMap(Object key, Object value, Class<?> toClass) {
 
         val instance = newDeepCopyContainer(toClass);
         if(instance instanceof Map) {
@@ -895,7 +895,7 @@ class CDeepCopyUtils {
      * @param toClass 目标类（可空/可为 {@code java.util.Date} 等父类型）
      * @return 同语义副本
      */
-    static Object newDate(Object from, Class<?> toClass) {
+    Object newDate(Object from, Class<?> toClass) {
 
         val time = ((Date) from).getTime();
         val fromClass = from.getClass();
@@ -933,7 +933,7 @@ class CDeepCopyUtils {
      * @return 新 Map
      */
     @SuppressWarnings("unchecked")
-    static Object deepCopyMap(
+    Object deepCopyMap(
             Map<?, ?> from, Type declaredType, Class<?> toClass,
             IdentityHashMap<Object, Object> visited, int depth
     ) {
@@ -997,7 +997,7 @@ class CDeepCopyUtils {
      * @param depth   当前深度
      * @return 副本；共享引用或 {@link #SKIP_VALUE}
      */
-    static Object deepCopyBean(Object from, Class<?> toClass, IdentityHashMap<Object, Object> visited, int depth) {
+    Object deepCopyBean(Object from, Class<?> toClass, IdentityHashMap<Object, Object> visited, int depth) {
 
         val plan = DEEP_PLAN_CLASS_VALUE.get(toClass);
 
@@ -1064,7 +1064,7 @@ class CDeepCopyUtils {
      * 按目标类缓存深度拷贝计划（{@link DeepPlan}）：首次深拷贝该类时计算并折叠，
      * 其后每次深拷贝只做一次 {@code ClassValue} 查表（判定结果按类恒定）
      */
-    static final CClassValue<DeepPlan> DEEP_PLAN_CLASS_VALUE = CClassValue.of(CDeepCopyUtils::computeDeepPlan);
+    final CClassValue<DeepPlan> DEEP_PLAN_CLASS_VALUE = CClassValue.of(CDeepCopyUtils::computeDeepPlan);
 
     /**
      * 计算目标类的深拷贝计划（仅首次按类执行）
@@ -1072,7 +1072,7 @@ class CDeepCopyUtils {
      * @param type 目标类（非 null）
      * @return 折叠后的深拷贝计划
      */
-    static DeepPlan computeDeepPlan(Class<?> type) {
+    DeepPlan computeDeepPlan(Class<?> type) {
         return new DeepPlan(
                 HAS_FINAL_FIELD_CLASS_VALUE.get(type),
                 INSTANTIABLE_CLASS_VALUE.get(type)
@@ -1097,7 +1097,7 @@ class CDeepCopyUtils {
      * @return 新容器实例
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    static Object newContainer(Object from, Class<?> toClass) {
+    Object newContainer(Object from, Class<?> toClass) {
 
         if(from instanceof EnumSet) {
             return EnumSet.copyOf((EnumSet) from);
@@ -1154,7 +1154,7 @@ class CDeepCopyUtils {
      * @param toClass 目标实现类
      * @return 空容器实例；非标准实现返回 {@code null}
      */
-    static Object newStandardContainer(Object from, Class<?> toClass) {
+    Object newStandardContainer(Object from, Class<?> toClass) {
 
         // 源实现类与目标实现类不一致时交回反射路径（保持原容器实现语义）
         if(from.getClass() != toClass) {
@@ -1195,7 +1195,7 @@ class CDeepCopyUtils {
      * <p>接口/抽象类、视图与不可变封装、无无参构造的类（lambda、record、仅带参构造的类）不可实例化；
      * 判定结果按类缓存后，这类值每次深拷贝都直接退化为共享引用——不再反复反射尝试、不再反复抛异常。</p>
      */
-    static final CClassValue<Boolean> INSTANTIABLE_CLASS_VALUE = CClassValue.of(CDeepCopyUtils::checkInstantiable);
+    final CClassValue<Boolean> INSTANTIABLE_CLASS_VALUE = CClassValue.of(CDeepCopyUtils::checkInstantiable);
 
     /**
      * 不支持的目标类集合：准备阶段判不出来、实例化时才失败的类
@@ -1215,7 +1215,7 @@ class CDeepCopyUtils {
      * 构造体抛异常属<b>代码/配置缺陷</b>（类自称可实例化却构造不出来），需在日志里可见；
      * 但只报一次，避免热路径刷屏。</p>
      */
-    static final ConcurrentMap<Class<?>, Boolean> UNSUPPORTED_TARGET_CLASSES = new ConcurrentHashMap<>();
+    final ConcurrentMap<Class<?>, Boolean> UNSUPPORTED_TARGET_CLASSES = new ConcurrentHashMap<>();
 
     /**
      * 按类实例化（视图/不可变封装、接口与抽象类、无无参构造的类不尝试）
@@ -1227,7 +1227,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return 实例或 null（不可实例化 / 构造失败）
      */
-    static Object newDeepCopyInstance(Class<?> type) {
+    Object newDeepCopyInstance(Class<?> type) {
         return newDeepCopyInstance(type, DEEP_PLAN_CLASS_VALUE.get(type));
     }
 
@@ -1238,7 +1238,7 @@ class CDeepCopyUtils {
      * @param plan 该类型的深拷贝计划（调用方已查出，非 null）
      * @return 实例或 null（不可实例化 / 构造失败）
      */
-    static Object newDeepCopyInstance(Class<?> type, DeepPlan plan) {
+    Object newDeepCopyInstance(Class<?> type, DeepPlan plan) {
 
         if(null == type || !plan.instantiable || UNSUPPORTED_TARGET_CLASSES.containsKey(type)) {
             return null;
@@ -1261,7 +1261,7 @@ class CDeepCopyUtils {
      * <p>final 实例字段不可写（既有 copy 契约不覆盖 final 字段），故含 final 字段的目标类无法完整结构拷贝，
      * 深拷贝时整体退化为共享引用——避免产出"部分字段为空"的对象（静默丢数据比共享引用更危险）。</p>
      */
-    static final CClassValue<Boolean> HAS_FINAL_FIELD_CLASS_VALUE =
+    final CClassValue<Boolean> HAS_FINAL_FIELD_CLASS_VALUE =
             CClassValue.of(CDeepCopyUtils::checkHasFinalInstanceField);
 
     /**
@@ -1270,7 +1270,7 @@ class CDeepCopyUtils {
      * @param type 类型（非 null）
      * @return true 表示含 final 实例字段
      */
-    static boolean checkHasFinalInstanceField(Class<?> type) {
+    boolean checkHasFinalInstanceField(Class<?> type) {
 
         for (val field : CReflectUtils.getInstanceFieldMap(type).values()) {
             if(CReflectUtils.isFinal(field)) {
@@ -1288,7 +1288,7 @@ class CDeepCopyUtils {
      * @param type 类型（非 null，调用方已判空）
      * @return true 表示可用无参构造实例化
      */
-    static boolean checkInstantiable(Class<?> type) {
+    boolean checkInstantiable(Class<?> type) {
 
         if(type.isInterface() || Modifier.isAbstract(type.getModifiers()) || isViewOrImmutable(type)) {
             return false;
@@ -1311,7 +1311,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return true 表示视图/不可变封装
      */
-    static boolean isViewOrImmutable(Class<?> type) {
+    boolean isViewOrImmutable(Class<?> type) {
 
         val name = type.getName();
         for (val prefix : VIEW_OR_IMMUTABLE_PREFIXES) {
@@ -1352,7 +1352,7 @@ class CDeepCopyUtils {
      * @param fromClass    源运行时类型
      * @return 目标类
      */
-    static Class<?> resolveDeepCopyTargetClass(Type declaredType, Class<?> fromClass) {
+    Class<?> resolveDeepCopyTargetClass(Type declaredType, Class<?> fromClass) {
 
         val rawClass = rawDeepCopyClass(declaredType);
         if(null == rawClass || Object.class == rawClass) {
@@ -1388,7 +1388,7 @@ class CDeepCopyUtils {
      * @param type 声明类型
      * @return true 表示容器声明
      */
-    static boolean isContainerClass(Class<?> type) {
+    boolean isContainerClass(Class<?> type) {
         return Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type) || type.isArray();
     }
 
@@ -1398,7 +1398,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return 原始类或 null
      */
-    static Class<?> rawDeepCopyClass(Type type) {
+    Class<?> rawDeepCopyClass(Type type) {
 
         if(type instanceof Class) {
             return (Class<?>) type;
@@ -1421,7 +1421,7 @@ class CDeepCopyUtils {
      * @param index 位置
      * @return 元素/键/值类型，无法解析返回 null
      */
-    static Type deepCopyTypeArgument(Type type, int index) {
+    Type deepCopyTypeArgument(Type type, int index) {
 
         if(type instanceof ParameterizedType) {
             val arguments = ((ParameterizedType) type).getActualTypeArguments();
@@ -1455,14 +1455,14 @@ class CDeepCopyUtils {
      * {@code ParameterizedTypeImpl}）均已定义 {@code equals}/{@code hashCode}（按原始类型 + 实参比较），
      * 故可按值缓存；缓存条目与类加载器同生命周期（键为方法/字段的泛型信息，随类元数据存活）。</p>
      */
-    static final ConcurrentMap<TypeArgumentKey, TypeArgumentMemo> TYPE_ARGUMENT_CACHE =
+    final ConcurrentMap<TypeArgumentKey, TypeArgumentMemo> TYPE_ARGUMENT_CACHE =
             new ConcurrentHashMap<>();
 
     /**
      * 类型实参缓存容量上限（缓存键为"类元数据的泛型信息"，实际条目数远小于此值；
      * 达上限即停止写入，命中已有条目不受影响——缓存只影响性能、不影响正确性）
      */
-    static final int TYPE_ARGUMENT_CACHE_MAX_SIZE = 16_384;
+    final int TYPE_ARGUMENT_CACHE_MAX_SIZE = 16_384;
 
     /**
      * 解析类型实参并缓存"类型 + 不可变标志"（深拷贝容器/Map 的热路径入口）
@@ -1471,7 +1471,7 @@ class CDeepCopyUtils {
      * @param index        位置
      * @return 解析结果（永不返回 null；解析不出时为 {@link TypeArgumentMemo#EMPTY}）
      */
-    static TypeArgumentMemo typeArgumentMemo(Type declaredType, int index) {
+    TypeArgumentMemo typeArgumentMemo(Type declaredType, int index) {
 
         if(null == declaredType) {
             return TypeArgumentMemo.EMPTY;
@@ -1502,7 +1502,7 @@ class CDeepCopyUtils {
      * @param key 缓存键（声明泛型 + 位置）
      * @return 解析结果（永不返回 null）
      */
-    static TypeArgumentMemo resolveTypeArgument(TypeArgumentKey key) {
+    TypeArgumentMemo resolveTypeArgument(TypeArgumentKey key) {
 
         val resolved = deepCopyTypeArgument(key.type, key.index);
         if(null == resolved) {
@@ -1571,7 +1571,7 @@ class CDeepCopyUtils {
      * @param type 类型
      * @return 收敛后的类型或 null
      */
-    static Type unwrapDeepCopyWildcard(Type type) {
+    Type unwrapDeepCopyWildcard(Type type) {
 
         if(!(type instanceof WildcardType)) {
             return type;
@@ -1598,7 +1598,7 @@ class CDeepCopyUtils {
      * @param declaredType 字段声明类型（含泛型）
      * @return true 表示确定无需深拷贝
      */
-    static boolean isDefinitelyImmutable(Type declaredType) {
+    boolean isDefinitelyImmutable(Type declaredType) {
 
         val rawClass = rawDeepCopyClass(declaredType);
         return null != rawClass && Modifier.isFinal(rawClass.getModifiers()) && isNotCopyable(rawClass);

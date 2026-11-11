@@ -111,7 +111,7 @@ public class CClassUtils {
     /**
      * 基础包名集合（以包名加点为后缀，用于前缀匹配）
      */
-    public static final Set<String> BASE_PACKAGES_START = BASE_PACKAGES
+    public final Set<String> BASE_PACKAGES_START = BASE_PACKAGES
         .stream()
         .map(e -> e + ".")
         .collect(Collectors.toSet());
@@ -119,7 +119,7 @@ public class CClassUtils {
     /**
      * 基本数据类型集合
      */
-    public static final Set<Class<?>> BASE_CLASSES = CSet.of(
+    public final Set<Class<?>> BASE_CLASSES = CSet.of(
             byte.class,
             short.class,
             int.class,
@@ -170,7 +170,7 @@ public class CClassUtils {
     /**
      * JDK 类判断缓存（按类）
      */
-    private static final CClassValue<Boolean> IS_JDK_CLASS_CLASS_VALUE =
+    private final CClassValue<Boolean> IS_JDK_CLASS_CLASS_VALUE =
             CClassValue.of(CClassUtils::checkJdkClass);
 
     /**
@@ -179,7 +179,7 @@ public class CClassUtils {
      * @param clazz 类
      * @return 是否为 JDK 类
      */
-    private static boolean checkJdkClass(Class<?> clazz) {
+    private boolean checkJdkClass(Class<?> clazz) {
 
         if (BASE_CLASSES.contains(clazz)) {
             return true;

@@ -174,7 +174,7 @@ public class CCommUtils {
     /**
      * 非文本 body 的输出占位符
      */
-    public static final String NOT_TEXT_BODY = "[not text body]";
+    public final String NOT_TEXT_BODY = "[not text body]";
 
     /**
      * body 字节数组转可打印文本的统一出口：
@@ -436,7 +436,7 @@ public class CCommUtils {
     /**
      * 慢请求日志 logger 名称
      */
-    public static final String SLOW_LOG_STR = "request-slow-log";
+    public final String SLOW_LOG_STR = "request-slow-log";
 
     /**
      * 慢请求日志记录器（统一出口，web/feign 共用）

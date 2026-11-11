@@ -80,7 +80,7 @@ public class CFeignUtils {
      */
     public final ThreadLocal<StringBuilder> HTTP_LOG_THREAD_LOCAL = ThreadLocal.withInitial(StringBuilder::new);
 
-    private static final Map<Class<?>, CConsumer<RequestTemplate>> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
+    private final Map<Class<?>, CConsumer<RequestTemplate>> INTERCEPTOR_MAP = new ConcurrentHashMap<>();
 
     @Setter
     @CAutowired
