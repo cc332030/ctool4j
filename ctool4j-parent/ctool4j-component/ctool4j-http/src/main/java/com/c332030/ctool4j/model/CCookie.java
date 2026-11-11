@@ -1,7 +1,6 @@
 package com.c332030.ctool4j.model;
 
 import com.c332030.ctool4j.interfaces.ICCookie;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
 

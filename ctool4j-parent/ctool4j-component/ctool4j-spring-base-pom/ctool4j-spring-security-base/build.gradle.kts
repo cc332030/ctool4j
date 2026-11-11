@@ -18,7 +18,7 @@ dependencies {
     cOptional(lib("servlet-api"))
 
     api(project(":ctool4j-spring-base"))
-    api(project(":ctool4j-http-base"))
+    api(project(":ctool4j-http"))
     api(project(":ctool4j-core"))
     api(project(":ctool4j-definition"))
 

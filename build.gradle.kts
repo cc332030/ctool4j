@@ -94,7 +94,6 @@ val pomModuleNames = setOf(
     "ctool4j-auth-pom",
     "ctool4j-doc-pom",
     "ctool4j-file-pom",
-    "ctool4j-http-pom",
     "ctool4j-job-pom",
     "ctool4j-log-pom",
     "ctool4j-mq-pom",

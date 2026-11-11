@@ -34,7 +34,7 @@ val ctool4jArtifacts = listOf(
     "ctool4j-auth-spring",
     "ctool4j-logback",
     "ctool4j-log4j",
-    "ctool4j-http-base",
+    "ctool4j-http",
     "ctool4j-spring-base",
     "ctool4j-spring-security-base",
     "ctool4j-mq-base",

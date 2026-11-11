@@ -19,7 +19,7 @@ import lombok.experimental.StandardException;
  *   <li><b>运行时异常</b>：继承 {@code RuntimeException}，与项目异常体系一致（{@code CException} 家族均为运行时异常），
  *   抽象层的方法签名因此保持干净、不必声明 {@code throws}。</li>
  *   <li><b>保留原因</b>：底层异常经 {@code cause} 原样保留，需要判定具体失败原因时用 {@link Throwable#getCause()} 取回。</li>
- *   <li><b>零依赖</b>：不继承 {@code CException}——本模块（ctool4j-http-base）不依赖 ctool4j-core，
+ *   <li><b>零依赖</b>：不继承 {@code CException}——本模块（ctool4j-http）不依赖 ctool4j-core，
  *   抽象层保持不引入任何模块依赖。</li>
  * </ul>
  *

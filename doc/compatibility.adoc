@@ -132,7 +132,7 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 |===
 | 原 artifactId | 现 artifactId | 状态
 
-| +ctool4j-http-javax+ / +ctool4j-http-jakarta+ | +ctool4j-http-servlet+ → 并回 +ctool4j-http-base+ | 已合并
+| +ctool4j-http-javax+ / +ctool4j-http-jakarta+ | +ctool4j-http-servlet+ → 并回 +ctool4j-http+（并回时名 +ctool4j-http-base+，后随聚合层撤除改名上提） | 已合并
 | +ctool4j-spring-javax+ / +ctool4j-spring-jakarta+ | +ctool4j-spring-servlet+ → 并回 +ctool4j-spring-base+ | 已合并
 | +ctool4j-spring-security-javax+ / +ctool4j-spring-security-jakarta+ | +ctool4j-spring-security-servlet+ → 并回 +ctool4j-spring-security-base+ | 已合并
 |===

@@ -17,7 +17,7 @@ dependencies {
     api("org.springframework.boot:spring-boot")
     cOptional(lib("servlet-api"))
 
-    api(project(":ctool4j-http-base"))
+    api(project(":ctool4j-http"))
     api(project(":ctool4j-core"))
     api(project(":ctool4j-autowired-processor"))
 

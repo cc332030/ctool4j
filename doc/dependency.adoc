@@ -65,7 +65,7 @@ graph LR
 | 无（仅 modules）
 
 | ctool4j-component
-| definition、core、web、feign、redis、cache、transaction、db、http-pom、spring-base-pom、spring-pom、auth-pom、log-pom、mybatis-pom、nacos-pom、mq-pom、job-pom、file-pom、doc-pom、test-pom（20 个）
+| definition、core、web、feign、redis、cache、transaction、db、http、spring-base-pom、spring-pom、auth-pom、log-pom、mybatis-pom、nacos-pom、mq-pom、job-pom、file-pom、doc-pom、test-pom（20 个）
 | spring-boot-starter-web（provided）、spring-boot-starter-validation（provided）、spring-boot-starter-logging（provided）、spring-cloud-commons（provided）、spring-cloud-context（provided）、guava（optional）、mapstruct（provided）
 |===
 
@@ -78,7 +78,7 @@ graph LR
 graph LR
   definition["ctool4j-definition"]
   core["ctool4j-core"]
-  httpBase["ctool4j-http-base"]
+  httpBase["ctool4j-http"]
   springBase["ctool4j-spring-base"]
   spring["ctool4j-spring"]
   springCloud["ctool4j-spring-cloud"]
@@ -242,10 +242,10 @@ graph LR
 | ctool4j-transaction | ctool4j-spring | @CTransactional 事务注解约定；spring-boot-starter-jdbc 为 optional
 | ctool4j-db | ctool4j-core | SQL 拼接工具（不依赖 Spring）
 
-| ctool4j-http-base | 无模块依赖；servlet-api（按档位取 javax / jakarta，optional） | Servlet 抽象契约（`CHttpRequest` / `CHttpResponse` / `CFilter` / `CFilterChain` / `CRequestDispatcher` / `CServletException`）+ 容器落地（`CHttpServletRequest` 等，`java-jdk8` 承 javax、`java-latest` 承 jakarta，同包同名成对镜像）；servlet-api 供容器侧编译、不向纯契约使用方强加
+| ctool4j-http | 无模块依赖；servlet-api（按档位取 javax / jakarta，optional） | Servlet 抽象契约（`CHttpRequest` / `CHttpResponse` / `CFilter` / `CFilterChain` / `CRequestDispatcher` / `CServletException`）+ 容器落地（`CHttpServletRequest` 等，`java-jdk8` 承 javax、`java-latest` 承 jakarta，同包同名成对镜像）；servlet-api 供容器侧编译、不向纯契约使用方强加
 
-| ctool4j-spring-base | ctool4j-http-base、ctool4j-core、ctool4j-definition、ctool4j-autowired-processor；servlet-api（按档位取，optional） | Spring 侧抽象契约（`ICHandlerInterceptor` / `ICResponseBodyAdvice`、`@CConfigurationProperties`）与 cors 配置/工具，+ 容器落地（`ICSpringHandlerInterceptor` / `ICSpringResponseBodyAdvice`、`CRequestUtils`、过滤器、`CErrorController`，档位源目录切换 javax/jakarta）；两侧同名类的公共实现（`CHttpRequestUtils` / `CErrorUtils` / `CResourceUrlUtils`）
-| ctool4j-spring-security-base | ctool4j-spring-base、ctool4j-http-base、ctool4j-core、ctool4j-definition；spring-boot-starter-security；servlet-api（按档位取，optional） | 安全侧抽象契约（`CUnauthorizedHandler` / `CForbiddenHandler` 与默认实现、`CSecurityResponseUtils`）+ 容器落地（`CAuthenticationEntryPoint` / `CAccessDeniedHandler` / `CSecurityResponseWriter`，档位源目录切换 javax/jakarta）
+| ctool4j-spring-base | ctool4j-http、ctool4j-core、ctool4j-definition、ctool4j-autowired-processor；servlet-api（按档位取，optional） | Spring 侧抽象契约（`ICHandlerInterceptor` / `ICResponseBodyAdvice`、`@CConfigurationProperties`）与 cors 配置/工具，+ 容器落地（`ICSpringHandlerInterceptor` / `ICSpringResponseBodyAdvice`、`CRequestUtils`、过滤器、`CErrorController`，档位源目录切换 javax/jakarta）；两侧同名类的公共实现（`CHttpRequestUtils` / `CErrorUtils` / `CResourceUrlUtils`）
+| ctool4j-spring-security-base | ctool4j-spring-base、ctool4j-http、ctool4j-core、ctool4j-definition；spring-boot-starter-security；servlet-api（按档位取，optional） | 安全侧抽象契约（`CUnauthorizedHandler` / `CForbiddenHandler` 与默认实现、`CSecurityResponseUtils`）+ 容器落地（`CAuthenticationEntryPoint` / `CAccessDeniedHandler` / `CSecurityResponseWriter`，档位源目录切换 javax/jakarta）
 
 | ctool4j-log-base | ctool4j-spring、ctool4j-spring-cloud、ctool4j-web | 日志基础：请求日志、traceId 透传、MDC、日志级别热更新
 | ctool4j-logback | ctool4j-log-base | logback 后端适配（spring-boot-starter-logging 覆盖父级 provided、传递到使用方）；`CMdcLogback` 按档位拆源码（`java-latest` 承 SLF4J 2.0、`java-jdk8` 承 1.7，同包同名；本模块主源无公共类），公共 deque 存储基类 `CMdcDequeAble` 在 ctool4j-log-base
@@ -296,8 +296,8 @@ graph LR
 == 依赖方向与分层约束
 
 * 依赖方向单向、无环：`definition → core → spring → （web / redis / transaction / ...）→ 应用层`；下层不得反向依赖上层。
-* `ctool4j-definition` 与 `ctool4j-http-base` 是"零模块依赖"底座，任何模块都可安全依赖。
-* 容器抽象层保持单向：`spring-base → http-base`、`spring-security-base → spring-base`；base 模块只被上层依赖，不得反向依赖。
+* `ctool4j-definition` 与 `ctool4j-http` 是"零模块依赖"底座，任何模块都可安全依赖。
+* 容器抽象层保持单向：`spring-base → http`、`spring-security-base → spring-base`；base 模块只被上层依赖，不得反向依赖。
   容器适配（javax / jakarta）**不再是独立模块**：适配类合入各 base 模块的档位源目录
   （`src/main/java-jdk8` 承 javax、`src/main/java-latest` 承 jakarta，同包同名成对镜像，按档位只挂其一），
   故不存在"某一侧未登记进构建"的情形，也无两侧互相依赖的余地。

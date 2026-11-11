@@ -14,7 +14,7 @@ ctool4j（根，packaging=pom）
 ├── ctool4j-processor-pom    编译期注解处理器（代码生成）
 └── ctool4j-parent
     └── ctool4j-component
-        ├── 基础层    definition / core / http-pom（http-base）/ db / transaction
+        ├── 基础层    definition / core / http / db / transaction
         ├── Spring 层 spring-base-pom（spring-base / spring-security-base）
         │             spring-pom（spring / spring-security / spring-cloud）
         ├── 应用层    web / feign / redis / cache
@@ -37,7 +37,7 @@ ctool4j（根，packaging=pom）
 
 | ctool4j-definition | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 | link:ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[README]
 | ctool4j-core | 核心工具库：字符串/集合/日期/JSON/反射/异常/日志/校验，含 HTTP 客户端工具 CHttpClientUtils（HttpClient 4/5 按档位切换） | link:ctool4j-parent/ctool4j-component/ctool4j-core/README.md[README]
-| ctool4j-http-pom | Servlet 容器抽象层与容器适配（http-base，模块内档位源目录切换 javax/jakarta） | link:ctool4j-parent/ctool4j-component/ctool4j-http-pom/README.md[README]
+| ctool4j-http | Servlet 容器抽象层与容器适配（模块内档位源目录切换 javax/jakarta） | link:ctool4j-parent/ctool4j-component/ctool4j-http/README.md[README]
 | ctool4j-db | SQL 拼接工具 | link:ctool4j-parent/ctool4j-component/ctool4j-db/README.md[README]
 | ctool4j-transaction | 事务注解约定（@CTransactional） | link:ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[README]
 | ctool4j-spring-base-pom | Spring 侧抽象契约与两侧适配：拦截器、响应体增强、配置属性、cors、安全错误响应 | link:ctool4j-parent/ctool4j-component/ctool4j-spring-base-pom/README.md[README]

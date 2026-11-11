@@ -14,7 +14,7 @@
 |----|------|------|
 | 基础层 | [ctool4j-definition](ctool4j-definition/README.md) | 基础定义：统一返回体、实体基类、枚举、注解、函数式接口 |
 | | [ctool4j-core](ctool4j-core/README.md) | 核心工具库：字符串 / 集合 / 日期 / JSON / 反射 / 异常 / 日志 / 校验，含 HTTP 客户端工具 `CHttpClientUtils`（HttpClient 4/5 按档位源目录切换） |
-| | [ctool4j-http-pom](ctool4j-http-pom/README.md) | Servlet 容器抽象层与容器适配：`ctool4j-http-base`（模块内档位源目录切换 javax/jakarta） |
+| | [ctool4j-http](ctool4j-http/README.md) | Servlet 容器抽象层与容器适配（模块内档位源目录切换 javax/jakarta） |
 | | [ctool4j-db](ctool4j-db/README.md) | SQL 拼接工具 |
 | | [ctool4j-transaction](ctool4j-transaction/README.md) | 事务注解约定（`@CTransactional`） |
 | Spring 层 | [ctool4j-spring-base-pom](ctool4j-spring-base-pom/README.md) | Spring 侧抽象契约与容器适配：拦截器 / 响应体增强 / 配置属性 / cors / 安全错误响应（`ctool4j-spring-base` / `ctool4j-spring-security-base`，模块内档位源目录切换 javax/jakarta） |
