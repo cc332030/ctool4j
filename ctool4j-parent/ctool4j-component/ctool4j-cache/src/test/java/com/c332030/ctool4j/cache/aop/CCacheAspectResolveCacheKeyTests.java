@@ -294,8 +294,8 @@ class CCacheAspectResolveCacheKeyTests {
      *
      * <p>回归点：el 解析器缓存曾只以 {@code Method} 为 key——同一方法先解析的表达式会成为其
      * 后续所有调用的解析器，后一个表达式静默沿用前一个，缓存 key / 限流与幂等业务 id 全部错位。
-     * 本用例从**真实调用入口** {@link CCacheAspect#resolveCacheKey}(args, method, namespace, keyExpr, idConverterClass)
-     * 出发，对**同一个 Method** 先后用 {@code "user.id"} 与 {@code "user.name"} 两个表达式取 key，
+     * 本用例从<b>真实调用入口</b> {@link CCacheAspect#resolveCacheKey}(args, method, namespace, keyExpr, idConverterClass)
+     * 出发，对<b>同一个 Method</b> 先后用 {@code "user.id"} 与 {@code "user.name"} 两个表达式取 key，
      * 断言两次结果分别对应各自表达式的取值（{@code "42"} 与 {@code "name"}），不得串用。</p>
      */
     @Test
@@ -317,7 +317,7 @@ class CCacheAspectResolveCacheKeyTests {
     /**
      * 对应测试用例 2.12：同一方法两个表达式反复交替解析，key 始终各归各
      *
-     * <p>与 2.11 互补：2.11 只覆盖「先 A 后 B」一次；本用例反复交替，确认解析器缓存的**命中路径**
+     * <p>与 2.11 互补：2.11 只覆盖「先 A 后 B」一次；本用例反复交替，确认解析器缓存的<b>命中路径</b>
      * （{@code getIfPresent} 直接返回）也不会因二次命中而串用表达式。</p>
      */
     @Test

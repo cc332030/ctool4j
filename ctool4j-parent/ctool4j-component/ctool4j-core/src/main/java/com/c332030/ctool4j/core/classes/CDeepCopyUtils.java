@@ -152,7 +152,7 @@ class CDeepCopyUtils {
             return deepCopyArray(from, declaredType, toClass, visited, depth);
         }
 
-        // 迭代器 / 原始流：源本身不可复用（一次性、无结构），但其**迭代顺序是稳定的**，
+        // 迭代器 / 原始流：源本身不可复用（一次性、无结构），但其<b>迭代顺序是稳定的</b>，
         // 故按目标声明类型重建为标准容器（见 deepCopyIterable）
         val viewed = viewedIterable(from);
         if(null != viewed) {

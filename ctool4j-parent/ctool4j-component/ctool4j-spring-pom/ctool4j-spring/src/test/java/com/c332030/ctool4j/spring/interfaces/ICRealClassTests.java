@@ -17,7 +17,7 @@ import java.lang.reflect.Proxy;
  *
  * <h2>设计思路</h2>
  * <ul>
- *   <li>验证核心承诺：**实现 {@code ICRealClass} 即得真实类/类名/包名，业务侧不写方法体**——
+ *   <li>验证核心承诺：<b>实现 {@code ICRealClass} 即得真实类/类名/包名，业务侧不写方法体</b>——
  *       默认实现直接委托 {@code CProxyUtils} 的同名方法。</li>
  *   <li>用真实代理（Spring {@code ProxyFactory} / JDK 动态代理）验证「基类实现接口 → 公共流程仍能取到业务类」这条业务主线。</li>
  *   <li>兜底单列：非代理对象退回 {@code getClass()}，不抛异常、不比不实现接口更差。</li>
@@ -53,7 +53,7 @@ import java.lang.reflect.Proxy;
 public class ICRealClassTests {
 
     /**
-     * 业务基类：实现 {@code ICRealClass} 但**不写任何方法体**，方法由接口默认实现提供
+     * 业务基类：实现 {@code ICRealClass} 但<b>不写任何方法体</b>，方法由接口默认实现提供
      */
     public static class OrderBase implements ICRealClass {
 

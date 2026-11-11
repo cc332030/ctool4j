@@ -138,7 +138,7 @@
 
 | 新增
 | `ctool4j-spring-security`：`CSecurityJacksonModule` + `CGrantedAuthorityUtils` 权限常量池
-| 会话含 `GrantedAuthority` 字段的 JSON 读写可用（接口类型无 `@class` 也能反序列化，序列化沿用 `{"authority":"ROLE_XXX"}` 原生形态）；同 authority 全局复用同一实例（见 link:ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[会话权限的 JSON 读写]）
+| 会话含 `GrantedAuthority` 字段的 JSON 读写可用（接口类型无 `@class` 也能反序列化，序列化沿用 `{"authority":"ROLE_XXX"}` 原生形态）；同 authority 全局复用同一实例（见 link:ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security/doc/design/authority-json.adoc[会话权限的 JSON 读写]）
 
 | 新增
 | `ctool4j-web`：`CHttpMessageNotReadableExceptionHandler`、`CMissingServletRequestParameterExceptionHandler`、`CMethodArgumentTypeMismatchExceptionHandler`

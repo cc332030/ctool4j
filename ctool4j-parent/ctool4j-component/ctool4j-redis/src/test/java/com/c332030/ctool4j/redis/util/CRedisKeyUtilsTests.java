@@ -287,8 +287,8 @@ class CRedisKeyUtilsTests {
      * <p>回归点：el 解析器缓存曾只以 {@code Method} 为 key——同一方法先解析的表达式（如限流的
      * {@code "req.userId"}）会成为后续所有调用的解析器，后配的表达式（如幂等的 {@code "req.orderNo"}）
      * 静默沿用前一个，导致限流/幂等业务 id 全部错位（用户维度被单号维度顶替）。
-     * 本用例从**真实入口** {@link CRedisKeyUtils#resolveBizId}(args, method, idExpr) 出发，
-     * 对**同一个 Method** 先后用两个表达式取值，断言分别得到各自属性的值。</p>
+     * 本用例从<b>真实入口</b> {@link CRedisKeyUtils#resolveBizId}(args, method, idExpr) 出发，
+     * 对<b>同一个 Method</b> 先后用两个表达式取值，断言分别得到各自属性的值。</p>
      */
     @Test
     void resolveBizId_sameMethodTwoExprs_distinctIds() {

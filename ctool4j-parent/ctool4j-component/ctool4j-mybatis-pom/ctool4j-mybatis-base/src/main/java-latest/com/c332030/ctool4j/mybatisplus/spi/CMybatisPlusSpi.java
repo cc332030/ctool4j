@@ -1,13 +1,13 @@
 package com.c332030.ctool4j.mybatisplus.spi;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.c332030.ctool4j.core.util.CList;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.c332030.ctool4j.core.util.CList;
 
 /**
  * <p>
@@ -42,7 +42,7 @@ import com.c332030.ctool4j.core.util.CList;
  *   3.3.x（{@code Integer}）/ 3.4.x / 3.5.16（{@code Long}），故那一侧走方法句柄。</li>
  *   <li><b>本接口只落在 {@code src/main/java-latest}</b>：另一侧（MP &lt; 3.5.17）有同全限定名的一份，
  *   落在 {@code src/main/java-jdk8}——标准源目录互不相交、追加语义按档位各取其一，
- *   两个目录**永不共存**。</li>
+ *   两个目录<b>永不共存</b>。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>

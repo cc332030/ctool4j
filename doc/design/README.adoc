@@ -17,7 +17,7 @@
 
 == 功能文档索引
 
-按模块列出（模块目录下的 +doc/design/+）：
+本目录只放**跨模块**的设计文档；模块自己的功能文档落在 `<模块>/doc/design/`，清单如下（链接按仓库根相对）：
 
 [cols="2,3", options="header"]
 |===
@@ -38,12 +38,15 @@ link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/unauthorized
 | +ctool4j-spring+ / +ctool4j-spring-security+
 | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/ip.adoc[ip]、
 link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/real-class-name.adoc[真实业务类/类名/包名]、
-link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[会话权限的 JSON 读写]（落 javax 侧：安全侧文档以 javax 为基准，jakarta 侧未登记进构建）、
+link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security/doc/design/authority-json.adoc[会话权限的 JSON 读写]、
 link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/spring-perf.adoc[性能实测]
 
 | +ctool4j-web+
 | link:../../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/exception-fallback.adoc[异常兜底分层]、
 link:../../ctool4j-parent/ctool4j-component/ctool4j-web/doc/design/started.adoc[应用启动完成回调]
+
+| +ctool4j-mybatis-pom+
+| link:mybatis/version-adapter.adoc[版本适配层（adapter / base / 版本模块）]（跨模块：同时涉及 base 与各版本模块，故放此处）
 
 |===
 

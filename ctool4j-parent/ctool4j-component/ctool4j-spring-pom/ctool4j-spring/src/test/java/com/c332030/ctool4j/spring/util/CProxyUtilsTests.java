@@ -15,7 +15,7 @@ import java.lang.reflect.Proxy;
  * <h2>设计思路</h2>
  * <ul>
  *   <li>按「代理判定 / Spring 元数据解析 / 兜底 / 普通对象与 null / 包名」几个维度组织。</li>
- *   <li>用**真实代理**而非 mock：JDK 动态代理由 {@code Proxy.newProxyInstance} 生成、
+ *   <li>用<b>真实代理</b>而非 mock：JDK 动态代理由 {@code Proxy.newProxyInstance} 生成、
  *       Spring JDK / CGLIB 代理由 {@code ProxyFactory} 织入。</li>
  *   <li>能力边界单列：携带不了目标元数据的代理（裸 JDK 动态代理）按设计返回代理类自身，用正例固化，
  *       避免后续被误判为缺陷。</li>

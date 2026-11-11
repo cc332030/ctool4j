@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2025/12/1
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CRestTemplateUtils {

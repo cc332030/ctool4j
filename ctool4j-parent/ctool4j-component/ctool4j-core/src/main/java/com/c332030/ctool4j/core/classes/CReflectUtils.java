@@ -128,7 +128,7 @@ import java.util.stream.Collectors;
  * </ul>
  *
  * @since 2024/4/2
- * @version 1.3
+ * @version 1.4
  * @see "doc/design/method-handle.adoc"
  */
 @CustomLog
@@ -534,7 +534,7 @@ public class CReflectUtils {
      * @param field 字段
      * @return true 表示已置为可访问（或本就可访问）；false 表示 JDK 模块强封装拒绝访问
      */
-    public boolean makeAccessible(Field field) {
+    public static boolean makeAccessible(Field field) {
         try {
             field.setAccessible(true);
             return true;
@@ -557,7 +557,7 @@ public class CReflectUtils {
      * @param e 异常
      * @return true 表示模块强封装拒绝访问
      */
-    private boolean isInaccessibleObjectException(Throwable e) {
+    private static boolean isInaccessibleObjectException(Throwable e) {
         return "java.lang.reflect.InaccessibleObjectException".equals(e.getClass().getName());
     }
 
@@ -571,7 +571,7 @@ public class CReflectUtils {
      * @param constructor 构造器
      * @return true 表示已置为可访问；false 表示 JDK 模块强封装拒绝访问
      */
-    public boolean makeAccessible(Constructor<?> constructor) {
+    public static boolean makeAccessible(Constructor<?> constructor) {
         try {
             constructor.setAccessible(true);
             return true;

@@ -151,7 +151,7 @@ public class CSpringUtils {
      * 调用点，只能从 Hutool 一侧取到——这正是本兜底覆盖的窗口。</p>
      *
      * <p><b>兜底的边界（避免取到别的容器）</b>：Hutool 的 {@code applicationContext} 是进程级静态字段，
-     * 任何一次容器刷新都会覆盖它、且容器关闭后**不清空**。故兜底先取 {@code SpringUtil.getApplicationContext()}
+     * 任何一次容器刷新都会覆盖它、且容器关闭后<b>不清空</b>。故兜底先取 {@code SpringUtil.getApplicationContext()}
      * 并校验其活动性（{@code ConfigurableApplicationContext#isActive}），再由校验通过的上下文直接取 Bean——
      * 不调用 {@code SpringUtil.getBean(Class)}（其内部经 {@code getBeanFactory()} 优先取 {@code beanFactory}，
      * 与本处校验的不是同一个对象，校验就落空了）；不可用或已关闭时抛错快速失败，

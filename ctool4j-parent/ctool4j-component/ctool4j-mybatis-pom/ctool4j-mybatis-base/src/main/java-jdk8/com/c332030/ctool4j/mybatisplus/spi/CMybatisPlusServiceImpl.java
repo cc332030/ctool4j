@@ -19,8 +19,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * <ul>
  *   <li>仅做继承桥接，实现全部由对应版本的上游 {@code ServiceImpl} 提供</li>
  *   <li><b>本类只落在 {@code src/main/java-jdk8}</b>：另一侧（MP &ge; 3.5.17）有同全限定名的一份，
- *   落在 {@code src/main/java}，jdk8 档位由本模块 {@code build.gradle.kts} 整体替换主源集
- *   ——两个目录**永不共存**。</li>
+ *   落在 {@code src/main/java-latest}，两档位各追加自己那一侧——两个目录<b>永不共存</b>。</li>
  *   <li><b>为什么不在这里解析实体类型</b>：3.3.x 的 {@code ServiceImpl} 用 {@code protected entityClass}
  *   字段（3.5.16 起改为私有、并挪进 {@code AbstractRepository}），取值方式随版本漂移；
  *   而"走一遍父类泛型"的解析对四个版本都成立，故统一放在 {@code CServiceImpl#getEntityClass()}
@@ -34,7 +33,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * <p>mybatis-plus 3.3.x / 3.4.x / 3.5.16（{@code extension.service} 包名侧）。</p>
  *
  * <h2>不适用与边界场景</h2>
- * <p>抽象类；MP &ge; 3.5.17 的使用方由同模块 {@code src/main/java} 目录的那一份生效。</p>
+ * <p>抽象类；MP &ge; 3.5.17 的使用方由同模块 {@code src/main/java-latest} 目录的那一份生效。</p>
  *
  * <h2>已知限制与取舍</h2>
  * <ul>

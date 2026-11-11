@@ -45,7 +45,7 @@ import java.util.Optional;
  *   因此对三个版本都成立。</li>
  *   <li><b>本接口只落在 {@code src/main/java-jdk8}</b>：另一侧（MP &ge; 3.5.17）有同全限定名的一份，
  *   落在 {@code src/main/java-latest}——标准源目录互不相交、追加语义按档位各取其一，
- *   两个目录**永不共存**。</li>
+ *   两个目录<b>永不共存</b>。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>

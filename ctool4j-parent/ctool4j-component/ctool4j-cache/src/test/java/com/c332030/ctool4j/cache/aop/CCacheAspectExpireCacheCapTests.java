@@ -307,7 +307,7 @@ class CCacheAspectExpireCacheCapTests {
      * <p>回归点：守卫的兜底是「复用过期时间最长的 Cache」（{@code longestExpireCache} 取 key 最大者）。
      * 若该比较写反（取最短）或返回 null，1.2 仍会通过——它只断言「数量封顶」，不校验复用对象是谁。
      * 本用例请求 {@code max + 1} 个不同 expire，断言第 {@code max + 1} 次返回的实例，
-     * 与先前 expire 最大者返回的实例**同一个**。</p>
+     * 与先前 expire 最大者返回的实例<b>同一个</b>。</p>
      */
     @Test
     void testGetCache_overCap_reusesLongestExpire() throws Exception {
@@ -412,7 +412,7 @@ class CCacheAspectExpireCacheCapTests {
     /**
      * 对应测试用例 1.8：达到上限后持续请求新 expire，实例数不再增长（无泄露）
      *
-     * <p>与 1.2 互补：1.2 只「超量请求一次」就断言；本用例到达上限后**分多轮**持续请求新 expire，
+     * <p>与 1.2 互补：1.2 只「超量请求一次」就断言；本用例到达上限后<b>分多轮</b>持续请求新 expire，
      * 确认守卫对每一次新请求都持续生效（而非只拦第一次、后续又放行）。</p>
      */
     @Test

@@ -25,7 +25,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * <h2>设计思路</h2>
  * <ul>
  *   <li>适配器是"包装 + 解包 + 字段映射"三类动作，纯转发方法由容器保证、不重复测；
- *   本类只钉住这三类中**属本类自己的逻辑**：往返同一性、null 契约、跨侧/非法入参的拒绝、
+ *   本类只钉住这三类中<b>属本类自己的逻辑</b>：往返同一性、null 契约、跨侧/非法入参的拒绝、
  *   Cookie 字段逐项映射（映射漏字段不会报错，只表现为取不到值）。</li>
  *   <li>用 Spring 的 {@code MockHttpServletRequest} / {@code MockCookie} 提供容器对象，避免手写 Servlet 实现，
  *   源码不出现 {@code javax.servlet} / {@code jakarta.servlet} 的 import（其实现随 Spring 版本切包，

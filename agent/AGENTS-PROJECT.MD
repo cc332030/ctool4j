@@ -53,10 +53,10 @@
 - 抽象层方法只声明容器无关的异常（`CServletException`、`IOException`），不引入 `ServletException`。
 - 适配模块若使用日志门面（`@CustomLog`），须显式声明 `ctool4j-core` 依赖（`ctool4j-http-base` 不传递 core）。
 - **业务模块（含测试）不得出现 `javax.servlet` / `jakarta.servlet` 的 import**——判断标准是"是否 import"，javadoc 里解释两栈时提及包名不算。自查：
-  `Get-ChildItem 'ctool4j-parent' -Recurse -Filter *.java | Select-String '^\s*import (javax|jakarta)\.servlet'`，命中**必须只落在适配模块的 `src/main/java-jdk8` / `src/main/java-latest` 源目录内**（测试一律不落这两个目录，见下）。
+  `grep -rnE '^\s*import (javax|jakarta)\.servlet' --include=*.java ctool4j-parent`，命中**必须只落在适配模块的 `src/main/java-jdk8` / `src/main/java-latest` 源目录内**（测试一律不落这两个目录，见下）。
   - 主代码：用抽象层类型（`CHttpRequest`/`CHttpResponse`/`CFilterChain`）。
   - 测试：用 ①Spring Mock（`MockHttpServletRequest`/`MockHttpServletResponse`/`MockFilterChain`，其实现随 Spring 版本自动切换 servlet 包，源码零 import）②适配层同名常量（`CHttpServletRequest.ERROR_STATUS_CODE`）③需要"验证交互"时 mock 这些 Spring 类型（`mock(MockFilterChain.class)`），`verify(...)` 照常可用。
-  - 反例（本轮修掉的三类）：`mock(FilterChain.class)`、`Mockito.mock(HttpServletRequest.class)`、`RequestDispatcher.ERROR_STATUS_CODE`、以及**覆写 Servlet 版 `doFilterInternal`**（那是"绕过抽象层骨架"，`CAbstractWebAuthFilter` 子类应覆写抽象层版本、多数字类连覆写都不需要）。
+  - 反例（四类）：`mock(FilterChain.class)`、`Mockito.mock(HttpServletRequest.class)`、`RequestDispatcher.ERROR_STATUS_CODE`、以及**覆写 Servlet 版 `doFilterInternal`**（那是"绕过抽象层骨架"，`CAbstractWebAuthFilter` 子类应覆写抽象层版本、多数字类连覆写都不需要）。
 - **两侧类型不同的能力（会话、Cookie、上传分片、二进制流…）的取舍准则**：
   - 能**低成本统一**的纳入抽象层——Cookie 用自有包装类型（`ICCookie` + `CCookie`）、会话用 `ICHttpSession` + 适配层 `CHttpSession`、二进制流用 **JDK 父类型**（`InputStream`/`OutputStream`）；收益是使用方零 Servlet 依赖、切栈零改动。
   - 返回类型**无法低成本统一**的暂不纳入（`Part`、`ServletContext`、`HttpUpgradeHandler`）——强行包装会让抽象层成为新的兼容负担。
@@ -64,10 +64,6 @@
   - 包装类型放 base（接口用 `IC` 前缀、实现用 `C` 前缀）；适配器做**字段映射**，映射逻辑因容器类型不同无法下沉 base，两侧同构各一份即可。
 - **抽象层加能力的落点**：抽象层需要新能力时，加到 `ctool4j-http-base` 的接口（`CHttpRequest`/`CHttpResponse`/`CFilter` 等）并在**适配器同步实现两侧**；能用既有抽象层方法表达的，不要为省事去解包底层对象。
 - **批量改文件前先确认行尾**：本仓库行尾**不统一**（同模块内既有 LF 也有 CRLF），按 `` `n `` 拼替换串会在 CRLF 文件上静默不生效。先测（`ReadAllText` 后统计 `\r\n` 与孤立 `\n`），或直接用正则 `\r?\n`。
-  `Get-ChildItem 'ctool4j-parent' -Recurse -Filter *.java | Select-String '^\s*import (javax|jakarta)\.servlet'`，命中**必须只落在适配模块的 `src/main/java-jdk8` / `src/main/java-latest` 源目录内**（测试一律不落这两个目录，见下）。
-  - 主代码：用抽象层类型（`CHttpRequest`/`CHttpResponse`/`CFilterChain`）。
-  - 测试：用 ①Spring Mock（`MockHttpServletRequest`/`MockHttpServletResponse`/`MockFilterChain`，其实现随 Spring 版本自动切换 servlet 包，源码零 import）②适配层同名常量（`CHttpServletRequest.ERROR_STATUS_CODE`）③需要"验证交互"时 mock 这些 Spring 类型（`mock(MockFilterChain.class)`），`verify(...)` 照常可用。
-  - 反例（本轮修掉的三类）：`mock(FilterChain.class)`、`Mockito.mock(HttpServletRequest.class)`、`RequestDispatcher.ERROR_STATUS_CODE`、以及**覆写 Servlet 版 `doFilterInternal`**（那是"绕过抽象层骨架"，`CAbstractWebAuthFilter` 子类应覆写抽象层版本、多数字类连覆写都不需要）。
 - **档位专属源码目录**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、SLF4J 1/2、Bean Validation 等），无法用同一份源码兼容。全仓只有一种形态——**追加**：`src/<main|test>/java` 放公共类，档位目录放档位专属类；jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
   - **两个档位目录之间可以同包同名**（那是同一个类的两档实现，永不共存，如 `ctool4j-core` 主源的 `CHttpClientUtils`——HC4 / HC5 的 API 差异，或 `ctool4j-core` 测试的 `CClassUtilsTests`——JDK 8 专有样本类）；档位目录与公共目录之间**不得**同包同名（互斥硬约束，见下）。
   - jdk8 档位完全不读 `java-latest`，反之亦然——新增档位目录不影响另一档位的既有产物。
@@ -92,7 +88,7 @@
   - **`getEntityClass()` 解析留在 base 公共源**：读 `entityClass` 字段（3.5.16 起私有）、`currentModelClass()`（3.5.16 起删除）都不跨版本；改走"沿父类链取第二个泛型实参"对四个版本都成立，且与包名无关，故写在 base 公共源目录的单份 `CServiceImpl` 里，`spi` 适配层两侧保持零逻辑。
 - **改镜像对的档位目录后要核两问**：① 两侧相对路径集合是否仍互为镜像（`diff <(cd <模块>/src/main/java-jdk8 && find . -name "*.java" | sort) <(cd <模块>/src/main/java-latest && find . -name "*.java" | sort)` 应为空）；② 逐文件比对时差异是否只落在侧别专属内容（包名、API 调用）与已登记的真档位差异（见下「两侧同文的判定口径」）。`doc/design/mybatis/version-adapter.adoc` 记录了 mybatis 侧逐条差异的依据。
 - **`-33` / `-34` 只在 jdk8 档位存在**：latest 档的 `ctool4j-mybatis-base` jar 是 `spring.service` 侧，与 3.3 / 3.4 的 `extension.service` 不同侧，无从共存；由 `settings.gradle.kts` 的 `jdk8OnlyModuleNames` 在非 jdk8 档位**不注册**（不是"注册后跳过"，所以最新档的 `gradle projects` 里看不到它们）。
-- **改动后必须真验证**：跑 `gradle build`（覆盖编译、单测与 javadoc 生成）；只跑 `compileJava` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。日志落 `tmp/build/gradle-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。
+- **改动后必须真验证**：跑 `gradle build`（覆盖编译、单测与 javadoc 生成）；只跑 `compileJava` 或只跑目标模块会漏掉跨模块调用方与 javadoc 错误。仓库地址取自 `MAVEN_CENTRAL`（未设置走 `mavenCentral()`），central 直连受限时用 `MAVEN_CENTRAL=<镜像地址> gradle build`。日志落 `tmp/build/gradle-*.log` 便于回溯，验证结论（含失败用例数、跳过的检查）如实报告，不得把"未验证"说成"已通过"。用例数从 `target*/*/test-results/test/TEST-*.xml` 汇总、不要把数字手写进文档：jdk8 档在 `target-8/build-8`、最新 LTS 档在 `target/build`。
 - **新增模块要两处登记**：（1）在模块目录放 `build.gradle.kts`（`settings.gradle.kts` 递归发现，无需改 settings）；（2）`ctool4j-dependencies/build.gradle.kts` 的 `ctool4jArtifacts` 清单登记（版本由根脚本统一给定，使用处不写版本）。漏第 2 处会让下游依赖解析失败（BOM 里没有该构件）；聚合/父 pom 也要放 `build.gradle.kts`（内容为注释即可），否则整个子树不会被发现。
 - **模块的纳入由档位决定（三类白名单）**：适配模块已不拆侧，故**不再按 `-javax`/`-jakarta` 后缀过滤模块**；`settings.gradle.kts` 只保留两份白名单——① `javaxOnlyModuleNames`（`ctool4j-doc-openapi2`：其 javax 依赖来自第三方 Springfox，无法靠自身换源目录切到 jakarta），非 jdk8 档位排除；② `jdk8OnlyModuleNames`（`ctool4j-mybatis-33`、`ctool4j-mybatis-34`：依赖 3.3.x / 3.4.x 的 `extension.service` 包名，而 latest 档的 adapter jar 是 `spring.service` 侧，两者无从共存），非 jdk8 档位**不注册**。两份名单都是**字面量模块名集合**（不做后缀推导），新增同口径模块时按同一位置登记并补注释说明"为什么不能在两档共存"。
 - **构建布局与"按档位分组"**：根 `build.gradle.kts` 承担全仓统一配置（等价 Maven 父 pom 继承：工具链、编译/测试选项、sources/javadoc jar、发布），按**目录归属**分组注入公共依赖——`ctool4j-parent/ctool4j-component` 子树 → component 档（另有 `ctool4j-spring-pom` / `ctool4j-mybatis-pom` 两个子档：这两个聚合 pom 自身带 provided 依赖，会传给其子模块）、`ctool4j-processor-pom` 子树 → processor 档；各模块 `build.gradle.kts` 只声明本模块专属依赖。聚合/父 pom 只发布 pom，BOM 用 `java-platform`。

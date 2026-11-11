@@ -18,7 +18,7 @@ import java.util.Optional;
  *
  * <p>
  * service 实现基类：继承版本侧的实现桥 {@link CMybatisPlusServiceImpl}、实现业务侧契约
- * {@link ICService}，并把两侧同名的元素级方法显式消歧到业务侧契约，同时以**版本无关**的方式
+ * {@link ICService}，并把两侧同名的元素级方法显式消歧到业务侧契约，同时以<b>版本无关</b>的方式
  * 解析实体类型。
  * </p>
  *

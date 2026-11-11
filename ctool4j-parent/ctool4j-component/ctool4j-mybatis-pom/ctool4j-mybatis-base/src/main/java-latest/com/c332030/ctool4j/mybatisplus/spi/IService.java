@@ -18,10 +18,9 @@ package com.c332030.ctool4j.mybatisplus.spi;
  *
  * <h2>设计要点</h2>
  * <ul>
- *   <li><b>本接口只落在 {@code src/main/java}</b>：另一侧（MP &lt; 3.5.17，
+ *   <li><b>本接口只落在 {@code src/main/java-latest}</b>：另一侧（MP &lt; 3.5.17，
  *   {@code extension.service} 包名）有同全限定名的一份，落在 {@code src/main/java-jdk8}，
- *   jdk8 档位由本模块 {@code build.gradle.kts} 整体替换主源集
- *   ——两个目录**永不共存**，故不会同时进 classpath。</li>
+ *   两档位各追加自己那一侧——两个目录<b>永不共存</b>，故不会同时进 classpath。</li>
  *   <li><b>为何不直接把转发面命名为 IService</b>：{@link CMybatisPlusSpi} 是"自适应层"
  *   （承接 MP 上游坐标 + 空安全语义），每个方法都要写一遍 {@code default} 转发，属版本适配的实现细节；
  *   业务与仓库内部既有引用认的是 {@code spi/IService} 这个名，故保留它作为对外名。</li>

@@ -79,9 +79,16 @@ import java.util.HashMap;
  *   <li>5.3 按对象填充：填充实例与 final 字段（fillValues_object_fillsFields）</li>
  *   <li>5.4 按对象填充：不存在的字段名跳过、空 Map 不改动（fillValues_object_skipUnknownAndEmpty）</li>
  * </ul>
+ * <h2>可访问性</h2>
+ * <ul>
+ *   <li>6.1 实例字段：置为可访问后返回 true 且可直接读写（makeAccessible_field）</li>
+ *   <li>6.2 静态字段：置为可访问后返回 true（makeAccessible_staticField）</li>
+ *   <li>6.3 私有构造器：置为可访问后返回 true 且可实例化（makeAccessible_constructor）</li>
+ *   <li>6.4 同一字段重复置位仍返回 true（makeAccessible_repeated）</li>
+ * </ul>
  *
  * @since 2026/6/16
- * @version 1.2
+ * @version 1.3
  * @see CReflectUtils
  */
 public class CReflectUtilsTests {
@@ -488,6 +495,64 @@ public class CReflectUtilsTests {
 
         CReflectUtils.fillValues(bean, new HashMap<>());
         Assertions.assertEquals("keep", bean.getName());
+
+    }
+
+    /**
+     * 测试实例字段置为可访问
+     * 对应测试用例 6.1：实例字段：置为可访问后返回 true 且可直接读写
+     */
+    @Test
+    public void makeAccessible_field() throws Exception {
+
+        val field = ValueBean.class.getDeclaredField("name");
+
+        Assertions.assertTrue(CReflectUtils.makeAccessible(field));
+
+        val bean = new ValueBean();
+        field.set(bean, "accessible");
+        Assertions.assertEquals("accessible", bean.getName());
+
+    }
+
+    /**
+     * 测试静态字段置为可访问
+     * 对应测试用例 6.2：静态字段：置为可访问后返回 true
+     */
+    @Test
+    public void makeAccessible_staticField() throws Exception {
+
+        val field = ValueBean.class.getDeclaredField("STATIC_VALUE");
+
+        Assertions.assertTrue(CReflectUtils.makeAccessible(field));
+
+    }
+
+    /**
+     * 测试私有构造器置为可访问
+     * 对应测试用例 6.3：私有构造器：置为可访问后返回 true 且可实例化
+     */
+    @Test
+    public void makeAccessible_constructor() throws Exception {
+
+        val constructor = PrivateCtorBean.class.getDeclaredConstructor();
+
+        Assertions.assertTrue(CReflectUtils.makeAccessible(constructor));
+        Assertions.assertNotNull(constructor.newInstance());
+
+    }
+
+    /**
+     * 测试同一字段重复置为可访问
+     * 对应测试用例 6.4：同一字段重复置位仍返回 true
+     */
+    @Test
+    public void makeAccessible_repeated() throws Exception {
+
+        val field = ValueBean.class.getDeclaredField("name");
+
+        Assertions.assertTrue(CReflectUtils.makeAccessible(field));
+        Assertions.assertTrue(CReflectUtils.makeAccessible(field));
 
     }
 

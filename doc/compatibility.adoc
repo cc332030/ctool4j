@@ -55,9 +55,9 @@ link:../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/src/t
 
 背景：本次迁移把项目从 Maven 改为 Gradle KTS，并支持双档位——*jdk8 档位*（默认，容器侧 javax、依赖沿用既有版本）与
 *最新 LTS 档位*（容器侧 jakarta、依赖更新到较新版本）。两档位现已**全流程绿**：
-+gradle build+ 通过（含编译、单测、javadoc），jdk8 档位 2151 用例 0 失败、最新 LTS 档位 2057 用例 0 失败（+ctool4j-doc-openapi2+ 见下）。
++gradle build+ 通过（含编译、单测、javadoc），jdk8 档位 2152 用例 0 失败、最新 LTS 档位 2070 用例 0 失败（+ctool4j-doc-openapi2+ 见下）。用例数随提交变动，以实测为准，取值命令见 link:../agent/AGENTS-PROJECT.MD[AGENTS-PROJECT]「改动后必须真验证」。
 
-初次以最新 LTS 档位运行时暴露 41 个失败（41/2118 ≈ 1.9%），全部为"依赖升级后行为差异"，
+初次以最新 LTS 档位运行时暴露的 41 个失败（约占当时用例的 1.9%），全部为"依赖升级后行为差异"，
 按根因归类如下（均已修复）：
 
 [cols="2,3,3,1", options="header"]

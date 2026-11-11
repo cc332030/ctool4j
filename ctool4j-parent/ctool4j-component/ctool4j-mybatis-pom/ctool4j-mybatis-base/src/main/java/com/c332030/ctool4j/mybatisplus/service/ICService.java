@@ -36,7 +36,7 @@ import java.util.Set;
  * <ul>
  *   <li>扩展 ICBizIdService，提供实体/mapper/分页/按列取值/计数等公共能力</li>
  *   <li>MP 的 service 面经 {@code ICCheckService} → {@code spi/CMybatisPlusSpi} 继承，本接口
- *   **不出现任何版本侧类型**，故同一份源码对 3.3 / 3.4 / 3.5.16 / 3.5.17 都成立</li>
+ *   <b>不出现任何版本侧类型</b>，故同一份源码对 3.3 / 3.4 / 3.5.16 / 3.5.17 都成立</li>
  *   <li>计数统一走 {@code cCount(...)}（适配层提供），不直接调 {@code ChainQuery#count()}：
  *   后者 3.3.x 返回 {@code Integer}、3.4.x 起返回 {@code Long}，描述符不兼容</li>
  * </ul>

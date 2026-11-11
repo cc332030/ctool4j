@@ -446,7 +446,8 @@ subprojects {
                 }
 
                 "processor" -> {
-                    // 对应 Maven ctool4j-processor-pom：starter-web / starter-test 为 test 作用域
+                    // 对应 Maven ctool4j-processor-pom：starter-web 为 test 作用域
+                    // （starter-test 已在上面「全仓公共」段对所有 jar 模块统一注入，此处不重复声明）
                     add("testImplementation", "org.springframework.boot:spring-boot-starter-web")
                 }
 
