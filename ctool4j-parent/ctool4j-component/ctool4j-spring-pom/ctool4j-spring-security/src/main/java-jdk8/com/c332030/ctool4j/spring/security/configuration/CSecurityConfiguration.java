@@ -40,10 +40,9 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * <h2>设计要点</h2>
  * <ul>
  *   <li>创建密码编码器等</li>
- *   <li>本类在两个档位下各有一份同包同名的实现：jdk8 档位取自 {@code src/main/java-jdk8}
- *   （Spring Security 5.7，{@code antMatchers}、无参 {@code formLogin().disable()}，即本文件），
- *   最新 LTS 档位取自 {@code src/main/java-latest}（Spring Security 7，{@code requestMatchers}、
- *   {@code formLogin(Customizer)} 形态）——差异是 Spring Security 版本演进
+ *   <li>本类在两个档位下各有一份同包同名的实现：jdk8 档位（Spring Security 5.7，
+ *   {@code antMatchers}、无参 {@code formLogin().disable()}），最新 LTS 档位（Spring Security 7，
+ *   {@code requestMatchers}、{@code formLogin(Customizer)} 形态）——差异是 Spring Security 版本演进
  *   （{@code antMatchers} 在 5.8 起弃用并由 {@code requestMatchers} 取代、无参定制器重载在 7 中移除），
  *   整类不可调和，故按「追加」形态分目录承载</li>
  * </ul>

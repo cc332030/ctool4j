@@ -118,6 +118,9 @@
     - `CHttpServletResponse#setStatus(int, String)`：Servlet 6.0（jakarta）已移除该 API，故 **`java-latest` 份不覆写**（沿 `CHttpResponse` 的 `default` 降级为仅设状态码），**`java-jdk8` 份保留覆写**以透传状态消息。
     - `CErrorController` 的 `ErrorController` import：Boot 4 起由 `org.springframework.boot.web.servlet.error` 迁至 `org.springframework.boot.webmvc.error`，故 **`java-latest` 份 import 后者**、`java-jdk8` 份 import 前者（两侧均为无方法标记接口）。
     - `CMdcLogback`（ctool4j-logback）：SLF4J 2.0 起 `MDCAdapter` 新增 `pushByKey` / `popByKey` / `getCopyOfDequeByKey` / `clearDequeByKey`，jdk8 档位的 SLF4J 1.7 接口没有它们；**`java-latest` 份在 `java-jdk8` 份基础上纯增量补齐**，无档位差异的 deque 存储下沉 `CMdcDequeAble`。
+    - `ctool4j-http` 的 `CHttpServletRequestTests` / `CHttpServletResponseTests` 的 `getCookies_mapsAllFields` / `addCookie_mapsAllFields`：
+      Servlet 6.0（jakarta）把 `Cookie#setVersion` / `#setComment` 标为待移除**且不再保存取值**（读回恒为 `0` / `null`），
+      故 **`java-jdk8` 份断言写回后读到的 `1` / `"c"`**、**`java-latest` 份断言恒为 `0` / `null`**——两侧钉的是各自容器的真实语义，别把它当漂移修平。
     - **`JAVA_HOME_8` / `JAVA_HOME_LATEST` 与 `JAVA_HOME_PATHS`**：本机双 JDK 的位置（`JAVA_HOME_PATHS` 以 `File.pathSeparator` 分隔多个候选），供 `gradle.properties` 本地配置。**仅本地验证用**，CI 由流水线提供档位 JDK。
     新增此类差异时**在同一提交内补登到本清单**（否则下一轮的归一化自检会把它当漂移重复报出）。
 - **servlet-api 依赖只有一份**：适配模块只声明一个 `lib("servlet-api")`，由版本目录按档位取坐标（jdk8 → `javax.servlet:javax.servlet-api`，其余 → `jakarta.servlet:jakarta.servlet-api`），声明为 optional。不再有"两侧 pom 依赖同构"的人工核对项。

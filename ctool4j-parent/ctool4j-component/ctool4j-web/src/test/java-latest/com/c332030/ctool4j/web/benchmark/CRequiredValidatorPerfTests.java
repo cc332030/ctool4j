@@ -7,6 +7,7 @@ import com.c332030.ctool4j.core.validation.CValidUtils;
 import com.c332030.ctool4j.web.validation.annotation.CRequired;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import jakarta.validation.Validation;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +54,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2026/8/20
- * @version 1.0
+ * @version 1.1
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class CRequiredValidatorPerfTests {
