@@ -30,9 +30,9 @@ import org.junit.jupiter.api.Test;
  *
  * @author c332030
  * @since 2026/9/17
- * @version 1.1
+ * @version 1.2
  * @see CUnauthorizedException
- * @see "doc/design/web/unauthorized-401.adoc"
+ * @see "doc/design/unauthorized-401.adoc"
  */
 class CUnauthorizedExceptionTests {
 

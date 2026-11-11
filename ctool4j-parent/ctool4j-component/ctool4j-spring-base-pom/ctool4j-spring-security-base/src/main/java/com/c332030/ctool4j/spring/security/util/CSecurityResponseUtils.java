@@ -103,10 +103,7 @@ public class CSecurityResponseUtils {
      */
     public void writeJsonError(HttpStatus httpStatus, String message, CHttpResponse response) {
 
-        String text = message;
-        if (!StringUtils.hasText(message)) {
-            text = httpStatus.getReasonPhrase();
-        }
+        val text = StringUtils.hasText(message) ? message : httpStatus.getReasonPhrase();
         val errorResult = CStrResult.error(String.valueOf(httpStatus.value()), text);
 
         response.setStatus(httpStatus.value());

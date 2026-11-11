@@ -38,4 +38,4 @@ public class OrderController {
 == 相关
 
 - 开发文档（模块 README）：link:../../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[ctool4j-doc-pom README]
-- 注解族设计（开发文档）：link:../design/definition/openapi-doc-annotations.adoc[openapi-doc-annotations]
+- 注解族设计（开发文档）：link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc[openapi-doc-annotations]

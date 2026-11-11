@@ -45,6 +45,8 @@
 | `CMethodArgumentNotValidExceptionHandler` | 处理器 | 参数校验异常返回 |
 | `CThrowableHandler` | 处理器 | 兜底异常返回 |
 | `ConditionalOnMissingExceptionHandler` | 注解 | 仅当业务未自定义处理器时装配 |
+| `CCorsInterceptor` / `CCorsResponseBodyAdvice` | 拦截器/增强 | 跨域备用方案（`CCorsFilter` 生效时无需注册） |
+| `CInnerApiInterceptor` / `CInnerApiConfig` | 拦截器/配置 | 内部接口 IP 白名单校验 |
 | `ConditionalOnMissingExceptionHandlerCondition` | 条件类 | 上述注解的条件实现；按 advice 类型缓存声明集，缓存由 `clearDeclarationsCache()` 在应用启动完成时清空 |
 | `CWebInit` | 生命周期 | web 模块启动初始化与启动完成回调（`ICSpringInit` + `CStartedApplicationRunner`），在 `onStarted` 中清理本模块的装配期缓存 |
 | `CCorsInterceptor` / `CCorsResponseBodyAdvice` | 拦截器/增强 | 跨域备用方案（`CCorsFilter` 生效时无需注册） |

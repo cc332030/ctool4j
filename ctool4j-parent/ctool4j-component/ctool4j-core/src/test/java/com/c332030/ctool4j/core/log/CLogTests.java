@@ -16,6 +16,7 @@ import org.slf4j.event.Level;
  *   <li>按「构造 / 级别判断 / 简单打印 / 异常打印 / 参数打印 / 延迟求值」多个维度组织。</li>
  *   <li>构造覆盖按名称与按类；级别判断校验 CLog 各 isEnabled 与底层 SLF4J Logger 委托一致（不依赖具体级别配置）。</li>
  *   <li>打印覆盖各级别，参数与 Supplier 两种形态。</li>
+ *   <li>打印类用例（3.x / 4.x）的断言口径：<b>不抛异常即该用例的全部行为契约</b>——日志是否按级别落到 appender 属 SLF4J 后端职责，测试不持有可断言的返回值，故以 {@code assertDoesNotThrow} 把"不抛异常"这一条明确断言，避免"只调用不断言"。</li>
  * </ul>
  * <h2>设计依据</h2>
  * <ul>
@@ -55,7 +56,7 @@ import org.slf4j.event.Level;
  * <p>被测依赖类（异常 / 序列化器 / 日志 / 服务 / 切面 / 拦截器等）无 builder，测试按常规直接 new 构造——属规范允许的取舍，依据与边界在此记录。</p>
  *
  * @since 2025/12/12
- * @version 1.0
+ * @version 1.1
  */
 public class CLogTests {
 
@@ -105,12 +106,13 @@ public class CLogTests {
     public void simpleLogs() {
 
         CLog log = new CLog(CLogTests.class);
-        log.trace("trace-msg");
-        log.debug("debug-msg");
-        log.info("info-msg");
-        log.warn("warn-msg");
-        log.error("error-msg");
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.trace("trace-msg");
+            log.debug("debug-msg");
+            log.info("info-msg");
+            log.warn("warn-msg");
+            log.error("error-msg");
+        }, "调用不应抛异常");
     }
 
     /**
@@ -121,12 +123,13 @@ public class CLogTests {
 
         CLog log = new CLog(CLogTests.class);
         Throwable t = new IllegalStateException("boom");
-        log.trace("trace", t);
-        log.debug("debug", t);
-        log.info("info", t);
-        log.warn("warn", t);
-        log.error("error", t);
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.trace("trace", t);
+            log.debug("debug", t);
+            log.info("info", t);
+            log.warn("warn", t);
+            log.error("error", t);
+        }, "调用不应抛异常");
     }
 
     /**
@@ -136,11 +139,12 @@ public class CLogTests {
     public void argsLogs() {
 
         CLog log = new CLog(CLogTests.class);
-        log.info("info {} {}", "a", 123);
-        log.debug("debug {}", "a");
-        log.warn("warn {}", "a");
-        log.error("error {}", "a");
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.info("info {} {}", "a", 123);
+            log.debug("debug {}", "a");
+            log.warn("warn {}", "a");
+            log.error("error {}", "a");
+        }, "调用不应抛异常");
     }
 
     /**
@@ -150,12 +154,13 @@ public class CLogTests {
     public void supplierLogs() {
 
         CLog log = new CLog(CLogTests.class);
-        log.trace("trace {}", () -> "a");
-        log.debug("debug {}", () -> "a");
-        log.info("info {}", () -> "a");
-        log.warn("warn {}", () -> "a");
-        log.error("error {}", () -> "a");
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.trace("trace {}", () -> "a");
+            log.debug("debug {}", () -> "a");
+            log.info("info {}", () -> "a");
+            log.warn("warn {}", () -> "a");
+            log.error("error {}", () -> "a");
+        }, "调用不应抛异常");
     }
 
     /**
@@ -165,12 +170,13 @@ public class CLogTests {
     public void levelSimpleLogs() {
 
         CLog log = new CLog(CLogTests.class);
-        log.log(Level.TRACE, "trace-msg");
-        log.log(Level.DEBUG, "debug-msg");
-        log.log(Level.INFO, "info-msg");
-        log.log(Level.WARN, "warn-msg");
-        log.log(Level.ERROR, "error-msg");
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.log(Level.TRACE, "trace-msg");
+            log.log(Level.DEBUG, "debug-msg");
+            log.log(Level.INFO, "info-msg");
+            log.log(Level.WARN, "warn-msg");
+            log.log(Level.ERROR, "error-msg");
+        }, "调用不应抛异常");
     }
 
     /**
@@ -180,12 +186,13 @@ public class CLogTests {
     public void levelArgsLogs() {
 
         CLog log = new CLog(CLogTests.class);
-        log.log(Level.TRACE, "trace {}", "a");
-        log.log(Level.DEBUG, "debug {}", "a");
-        log.log(Level.INFO, "info {} {}", "a", 123);
-        log.log(Level.WARN, "warn {}", "a");
-        log.log(Level.ERROR, "error {}", "a");
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.log(Level.TRACE, "trace {}", "a");
+            log.log(Level.DEBUG, "debug {}", "a");
+            log.log(Level.INFO, "info {} {}", "a", 123);
+            log.log(Level.WARN, "warn {}", "a");
+            log.log(Level.ERROR, "error {}", "a");
+        }, "调用不应抛异常");
     }
 
     /**
@@ -196,12 +203,13 @@ public class CLogTests {
 
         CLog log = new CLog(CLogTests.class);
         Throwable t = new IllegalStateException("boom");
-        log.log(Level.TRACE, "trace", t);
-        log.log(Level.DEBUG, "debug", t);
-        log.log(Level.INFO, "info", t);
-        log.log(Level.WARN, "warn", t);
-        log.log(Level.ERROR, "error", t);
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.log(Level.TRACE, "trace", t);
+            log.log(Level.DEBUG, "debug", t);
+            log.log(Level.INFO, "info", t);
+            log.log(Level.WARN, "warn", t);
+            log.log(Level.ERROR, "error", t);
+        }, "调用不应抛异常");
     }
 
     /**
@@ -212,8 +220,9 @@ public class CLogTests {
 
         CLog log = new CLog(CLogTests.class);
         // null 级别兜底按 error 处理，不抛异常
-        log.log(null, "null-level-msg");
-
+        Assertions.assertDoesNotThrow(() -> {
+            log.log(null, "null-level-msg");
+        }, "调用不应抛异常");
     }
 
 }

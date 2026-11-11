@@ -31,7 +31,7 @@ import java.util.Date;
  * <ul>
  *   <li>覆盖：CBaseEntity/CBaseTimeEntity/CLongId 各重载清空（Object 与类型化两入口）；无公共字段对象</li>
  *   <li>不抛异常；继承子类命中父类清除；子类接口优先于父类接口；深层接口级联清空。</li>
- *   <li>未覆盖：{@code CCreateUpdateByAndTime} 以外其余单一接口重载（ICCreateTime 等）的独立调用（被级联路径</li>
+ *   <li>未覆盖：{@code ICCreateUpdateByAndTime} 以外其余单一接口重载（ICCreateTime 等）的独立调用（被级联路径</li>
  *   <li>覆盖）；具体断言字段较多但均已覆盖。</li>
  * </ul>
  * <h2>各类实体清空</h2>
@@ -51,7 +51,7 @@ import java.util.Date;
  *
  * @author c332030
  * @since 2025/12/20
- * @version 1.0
+ * @version 1.2
  */
 public class CEntityUtilsTests {
 
@@ -146,7 +146,7 @@ public class CEntityUtilsTests {
     @Test
     public void clearNone() {
 
-        CEntityUtils.clear(new Object());
+        Assertions.assertDoesNotThrow(() -> CEntityUtils.clear(new Object()), "无公共字段对象应静默返回");
 
     }
 

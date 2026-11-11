@@ -201,15 +201,15 @@
 |===
 | 正文 | 模块 README（职责与能力清单） | 开发文档（设计取舍）
 
-| link:definition.adoc[definition] | link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[ctool4j-definition] | link:../design/definition/openapi-doc-annotations.adoc[文档注解]
-| link:core.adoc[core] | link:../../ctool4j-parent/ctool4j-component/ctool4j-core/README.md[ctool4j-core] | link:../design/core/method-handle.adoc[MethodHandle 工具]
+| link:definition.adoc[definition] | link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/README.md[ctool4j-definition] | link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc[文档注解]
+| link:core.adoc[core] | link:../../ctool4j-parent/ctool4j-component/ctool4j-core/README.md[ctool4j-core] | link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/method-handle.adoc[MethodHandle 工具]
 | link:db.adoc[db] | link:../../ctool4j-parent/ctool4j-component/ctool4j-db/README.md[ctool4j-db] | —
 | link:transaction.adoc[transaction] | link:../../ctool4j-parent/ctool4j-component/ctool4j-transaction/README.md[ctool4j-transaction] | —
-| link:spring.adoc[spring] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom] | link:../design/spring/real-class-name.adoc[真实业务类]、link:../design/spring/spring-perf.adoc[性能实测]
-| link:spring-security.adoc[spring-security] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom] | link:../design/spring/authority-json.adoc[会话权限 JSON]
-| link:web.adoc[web] | link:../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web] | link:../design/web/unauthorized-401.adoc[未授权 401]
-| link:auth.adoc[auth] | link:../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom] | link:../design/web/unauthorized-401.adoc[未授权 401]
-| link:redis.adoc[redis] | link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/README.md[ctool4j-redis] | link:../design/redis/rate-limit-idempotent.adoc[限流与幂等]
+| link:spring.adoc[spring] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/real-class-name.adoc[真实业务类]、link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/spring-perf.adoc[性能实测]
+| link:spring-security.adoc[spring-security] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/README.md[ctool4j-spring-pom] | link:../../ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[会话权限 JSON]
+| link:web.adoc[web] | link:../../ctool4j-parent/ctool4j-component/ctool4j-web/README.md[ctool4j-web] | link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/unauthorized-401.adoc[未授权 401]
+| link:auth.adoc[auth] | link:../../ctool4j-parent/ctool4j-component/ctool4j-auth-pom/README.md[ctool4j-auth-pom] | link:../../ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/unauthorized-401.adoc[未授权 401]
+| link:redis.adoc[redis] | link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/README.md[ctool4j-redis] | link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/doc/design/rate-limit-idempotent.adoc[限流与幂等]
 | link:cache.adoc[cache] | link:../../ctool4j-parent/ctool4j-component/ctool4j-cache/README.md[ctool4j-cache] | —
 | link:feign.adoc[feign] | link:../../ctool4j-parent/ctool4j-component/ctool4j-feign/README.md[ctool4j-feign] | —
 | link:log.adoc[log] | link:../../ctool4j-parent/ctool4j-component/ctool4j-log-pom/README.md[ctool4j-log-pom] | —
@@ -217,7 +217,7 @@
 | link:nacos.adoc[nacos] | link:../../ctool4j-parent/ctool4j-component/ctool4j-nacos-pom/README.md[ctool4j-nacos-pom] | —
 | link:job.adoc[job] | link:../../ctool4j-parent/ctool4j-component/ctool4j-job-pom/README.md[ctool4j-job-pom] | —
 | link:file.adoc[file] | link:../../ctool4j-parent/ctool4j-component/ctool4j-file-pom/README.md[ctool4j-file-pom] | —
-| link:doc-openapi2.adoc[doc-openapi2] | link:../../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[ctool4j-doc-pom] | link:../design/definition/openapi-doc-annotations.adoc[文档注解]
+| link:doc-openapi2.adoc[doc-openapi2] | link:../../ctool4j-parent/ctool4j-component/ctool4j-doc-pom/README.md[ctool4j-doc-pom] | link:../../ctool4j-parent/ctool4j-component/ctool4j-definition/doc/design/openapi-doc-annotations.adoc[文档注解]
 | link:mq.adoc[mq] | link:../../ctool4j-parent/ctool4j-component/ctool4j-mq-pom/README.md[ctool4j-mq-pom] | —
 | link:test.adoc[test] | link:../../ctool4j-parent/ctool4j-component/ctool4j-test-pom/README.md[ctool4j-test-pom] | —
 | link:build-infra.adoc[build-infra] | link:../../ctool4j-bom/README.md[ctool4j-bom]、link:../../ctool4j-dependencies/README.md[ctool4j-dependencies]、link:../../ctool4j-processor-pom/README.md[ctool4j-processor-pom] | —

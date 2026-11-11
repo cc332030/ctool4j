@@ -81,6 +81,8 @@ graph LR
   httpBase["ctool4j-http"]
   springBase["ctool4j-spring-base"]
   spring["ctool4j-spring"]
+  springJavax["ctool4j-spring-javax"]
+  springJakarta["ctool4j-spring-jakarta（未登记构建）"]
   springCloud["ctool4j-spring-cloud"]
   web["ctool4j-web"]
   springSecurityBase["ctool4j-spring-security-base"]

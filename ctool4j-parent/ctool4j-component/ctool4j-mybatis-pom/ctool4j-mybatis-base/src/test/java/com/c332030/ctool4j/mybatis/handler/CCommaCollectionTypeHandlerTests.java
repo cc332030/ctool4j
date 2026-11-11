@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * <p>
@@ -15,7 +16,7 @@ import java.util.Collection;
  * </p>
  *
  * <h2>能力目录</h2>
- * <p>覆盖 {@link CCommaCollectionTypeHandler} 的写读往返与边界：拼接、分割、空值、空白、null 元素、脏数据、元素类型解析。</p>
+ * <p>覆盖 {@link CCommaCollectionTypeHandler} 的写读往返与边界：拼接、分割、空值、空白、null 元素、脏数据、元素类型解析、按值往返校验。</p>
  *
  * <h2>设计思路</h2>
  * <ul>
@@ -23,6 +24,8 @@ import java.util.Collection;
  *   JDBC 端点接线由 {@link CBaseTypeHandler} 承担，此处只钉业务格式语义。</li>
  *   <li>重点钉住"换实现后易漂移"的语义：空集合写 {@code null}、空白读 {@code null}、
  *   null 元素不落成字面量、脏数据是否跳过——这几条是拼接/分割工具替换后最可能失真的部分。</li>
+ *   <li>构造期的两处快速失败（泛型未具体化、元素类型不支持按值往返）单独成例，
+ *   它们把"运行期静默出错"提前到启动期，是否生效直接决定缺陷可见性。</li>
  * </ul>
  *
  * <h2>适用范围</h2>
@@ -37,7 +40,7 @@ import java.util.Collection;
  *
  * @see CCommaCollectionTypeHandler
  * @since 2026/9/24
- * @version 1.0
+ * @version 1.1
  */
 public class CCommaCollectionTypeHandlerTests {
 
@@ -169,13 +172,34 @@ public class CCommaCollectionTypeHandlerTests {
     }
 
     /**
-     * 泛型只透传、未具体化的子类（用于验证构造期快速失败）
+     * 元素类型不支持按值往返时构造即失败，不把"写成功、读不回来"留到运行期
+     * <p>探针里的数值取值归一到 {@code java.util.Date} 后落成依赖时区与本地化的文本，
+     * 读回时解析出的取值与写出时不等——往返不成立且全程无异常、无日志，
+     * 同一时刻的文本还会随运行环境变化。</p>
+     */
+    @Test
+    public void assertTextRoundTrip_nonRoundTripType_throws() {
+
+        val thrown = Assertions.assertThrowsExactly(IllegalStateException.class, NonRoundTripHandler::new);
+
+        Assertions.assertTrue(thrown.getMessage().contains("Date"), thrown.getMessage());
+        Assertions.assertTrue(thrown.getMessage().contains("按值往返"), thrown.getMessage());
+
+    }
+
+    /**
+     * 泛型只透传、未具体化的子类（用于验证元素类型解析的快速失败）
      *
      * @param <T> 元素类型
      */
     static class NotConcreteHandler<T extends Serializable> extends CCommaCollectionTypeHandler<T> {
     }
 
+    /**
+     * 元素类型不支持按值往返的子类（用于验证往返校验的快速失败）
+     */
+    static class NonRoundTripHandler extends CCommaCollectionTypeHandler<Date> {
+    }
 
     /**
      * 写库：元素全为 null 时无有效值，返回 null（不落成空串）

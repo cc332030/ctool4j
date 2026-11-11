@@ -45,7 +45,8 @@ import java.util.Set;
  *   返回是否继续后续处理（过滤器与拦截器两个接入点共用的编排）。</li>
  *   <li>{@code handleDo(request, response)}：按<b>域名级配置</b>校验并设置跨域响应头。</li>
  *   <li>{@code getOriginConfig(origin)}：按域名（{@code host:port} → 纯 {@code host}）取域名级配置。</li>
- *   <li>{@code setHeaderIfNotEmpty} / {@code joinHeaders}：头集合为空则不设置、含 {@code *} 用通配拼接。</li>
+ *   <li>{@code setHeaderWithHeaderNames}：设置"头名清单"类响应头（{@code Allow-Headers} / {@code Expose-Headers}）；
+ *   集合为空则不设置，含 {@code *} 时只输出 {@code *}。</li>
  * </ul>
  *
  * <h2>设计要点</h2>
@@ -101,7 +102,7 @@ import java.util.Set;
  *   </tr>
  *   <tr>
  *     <td>最终取到的头集合为 null 或空</td>
- *     <td>经 {@code setHeaderIfNotEmpty} 不设置对应响应头（避免空指针，空即不声明）</td>
+ *     <td>经 {@code setHeaderWithHeaderNames} 不设置对应响应头（避免空指针，空即不声明）</td>
  *   </tr>
  * </table>
  *
@@ -212,8 +213,8 @@ public class CCorsUtils {
      *   <li>全部通过后设置响应头：</li>
      *   <li>{@code Access-Control-Allow-Origin} 回显请求 Origin</li>
      *   <li>{@code Access-Control-Allow-Methods}：回显当前请求方法</li>
-     *   <li>{@code Access-Control-Allow-Headers}：头集合经统一私有方法 {@code setHeaderIfNotEmpty}
-     *   （集合为 null/空则不设置）拼接 {@code joinHeaders}（含 {@code *} 用 {@code *}，否则逗号连接）</li>
+     *   <li>{@code Access-Control-Allow-Headers}：头集合经 {@code setHeaderWithHeaderNames}
+     *   （集合为 null/空则不设置）拼接；集合含 {@code *} 时<b>只输出 {@code *}</b>、不再并列具体头名</li>
      *   <li>{@code Access-Control-Allow-Credentials}：仅该域名 {@code credentials=true} 时设置固定 {@code true}（默认禁用）</li>
      *   <li>{@code Access-Control-Expose-Headers}：仅该域名 {@code exposeHeaders=true} 且集合非空时设置（默认禁用）</li>
      * </ul>
@@ -256,17 +257,17 @@ public class CCorsUtils {
         }
 
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-        // 允许当前请求方法类型
+        // 允许当前请求方法类型；本头的取值不支持 "*" 通配，故显式回显当前方法（配置里的 * 不直接落到响应头）
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, method);
 
         // 域名级未配置或空集合时回落全局默认
         val allowedHeaders = CollUtil.defaultIfEmpty(originConfig.getAllowedHeaders(), config.getAllowedHeaders());
-        setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, allowedHeaders);
+        setHeaderWithHeaderNames(response, HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, allowedHeaders);
         // 暴露给浏览器脚本可读的响应头（默认仅简单响应头可读，如 Authorization 需显式暴露）；默认禁用，需显式开启
         if (CBoolUtils.isTrue(originConfig.getExposeHeaders())) {
             // 域名级未配置时回落全局默认；显式空集合即"不暴露任何头"
             val exposedHeaders = ObjectUtil.defaultIfNull(originConfig.getExposedHeaders(), config.getExposedHeaders());
-            setHeaderIfNotEmpty(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, exposedHeaders);
+            setHeaderWithHeaderNames(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, exposedHeaders);
         }
         // 是否允许携带凭据；默认禁用，需显式开启
         if (CBoolUtils.isTrue(originConfig.getCredentials())) {
@@ -302,34 +303,34 @@ public class CCorsUtils {
     }
 
     /**
-     * 头集合非空时，拼接（含 {@link CConstants#STAR} 用 {@code *}）并设置响应头；集合为 null 或空则均不设置
+     * 设置"头名清单"类响应头（{@code Access-Control-Allow-Headers} / {@code Access-Control-Expose-Headers}）；
+     * 集合为 null 或空则均不设置
+     *
+     * <p><b>{@code *} 是唯一取值</b>：这类头的取值是<b>头名清单</b>，按 Fetch 规范，取值含 {@code *} 时不得再列出
+     * 其它头名——{@code *,Authorization} 不是合法取值，浏览器会按"未允许 Authorization"处理，即混写反而比只写通配更严。
+     * 故集合含 {@link CConstants#STAR} 时只输出 {@code *}、不并列具体头名。</p>
      *
      * @param response   响应
      * @param headerName 响应头名
-     * @param headers    头集合
+     * @param headers    头名集合
      */
-    public void setHeaderIfNotEmpty(
+    private void setHeaderWithHeaderNames(
         CHttpResponse response,
         String headerName,
         Set<String> headers
     ) {
+
         if (CollUtil.isEmpty(headers)) {
             return;
         }
-        response.setHeader(headerName, joinHeaders(headers));
-    }
 
-    /**
-     * 将头集合转为逗号分隔的头值；集合含 {@link CConstants#STAR} 时直接使用 {@code *} 通配
-     *
-     * @param headers 头集合（已保证非 null 非空，由 {@link #setHeaderIfNotEmpty} 调用）
-     * @return 头值
-     */
-    public String joinHeaders(Set<String> headers) {
         if (headers.contains(CConstants.STAR)) {
-            return CConstants.STAR;
+            response.setHeader(headerName, CConstants.STAR);
+            return;
         }
-        return CollUtil.join(headers, ",");
+
+        response.setHeader(headerName, CollUtil.join(headers, ","));
+
     }
 
 }

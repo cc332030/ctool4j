@@ -93,9 +93,18 @@ val ignoredDirPrefixes = listOf(".", "target", "build")
 val ignoredDirNames = setOf("buildSrc", "tmp", "gradle", "doc", "script", "agent", "src")
 
 fun isIgnoredDir(dir: File): Boolean {
+    // 根目录必须放行：它的 `name` 为空串（`File(".")` 的路径里没有末级名字），按"空名即忽略"判会把整棵树剪掉、
+    // 模块一个都发现不了。判据用路径相等——根目录的 path 就是 `file(".").path` 本身。
+    if (dir.path == rootDirPath) {
+        return false
+    }
+
     val name = dir.name
     return name.isEmpty() || ignoredDirNames.contains(name) || ignoredDirPrefixes.any { name.startsWith(it) }
 }
+
+/** 根目录路径：`File(".")` 展开后的形态，用于在 `isIgnoredDir` 里认出根目录 */
+val rootDirPath = file(".").path
 
 val baseDir = file(".")
 baseDir.walkTopDown()

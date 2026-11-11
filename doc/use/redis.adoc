@@ -91,7 +91,7 @@ public Order submitOrder(Long userId, OrderReq req) { ... }
 * 同名重载方法共用同一 key，需区分时在业务 id 中体现差异。
 * `@CIdempotent` 当前固定不等待锁，加锁失败立即抛异常。
 
-以上限制的完整清单（含状态）与其实现方案、取舍见开发文档：link:../design/redis/rate-limit-idempotent.adoc[限流与幂等]。
+以上限制的完整清单（含状态）与其实现方案、取舍见开发文档：link:../../ctool4j-parent/ctool4j-component/ctool4j-redis/doc/design/rate-limit-idempotent.adoc[限流与幂等]。
 
 == 相关
 

@@ -104,9 +104,8 @@ public class CCorsConfig {
      * 跨域额外允许的请求报文头
      */
     Set<String> allowedHeaders = CSet.of(
-        HttpHeaders.AUTHORIZATION
-        // 不支持：application/json，默认只支持：application/x-www-form-urlencoded、multipart/form-data、text/plain
-        , HttpHeaders.CONTENT_TYPE
+        HttpHeaders.AUTHORIZATION,
+        HttpHeaders.CONTENT_TYPE
     );
 
     /**

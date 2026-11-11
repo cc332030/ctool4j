@@ -102,11 +102,11 @@
 
 | 新增
 | `ctool4j-core`：`CUnauthorizedException`（不携带错误码，语义为「未认证」）
-| 未认证与普通业务失败区分开；配套 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 返回响应体业务码 401 + HTTP 状态 401，调用方以响应体业务码 401 识别未认证（见 link:doc/design/web/unauthorized-401.adoc[未授权统一返回业务码 401]）
+| 未认证与普通业务失败区分开；配套 `ctool4j-web` 的 `CUnauthorizedExceptionHandler` 返回响应体业务码 401 + HTTP 状态 401，调用方以响应体业务码 401 识别未认证（见 link:ctool4j-parent/ctool4j-component/ctool4j-core/doc/design/unauthorized-401.adoc[未授权统一返回业务码 401]）
 
 | 新增
 | `ctool4j-redis`：`@CRateLimit` 限流注解与 `CRateLimitAspect`
-| 按业务 id（el 表达式，空则按方法全局限流）+ 窗口次数/秒数限流，超阈值抛 `CRateLimitException`。固定窗口计数，窗口临界点可能瞬时冲过阈值一次；同名重载方法共用同一 key（见 link:doc/design/redis/rate-limit-idempotent.adoc[限流与幂等]）
+| 按业务 id（el 表达式，空则按方法全局限流）+ 窗口次数/秒数限流，超阈值抛 `CRateLimitException`。固定窗口计数，窗口临界点可能瞬时冲过阈值一次；同名重载方法共用同一 key（见 link:ctool4j-parent/ctool4j-component/ctool4j-redis/doc/design/rate-limit-idempotent.adoc[限流与幂等]）
 
 | 新增
 | `ctool4j-cache`：`@CCacheRemove` / `@CCacheUpdate` 注解
@@ -126,7 +126,7 @@
 
 | 新增
 | `ctool4j-spring`：`ICRealClass` 契约与 `CProxyUtils`（由 `ctool4j-core` 迁入本模块）
-| 代理（CGLIB / JDK 动态代理）场景下取真实业务类/类名/包名；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本纳秒量级。非 Spring 生成的代理（裸 `Proxy.newProxyInstance`、MyBatis Mapper 等）返回代理类自身、不猜测业务类型；`spring-core` 为 provided，首次调用按类加载器可达性判定（见 link:doc/design/spring/real-class-name.adoc[真实业务类/类名/包名]）
+| 代理（CGLIB / JDK 动态代理）场景下取真实业务类/类名/包名；热路径按「非 Spring 代理快速返回 + 惰性解包装」解析，单次成本纳秒量级。非 Spring 生成的代理（裸 `Proxy.newProxyInstance`、MyBatis Mapper 等）返回代理类自身、不猜测业务类型；`spring-core` 为 provided，首次调用按类加载器可达性判定（见 link:ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring/doc/design/real-class-name.adoc[真实业务类/类名/包名]）
 
 | 新增
 | `ctool4j-auth-pom`：认证拆分为 `auth-base`（过滤器骨架、mock 会话加载、会话加载）与 `auth-spring`（Security 认证构造）两个模块
@@ -138,7 +138,7 @@
 
 | 新增
 | `ctool4j-spring-security`：`CSecurityJacksonModule` + `CGrantedAuthorityUtils` 权限常量池
-| 会话含 `GrantedAuthority` 字段的 JSON 读写可用（接口类型无 `@class` 也能反序列化，序列化沿用 `{"authority":"ROLE_XXX"}` 原生形态）；同 authority 全局复用同一实例（见 link:doc/design/spring/authority-json.adoc[会话权限的 JSON 读写]）
+| 会话含 `GrantedAuthority` 字段的 JSON 读写可用（接口类型无 `@class` 也能反序列化，序列化沿用 `{"authority":"ROLE_XXX"}` 原生形态）；同 authority 全局复用同一实例（见 link:ctool4j-parent/ctool4j-component/ctool4j-spring-pom/ctool4j-spring-security-javax/doc/design/authority-json.adoc[会话权限的 JSON 读写]）
 
 | 新增
 | `ctool4j-web`：`CHttpMessageNotReadableExceptionHandler`、`CMissingServletRequestParameterExceptionHandler`、`CMethodArgumentTypeMismatchExceptionHandler`

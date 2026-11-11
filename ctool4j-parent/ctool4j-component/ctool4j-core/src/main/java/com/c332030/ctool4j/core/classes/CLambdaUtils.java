@@ -49,8 +49,8 @@ import java.lang.reflect.Field;
  *
  * @author c332030
  * @since 2025/12/20
- * @version 1.0
- * @see "doc/design/core/method-handle.adoc"
+ * @version 1.1
+ * @see "doc/design/method-handle.adoc"
  */
 @UtilityClass
 public class CLambdaUtils {

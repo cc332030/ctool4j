@@ -61,8 +61,8 @@ import java.lang.reflect.Method;
  * </ul>
  *
  * @since 2026/6/17
- * @version 1.0
- * @see "doc/design/core/method-handle.adoc"
+ * @version 1.1
+ * @see "doc/design/method-handle.adoc"
  */
 @UtilityClass
 public class CMethodHandleUtils {

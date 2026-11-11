@@ -5,12 +5,12 @@
 适用范围：基于 Redis 的方法级限流注解 `@CRateLimit` 与幂等/防并发注解 `@CIdempotent`
 
 本文件承载这两个注解的**跨类功能级设计**（方案与取舍、通用 key 规则、兜底策略、适用范围与已知限制）；
-注解属性、类级细节与逐注解的实现要点分别见 link:../../../ctool4j-parent/ctool4j-component/ctool4j-redis/src/main/java/com/c332030/ctool4j/redis/rate/CRateLimit.java[CRateLimit]、
-link:../../../ctool4j-parent/ctool4j-component/ctool4j-redis/src/main/java/com/c332030/ctool4j/redis/idempotent/CIdempotent.java[CIdempotent] 源码 javadoc。
+注解属性、类级细节与逐注解的实现要点分别见 link:../../src/main/java/com/c332030/ctool4j/redis/rate/CRateLimit.java[CRateLimit]、
+link:../../src/main/java/com/c332030/ctool4j/redis/idempotent/CIdempotent.java[CIdempotent] 源码 javadoc。
 
 == 1. 功能说明
 
-两个注解均为**方法级切面声明**，共享同一套业务 key 规则（由 link:../../../ctool4j-parent/ctool4j-component/ctool4j-redis/src/main/java/com/c332030/ctool4j/redis/util/CRedisKeyUtils.java[CRedisKeyUtils] 统一构建）：
+两个注解均为**方法级切面声明**，共享同一套业务 key 规则（由 link:../../src/main/java/com/c332030/ctool4j/redis/util/CRedisKeyUtils.java[CRedisKeyUtils] 统一构建）：
 
 | 注解 | 语义 | 触发结果 |
 |------|------|---------|

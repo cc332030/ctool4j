@@ -22,8 +22,8 @@ import java.util.Map;
  * <h2>能力目录</h2>
  * <p>{@code CEntityUtils} 为实体清理工具类，提供按具体实体类型清空其公共字段的能力：</p>
  * <ul>
- *   <li>ICUpdateTime、ICCreateUpdateTime、ICCreateBy、ICUpdateBy、ICCreateUpdateBy、</li>
- *   <li>ICCreateUpdateByAndTime、CBaseTimeEntity、CBaseEntity）</li>
+ *   <li>{@code ICUpdateTime}、{@code ICCreateUpdateTime}、{@code ICCreateBy}、{@code ICUpdateBy}、{@code ICCreateUpdateBy}、</li>
+ *   <li>{@code ICCreateUpdateByAndTime}、{@code CBaseTimeEntity}、{@code CBaseEntity}</li>
  * </ul>
  * <h2>兜底设计</h2>
  * <table border="1">
@@ -81,7 +81,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 2025/12/18
- * @version 1.0
+ * @version 1.1
  */
 @UtilityClass
 public class CEntityUtils {

@@ -49,7 +49,7 @@ import java.util.List;
  * </ul>
  *
  * @since 2026/8/14
- * @version 1.0
+ * @version 1.1
  */
 public class CIteratorUtilsTests {
 
@@ -72,10 +72,9 @@ public class CIteratorUtilsTests {
     @Test
     public void forEachIgnoreExceptionNullIterable() {
 
-        CIteratorUtils.forEachIgnoreException((Iterable<String>) null, s -> {
+        Assertions.assertDoesNotThrow(() -> CIteratorUtils.forEachIgnoreException((Iterable<String>) null, s -> {
             throw new AssertionError("不应执行");
-        });
-        // 不抛异常即通过
+        }), "null iterable 应直接返回、不进入 consumer");
 
     }
 

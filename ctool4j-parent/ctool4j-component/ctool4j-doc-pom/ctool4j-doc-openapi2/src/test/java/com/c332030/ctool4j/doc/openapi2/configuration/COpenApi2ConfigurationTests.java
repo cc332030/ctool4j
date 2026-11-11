@@ -61,7 +61,7 @@ import springfox.documentation.spring.web.plugins.Docket;
  * </ul>
  *
  * @since 2026/9/23
- * @version 1.0
+ * @version 1.1
  * @see COpenApi2Configuration
  */
 class COpenApi2ConfigurationTests {
@@ -142,13 +142,16 @@ class COpenApi2ConfigurationTests {
     /**
      * 断言指定 Bean 名已注册且类型匹配
      *
+     * <p>断言落在共用的私有断言方法上（调用方用例的断言即由此承担）：先断言 Bean 名存在
+     * （{@code @Bean} 工厂方法名即 Bean 名），再断言取出的实例类型匹配。</p>
+     *
      * @param context  应用上下文
      * @param beanName Bean 名（即 {@code @Bean} 工厂方法名）
      * @param type     期望类型
      */
     private static void assertBeanOfType(ApplicationContext context, String beanName, Class<?> type) {
-        Assertions.assertTrue(context.containsBean(beanName));
-        Assertions.assertInstanceOf(type, context.getBean(beanName));
+        Assertions.assertTrue(context.containsBean(beanName), "Bean 名应由 @Bean 工厂方法名注册：" + beanName);
+        Assertions.assertInstanceOf(type, context.getBean(beanName), "Bean 类型应与工厂方法返回类型一致：" + beanName);
     }
 
     /**

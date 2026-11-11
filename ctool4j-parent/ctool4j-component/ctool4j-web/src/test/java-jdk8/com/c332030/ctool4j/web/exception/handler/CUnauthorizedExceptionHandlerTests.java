@@ -48,9 +48,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author c332030
  * @since 2026/9/17
- * @version 1.3
+ * @version 1.4
  * @see CUnauthorizedExceptionHandler
- * @see "doc/design/web/unauthorized-401.adoc"
+ * @see "../ctool4j-core/doc/design/unauthorized-401.adoc"
  */
 @AutoConfigureMockMvc
 @CTool4jSpringBootTest

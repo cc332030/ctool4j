@@ -6,10 +6,13 @@ import cn.hutool.core.util.TypeUtil;
 import com.c332030.ctool4j.core.util.CCollUtils;
 import com.c332030.ctool4j.core.util.CStrUtils;
 import com.c332030.ctool4j.definition.constant.CConstants;
+import lombok.CustomLog;
+import lombok.val;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * <p>
@@ -32,9 +35,16 @@ import java.util.Collection;
  *   <li><b>为何仍需子类</b>：MyBatis-Plus 的 {@code @TableField(typeHandler = XxxHandler.class)} 要求
  *   <b>具体类</b>且需无参构造，注解参数无法传泛型——这是框架约束，单个泛型类覆盖不了；
  *   子类因此退化为类型具体化（如 {@code extends CCommaCollectionTypeHandler<Integer>}）。</li>
- *   <li><b>脏数据容错</b>：单值转换失败返回 {@code null}（该元素被跳过），不让整行读取失败；
+ *   <li><b>脏数据容错</b>：单值转换失败返回 {@code null}（该元素被跳过，并记 debug 日志），不让整行读取失败；
  *   空串/{@code null} 返回 {@code null} 而非空集合，与写侧"空集合写 {@code null}"对称。</li>
- *   <li><b>包装层不下沉</b>：本类是纯静态类型转换，不需要容器，故落在 base 层（{@code ctool4j-mybatis-base}）、两侧不复制。</li>
+ *   <li><b>脏数据容错</b>：单值转换失败返回 {@code null}（该元素被跳过，并记 debug 日志），不让整行读取失败；
+ *   空串/{@code null} 返回 {@code null} 而非空集合，与写侧"空集合写 {@code null}"对称。</li>
+ *   <li><b>元素类型须支持按值往返</b>：本类按单值文本存储，要求"同一取值写出去、读回来仍是同一个取值"。
+ *   构造期用取值探针（{@link CTextRoundTrip}）验证；不满足即构造失败并指明失败取值与落库/读回结果——
+ *   否则写侧与读侧的文本写法一旦对不上，就会写成功、读不回来，且全程无异常、无日志
+ *   （如 {@code java.util.Date} 落库为 {@code "Thu Jan 01 08:00:00 CST 1970"} 这类依赖时区与本地化的文本，
+ *   与读侧解析出的取值不等、且同一时刻的文本随环境变化）。</li>
+ *   <li><b>包装层不下沉</b>：本类是纯静态类型转换，不需要容器，故落在 base 层（{@code ctool4j-mybatis-base}）、其余模块不复制。</li>
  * </ul>
  *
  * <h2>兜底设计</h2>
@@ -54,7 +64,11 @@ import java.util.Collection;
  *   </tr>
  *   <tr>
  *     <td>单值无法转换（脏数据）</td>
- *     <td>返回 {@code null}，该元素被跳过，不影响同一行的其余元素</td>
+ *     <td>返回 {@code null}，该元素被跳过、记 debug 日志，不影响同一行的其余元素</td>
+ *   </tr>
+ *   <tr>
+ *     <td>元素类型不支持按值往返</td>
+ *     <td>构造即抛 {@code IllegalStateException}，指明失败取值与落库/读回结果</td>
  *   </tr>
  * </table>
  *
@@ -78,8 +92,9 @@ import java.util.Collection;
  *
  * @param <T> 集合元素类型
  * @since 2026/9/24
- * @version 1.0
+ * @version 1.1
  */
+@CustomLog
 public abstract class CCommaCollectionTypeHandler<T extends Serializable> extends CBaseTypeHandler<Collection<T>> {
 
     /**
@@ -92,6 +107,7 @@ public abstract class CCommaCollectionTypeHandler<T extends Serializable> extend
      */
     protected CCommaCollectionTypeHandler() {
         this.elementType = resolveElementType();
+        assertTextRoundTrip();
     }
 
     /**
@@ -139,7 +155,45 @@ public abstract class CCommaCollectionTypeHandler<T extends Serializable> extend
         try {
             return Convert.convert(elementType, text);
         } catch (Exception e) {
+            log.debug("convert failed, skip element: {}", text, e);
             return null;
+        }
+    }
+
+    /**
+
+     * 校验元素类型支持"对象 ⇄ 单值文本"的往返转换
+     *
+     * <p>本类把集合元素拼成逗号分隔的<b>单值文本</b>落库，故元素类型必须能按值往返：把一个取值写出去、
+     * 再读回来，得到的仍是同一个取值。按值往返要求类型上取"同一个值"只有一种写法，编译期无处可查，
+     * 只能在构造期用<b>取值探针</b>验证。</p>
+     *
+     * <p><b>为什么必须有这一道</b>：不满足往返的类型用它写库时值仍然拼得出来，读回来却落在另一个值上
+     * （如 {@code java.util.Date} 写出时为 {@code "Thu Jan 01 08:00:00 CST 1970"}、读回解析出的时刻与之不等）
+     * ——写成功、读不回来，且<b>没有任何异常或日志</b>；更糟的是"往返不成立"会把同一个集合的多个元素折叠成
+     * 同一个值，落库后不可恢复。这里在构造期直接拒绝，把它变成立刻可见的启动失败。</p>
+     *
+     * <p>探针取 {@link CTextRoundTrip#PROBE_VALUES}：大小与浮点混用、与数字型文本同形等
+     * "换一种写法可能就是同一个值"的取值，命中即说明该类型按值往返不成立。</p>
+     *
+     * @throws IllegalStateException 元素类型不支持按值往返时（附失败取值与原因）
+     * @see CTextRoundTrip
+     */
+    private void assertTextRoundTrip() {
+        for (val candidate : CTextRoundTrip.PROBE_VALUES) {
+            // 先归到元素类型（探针取值是"另一种写法"，需比"本类型的同一个值"）；
+            // 归不过去说明该取值不在本类型的定义域内，与按值往返无关，跳过
+            val value = Convert.convertQuietly(elementType, candidate);
+            if (null == value) {
+                continue;
+            }
+            val text = Convert.convert(String.class, value);
+            if (!Objects.equals(value, Convert.convertQuietly(elementType, text))) {
+                throw new IllegalStateException("元素类型 " + elementType.getName()
+                        + " 不支持按值往返：取值 " + value + " 落库为 " + text
+                        + "，读回却得到 " + Convert.convertQuietly(elementType, text)
+                        + "（本处理器按单值文本存储，要求同一取值只有一种写法）");
+            }
         }
     }
 

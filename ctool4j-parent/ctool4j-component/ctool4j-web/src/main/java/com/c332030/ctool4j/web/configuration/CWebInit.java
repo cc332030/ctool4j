@@ -59,8 +59,8 @@ import org.springframework.stereotype.Component;
  * </ul>
  *
  * @since 2026/1/9
- * @version 1.1
- * @see "doc/design/spring/started.adoc"
+ * @version 1.2
+ * @see "doc/design/started.adoc"
  */
 @CustomLog
 @Component

@@ -36,12 +36,12 @@ import org.springframework.mock.env.MockEnvironment;
  *   <li>1.1 验证激活 profile 相关（对应测试方法 1.1-1.7）</li>
  *   <li>1.2 容器参数实例化（newInstance）：无参构造 / 参数最多的构造（实参从容器解析）/ 无构造方法 / 同参数个数多个构造方法（对应测试方法 1.8-1.11）</li>
  *   <li>1.3 容器取值（getBean）：框架自有上下文命中 / 自有上下文为空时走 Hutool 兜底 / 兜底上下文已关闭时快速失败（对应测试方法 1.12-1.15）</li>
- *   <li>兜底窗口（{@code BeanFactoryPostProcessor} 阶段自有上下文尚未写入）另见 {@code CSpringUtilsFallbackTests}</li>
+ *   <li>1.4 兜底窗口：自有上下文为空时走 Hutool 兜底（1.13）、兜底上下文已关闭时快速失败、不取别的容器的 Bean（1.14-1.15）</li>
  * </ul>
  *
  *
  * @since 2026/6/2
- * @version 1.1
+ * @version 1.2
  * @see CSpringUtils
  */
 @CTool4jSpringBootTest

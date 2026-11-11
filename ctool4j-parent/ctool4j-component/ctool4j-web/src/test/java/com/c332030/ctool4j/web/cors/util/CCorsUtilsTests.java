@@ -83,10 +83,11 @@ import java.util.Set;
  *   <li>1.34 getOriginConfig_whenHostFallback（getOriginConfig_whenHostFallback）</li>
  *   <li>1.35 getOriginConfig_whenNotConfigured（getOriginConfig_whenNotConfigured）</li>
  *   <li>1.36 handleDo_whenMethodsEmpty（handleDo_whenMethodsEmpty）</li>
+ *   <li>1.37 handleDo_whenAllowedHeadersContainsStarAndSpecific（handleDo_whenAllowedHeadersContainsStarAndSpecific）</li>
  * </ul>
  *
  * @since 2026/8/16
- * @version 1.1
+ * @version 1.2
  */
 public class CCorsUtilsTests {
 
@@ -389,6 +390,25 @@ public class CCorsUtilsTests {
     }
 
     /**
+     * 允许方法配通配时，ALLOW_METHODS 仍回显当前方法（该响应头不支持 "*" 通配）
+     * <p>本头带上 "*" 会让浏览器按"方法不被允许"处理，整个跨域请求失败；故配置里的通配
+     * 不得直接落到该响应头。</p>
+     */
+    @Test
+    public void handleDo_whenAllowedMethodsWildcard_echoesConcreteMethod() {
+        // 正例：配置允许全部方法（通配），响应头仍是具体方法、不含 "*"
+        enable();
+        val originConfig = enabledOrigin();
+        originConfig.setAllowedMethods(Collections.singleton(CConstants.STAR));
+        corsRequest();
+
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
+
+        Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+        Assertions.assertEquals("GET", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
+    }
+
+    /**
      * 对应测试用例 1.14：handleDo_whenAllowedHeadersAll
      */
     @Test
@@ -404,6 +424,31 @@ public class CCorsUtilsTests {
         Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
         Assertions.assertEquals(CConstants.STAR, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
         Assertions.assertEquals("GET", response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS));
+    }
+
+    /**
+     * 允许头集合同时含通配与具体头时，Allow-Headers 只输出 {@code *}、不再并列具体头名
+     * <p>{@code Access-Control-Allow-Headers: *,Authorization} 不是合法的 CORS 头值：按 Fetch 规范，
+     * 取值含通配时是<b>唯一取值</b>、不得再列出其它头名，浏览器会按"未允许 Authorization"处理，
+     * 即配置里"通配 + 具体头"的写法反而比只写通配更严；故含通配时只输出通配。</p>
+     */
+    @Test
+    public void handleDo_whenAllowedHeadersContainsStarAndSpecific() {
+        // 反例：混写具体头名时只输出 "*"，不得出现 "*,Authorization" 这种非法取值
+        enable();
+        val originConfig = enabledOrigin();
+
+        Set<String> allowedHeaders = new LinkedHashSet<String>();
+        allowedHeaders.add(CConstants.STAR);
+        allowedHeaders.add(HttpHeaders.AUTHORIZATION);
+        originConfig.setAllowedHeaders(allowedHeaders);
+        corsRequest();
+
+        CCorsUtils.handleDo(httpRequest(), httpResponse());
+
+        Assertions.assertEquals(ORIGIN, response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+        Assertions.assertEquals(CConstants.STAR,
+            response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
     }
 
     /**

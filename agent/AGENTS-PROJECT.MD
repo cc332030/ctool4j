@@ -64,14 +64,10 @@
   - 包装类型放 base（接口用 `IC` 前缀、实现用 `C` 前缀）；适配器做**字段映射**，映射逻辑因容器类型不同无法下沉 base，两侧同构各一份即可。
 - **抽象层加能力的落点**：抽象层需要新能力时，加到 `ctool4j-http-base` 的接口（`CHttpRequest`/`CHttpResponse`/`CFilter` 等）并在**适配器同步实现两侧**；能用既有抽象层方法表达的，不要为省事去解包底层对象。
 - **批量改文件前先确认行尾**：本仓库行尾**不统一**（同模块内既有 LF 也有 CRLF），按 `` `n `` 拼替换串会在 CRLF 文件上静默不生效。先测（`ReadAllText` 后统计 `\r\n` 与孤立 `\n`），或直接用正则 `\r?\n`。
-- **迁移既有类的手法**（本仓库实际做法）：类需要随 Servlet 面归位时用 `git mv` 保留历史、**包名与类名保持不变**——调用方 import 与调用一行不改，只靠档位选源目录生效；测试随实现一起迁；迁移原因与验证结论落 `tmp/plan` 记录。
-
-### 构建与验证
-
-- **构建体系为 Gradle KTS**（已由 Maven 迁移而来）：全仓构建用 `gradle build`（编译 + 单测 + javadoc + jar 一次到位）；模块间依赖用 **Gradle 项目依赖**，构建某模块时上游会被自动构建，不存在"上游改了没 install 导致取到旧 jar"的问题（该风险只在"以仓库坐标取依赖"的场景存在，必要时 `gradle publishToMavenLocal`）。
-- **JDK 档位是构建的输入**：`JDK_VERSION`（系统属性 > 环境变量 > `gradle.properties`），**默认 8**；决定 ① 档位源码目录（jdk8 → 追加 `src/<set>/java-jdk8`，其他 → 追加 `src/<set>/java-latest`，见下「档位专属源码目录」）② 依赖版本档位（见 `gradle/libs.versions.toml`：jdk8 用 `<别名>-jdk8`，其余用**无后缀**的 `<别名>`）③ 字节码目标（jdk8 → Java 8；否则 `release = 17`）。刻意**不读** JVM 的 `java.version` 系统属性（它恒等于构建机 JDK，会使"默认 jdk8"失效）。**启动 JVM 与编译 JVM 是两件事**：Gradle 自身必须跑在 17+（`JAVA_HOME` 指向 jdk8 时直接报 `Gradle requires JVM 17 or later`，连配置阶段都进不去），源码编译的 JDK 由 toolchain 按档位自动切换——所以"用 jdk25 跑 Gradle、编 jdk8 档位源码"是正常姿势（`JAVA_HOME=<jdk17+> ./gradlew build -DJDK_VERSION=8`）。
-- **档位名以「jdk8 / 最新 LTS」表述，不用具体版本号**：jdk8 是当前公司主流版本、会长期存在，故可以按名出现；另一档位后续会升到更新的 LTS，故标识符里**不出现 `jdk25`**（如用 `ltsRelease`、`java-latest`、无后缀别名），避免升级后名称过期。仅"解释为何不用 `-jdk25`"的注释可提及。
-- **构建产物目录按档位分家**：jdk8 档位用 `target-8/build-8`、其余档位用 `target/build`（顶层与各模块同构，模块产物落在各自项目目录下）。**不用 Gradle 默认的 `build`**——默认目录名与档位无关，切档位构建会覆盖上一次的产物；顶层目录是容器、末级才是构建目录（与 Maven 的 `target` 约定同形）。根脚本用 `layout.buildDirectory` 分别对根项目与 `subprojects` 设置；路径写**目录名**（不拼 `projectDir`——Gradle 的 `projectDir` 是相对路径，`subprojects` 里解析会以「调用者所在项目」为基准而失败）。`buildSrc` 是独立构建、产物固定在 `buildSrc/build`，不受本布局影响；`settings.gradle.kts` 的模块发现要按 `target*` 一并排除（否则 jdk8 档位的 `target-8` 会被当成模块目录扫进去）。
+  `Get-ChildItem 'ctool4j-parent' -Recurse -Filter *.java | Select-String '^\s*import (javax|jakarta)\.servlet'`，命中**必须只落在适配模块的 `src/main/java-jdk8` / `src/main/java-latest` 源目录内**（测试一律不落这两个目录，见下）。
+  - 主代码：用抽象层类型（`CHttpRequest`/`CHttpResponse`/`CFilterChain`）。
+  - 测试：用 ①Spring Mock（`MockHttpServletRequest`/`MockHttpServletResponse`/`MockFilterChain`，其实现随 Spring 版本自动切换 servlet 包，源码零 import）②适配层同名常量（`CHttpServletRequest.ERROR_STATUS_CODE`）③需要"验证交互"时 mock 这些 Spring 类型（`mock(MockFilterChain.class)`），`verify(...)` 照常可用。
+  - 反例（本轮修掉的三类）：`mock(FilterChain.class)`、`Mockito.mock(HttpServletRequest.class)`、`RequestDispatcher.ERROR_STATUS_CODE`、以及**覆写 Servlet 版 `doFilterInternal`**（那是"绕过抽象层骨架"，`CAbstractWebAuthFilter` 子类应覆写抽象层版本、多数字类连覆写都不需要）。
 - **档位专属源码目录**：少数类在两档位下必须用不同的底层 API（Servlet 容器、HttpClient 4/5、SLF4J 1/2、Bean Validation 等），无法用同一份源码兼容。全仓只有一种形态——**追加**：`src/<main|test>/java` 放公共类，档位目录放档位专属类；jdk8 档位追加 `java-jdk8`，其余档位追加 `java-latest`。根脚本按目录存在与否自动追加（`build.gradle.kts` 的「档位专属源码目录」段）。
   - **两个档位目录之间可以同包同名**（那是同一个类的两档实现，永不共存，如 `ctool4j-core` 主源的 `CHttpClientUtils`——HC4 / HC5 的 API 差异，或 `ctool4j-core` 测试的 `CClassUtilsTests`——JDK 8 专有样本类）；档位目录与公共目录之间**不得**同包同名（互斥硬约束，见下）。
   - jdk8 档位完全不读 `java-latest`，反之亦然——新增档位目录不影响另一档位的既有产物。

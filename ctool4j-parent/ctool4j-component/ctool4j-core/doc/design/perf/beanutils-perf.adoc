@@ -250,5 +250,5 @@ mvn -Pperf -pl ctool4j-parent/ctool4j-component/ctool4j-core/ \
 == 相关入口
 
 - 用例与测量配置：`CBeanUtilsPerfTests`（类/方法 javadoc）
-- 设计文档：link:../method-handle.adoc[MethodHandle 工具]、link:../../README.adoc[设计文档索引]
+- 设计文档：link:../method-handle.adoc[MethodHandle 工具]、link:../../../../../../doc/design/README.adoc[设计文档索引]
 - 性能文档索引：link:README.adoc[core 性能测试记录索引]
