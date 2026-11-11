@@ -138,7 +138,7 @@ public class CReflectUtils {
     /**
      * 字段名到字段的缓存
      */
-    public static final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
+    public final CClassValue<Map<String, Field>> FIELD_MAP_CLASS_VALUE =
             CClassValue.of(type -> CClassUtils.getMap(
                     type,
                     Class::getDeclaredFields,
